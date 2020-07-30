@@ -17,32 +17,53 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import org.junit.jupiter.api.Test;
 
 public class DateTimeValueTest {
 
   @Test
-  public void timestampValueInterfaceTest() {
-    ExprTimeValue timeValue = new ExprTimeValue("01:01:01");
+  public void timeValueInterfaceTest() {
+    ExprValue timeValue = new ExprTimeValue("01:01:01");
 
     assertEquals(TIME, timeValue.type());
+    assertEquals(LocalTime.parse("01:01:01"), timeValue.timeValue());
     assertEquals("01:01:01", timeValue.value());
     assertEquals("TIME '01:01:01'", timeValue.toString());
   }
 
   @Test
-  public void timeValueInterfaceTest() {
-    ExprTimestampValue timestampValue = new ExprTimestampValue("2020-07-07 01:01:01");
+  public void timestampValueInterfaceTest() {
+    ExprValue timestampValue = new ExprTimestampValue("2020-07-07 01:01:01");
 
     assertEquals(TIMESTAMP, timestampValue.type());
+    assertEquals(Instant.ofEpochSecond(1594083661), timestampValue.timestampValue());
     assertEquals("2020-07-07 01:01:01", timestampValue.value());
     assertEquals("TIMESTAMP '2020-07-07 01:01:01'", timestampValue.toString());
+  }
+
+  @Test
+  public void dateValueInterfaceTest() {
+    ExprValue dateValue = new ExprDateValue("2012-07-07");
+
+    assertEquals(LocalDate.parse("2012-07-07").atStartOfDay(ZoneId.of("UTC")),
+        dateValue.dateValue());
+    ExpressionEvaluationException exception =
+        assertThrows(ExpressionEvaluationException.class,
+            () -> ExprValueUtils.getDateValue(integerValue(1)));
+    assertEquals("invalid to get dateValue from value of type INTEGER",
+        exception.getMessage());
   }
 
   @Test

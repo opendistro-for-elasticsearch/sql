@@ -94,6 +94,7 @@ enum {
     STMT_RESTRICTED_DATA_TYPE_ERROR,
     STMT_INVALID_CURSOR_STATE_ERROR,
     STMT_CREATE_TABLE_ERROR,
+    STMT_QUERY_SYNTAX_ERROR,
     STMT_NO_CURSOR_NAME,
     STMT_INVALID_CURSOR_NAME,
     STMT_INVALID_ARGUMENT_NO,
@@ -254,8 +255,8 @@ struct StatementClass_ {
     Int2 num_key_fields;
     Int2 statement_type; /* According to the defines above */
     Int2 num_params;
-    Int2 data_at_exec;       /* Number of params needing SQLPutData */
-    UDWORD iflag;            /* ESAPI_AllocStmt parameter */
+    Int2 data_at_exec; /* Number of params needing SQLPutData */
+    UDWORD iflag;      /* ESAPI_AllocStmt parameter */
     PutDataInfo pdata_info;
     po_ind_t parse_status;
     po_ind_t proc_return;
@@ -269,12 +270,12 @@ struct StatementClass_ {
     po_ind_t multi_statement;   /* -1:unknown 0:single 1:multi */
     po_ind_t rb_or_tc;          /* rollback on error */
     po_ind_t
-        discard_output_params;  /* discard output parameters on parse stage */
-    po_ind_t cancel_info;       /* cancel information */
-    po_ind_t ref_CC_error;      /* refer to CC_error ? */
-    po_ind_t lock_CC_for_rb;    /* lock CC for statement rollback ? */
-    po_ind_t join_info;         /* have joins ? */
-    po_ind_t parse_method;      /* parse_statement is forced or ? */
+        discard_output_params; /* discard output parameters on parse stage */
+    po_ind_t cancel_info;      /* cancel information */
+    po_ind_t ref_CC_error;     /* refer to CC_error ? */
+    po_ind_t lock_CC_for_rb;   /* lock CC for statement rollback ? */
+    po_ind_t join_info;        /* have joins ? */
+    po_ind_t parse_method;     /* parse_statement is forced or ? */
     esNAME cursor_name;
     char *plan_name;
     unsigned char miscinfo;
@@ -403,11 +404,7 @@ enum {
 };
 
 /*	prepared state */
-enum {
-    NOT_PREPARED = 0,
-    PREPARED,
-    EXECUTED
-};
+enum { NOT_PREPARED = 0, PREPARED, EXECUTED };
 
 /*	misc info */
 #define SC_set_fetchcursor(a) ((a)->miscinfo |= (1L << 1))

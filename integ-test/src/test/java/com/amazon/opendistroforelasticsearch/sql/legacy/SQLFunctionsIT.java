@@ -64,6 +64,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   @Override
   protected void init() throws Exception {
     loadIndex(Index.ACCOUNT);
+    loadIndex(Index.BANK);
     loadIndex(Index.ONLINE);
     loadIndex(Index.DATE);
   }
@@ -367,6 +368,54 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     verifyDataRows(response,
         rows("2014-08-19T07:09:13.434Z"),
         rows("2019-09-25T02:04:13.469Z"));
+  }
+
+  @Test
+  public void castBoolFieldToNumericValueInSelectClause() {
+    JSONObject response =
+        executeJdbcRequest(
+            "SELECT "
+            + " male, "
+            + " CAST(male AS INT) AS cast_int, "
+            + " CAST(male AS LONG) AS cast_long, "
+            + " CAST(male AS FLOAT) AS cast_float, "
+            + " CAST(male AS DOUBLE) AS cast_double "
+            + "FROM " + TestsConstants.TEST_INDEX_BANK + " "
+            + "WHERE account_number = 1 OR account_number = 13"
+        );
+
+    verifySchema(response,
+        schema("male", "boolean"),
+        schema("cast_int", "integer"),
+        schema("cast_long", "long"),
+        schema("cast_float", "float"),
+        schema("cast_double", "double")
+    );
+    verifyDataRows(response,
+        rows(true, 1, 1, 1, 1),
+        rows(false, 0, 0, 0, 0)
+    );
+  }
+
+  @Test
+  public void castBoolFieldToNumericValueWithGroupByAlias() {
+    JSONObject response =
+        executeJdbcRequest(
+            "SELECT "
+            + "CAST(male AS INT) AS cast_int, "
+            + "COUNT(*) "
+            + "FROM " + TestsConstants.TEST_INDEX_BANK + " "
+            + "GROUP BY cast_int"
+        );
+
+    verifySchema(response,
+        schema("cast_int", "cast_int", "double"), //Type is double due to query plan fail to infer
+        schema("COUNT(*)", "integer")
+    );
+    verifyDataRows(response,
+        rows("0", 3),
+        rows("1", 4)
+    );
   }
 
   @Test

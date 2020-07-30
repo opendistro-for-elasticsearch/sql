@@ -137,7 +137,11 @@ int Ver1GEVer2(std::wstring ver_1_str, std::wstring ver_2_str) {
 // Driver Info //
 /////////////////
 
+#if defined(WIN32)
 TEST_SQL_GET_INFO_STRING(SQLDriverName, SQL_DRIVER_NAME, L"odfesqlodbc.dll");
+#elif defined(__APPLE__)
+TEST_SQL_GET_INFO_STRING(SQLDriverName, SQL_DRIVER_NAME, L"libodfesqlodbc.dylib");
+#endif
 TEST_SQL_GET_INFO_STRING(SQLDriverODBCVer, SQL_DRIVER_ODBC_VER, L"03.51");
 
 std::wstring version =
@@ -176,7 +180,7 @@ TEST_SQL_GET_INFO_VERSION_GE(SQLDBMSVer, SQL_DBMS_VER, L"7.1.1");
 
 TEST_SQL_GET_INFO_STRING(SQLColumnAlias, SQL_COLUMN_ALIAS, L"Y");
 TEST_SQL_GET_INFO_UINT16(SQLGroupBy, SQL_GROUP_BY,
-                         SQL_GB_GROUP_BY_EQUALS_SELECT);
+                         SQL_GB_GROUP_BY_CONTAINS_SELECT);
 TEST_SQL_GET_INFO_STRING(SQLIdentifierQuoteChar, SQL_IDENTIFIER_QUOTE_CHAR,
                          L"`");
 TEST_SQL_GET_INFO_UINT_MASK(SQLOJCapabilities, SQL_OJ_CAPABILITIES,

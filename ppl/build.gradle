@@ -25,7 +25,8 @@ dependencies {
     antlr "org.antlr:antlr4:4.7.1"
 
     compile "org.antlr:antlr4-runtime:4.7.1"
-    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+    // https://github.com/google/guava/wiki/CVE-2018-10237
+    compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     compile group: 'org.elasticsearch', name: 'elasticsearch-x-content', version: "${es_version}"
     compile group: 'org.json', name: 'json', version: '20180813'
     compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PKG_INSTALL_DIR=/Applications
-FINAL_INSTALL_DIR=/usr/local/lib/odfe-sql-odbc
+FINAL_INSTALL_DIR=/Library/ODBC/odfe-sql-odbc
 
 # Remove install directory if it already exists
 if [ -d "${FINAL_INSTALL_DIR}" ]; then

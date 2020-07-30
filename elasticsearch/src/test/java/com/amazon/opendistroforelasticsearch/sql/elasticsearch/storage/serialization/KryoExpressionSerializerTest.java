@@ -33,6 +33,7 @@ class KryoExpressionSerializerTest {
 
   private final DSL dsl = new DSL(new ExpressionConfig().functionRepository());
 
+  @Disabled
   @Test
   void shouldSerializeLiteralExpressionBackAsItWas() {
     Expression expr = literal(5);

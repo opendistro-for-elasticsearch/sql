@@ -33,9 +33,21 @@ ACOS
 Description
 -----------
 
-Specifications: 
+Usage: acos(x) calculate the arc cosine of x. Returns NULL if x is not in the range -1 to 1.
 
-1. ACOS(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT ACOS(0)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | acos(0)            |
+    |--------------------|
+    | 1.5707963267948966 |
+    +--------------------+
 
 
 ADD
@@ -66,9 +78,21 @@ ASIN
 Description
 -----------
 
-Specifications: 
+Usage: asin(x) calculate the arc sine of x. Returns NULL if x is not in the range -1 to 1.
 
-1. ASIN(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT ASIN(0)
+    fetched rows / total rows = 1/1
+    +-----------+
+    | asin(0)   |
+    |-----------|
+    | 0         |
+    +-----------+
 
 
 ATAN
@@ -77,9 +101,21 @@ ATAN
 Description
 -----------
 
-Specifications: 
+Usage: atan(x) calculates the arc tangent of x. atan(y, x) calculates the arc tangent of y / x, except that the signs of both arguments are used to determine the quadrant of the result.
 
-1. ATAN(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT ATAN(2), ATAN(2, 3)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | atan(2)            | atan(2, 3)         |
+    |--------------------+--------------------|
+    | 1.1071487177940904 | 0.5880026035475675 |
+    +--------------------+--------------------+
 
 
 ATAN2
@@ -88,9 +124,21 @@ ATAN2
 Description
 -----------
 
-Specifications: 
+Usage: atan2(y, x) calculates the arc tangent of y / x, except that the signs of both arguments are used to determine the quadrant of the result.
 
-1. ATAN2(NUMBER T, NUMBER) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT ATAN2(2, 3)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | atan2(2, 3)        |
+    |--------------------|
+    | 0.5880026035475675 |
+    +--------------------+
 
 
 CAST
@@ -139,15 +187,50 @@ Description
 
 Specification is undefined and type check is skipped for now
 
+
+CONV
+====
+
+Description
+-----------
+
+Usage: CONV(x, a, b) converts the number x from a base to b base.
+
+Argument type: x: STRING, a: INTEGER, b: INTEGER
+
+Return type: STRING
+
+Example::
+
+    od> SELECT CONV('12', 10, 16), CONV('2C', 16, 10), CONV(12, 10, 2), CONV(1111, 2, 10)
+    fetched rows / total rows = 1/1
+    +----------------------+----------------------+-------------------+---------------------+
+    | conv("12", 10, 16)   | conv("2C", 16, 10)   | conv(12, 10, 2)   | conv(1111, 2, 10)   |
+    |----------------------+----------------------+-------------------+---------------------|
+    | c                    | 44                   | 1100              | 15                  |
+    +----------------------+----------------------+-------------------+---------------------+
+
 COS
 ===
 
 Description
 -----------
 
-Specifications: 
+Usage: cos(x) calculate the cosine of x, where x is given in radians.
 
-1. COS(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT COS(0)
+    fetched rows / total rows = 1/1
+    +----------+
+    | cos(0)   |
+    |----------|
+    | 1        |
+    +----------+
 
 
 COSH
@@ -167,9 +250,44 @@ COT
 Description
 -----------
 
-Specifications: 
+Usage: cot(x) calculate the cotangent of x. Returns out-of-range error if x equals to 0.
 
-1. COT(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT COT(1)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | cot(1)             |
+    |--------------------|
+    | 0.6420926159343306 |
+    +--------------------+
+
+
+CRC32
+=====
+
+Description
+-----------
+
+Usage: Calculates a cyclic redundancy check value and returns a 32-bit unsigned value.
+
+Argument type: STRING
+
+Return type: LONG
+
+Example::
+
+    od> SELECT CRC32('MySQL')
+    fetched rows / total rows = 1/1
+    +------------------+
+    | crc32("MySQL")   |
+    |------------------|
+    | 3259397556       |
+    +------------------+
 
 
 CURDATE
@@ -223,9 +341,21 @@ DEGREES
 Description
 -----------
 
-Specifications: 
+Usage: degrees(x) converts x from radians to degrees.
 
-1. DEGREES(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT DEGREES(1.57)
+    fetched rows / total rows  = 1/1
+    +-------------------+
+    | degrees(1.57)     |
+    |-------------------|
+    | 89.95437383553924 |
+    +-------------------+
 
 
 DIVIDE
@@ -245,9 +375,19 @@ E
 Description
 -----------
 
-Specifications: 
+Usage: E() returns the Euler's number
 
-1. E() -> DOUBLE
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT E()
+    fetched rows / total rows = 1/1
+    +-------------------+
+    | e()               |
+    |-------------------|
+    | 2.718281828459045 |
+    +-------------------+
 
 
 EXP
@@ -429,15 +569,27 @@ Specifications:
 1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
 
 
-MODULUS
+MOD
 =======
 
 Description
 -----------
 
-Specifications: 
+Usage: MOD(n, m) calculates the remainder of the number n divided by m.
 
-1. MODULUS(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
+
+Example::
+
+    od> SELECT MOD(3, 2), MOD(3.1, 2)
+    fetched rows / total rows = 1/1
+    +-------------+---------------+
+    | mod(3, 2)   | mod(3.1, 2)   |
+    |-------------+---------------|
+    | 1           | 1.1           |
+    +-------------+---------------+
 
 
 MONTH
@@ -490,9 +642,19 @@ PI
 Description
 -----------
 
-Specifications: 
+Usage: PI() returns the constant pi
 
-1. PI() -> DOUBLE
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT PI()
+    fetched rows / total rows = 1/1
+    +-------------------+
+    | pi()              |
+    |-------------------|
+    | 3.141592653589793 |
+    +-------------------+
 
 
 POW
@@ -501,10 +663,21 @@ POW
 Description
 -----------
 
-Specifications: 
+Usage: POW(x, y) calculates the value of x raised to the power of y. Bad inputs return NULL result.
 
-1. POW(NUMBER T) -> T
-2. POW(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT POW(3, 2), POW(-3, 2), POW(3, -2)
+    fetched rows / total rows = 1/1
+    +-------------+--------------+--------------------+
+    | pow(3, 2)   | pow(-3, 2)   | pow(3, -2)         |
+    |-------------+--------------+--------------------|
+    | 9           | 9            | 0.1111111111111111 |
+    +-------------+--------------+--------------------+
 
 
 POWER
@@ -513,10 +686,21 @@ POWER
 Description
 -----------
 
-Specifications: 
+Usage: POWER(x, y) calculates the value of x raised to the power of y. Bad inputs return NULL result.
 
-1. POWER(NUMBER T) -> T
-2. POWER(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT POWER(3, 2), POWER(-3, 2), POWER(3, -2)
+    fetched rows / total rows = 1/1
+    +---------------+----------------+--------------------+
+    | power(3, 2)   | power(-3, 2)   | power(3, -2)       |
+    |---------------+----------------+--------------------|
+    | 9             | 9              | 0.1111111111111111 |
+    +---------------+----------------+--------------------+
 
 
 RADIANS
@@ -525,9 +709,21 @@ RADIANS
 Description
 -----------
 
-Specifications: 
+Usage: radians(x) converts x from degrees to radians.
 
-1. RADIANS(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT RADIANS(90)
+    fetched rows / total rows  = 1/1
+    +--------------------+
+    | radians(90)        |
+    |--------------------|
+    | 1.5707963267948966 |
+    +--------------------+
 
 
 RAND
@@ -536,10 +732,21 @@ RAND
 Description
 -----------
 
-Specifications: 
+Usage: RAND()/RAND(N) returns a random floating-point value in the range 0 <= value < 1.0. If integer N is specified, the seed is initialized prior to execution. One implication of this behavior is with identical argument N, rand(N) returns the same value each time, and thus produces a repeatable sequence of column values.
 
-1. RAND() -> NUMBER
-2. RAND(NUMBER T) -> T
+Argument type: INTEGER
+
+Return type: FLOAT
+
+Example::
+
+    od> SELECT RAND(3)
+    fetched rows / total rows = 1/1
+    +------------+
+    | rand(3)    |
+    |------------|
+    | 0.73105735 |
+    +------------+
 
 
 REPLACE
@@ -581,9 +788,24 @@ ROUND
 Description
 -----------
 
-Specifications: 
+Usage: ROUND(x, d) rounds the argument x to d decimal places, d defaults to 0 if not specified
 
-1. ROUND(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(INTEGER/LONG [,INTEGER]) -> LONG
+(FLOAT/DOUBLE [,INTEGER]) -> LONG
+
+Example::
+
+    od> SELECT ROUND(12.34), ROUND(12.34, 1), ROUND(12.34, -1), ROUND(12, 1)
+    fetched rows / total rows = 1/1
+    +----------------+-------------------+--------------------+----------------+
+    | round(12.34)   | round(12.34, 1)   | round(12.34, -1)   | round(12, 1)   |
+    |----------------+-------------------+--------------------+----------------|
+    | 12             | 12.3              | 10                 | 12             |
+    +----------------+-------------------+--------------------+----------------+
 
 
 RTRIM
@@ -603,9 +825,21 @@ SIGN
 Description
 -----------
 
-Specifications: 
+Usage: Returns the sign of the argument as -1, 0, or 1, depending on whether the number is negative, zero, or positive
 
-1. SIGN(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT SIGN(1), SIGN(0), SIGN(-1.1)
+    fetched rows / total rows = 1/1
+    +-----------+-----------+--------------+
+    | sign(1)   | sign(0)   | sign(-1.1)   |
+    |-----------+-----------+--------------|
+    | 1         | 0         | -1           |
+    +-----------+-----------+--------------+
 
 
 SIGNUM
@@ -625,9 +859,21 @@ SIN
 Description
 -----------
 
-Specifications: 
+Usage: sin(x) calculate the sine of x, where x is given in radians.
 
-1. SIN(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT SIN(0)
+    fetched rows / total rows = 1/1
+    +----------+
+    | sin(0)   |
+    |----------|
+    | 0        |
+    +----------+
 
 
 SINH
@@ -647,9 +893,24 @@ SQRT
 Description
 -----------
 
-Specifications: 
+Usage: Calculates the square root of a non-negative number
 
-1. SQRT(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(Non-negative) INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+(Negative) INTEGER/LONG/FLOAT/DOUBLE -> NULL
+
+Example::
+
+    od> SELECT SQRT(4), SQRT(4.41)
+    fetched rows / total rows = 1/1
+    +-----------+--------------+
+    | sqrt(4)   | sqrt(4.41)   |
+    |-----------+--------------|
+    | 2         | 2.1          |
+    +-----------+--------------+
 
 
 SUBSTRING
@@ -680,9 +941,21 @@ TAN
 Description
 -----------
 
-Specifications: 
+Usage: tan(x) calculate the tangent of x, where x is given in radians.
 
-1. TAN(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT TAN(0)
+    fetched rows / total rows = 1/1
+    +----------+
+    | tan(0)   |
+    |----------|
+    | 0        |
+    +----------+
 
 
 TIMESTAMP
@@ -705,6 +978,31 @@ Description
 Specifications: 
 
 1. TRIM(STRING T) -> T
+
+
+TRUNCATE
+========
+
+Description
+-----------
+
+Usage: TRUNCATE(x, d) returns the number x, truncated to d decimal place
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+INTEGER/LONG -> LONG
+FLOAT/DOUBLE -> DOUBLE
+
+Example::
+
+    fetched rows / total rows = 1/1
+    +----------------------+-----------------------+-------------------+
+    | truncate(56.78, 1)   | truncate(56.78, -1)   | truncate(56, 1)   |
+    |----------------------+-----------------------+-------------------|
+    | 56.7                 | 50                    | 56                |
+    +----------------------+-----------------------+-------------------+
 
 
 UPPER

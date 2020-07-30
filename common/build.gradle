@@ -9,7 +9,8 @@ repositories {
 
 dependencies {
     compile "org.antlr:antlr4-runtime:4.7.1"
-    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+    // https://github.com/google/guava/wiki/CVE-2018-10237
+    compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

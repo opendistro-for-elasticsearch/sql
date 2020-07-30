@@ -29,7 +29,7 @@ jobs:
           repository: opendistro-for-elasticsearch/kibana-oss
           ref: 7.8.0
           token: ${{secrets.OD_ACCESS}}
-          path: kibana
+          path: sql/kibana
 
       - name: Setup Node
         uses: actions/setup-node@v1

@@ -20,12 +20,15 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
@@ -43,7 +46,7 @@ class AstBuilderTest {
   private final AstBuilder astBuilder = new AstBuilder();
 
   @Test
-  public void buildASTForSelectLiterals() {
+  public void canBuildSelectLiterals() {
     assertEquals(
         project(
             values(emptyList()),
@@ -53,6 +56,24 @@ class AstBuilderTest {
             doubleLiteral(-4.567)
         ),
         buildAST("SELECT 123, 'hello', false, -4.567")
+    );
+  }
+
+  @Test
+  public void canBuildSelectAllFromIndex() {
+    assertEquals(
+        relation("test"),
+        buildAST("SELECT * FROM test")
+    );
+
+    assertThrows(SyntaxCheckException.class, () -> buildAST("SELECT *"));
+  }
+
+  @Test
+  public void buildSelectFieldsFromIndex() { // TODO: change to select fields later
+    assertEquals(
+        project(relation("test"), intLiteral(1)),
+        buildAST("SELECT 1 FROM test")
     );
   }
 
