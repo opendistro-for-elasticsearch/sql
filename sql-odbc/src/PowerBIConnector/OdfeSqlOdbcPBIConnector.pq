@@ -106,26 +106,6 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
                     Value.ReplaceType(toTable, Value.Type(source))
             else
                 source,
-             
-        // Add support for `LIMIT` and `OFFSET` clauses (rather than `TOP`)
-        AstVisitor = [
-            // format is "LIMIT [<skip>,]<take>" - ex. LIMIT 2,10 or LIMIT 10
-            LimitClause = (skip, take) =>
-                if (take = null) then
-                    ...
-                else
-                    let
-                        skip =
-                            if (skip = null or skip = 0) then
-                                ""
-                            else
-                                Number.ToText(skip) & ","
-                    in
-                        [
-                            Text = Text.Format("LIMIT #{0}#{1}", { skip, take }),
-                            Location = "AfterQuerySpecification"
-                        ]
-        ],
 
         OdbcDatasource = Odbc.DataSource(ConnectionString & Server & CredentialConnectionString & EncryptedConnectionString, [
             // Do not view the tables grouped by their schema names.
@@ -140,7 +120,6 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
             ClientConnectionPooling = true,
 
             // These values should be set by previous steps
-            AstVisitor = AstVisitor,
             SQLColumns = SQLColumns,
             SQLGetTypeInfo = SQLGetTypeInfo,
             SQLGetInfo = SQLGetInfo,
