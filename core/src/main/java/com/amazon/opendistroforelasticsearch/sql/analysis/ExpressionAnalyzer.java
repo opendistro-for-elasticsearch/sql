@@ -38,7 +38,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
@@ -156,6 +155,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
+    // Name with qualifier (index.field, index_alias.field, object/nested.inner_field
+    //  text.keyword) is not supported for now
     if (node.getParts().size() > 1) {
       throw new SyntaxCheckException(String.format(
           "Qualified name [%s] is not supported yet", node));
@@ -165,10 +166,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitAlias(Alias node, AnalysisContext context) {
-    return DSL.named(
-        node.getName(),
-        node.getDelegate().accept(this, context),
-        node.getAlias());
+    return DSL.named(node.getName(),
+                     node.getDelegated().accept(this, context),
+                     node.getAlias());
   }
 
   private Expression visitIdentifier(String ident, AnalysisContext context) {
@@ -176,6 +176,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     ReferenceExpression ref = DSL.ref(ident,
         typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)));
 
+    // Fall back to old engine too if type is not supported semantically
     if (isTypeNotSupported(ref.type())) {
       throw new SyntaxCheckException(String.format(
           "Identifier [%s] of type [%s] is not supported yet", ident, ref.type()));

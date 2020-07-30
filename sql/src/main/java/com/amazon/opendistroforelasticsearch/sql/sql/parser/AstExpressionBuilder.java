@@ -130,11 +130,10 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
     return new QualifiedName(
-        identifiers
-            .stream()
-            .map(RuleContext::getText)
-            .map(StringUtils::unquoteIdentifier)
-            .collect(Collectors.toList())
+        identifiers.stream()
+                   .map(RuleContext::getText)
+                   .map(StringUtils::unquoteIdentifier)
+                   .collect(Collectors.toList())
     );
   }
 

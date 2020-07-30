@@ -103,7 +103,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
         ctx.wcFieldList()
             .wcFieldExpression()
             .stream()
-            .map(field -> (Field) visitExpression(field))
+            .map(this::visitExpression)
             .collect(Collectors.toList()),
         ArgumentFactory.getArgumentList(ctx)
     );

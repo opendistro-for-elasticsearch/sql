@@ -51,8 +51,8 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
   /**
-   * SQL query to get original token name because token.getText() returns text
-   * without whitespaces or other characters discarded by lexer.
+   * SQL query to get original token text. This is necessary because token.getText() returns
+   * text without whitespaces or other characters discarded by lexer.
    */
   private final String query;
 
@@ -109,14 +109,14 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
     if (ctx.alias() == null) {
       return new Alias(name, expr);
+    } else {
+      String alias = unquoteIdentifier(ctx.alias().getText());
+      return new Alias(name, expr, alias);
     }
-
-    String alias = unquoteIdentifier(ctx.alias().getText());
-    return new Alias(name, expr, alias);
   }
 
   /**
-   * Get original text in query as it is.
+   * Get original text in query.
    */
   private String getTextInQuery(ParserRuleContext ctx) {
     Token start = ctx.getStart();

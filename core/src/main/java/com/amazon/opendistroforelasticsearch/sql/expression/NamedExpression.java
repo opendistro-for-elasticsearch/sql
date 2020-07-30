@@ -19,9 +19,9 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -32,7 +32,6 @@ import lombok.ToString;
  */
 @AllArgsConstructor
 @EqualsAndHashCode
-@Getter
 @RequiredArgsConstructor
 @ToString
 public class NamedExpression implements Expression {
@@ -45,7 +44,7 @@ public class NamedExpression implements Expression {
   /**
    * Expression that being named.
    */
-  private final Expression delegation;
+  private final Expression delegated;
 
   /**
    * Optional alias.
@@ -54,12 +53,20 @@ public class NamedExpression implements Expression {
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    return delegation.valueOf(valueEnv);
+    return delegated.valueOf(valueEnv);
   }
 
   @Override
   public ExprType type() {
-    return delegation.type();
+    return delegated.type();
+  }
+
+  /**
+   * Get expression name using either name or alias.
+   * @return  expression name
+   */
+  public String getName() {
+    return Strings.isNullOrEmpty(alias) ? name : alias;
   }
 
 }

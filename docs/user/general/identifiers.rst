@@ -103,9 +103,6 @@ For example, if you run ``SELECT * FROM ACCOUNTS``, it will end up with an index
 Identifier Qualifiers
 =====================
 
-Limitations
------------
-
 For now, we do not support using Elasticsearch cluster name as catalog name to qualify an index name, such as ``my-cluster.logs``.
 
 TODO: field name qualifiers

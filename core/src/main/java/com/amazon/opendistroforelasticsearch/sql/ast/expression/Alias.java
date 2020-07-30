@@ -41,7 +41,7 @@ public class Alias extends UnresolvedExpression {
   /**
    * Expression aliased.
    */
-  private final UnresolvedExpression delegate;
+  private final UnresolvedExpression delegated;
 
   /**
    * Optional field alias.
