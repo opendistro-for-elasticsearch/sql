@@ -76,7 +76,11 @@ public class DSL {
   }
 
   /**
-   * Wrap a named expression if not.
+   * Wrap a named expression if not yet. The intent is that different languages may use
+   * Alias or not when building AST. This caused either named or unnamed expression
+   * is resolved by analyzer. To make unnamed expression acceptable for logical project,
+   * it is required to wrap it by named expression here before passing to logical project.
+   *
    * @param expression  expression
    * @return            expression if named already or expression wrapped by named expression.
    */

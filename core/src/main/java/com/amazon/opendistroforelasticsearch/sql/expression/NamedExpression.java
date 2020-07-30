@@ -26,9 +26,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Named expression that represents expression with name. This is to preserve
- * original expression name or alias in query and avoid inferring its name
- * by reconstructing in toString() method.
+ * Named expression that represents expression with name.
+ * Please see more details in associated unresolved expression operator
+ * {@link com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias}.
  */
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -62,7 +62,7 @@ public class NamedExpression implements Expression {
   }
 
   /**
-   * Get expression name using either name or alias.
+   * Get expression name using name or its alias (if it's present).
    * @return  expression name
    */
   public String getName() {

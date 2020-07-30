@@ -72,8 +72,7 @@ public class IdentifierIT extends SQLIntegTestCase {
             + "    10,\n"
             + "    30\n"
             + "  ]],\n"
-            + "  \"size\": 1,\n"
-            + "  \"status\": 200\n"
+            + "  \"size\": 1\n"
             + "}\n",
         executeQuery("SELECT @timestamp, `dimensions:major_version` FROM test", "jdbc")
     );

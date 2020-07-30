@@ -24,7 +24,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Field name alias abstraction that associate an expression with a name.
+ * Alias abstraction that associate an unnamed expression with a name and an optional alias.
+ * The name and alias information preserved is useful for semantic analysis and response
+ * formatting eventually. This can avoid restoring the info in toString() method which is
+ * inaccurate because original info is already lost.
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
