@@ -133,7 +133,7 @@ Operators
 Basic Comparison Operator
 -------------------------
 
-Here is an example for different type of comparison operators::::
+Here is an example for different type of comparison operators::
 
     od> SELECT 2 > 1, 2 >= 1, 2 < 1, 2 != 1, 2 <= 1, 2 = 1;
     fetched rows / total rows = 1/1
@@ -146,7 +146,7 @@ Here is an example for different type of comparison operators::::
 LIKE
 ----
 
-expr LIKE pattern. The expr is string value, pattern is supports literal text, a percent ( % ) character for a wildcard, and an underscore ( _ ) character for a single character match::::
+expr LIKE pattern. The expr is string value, pattern is supports literal text, a percent ( % ) character for a wildcard, and an underscore ( _ ) character for a single character match::
 
     od> SELECT 'axyzb' LIKE 'a%b', 'acb' LIKE 'a_b', 'axyzb' NOT LIKE 'a%b', 'acb' NOT LIKE 'a_b';
     fetched rows / total rows = 1/1
@@ -159,7 +159,7 @@ expr LIKE pattern. The expr is string value, pattern is supports literal text, a
 NULL value test
 ---------------
 
-Here is an example for null value test::::
+Here is an example for null value test::
 
     od> SELECT 0 IS NULL, 0 IS NOT NULL, NULL IS NULL, NULL IS NOT NULL;
     fetched rows / total rows = 1/1
