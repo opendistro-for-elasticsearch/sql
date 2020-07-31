@@ -29,7 +29,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.lucene.index.LeafReaderContext;
@@ -38,7 +37,6 @@ import org.elasticsearch.search.lookup.LeafDocLookup;
 import org.elasticsearch.search.lookup.LeafSearchLookup;
 import org.elasticsearch.search.lookup.SearchLookup;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -77,19 +75,28 @@ class ExpressionScriptTest {
         .shouldNotMatch();
   }
 
-  @Disabled
   @Test
   void should_match_doc_if_true_comparison_expression() {
     assertThat()
-        .docValues(
-            "age", 30
-        )
+        .docValues("age", 30)
         .filterBy(
             dsl.greater(
                 ref("age", INTEGER),
                 literal(20)
             ))
         .shouldMatch();
+  }
+
+  @Test
+  void should_match_doc_if_false_comparison_expression() {
+    assertThat()
+        .docValues("age", 30)
+        .filterBy(
+            dsl.less(
+                ref("age", INTEGER),
+                literal(20)
+            ))
+        .shouldNotMatch();
   }
 
   private ExprScriptAssertion assertThat() {
@@ -108,9 +115,9 @@ class ExpressionScriptTest {
     }
 
     ExprScriptAssertion docValues(String name, Object value) {
+      LeafDocLookup leafDocLookup = mockLeafDocLookup(ImmutableMap.of(name, toDocValue(value)));
       when(lookup.getLeafSearchLookup(any())).thenReturn(leafLookup);
-      when(leafLookup.doc())
-          .thenReturn(mockLeafDocLookup(ImmutableMap.of(name, toDocValue(value))));
+      when(leafLookup.doc()).thenReturn(leafDocLookup);
       return this;
     }
 
@@ -160,7 +167,7 @@ class ExpressionScriptTest {
     private final T value;
 
     @Override
-    public void setNextDocId(int docId) throws IOException {
+    public void setNextDocId(int docId) {
       throw new UnsupportedOperationException("Fake script doc values doesn't implement this yet");
     }
 
