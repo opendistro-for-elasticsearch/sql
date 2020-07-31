@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
@@ -88,13 +89,13 @@ class ExpressionScriptTest {
   }
 
   @Test
-  void should_match_doc_if_false_comparison_expression() {
+  void should_match_doc_if_false_comparison_expression_with_function() {
     assertThat()
-        .docValues("age", 30)
+        .docValues("balance", -100.0)
         .filterBy(
-            dsl.less(
-                ref("age", INTEGER),
-                literal(20)
+            dsl.greater(
+                dsl.abs(ref("balance", DOUBLE)),
+                literal(101.0)
             ))
         .shouldNotMatch();
   }
