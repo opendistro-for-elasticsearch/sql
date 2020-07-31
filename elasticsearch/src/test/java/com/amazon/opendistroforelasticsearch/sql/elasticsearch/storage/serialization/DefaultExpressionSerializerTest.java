@@ -25,8 +25,11 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class DefaultExpressionSerializerTest {
 
   /**
