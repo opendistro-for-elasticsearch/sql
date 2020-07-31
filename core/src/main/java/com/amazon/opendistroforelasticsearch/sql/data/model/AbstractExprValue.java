@@ -28,18 +28,18 @@ public abstract class AbstractExprValue implements ExprValue {
    */
   @Override
   public int compareTo(ExprValue other) {
-    if (this.isNull() || this.isMissing()) {
-      return this.compare(other);
-    } else if (other.isNull() || other.isMissing()) {
-      return -other.compareTo(this);
+    if (this.isNull() || this.isMissing() || other.isNull() || other.isMissing()) {
+      throw new IllegalStateException(
+          String.format("[BUG] Unreachable, Comparing with NULL or MISSING is undefined"));
     }
-    if (!this.type().equals(other.type())) {
+    if ((this.isNumber() && other.isNumber()) || this.type() == other.type()) {
+      return compare(other);
+    } else {
       throw new ExpressionEvaluationException(
           String.format(
               "compare expected value have same type, but with [%s, %s]",
               this.type(), other.type()));
     }
-    return compare(other);
   }
 
   /**

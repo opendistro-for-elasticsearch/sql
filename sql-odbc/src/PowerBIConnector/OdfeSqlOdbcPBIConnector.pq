@@ -87,7 +87,6 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
         ConnectionString = [
             Driver = Config_DriverName
         ],
-
         
         defaultConfig = Diagnostics.LogValue("BuildOdbcConfig", BuildOdbcConfig()),
 

@@ -268,6 +268,10 @@ public class DSL {
     return function(BuiltinFunctionName.LIKE, expressions);
   }
 
+  public FunctionExpression notLike(Expression... expressions) {
+    return function(BuiltinFunctionName.NOT_LIKE, expressions);
+  }
+
   public Aggregator avg(Expression... expressions) {
     return aggregate(BuiltinFunctionName.AVG, expressions);
   }
@@ -288,5 +292,13 @@ public class DSL {
   private Aggregator aggregate(BuiltinFunctionName functionName, Expression... expressions) {
     return (Aggregator) repository.compile(
         functionName.getName(), Arrays.asList(expressions));
+  }
+
+  public FunctionExpression isnull(Expression... expressions) {
+    return function(BuiltinFunctionName.IS_NULL, expressions);
+  }
+
+  public FunctionExpression isnotnull(Expression... expressions) {
+    return function(BuiltinFunctionName.IS_NOT_NULL, expressions);
   }
 }

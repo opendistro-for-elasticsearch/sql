@@ -75,6 +75,7 @@ LIMIT:                              'LIMIT';
 LONG:                               'LONG';
 MATCH:                              'MATCH';
 NATURAL:                            'NATURAL';
+MISSING_LITERAL:                    'MISSING';
 NOT:                                'NOT';
 NULL_LITERAL:                       'NULL';
 ON:                                 'ON';

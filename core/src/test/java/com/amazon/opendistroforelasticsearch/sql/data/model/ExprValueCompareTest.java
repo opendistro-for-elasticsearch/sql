@@ -17,7 +17,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -51,33 +55,38 @@ public class ExprValueCompareTest {
   }
 
   @Test
-  public void nullValueEqualToNullValue() {
-    assertEquals(0, ExprNullValue.of().compareTo(ExprNullValue.of()));
+  public void missingCompareToMethodShouldNotBeenCalledDirectly() {
+    IllegalStateException exception = assertThrows(IllegalStateException.class,
+        () -> LITERAL_MISSING.compareTo(LITERAL_FALSE));
+    assertEquals("[BUG] Unreachable, Comparing with NULL or MISSING is undefined",
+        exception.getMessage());
+
+    exception = assertThrows(IllegalStateException.class,
+        () -> LITERAL_FALSE.compareTo(LITERAL_MISSING));
+    assertEquals("[BUG] Unreachable, Comparing with NULL or MISSING is undefined",
+        exception.getMessage());
+
+    exception = assertThrows(IllegalStateException.class,
+        () -> ExprMissingValue.of().compare(LITERAL_MISSING));
+    assertEquals("[BUG] Unreachable, Comparing with MISSING is undefined",
+        exception.getMessage());
   }
 
   @Test
-  public void nullValueLessThanNotNullValue() {
-    assertEquals(-1, ExprNullValue.of().compareTo(ExprBooleanValue.of(true)));
-    assertEquals(1, ExprBooleanValue.of(true).compareTo(ExprNullValue.of()));
-  }
+  public void nullCompareToMethodShouldNotBeenCalledDirectly() {
+    IllegalStateException exception = assertThrows(IllegalStateException.class,
+        () -> LITERAL_NULL.compareTo(LITERAL_FALSE));
+    assertEquals("[BUG] Unreachable, Comparing with NULL or MISSING is undefined",
+        exception.getMessage());
 
-  @Test
-  public void missingValueEqualToMissingValue() {
-    assertEquals(0, ExprMissingValue.of().compareTo(ExprMissingValue.of()));
-  }
+    exception = assertThrows(IllegalStateException.class,
+        () -> LITERAL_FALSE.compareTo(LITERAL_NULL));
+    assertEquals("[BUG] Unreachable, Comparing with NULL or MISSING is undefined",
+        exception.getMessage());
 
-  @Test
-  public void missingValueLessThanNotMissingValue() {
-    assertEquals(-1, ExprMissingValue.of().compareTo(ExprBooleanValue.of(true)));
-    assertEquals(1, ExprBooleanValue.of(true).compareTo(ExprMissingValue.of()));
-
-    assertEquals(-1, ExprMissingValue.of().compareTo(ExprNullValue.of()));
-    assertEquals(1, ExprNullValue.of().compareTo(ExprMissingValue.of()));
-  }
-
-  @Test
-  public void missingValueLessThanNullValue() {
-    assertEquals(-1, ExprMissingValue.of().compareTo(ExprNullValue.of()));
-    assertEquals(1, ExprNullValue.of().compareTo(ExprMissingValue.of()));
+    exception = assertThrows(IllegalStateException.class,
+        () -> ExprNullValue.of().compare(LITERAL_MISSING));
+    assertEquals("[BUG] Unreachable, Comparing with NULL is undefined",
+        exception.getMessage());
   }
 }

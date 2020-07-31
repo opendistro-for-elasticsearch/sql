@@ -1,7 +1,6 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate.BinaryPredicateOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
@@ -42,7 +41,7 @@ public class FilterOperator extends PhysicalPlan {
     while (input.hasNext()) {
       ExprValue inputValue = input.next();
       ExprValue exprValue = conditions.valueOf(inputValue.bindingTuples());
-      if (ExprValueUtils.getBooleanValue(exprValue)) {
+      if (!(exprValue.isNull() || exprValue.isMissing()) && (exprValue.booleanValue())) {
         next = inputValue;
         return true;
       }
