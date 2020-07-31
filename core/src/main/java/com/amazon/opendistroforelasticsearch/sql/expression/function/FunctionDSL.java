@@ -167,4 +167,20 @@ public class FunctionDSL {
       }
     };
   }
+
+  /**
+   * Wrapper the binary ExprValue function with default NULL and MISSING handling.
+   */
+  public SerializableBiFunction<ExprValue, ExprValue, ExprValue> nullMissingHandling(
+      SerializableBiFunction<ExprValue, ExprValue, ExprValue> function) {
+    return (v1, v2) -> {
+      if (v1.isMissing() || v2.isMissing()) {
+        return ExprValueUtils.missingValue();
+      } else if (v1.isNull() || v2.isNull()) {
+        return ExprValueUtils.nullValue();
+      } else {
+        return function.apply(v1, v2);
+      }
+    };
+  }
 }

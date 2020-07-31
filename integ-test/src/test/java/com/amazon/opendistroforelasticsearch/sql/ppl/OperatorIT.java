@@ -273,19 +273,21 @@ public class OperatorIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void testBinaryPredicateWithNullValue() {
-    queryExecutionShouldThrowExceptionDueToNullOrMissingValue(
-        String.format("source=%s | where age < 32", TEST_INDEX_BANK_WITH_NULL_VALUES),
-        "invalid to call type operation on null value"
-    );
+  public void testBinaryPredicateWithNullValue() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format("source=%s | where age >= 36 | fields age",
+                TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifyDataRows(result, rows(36), rows(36));
   }
 
   @Test
-  public void testBinaryPredicateWithMissingValue() {
-    queryExecutionShouldThrowExceptionDueToNullOrMissingValue(
-        String.format("source=%s | where balance > 3000", TEST_INDEX_BANK_WITH_NULL_VALUES),
-        "invalid to call type operation on missing value"
-    );
+  public void testBinaryPredicateWithMissingValue() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format("source=%s | where balance > 40000 | fields balance",
+                TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifyDataRows(result, rows(48086));
   }
 
   private void queryExecutionShouldThrowExceptionDueToNullOrMissingValue(

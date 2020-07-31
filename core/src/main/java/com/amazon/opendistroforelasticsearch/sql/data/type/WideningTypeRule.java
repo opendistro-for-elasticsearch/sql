@@ -52,10 +52,10 @@ public class WideningTypeRule {
   }
 
   private static int distance(ExprType type1, ExprType type2, int distance) {
-    if (type1 == UNKNOWN) {
-      return IMPOSSIBLE_WIDENING;
-    } else if (type1 == type2) {
+    if (type1 == type2) {
       return distance;
+    } else if (type1 == UNKNOWN) {
+      return IMPOSSIBLE_WIDENING;
     } else {
       return type1.getParent().stream()
           .map(parentOfType1 -> distance(parentOfType1, type2, distance + 1))

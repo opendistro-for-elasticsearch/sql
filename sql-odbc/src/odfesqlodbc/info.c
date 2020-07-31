@@ -245,7 +245,7 @@ RETCODE SQL_API ESAPI_GetInfo(HDBC hdbc, SQLUSMALLINT fInfoType,
 
         case SQL_GROUP_BY: /* ODBC 2.0 */
             len = 2;
-            value = SQL_GB_GROUP_BY_EQUALS_SELECT;
+            value = SQL_GB_GROUP_BY_CONTAINS_SELECT;
             break;
 
         case SQL_IDENTIFIER_CASE: /* ODBC 1.0 */
