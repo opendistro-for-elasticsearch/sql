@@ -48,7 +48,7 @@ public interface DBConnection {
    * @param columnNames column names
    * @param batch       batch of rows
    */
-  void insert(String tableName, String[] columnNames, List<String[]> batch);
+  void insert(String tableName, String[] columnNames, List<Object[]> batch);
 
   /**
    * Fetch data from database.

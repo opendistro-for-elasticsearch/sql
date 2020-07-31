@@ -8,6 +8,17 @@
 
 Open Distro for Elasticsearch enables you to extract insights out of Elasticsearch using the familiar SQL query syntax. Use aggregations, group by, and where clauses to investigate your data. Read your data as JSON documents or CSV tables so you have the flexibility to use the format that works best for you.
 
+
+## SQL Related Projects
+
+The following projects have been merged into this repository as separate folders as of July 9, 2020. Please refer to links below for details. This document will focus on the SQL plugin for Elasticsearch.
+
+* [SQL CLI](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-cli)
+* [SQL JDBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-jdbc)
+* [SQL ODBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc)
+* [SQL Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-workbench)
+
+
 ## Documentation
 
 Please refer to the [reference manual](./docs/user/index.rst) and [technical documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!

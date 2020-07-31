@@ -10,8 +10,6 @@
 
 <img src="img/microsoft_query_disable_use_the_query_wizard_option.png" width="500">
 
-<img src="img/microsoft_query_table_options.png" width="300">
-
 * Select table and click on **Add**.
 
 <img src="img/microsoft_query_select_tables.png" width="300">

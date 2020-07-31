@@ -16,12 +16,16 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.google.common.base.Objects;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode
-public class ExprBooleanValue implements ExprValue {
-  private static final ExprValue TRUE = new ExprBooleanValue(true);
-  private static final ExprValue FALSE = new ExprBooleanValue(false);
+/**
+ * Expression Boolean Value.
+ */
+public class ExprBooleanValue extends AbstractExprValue {
+  private static final ExprBooleanValue TRUE = new ExprBooleanValue(true);
+  private static final ExprBooleanValue FALSE = new ExprBooleanValue(false);
 
   private final Boolean value;
 
@@ -29,12 +33,8 @@ public class ExprBooleanValue implements ExprValue {
     this.value = value;
   }
 
-  public static ExprValue ofTrue() {
-    return TRUE;
-  }
-
-  public static ExprValue ofFalse() {
-    return FALSE;
+  public static ExprBooleanValue of(Boolean value) {
+    return value ? TRUE : FALSE;
   }
 
   @Override
@@ -43,12 +43,32 @@ public class ExprBooleanValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     return ExprCoreType.BOOLEAN;
+  }
+
+  @Override
+  public Boolean booleanValue() {
+    return value;
   }
 
   @Override
   public String toString() {
     return value.toString();
+  }
+
+  @Override
+  public int compare(ExprValue other) {
+    return Boolean.compare(value, other.booleanValue());
+  }
+
+  @Override
+  public boolean equal(ExprValue other) {
+    return value.equals(other.booleanValue());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(value);
   }
 }

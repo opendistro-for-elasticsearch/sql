@@ -16,26 +16,40 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.google.common.base.Objects;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public class ExprLongValue implements ExprValue {
-  private final Long value;
+/**
+ * Expression Long Value.
+ */
+public class ExprLongValue extends AbstractExprNumberValue {
 
-  @Override
-  public Object value() {
-    return value;
+  public ExprLongValue(Number value) {
+    super(value);
   }
 
   @Override
-  public ExprCoreType type() {
+  public Object value() {
+    return longValue();
+  }
+
+  @Override
+  public ExprType type() {
     return ExprCoreType.LONG;
   }
 
   @Override
   public String toString() {
-    return value.toString();
+    return longValue().toString();
+  }
+
+  @Override
+  public int compare(ExprValue other) {
+    return Long.compare(longValue(), other.longValue());
+  }
+
+  @Override
+  public boolean equal(ExprValue other) {
+    return longValue().equals(other.longValue());
   }
 }

@@ -18,9 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.testset;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils.unquoteSingleField;
 import static java.util.stream.Collectors.joining;
 
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.json.JSONObject;
 
 /**
  * Test data set
@@ -29,12 +31,12 @@ public class TestDataSet {
 
   private final String tableName;
   private final String schema;
-  private final List<String[]> dataRows;
+  private final List<Object[]> dataRows;
 
   public TestDataSet(String tableName, String schemaFileContent, String dataFileContent) {
     this.tableName = tableName;
     this.schema = schemaFileContent;
-    this.dataRows = splitColumns(dataFileContent, ',');
+    this.dataRows = convertStringDataToActualType(splitColumns(dataFileContent, ','));
   }
 
   public String getTableName() {
@@ -45,7 +47,7 @@ public class TestDataSet {
     return schema;
   }
 
-  public List<String[]> getDataRows() {
+  public List<Object[]> getDataRows() {
     return dataRows;
   }
 
@@ -80,6 +82,56 @@ public class TestDataSet {
       result.add(columns.toArray(new String[0]));
     }
     return result;
+  }
+
+  /**
+   * Convert column string values (read from CSV file) to objects of its real type
+   * based on the type information in index mapping file.
+   */
+  private List<Object[]> convertStringDataToActualType(List<String[]> rows) {
+    JSONObject types = new JSONObject(schema);
+    String[] columnNames = rows.get(0);
+
+    List<Object[]> result = new ArrayList<>();
+    result.add(columnNames);
+
+    rows.stream()
+        .skip(1)
+        .map(row -> convertStringArrayToObjectArray(types, columnNames, row))
+        .forEach(result::add);
+    return result;
+  }
+
+  private Object[] convertStringArrayToObjectArray(JSONObject types, String[] columnNames, String[] row) {
+    Object[] result = new Object[row.length];
+    for (int i = 0; i < row.length; i++) {
+      String colName = columnNames[i];
+      String colTypePath = "/mappings/properties/" + colName;
+      String colType = ((JSONObject) types.query(colTypePath)).getString("type");
+      result[i] = convertStringToObject(colType, row[i]);
+    }
+    return result;
+  }
+
+  private Object convertStringToObject(String type, String str) {
+    switch (type.toLowerCase()) {
+      case "text":
+      case "keyword":
+      case "date":
+        return str;
+      case "integer":
+        return Integer.valueOf(str);
+      case "float":
+      case "half_float":
+        return Float.valueOf(str);
+      case "double":
+        return Double.valueOf(str);
+      case "boolean":
+        return Boolean.valueOf(str);
+      default:
+        throw new IllegalStateException(StringUtils.format(
+            "Data type %s is not supported yet for value: %s", type, str));
+    }
   }
 
   @Override

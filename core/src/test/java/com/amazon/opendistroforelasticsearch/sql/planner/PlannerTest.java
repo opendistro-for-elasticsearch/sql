@@ -98,15 +98,15 @@ public class PlannerTest extends PhysicalPlanTestBase {
     assertPhysicalPlan(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.values(emptyList()),
-            DSL.literal(123),
-            DSL.literal("hello"),
-            DSL.literal(false)
+            DSL.named("123", DSL.literal(123)),
+            DSL.named("hello", DSL.literal("hello")),
+            DSL.named("false", DSL.literal(false))
         ),
         LogicalPlanDSL.project(
             LogicalPlanDSL.values(emptyList()),
-            DSL.literal(123),
-            DSL.literal("hello"),
-            DSL.literal(false)
+            DSL.named("123", DSL.literal(123)),
+            DSL.named("hello", DSL.literal("hello")),
+            DSL.named("false", DSL.literal(false))
         )
     );
   }

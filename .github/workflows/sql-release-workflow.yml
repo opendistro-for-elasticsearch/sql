@@ -32,7 +32,7 @@ jobs:
       
       - name: Run build
         run: |
-          ./gradlew build buildDeb buildRpm --no-daemon --refresh-dependencies --console=plain -Dbuild.snapshot=false
+          ./gradlew build buildDeb buildRpm --no-daemon --refresh-dependencies --console=plain -Dbuild.snapshot=false -x doctest:doctest
           artifact=`ls plugin/build/distributions/*.zip`
           rpm_artifact=`ls plugin/build/distributions/*.rpm`
           deb_artifact=`ls plugin/build/distributions/*.deb`

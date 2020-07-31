@@ -91,6 +91,11 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void queryEndWithSemiColonTest() {
+    executeQuery(StringUtils.format("SELECT * FROM %s;", TEST_INDEX_BANK), "jdbc");
+  }
+
+  @Test
   public void searchTypeTest() throws IOException {
     JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s LIMIT 1000",
         TestsConstants.TEST_INDEX_PHRASE));
@@ -1643,6 +1648,7 @@ public class QueryIT extends SQLIntegTestCase {
     Assert.assertEquals(21, hits.length());
   }
 
+  @Ignore("New engine doesn't have 'alias' field in schema in response")
   @Test
   public void backticksQuotedIndexNameTest() throws Exception {
     TestUtils.createIndexByRestClient(client(), "bank_unquote", null);
@@ -1749,6 +1755,7 @@ public class QueryIT extends SQLIntegTestCase {
         "For more details, please send request for Json format");
   }
 
+  @Ignore("This is already supported in our new query engine")
   @Test
   public void functionCallWithIllegalScriptShouldThrowESExceptionInJdbc() {
     String response = executeQuery("select log(balance + 2) from " + TEST_INDEX_BANK,

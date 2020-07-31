@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
+import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class FunctionName {
+public class FunctionName implements Serializable {
   @Getter
   private final String functionName;
 

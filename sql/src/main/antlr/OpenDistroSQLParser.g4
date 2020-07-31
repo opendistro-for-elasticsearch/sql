@@ -25,6 +25,8 @@ THE SOFTWARE.
 
 parser grammar OpenDistroSQLParser;
 
+import OpenDistroSQLIdentifierParser;
+
 options { tokenVocab=OpenDistroSQLLexer; }
 
 
@@ -32,7 +34,7 @@ options { tokenVocab=OpenDistroSQLLexer; }
 
 //    Root rule
 root
-    : sqlStatement? EOF
+    : sqlStatement? SEMI? EOF
     ;
 
 //    Only SELECT
@@ -57,15 +59,24 @@ selectStatement
 //    Select Statement's Details
 
 querySpecification
+    : selectClause
+      fromClause?
+    ;
+
+selectClause
     : SELECT selectElements
     ;
 
 selectElements
-    : selectElement (COMMA selectElement)*
+    : (star=STAR | selectElement) (COMMA selectElement)*
     ;
 
 selectElement
-    : expression                                         #selectExpressionElement
+    : expression (AS? alias)?
+    ;
+
+fromClause
+    : FROM tableName
     ;
 
 
@@ -77,8 +88,8 @@ constant
     | sign? realLiteral         #signedReal
     | booleanLiteral            #boolean
     | datetimeLiteral           #datetime
+    | nullLiteral               #null
     // Doesn't support the following types for now
-    //| nullLiteral               #null
     //| BIT_STRING
     //| NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
     //| LEFT_BRACE dateType=(D | T | TS | DATE | TIME | TIMESTAMP) stringLiteral RIGHT_BRACE
@@ -89,14 +100,7 @@ decimalLiteral
     ;
 
 stringLiteral
-    : (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      ) STRING_LITERAL+
-    | (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      )
+    : STRING_LITERAL
     ;
 
 booleanLiteral
@@ -143,10 +147,14 @@ expression
 
 predicate
     : expressionAtom                                                #expressionAtomPredicate
+    | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
+    | predicate IS nullNotnull                                      #isNullPredicate
+    | left=predicate NOT? LIKE right=predicate                      #likePredicate
     ;
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | columnName                                                    #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
@@ -156,13 +164,32 @@ mathOperator
     : PLUS | MINUS | STAR | DIVIDE | MODULE
     ;
 
+comparisonOperator
+    : '=' | '>' | '<' | '<' '=' | '>' '='
+    | '<' '>' | '!' '='
+    ;
+
+nullNotnull
+    : NOT? NULL_LITERAL
+    ;
+
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
     ;
 
 scalarFunctionName
-    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
+    : mathematicalFunctionName
     | dateTimeFunctionName
+    ;
+
+mathematicalFunctionName
+    : ABS | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI | POW | POWER
+    | RAND | ROUND | SIGN | SQRT | TRUNCATE
+    | trigonometricFunctionName
+    ;
+
+trigonometricFunctionName
+    : ACOS | ASIN | ATAN | ATAN2 | COS | COT | DEGREES | RADIANS | SIN | TAN
     ;
 
 dateTimeFunctionName
@@ -170,7 +197,7 @@ dateTimeFunctionName
     ;
 
 functionArgs
-    : functionArg (COMMA functionArg)*
+    : (functionArg (COMMA functionArg)*)?
     ;
 
 functionArg

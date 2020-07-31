@@ -131,13 +131,15 @@ class AnalyzerTest extends AnalyzerTestBase {
   public void project_source() {
     assertAnalyzeEqual(
         LogicalPlanDSL.project(
-            LogicalPlanDSL.relation("schema"), DSL.ref("integer_value", INTEGER), DSL.ref(
-                "double_value", DOUBLE)),
+            LogicalPlanDSL.relation("schema"),
+            DSL.named("integer_value", DSL.ref("integer_value", INTEGER)),
+            DSL.named("double_value", DSL.ref("double_value", DOUBLE))
+        ),
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             AstDSL.defaultFieldsArgs(),
-            AstDSL.field("integer_value"),
-            AstDSL.field("double_value")));
+            AstDSL.field("integer_value"), // Field not wrapped by Alias
+            AstDSL.alias("double_value", AstDSL.field("double_value"))));
   }
 
   @Test
@@ -176,15 +178,15 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.project(
             LogicalPlanDSL.values(ImmutableList.of(DSL.literal(123))),
-            DSL.literal(123),
-            DSL.literal("hello"),
-            DSL.literal(false)
+            DSL.named("123", DSL.literal(123)),
+            DSL.named("hello", DSL.literal("hello")),
+            DSL.named("false", DSL.literal(false))
         ),
         AstDSL.project(
             AstDSL.values(ImmutableList.of(AstDSL.intLiteral(123))),
-            AstDSL.intLiteral(123),
-            AstDSL.stringLiteral("hello"),
-            AstDSL.booleanLiteral(false)
+            AstDSL.alias("123", AstDSL.intLiteral(123)),
+            AstDSL.alias("hello", AstDSL.stringLiteral("hello")),
+            AstDSL.alias("false", AstDSL.booleanLiteral(false))
         )
     );
   }

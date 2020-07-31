@@ -76,15 +76,13 @@ public class SQLService {
   }
 
   /**
-   * Given AST, run the remaining steps to execute it.
-   * @param ast         AST
+   * Given physical plan, execute it and listen on response.
+   * @param plan        physical plan
    * @param listener    callback listener
    */
-  public void execute(UnresolvedPlan ast, ResponseListener<QueryResponse> listener) {
+  public void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener) {
     try {
-      executionEngine.execute(
-          plan(
-              analyze(ast)), listener);
+      executionEngine.execute(plan, listener);
     } catch (Exception e) {
       listener.onFailure(e);
     }
@@ -95,7 +93,7 @@ public class SQLService {
    */
   public UnresolvedPlan parse(String query) {
     ParseTree cst = parser.parse(query);
-    return cst.accept(new AstBuilder());
+    return cst.accept(new AstBuilder(query));
   }
 
   /**

@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -32,7 +32,7 @@ import lombok.ToString;
 public class LogicalProject extends LogicalPlan {
   private final LogicalPlan child;
   @Getter
-  private final List<Expression> projectList;
+  private final List<NamedExpression> projectList;
 
   @Override
   public List<LogicalPlan> getChild() {

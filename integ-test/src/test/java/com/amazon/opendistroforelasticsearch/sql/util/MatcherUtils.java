@@ -194,6 +194,11 @@ public class MatcherUtils {
     assertThat(objects, containsInRelativeOrder(matchers));
   }
 
+  public static TypeSafeMatcher<JSONObject> schema(String expectedName,
+                                                   String expectedType) {
+    return schema(expectedName, null, expectedType);
+  }
+
   public static TypeSafeMatcher<JSONObject> schema(String expectedName, String expectedAlias,
                                                    String expectedType) {
     return new TypeSafeMatcher<JSONObject>() {
@@ -226,9 +231,28 @@ public class MatcherUtils {
 
       @Override
       protected boolean matchesSafely(JSONArray array) {
-        List<Object> actualObjects = new ArrayList<>();
-        array.iterator().forEachRemaining(actualObjects::add);
-        return Arrays.asList(expectedObjects).equals(actualObjects);
+        if (array.length() != expectedObjects.length) {
+          return false;
+        }
+
+        for (int i = 0; i < expectedObjects.length; i++) {
+          Object expected = expectedObjects[i];
+          boolean isEqual;
+
+          // Use similar() because JSONObject/JSONArray.equals() only check if same reference
+          if (expected instanceof JSONObject) {
+            isEqual = ((JSONObject) expected).similar(array.get(i));
+          } else if (expected instanceof JSONArray) {
+            isEqual = ((JSONArray) expected).similar(array.get(i));
+          } else {
+            isEqual = expected.equals(array.get(i));
+          }
+
+          if (!isEqual) {
+            return false;
+          }
+        }
+        return true;
       }
     };
   }

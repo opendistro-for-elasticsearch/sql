@@ -30,22 +30,22 @@ extern "C" {
 #define ES_TYPE_LO ? ? ? ? /* waiting for permanent type */
 #endif
 
-#define ES_TYPE_NAME_BOOLEAN "boolean";
-#define ES_TYPE_NAME_BYTE "byte";
-#define ES_TYPE_NAME_SHORT "short";
-#define ES_TYPE_NAME_INTEGER "integer";
-#define ES_TYPE_NAME_LONG "long";
-#define ES_TYPE_NAME_HALF_FLOAT "half_float";
-#define ES_TYPE_NAME_FLOAT "float";
-#define ES_TYPE_NAME_DOUBLE "double";
-#define ES_TYPE_NAME_SCALED_FLOAT "scaled_float";
-#define ES_TYPE_NAME_KEYWORD "keyword";
-#define ES_TYPE_NAME_TEXT "text";
-#define ES_TYPE_NAME_NESTED "nested";
-#define ES_TYPE_NAME_DATE "date";
-#define ES_TYPE_NAME_OBJECT "object";
-#define ES_TYPE_NAME_VARCHAR "varchar";
-#define ES_TYPE_NAME_UNSUPPORTED "unsupported";
+#define ES_TYPE_NAME_BOOLEAN "boolean"
+#define ES_TYPE_NAME_BYTE "byte"
+#define ES_TYPE_NAME_SHORT "short"
+#define ES_TYPE_NAME_INTEGER "integer"
+#define ES_TYPE_NAME_LONG "long"
+#define ES_TYPE_NAME_HALF_FLOAT "half_float"
+#define ES_TYPE_NAME_FLOAT "float"
+#define ES_TYPE_NAME_DOUBLE "double"
+#define ES_TYPE_NAME_SCALED_FLOAT "scaled_float"
+#define ES_TYPE_NAME_KEYWORD "keyword"
+#define ES_TYPE_NAME_TEXT "text"
+#define ES_TYPE_NAME_NESTED "nested"
+#define ES_TYPE_NAME_DATE "date"
+#define ES_TYPE_NAME_OBJECT "object"
+#define ES_TYPE_NAME_VARCHAR "varchar"
+#define ES_TYPE_NAME_UNSUPPORTED "unsupported"
 
 #define MS_ACCESS_SERIAL "int identity"
 #define ES_TYPE_BOOL 16
@@ -239,6 +239,15 @@ typedef enum {
     CONNECTION_GSS_STARTUP /* Negotiating GSSAPI. */
 } ConnStatusType;
 
+typedef enum {
+    CONN_ERROR_SUCCESS,             // 0
+    CONN_ERROR_QUERY_SYNTAX,        // 42000
+    CONN_ERROR_COMM_LINK_FAILURE,   // 08S01
+    CONN_ERROR_INVALID_NULL_PTR,    // HY009
+    CONN_ERROR_INVALID_AUTH,        // 28000
+    CONN_ERROR_UNABLE_TO_ESTABLISH  // 08001
+} ConnErrorType;
+
 // Only expose this to C++ code, this will be passed through the C interface as
 // a void*
 #ifdef __cplusplus
@@ -284,6 +293,13 @@ typedef struct runtime_options {
     authentication_options auth;
     encryption_options crypt;
 } runtime_options;
+
+typedef struct ErrorDetails {
+    std::string reason;
+    std::string details;
+    std::string source_type;
+    ConnErrorType type;
+} ErrorDetails;
 
 #define INVALID_OID 0
 #define KEYWORD_TYPE_OID 1043

@@ -83,6 +83,22 @@ const std::unordered_map< int, std::vector< int > > sql_es_type_map = {
      {ES_TYPE_KEYWORD, ES_TYPE_TEXT, ES_TYPE_NESTED, ES_TYPE_OBJECT}},
     {SQL_TYPE_TIMESTAMP, {ES_TYPE_DATETIME}}};
 
+const std::unordered_map< std::string, int > data_name_data_type_map = {
+    {ES_TYPE_NAME_BOOLEAN, SQL_BIT},
+    {ES_TYPE_NAME_BYTE, SQL_TINYINT},
+    {ES_TYPE_NAME_SHORT, SQL_SMALLINT},
+    {ES_TYPE_NAME_INTEGER, SQL_INTEGER},
+    {ES_TYPE_NAME_LONG, SQL_BIGINT},
+    {ES_TYPE_NAME_HALF_FLOAT, SQL_REAL},
+    {ES_TYPE_NAME_FLOAT, SQL_REAL},
+    {ES_TYPE_NAME_DOUBLE, SQL_DOUBLE},
+    {ES_TYPE_NAME_SCALED_FLOAT, SQL_DOUBLE},
+    {ES_TYPE_NAME_KEYWORD, SQL_WVARCHAR},
+    {ES_TYPE_NAME_TEXT, SQL_WVARCHAR},
+    {ES_TYPE_NAME_DATE, SQL_TYPE_TIMESTAMP},
+    {ES_TYPE_NAME_OBJECT, SQL_WVARCHAR},
+    {ES_TYPE_NAME_NESTED, SQL_WVARCHAR}};
+
 // Boilerplate code for easy column bind handling
 class BindTemplate {
    public:
@@ -262,7 +278,7 @@ class BindTemplateSQLCHAR : public BindTemplate {
     }
     void UpdateData(SQLPOINTER new_data, size_t size) {
         m_data.clear();
-        SQLCHAR *data = (SQLCHAR *)new_data;
+        SQLCHAR *data = reinterpret_cast< SQLCHAR * >(new_data);
         for (size_t i = 0; i < size; i++) {
             m_data.push_back(*data++);
         }
@@ -471,8 +487,34 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
     };
     auto AssignData = [&](auto *res, const auto &binds) {
         TupleField *tuple = QR_AddNew(res);
-        for (size_t i = 0; i < binds.size(); i++)
-            binds[i]->AssignData(&tuple[i]);
+        // Since we do not support catalogs, we will return an empty string for
+        // catalog names. This is required for Excel for Mac, which uses this
+        // information for its Data Preview window.
+        std::string catalog("");
+        bind_tbl[TABLES_CATALOG_NAME]->UpdateData((void *)catalog.c_str(), 0);
+
+        // TODO #630 - Revisit logic of adding tuples for SQLTables & SQLColumns
+        for (size_t i = 0; i < binds.size(); i++) {
+            // Add tuples for SQLColumns
+            if (binds.size() > COLUMNS_SQL_DATA_TYPE) {
+                // Add data type for data loading issue in Power BI Desktop
+                auto data_type = data_name_data_type_map
+                        .find(bind_tbl[COLUMNS_TYPE_NAME]->AsString())->second;
+                if (i == COLUMNS_DATA_TYPE) {
+                    set_tuplefield_int2(&tuple[COLUMNS_DATA_TYPE],
+                                        static_cast< short >(data_type));
+                } else if (i == COLUMNS_SQL_DATA_TYPE) {
+                    set_tuplefield_int2(&tuple[COLUMNS_SQL_DATA_TYPE],
+                                        static_cast< short >(data_type));
+                } else {
+                    binds[i]->AssignData(&tuple[i]);
+                }
+            }
+            // Add tuples for SQLTables
+            else {
+                binds[i]->AssignData(&tuple[i]);
+            }
+        }
     };
 
     // General case
@@ -482,7 +524,8 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
         while (SQL_SUCCEEDED(result = ESAPI_Fetch(tbl_stmt))) {
             if (bind_tbl[TABLES_TABLE_TYPE]->AsString() == "BASE TABLE") {
                 std::string table("TABLE");
-                bind_tbl[TABLES_TABLE_TYPE]->UpdateData(&table, table.size());
+                bind_tbl[TABLES_TABLE_TYPE]->UpdateData((void *)table.c_str(),
+                                                        table.length());
             }
             if (list_of_columns != NULL && !list_of_columns->empty()) {
                 if (std::find(list_of_columns->begin(), list_of_columns->end(),
@@ -512,7 +555,8 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
             // Replace BASE TABLE with TABLE for Excel & Power BI SQLTables call
             if (bind_tbl[TABLES_TABLE_TYPE]->AsString() == "BASE TABLE") {
                 std::string table("TABLE");
-                bind_tbl[TABLES_TABLE_TYPE]->UpdateData(&table, table.size());
+                bind_tbl[TABLES_TABLE_TYPE]->UpdateData((void *)table.c_str(),
+                                                        table.length());
             }
             if (std::find(table_types.begin(), table_types.end(),
                           bind_tbl[TABLES_TABLE_TYPE]->AsString())

@@ -16,20 +16,29 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import lombok.EqualsAndHashCode;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import java.util.Objects;
 
 /**
- * The definition of the expression null value.
+ * Expression Null Value.
  */
-@EqualsAndHashCode
-public class ExprNullValue implements ExprValue {
-  private static final ExprValue instance = new ExprNullValue();
+public class ExprNullValue extends AbstractExprValue {
+  private static final ExprNullValue instance = new ExprNullValue();
 
   private ExprNullValue() {
   }
 
-  public static ExprValue of() {
+  @Override
+  public int hashCode() {
+    return Objects.hashCode("NULL");
+  }
+
+  @Override
+  public String toString() {
+    return "NULL";
+  }
+
+  public static ExprNullValue of() {
     return instance;
   }
 
@@ -39,12 +48,27 @@ public class ExprNullValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
-    throw new ExpressionEvaluationException("invalid to call type operation on null value");
+  public ExprType type() {
+    return ExprCoreType.UNKNOWN;
   }
 
   @Override
   public boolean isNull() {
     return true;
+  }
+
+  @Override
+  public int compare(ExprValue other) {
+    throw new IllegalStateException(
+        String.format("[BUG] Unreachable, Comparing with NULL is undefined"));
+  }
+
+  /**
+   * NULL value is equal to NULL value.
+   * Notes, this function should only used for Java Object Compare.
+   */
+  @Override
+  public boolean equal(ExprValue other) {
+    return other.isNull();
   }
 }
