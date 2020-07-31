@@ -17,6 +17,10 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.MathExpressionAtomContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ScalarFunctionCallContext;
@@ -89,6 +93,22 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitIsNullPredicate(OpenDistroSQLParser.IsNullPredicateContext ctx) {
+    return new Function(
+        ctx.nullNotnull().NOT() == null ? IS_NULL.getName().getFunctionName() :
+            IS_NOT_NULL.getName().getFunctionName(),
+        Arrays.asList(visit(ctx.predicate())));
+  }
+
+  @Override
+  public UnresolvedExpression visitLikePredicate(OpenDistroSQLParser.LikePredicateContext ctx) {
+    return new Function(
+        ctx.NOT() == null ? LIKE.getName().getFunctionName() :
+            NOT_LIKE.getName().getFunctionName(),
+        Arrays.asList(visit(ctx.left), visit(ctx.right)));
+  }
+
+  @Override
   public UnresolvedExpression visitString(StringContext ctx) {
     return AstDSL.stringLiteral(unquoteIdentifier(ctx.getText()));
   }
@@ -109,6 +129,11 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitNullLiteral(OpenDistroSQLParser.NullLiteralContext ctx) {
+    return AstDSL.nullLiteral();
+  }
+
+  @Override
   public UnresolvedExpression visitDateLiteral(OpenDistroSQLParser.DateLiteralContext ctx) {
     return AstDSL.dateLiteral(unquoteIdentifier(ctx.date.getText()));
   }
@@ -122,6 +147,16 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   public UnresolvedExpression visitTimestampLiteral(
       OpenDistroSQLParser.TimestampLiteralContext ctx) {
     return AstDSL.timestampLiteral(unquoteIdentifier(ctx.timestamp.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitBinaryComparisonPredicate(
+      OpenDistroSQLParser.BinaryComparisonPredicateContext ctx) {
+    String functionName = ctx.comparisonOperator().getText();
+    return new Function(
+        functionName.equals("<>") ? "!=" : functionName,
+        Arrays.asList(visit(ctx.left), visit(ctx.right))
+    );
   }
 
   private String visitQualifiedNameText(RuleNode node) {

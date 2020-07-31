@@ -92,6 +92,83 @@ Here is an example for different type of arithmetic expressions::
     | 3       | 2           | 2           |
     +---------+-------------+-------------+
 
+Comparison Operators
+==================================
+
+Description
+-----------
+
+Comparison operators are used to compare values. The MISSING and NULL value comparison has following the rule. MISSING value only equal to MISSING value and less than all the other values. NULL value equals to NULL value, large than MISSING value, but less than all the other values.
+
+Operators
+`````````
+
++----------------+--------------------------------+
+| name           | description                    |
++----------------+--------------------------------+
+| >              | Greater than operator          |
++----------------+--------------------------------+
+| >=             | Greater than or equal operator |
++----------------+--------------------------------+
+| <              | Less than operator             |
++----------------+--------------------------------+
+| !=             | Not equal operator             |
++----------------+--------------------------------+
+| <=             | Less than or equal operator    |
++----------------+--------------------------------+
+| =              | Equal operator                 |
++----------------+--------------------------------+
+| LIKE           | Simple pattern matching        |
++----------------+--------------------------------+
+| IS NULL        | NULL value test                |
++----------------+--------------------------------+
+| IS NOT NULL    | NOT NULL value test            |
++----------------+--------------------------------+
+| IS MISSING     | MISSING value test             |
++----------------+--------------------------------+
+| IS NOT MISSING | NOT MISSING value test         |
++----------------+--------------------------------+
+
+
+Basic Comparison Operator
+-------------------------
+
+Here is an example for different type of comparison operators::
+
+    od> SELECT 2 > 1, 2 >= 1, 2 < 1, 2 != 1, 2 <= 1, 2 = 1;
+    fetched rows / total rows = 1/1
+    +---------+----------+---------+----------+----------+---------+
+    | 2 > 1   | 2 >= 1   | 2 < 1   | 2 != 1   | 2 <= 1   | 2 = 1   |
+    |---------+----------+---------+----------+----------+---------|
+    | True    | True     | False   | True     | False    | False   |
+    +---------+----------+---------+----------+----------+---------+
+
+LIKE
+----
+
+expr LIKE pattern. The expr is string value, pattern is supports literal text, a percent ( % ) character for a wildcard, and an underscore ( _ ) character for a single character match::
+
+    od> SELECT 'axyzb' LIKE 'a%b', 'acb' LIKE 'a_b', 'axyzb' NOT LIKE 'a%b', 'acb' NOT LIKE 'a_b';
+    fetched rows / total rows = 1/1
+    +----------------------+--------------------+--------------------------+------------------------+
+    | "axyzb" like "a%b"   | "acb" like "a_b"   | "axyzb" not like "a%b"   | "acb" not like "a_b"   |
+    |----------------------+--------------------+--------------------------+------------------------|
+    | True                 | True               | False                    | False                  |
+    +----------------------+--------------------+--------------------------+------------------------+
+
+NULL value test
+---------------
+
+Here is an example for null value test::
+
+    od> SELECT 0 IS NULL, 0 IS NOT NULL, NULL IS NULL, NULL IS NOT NULL;
+    fetched rows / total rows = 1/1
+    +--------------+------------------+-----------------+---------------------+
+    | is null(0)   | is not null(0)   | is null(NULL)   | is not null(NULL)   |
+    |--------------+------------------+-----------------+---------------------|
+    | False        | True             | True            | False               |
+    +--------------+------------------+-----------------+---------------------+
+
 
 Function Call
 =============

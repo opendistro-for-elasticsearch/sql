@@ -15,26 +15,17 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
-import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -43,8 +34,18 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class UnaryPredicateOperator {
+  /**
+   * Register Unary Predicate Function.
+   */
   public static void register(BuiltinFunctionRepository repository) {
     repository.register(not());
+    repository.register(isNull());
+    repository.register(isNotNull());
+  }
+
+  private static FunctionResolver not() {
+    return FunctionDSL.define(BuiltinFunctionName.NOT.getName(), FunctionDSL
+        .impl(UnaryPredicateOperator::not, BOOLEAN, BOOLEAN));
   }
 
   /**
@@ -55,41 +56,30 @@ public class UnaryPredicateOperator {
    * NULL    NULL
    * MISSING MISSING
    */
-  private static Map<ExprValue, ExprValue> notMap =
-      new ImmutableMap.Builder<ExprValue, ExprValue>()
-          .put(LITERAL_TRUE, LITERAL_FALSE)
-          .put(LITERAL_FALSE, LITERAL_TRUE)
-          .put(LITERAL_NULL, LITERAL_NULL)
-          .put(LITERAL_MISSING, LITERAL_MISSING)
-          .build();
-
-  private static FunctionResolver not() {
-    FunctionName functionName = BuiltinFunctionName.NOT.getName();
-    return FunctionResolver.builder()
-        .functionName(functionName)
-        .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(BOOLEAN)), predicateFunction(functionName, BOOLEAN))
-        .build();
+  public ExprValue not(ExprValue v) {
+    if (v.isMissing() || v.isNull()) {
+      return v;
+    } else {
+      return ExprBooleanValue.of(!v.booleanValue());
+    }
   }
 
-  private static FunctionBuilder predicateFunction(
-      FunctionName functionName,
-      ExprType returnType) {
-    return arguments -> new FunctionExpression(functionName, arguments) {
-      @Override
-      public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        return notMap.get(arguments.get(0).valueOf(env));
-      }
+  private static FunctionResolver isNull() {
 
-      @Override
-      public ExprType type() {
-        return returnType;
-      }
+    return FunctionDSL
+        .define(BuiltinFunctionName.IS_NULL.getName(), Arrays.stream(ExprCoreType.values())
+            .map(type -> FunctionDSL
+                .impl((v) -> ExprBooleanValue.of(v.isNull()), BOOLEAN, type))
+            .collect(
+                Collectors.toList()));
+  }
 
-      @Override
-      public String toString() {
-        return String.format("%s %s", functionName, arguments.get(0).toString());
-      }
-    };
+  private static FunctionResolver isNotNull() {
+    return FunctionDSL
+        .define(BuiltinFunctionName.IS_NOT_NULL.getName(), Arrays.stream(ExprCoreType.values())
+            .map(type -> FunctionDSL
+                .impl((v) -> ExprBooleanValue.of(!v.isNull()), BOOLEAN, type))
+            .collect(
+                Collectors.toList()));
   }
 }
