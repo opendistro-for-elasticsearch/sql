@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static java.util.Collections.emptyMap;
@@ -82,9 +83,7 @@ class ExpressionScriptTest {
         .docValues("age", 30)
         .filterBy(
             dsl.greater(
-                ref("age", INTEGER),
-                literal(20)
-            ))
+                ref("age", INTEGER), literal(20)))
         .shouldMatch();
   }
 
@@ -94,10 +93,23 @@ class ExpressionScriptTest {
         .docValues("balance", -100.0)
         .filterBy(
             dsl.greater(
-                dsl.abs(ref("balance", DOUBLE)),
-                literal(101.0)
-            ))
+                dsl.abs(ref("balance", DOUBLE)), literal(101.0)))
         .shouldNotMatch();
+  }
+
+  @Test
+  void can_execute_expression_script_with_multiple_fields_involved() {
+    assertThat()
+        .docValues(
+            "age", 30,
+            "name", "John")
+        .filterBy(
+            dsl.and(
+                dsl.less(
+                    ref("age", INTEGER), literal(50)),
+                dsl.equal(
+                    ref("name", STRING), literal("John"))))
+        .shouldMatch();
   }
 
   private ExprScriptAssertion assertThat() {
@@ -117,6 +129,16 @@ class ExpressionScriptTest {
 
     ExprScriptAssertion docValues(String name, Object value) {
       LeafDocLookup leafDocLookup = mockLeafDocLookup(ImmutableMap.of(name, toDocValue(value)));
+      when(lookup.getLeafSearchLookup(any())).thenReturn(leafLookup);
+      when(leafLookup.doc()).thenReturn(leafDocLookup);
+      return this;
+    }
+
+    ExprScriptAssertion docValues(String name1, Object value1, String name2, Object value2) {
+      LeafDocLookup leafDocLookup = mockLeafDocLookup(
+          ImmutableMap.of(
+              name1, toDocValue(value1),
+              name2, toDocValue(value2)));
       when(lookup.getLeafSearchLookup(any())).thenReturn(leafLookup);
       when(leafLookup.doc()).thenReturn(leafDocLookup);
       return this;
