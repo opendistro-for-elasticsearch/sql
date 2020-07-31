@@ -7,6 +7,16 @@ section OdfeSqlOdbcPBIConnector;
 // no-op and simply returns the original value.
 EnableTraceOutput = true;
 
+Config_DriverName = "ODFE SQL ODBC Driver";
+Config_SqlConformance = null;
+Config_LimitClauseKind = LimitClauseKind.LimitOffset;
+Config_DefaultUsernamePasswordHandling = true;
+Config_UseParameterBindings = false;
+Config_StringLiterateEscapeCharacters  = null;
+Config_UseCastInsteadOfConvert = null;
+// Disabling direct query due to limited SQL query support
+Config_EnableDirectQuery = false;
+
 [DataSource.Kind="OdfeSqlOdbcPBIConnector", Publish="OdfeSqlOdbcPBIConnector.Publish"]
 shared OdfeSqlOdbcPBIConnector.Contents = Value.ReplaceType(OdfeSqlOdbcPBIConnectorImpl, OdfeSqlOdbcPBIConnectorType); 
 
@@ -75,10 +85,13 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
             ],
 
         ConnectionString = [
-            Driver = "ODFE SQL ODBC Driver"
+            Driver = Config_DriverName
         ],
 
-        SQLGetInfo = Diagnostics.LogValue("SQLGetInfo_Options", [
+        
+        defaultConfig = Diagnostics.LogValue("BuildOdbcConfig", BuildOdbcConfig()),
+
+        SQLGetInfo = Diagnostics.LogValue("SQLGetInfo_Options", defaultConfig[SQLGetInfo] & [
             SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All]
         ]),
 
@@ -106,6 +119,10 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
                     Value.ReplaceType(toTable, Value.Type(source))
             else
                 source,
+        
+        SQLGetFunctions = Diagnostics.LogValue("SQLGetFunctions_Options", defaultConfig[SQLGetFunctions]),
+
+        SqlCapabilities = Diagnostics.LogValue("SqlCapabilities_Options", defaultConfig[SqlCapabilities]),
 
         OdbcDatasource = Odbc.DataSource(ConnectionString & Server & CredentialConnectionString & EncryptedConnectionString, [
             // Do not view the tables grouped by their schema names.
@@ -123,6 +140,8 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
             SQLColumns = SQLColumns,
             SQLGetTypeInfo = SQLGetTypeInfo,
             SQLGetInfo = SQLGetInfo,
+            SQLGetFunctions = SQLGetFunctions,
+            SqlCapabilities = SqlCapabilities,
 
             OnError = OnOdbcError,
 
@@ -191,7 +210,7 @@ OdfeSqlOdbcPBIConnector.Publish = [
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://opendistro.github.io/for-elasticsearch/",
-    SupportsDirectQuery = true,
+    SupportsDirectQuery = Config_EnableDirectQuery,
     SourceImage = OdfeSqlOdbcPBIConnector.Icons,
     SourceTypeImage = OdfeSqlOdbcPBIConnector.Icons
 ];
@@ -200,6 +219,89 @@ OdfeSqlOdbcPBIConnector.Icons = [
     Icon16 = { Extension.Contents("OdfeSqlOdbcPBIConnector16.png"), Extension.Contents("OdfeSqlOdbcPBIConnector20.png"), Extension.Contents("OdfeSqlOdbcPBIConnector24.png"), Extension.Contents("OdfeSqlOdbcPBIConnector32.png") },
     Icon32 = { Extension.Contents("OdfeSqlOdbcPBIConnector32.png"), Extension.Contents("OdfeSqlOdbcPBIConnector40.png"), Extension.Contents("OdfeSqlOdbcPBIConnector48.png"), Extension.Contents("OdfeSqlOdbcPBIConnector64.png") }
 ];
+
+// build settings based on configuration variables
+BuildOdbcConfig = () as record =>
+    let
+        Merge = (previous as record, optional caps as record, optional funcs as record, optional getInfo as record) as record => 
+            let
+                newCaps = if (caps <> null) then previous[SqlCapabilities] & caps else previous[SqlCapabilities],
+                newFuncs = if (funcs <> null) then previous[SQLGetFunctions] & funcs else previous[SQLGetFunctions],
+                newGetInfo = if (getInfo <> null) then previous[SQLGetInfo] & getInfo else previous[SQLGetInfo]
+            in
+                [ SqlCapabilities = newCaps, SQLGetFunctions = newFuncs, SQLGetInfo = newGetInfo ],
+
+        defaultConfig = [
+            SqlCapabilities = [],
+            SQLGetFunctions = [],
+            SQLGetInfo = []
+        ],
+
+        withParams =
+            if (Config_UseParameterBindings = false) then
+                let 
+                    caps = [
+                        SupportsNumericLiterals = true,
+                        SupportsStringLiterals = true,
+                        SupportsOdbcDateLiterals = true,
+                        SupportsOdbcTimeLiterals = true,
+                        SupportsOdbcTimestampLiterals = true
+                    ],
+                    funcs = [
+                        SQL_API_SQLBINDPARAMETER = false
+                    ]
+                in
+                    Merge(defaultConfig, caps, funcs)
+            else
+                defaultConfig,
+                
+        withEscape = 
+            if (Config_StringLiterateEscapeCharacters <> null) then 
+                let
+                    caps = [
+                        StringLiteralEscapeCharacters = Config_StringLiterateEscapeCharacters
+                    ]
+                in
+                    Merge(withParams, caps)
+            else
+                withParams,
+
+        withLimitClauseKind = 
+            let
+                caps = [ 
+                    LimitClauseKind = Config_LimitClauseKind
+                ]
+            in
+                Merge(withEscape, caps),
+
+        withCastOrConvert = 
+            if (Config_UseCastInsteadOfConvert <> null) then
+                let
+                    value =
+                        if (Config_UseCastInsteadOfConvert = true) then 
+                            ODBC[SQL_FN_CVT][SQL_FN_CVT_CAST]
+                        else
+                            ODBC[SQL_FN_CVT][SQL_FN_CVT_CONVERT],
+                    getInfo = [ 
+                        SQL_CONVERT_FUNCTIONS = value
+                    ]
+                in
+                    Merge(withLimitClauseKind, null, null, getInfo)
+            else
+                withLimitClauseKind,
+
+        withSqlConformance =
+            if (Config_SqlConformance <> null) then
+                let
+                    getInfo = [
+                        SQL_SQL_CONFORMANCE = Config_SqlConformance
+                    ]
+                in
+                    Merge(withCastOrConvert, null, null, getInfo)
+            else
+                withCastOrConvert
+    in
+        withSqlConformance;
 
 // Load common library functions
 Extension.LoadFunction = (name as text) =>
