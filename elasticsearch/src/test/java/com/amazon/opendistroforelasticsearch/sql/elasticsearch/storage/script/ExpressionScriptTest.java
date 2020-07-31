@@ -21,6 +21,8 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static java.util.Collections.emptyMap;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -28,13 +30,15 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
-import java.util.Date;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.lucene.index.LeafReaderContext;
 import org.elasticsearch.index.fielddata.ScriptDocValues;
+import org.elasticsearch.search.lookup.LeafDocLookup;
 import org.elasticsearch.search.lookup.LeafSearchLookup;
 import org.elasticsearch.search.lookup.SearchLookup;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -58,12 +62,28 @@ class ExpressionScriptTest {
   private final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
 
   @Test
-  void can_filter_doc_by_boolean_literal() {
+  void should_match_doc_if_true_literal() {
+    assertThat()
+        .docValues()
+        .filterBy(literal(true))
+        .shouldMatch();
+  }
+
+  @Test
+  void should_skip_doc_if_false_literal() {
+    assertThat()
+        .docValues()
+        .filterBy(literal(false))
+        .shouldNotMatch();
+  }
+
+  @Disabled
+  @Test
+  void should_match_doc_if_true_comparison_expression() {
     assertThat()
         .docValues(
-            ImmutableMap.of(
-                "age", 30
-            ))
+            "age", 30
+        )
         .filterBy(
             dsl.greater(
                 ref("age", INTEGER),
@@ -83,9 +103,14 @@ class ExpressionScriptTest {
     private final LeafReaderContext context;
     private boolean isMatched;
 
+    ExprScriptAssertion docValues() {
+      return this;
+    }
+
     ExprScriptAssertion docValues(String name, Object value) {
       when(lookup.getLeafSearchLookup(any())).thenReturn(leafLookup);
-      when(leafLookup.doc()).thenReturn(ImmutableMap.of(name, toDocValue(value)));
+      when(leafLookup.doc())
+          .thenReturn(mockLeafDocLookup(ImmutableMap.of(name, toDocValue(value))));
       return this;
     }
 
@@ -106,23 +131,28 @@ class ExpressionScriptTest {
     private ScriptDocValues<?> toDocValue(Object object) {
       if (object instanceof Integer) {
         return new FakeScriptDocValues<>((Integer) object);
-      }
-      else if (object instanceof Long) {
+      } else if (object instanceof Long) {
         return new FakeScriptDocValues<>((Long) object);
-      }
-      else if (object instanceof Double) {
+      } else if (object instanceof Double) {
         return new FakeScriptDocValues<>((Double) object);
-      }
-      else if (object instanceof String) {
+      } else if (object instanceof String) {
         return new FakeScriptDocValues<>((String) object);
-      }
-      else if (object instanceof Boolean) {
+      } else if (object instanceof Boolean) {
         return new FakeScriptDocValues<>((Boolean) object);
-      }
-      else {
+      } else {
         throw new IllegalStateException("Unsupported doc value type: " + object.getClass());
       }
     }
+
+    private LeafDocLookup mockLeafDocLookup(Map<String, ScriptDocValues<?>> docValueByNames) {
+      LeafDocLookup leafDocLookup = mock(LeafDocLookup.class);
+      when(leafDocLookup.containsKey(anyString()))
+          .thenAnswer(invocation -> docValueByNames.containsKey(invocation.<String>getArgument(0)));
+      when(leafDocLookup.get(anyString()))
+          .thenAnswer(invocation -> docValueByNames.get(invocation.<String>getArgument(0)));
+      return leafDocLookup;
+    }
+
   }
 
   @RequiredArgsConstructor
