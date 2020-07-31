@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BinaryArithmeticContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CompareExprContext;
@@ -193,7 +192,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
         ctx.ident()
             .stream()
             .map(ParserRuleContext::getText)
-            .map(StringUtils::unquoteIdentifier)
+            .map(StringUtils::unquoteText)
             .collect(Collectors.toList())
     );
   }
@@ -204,14 +203,14 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
         ctx.wildcard()
             .stream()
             .map(ParserRuleContext::getText)
-            .map(StringUtils::unquoteIdentifier)
+            .map(StringUtils::unquoteText)
             .collect(Collectors.toList())
     );
   }
 
   @Override
   public UnresolvedExpression visitStringLiteral(StringLiteralContext ctx) {
-    return new Literal(unquoteIdentifier(ctx.getText()), DataType.STRING);
+    return new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
   }
 
   @Override

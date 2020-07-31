@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
@@ -114,7 +113,7 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitString(StringContext ctx) {
-    return AstDSL.stringLiteral(unquoteIdentifier(ctx.getText()));
+    return AstDSL.stringLiteral(StringUtils.unquoteText(ctx.getText()));
   }
 
   @Override
@@ -139,18 +138,18 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitDateLiteral(OpenDistroSQLParser.DateLiteralContext ctx) {
-    return AstDSL.dateLiteral(unquoteIdentifier(ctx.date.getText()));
+    return AstDSL.dateLiteral(StringUtils.unquoteText(ctx.date.getText()));
   }
 
   @Override
   public UnresolvedExpression visitTimeLiteral(OpenDistroSQLParser.TimeLiteralContext ctx) {
-    return AstDSL.timeLiteral(unquoteIdentifier(ctx.time.getText()));
+    return AstDSL.timeLiteral(StringUtils.unquoteText(ctx.time.getText()));
   }
 
   @Override
   public UnresolvedExpression visitTimestampLiteral(
       OpenDistroSQLParser.TimestampLiteralContext ctx) {
-    return AstDSL.timestampLiteral(unquoteIdentifier(ctx.timestamp.getText()));
+    return AstDSL.timestampLiteral(StringUtils.unquoteText(ctx.timestamp.getText()));
   }
 
   @Override

@@ -49,7 +49,7 @@ class AstBuilderTest {
         project(
             values(emptyList()),
             alias("123", intLiteral(123)),
-            alias("hello", stringLiteral("hello")),
+            alias("'hello'", stringLiteral("hello")),
             alias("false", booleanLiteral(false)),
             alias("-4.567", doubleLiteral(-4.567))
         ),

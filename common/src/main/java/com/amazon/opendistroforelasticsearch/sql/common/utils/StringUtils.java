@@ -19,13 +19,13 @@ import com.google.common.base.Strings;
 
 public class StringUtils {
   /**
-   * Unquote Identifier with mark.
+   * Unquote any string with mark specified.
    * @param text string
    * @param mark quotation mark
    * @return An unquoted string whose outer pair of (single/double/back-tick) quotes have been
    *     removed
    */
-  public static String unquoteIdentifier(String text, String mark) {
+  public static String unquote(String text, String mark) {
     if (isQuoted(text, mark)) {
       return text.substring(mark.length(), text.length() - mark.length());
     }
@@ -38,11 +38,25 @@ public class StringUtils {
    * @return An unquoted string whose outer pair of (single/double/back-tick) quotes have been
    *     removed
    */
-  public static String unquoteIdentifier(String text) {
+  public static String unquoteText(String text) {
     if (isQuoted(text, "\"") || isQuoted(text, "'") || isQuoted(text, "`")) {
       return text.substring(1, text.length() - 1);
     } else {
       return text;
+    }
+  }
+
+  /**
+   * Unquote Identifier which has " or ` as mark.
+   * @param identifier identifier that possibly enclosed by double quotes or back ticks
+   * @return An unquoted string whose outer pair of (double/back-tick) quotes have been
+   *     removed
+   */
+  public static String unquoteIdentifier(String identifier) {
+    if (isQuoted(identifier, "\"") || isQuoted(identifier, "`")) {
+      return identifier.substring(1, identifier.length() - 1);
+    } else {
+      return identifier;
     }
   }
 

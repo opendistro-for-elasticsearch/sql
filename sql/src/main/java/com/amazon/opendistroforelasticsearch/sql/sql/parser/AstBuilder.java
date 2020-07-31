@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
@@ -29,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.google.common.collect.ImmutableList;
@@ -104,13 +104,13 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   }
 
   private UnresolvedExpression visitSelectItem(SelectElementContext ctx) {
-    String name = unquoteIdentifier(getTextInQuery(ctx.expression()));
+    String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx.expression()));
     UnresolvedExpression expr = visitAstExpression(ctx.expression());
 
     if (ctx.alias() == null) {
       return new Alias(name, expr);
     } else {
-      String alias = unquoteIdentifier(ctx.alias().getText());
+      String alias = StringUtils.unquoteIdentifier(ctx.alias().getText());
       return new Alias(name, expr, alias);
     }
   }
