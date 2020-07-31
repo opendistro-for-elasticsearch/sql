@@ -50,6 +50,34 @@ public class IdentifierIT extends SQLIntegTestCase {
     queryAndAssertTheDoc("SELECT * FROM \"logs.2020.01\"");
   }
 
+  @Test
+  public void testSpecialFieldName() throws IOException {
+    new Index("test")
+        .addDoc("{\"@timestamp\": 10, \"dimensions:major_version\": 30}");
+
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [\n"
+            + "    {\n"
+            + "      \"name\": \"@timestamp\",\n"
+            + "      \"type\": \"long\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"name\": \"dimensions:major_version\",\n"
+            + "      \"type\": \"long\"\n"
+            + "    }\n"
+            + "  ],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[\n"
+            + "    10,\n"
+            + "    30\n"
+            + "  ]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        executeQuery("SELECT @timestamp, `dimensions:major_version` FROM test", "jdbc")
+    );
+  }
+
   private void createIndexWithOneDoc(String... indexNames) throws IOException {
     for (String indexName : indexNames) {
       new Index(indexName).addDoc("{\"age\": 30}");

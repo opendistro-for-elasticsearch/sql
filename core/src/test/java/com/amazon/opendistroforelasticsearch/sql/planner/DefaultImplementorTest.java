@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
@@ -36,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
@@ -59,7 +61,7 @@ class DefaultImplementorTest {
   @Test
   public void visitShouldReturnDefaultPhysicalOperator() {
     String indexName = "test";
-    ReferenceExpression include = ref("age", INTEGER);
+    NamedExpression include = named("age", ref("age", INTEGER));
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.of(true));

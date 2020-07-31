@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.utils;
 
-import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DedupCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
@@ -27,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -140,7 +140,7 @@ public class ArgumentFactory {
         ? new Literal(Integer.parseInt(ctx.getText()), DataType.INTEGER)
         : ctx instanceof BooleanLiteralContext
         ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
-        : new Literal(unquoteIdentifier(ctx.getText()), DataType.STRING);
+        : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
   }
 
 }

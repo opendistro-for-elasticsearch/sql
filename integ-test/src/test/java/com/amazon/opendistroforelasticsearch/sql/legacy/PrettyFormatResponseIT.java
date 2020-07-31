@@ -433,6 +433,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 //    public void nestedAggregationFunctionInSelect() {
 //        String query = String.format(Locale.ROOT, "SELECT SUM(SQRT(age)) FROM age GROUP BY age", TEST_INDEX_ACCOUNT);
 //    }
+  @Ignore("New engine returns string type")
   @Test
   public void fieldsWithAlias() throws IOException {
     JSONObject response = executeQuery(

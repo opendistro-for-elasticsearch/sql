@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.google.common.collect.ImmutableSet;
@@ -50,7 +51,7 @@ public class LogicalPlanDSL {
     return new LogicalRename(input, renameMap);
   }
 
-  public static LogicalPlan project(LogicalPlan input, Expression... fields) {
+  public static LogicalPlan project(LogicalPlan input, NamedExpression... fields) {
     return new LogicalProject(input, Arrays.asList(fields));
   }
 
