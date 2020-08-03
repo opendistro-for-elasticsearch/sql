@@ -14,6 +14,11 @@ The driver is compatible with ODBC 3.51.
   |  Windows    |  Windows 10   | 32-bit, 64-bit |
   |  MacOS    |  Catalina 10.15.4, Mojave 10.14.6 | 64-bit |
 
+## Connectors
+
+* **Power BI Desktop**: [`OdfeSqlOdbcPBIConnector.mez`](./src/PowerBIConnector/bin/Release/OdfeSqlOdbcPBIConnector.mez)
+* **Tableau**: [`odfe_sql_odbc.taco`](./src/TableauConnector/odfe_sql_odbc/odfe_sql_odbc.taco)
+
 ## Installing the Driver
 
 You can use the installers generated as part of the most recent release.
