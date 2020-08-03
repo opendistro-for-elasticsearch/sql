@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ExpressionScriptEngine;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.legacy.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
@@ -150,7 +151,7 @@ public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
 
   @Override
   public ScriptEngine getScriptEngine(Settings settings, Collection<ScriptContext<?>> contexts) {
-    return new ExpressionScriptEngine();
+    return new ExpressionScriptEngine(new DefaultExpressionSerializer());
   }
 
 }

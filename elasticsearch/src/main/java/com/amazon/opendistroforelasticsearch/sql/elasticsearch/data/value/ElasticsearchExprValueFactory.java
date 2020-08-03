@@ -95,17 +95,17 @@ public class ElasticsearchExprValueFactory {
 
     ExprType type = type(field);
     if (type.equals(INTEGER)) {
-      return constructInteger(value);
+      return constructInteger(value.intValue());
     } else if (type.equals(LONG)) {
-      return constructLong(value);
+      return constructLong(value.longValue());
     } else if (type.equals(FLOAT)) {
-      return constructFloat(value);
+      return constructFloat(value.floatValue());
     } else if (type.equals(DOUBLE)) {
-      return constructDouble(value);
+      return constructDouble(value.doubleValue());
     } else if (type.equals(STRING)) {
-      return constructString(value);
+      return constructString(value.textValue());
     } else if (type.equals(BOOLEAN)) {
-      return constructBoolean(value);
+      return constructBoolean(value.booleanValue());
     } else if (type.equals(STRUCT)) {
       return constructStruct(value, field);
     } else if (type.equals(ARRAY)) {
@@ -121,6 +121,35 @@ public class ElasticsearchExprValueFactory {
     }
   }
 
+  /**
+   * Construct ExprValue from field and its value object.
+   * @param field   field name
+   * @param value   value object
+   * @return        ExprValue
+   */
+  public ExprValue construct(String field, Object value) {
+    ExprType type = type(field);
+    if (type.equals(INTEGER)) {
+      return constructInteger((Integer) value);
+    } else if (type.equals(LONG)) {
+      return constructLong((Long) value);
+    } else if (type.equals(FLOAT)) {
+      return constructFloat((Float) value);
+    } else if (type.equals(DOUBLE)) {
+      return constructDouble((Double) value);
+    } else if (type.equals(STRING)) {
+      return constructString((String) value);
+    } else if (type.equals(BOOLEAN)) {
+      return constructBoolean((Boolean) value);
+    } else if (type.equals(ES_TEXT)) {
+      return new ElasticsearchExprTextValue((String) value);
+    } else {
+      throw new IllegalStateException(String.format(
+              "Doesn't support construct expression value from object: "
+                  + "%s for field: %s, value: %s.", type.typeName(), field, value));
+    }
+  }
+
   private ExprType type(String field) {
     if (typeMapping.containsKey(field)) {
       return typeMapping.get(field);
@@ -129,28 +158,28 @@ public class ElasticsearchExprValueFactory {
     }
   }
 
-  private ExprIntegerValue constructInteger(JsonNode value) {
-    return new ExprIntegerValue(value.intValue());
+  private ExprIntegerValue constructInteger(Integer value) {
+    return new ExprIntegerValue(value);
   }
 
-  private ExprLongValue constructLong(JsonNode value) {
-    return new ExprLongValue(value.longValue());
+  private ExprLongValue constructLong(Long value) {
+    return new ExprLongValue(value);
   }
 
-  private ExprFloatValue constructFloat(JsonNode value) {
-    return new ExprFloatValue(value.floatValue());
+  private ExprFloatValue constructFloat(Float value) {
+    return new ExprFloatValue(value);
   }
 
-  private ExprDoubleValue constructDouble(JsonNode value) {
-    return new ExprDoubleValue(value.doubleValue());
+  private ExprDoubleValue constructDouble(Double value) {
+    return new ExprDoubleValue(value);
   }
 
-  private ExprStringValue constructString(JsonNode value) {
-    return new ExprStringValue(value.textValue());
+  private ExprStringValue constructString(String value) {
+    return new ExprStringValue(value);
   }
 
-  private ExprBooleanValue constructBoolean(JsonNode value) {
-    return ExprBooleanValue.of(value.booleanValue());
+  private ExprBooleanValue constructBoolean(Boolean value) {
+    return ExprBooleanValue.of(value);
   }
 
   /**

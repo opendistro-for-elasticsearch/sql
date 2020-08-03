@@ -82,8 +82,7 @@ class ExpressionScriptTest {
     assertThat()
         .docValues("age", 30)
         .filterBy(
-            dsl.greater(
-                ref("age", INTEGER), literal(20)))
+            dsl.greater(ref("age", INTEGER), literal(20)))
         .shouldMatch();
   }
 
@@ -105,10 +104,8 @@ class ExpressionScriptTest {
             "name", "John")
         .filterBy(
             dsl.and(
-                dsl.less(
-                    ref("age", INTEGER), literal(50)),
-                dsl.equal(
-                    ref("name", STRING), literal("John"))))
+                dsl.less(ref("age", INTEGER), literal(50)),
+                dsl.equal(ref("name", STRING), literal("John"))))
         .shouldMatch();
   }
 
@@ -134,7 +131,8 @@ class ExpressionScriptTest {
       return this;
     }
 
-    ExprScriptAssertion docValues(String name1, Object value1, String name2, Object value2) {
+    ExprScriptAssertion docValues(String name1, Object value1,
+                                  String name2, Object value2) {
       LeafDocLookup leafDocLookup = mockLeafDocLookup(
           ImmutableMap.of(
               name1, toDocValue(value1),
@@ -158,7 +156,7 @@ class ExpressionScriptTest {
       Assertions.assertFalse(isMatched);
     }
 
-    private ScriptDocValues<?> toDocValue(Object object) {
+    private static ScriptDocValues<?> toDocValue(Object object) {
       if (object instanceof Integer) {
         return new FakeScriptDocValues<>((Integer) object);
       } else if (object instanceof Long) {
@@ -174,7 +172,8 @@ class ExpressionScriptTest {
       }
     }
 
-    private LeafDocLookup mockLeafDocLookup(Map<String, ScriptDocValues<?>> docValueByNames) {
+    private static LeafDocLookup mockLeafDocLookup(
+        Map<String, ScriptDocValues<?>> docValueByNames) {
       LeafDocLookup leafDocLookup = mock(LeafDocLookup.class);
       when(leafDocLookup.containsKey(anyString()))
           .thenAnswer(invocation -> docValueByNames.containsKey(invocation.<String>getArgument(0)));
@@ -182,7 +181,6 @@ class ExpressionScriptTest {
           .thenAnswer(invocation -> docValueByNames.get(invocation.<String>getArgument(0)));
       return leafDocLookup;
     }
-
   }
 
   @RequiredArgsConstructor
