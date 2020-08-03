@@ -65,9 +65,6 @@ class ExpressionScript extends FilterScript {
     }
 
     return AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
-
-      // 1) getDoc() is not iterable;
-      // 2) Doc value is array; 3) Get text field ends up with exception
       Set<ReferenceExpression> fields = extractInputFields();
       ElasticsearchExprValueFactory valueFactory = buildValueFactory(fields);
       Map<String, ExprValue> valueEnv = buildValueEnv(fields, valueFactory);

@@ -122,7 +122,9 @@ public class ElasticsearchExprValueFactory {
   }
 
   /**
-   * Construct ExprValue from field and its value object.
+   * Construct ExprValue from field and its value object. Throw exception if trying
+   * to construct from field of unsupported type.
+   *
    * @param field   field name
    * @param value   value object
    * @return        ExprValue

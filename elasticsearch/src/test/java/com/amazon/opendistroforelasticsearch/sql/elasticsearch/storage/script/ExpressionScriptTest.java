@@ -70,7 +70,7 @@ class ExpressionScriptTest {
   }
 
   @Test
-  void should_skip_doc_if_false_literal() {
+  void should_not_match_if_false_literal() {
     assertThat()
         .docValues()
         .filterBy(literal(false))
@@ -78,7 +78,7 @@ class ExpressionScriptTest {
   }
 
   @Test
-  void should_match_doc_if_true_comparison_expression() {
+  void should_match_if_true_comparison_expression() {
     assertThat()
         .docValues("age", 30)
         .filterBy(
@@ -87,7 +87,7 @@ class ExpressionScriptTest {
   }
 
   @Test
-  void should_match_doc_if_false_comparison_expression_with_function() {
+  void should_not_match_if_false_comparison_expression_with_function() {
     assertThat()
         .docValues("balance", -100.0)
         .filterBy(
