@@ -30,7 +30,7 @@ public abstract class AbstractExprValue implements ExprValue {
   public int compareTo(ExprValue other) {
     if (this.isNull() || this.isMissing() || other.isNull() || other.isMissing()) {
       throw new IllegalStateException(
-          String.format("[BUG] Unreachable, Comparing with NULL or MISSING is undefined"));
+           String.format("[BUG] Unreachable, Comparing with NULL or MISSING is undefined"));
     }
     if ((this.isNumber() && other.isNumber()) || this.type() == other.type()) {
       return compare(other);

@@ -49,7 +49,7 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
   @Override
   public MinState create() {
-    return new MinState(returnType);
+    return new MinState();
   }
 
   @Override
@@ -69,38 +69,15 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
   }
 
   protected static class MinState implements AggregationState {
-    private final ExprCoreType type;
     private ExprValue minResult;
     private boolean isEmptyCollection;
 
-    MinState(ExprCoreType type) {
-      this.type = type;
-      minResult = type.equals(ExprCoreType.STRING) ? LITERAL_NULL : doubleValue(Double.MAX_VALUE);
+    MinState() {
       isEmptyCollection = true;
     }
 
     public void min(ExprValue value) {
-      switch (type) {
-        case INTEGER:
-          minResult = integerValue(Math.min(getIntegerValue(minResult), getIntegerValue(value)));
-          break;
-        case LONG:
-          minResult = longValue(Math.min(getLongValue(minResult), getLongValue(value)));
-          break;
-        case FLOAT:
-          minResult = floatValue(Math.min(getFloatValue(minResult), getFloatValue(value)));
-          break;
-        case DOUBLE:
-          minResult = doubleValue(Math.min(getDoubleValue(minResult), getDoubleValue(value)));
-          break;
-        case STRING:
-          minResult = minResult.isNull() ? value : getStringValue(minResult)
-              .compareTo(getStringValue(value)) > 0 ? value : minResult;
-          break;
-        default:
-          throw new ExpressionEvaluationException(
-              String.format("unexpected type [%s] in min aggregation", type));
-      }
+      minResult = minResult.compareTo(value) < 0 ? minResult : value;
     }
 
     @Override

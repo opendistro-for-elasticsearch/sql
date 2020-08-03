@@ -47,7 +47,6 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
     if (!(value.isNull() || value.isMissing())) {
-      state.isEmptyCollection = false;
       state.count++;
       state.total += ExprValueUtils.getDoubleValue(value);
     }
@@ -65,7 +64,6 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
   protected static class AvgState implements AggregationState {
     private int count;
     private double total;
-    private boolean isEmptyCollection = true;
 
     AvgState() {
       this.count = 0;
@@ -74,7 +72,7 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
 
     @Override
     public ExprValue result() {
-      return isEmptyCollection ? ExprNullValue.of() : ExprValueUtils.doubleValue(total / count);
+      return count == 0 ? ExprNullValue.of() : ExprValueUtils.doubleValue(total / count);
     }
   }
 }
