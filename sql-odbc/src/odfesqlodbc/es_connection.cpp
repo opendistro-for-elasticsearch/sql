@@ -125,15 +125,11 @@ int LIBES_connect(ConnectionClass *self) {
         std::string msg = GetErrorMsg(esconn);
         char error_message_out[ERROR_BUFF_SIZE] = "";
         if (!msg.empty())
-            SPRINTF_FIXED(
-                error_message_out,
-                "elasticsearch connection status was not CONNECTION_OK: %s",
-                msg.c_str());
+            SPRINTF_FIXED(error_message_out, "Connection error: %s",
+                          msg.c_str());
         else
             STRCPY_FIXED(error_message_out,
-                         "elasticsearch connection status was not "
-                         "CONNECTION_OK. No error message "
-                         "available.");
+                         "Connection error: No message available.");
         CC_set_error(self, CONN_OPENDB_ERROR, error_message_out,
                      "LIBES_connect");
         ESDisconnect(esconn);
@@ -151,8 +147,8 @@ int LIBES_connect(ConnectionClass *self) {
     return 1;
 }
 
-// TODO #36 - When we fix encoding, we should look into returning a code here. This
-// is called in connection.c and the return code isn't checked
+// TODO #36 - When we fix encoding, we should look into returning a code here.
+// This is called in connection.c and the return code isn't checked
 void CC_set_locale_encoding(ConnectionClass *self, const char *encoding) {
     if (self == NULL)
         return;
