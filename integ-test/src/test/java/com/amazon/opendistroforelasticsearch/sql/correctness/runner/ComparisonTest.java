@@ -156,9 +156,9 @@ public class ComparisonTest implements AutoCloseable {
     return testCaseId++;
   }
 
-  private void insertTestDataInBatch(DBConnection conn, String tableName, List<String[]> testData) {
-    Iterator<String[]> iterator = testData.iterator();
-    String[] fieldNames = iterator.next(); // first row is header of column names
+  private void insertTestDataInBatch(DBConnection conn, String tableName, List<Object[]> testData) {
+    Iterator<Object[]> iterator = testData.iterator();
+    String[] fieldNames = (String[]) iterator.next(); // first row is header of column names
     Iterators.partition(iterator, 100).
         forEachRemaining(batch -> conn.insert(tableName, fieldNames, batch));
   }

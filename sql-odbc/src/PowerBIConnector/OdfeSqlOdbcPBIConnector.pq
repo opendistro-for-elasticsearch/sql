@@ -106,6 +106,20 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
                     Value.ReplaceType(toTable, Value.Type(source))
             else
                 source,
+        
+        SQLGetFunctions = Diagnostics.LogValue("SQLGetFunctions_Options", [
+            SQL_API_SQLBINDPARAMETER = false
+        ]),
+
+        SqlCapabilities = Diagnostics.LogValue("SqlCapabilities_Options", [
+            SupportsTop = false,
+            LimitClauseKind = LimitClauseKind.LimitOffset,
+            SupportsNumericLiterals = true,
+            SupportsStringLiterals = true,
+            SupportsOdbcDateLiterals = true,
+            SupportsOdbcTimeLiterals = true,
+            SupportsOdbcTimestampLiterals = true
+        ]),
 
         OdbcDatasource = Odbc.DataSource(ConnectionString & Server & CredentialConnectionString & EncryptedConnectionString, [
             // Do not view the tables grouped by their schema names.
@@ -123,6 +137,8 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
             SQLColumns = SQLColumns,
             SQLGetTypeInfo = SQLGetTypeInfo,
             SQLGetInfo = SQLGetInfo,
+            SQLGetFunctions = SQLGetFunctions,
+            SqlCapabilities = SqlCapabilities,
 
             OnError = OnOdbcError,
 
@@ -191,7 +207,10 @@ OdfeSqlOdbcPBIConnector.Publish = [
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://opendistro.github.io/for-elasticsearch/",
-    SupportsDirectQuery = true,
+    
+    // Disabling direct query due to limited SQL query support
+    SupportsDirectQuery = false,
+
     SourceImage = OdfeSqlOdbcPBIConnector.Icons,
     SourceTypeImage = OdfeSqlOdbcPBIConnector.Icons
 ];

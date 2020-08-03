@@ -45,7 +45,7 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)));
-    PhysicalPlan plan = project(inputPlan, DSL.ref("action", STRING));
+    PhysicalPlan plan = project(inputPlan, DSL.named("action", DSL.ref("action", STRING)));
     List<ExprValue> result = execute(plan);
 
     assertThat(
@@ -60,7 +60,9 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)));
-    PhysicalPlan plan = project(inputPlan, DSL.ref("response", INTEGER), DSL.ref("action", STRING));
+    PhysicalPlan plan = project(inputPlan,
+        DSL.named("response", DSL.ref("response", INTEGER)),
+        DSL.named("action", DSL.ref("action", STRING)));
     List<ExprValue> result = execute(plan);
 
     assertThat(
@@ -77,7 +79,9 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)))
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST")));
-    PhysicalPlan plan = project(inputPlan, DSL.ref("response", INTEGER), DSL.ref("action", STRING));
+    PhysicalPlan plan = project(inputPlan,
+        DSL.named("response", DSL.ref("response", INTEGER)),
+        DSL.named("action", DSL.ref("action", STRING)));
     List<ExprValue> result = execute(plan);
 
     assertThat(

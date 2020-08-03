@@ -1,7 +1,5 @@
 #  Connecting Open Distro For ElasticSearch to Microsoft Power BI Desktop
 
-**NOTE**: **The connector is under development. All connection options are not available yet. There could be issues while loading data**
-
 ## Prerequisites
 * Microsoft Power BI Desktop
 * [Open Distro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/)
@@ -19,7 +17,14 @@
 
 ## Load Data
 
+> **NOTE**: Currently only import mode is supported. Direct query support will be added soon.
+
 * Open Power BI Desktop.
+
+* Disable parallel loading of tables. Click on **Files** > **Options and settings** > **Options** > **CURRENT FILE** > **Data Load** > Deselect **Enable parallel loading of tables** and click **OK**.
+
+<img src="img/pbi_disable_parallel_loading_tables.png"  width="500">
+
 * Click on **Home** > **Get Data** > **More** > **Other**. Select **Open Distro For Elasticsearch (Beta)**. Click on **Connect**.
 
 <img src="img/pbi_select_connector.png" width="500">
@@ -41,6 +46,10 @@
 <img src="img/pbi_data_preview.png">
 
 * Click on **Load**.
+
+* Select required columns for creating graph.
+
+<img src="img/pbi_simple_graph.png">
 
 ## Troubleshooting 
 

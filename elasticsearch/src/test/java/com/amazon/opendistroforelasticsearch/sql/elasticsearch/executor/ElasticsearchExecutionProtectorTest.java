@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.D
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +34,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protecto
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ResourceMonitorPlan;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
@@ -72,7 +74,7 @@ class ElasticsearchExecutionProtectorTest {
   @Test
   public void testProtectIndexScan() {
     String indexName = "test";
-    ReferenceExpression include = ref("age", INTEGER);
+    NamedExpression include = named("age", ref("age", INTEGER));
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.of(true));

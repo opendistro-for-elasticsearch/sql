@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -27,10 +28,13 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -149,10 +153,40 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return visitIdentifier(attr, context);
   }
 
+  @Override
+  public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
+    // Name with qualifier (index.field, index_alias.field, object/nested.inner_field
+    //  text.keyword) is not supported for now
+    if (node.getParts().size() > 1) {
+      throw new SyntaxCheckException(String.format(
+          "Qualified name [%s] is not supported yet", node));
+    }
+    return visitIdentifier(node.toString(), context);
+  }
+
+  @Override
+  public Expression visitAlias(Alias node, AnalysisContext context) {
+    return DSL.named(node.getName(),
+                     node.getDelegated().accept(this, context),
+                     node.getAlias());
+  }
+
   private Expression visitIdentifier(String ident, AnalysisContext context) {
     TypeEnvironment typeEnv = context.peek();
     ReferenceExpression ref = DSL.ref(ident,
         typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)));
+
+    // Fall back to old engine too if type is not supported semantically
+    if (isTypeNotSupported(ref.type())) {
+      throw new SyntaxCheckException(String.format(
+          "Identifier [%s] of type [%s] is not supported yet", ident, ref.type()));
+    }
     return ref;
   }
+
+  private boolean isTypeNotSupported(ExprType type) {
+    return "struct".equalsIgnoreCase(type.typeName())
+        || "array".equalsIgnoreCase(type.typeName());
+  }
+
 }

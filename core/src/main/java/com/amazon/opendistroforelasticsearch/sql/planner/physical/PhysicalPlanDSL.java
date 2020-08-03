@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.google.common.collect.ImmutableSet;
@@ -47,7 +48,7 @@ public class PhysicalPlanDSL {
     return new RenameOperator(input, renameMap);
   }
 
-  public static ProjectOperator project(PhysicalPlan input, Expression... fields) {
+  public static ProjectOperator project(PhysicalPlan input, NamedExpression... fields) {
     return new ProjectOperator(input, Arrays.asList(fields));
   }
 

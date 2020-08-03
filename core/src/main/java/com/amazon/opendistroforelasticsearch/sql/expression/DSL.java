@@ -75,6 +75,30 @@ public class DSL {
     return new ReferenceExpression(ref, type);
   }
 
+  /**
+   * Wrap a named expression if not yet. The intent is that different languages may use
+   * Alias or not when building AST. This caused either named or unnamed expression
+   * is resolved by analyzer. To make unnamed expression acceptable for logical project,
+   * it is required to wrap it by named expression here before passing to logical project.
+   *
+   * @param expression  expression
+   * @return            expression if named already or expression wrapped by named expression.
+   */
+  public static NamedExpression named(Expression expression) {
+    if (expression instanceof NamedExpression) {
+      return (NamedExpression) expression;
+    }
+    return named(expression.toString(), expression);
+  }
+
+  public static NamedExpression named(String name, Expression expression) {
+    return new NamedExpression(name, expression);
+  }
+
+  public static NamedExpression named(String name, Expression expression, String alias) {
+    return new NamedExpression(name, expression, alias);
+  }
+
   public FunctionExpression abs(Expression... expressions) {
     return function(BuiltinFunctionName.ABS, expressions);
   }
@@ -268,6 +292,10 @@ public class DSL {
     return function(BuiltinFunctionName.LIKE, expressions);
   }
 
+  public FunctionExpression notLike(Expression... expressions) {
+    return function(BuiltinFunctionName.NOT_LIKE, expressions);
+  }
+
   public Aggregator avg(Expression... expressions) {
     return aggregate(BuiltinFunctionName.AVG, expressions);
   }
@@ -288,5 +316,13 @@ public class DSL {
   private Aggregator aggregate(BuiltinFunctionName functionName, Expression... expressions) {
     return (Aggregator) repository.compile(
         functionName.getName(), Arrays.asList(expressions));
+  }
+
+  public FunctionExpression isnull(Expression... expressions) {
+    return function(BuiltinFunctionName.IS_NULL, expressions);
+  }
+
+  public FunctionExpression isnotnull(Expression... expressions) {
+    return function(BuiltinFunctionName.IS_NOT_NULL, expressions);
   }
 }

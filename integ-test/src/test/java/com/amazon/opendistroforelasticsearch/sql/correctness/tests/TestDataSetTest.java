@@ -29,41 +29,81 @@ public class TestDataSetTest {
 
   @Test
   public void testDataSetWithSingleColumnData() {
-    TestDataSet dataSet = new TestDataSet("test", "mappings", "hello\nworld\n123");
+    String mappings =
+        "{\n"
+            + "  \"mappings\": {\n"
+            + "    \"properties\": {\n"
+            + "      \"field\": {\n"
+            + "        \"type\": \"text\"\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+
+    TestDataSet dataSet = new TestDataSet("test", mappings, "field\nhello\nworld\n123");
     assertEquals("test", dataSet.getTableName());
-    assertEquals("mappings", dataSet.getSchema());
+    assertEquals(mappings, dataSet.getSchema());
     assertThat(
         dataSet.getDataRows(),
         contains(
-            new String[] {"hello"},
-            new String[] {"world"},
-            new String[] {"123"}
+            new Object[] {"field"},
+            new Object[] {"hello"},
+            new Object[] {"world"},
+            new Object[] {"123"}
         )
     );
   }
 
   @Test
   public void testDataSetWithMultiColumnsData() {
-    TestDataSet dataSet = new TestDataSet("test", "mappings", "hello,world\n123");
+    String mappings =
+        "{\n"
+            + "  \"mappings\": {\n"
+            + "    \"properties\": {\n"
+            + "      \"field1\": {\n"
+            + "        \"type\": \"text\"\n"
+            + "      },\n"
+            + "      \"field2\": {\n"
+            + "        \"type\": \"integer\"\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+
+    TestDataSet dataSet = new TestDataSet("test", mappings,
+        "field1,field2\nhello,123\nworld,456");
     assertThat(
         dataSet.getDataRows(),
         contains(
-            new String[] {"hello", "world"},
-            new String[] {"123"}
+            new Object[] {"field1", "field2"},
+            new Object[] {"hello", 123},
+            new Object[] {"world", 456}
         )
     );
   }
 
   @Test
   public void testDataSetWithEscapedComma() {
-    TestDataSet dataSet = new TestDataSet("test", "mappings",
-        "hello,\"hello,world,123\"\n123\n\"[abc,def,ghi]\",456");
+    String mappings =
+        "{\n"
+            + "  \"mappings\": {\n"
+            + "    \"properties\": {\n"
+            + "      \"field\": {\n"
+            + "        \"type\": \"text\"\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+
+    TestDataSet dataSet = new TestDataSet("test", mappings,
+        "field\n\"hello,world,123\"\n123\n\"[abc,def,ghi]\"");
     assertThat(
         dataSet.getDataRows(),
         contains(
-            new String[] {"hello", "hello,world,123"},
-            new String[] {"123"},
-            new String[] {"[abc,def,ghi]", "456"}
+            new Object[] {"field"},
+            new Object[] {"hello,world,123"},
+            new Object[] {"123"},
+            new Object[] {"[abc,def,ghi]"}
         )
     );
   }

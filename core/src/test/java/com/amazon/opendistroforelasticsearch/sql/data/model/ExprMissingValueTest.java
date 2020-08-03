@@ -15,12 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import org.junit.jupiter.api.Test;
 
@@ -41,9 +44,19 @@ class ExprMissingValueTest {
 
   @Test
   public void getType() {
-    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> LITERAL_MISSING.type());
-    assertEquals("invalid to call type operation on missing value", exception.getMessage());
+    assertEquals(ExprCoreType.UNKNOWN, LITERAL_MISSING.type());
+  }
+
+  @Test
+  public void toStringTest() {
+    assertEquals("MISSING", LITERAL_MISSING.toString());
+  }
+
+  @Test
+  public void equal() {
+    assertTrue(LITERAL_MISSING.equals(LITERAL_MISSING));
+    assertFalse(LITERAL_FALSE.equals(LITERAL_MISSING));
+    assertFalse(LITERAL_MISSING.equals(LITERAL_FALSE));
   }
 
   @Test

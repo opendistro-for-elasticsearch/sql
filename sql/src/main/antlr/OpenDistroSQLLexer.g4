@@ -75,6 +75,7 @@ LIMIT:                              'LIMIT';
 LONG:                               'LONG';
 MATCH:                              'MATCH';
 NATURAL:                            'NATURAL';
+MISSING_LITERAL:                    'MISSING';
 NOT:                                'NOT';
 NULL_LITERAL:                       'NULL';
 ON:                                 'ON';
@@ -319,7 +320,7 @@ BACKTICK_QUOTE_ID:                  BQUOTA_STRING;
 // Fragments for Literal primitives
 
 fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                [*A-Z]+?[*A-Z_\-0-9]*;
+fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 fragment SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';

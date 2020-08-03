@@ -17,12 +17,15 @@ package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
@@ -38,20 +41,42 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression not = dsl.not(DSL.literal(booleanValue(v)));
     assertEquals(BOOLEAN, not.type());
     assertEquals(!v, ExprValueUtils.getBooleanValue(not.valueOf(valueEnv())));
-    assertEquals(String.format("not %s", v.toString()), not.toString());
+    assertEquals(String.format("not(%s)", v.toString()), not.toString());
   }
 
   @Test
   public void test_not_null() {
-    FunctionExpression and = dsl.not(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD, BOOLEAN));
-    assertEquals(BOOLEAN, and.type());
-    assertEquals(LITERAL_NULL, and.valueOf(valueEnv()));
+    FunctionExpression expression = dsl.not(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD, BOOLEAN));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_NULL, expression.valueOf(valueEnv()));
   }
 
   @Test
   public void test_not_missing() {
-    FunctionExpression and = dsl.not(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD, BOOLEAN));
-    assertEquals(BOOLEAN, and.type());
-    assertEquals(LITERAL_MISSING, and.valueOf(valueEnv()));
+    FunctionExpression expression = dsl.not(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD, BOOLEAN));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_MISSING, expression.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void is_null_predicate() {
+    FunctionExpression expression = dsl.isnull(DSL.literal(1));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
+
+    expression = dsl.isnull(DSL.literal(ExprNullValue.of()));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void is_not_null_predicate() {
+    FunctionExpression expression = dsl.isnotnull(DSL.literal(1));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
+
+    expression = dsl.isnotnull(DSL.literal(ExprNullValue.of()));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
   }
 }
