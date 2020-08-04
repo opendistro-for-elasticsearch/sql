@@ -45,6 +45,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.get
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getBankWithNullValuesIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDateIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDateTimeIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDeepNestedIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getNestedSimpleIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogs2IndexMapping;
@@ -512,7 +513,11 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
         NESTED_SIMPLE(TestsConstants.TEST_INDEX_NESTED_SIMPLE,
                 "_doc",
                 getNestedSimpleIndexMapping(),
-                "src/test/resources/nested_simple.json");
+                "src/test/resources/nested_simple.json"),
+        DEEP_NESTED(TestsConstants.TEST_INDEX_DEEP_NESTED,
+                "_doc",
+                getDeepNestedIndexMapping(),
+                "src/test/resources/deep_nested_index_data.json");
 
         private final String name;
         private final String type;

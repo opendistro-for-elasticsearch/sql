@@ -437,6 +437,7 @@ public class SelectResultSet extends ResultSet {
             // _score is a special case since it is not included in typeMappings, so it is checked for here
             if (fieldName.equals(SCORE)) {
                 columns.add(new Schema.Column(fieldName, fetchAlias(fieldName, fieldMap), Schema.Type.FLOAT));
+                continue;
             }
             /*
              * Methods are also a special case as their type cannot be determined from typeMappings, so it is checked
@@ -465,6 +466,7 @@ public class SelectResultSet extends ResultSet {
                                 fetchMethodReturnType(fieldIndex, methodField)
                         )
                 );
+                continue;
             }
 
             /*
@@ -473,7 +475,7 @@ public class SelectResultSet extends ResultSet {
              * explicitly selected.
              */
             FieldMapping field = new FieldMapping(fieldName, typeMappings, fieldMap);
-            if (typeMappings.containsKey(fieldName) && !field.isMetaField()) {
+            if (!field.isMetaField()) {
 
                 if (field.isMultiField() && !field.isSpecified()) {
                     continue;
