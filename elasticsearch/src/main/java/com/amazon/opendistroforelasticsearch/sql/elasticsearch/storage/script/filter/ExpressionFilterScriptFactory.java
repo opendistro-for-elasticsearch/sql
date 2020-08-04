@@ -14,45 +14,39 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import java.util.Map;
-import org.apache.lucene.index.LeafReaderContext;
+import lombok.EqualsAndHashCode;
 import org.elasticsearch.script.FilterScript;
+import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.search.lookup.SearchLookup;
 
 /**
- * Expression script leaf factory that produces script executor for each leaf.
+ * Expression script factory that generates leaf factory.
  */
-class ExpressionScriptLeafFactory implements FilterScript.LeafFactory {
+@EqualsAndHashCode
+public class ExpressionFilterScriptFactory implements FilterScript.Factory {
+
+  /**
+   * Script context to indicate script engine when current factory should be used.
+   */
+  public static final ScriptContext<?> CONTEXT =
+      new ScriptContext<>("expression_filtering", ExpressionFilterScriptFactory.class);
 
   /**
    * Expression to execute.
    */
   private final Expression expression;
 
-  /**
-   * Parameters for the expression.
-   */
-  private final Map<String, Object> params;
-
-  /**
-   * Document lookup that returns doc values.
-   */
-  private final SearchLookup lookup;
-
-  public ExpressionScriptLeafFactory(Expression expression,
-                                     Map<String, Object> params,
-                                     SearchLookup lookup) {
+  public ExpressionFilterScriptFactory(Expression expression) {
     this.expression = expression;
-    this.params = params;
-    this.lookup = lookup;
   }
 
   @Override
-  public FilterScript newInstance(LeafReaderContext ctx) {
-    return new ExpressionScript(expression, lookup, ctx, params);
+  public FilterScript.LeafFactory newFactory(Map<String, Object> params, SearchLookup lookup) {
+    return new ExpressionFilterScriptLeafFactory(expression, params, lookup);
   }
 
 }

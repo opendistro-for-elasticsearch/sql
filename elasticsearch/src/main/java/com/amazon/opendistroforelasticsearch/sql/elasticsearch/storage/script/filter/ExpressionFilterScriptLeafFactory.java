@@ -14,30 +14,45 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import java.util.Map;
+import org.apache.lucene.index.LeafReaderContext;
 import org.elasticsearch.script.FilterScript;
 import org.elasticsearch.search.lookup.SearchLookup;
 
 /**
- * Expression script factory that generates leaf factory.
+ * Expression script leaf factory that produces script executor for each leaf.
  */
-class ExpressionScriptFactory implements FilterScript.Factory {
+class ExpressionFilterScriptLeafFactory implements FilterScript.LeafFactory {
 
   /**
    * Expression to execute.
    */
   private final Expression expression;
 
-  public ExpressionScriptFactory(Expression expression) {
+  /**
+   * Parameters for the expression.
+   */
+  private final Map<String, Object> params;
+
+  /**
+   * Document lookup that returns doc values.
+   */
+  private final SearchLookup lookup;
+
+  public ExpressionFilterScriptLeafFactory(Expression expression,
+                                           Map<String, Object> params,
+                                           SearchLookup lookup) {
     this.expression = expression;
+    this.params = params;
+    this.lookup = lookup;
   }
 
   @Override
-  public FilterScript.LeafFactory newFactory(Map<String, Object> params, SearchLookup lookup) {
-    return new ExpressionScriptLeafFactory(expression, params, lookup);
+  public FilterScript newInstance(LeafReaderContext ctx) {
+    return new ExpressionFilterScript(expression, lookup, ctx, params);
   }
 
 }

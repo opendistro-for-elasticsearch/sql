@@ -16,11 +16,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.ExpressionFilterScriptFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import java.util.Collections;
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.script.ScriptEngine;
@@ -36,6 +38,15 @@ public class ExpressionScriptEngine implements ScriptEngine {
    * Expression script language name.
    */
   public static final String EXPRESSION_LANG_NAME = "opendistro_expression";
+
+  /**
+   * All supported script contexts and function to create factory from expression.
+   */
+  private static final Map<ScriptContext<?>, Function<Expression, Object>> CONTEXTS =
+      ImmutableMap.of(
+          ExpressionFilterScriptFactory.CONTEXT,
+          ExpressionFilterScriptFactory::new
+      );
 
   /**
    * Expression serializer that (de-)serializes expression.
@@ -57,14 +68,16 @@ public class ExpressionScriptEngine implements ScriptEngine {
     // The "code" here is actually serialized expression tree by our serializer.
     // Therefore compilation here is simply to deserialize to expression tree.
     Expression expression = serializer.deserialize(scriptCode);
-    ExpressionScriptFactory factory = new ExpressionScriptFactory(expression);
-    return context.factoryClazz.cast(factory);
+    if (CONTEXTS.containsKey(context)) {
+      return context.factoryClazz.cast(CONTEXTS.get(context).apply(expression));
+    }
+    throw new IllegalStateException(String.format("Script context is currently not supported: "
+        + "all supported contexts [%s], given context [%s] ", CONTEXTS, context));
   }
 
   @Override
   public Set<ScriptContext<?>> getSupportedContexts() {
-    return Collections.singleton(
-        new ScriptContext<>("expression_filtering", ExpressionScriptFactory.class));
+    return CONTEXTS.keySet();
   }
 
 }

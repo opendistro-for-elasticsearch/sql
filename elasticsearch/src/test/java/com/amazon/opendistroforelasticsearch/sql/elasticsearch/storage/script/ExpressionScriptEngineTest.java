@@ -14,14 +14,21 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
 
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ExpressionScriptEngine;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.ExpressionFilterScriptFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.script.ScriptEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -40,22 +47,36 @@ class ExpressionScriptEngineTest {
 
   private ScriptEngine scriptEngine;
 
+  private final Expression expression = DSL.literal(true);
+
   @BeforeEach
   void setUp() {
     scriptEngine = new ExpressionScriptEngine(serializer);
   }
 
   @Test
-  void can_compile_script_code_to_expression() {
-
+  void should_return_custom_script_language_name() {
+    assertEquals(ExpressionScriptEngine.EXPRESSION_LANG_NAME, scriptEngine.getType());
   }
 
   @Test
-  void should_support_at_least_one_push_down_optimizations() {
+  void can_initialize_filter_script_factory_by_compiled_script() {
+    when(serializer.deserialize("test code")).thenReturn(expression);
     assertThat(
         scriptEngine.getSupportedContexts(),
-        not(empty())
+        contains(ExpressionFilterScriptFactory.CONTEXT)
     );
+    assertEquals(
+        new ExpressionFilterScriptFactory(expression),
+        scriptEngine.compile("test", "test code", ExpressionFilterScriptFactory.CONTEXT, emptyMap())
+    );
+  }
+
+  @Test
+  void should_throw_exception_for_unsupported_script_context() {
+    ScriptContext<?> unknownCtx = mock(ScriptContext.class);
+    assertThrows(IllegalStateException.class, () ->
+        scriptEngine.compile("test", "test code", unknownCtx, emptyMap()));
   }
 
 }

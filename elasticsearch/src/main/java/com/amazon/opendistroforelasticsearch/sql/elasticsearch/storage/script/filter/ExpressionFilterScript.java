@@ -14,7 +14,7 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -41,17 +41,17 @@ import org.elasticsearch.search.lookup.SearchLookup;
  * Expression script executor that executes the expression on each document
  * and determine if the document is supposed to be filtered out or not.
  */
-class ExpressionScript extends FilterScript {
+class ExpressionFilterScript extends FilterScript {
 
   /**
    * Expression to execute.
    */
   private final Expression expression;
 
-  public ExpressionScript(Expression expression,
-                          SearchLookup lookup,
-                          LeafReaderContext context,
-                          Map<String, Object> params) {
+  public ExpressionFilterScript(Expression expression,
+                                SearchLookup lookup,
+                                LeafReaderContext context,
+                                Map<String, Object> params) {
     super(params, lookup, context);
     this.expression = expression;
   }

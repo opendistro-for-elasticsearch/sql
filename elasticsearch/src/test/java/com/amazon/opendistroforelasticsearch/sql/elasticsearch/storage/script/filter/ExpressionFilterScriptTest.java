@@ -14,7 +14,7 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -48,7 +48,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
-class ExpressionScriptTest {
+class ExpressionFilterScriptTest {
 
   @Mock
   private SearchLookup lookup;
@@ -143,7 +143,7 @@ class ExpressionScriptTest {
     }
 
     ExprScriptAssertion filterBy(Expression expr) {
-      ExpressionScript script = new ExpressionScript(expr, lookup, context, emptyMap());
+      ExpressionFilterScript script = new ExpressionFilterScript(expr, lookup, context, emptyMap());
       isMatched = script.execute();
       return this;
     }
