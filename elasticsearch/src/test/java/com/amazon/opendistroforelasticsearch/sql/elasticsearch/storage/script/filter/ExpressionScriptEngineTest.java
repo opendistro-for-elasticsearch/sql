@@ -17,15 +17,12 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ExpressionScriptEngine;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
-import com.google.common.collect.Sets;
-import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.script.ScriptEngine;
-import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -54,15 +51,11 @@ class ExpressionScriptEngineTest {
   }
 
   @Test
-  void should_support_different_push_down_optimizations() {
+  void should_support_at_least_one_push_down_optimizations() {
     assertThat(
         scriptEngine.getSupportedContexts(),
-        contains(
-
-        )
+        not(empty())
     );
   }
-
-  //private Matcher<ScriptContext<?>> name
 
 }

@@ -53,24 +53,18 @@ public class ExpressionScriptEngine implements ScriptEngine {
                        ScriptContext<T> context,
                        Map<String, String> params) {
 
-    // For now the script itself "inline" all values without parameters.
-    Expression expression = compile(scriptCode);
+    // Note that in fact the expression source is already compiled in query engine.
+    // The "code" here is actually serialized expression tree by our serializer.
+    // Therefore compilation here is simply to deserialize to expression tree.
+    Expression expression = serializer.deserialize(scriptCode);
     ExpressionScriptFactory factory = new ExpressionScriptFactory(expression);
     return context.factoryClazz.cast(factory);
   }
 
   @Override
   public Set<ScriptContext<?>> getSupportedContexts() {
-    return Collections.singleton(new ScriptContext<>("expression_filtering", ExpressionScriptFactory.class));
-  }
-
-  /**
-   * Note that in fact the expression source is already compiled in query engine.
-   * The "code" here is actually serialized expression tree by serializer.
-   * Therefore compilation here is simply to deserialize to expression tree.
-   */
-  private Expression compile(String code) {
-    return serializer.deserialize(code);
+    return Collections.singleton(
+        new ScriptContext<>("expression_filtering", ExpressionScriptFactory.class));
   }
 
 }

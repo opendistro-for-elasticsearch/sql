@@ -20,7 +20,9 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
@@ -53,7 +55,6 @@ class DefaultExpressionSerializerTest {
     assertEquals(original, actual);
   }
 
-  @Disabled("Bypass until binary operator refactored as well")
   @Test
   public void can_serialize_and_deserialize_predicates() {
     Expression original = dsl.or(literal(true), dsl.less(literal(1), literal(2)));
@@ -67,6 +68,14 @@ class DefaultExpressionSerializerTest {
     Expression original = dsl.abs(literal(30.0));
     Expression actual = serializer.deserialize(serializer.serialize(original));
     assertEquals(original, actual);
+  }
+
+  public void cannot_serialize_illegal_expression() {
+  }
+
+  @Test
+  public void cannot_deserialize_illegal_expression_code() {
+    assertThrows(IllegalStateException.class, () -> serializer.deserialize("hello world"));
   }
 
 }
