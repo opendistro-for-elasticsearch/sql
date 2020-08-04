@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
+
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
@@ -40,6 +42,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
@@ -166,8 +169,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       }
     }
 
-    List<Expression> expressions = node.getProjectList().stream()
-        .map(expr -> expressionAnalyzer.analyze(expr, context))
+    List<NamedExpression> expressions = node.getProjectList().stream()
+        .map(expr -> named(expressionAnalyzer.analyze(expr, context)))
         .collect(Collectors.toList());
     return new LogicalProject(child, expressions);
   }

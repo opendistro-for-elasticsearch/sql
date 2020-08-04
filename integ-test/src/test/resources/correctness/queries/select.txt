@@ -1,4 +1,8 @@
 SELECT 1 + 2 FROM kibana_sample_data_flights
-SELECT abs(-10) FROM kibana_sample_data_flights
-SELECT DistanceMiles FROM kibana_sample_data_flights
+SELECT Cancelled, AvgTicketPrice, FlightDelayMin, Carrier, timestamp FROM kibana_sample_data_flights
+SELECT `Cancelled`, `AvgTicketPrice` FROM kibana_sample_data_flights
+SELECT ABS(DistanceMiles), (FlightDelayMin * 2) - 3 FROM kibana_sample_data_flights
+SELECT abs(DistanceMiles), Abs(FlightDelayMin) FROM kibana_sample_data_flights
+SELECT Cancelled AS Cancel, AvgTicketPrice AS ATP FROM kibana_sample_data_flights
+SELECT Cancelled AS `Cancel`, AvgTicketPrice AS "ATP" FROM kibana_sample_data_flights
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500

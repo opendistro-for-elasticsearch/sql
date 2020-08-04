@@ -68,11 +68,11 @@ selectClause
     ;
 
 selectElements
-    : (star=STAR | selectElement) (',' selectElement)*
+    : (star=STAR | selectElement) (COMMA selectElement)*
     ;
 
 selectElement
-    : expression                                         #selectExpressionElement
+    : expression (AS? alias)?
     ;
 
 fromClause
@@ -154,6 +154,7 @@ predicate
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | columnName                                                    #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom

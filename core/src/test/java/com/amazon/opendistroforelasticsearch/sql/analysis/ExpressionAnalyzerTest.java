@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -71,6 +71,64 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         dsl.not(DSL.ref("boolean_value", BOOLEAN)),
         AstDSL.not(AstDSL.unresolvedAttr("boolean_value"))
+    );
+  }
+
+  @Test
+  public void qualified_name() {
+    assertAnalyzeEqual(
+        DSL.ref("integer_value", INTEGER),
+        AstDSL.qualifiedName("integer_value")
+    );
+  }
+
+  @Test
+  public void named_expression() {
+    assertAnalyzeEqual(
+        DSL.named("int", DSL.ref("integer_value", INTEGER)),
+        AstDSL.alias("int", AstDSL.qualifiedName("integer_value"))
+    );
+  }
+
+  @Test
+  public void named_expression_with_alias() {
+    assertAnalyzeEqual(
+        DSL.named("integer", DSL.ref("integer_value", INTEGER), "int"),
+        AstDSL.alias("integer", AstDSL.qualifiedName("integer_value"), "int")
+    );
+  }
+
+  @Test
+  public void skip_identifier_with_qualifier() {
+    SyntaxCheckException exception =
+        assertThrows(SyntaxCheckException.class,
+            () -> analyze(AstDSL.qualifiedName("index_alias", "integer_value")));
+
+    assertEquals(
+        "Qualified name [index_alias.integer_value] is not supported yet",
+        exception.getMessage()
+    );
+  }
+
+  @Test
+  public void skip_struct_data_type() {
+    SyntaxCheckException exception =
+        assertThrows(SyntaxCheckException.class,
+            () -> analyze(AstDSL.qualifiedName("struct_value")));
+    assertEquals(
+        "Identifier [struct_value] of type [STRUCT] is not supported yet",
+        exception.getMessage()
+    );
+  }
+
+  @Test
+  public void skip_array_data_type() {
+    SyntaxCheckException exception =
+        assertThrows(SyntaxCheckException.class,
+            () -> analyze(AstDSL.qualifiedName("array_value")));
+    assertEquals(
+        "Identifier [array_value] of type [ARRAY] is not supported yet",
+        exception.getMessage()
     );
   }
 

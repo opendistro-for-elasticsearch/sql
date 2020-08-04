@@ -37,6 +37,26 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canParseSelectLiteralWithAlias() {
+    assertNotNull(parser.parse("SELECT (1 + 2) * 3 AS expr"));
+  }
+
+  @Test
+  public void canParseSelectFields() {
+    assertNotNull(parser.parse("SELECT name, age FROM accounts"));
+  }
+
+  @Test
+  public void canParseSelectFieldWithAlias() {
+    assertNotNull(parser.parse("SELECT name AS n, age AS a FROM accounts"));
+  }
+
+  @Test
+  public void canParseSelectFieldWithQuotedAlias() {
+    assertNotNull(parser.parse("SELECT name AS \"n\", age AS `a` FROM accounts"));
+  }
+
+  @Test
   public void canParseIndexNameWithDate() {
     assertNotNull(parser.parse("SELECT * FROM logs_2020_01"));
     assertNotNull(parser.parse("SELECT * FROM logs-2020-01"));

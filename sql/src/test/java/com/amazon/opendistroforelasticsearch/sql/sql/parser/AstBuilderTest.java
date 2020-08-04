@@ -16,10 +16,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
@@ -40,27 +43,37 @@ class AstBuilderTest {
    */
   private final SQLSyntaxParser parser = new SQLSyntaxParser();
 
-  /**
-   * AST builder class that being tested.
-   */
-  private final AstBuilder astBuilder = new AstBuilder();
-
   @Test
-  public void canBuildSelectLiterals() {
+  public void can_build_select_literals() {
     assertEquals(
         project(
             values(emptyList()),
-            intLiteral(123),
-            stringLiteral("hello"),
-            booleanLiteral(false),
-            doubleLiteral(-4.567)
+            alias("123", intLiteral(123)),
+            alias("'hello'", stringLiteral("hello")),
+            alias("false", booleanLiteral(false)),
+            alias("-4.567", doubleLiteral(-4.567))
         ),
         buildAST("SELECT 123, 'hello', false, -4.567")
     );
   }
 
   @Test
-  public void canBuildSelectAllFromIndex() {
+  public void can_build_select_function_call_with_alias() {
+    assertEquals(
+        project(
+            relation("test"),
+            alias(
+                "ABS(age)",
+                function("ABS", qualifiedName("age")),
+                "a"
+            )
+        ),
+        buildAST("SELECT ABS(age) AS a FROM test")
+    );
+  }
+
+  @Test
+  public void can_build_select_all_from_index() {
     assertEquals(
         relation("test"),
         buildAST("SELECT * FROM test")
@@ -70,16 +83,54 @@ class AstBuilderTest {
   }
 
   @Test
-  public void buildSelectFieldsFromIndex() { // TODO: change to select fields later
+  public void can_build_select_fields_from_index() {
     assertEquals(
-        project(relation("test"), intLiteral(1)),
-        buildAST("SELECT 1 FROM test")
+        project(
+            relation("test"),
+            alias("age", qualifiedName("age"))
+        ),
+        buildAST("SELECT age FROM test")
+    );
+  }
+
+  @Test
+  public void can_build_select_fields_with_alias() {
+    assertEquals(
+        project(
+            relation("test"),
+            alias("age", qualifiedName("age"), "a")
+        ),
+        buildAST("SELECT age AS a FROM test")
+    );
+  }
+
+  @Test
+  public void can_build_select_fields_with_alias_quoted() {
+    assertEquals(
+        project(
+            relation("test"),
+            alias(
+                "name",
+                qualifiedName("name"),
+                "first name"
+            ),
+            alias(
+                "(age + 10)",
+                function("+", qualifiedName("age"), intLiteral(10)),
+                "Age_Expr"
+            )
+        ),
+        buildAST("SELECT"
+                + " name AS \"first name\", "
+                + " (age + 10) AS `Age_Expr` "
+                + "FROM test"
+        )
     );
   }
 
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
-    return parseTree.accept(astBuilder);
+    return parseTree.accept(new AstBuilder(query));
   }
 
 }
