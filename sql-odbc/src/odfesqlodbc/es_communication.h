@@ -87,9 +87,6 @@ class ESCommunication {
     void GetJsonSchema(ESResult& es_result);
     void PrepareCursorResult(ESResult& es_result);
     std::shared_ptr< ErrorDetails > ParseErrorResponse(ESResult& es_result);
-    void SetErrorDetails(std::string reason, std::string message,
-                         ConnErrorType error_type);
-    void SetErrorDetails(ErrorDetails details);
 
     // TODO #35 - Go through and add error messages on exit conditions
     std::string m_error_message;
