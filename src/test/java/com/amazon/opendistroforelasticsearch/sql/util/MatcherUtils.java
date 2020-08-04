@@ -172,6 +172,11 @@ public class MatcherUtils {
         }
     }
 
+    public static TypeSafeMatcher<JSONObject> schema(String expectedName,
+                                                     String expectedType) {
+        return schema(expectedName, null, expectedType);
+    }
+
     public static TypeSafeMatcher<JSONObject> schema(String expectedName, String expectedAlias, String expectedType) {
         return new TypeSafeMatcher<JSONObject>() {
             @Override
