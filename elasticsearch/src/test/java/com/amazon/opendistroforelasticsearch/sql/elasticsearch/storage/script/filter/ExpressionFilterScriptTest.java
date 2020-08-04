@@ -62,7 +62,7 @@ class ExpressionFilterScriptTest {
   private final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
 
   @Test
-  void should_match_doc_if_true_literal() {
+  void should_match_if_true_literal() {
     assertThat()
         .docValues()
         .filterBy(literal(true))

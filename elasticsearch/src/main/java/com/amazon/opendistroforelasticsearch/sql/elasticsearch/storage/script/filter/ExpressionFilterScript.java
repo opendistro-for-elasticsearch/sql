@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import org.apache.lucene.index.LeafReaderContext;
 import org.elasticsearch.SpecialPermission;
 import org.elasticsearch.index.fielddata.ScriptDocValues;
@@ -41,6 +42,7 @@ import org.elasticsearch.search.lookup.SearchLookup;
  * Expression script executor that executes the expression on each document
  * and determine if the document is supposed to be filtered out or not.
  */
+@EqualsAndHashCode(callSuper = false)
 class ExpressionFilterScript extends FilterScript {
 
   /**

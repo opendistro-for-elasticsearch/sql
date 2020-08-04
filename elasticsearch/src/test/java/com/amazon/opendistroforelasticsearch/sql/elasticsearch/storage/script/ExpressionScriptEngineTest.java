@@ -50,7 +50,7 @@ class ExpressionScriptEngineTest {
   private final Expression expression = DSL.literal(true);
 
   @BeforeEach
-  void setUp() {
+  void set_up() {
     scriptEngine = new ExpressionScriptEngine(serializer);
   }
 
