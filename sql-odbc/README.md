@@ -65,7 +65,7 @@ To setup a connection, the driver uses an ODBC connection string. Connection str
 
 ### Building
 
-Please refer to the [build instructions](./BUILD_INSTRUCTIONS.md) for detailed build instructions on your platform.
+Please refer to the [build instructions](./docs/dev/BUILD_INSTRUCTIONS.md) for detailed build instructions on your platform.
 If your PC is already setup to build the library, you can simply invoke cmake using
 
 > cmake ./src
