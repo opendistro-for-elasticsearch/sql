@@ -688,6 +688,45 @@ public class TestUtils {
                 "  }" +
                 "}";
     }
+
+    public static String getDeepNestedIndexMapping() {
+        return "{\n" +
+            "  \"mappings\": {\n" +
+            "    \"properties\": {\n" +
+            "      \"city\": {\n" +
+            "        \"properties\": {\n" +
+            "          \"name\": {\n" +
+            "            \"type\": \"keyword\"\n" +
+            "          },\n" +
+            "          \"location\": {\n" +
+            "            \"properties\": {\n" +
+            "              \"latitude\": {\n" +
+            "                \"type\": \"double\"\n" +
+            "              }\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
+            "      },\n" +
+            "      \"account\": {\n" +
+            "        \"properties\": {\n" +
+            "          \"id\": {\n" +
+            "            \"type\": \"keyword\"\n" +
+            "          }\n" +
+            "        }\n" +
+            "      },\n" +
+            "      \"projects\": {\n" +
+            "        \"type\": \"nested\",\n" +
+            "        \"properties\": {\n" +
+            "          \"name\": {\n" +
+            "            \"type\": \"keyword\"\n" +
+            "          }\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "} ";
+    }
+
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
         System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));
         String absJsonPath = getResourceFilePath(jsonPath);

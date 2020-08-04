@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.utils;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.alibaba.druid.sql.ast.SQLDataType;
 import com.alibaba.druid.sql.ast.SQLDataTypeImpl;
 import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
@@ -28,25 +31,20 @@ import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
-import com.amazon.opendistroforelasticsearch.sql.parser.FieldMaker;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.elasticsearch.common.collect.Tuple;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
-
 public class SQLFunctionsTest {
 
-    private SQLFunctions sqlFunctions;
+    private SQLFunctions sqlFunctions = new SQLFunctions();
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -98,5 +96,16 @@ public class SQLFunctionsTest {
         Schema.Type resolvedType = columnTypeProvider.get(0);
         final Schema.Type returnType = sqlFunctions.getScriptFunctionReturnType(field, resolvedType);
         Assert.assertEquals(returnType, Schema.Type.INTEGER);
+    }
+
+    @Test
+    public void testCastIntStatementScript() throws SqlParseException {
+        assertEquals(
+            "def result = (doc['age'].value instanceof boolean) "
+                + "? (doc['age'].value ? 1 : 0) "
+                + ": Double.parseDouble(doc['age'].value.toString()).intValue()",
+            sqlFunctions.getCastScriptStatement(
+                "result", "int", Arrays.asList(new KVValue("age")))
+        );
     }
 }
