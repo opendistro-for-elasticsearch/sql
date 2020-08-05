@@ -24,7 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -66,9 +66,7 @@ class ExpressionFilterScript extends FilterScript {
     SpecialPermission.check();
 
     return AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
-      Set<ReferenceExpression> fields = new HashSet<>();
-      extractFields(expression, fields);
-
+      Set<ReferenceExpression> fields = extractFields(expression);
       ElasticsearchExprValueFactory valueFactory = buildValueFactory(fields);
       Map<String, ExprValue> valueEnv = buildValueEnv(fields, valueFactory);
       ExprValue result = evaluateExpression(valueEnv);
@@ -76,14 +74,16 @@ class ExpressionFilterScript extends FilterScript {
     });
   }
 
-  private void extractFields(Expression expr, Set<ReferenceExpression> fields) {
-    if (expr instanceof ReferenceExpression) {
-      ReferenceExpression ref = (ReferenceExpression) expr;
-      fields.add(ref);
-    } else if (expr instanceof FunctionExpression) {
-      FunctionExpression func = (FunctionExpression) expr;
-      func.getArguments().forEach(argExpr -> extractFields(argExpr, fields));
-    } // else: ignore other expressions, ex. literal, aggregator etc.
+  private Set<ReferenceExpression> extractFields(Expression expr) {
+    Set<ReferenceExpression> fields = new HashSet<>();
+    expr.accept(new ExpressionNodeVisitor<Object, Set<ReferenceExpression>>() {
+      @Override
+      public Object visitReference(ReferenceExpression node, Set<ReferenceExpression> context) {
+        context.add(node);
+        return null;
+      }
+    }, fields);
+    return fields;
   }
 
   private ElasticsearchExprValueFactory buildValueFactory(Set<ReferenceExpression> fields) {

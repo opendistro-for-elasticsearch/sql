@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
 
 /**
  * Abstract visitor for expression tree nodes.
@@ -27,6 +28,30 @@ public abstract class ExpressionNodeVisitor<T, C> {
 
   public T visitNode(Expression node, C context) {
     return null;
+  }
+
+  /**
+   * Visit child nodes under function.
+   * @param node      function node
+   * @param context   context
+   * @return          result
+   */
+  public T visitChildren(FunctionImplementation node, C context) {
+    T result = defaultResult();
+
+    for (Expression child : node.getArguments()) {
+      T childResult = child.accept(this, context);
+      result = aggregateResult(result, childResult);
+    }
+    return result;
+  }
+
+  private T defaultResult() {
+    return null;
+  }
+
+  private T aggregateResult(T aggregate, T nextResult) {
+    return nextResult;
   }
 
   public T visitLiteral(LiteralExpression node, C context) {
@@ -42,11 +67,11 @@ public abstract class ExpressionNodeVisitor<T, C> {
   }
 
   public T visitFunction(FunctionExpression node, C context) {
-    return visitNode(node, context);
+    return visitChildren(node, context);
   }
 
   public T visitAggregator(Aggregator<?> node, C context) {
-    return visitNode(node, context);
+    return visitChildren(node, context);
   }
 
 }
