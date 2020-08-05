@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
+import static java.util.stream.Collectors.toMap;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
@@ -26,11 +28,11 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import org.apache.lucene.index.LeafReaderContext;
 import org.elasticsearch.SpecialPermission;
@@ -67,7 +69,9 @@ class ExpressionFilterScript extends FilterScript {
     }
 
     return AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
-      Set<ReferenceExpression> fields = extractInputFields();
+      Set<ReferenceExpression> fields = new HashSet<>();
+      extractFields(expression, fields);
+
       ElasticsearchExprValueFactory valueFactory = buildValueFactory(fields);
       Map<String, ExprValue> valueEnv = buildValueEnv(fields, valueFactory);
       ExprValue result = evaluateExpression(valueEnv);
@@ -75,25 +79,19 @@ class ExpressionFilterScript extends FilterScript {
     });
   }
 
-  private Set<ReferenceExpression> extractInputFields() {
-    Set<ReferenceExpression> fields = new HashSet<>();
-    doExtractInputFields(expression, fields);
-    return fields;
-  }
-
-  private void doExtractInputFields(Expression expr, Set<ReferenceExpression> fields) {
-    if (expr instanceof FunctionExpression) {
-      FunctionExpression func = (FunctionExpression) expr;
-      func.getArguments().forEach(argExpr -> doExtractInputFields(argExpr, fields));
-    } else if (expr instanceof ReferenceExpression) {
+  private void extractFields(Expression expr, Set<ReferenceExpression> fields) {
+    if (expr instanceof ReferenceExpression) {
       ReferenceExpression ref = (ReferenceExpression) expr;
       fields.add(ref);
-    } // else ignore other expressions, ex. literal, aggregator etc.
+    } else if (expr instanceof FunctionExpression) {
+      FunctionExpression func = (FunctionExpression) expr;
+      func.getArguments().forEach(argExpr -> extractFields(argExpr, fields));
+    } // else: ignore other expressions, ex. literal, aggregator etc.
   }
 
   private ElasticsearchExprValueFactory buildValueFactory(Set<ReferenceExpression> fields) {
     Map<String, ExprType> typeEnv = fields.stream()
-                                          .collect(Collectors.toMap(
+                                          .collect(toMap(
                                               ReferenceExpression::getAttr,
                                               ReferenceExpression::type));
     return new ElasticsearchExprValueFactory(typeEnv);
@@ -104,23 +102,21 @@ class ExpressionFilterScript extends FilterScript {
     Map<String, ExprValue> valueEnv = new HashMap<>();
     for (ReferenceExpression field : fields) {
       String fieldName = field.getAttr();
-      ScriptDocValues<?> value = extractFieldValue(fieldName);
-      if (value != null && !value.isEmpty()) {
-        valueEnv.put(fieldName, valueFactory.construct(fieldName, value.get(0)));
-      }
+      ExprValue exprValue = valueFactory.construct(fieldName, getDocValue(fieldName));
+      valueEnv.put(fieldName, exprValue);
     }
     return valueEnv;
   }
 
-  private ScriptDocValues<?> extractFieldValue(String fieldName) {
-    Map<String, ScriptDocValues<?>> doc = getDoc();
-    String keyword = fieldName + ".keyword";
+  private Object getDocValue(String fieldName) {
+    ScriptDocValues<?> docValue = getDoc().get(fieldName);
+    if (docValue == null || docValue.isEmpty()) {
+      throw new IllegalStateException("Doc docValue is not found for field: " + fieldName);
+    }
 
-    ScriptDocValues<?> value = null;
-    if (doc.containsKey(keyword)) {
-      value = doc.get(keyword);
-    } else if (doc.containsKey(fieldName)) {
-      value = doc.get(fieldName);
+    Object value = docValue.get(0);
+    if (value instanceof ChronoZonedDateTime) {
+      return ((ChronoZonedDateTime<?>) value).toInstant();
     }
     return value;
   }
@@ -130,7 +126,9 @@ class ExpressionFilterScript extends FilterScript {
     ExprValue result = expression.valueOf(tupleValue.bindingTuples());
 
     if (result.type() != ExprCoreType.BOOLEAN) {
-      throw new IllegalStateException("Expression has wrong result type: " + result);
+      throw new IllegalStateException(String.format(
+          "Expression has wrong result type instead of boolean: "
+              + "expression [%s], result [%s]", expression, result));
     }
     return result;
   }

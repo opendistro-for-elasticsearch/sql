@@ -45,7 +45,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -111,7 +110,11 @@ public class ElasticsearchExprValueFactory {
     } else if (type.equals(ARRAY)) {
       return constructArray(value, field);
     } else if (type.equals(TIMESTAMP)) {
-      return constructTimestamp(value);
+      if (value.isNumber()) {
+        return constructTimestamp(value.longValue());
+      } else {
+        return constructTimestamp(value.asText());
+      }
     } else if (type.equals(ES_TEXT)) {
       return new ElasticsearchExprTextValue(value.asText());
     } else {
@@ -143,12 +146,20 @@ public class ElasticsearchExprValueFactory {
       return constructString((String) value);
     } else if (type.equals(BOOLEAN)) {
       return constructBoolean((Boolean) value);
-    } else if (type.equals(ES_TEXT)) {
-      return new ElasticsearchExprTextValue((String) value);
+    } else if (type.equals(TIMESTAMP)) {
+      if (value instanceof Number) {
+        return constructTimestamp((Long) value);
+      } else if (value instanceof Instant) {
+        return constructTimestamp((Instant) value);
+      } else {
+        return constructTimestamp(String.valueOf(value));
+      }
+    //} else if (type.equals(ES_TEXT)) {
+    //  return new ElasticsearchExprTextValue((String) value);
     } else {
       throw new IllegalStateException(String.format(
-              "Doesn't support construct expression value from object: "
-                  + "%s for field: %s, value: %s.", type.typeName(), field, value));
+              "Unsupported type %s to construct expression value from object for "
+                  + "field: %s, value: %s.", type.typeName(), field, value));
     }
   }
 
@@ -184,24 +195,28 @@ public class ElasticsearchExprValueFactory {
     return ExprBooleanValue.of(value);
   }
 
+  private ExprValue constructTimestamp(Long value) {
+    return constructTimestamp(Instant.ofEpochMilli(value));
+  }
+
+  private ExprValue constructTimestamp(Instant instant) {
+    return new ExprTimestampValue(instant);
+  }
+
   /**
    * Only default strict_date_optional_time||epoch_millis is supported.
    * https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html
    * The customized date_format is not supported.
    */
-  private ExprValue constructTimestamp(JsonNode value) {
+  private ExprValue constructTimestamp(String value) {
     try {
-      if (value.getNodeType().equals(JsonNodeType.NUMBER)) {
-        return new ExprTimestampValue(Instant.ofEpochMilli(value.asLong()));
-      } else {
-        return new ExprTimestampValue(
-            // Using Elasticsearch DateFormatters for now.
-            DateFormatters.from(DATE_TIME_FORMATTER.parse(value.asText())).toInstant());
-      }
+      return new ExprTimestampValue(
+          // Using Elasticsearch DateFormatters for now.
+          DateFormatters.from(DATE_TIME_FORMATTER.parse(value)).toInstant());
     } catch (DateTimeParseException e) {
       throw new IllegalStateException(
           String.format(
-              "Construct ExprTimestampValue from %s failed, unsupported date format.", value),
+              "Construct ExprTimestampValue from \"%s\" failed, unsupported date format.", value),
           e);
     }
   }

@@ -62,11 +62,11 @@ class ExpressionFilterScriptFactoryTest {
   void can_initialize_expression_filter_script() throws IOException {
     FilterScript.Factory factory = new ExpressionFilterScriptFactory(expression);
     FilterScript.LeafFactory leafFactory = factory.newFactory(params, searchLookup);
-    FilterScript filterScript = leafFactory.newInstance(leafReaderContext);
+    FilterScript actualFilterScript = leafFactory.newInstance(leafReaderContext);
 
     assertEquals(
         new ExpressionFilterScript(expression, searchLookup, leafReaderContext, params),
-        filterScript
+        actualFilterScript
     );
   }
 

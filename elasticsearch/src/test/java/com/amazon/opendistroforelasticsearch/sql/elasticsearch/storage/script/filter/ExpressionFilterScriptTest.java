@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.f
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static java.util.Collections.emptyMap;
@@ -27,10 +28,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.google.common.collect.ImmutableMap;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.lucene.index.LeafReaderContext;
@@ -78,7 +82,7 @@ class ExpressionFilterScriptTest {
   }
 
   @Test
-  void should_match_if_true_comparison_expression() {
+  void can_execute_expression_with_single_field() {
     assertThat()
         .docValues("age", 30)
         .filterBy(
@@ -87,25 +91,24 @@ class ExpressionFilterScriptTest {
   }
 
   @Test
-  void should_not_match_if_false_comparison_expression_with_function() {
-    assertThat()
-        .docValues("balance", -100.0)
-        .filterBy(
-            dsl.greater(
-                dsl.abs(ref("balance", DOUBLE)), literal(101.0)))
-        .shouldNotMatch();
-  }
-
-  @Test
-  void can_execute_expression_script_with_multiple_fields_involved() {
+  void can_execute_expression_with_multiple_fields() {
     assertThat()
         .docValues(
-            "age", 30,
+            "balance", 100.0,
             "name", "John")
         .filterBy(
             dsl.and(
-                dsl.less(ref("age", INTEGER), literal(50)),
+                dsl.less(ref("balance", DOUBLE), literal(150.0)),
                 dsl.equal(ref("name", STRING), literal("John"))))
+        .shouldMatch();
+  }
+
+  @Test
+  void can_execute_expression_with_date_field() {
+    ExprTimestampValue ts = new ExprTimestampValue("2020-08-04 10:00:00");
+    assertThat()
+        .docValues("birthday", ZonedDateTime.parse("2020-08-04T10:00:00Z"))
+        .filterBy(dsl.equal(ref("birthday", TIMESTAMP), new LiteralExpression(ts)))
         .shouldMatch();
   }
 
@@ -125,7 +128,9 @@ class ExpressionFilterScriptTest {
     }
 
     ExprScriptAssertion docValues(String name, Object value) {
-      LeafDocLookup leafDocLookup = mockLeafDocLookup(ImmutableMap.of(name, toDocValue(value)));
+      LeafDocLookup leafDocLookup = mockLeafDocLookup(
+          ImmutableMap.of(name, new FakeScriptDocValues<>(value)));
+
       when(lookup.getLeafSearchLookup(any())).thenReturn(leafLookup);
       when(leafLookup.doc()).thenReturn(leafDocLookup);
       return this;
@@ -135,8 +140,9 @@ class ExpressionFilterScriptTest {
                                   String name2, Object value2) {
       LeafDocLookup leafDocLookup = mockLeafDocLookup(
           ImmutableMap.of(
-              name1, toDocValue(value1),
-              name2, toDocValue(value2)));
+              name1, new FakeScriptDocValues<>(value1),
+              name2, new FakeScriptDocValues<>(value2)));
+
       when(lookup.getLeafSearchLookup(any())).thenReturn(leafLookup);
       when(leafLookup.doc()).thenReturn(leafDocLookup);
       return this;
@@ -156,27 +162,8 @@ class ExpressionFilterScriptTest {
       Assertions.assertFalse(isMatched);
     }
 
-    private static ScriptDocValues<?> toDocValue(Object object) {
-      if (object instanceof Integer) {
-        return new FakeScriptDocValues<>((Integer) object);
-      } else if (object instanceof Long) {
-        return new FakeScriptDocValues<>((Long) object);
-      } else if (object instanceof Double) {
-        return new FakeScriptDocValues<>((Double) object);
-      } else if (object instanceof String) {
-        return new FakeScriptDocValues<>((String) object);
-      } else if (object instanceof Boolean) {
-        return new FakeScriptDocValues<>((Boolean) object);
-      } else {
-        throw new IllegalStateException("Unsupported doc value type: " + object.getClass());
-      }
-    }
-
-    private static LeafDocLookup mockLeafDocLookup(
-        Map<String, ScriptDocValues<?>> docValueByNames) {
+    private LeafDocLookup mockLeafDocLookup(Map<String, ScriptDocValues<?>> docValueByNames) {
       LeafDocLookup leafDocLookup = mock(LeafDocLookup.class);
-      when(leafDocLookup.containsKey(anyString()))
-          .thenAnswer(invocation -> docValueByNames.containsKey(invocation.<String>getArgument(0)));
       when(leafDocLookup.get(anyString()))
           .thenAnswer(invocation -> docValueByNames.get(invocation.<String>getArgument(0)));
       return leafDocLookup;

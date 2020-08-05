@@ -62,14 +62,13 @@ class ExpressionScriptEngineTest {
   @Test
   void can_initialize_filter_script_factory_by_compiled_script() {
     when(serializer.deserialize("test code")).thenReturn(expression);
-    assertThat(
-        scriptEngine.getSupportedContexts(),
-        contains(ExpressionFilterScriptFactory.CONTEXT)
-    );
-    assertEquals(
-        new ExpressionFilterScriptFactory(expression),
-        scriptEngine.compile("test", "test code", ExpressionFilterScriptFactory.CONTEXT, emptyMap())
-    );
+
+    assertThat(scriptEngine.getSupportedContexts(),
+        contains(ExpressionFilterScriptFactory.CONTEXT));
+
+    Object actualFactory = scriptEngine.compile(
+        "test", "test code", ExpressionFilterScriptFactory.CONTEXT, emptyMap());
+    assertEquals(new ExpressionFilterScriptFactory(expression), actualFactory);
   }
 
   @Test

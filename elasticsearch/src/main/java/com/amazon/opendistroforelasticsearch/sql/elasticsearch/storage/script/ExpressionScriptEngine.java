@@ -63,11 +63,13 @@ public class ExpressionScriptEngine implements ScriptEngine {
                        String scriptCode,
                        ScriptContext<T> context,
                        Map<String, String> params) {
-
-    // Note that in fact the expression source is already compiled in query engine.
-    // The "code" here is actually serialized expression tree by our serializer.
-    // Therefore compilation here is simply to deserialize to expression tree.
+    /*
+     * Note that in fact the expression source is already compiled in query engine.
+     * The "code" is actually a serialized expression tree by our serializer.
+     * Therefore the compilation here is simply to deserialize the expression tree.
+     */
     Expression expression = serializer.deserialize(scriptCode);
+
     if (CONTEXTS.containsKey(context)) {
       return context.factoryClazz.cast(CONTEXTS.get(context).apply(expression));
     }
