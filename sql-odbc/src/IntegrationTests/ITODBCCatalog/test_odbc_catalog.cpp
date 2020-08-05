@@ -491,13 +491,13 @@ const std::vector< sample_data_getTypeInfo_struct > sample_data_all_types_info{
      SQL_TINYINT, 0, 10, 0},
     {"short", SQL_SMALLINT, 5, "", "", "", 2, 0, 3, 0, 0, 0, "", 0, 0,
      SQL_SMALLINT, 0, 10, 0},
-    {"keyword", SQL_WVARCHAR, 256, "\"", "\"", "", 2, 1, 3, 1, 0, 0, "", 0, 0,
+    {"keyword", SQL_WVARCHAR, 256, "\'", "\'", "", 2, 1, 3, 1, 0, 0, "", 0, 0,
      SQL_WVARCHAR, 0, 10, 0},
-    {"text", SQL_WVARCHAR, 2147483647, "\"", "\"", "", 2, 1, 3, 1, 0, 0, "", 0,
+    {"text", SQL_WVARCHAR, 2147483647, "\'", "\'", "", 2, 1, 3, 1, 0, 0, "", 0,
      0, SQL_WVARCHAR, 0, 10, 0},
-    {"nested", SQL_WVARCHAR, 0, "\"", "\"", "", 2, 0, 3, 1, 0, 0, "", 0, 0,
+    {"nested", SQL_WVARCHAR, 0, "\'", "\'", "", 2, 0, 3, 1, 0, 0, "", 0, 0,
      SQL_WVARCHAR, 0, 10, 0},
-    {"object", SQL_WVARCHAR, 0, "\"", "\"", "", 2, 0, 3, 1, 0, 0, "", 0, 0,
+    {"object", SQL_WVARCHAR, 0, "\'", "\'", "", 2, 0, 3, 1, 0, 0, "", 0, 0,
      SQL_WVARCHAR, 0, 10, 0},
     {"integer", SQL_INTEGER, 10, "", "", "", 2, 0, 3, 0, 0, 0, "", 0, 0,
      SQL_INTEGER, 0, 10, 0},
@@ -516,13 +516,13 @@ const std::vector< sample_data_getTypeInfo_struct > sample_data_all_types_info{
 
 const std::vector< sample_data_getTypeInfo_struct >
     sample_data_single_type_multiple_row{
-        {"keyword", SQL_WVARCHAR, 256, "\"", "\"", "", 2, 1, 3, 1, 0, 0, "", 0,
+        {"keyword", SQL_WVARCHAR, 256, "\'", "\'", "", 2, 1, 3, 1, 0, 0, "", 0,
          0, SQL_WVARCHAR, 0, 10, 0},
-        {"text", SQL_WVARCHAR, 2147483647, "\"", "\"", "", 2, 1, 3, 1, 0, 0, "",
+        {"text", SQL_WVARCHAR, 2147483647, "\'", "\'", "", 2, 1, 3, 1, 0, 0, "",
          0, 0, SQL_WVARCHAR, 0, 10, 0},
-        {"nested", SQL_WVARCHAR, 0, "\"", "\"", "", 2, 0, 3, 1, 0, 0, "", 0, 0,
+        {"nested", SQL_WVARCHAR, 0, "\'", "\'", "", 2, 0, 3, 1, 0, 0, "", 0, 0,
          SQL_WVARCHAR, 0, 10, 0},
-        {"object", SQL_WVARCHAR, 0, "\"", "\"", "", 2, 0, 3, 1, 0, 0, "", 0, 0,
+        {"object", SQL_WVARCHAR, 0, "\'", "\'", "", 2, 0, 3, 1, 0, 0, "", 0, 0,
          SQL_WVARCHAR, 0, 10, 0}};
 
 const std::vector< sample_data_getTypeInfo_struct >

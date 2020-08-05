@@ -211,7 +211,7 @@ OdfeSqlOdbcPBIConnector.Publish = [
     LearnMoreUrl = "https://opendistro.github.io/for-elasticsearch/",
     
     // Disabling direct query due to limited SQL query support
-    SupportsDirectQuery = true,
+    SupportsDirectQuery = false,
 
     SourceImage = OdfeSqlOdbcPBIConnector.Icons,
     SourceTypeImage = OdfeSqlOdbcPBIConnector.Icons
