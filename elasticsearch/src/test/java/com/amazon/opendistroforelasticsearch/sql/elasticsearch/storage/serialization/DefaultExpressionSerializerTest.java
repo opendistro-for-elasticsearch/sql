@@ -22,10 +22,13 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -70,12 +73,26 @@ class DefaultExpressionSerializerTest {
     assertEquals(original, actual);
   }
 
+  @Test
   public void cannot_serialize_illegal_expression() {
+    Expression illegalExpr = new Expression() {
+      private final Object object = new Object(); // non-serializable
+      @Override
+      public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+        return null;
+      }
+
+      @Override
+      public ExprType type() {
+        return null;
+      }
+    };
+    assertThrows(IllegalStateException.class, () -> serializer.serialize(illegalExpr));
   }
 
   @Test
   public void cannot_deserialize_illegal_expression_code() {
-    //assertThrows(IllegalStateException.class, () -> serializer.deserialize("hello world"));
+    assertThrows(IllegalStateException.class, () -> serializer.deserialize("hello world"));
   }
 
 }
