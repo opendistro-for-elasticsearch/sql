@@ -22,7 +22,10 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.Elasticsea
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -87,6 +90,14 @@ public class ElasticsearchIndex implements Table {
      * index scan.
      */
     return plan.accept(new DefaultImplementor<ElasticsearchIndexScan>() {
+          @Override
+          public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
+            FilterQueryBuilder queryBuilder =
+                new FilterQueryBuilder(new DefaultExpressionSerializer());
+            context.pushDown(node.getCondition().accept(queryBuilder, null));
+            return visitChild(node, context);
+          }
+
           @Override
           public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
             return indexScan;

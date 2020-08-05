@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 
 /** Elasticsearch index scan operator. */
@@ -80,6 +81,14 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   @Override
   public ExprValue next() {
     return exprValueFactory.construct(hits.next().getSourceAsString());
+  }
+
+  /**
+   * Push down query to DSL request.
+   * @param queryBuilder  query request
+   */
+  public void pushDown(QueryBuilder queryBuilder) {
+    request.getSourceBuilder().query(queryBuilder);
   }
 
   @Override
