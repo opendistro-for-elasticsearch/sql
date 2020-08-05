@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ExpressionScriptEngine;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ExpressionScriptEngine;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.legacy.executor.AsyncRestExecutor;
