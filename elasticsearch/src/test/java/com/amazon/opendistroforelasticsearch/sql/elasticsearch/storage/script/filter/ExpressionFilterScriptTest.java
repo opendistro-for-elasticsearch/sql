@@ -23,6 +23,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.T
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static java.util.Collections.emptyMap;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -110,6 +111,22 @@ class ExpressionFilterScriptTest {
         .docValues("birthday", ZonedDateTime.parse("2020-08-04T10:00:00Z"))
         .filterBy(dsl.equal(ref("birthday", TIMESTAMP), new LiteralExpression(ts)))
         .shouldMatch();
+  }
+
+  @Test
+  void cannot_execute_expression_with_invalid_field() {
+    assertThrows(IllegalStateException.class, () ->
+        assertThat()
+            .docValues("age", 30)
+            .filterBy(ref("name", STRING)));
+  }
+
+  @Test
+  void cannot_execute_non_predicate_expression() {
+    assertThrows(IllegalStateException.class, () ->
+        assertThat()
+          .docValues()
+          .filterBy(literal(10)));
   }
 
   private ExprScriptAssertion assertThat() {

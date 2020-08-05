@@ -63,10 +63,7 @@ class ExpressionFilterScript extends FilterScript {
   @Override
   public boolean execute() {
     // Check we ourselves are not being called by unprivileged code.
-    SecurityManager sm = System.getSecurityManager();
-    if (sm != null) {
-      SpecialPermission.check();
-    }
+    SpecialPermission.check();
 
     return AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
       Set<ReferenceExpression> fields = new HashSet<>();
@@ -110,8 +107,8 @@ class ExpressionFilterScript extends FilterScript {
 
   private Object getDocValue(String fieldName) {
     ScriptDocValues<?> docValue = getDoc().get(fieldName);
-    if (docValue == null || docValue.isEmpty()) {
-      throw new IllegalStateException("Doc docValue is not found for field: " + fieldName);
+    if (docValue == null) {
+      throw new IllegalStateException("Doc docValue is not found or empty for field: " + fieldName);
     }
 
     Object value = docValue.get(0);
