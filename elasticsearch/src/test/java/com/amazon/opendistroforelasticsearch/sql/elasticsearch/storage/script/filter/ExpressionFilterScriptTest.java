@@ -23,6 +23,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.T
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static java.util.Collections.emptyMap;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -115,22 +116,34 @@ class ExpressionFilterScriptTest {
 
   @Test
   void cannot_execute_expression_with_invalid_field() {
-    assertThrows(IllegalStateException.class, () ->
-        assertThat()
-            .docValues("age", 30)
-            .filterBy(ref("name", STRING)));
+    assertThrow(IllegalStateException.class,
+               "Doc value is not found or empty for field: name")
+        .docValues("age", 30)
+        .filterBy(ref("name", STRING));
   }
 
   @Test
   void cannot_execute_non_predicate_expression() {
-    assertThrows(IllegalStateException.class, () ->
-        assertThat()
-          .docValues()
-          .filterBy(literal(10)));
+    assertThrow(IllegalStateException.class,
+                "Expression has wrong result type instead of boolean: expression [10], result [10]")
+        .docValues()
+        .filterBy(literal(10));
   }
 
   private ExprScriptAssertion assertThat() {
     return new ExprScriptAssertion(lookup, leafLookup, context);
+  }
+
+  private <T extends Throwable> ExprScriptAssertion assertThrow(Class<T> clazz,
+                                                                String message) {
+    return new ExprScriptAssertion(lookup, leafLookup, context) {
+      @Override
+      ExprScriptAssertion filterBy(Expression expr) {
+        Throwable t = assertThrows(clazz, () -> super.filterBy(expr));
+        assertEquals(message, t.getMessage());
+        return null;
+      }
+    };
   }
 
   @RequiredArgsConstructor

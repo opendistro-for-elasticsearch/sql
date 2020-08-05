@@ -108,7 +108,7 @@ class ExpressionFilterScript extends FilterScript {
   private Object getDocValue(String fieldName) {
     ScriptDocValues<?> docValue = getDoc().get(fieldName);
     if (docValue == null) {
-      throw new IllegalStateException("Doc docValue is not found or empty for field: " + fieldName);
+      throw new IllegalStateException("Doc value is not found or empty for field: " + fieldName);
     }
 
     Object value = docValue.get(0);
