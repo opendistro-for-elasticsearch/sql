@@ -154,8 +154,8 @@ public class ElasticsearchExprValueFactory {
       } else {
         return constructTimestamp(String.valueOf(value));
       }
-    //} else if (type.equals(ES_TEXT)) {
-    //  return new ElasticsearchExprTextValue((String) value);
+    } else if (type.equals(ES_TEXT)) {
+      return new ElasticsearchExprTextValue((String) value);
     } else {
       throw new IllegalStateException(String.format(
               "Unsupported type %s to construct expression value from object for "
