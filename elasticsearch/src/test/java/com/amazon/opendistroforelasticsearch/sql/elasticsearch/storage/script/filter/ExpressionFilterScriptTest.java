@@ -56,6 +56,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ExpressionFilterScriptTest {
 
+  private final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
+
   @Mock
   private SearchLookup lookup;
 
@@ -64,8 +66,6 @@ class ExpressionFilterScriptTest {
 
   @Mock
   private LeafReaderContext context;
-
-  private final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
 
   @Test
   void should_match_if_true_literal() {

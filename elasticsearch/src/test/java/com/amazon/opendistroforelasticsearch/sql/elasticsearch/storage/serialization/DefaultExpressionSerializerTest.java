@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import org.junit.jupiter.api.Disabled;
@@ -84,6 +84,11 @@ class DefaultExpressionSerializerTest {
 
       @Override
       public ExprType type() {
+        return null;
+      }
+
+      @Override
+      public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
         return null;
       }
     };
