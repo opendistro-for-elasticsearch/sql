@@ -98,7 +98,7 @@ public class ElasticsearchIndex implements Table {
                 new FilterQueryBuilder(new DefaultExpressionSerializer());
 
             QueryBuilder query = queryBuilder.build(node.getCondition());
-            if (query == null) {
+            if (query == null) { // Use default filter operator if unable to push down
               return super.visitFilter(node, context);
             }
 

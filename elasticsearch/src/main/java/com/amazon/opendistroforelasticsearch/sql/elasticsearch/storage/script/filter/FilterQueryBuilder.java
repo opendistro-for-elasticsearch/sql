@@ -71,7 +71,7 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
   private BoolQueryBuilder buildBoolQuery(FunctionExpression node,
                                           Object context,
                                           BiFunction<BoolQueryBuilder, QueryBuilder,
-                                              BoolQueryBuilder> accumulator) {
+                                              QueryBuilder> accumulator) {
     BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
     for (Expression arg : node.getArguments()) {
       accumulator.apply(boolQuery, arg.accept(this, context));

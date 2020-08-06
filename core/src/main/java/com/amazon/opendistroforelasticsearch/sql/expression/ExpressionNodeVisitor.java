@@ -31,7 +31,7 @@ public abstract class ExpressionNodeVisitor<T, C> {
   }
 
   /**
-   * Visit child nodes under function.
+   * Visit children nodes in function arguments.
    * @param node      function node
    * @param context   context
    * @return          result

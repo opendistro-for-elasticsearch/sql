@@ -88,17 +88,15 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_query_for_and_or_not_expression() {
+  void can_build_query_for_and_or_expression() {
     String[] names = { "must", "should" };
-    String[] queries = {
-        buildQuery(
-            dsl.and(
-                dsl.equal(ref("name", STRING), literal("John")),
-                dsl.greater(ref("age", INTEGER), literal(30)))),
-        buildQuery(
-            dsl.or(
-                dsl.equal(ref("name", STRING), literal("John")),
-                dsl.greater(ref("age", INTEGER), literal(30))))
+    Expression[] exprs = {
+        dsl.and(
+            dsl.equal(ref("name", STRING), literal("John")),
+            dsl.greater(ref("age", INTEGER), literal(30))),
+        dsl.or(
+            dsl.equal(ref("name", STRING), literal("John")),
+            dsl.greater(ref("age", INTEGER), literal(30)))
     };
 
     for (int i = 0; i < names.length; i++) {
@@ -129,7 +127,7 @@ class FilterQueryBuilderTest {
               + "    \"boost\" : 1.0\n"
               + "  }\n"
               + "}",
-          queries[i]);
+          buildQuery(exprs[i]));
     }
   }
 

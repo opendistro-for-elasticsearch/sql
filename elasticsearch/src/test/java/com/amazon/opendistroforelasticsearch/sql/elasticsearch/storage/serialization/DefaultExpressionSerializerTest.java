@@ -65,7 +65,7 @@ class DefaultExpressionSerializerTest {
     assertEquals(original, actual);
   }
 
-  @Disabled("Bypass until function refactored as well")
+  @Disabled("Bypass until all functions become serializable")
   @Test
   public void can_serialize_and_deserialize_functions() {
     Expression original = dsl.abs(literal(30.0));

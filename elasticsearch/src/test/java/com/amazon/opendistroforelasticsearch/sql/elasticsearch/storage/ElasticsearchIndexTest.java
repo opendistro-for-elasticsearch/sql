@@ -174,10 +174,9 @@ class ElasticsearchIndexTest {
                             PhysicalPlanDSL.rename(
                                 PhysicalPlanDSL.agg(
                                     PhysicalPlanDSL.filter(
-                                            new ElasticsearchIndexScan(
-                                                    client, indexName, exprValueFactory),
-                                            filterExpr
-                                        ),
+                                          new ElasticsearchIndexScan(
+                                              client, indexName, exprValueFactory),
+                                          filterExpr),
                                         aggregators,
                                         groupByExprs),
                                 mappings),

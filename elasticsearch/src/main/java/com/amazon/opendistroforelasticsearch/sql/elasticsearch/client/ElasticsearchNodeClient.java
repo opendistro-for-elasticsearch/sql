@@ -88,7 +88,6 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
   /** TODO: Scroll doesn't work for aggregation. Support aggregation later. */
   @Override
   public ElasticsearchResponse search(ElasticsearchRequest request) {
-    System.out.println("===== Request ===== " + request);
     SearchResponse esResponse;
     if (request.isScrollStarted()) {
       esResponse = client.searchScroll(request.scrollRequest()).actionGet();

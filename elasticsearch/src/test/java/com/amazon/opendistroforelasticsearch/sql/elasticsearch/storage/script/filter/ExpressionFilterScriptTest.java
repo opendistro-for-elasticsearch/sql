@@ -125,7 +125,7 @@ class ExpressionFilterScriptTest {
   }
 
   @Test
-  void can_execute_expression_with_null_value() {
+  void can_execute_expression_with_missing_field() {
     assertThat()
         .docValues("age", 30)
         .filterBy(ref("name", STRING))
