@@ -32,11 +32,11 @@
 
 * Select destination and click on **Select**.
 
-<img src="img/pbi_select_workspace.png" width=300>
+<img src="img/pbi_select_workspace.png" width=400>
 
 * You will get a success message when report is published.
 
-<img src="img/pbi_publish_status.png" width=300>
+<img src="img/pbi_publish_status.png" width=400>
 
 * Click on **Open '%report name%' in Power BI** to open published report in Power BI service.
 
