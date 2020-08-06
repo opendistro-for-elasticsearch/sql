@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.index.query.QueryBuilder;
 
 /** Elasticsearch table (index) implementation. */
 @RequiredArgsConstructor
@@ -95,7 +96,13 @@ public class ElasticsearchIndex implements Table {
           public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
             FilterQueryBuilder queryBuilder =
                 new FilterQueryBuilder(new DefaultExpressionSerializer());
-            context.pushDown(node.getCondition().accept(queryBuilder, null));
+
+            QueryBuilder query = queryBuilder.build(node.getCondition());
+            if (query == null) {
+              return super.visitFilter(node, context);
+            }
+
+            context.pushDown(query);
             return visitChild(node, context);
           }
 

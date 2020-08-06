@@ -21,14 +21,16 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -56,6 +58,16 @@ class FilterQueryBuilderTest {
     }).when(serializer).serialize(any());
 
     filterQueryBuilder = new FilterQueryBuilder(serializer);
+  }
+
+  @Test
+  void should_return_null_if_exception() {
+    reset(serializer);
+    when(serializer.serialize(any())).thenThrow(IllegalStateException.class);
+
+    assertNull(
+        filterQueryBuilder.build(
+            dsl.equal(ref("age", INTEGER), literal(30))));
   }
 
   @Test
@@ -148,8 +160,7 @@ class FilterQueryBuilderTest {
   }
 
   private String buildQuery(Expression expr) {
-    QueryBuilder queryBuilder = expr.accept(filterQueryBuilder, null);
-    return queryBuilder.toString();
+    return filterQueryBuilder.build(expr).toString();
   }
 
 }

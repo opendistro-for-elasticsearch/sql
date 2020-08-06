@@ -40,6 +40,20 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
    */
   private final ExpressionSerializer serializer;
 
+  /**
+   * Build Elasticsearch filter query from expression.
+   * @param expr  expression
+   * @return      query
+   */
+  public QueryBuilder build(Expression expr) {
+    try {
+      return expr.accept(this, null);
+    } catch (IllegalStateException e) {
+      //TODO: remove this try-catch once arithmetic and all expressions are serializable
+      return null;
+    }
+  }
+
   @Override
   public QueryBuilder visitFunction(FunctionExpression node, Object context) {
     switch (node.getFunctionName().getFunctionName()) {
