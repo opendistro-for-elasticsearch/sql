@@ -67,7 +67,7 @@ class FilterQueryBuilderTest {
 
     assertNull(
         filterQueryBuilder.build(
-            dsl.equal(ref("age", INTEGER), literal(30))));
+            dsl.equal(dsl.abs(ref("age", INTEGER)), literal(30))));
   }
 
   @Test
@@ -105,12 +105,11 @@ class FilterQueryBuilderTest {
               + "  \"bool\" : {\n"
               + "    \"" + names[i] + "\" : [\n"
               + "      {\n"
-              + "        \"script\" : {\n"
-              + "          \"script\" : {\n"
-              + "            \"source\" : \"name = \\\"John\\\"\",\n"
-              + "            \"lang\" : \"opendistro_expression\"\n"
-              + "          },\n"
-              + "          \"boost\" : 1.0\n"
+              + "        \"term\" : {\n"
+              + "          \"name\" : {\n"
+              + "            \"value\" : \"John\",\n"
+              + "            \"boost\" : 1.0\n"
+              + "          }\n"
               + "        }\n"
               + "      },\n"
               + "      {\n"
