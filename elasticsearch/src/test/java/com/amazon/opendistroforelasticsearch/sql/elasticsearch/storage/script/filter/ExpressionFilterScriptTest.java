@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
@@ -85,9 +85,9 @@ class ExpressionFilterScriptTest {
   }
 
   @Test
-  void can_execute_expression_with_single_field() {
+  void can_execute_expression_with_integer_field() {
     assertThat()
-        .docValues("age", 30)
+        .docValues("age", 30L) // DocValue only supports long
         .filterBy(
             dsl.greater(ref("age", INTEGER), literal(20)))
         .shouldMatch();
@@ -103,14 +103,14 @@ class ExpressionFilterScriptTest {
   }
 
   @Test
-  void can_execute_expression_with_multiple_fields() {
+  void can_execute_expression_with_float_field() {
     assertThat()
         .docValues(
-            "balance", 100.0,
+            "balance", 100.0, // DocValue only supports double
             "name", "John")
         .filterBy(
             dsl.and(
-                dsl.less(ref("balance", DOUBLE), literal(150.0)),
+                dsl.less(ref("balance", FLOAT), literal(150.0F)),
                 dsl.equal(ref("name", STRING), literal("John"))))
         .shouldMatch();
   }
@@ -125,11 +125,11 @@ class ExpressionFilterScriptTest {
   }
 
   @Test
-  void cannot_execute_expression_with_invalid_field() {
-    assertThrow(IllegalStateException.class,
-               "Doc value is not found or empty for field: name")
+  void can_execute_expression_with_null_value() {
+    assertThat()
         .docValues("age", 30)
-        .filterBy(ref("name", STRING));
+        .filterBy(ref("name", STRING))
+        .shouldNotMatch();
   }
 
   @Test

@@ -133,6 +133,10 @@ public class ElasticsearchExprValueFactory {
    * @return        ExprValue
    */
   public ExprValue construct(String field, Object value) {
+    if (value == null) {
+      return nullValue();
+    }
+
     ExprType type = type(field);
     if (type.equals(INTEGER)) {
       return constructInteger((Integer) value);

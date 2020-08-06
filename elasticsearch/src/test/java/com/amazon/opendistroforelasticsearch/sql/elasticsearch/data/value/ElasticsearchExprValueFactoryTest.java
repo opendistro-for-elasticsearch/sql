@@ -78,6 +78,7 @@ class ElasticsearchExprValueFactoryTest {
   @Test
   public void constructNullValue() {
     assertEquals(nullValue(), tupleValue("{\"intV\":null}").get("intV"));
+    assertEquals(nullValue(), constructFromObject("intV",  null));
   }
 
   @Test

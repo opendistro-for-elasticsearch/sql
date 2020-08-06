@@ -16,9 +16,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static java.util.stream.Collectors.toMap;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
@@ -107,29 +110,53 @@ class ExpressionFilterScript extends FilterScript {
   }
 
   private Object getDocValue(ReferenceExpression field) {
-    String fieldName = field.getAttr();
-
-    // Text field doesn't have doc value (exception thrown even when you call "get"
-    // Limitation: assume inner field name is always "keyword"
-    if (field.type() == ES_TEXT_KEYWORD) {
-      fieldName += ".keyword";
-    }
-
+    String fieldName = getDocValueName(field);
     ScriptDocValues<?> docValue = getDoc().get(fieldName);
-    if (docValue == null) {
-      throw new IllegalStateException("Doc value is not found or empty for field: " + fieldName);
+    if (docValue == null || docValue.isEmpty()) {
+      return null;
     }
 
     Object value = docValue.get(0);
     if (value instanceof ChronoZonedDateTime) {
       return ((ChronoZonedDateTime<?>) value).toInstant();
     }
-    return value;
+    return castNumberToFieldType(value, field.type());
+  }
+
+  /**
+   * Text field doesn't have doc value (exception thrown even when you call "get")
+   * Limitation: assume inner field name is always "keyword".
+   */
+  private String getDocValueName(ReferenceExpression field) {
+    String fieldName = field.getAttr();
+    if (field.type() == ES_TEXT_KEYWORD) {
+      fieldName += ".keyword";
+    }
+    return fieldName;
+  }
+
+  /**
+   * DocValue only support long and double so cast to integer and float if needed.
+   * The doc value must be Long and Double for expr type Long/Integer and Double/Float respectively.
+   * Otherwise there must be bugs in our engine that causes the mismatch.
+   */
+  private Object castNumberToFieldType(Object value, ExprType type) {
+    if (type == INTEGER) {
+      return ((Long) value).intValue();
+    } else if (type == FLOAT) {
+      return ((Double) value).floatValue();
+    } else {
+      return value;
+    }
   }
 
   private ExprValue evaluateExpression(Map<String, ExprValue> valueEnv) {
     ExprTupleValue tupleValue = ExprTupleValue.fromExprValueMap(valueEnv);
     ExprValue result = expression.valueOf(tupleValue.bindingTuples());
+
+    if (result.isNull()) {
+      return ExprBooleanValue.of(false);
+    }
 
     if (result.type() != ExprCoreType.BOOLEAN) {
       throw new IllegalStateException(String.format(
