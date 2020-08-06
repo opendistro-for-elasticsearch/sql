@@ -79,7 +79,8 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
         ],
 
         SQLGetInfo = Diagnostics.LogValue("SQLGetInfo_Options", [
-            SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All]
+            SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All],
+            SQL_SQL_CONFORMANCE = ODBC[SQL_SC][SQL_SC_SQL92_INTERMEDIATE]
         ]),
 
         SQLGetTypeInfo = (types) => 
@@ -114,6 +115,7 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
         SqlCapabilities = Diagnostics.LogValue("SqlCapabilities_Options", [
             SupportsTop = false,
             LimitClauseKind = LimitClauseKind.LimitOffset,
+            Sql92Conformance = ODBC[SQL_SC][SQL_SC_SQL92_FULL],
             SupportsNumericLiterals = true,
             SupportsStringLiterals = true,
             SupportsOdbcDateLiterals = true,
