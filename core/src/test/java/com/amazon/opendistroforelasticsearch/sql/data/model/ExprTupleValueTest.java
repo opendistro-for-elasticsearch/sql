@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,6 +38,15 @@ class ExprTupleValueTest {
     ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
     ExprValue intValue = ExprValueUtils.integerValue(10);
     assertFalse(tupleValue.equals(intValue));
+  }
+
+  @Test
+  public void compare_tuple_with_different_key() {
+    ExprValue tupleValue1 = ExprValueUtils.tupleValue(ImmutableMap.of("value", 2));
+    ExprValue tupleValue2 =
+        ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2, "float_value", 1f));
+    assertNotEquals(tupleValue1, tupleValue2);
+    assertNotEquals(tupleValue2, tupleValue1);
   }
 
   @Test

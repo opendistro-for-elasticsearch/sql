@@ -28,8 +28,16 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.I
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.AnalyzerTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@Configuration
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTestBase.class})
 class LogicalDedupeTest extends AnalyzerTestBase {
   @Test
   public void analyze_dedup_with_two_field_with_default_option() {

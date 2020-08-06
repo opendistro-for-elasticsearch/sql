@@ -30,6 +30,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
@@ -75,11 +76,27 @@ class AstBuilderTest {
   @Test
   public void can_build_select_all_from_index() {
     assertEquals(
-        relation("test"),
+        project(
+            relation("test"),
+            AllFields.of()
+        ),
         buildAST("SELECT * FROM test")
     );
 
     assertThrows(SyntaxCheckException.class, () -> buildAST("SELECT *"));
+  }
+
+  @Test
+  public void can_build_select_all_and_fields_from_index() {
+    assertEquals(
+        project(
+            relation("test"),
+            AllFields.of(),
+            alias("age", qualifiedName("age")),
+            alias("age", qualifiedName("age"), "a")
+        ),
+        buildAST("SELECT *, age, age as a FROM test")
+    );
   }
 
   @Test

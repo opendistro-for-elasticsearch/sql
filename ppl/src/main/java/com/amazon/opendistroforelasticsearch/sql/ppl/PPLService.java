@@ -29,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.parser.AstBuilder;
 import com.amazon.opendistroforelasticsearch.sql.ppl.parser.AstExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.ppl.utils.UnresolvedPlanHelper;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -55,7 +56,8 @@ public class PPLService {
       UnresolvedPlan ast = cst.accept(new AstBuilder(new AstExpressionBuilder()));
 
       // 2.Analyze abstract syntax to generate logical plan
-      LogicalPlan logicalPlan = analyzer.analyze(ast, new AnalysisContext());
+      LogicalPlan logicalPlan = analyzer.analyze(UnresolvedPlanHelper.addSelectAll(ast),
+          new AnalysisContext());
 
       // 3.Generate optimal physical plan from logical plan
       PhysicalPlan physicalPlan = new Planner(storageEngine).plan(logicalPlan);
