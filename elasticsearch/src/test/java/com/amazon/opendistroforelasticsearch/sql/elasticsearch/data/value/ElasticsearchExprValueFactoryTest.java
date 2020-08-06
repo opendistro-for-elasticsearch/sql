@@ -34,6 +34,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -69,6 +70,7 @@ class ElasticsearchExprValueFactoryTest {
           .put("arrayV.info", STRING)
           .put("arrayV.author", STRING)
           .put("textV", ES_TEXT)
+          .put("textKeywordV", ES_TEXT_KEYWORD)
           .build();
   private ElasticsearchExprValueFactory exprValueFactory =
       new ElasticsearchExprValueFactory(MAPPING);
@@ -116,9 +118,15 @@ class ElasticsearchExprValueFactoryTest {
 
   @Test
   public void constructText() {
-    assertEquals(new ElasticsearchExprTextValue("text"), tupleValue("{\"textV\":\"text\"}").get(
-        "textV"));
-    assertEquals(new ElasticsearchExprTextValue("text"), constructFromObject("textV", "text"));
+    assertEquals(new ElasticsearchExprTextValue("text"),
+                 tupleValue("{\"textV\":\"text\"}").get("textV"));
+    assertEquals(new ElasticsearchExprTextValue("text"),
+                 constructFromObject("textV", "text"));
+
+    assertEquals(new ElasticsearchExprTextValue("text"),
+                 tupleValue("{\"textKeywordV\":\"text\"}").get("textKeywordV"));
+    assertEquals(new ElasticsearchExprTextValue("text"),
+                 constructFromObject("textKeywordV", "text"));
   }
 
   @Test

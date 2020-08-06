@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.script.FilterScript;
 import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.script.ScriptEngine;
 
@@ -44,7 +45,7 @@ public class ExpressionScriptEngine implements ScriptEngine {
    */
   private static final Map<ScriptContext<?>, Function<Expression, Object>> CONTEXTS =
       ImmutableMap.of(
-          ExpressionFilterScriptFactory.CONTEXT,
+          FilterScript.CONTEXT,
           ExpressionFilterScriptFactory::new
       );
 

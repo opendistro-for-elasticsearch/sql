@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import org.elasticsearch.script.FilterScript;
-import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.search.lookup.SearchLookup;
 
 /**
@@ -28,12 +27,6 @@ import org.elasticsearch.search.lookup.SearchLookup;
  */
 @EqualsAndHashCode
 public class ExpressionFilterScriptFactory implements FilterScript.Factory {
-
-  /**
-   * Script context to indicate script engine when current factory should be used.
-   */
-  public static final ScriptContext<?> CONTEXT =
-      new ScriptContext<>("expression_filtering", ExpressionFilterScriptFactory.class);
 
   /**
    * Expression to execute.

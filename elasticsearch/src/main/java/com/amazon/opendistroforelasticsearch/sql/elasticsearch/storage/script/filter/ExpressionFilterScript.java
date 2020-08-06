@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static java.util.stream.Collectors.toMap;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
@@ -99,13 +100,21 @@ class ExpressionFilterScript extends FilterScript {
     Map<String, ExprValue> valueEnv = new HashMap<>();
     for (ReferenceExpression field : fields) {
       String fieldName = field.getAttr();
-      ExprValue exprValue = valueFactory.construct(fieldName, getDocValue(fieldName));
+      ExprValue exprValue = valueFactory.construct(fieldName, getDocValue(field));
       valueEnv.put(fieldName, exprValue);
     }
     return valueEnv;
   }
 
-  private Object getDocValue(String fieldName) {
+  private Object getDocValue(ReferenceExpression field) {
+    String fieldName = field.getAttr();
+
+    // Text field doesn't have doc value (exception thrown even when you call "get"
+    // Limitation: assume inner field name is always "keyword"
+    if (field.type() == ES_TEXT_KEYWORD) {
+      fieldName += ".keyword";
+    }
+
     ScriptDocValues<?> docValue = getDoc().get(fieldName);
     if (docValue == null) {
       throw new IllegalStateException("Doc value is not found or empty for field: " + fieldName);

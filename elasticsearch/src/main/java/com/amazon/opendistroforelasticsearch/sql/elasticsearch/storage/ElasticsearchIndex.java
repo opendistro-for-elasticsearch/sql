@@ -46,6 +46,7 @@ public class ElasticsearchIndex implements Table {
   private static final Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
       ImmutableMap.<String, ExprType>builder()
           .put("text", ElasticsearchDataType.ES_TEXT)
+          .put("text_keyword", ElasticsearchDataType.ES_TEXT_KEYWORD)
           .put("keyword", ExprCoreType.STRING)
           .put("integer", ExprCoreType.INTEGER)
           .put("long", ExprCoreType.LONG)

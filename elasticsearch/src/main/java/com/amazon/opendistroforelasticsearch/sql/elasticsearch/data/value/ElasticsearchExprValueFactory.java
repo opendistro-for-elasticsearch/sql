@@ -115,7 +115,7 @@ public class ElasticsearchExprValueFactory {
       } else {
         return constructTimestamp(value.asText());
       }
-    } else if (type.equals(ES_TEXT)) {
+    } else if (ES_TEXT.isCompatible(type)) {
       return new ElasticsearchExprTextValue(value.asText());
     } else {
       throw new IllegalStateException(
@@ -154,7 +154,7 @@ public class ElasticsearchExprValueFactory {
       } else {
         return constructTimestamp(String.valueOf(value));
       }
-    } else if (type.equals(ES_TEXT)) {
+    } else if (ES_TEXT.isCompatible(type)) {
       return new ElasticsearchExprTextValue((String) value);
     } else {
       throw new IllegalStateException(String.format(
