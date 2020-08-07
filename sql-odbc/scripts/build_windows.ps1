@@ -11,7 +11,8 @@ else {
 }
 
 # Create build directory; remove if exists
-$BUILD_DIR = "${WORKING_DIR}\build\${CONFIGURATION}${BITNESS}"
+$BUILD_DIR = "${WORKING_DIR}\build"
+# $BUILD_DIR = "${WORKING_DIR}\build\${CONFIGURATION}${BITNESS}"
 New-Item -Path $BUILD_DIR -ItemType Directory -Force | Out-Null
 
 # Build AWS SDK CPP
@@ -26,7 +27,7 @@ Set-Location $CURRENT_DIR
 
 # Build driver
 $DRIVER_SOURCE_DIR = "${WORKING_DIR}\src"
-$DRIVER_BUILD_DIR = "${BUILD_DIR}\odbc\build"
+$DRIVER_BUILD_DIR = "${BUILD_DIR}\odbc\cmake"
 
 .\scripts\build_driver.ps1 `
     $CONFIGURATION $WIN_ARCH `
@@ -35,8 +36,8 @@ Set-Location $CURRENT_DIR
 
 # Move driver dependencies to bin directory for testing
 $DRIVER_BIN_DIR = "$DRIVER_BUILD_DIR\..\bin\$CONFIGURATION"
-Copy-Item $SDK_BUILD_DIR\bin\Debug\* $DRIVER_BIN_DIR
-Copy-Item $DRIVER_BUILD_DIR\bin\Debug\* $DRIVER_BIN_DIR
+Copy-Item $SDK_BUILD_DIR\bin\$CONFIGURATION\* $DRIVER_BIN_DIR
+Copy-Item $DRIVER_BUILD_DIR\bin\$CONFIGURATION\* $DRIVER_BIN_DIR
 if ($BITNESS -eq "32") {
     # Strip bitness from 32bit VLD DLL dir name
     $BITNESS = $null
