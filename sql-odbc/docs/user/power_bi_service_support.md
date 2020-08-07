@@ -66,15 +66,15 @@
 * Click on **Settings** > **Datasets**.
 * Select required Gateway and click on **Apply**.
 
-<img src="img/pbi_service_dataset_gateway.png" width=650>
+<img src="img/pbi_service_dataset_gateway.png" width=700>
 
 * Turn on Keep your data up to date option.
 * Select refresh frequency and timezone.
 * Add email for failure notifications if required.
 * Click on **Apply**.
 
-<img src="img/pbi_service_dataset_refresh.png" width=500>
+<img src="img/pbi_service_dataset_refresh.png" width=550>
 
 * You can also check history by clicking on **Refresh history**.
 
-<img src="img/pbi_service_dataset_refresh_history.png" width=500>
+<img src="img/pbi_service_dataset_refresh_history.png" width=550>
