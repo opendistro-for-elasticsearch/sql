@@ -68,7 +68,7 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_query_for_equality_expression() {
+  void should_build_term_query_for_equality_expression() {
     assertEquals(
         "{\n"
             + "  \"term\" : {\n"
@@ -85,7 +85,7 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_query_for_comparison_expression() {
+  void should_build_range_query_for_comparison_expression() {
     Expression[] params = {ref("age", INTEGER), literal(30)};
     Map<Expression, Object[]> ranges = ImmutableMap.of(
         dsl.less(params), new Object[]{null, 30, true, false},
@@ -110,7 +110,24 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_query_for_function_expression() {
+  void should_build_wildcard_query_for_like_expression() {
+    assertEquals(
+        "{\n"
+            + "  \"wildcard\" : {\n"
+            + "    \"name\" : {\n"
+            + "      \"wildcard\" : \"*John?\",\n"
+            + "      \"boost\" : 1.0\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.like(
+                ref("name", STRING), literal("%John_")))
+    );
+  }
+
+  @Test
+  void should_build_script_query_for_function_expression() {
     doAnswer(invocation -> {
       Expression expr = invocation.getArgument(0);
       return expr.toString();
@@ -132,7 +149,29 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_query_for_and_or_expression() {
+  void should_build_script_query_for_comparison_between_fields() {
+    doAnswer(invocation -> {
+      Expression expr = invocation.getArgument(0);
+      return expr.toString();
+    }).when(serializer).serialize(any());
+
+    assertEquals(
+        "{\n"
+            + "  \"script\" : {\n"
+            + "    \"script\" : {\n"
+            + "      \"source\" : \"age1 = age2\",\n"
+            + "      \"lang\" : \"opendistro_expression\"\n"
+            + "    },\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.equal(
+                ref("age1", INTEGER), ref("age2", INTEGER))));
+  }
+
+  @Test
+  void can_build_bool_query_for_and_or_expression() {
     String[] names = { "must", "should" };
     FunctionExpression expr1 = dsl.equal(ref("name", ES_TEXT_KEYWORD), literal("John"));
     FunctionExpression expr2 = dsl.equal(ref("age", INTEGER), literal(30));
@@ -172,7 +211,7 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_query_for_not_expression() {
+  void can_build_bool_query_for_not_expression() {
     assertEquals(
         "{\n"
             + "  \"bool\" : {\n"

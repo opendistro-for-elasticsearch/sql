@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.fi
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery.Comparison;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.TermQuery;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.WildcardQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
@@ -58,6 +59,7 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
           .put(BuiltinFunctionName.GREATER.getName(), new RangeQuery(Comparison.GT))
           .put(BuiltinFunctionName.LTE.getName(), new RangeQuery(Comparison.LTE))
           .put(BuiltinFunctionName.GTE.getName(), new RangeQuery(Comparison.GTE))
+          .put(BuiltinFunctionName.LIKE.getName(), new WildcardQuery())
           .build();
 
   /**
