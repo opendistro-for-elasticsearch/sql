@@ -21,6 +21,8 @@ import static java.util.Collections.emptyMap;
 import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_TYPE;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.LuceneQuery;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery.Comparison;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.TermQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -52,6 +54,10 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
   private final Map<FunctionName, LuceneQuery> luceneQueries =
       ImmutableMap.<FunctionName, LuceneQuery>builder()
           .put(BuiltinFunctionName.EQUAL.getName(), new TermQuery())
+          .put(BuiltinFunctionName.LESS.getName(), new RangeQuery(Comparison.LT))
+          .put(BuiltinFunctionName.GREATER.getName(), new RangeQuery(Comparison.GT))
+          .put(BuiltinFunctionName.LTE.getName(), new RangeQuery(Comparison.LTE))
+          .put(BuiltinFunctionName.GTE.getName(), new RangeQuery(Comparison.GTE))
           .build();
 
   /**

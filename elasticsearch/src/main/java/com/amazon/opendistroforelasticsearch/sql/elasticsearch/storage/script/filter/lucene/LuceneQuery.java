@@ -24,7 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import org.elasticsearch.index.query.QueryBuilder;
 
 /**
- * Lucene query builder that builds Lucene query from function expression.
+ * Lucene query abstraction that builds Lucene query from function expression.
  */
 public abstract class LuceneQuery {
 

@@ -16,24 +16,45 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene;
 
-import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
-
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 
 /**
- * Lucene term query that build term query for equality comparison for different data types.
+ * Lucene range query that builds range query for non-quality comparison.
  */
-public class TermQuery extends LuceneQuery {
+@RequiredArgsConstructor
+public class RangeQuery extends LuceneQuery {
+
+  public enum Comparison {
+    LT, GT, LTE, GTE
+  }
+
+  /**
+   * Comparison that range query build for.
+   */
+  private final Comparison comparison;
 
   @Override
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
-    if (fieldType == ES_TEXT_KEYWORD) {
-      fieldName += ".keyword";
+    Object value = literal.value();
+
+    RangeQueryBuilder query = QueryBuilders.rangeQuery(fieldName);
+    switch (comparison) {
+      case LT:
+        return query.lt(value);
+      case GT:
+        return query.gt(value);
+      case LTE:
+        return query.lte(value);
+      case GTE:
+        return query.gte(value);
+      default:
+        throw new IllegalStateException("Comparison is supported by range query: " + comparison);
     }
-    return QueryBuilders.termQuery(fieldName, literal.value());
   }
 
 }
