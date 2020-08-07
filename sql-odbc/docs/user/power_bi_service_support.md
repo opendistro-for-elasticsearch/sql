@@ -27,11 +27,11 @@
 * Select Encryption mode for connection.
 * Click on **Add**.
 
-<img src="img/pbi_service_data_source.png">
+<img src="img/pbi_service_data_source.png" width=650>
 
 * You will get a **Connection Successful** message.
 
-<img src="img/pbi_service_data_source_success.png" width=600>
+<img src="img/pbi_service_data_source_success.png" width=650>
 
 
 ## Publish Report
@@ -66,7 +66,7 @@
 * Click on **Settings** > **Datasets**.
 * Select required Gateway and click on **Apply**.
 
-<img src="img/pbi_service_dataset_gateway.png" width=500>
+<img src="img/pbi_service_dataset_gateway.png" width=650>
 
 * Turn on Keep your data up to date option.
 * Select refresh frequency and timezone.
