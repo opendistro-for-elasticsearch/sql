@@ -16,17 +16,24 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene;
 
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
+
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
 /**
  * Lucene term query.
  */
-public class TermQuery implements LuceneQuery {
+public class TermQuery extends LuceneQuery {
 
   @Override
-  public QueryBuilder doBuild(String fieldName, Object value) {
-    return QueryBuilders.termQuery(fieldName, value);
+  protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
+    if (fieldType == ES_TEXT_KEYWORD) {
+      fieldName += ".keyword";
+    }
+    return QueryBuilders.termQuery(fieldName, literal.value());
   }
 
 }

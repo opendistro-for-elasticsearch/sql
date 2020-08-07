@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.f
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -92,10 +93,10 @@ class FilterQueryBuilderTest {
     String[] names = { "must", "should" };
     Expression[] exprs = {
         dsl.and(
-            dsl.equal(ref("name", STRING), literal("John")),
+            dsl.equal(ref("name", ES_TEXT_KEYWORD), literal("John")),
             dsl.greater(ref("age", INTEGER), literal(30))),
         dsl.or(
-            dsl.equal(ref("name", STRING), literal("John")),
+            dsl.equal(ref("name", ES_TEXT_KEYWORD), literal("John")),
             dsl.greater(ref("age", INTEGER), literal(30)))
     };
 
@@ -106,7 +107,7 @@ class FilterQueryBuilderTest {
               + "    \"" + names[i] + "\" : [\n"
               + "      {\n"
               + "        \"term\" : {\n"
-              + "          \"name\" : {\n"
+              + "          \"name.keyword\" : {\n"
               + "            \"value\" : \"John\",\n"
               + "            \"boost\" : 1.0\n"
               + "          }\n"

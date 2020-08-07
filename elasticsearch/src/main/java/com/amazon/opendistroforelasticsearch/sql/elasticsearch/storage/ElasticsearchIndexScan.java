@@ -16,6 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static org.elasticsearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
+import static org.elasticsearch.search.sort.SortOrder.ASC;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
@@ -104,6 +107,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
                                   .must(query));
       }
     }
+    source.sort(DOC_FIELD_NAME, ASC); // Make sure consistent order
   }
 
   @Override

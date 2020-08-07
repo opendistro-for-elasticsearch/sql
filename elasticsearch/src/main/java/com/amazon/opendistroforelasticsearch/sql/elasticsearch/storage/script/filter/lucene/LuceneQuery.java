@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -24,7 +26,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 /**
  * Lucene query builder that builds Lucene query from function expression.
  */
-public interface LuceneQuery {
+public abstract class LuceneQuery {
 
   /**
    * Check if function expression supported by current Lucene query.
@@ -35,7 +37,7 @@ public interface LuceneQuery {
    * @param func    function
    * @return        return true if supported, otherwise false.
    */
-  default boolean canSupport(FunctionExpression func) {
+  public boolean canSupport(FunctionExpression func) {
     return (func.getArguments().size() == 2)
         && (func.getArguments().get(0) instanceof ReferenceExpression)
         && (func.getArguments().get(1) instanceof LiteralExpression);
@@ -47,10 +49,10 @@ public interface LuceneQuery {
    * @param func  function
    * @return      query
    */
-  default QueryBuilder build(FunctionExpression func) {
+  public QueryBuilder build(FunctionExpression func) {
     ReferenceExpression ref = (ReferenceExpression) func.getArguments().get(0);
     LiteralExpression literal = (LiteralExpression) func.getArguments().get(1);
-    return doBuild(ref.getAttr(), literal.valueOf(null).value());
+    return doBuild(ref.getAttr(), ref.type(), literal.valueOf(null));
   }
 
   /**
@@ -58,9 +60,10 @@ public interface LuceneQuery {
    * from reference and literal in function arguments.
    *
    * @param fieldName   field name
-   * @param value       value
+   * @param fieldType        expr fieldType
+   * @param literal       expr literal
    * @return            query
    */
-  QueryBuilder doBuild(String fieldName, Object value);
+  protected abstract QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal);
 
 }
