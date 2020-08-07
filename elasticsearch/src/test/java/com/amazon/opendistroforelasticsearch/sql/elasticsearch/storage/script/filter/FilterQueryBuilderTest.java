@@ -32,6 +32,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -84,21 +86,27 @@ class FilterQueryBuilderTest {
 
   @Test
   void can_build_query_for_comparison_expression() {
-    assertEquals(
-        "{\n"
-            + "  \"range\" : {\n"
-            + "    \"age\" : {\n"
-            + "      \"from\" : 30,\n"
-            + "      \"to\" : null,\n"
-            + "      \"include_lower\" : false,\n"
-            + "      \"include_upper\" : true,\n"
-            + "      \"boost\" : 1.0\n"
-            + "    }\n"
-            + "  }\n"
-            + "}",
-        buildQuery(
-            dsl.greater(
-                ref("age", INTEGER), literal(30))));
+    Expression[] params = {ref("age", INTEGER), literal(30)};
+    Map<Expression, Object[]> ranges = ImmutableMap.of(
+        dsl.less(params), new Object[]{null, 30, true, false},
+        dsl.greater(params), new Object[]{30, null, false, true},
+        dsl.lte(params), new Object[]{null, 30, true, true},
+        dsl.gte(params), new Object[]{30, null, true, true});
+
+    ranges.forEach((expr, range) ->
+        assertEquals(
+            "{\n"
+                + "  \"range\" : {\n"
+                + "    \"age\" : {\n"
+                + "      \"from\" : " + range[0] + ",\n"
+                + "      \"to\" : " + range[1] + ",\n"
+                + "      \"include_lower\" : " + range[2] + ",\n"
+                + "      \"include_upper\" : " + range[3] + ",\n"
+                + "      \"boost\" : 1.0\n"
+                + "    }\n"
+                + "  }\n"
+                + "}",
+            buildQuery(expr)));
   }
 
   @Test
