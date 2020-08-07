@@ -28,6 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
 
@@ -115,8 +116,10 @@ public class ElasticsearchExprValueFactory {
       } else {
         return constructTimestamp(value.asText());
       }
-    } else if (ES_TEXT.isCompatible(type)) {
+    } else if (type.equals(ES_TEXT)) {
       return new ElasticsearchExprTextValue(value.asText());
+    } else if (type.equals(ES_TEXT_KEYWORD)) {
+      return new ElasticsearchExprTextKeywordValue(value.asText());
     } else {
       throw new IllegalStateException(
           String.format(
@@ -158,8 +161,10 @@ public class ElasticsearchExprValueFactory {
       } else {
         return constructTimestamp(String.valueOf(value));
       }
-    } else if (ES_TEXT.isCompatible(type)) {
+    } else if (type.equals(ES_TEXT)) {
       return new ElasticsearchExprTextValue((String) value);
+    } else if (type.equals(ES_TEXT_KEYWORD)) {
+      return new ElasticsearchExprTextKeywordValue((String) value);
     } else {
       throw new IllegalStateException(String.format(
               "Unsupported type %s to construct expression value from object for "

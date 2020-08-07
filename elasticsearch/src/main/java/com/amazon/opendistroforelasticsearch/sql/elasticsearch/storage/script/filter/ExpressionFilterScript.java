@@ -22,7 +22,6 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.
 import static java.util.stream.Collectors.toMap;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
@@ -30,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.Elasti
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.time.chrono.ChronoZonedDateTime;
@@ -66,13 +66,13 @@ class ExpressionFilterScript extends FilterScript {
 
   @Override
   public boolean execute() {
-    // Check we ourselves are not being called by unprivileged code.
+    // Check current script are not being called by unprivileged code.
     SpecialPermission.check();
 
     return AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
       Set<ReferenceExpression> fields = extractFields(expression);
       ElasticsearchExprValueFactory valueFactory = buildValueFactory(fields);
-      Map<String, ExprValue> valueEnv = buildValueEnv(fields, valueFactory);
+      Environment<Expression, ExprValue> valueEnv = buildValueEnv(fields, valueFactory);
       ExprValue result = evaluateExpression(valueEnv);
       return (Boolean) result.value();
     });
@@ -98,15 +98,16 @@ class ExpressionFilterScript extends FilterScript {
     return new ElasticsearchExprValueFactory(typeEnv);
   }
 
-  private Map<String, ExprValue> buildValueEnv(Set<ReferenceExpression> fields,
-                                               ElasticsearchExprValueFactory valueFactory) {
-    Map<String, ExprValue> valueEnv = new HashMap<>();
+  private Environment<Expression, ExprValue> buildValueEnv(
+      Set<ReferenceExpression> fields, ElasticsearchExprValueFactory valueFactory) {
+
+    Map<Expression, ExprValue> valueEnv = new HashMap<>();
     for (ReferenceExpression field : fields) {
       String fieldName = field.getAttr();
       ExprValue exprValue = valueFactory.construct(fieldName, getDocValue(field));
-      valueEnv.put(fieldName, exprValue);
+      valueEnv.put(field, exprValue);
     }
-    return valueEnv;
+    return valueEnv::get; // Encapsulate map data structure into anonymous Environment class
   }
 
   private Object getDocValue(ReferenceExpression field) {
@@ -150,11 +151,9 @@ class ExpressionFilterScript extends FilterScript {
     }
   }
 
-  private ExprValue evaluateExpression(Map<String, ExprValue> valueEnv) {
-    ExprTupleValue tupleValue = ExprTupleValue.fromExprValueMap(valueEnv);
-    ExprValue result = expression.valueOf(tupleValue.bindingTuples());
-
-    if (result.isNull()) {
+  private ExprValue evaluateExpression(Environment<Expression, ExprValue> valueEnv) {
+    ExprValue result = expression.valueOf(valueEnv);
+    if (result.isNull() || result.isMissing()) {
       return ExprBooleanValue.of(false);
     }
 

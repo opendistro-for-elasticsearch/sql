@@ -38,6 +38,12 @@ public class ExpressionFilterScriptFactory implements FilterScript.Factory {
   }
 
   @Override
+  public boolean isResultDeterministic() {
+    // This implies the results are cacheable
+    return true;
+  }
+
+  @Override
   public FilterScript.LeafFactory newFactory(Map<String, Object> params, SearchLookup lookup) {
     return new ExpressionFilterScriptLeafFactory(expression, params, lookup);
   }

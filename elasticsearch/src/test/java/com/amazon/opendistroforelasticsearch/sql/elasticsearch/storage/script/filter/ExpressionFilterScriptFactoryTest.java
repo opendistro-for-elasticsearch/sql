@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -28,7 +29,6 @@ import org.apache.lucene.index.LeafReaderContext;
 import org.elasticsearch.script.FilterScript;
 import org.elasticsearch.search.lookup.LeafSearchLookup;
 import org.elasticsearch.search.lookup.SearchLookup;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -53,14 +53,17 @@ class ExpressionFilterScriptFactoryTest {
 
   private final Map<String, Object> params = Collections.emptyMap();
 
-  @BeforeEach
-  void set_up() {
-    when(searchLookup.getLeafSearchLookup(leafReaderContext)).thenReturn(leafSearchLookup);
+  private final FilterScript.Factory factory = new ExpressionFilterScriptFactory(expression);
+
+  @Test
+  void should_return_deterministic_result() {
+    assertTrue(factory.isResultDeterministic());
   }
 
   @Test
   void can_initialize_expression_filter_script() throws IOException {
-    FilterScript.Factory factory = new ExpressionFilterScriptFactory(expression);
+    when(searchLookup.getLeafSearchLookup(leafReaderContext)).thenReturn(leafSearchLookup);
+
     FilterScript.LeafFactory leafFactory = factory.newFactory(params, searchLookup);
     FilterScript actualFilterScript = leafFactory.newInstance(leafReaderContext);
 

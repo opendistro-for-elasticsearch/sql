@@ -124,9 +124,9 @@ class ElasticsearchExprValueFactoryTest {
     assertEquals(new ElasticsearchExprTextValue("text"),
                  constructFromObject("textV", "text"));
 
-    assertEquals(new ElasticsearchExprTextValue("text"),
+    assertEquals(new ElasticsearchExprTextKeywordValue("text"),
                  tupleValue("{\"textKeywordV\":\"text\"}").get("textKeywordV"));
-    assertEquals(new ElasticsearchExprTextValue("text"),
+    assertEquals(new ElasticsearchExprTextKeywordValue("text"),
                  constructFromObject("textKeywordV", "text"));
   }
 

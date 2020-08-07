@@ -29,7 +29,7 @@ import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.script.ScriptEngine;
 
 /**
- * Custom expression script engine that supports using our expression code in DSL
+ * Custom expression script engine that supports using core engine expression code in DSL
  * as a new script language just like built-in Painless language.
  */
 @RequiredArgsConstructor
