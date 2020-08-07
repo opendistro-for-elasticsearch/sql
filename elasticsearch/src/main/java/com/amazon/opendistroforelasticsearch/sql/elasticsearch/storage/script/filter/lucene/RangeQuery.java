@@ -30,7 +30,7 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 public class RangeQuery extends LuceneQuery {
 
   public enum Comparison {
-    LT, GT, LTE, GTE
+    LT, GT, LTE, GTE, BETWEEN
   }
 
   /**

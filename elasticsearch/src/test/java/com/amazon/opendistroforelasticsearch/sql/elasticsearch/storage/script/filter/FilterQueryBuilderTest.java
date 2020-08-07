@@ -125,20 +125,6 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void should_build_exists_query_for_is_null_expression() {
-    assertEquals(
-        "{\n"
-            + "  \"exists\" : {\n"
-            + "    \"field\" : \"name\",\n"
-            + "    \"boost\" : 1.0\n"
-            + "  }\n"
-            + "}",
-        buildQuery(
-            dsl.isnull(
-                ref("name", STRING))));
-  }
-
-  @Test
   void should_build_script_query_for_function_expression() {
     doAnswer(invocation -> {
       Expression expr = invocation.getArgument(0);

@@ -20,7 +20,6 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.sc
 import static java.util.Collections.emptyMap;
 import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_TYPE;
 
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.ExistsQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.LuceneQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery.Comparison;
@@ -61,7 +60,6 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
           .put(BuiltinFunctionName.LTE.getName(), new RangeQuery(Comparison.LTE))
           .put(BuiltinFunctionName.GTE.getName(), new RangeQuery(Comparison.GTE))
           .put(BuiltinFunctionName.LIKE.getName(), new WildcardQuery())
-          .put(BuiltinFunctionName.IS_NULL.getName(), new ExistsQuery())
           .build();
 
   /**
