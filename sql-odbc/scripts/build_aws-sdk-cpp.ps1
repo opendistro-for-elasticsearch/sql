@@ -4,6 +4,8 @@ $SRC_DIR = $args[2]
 $BUILD_DIR = $args[3]
 $INSTALL_DIR = $args[4]
 
+Write-Host $args
+
 # Clone the AWS SDK CPP repo
 # $SDK_VER = "1.7.29"
 # -b "$SDK_VER" `
