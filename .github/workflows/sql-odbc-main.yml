@@ -53,9 +53,9 @@ jobs:
         mkdir build-output
         mkdir test-output
         mkdir installer
-        cp $ODBC_LIB_PATH/*.dylib build-output
-        cp $ODBC_LIB_PATH/*.a build-output
-        cp $(ls -d $ODBC_BIN_PATH/* | grep -v "\.") build-output
+        cp "$ODBC_LIB_PATH"/*.dylib build-output
+        cp "$ODBC_LIB_PATH"/*.a build-output
+        cp $(ls -d "$ODBC_BIN_PATH"/* | grep -v "\.") build-output
         cp ./cmake-build64/*.pkg installer
     #    cp ./bin64/*.html test-output
     #    cp ./bin64/*.log test-output

@@ -7,7 +7,7 @@ if ($BITNESS -eq "64") {
     $WIN_ARCH = "x64"
 }
 else {
-    $WIN_ARCH = "x86"
+    $WIN_ARCH = "Win32"
 }
 
 # Create build directory; remove if exists
