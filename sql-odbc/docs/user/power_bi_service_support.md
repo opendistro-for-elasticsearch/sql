@@ -20,7 +20,18 @@
 
 <img src="img/pbi_service_cluster_setting.png">
 
-* Add data source to use the gateway.
+* Click on **Add data sources to use the gateway**.
+* Select Data Source Type as **Open Distro For Elasticsearch**.
+* Enter Data Source Name and Server values.
+* Select required **Authentication Method**. **Anonymous** refers to auth **NONE** and **Key** refers to auth **AWS_SIGV4**.
+* Select Encryption mode for connection.
+* Click on **Add**.
+
+<img src="img/pbi_service_data_source.png">
+
+* You will get a **Connection Successful** message.
+
+<img src="img/pbi_service_data_source_success.png" width=600>
 
 
 ## Publish Report
@@ -49,3 +60,21 @@
 * Use **Filters**,**Visualizations** and **Fields** to modify report.
 
 <img src="img/pbi_service_modified_report.png">
+
+## Dataset Scheduled Refresh
+
+* Click on **Settings** > **Datasets**.
+* Select required Gateway and click on **Apply**.
+
+<img src="img/pbi_service_dataset_gateway.png" width=500>
+
+* Turn on Keep your data up to date option.
+* Select refresh frequency and timezone.
+* Add email for failure notifications if required.
+* Click on **Apply**.
+
+<img src="img/pbi_service_dataset_refresh.png" width=500>
+
+* You can also check history by clicking on **Refresh history**.
+
+<img src="img/pbi_service_dataset_refresh_history.png" width=500>
