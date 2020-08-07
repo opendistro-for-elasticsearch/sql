@@ -24,7 +24,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
 /**
- * Lucene term query that build term query for equality comparison for different data types.
+ * Lucene query that build term query for equality comparison.
  */
 public class TermQuery extends LuceneQuery {
 

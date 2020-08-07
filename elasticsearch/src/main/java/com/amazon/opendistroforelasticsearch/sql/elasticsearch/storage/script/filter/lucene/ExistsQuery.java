@@ -16,25 +16,27 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
 /**
- * Lucene query that builds wildcard query.
+ * Lucene query that builds exists query by Elasticsearch DSL.
  */
-public class WildcardQuery extends LuceneQuery {
+public class ExistsQuery extends LuceneQuery {
 
   @Override
-  protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
-    String matchText = convertSqlWildcardToLucene(literal.stringValue());
-    return QueryBuilders.wildcardQuery(fieldName, matchText);
+  public boolean canSupport(FunctionExpression func) {
+    return (func.getArguments().size() == 1)
+        && (func.getArguments().get(0) instanceof ReferenceExpression);
   }
 
-  private String convertSqlWildcardToLucene(String text) {
-    return text.replace('%', '*')
-               .replace('_', '?');
+  @Override
+  public QueryBuilder build(FunctionExpression func) {
+    ReferenceExpression ref = (ReferenceExpression) func.getArguments().get(0);
+    String fieldName = ref.getAttr();
+    return QueryBuilders.existsQuery(fieldName);
   }
 
 }

@@ -64,6 +64,9 @@ public abstract class LuceneQuery {
    * @param literal       expr literal
    * @return            query
    */
-  protected abstract QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal);
+  protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
+    throw new UnsupportedOperationException(
+        "Subclass doesn't implement this and build method either");
+  }
 
 }

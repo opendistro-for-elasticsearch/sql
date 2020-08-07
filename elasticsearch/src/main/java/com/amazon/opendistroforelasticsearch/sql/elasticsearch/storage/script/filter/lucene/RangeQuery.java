@@ -24,7 +24,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 
 /**
- * Lucene range query that builds range query for non-quality comparison.
+ * Lucene query that builds range query for non-quality comparison.
  */
 @RequiredArgsConstructor
 public class RangeQuery extends LuceneQuery {

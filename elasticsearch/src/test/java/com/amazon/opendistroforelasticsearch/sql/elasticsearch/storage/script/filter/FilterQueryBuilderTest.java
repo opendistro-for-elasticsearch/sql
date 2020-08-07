@@ -80,8 +80,7 @@ class FilterQueryBuilderTest {
             + "}",
         buildQuery(
             dsl.equal(
-                ref("name", STRING), literal("John")))
-    );
+                ref("name", STRING), literal("John"))));
   }
 
   @Test
@@ -122,8 +121,21 @@ class FilterQueryBuilderTest {
             + "}",
         buildQuery(
             dsl.like(
-                ref("name", STRING), literal("%John_")))
-    );
+                ref("name", STRING), literal("%John_"))));
+  }
+
+  @Test
+  void should_build_exists_query_for_is_null_expression() {
+    assertEquals(
+        "{\n"
+            + "  \"exists\" : {\n"
+            + "    \"field\" : \"name\",\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.isnull(
+                ref("name", STRING))));
   }
 
   @Test
