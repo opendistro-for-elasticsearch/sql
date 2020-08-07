@@ -66,7 +66,7 @@
 * Click on **Settings** > **Datasets**.
 * Select required Gateway and click on **Apply**.
 
-<img src="img/pbi_service_dataset_gateway.png" width=700>
+<img src="img/pbi_service_dataset_gateway.png" width=800>
 
 * Turn on Keep your data up to date option.
 * Select refresh frequency and timezone.
