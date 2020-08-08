@@ -28,8 +28,11 @@ import java.util.Iterator;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /** Elasticsearch index scan operator. */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
@@ -85,10 +88,22 @@ public class ElasticsearchIndexScan extends TableScanOperator {
 
   /**
    * Push down query to DSL request.
-   * @param queryBuilder  query request
+   * @param query  query request
    */
-  public void pushDown(QueryBuilder queryBuilder) {
-    request.getSourceBuilder().query(queryBuilder);
+  public void pushDown(QueryBuilder query) {
+    SearchSourceBuilder source = request.getSourceBuilder();
+    QueryBuilder current = source.query();
+    if (current == null) {
+      source.query(query);
+    } else {
+      if (isBoolMustQuery(current)) {
+        ((BoolQueryBuilder) current).must(query);
+      } else {
+        source.query(QueryBuilders.boolQuery()
+                                  .must(current)
+                                  .must(query));
+      }
+    }
   }
 
   @Override
@@ -97,4 +112,10 @@ public class ElasticsearchIndexScan extends TableScanOperator {
 
     client.cleanup(request);
   }
+
+  private boolean isBoolMustQuery(QueryBuilder current) {
+    return (current instanceof BoolQueryBuilder)
+        && !((BoolQueryBuilder) current).must().isEmpty();
+  }
+
 }
