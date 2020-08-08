@@ -94,7 +94,7 @@ jobs:
     - name: build-installer
       if: success()
       run: |
-        .\scripts\build_installer.ps1 Release x86 .\src $Env:ODBC_WIN_BUILD_PATH $Env:AWS_SDK_WIN_INSTALL_PATH
+        .\scripts\build_installer.ps1 Release Win32 .\src $Env:ODBC_WIN_BUILD_PATH $Env:AWS_SDK_WIN_INSTALL_PATH
     #- name: test
     #  run: |
     #    cp .\\libraries\\VisualLeakDetector\\bin32\\*.* .\\bin32\\Release
