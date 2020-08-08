@@ -36,7 +36,7 @@ Set-Location $CURRENT_DIR
 
 # Move driver dependencies to bin directory for testing
 $DRIVER_BIN_DIR = "$DRIVER_BUILD_DIR\..\bin\$CONFIGURATION"
-New-Item -Path $BUILD_DIR -ItemType Directory -Force | Out-Null
+New-Item -Path $DRIVER_BIN_DIR -ItemType Directory -Force | Out-Null
 
 Copy-Item $SDK_BUILD_DIR\bin\$CONFIGURATION\* $DRIVER_BIN_DIR
 Copy-Item $DRIVER_BUILD_DIR\bin\$CONFIGURATION\* $DRIVER_BIN_DIR
