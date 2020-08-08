@@ -109,19 +109,19 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: windows32-build
-        path: $CI_OUTPUT/build
+        path: $Env:CI_OUTPUT/build
     - name: upload-installer
       if: always()
       uses: actions/upload-artifact@v1
       with:
         name: windows32-installer
-        path: $CI_OUTPUT/installer
+        path: $Env:CI_OUTPUT/installer
     #- name: upload-test-results
     #  if: always()
     #  uses: actions/upload-artifact@v1
     #  with:
     #    name: windows-test-results
-    #    path: $CI_OUTPUT/test
+    #    path: $Env:CI_OUTPUT/test
   build-windows64:
     runs-on: windows-latest
     defaults:
