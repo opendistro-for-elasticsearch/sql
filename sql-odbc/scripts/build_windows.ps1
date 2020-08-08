@@ -43,5 +43,6 @@ Copy-Item $DRIVER_BUILD_DIR\bin\$CONFIGURATION\* $DRIVER_BIN_DIR
 if ($BITNESS -eq "32") {
     # Strip bitness from 32bit VLD DLL dir name
     $BITNESS = $null
+    $WIN_ARCH = "x86"
 }
 Copy-Item .\libraries\VisualLeakDetector\bin$BITNESS\vld_$WIN_ARCH.dll $DRIVER_BIN_DIR
