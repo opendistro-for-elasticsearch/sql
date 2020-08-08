@@ -4,6 +4,8 @@ $SRC_DIR = $args[2]
 $BUILD_DIR = $args[3]
 $INSTALL_DIR = $args[4]
 
+Write-Host $args
+
 cmake -S $SRC_DIR `
     -B $BUILD_DIR `
     -A $WIN_ARCH `
