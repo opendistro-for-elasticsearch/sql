@@ -7,7 +7,9 @@ env:
   ODBC_LIB_PATH: "./build/odbc/lib"
   ODBC_BIN_PATH: "./build/odbc/bin"
   ODBC_BUILD_PATH: "./build/odbc/build"
+  ODBC_WIN_BUILD_PATH: ".\\build\\odbc\\build"
   AWS_SDK_INSTALL_PATH: "./build/aws-sdk/install"
+  AWS_SDK_WIN_INSTALL_PATH: ".\\build\\aws-sdk\\install"
 
 jobs:    
   build-mac:
@@ -92,7 +94,7 @@ jobs:
     - name: build-installer
       if: success()
       run: |
-        .\scripts\build_installer.ps1 Release x86 .\src $ODBC_BUILD_PATH $AWS_SDK_INSTALL_PATH
+        .\scripts\build_installer.ps1 Release x86 .\src $ODBC_WIN_BUILD_PATH $AWS_SDK_WIN_INSTALL_PATH
     #- name: test
     #  run: |
     #    cp .\\libraries\\VisualLeakDetector\\bin32\\*.* .\\bin32\\Release
@@ -101,7 +103,7 @@ jobs:
     - name: prepare-output
       if: always()
       run: |
-        .\scripts\prepare_ci_output.ps1 $ODBC_BIN_PATH $ODBC_LIB_PATH $ODBC_BUILD_PATH
+        .\scripts\prepare_ci_output.ps1 $ODBC_BIN_PATH $ODBC_LIB_PATH $ODBC_WIN_BUILD_PATH
     - name: upload-build
       if: always()
       uses: actions/upload-artifact@v1

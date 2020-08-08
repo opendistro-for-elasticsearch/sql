@@ -2,6 +2,8 @@ $ODBC_BIN_PATH = $args[0]
 $ODBC_LIB_PATH = $args[1]
 $ODBC_BUILD_PATH = $args[2]
 
+Write-Host $args
+
 # Create staging directories for CI artifacts
 $CI_OUTPUT_PATH = .\ci-output
 New-Item -Path $CI_OUTPUT_PATH -ItemType Directory -Force | Out-Null
