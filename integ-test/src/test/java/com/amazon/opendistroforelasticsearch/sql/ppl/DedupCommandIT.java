@@ -66,11 +66,11 @@ public class DedupCommandIT extends PPLIntegTestCase {
     verifyDataRows(
         result,
         rows("Amber JOHnny", 39225),
-        rows("Hattie"),
+        rows("Hattie", null),
         rows("Nanette", 32838),
         rows("Dale", 4180),
-        rows("Elinor"),
-        rows("Virginia"),
+        rows("Elinor", null),
+        rows("Virginia", null),
         rows("Dillard", 48086));
   }
 }

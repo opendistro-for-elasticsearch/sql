@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,9 +38,7 @@ class ExprMissingValueTest {
 
   @Test
   public void getValue() {
-    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> LITERAL_MISSING.value());
-    assertEquals("invalid to call value operation on missing value", exception.getMessage());
+    assertNull(LITERAL_MISSING.value());
   }
 
   @Test

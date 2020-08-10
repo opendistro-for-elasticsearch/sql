@@ -121,7 +121,8 @@ public class RestSQLQueryAction extends BaseRestHandler {
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {
-        sendResponse(OK, formatter.format(new QueryResult(response.getResults())));
+        sendResponse(OK, formatter.format(new QueryResult(response.getSchema(),
+            response.getResults())));
       }
 
       @Override

@@ -47,7 +47,7 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
               result.add(plan.next());
             }
 
-            QueryResponse response = new QueryResponse(result);
+            QueryResponse response = new QueryResponse(physicalPlan.schema(), result);
             listener.onResponse(response);
           } catch (Exception e) {
             listener.onFailure(e);

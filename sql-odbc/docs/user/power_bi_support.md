@@ -33,7 +33,7 @@
 
 <img src="img/pbi_third_party_warning.png" width="500">
 
-* Enter host and port values. Click on **OK**.
+* Enter server value. Click on **OK**.
 
 <img src="img/pbi_connection_string_options.png" width="500">
 

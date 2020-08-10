@@ -17,6 +17,7 @@
   "sql_cli": [
     "user/dql/expressions.rst",
     "user/general/identifiers.rst",
+    "user/general/values.rst",
     "user/dql/functions.rst",
     "user/beyond/partiql.rst"
   ]

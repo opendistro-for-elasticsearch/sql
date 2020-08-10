@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
-
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
@@ -65,7 +63,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -73,10 +70,24 @@ import org.apache.commons.lang3.tuple.Pair;
  * Analyze the {@link UnresolvedPlan} in the {@link AnalysisContext} to construct the {@link
  * LogicalPlan}.
  */
-@RequiredArgsConstructor
 public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
+
   private final ExpressionAnalyzer expressionAnalyzer;
+
+  private final SelectExpressionAnalyzer selectExpressionAnalyzer;
+
   private final StorageEngine storageEngine;
+
+  /**
+   * Constructor.
+   */
+  public Analyzer(
+      ExpressionAnalyzer expressionAnalyzer,
+      StorageEngine storageEngine) {
+    this.expressionAnalyzer = expressionAnalyzer;
+    this.storageEngine = storageEngine;
+    this.selectExpressionAnalyzer = new SelectExpressionAnalyzer(expressionAnalyzer);
+  }
 
   public LogicalPlan analyze(UnresolvedPlan unresolved, AnalysisContext context) {
     return unresolved.accept(this, context);
@@ -113,8 +124,11 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
         ReferenceExpression target =
             new ReferenceExpression(((Field) renameMap.getTarget()).getField().toString(),
                 origin.type());
-        context.peek().define(target);
-        renameMapBuilder.put(DSL.ref(origin.toString(), origin.type()), target);
+        ReferenceExpression originExpr = DSL.ref(origin.toString(), origin.type());
+        TypeEnvironment curEnv = context.peek();
+        curEnv.remove(originExpr);
+        curEnv.define(target);
+        renameMapBuilder.put(originExpr, target);
       } else {
         throw new SemanticCheckException(
             String.format("the target expected to be field, but is %s", renameMap.getTarget()));
@@ -129,17 +143,27 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
    */
   @Override
   public LogicalPlan visitAggregation(Aggregation node, AnalysisContext context) {
-    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    final LogicalPlan child = node.getChild().get(0).accept(this, context);
     ImmutableList.Builder<Aggregator> aggregatorBuilder = new ImmutableList.Builder<>();
     for (UnresolvedExpression expr : node.getAggExprList()) {
       aggregatorBuilder.add((Aggregator) expressionAnalyzer.analyze(expr, context));
     }
+    ImmutableList<Aggregator> aggregators = aggregatorBuilder.build();
 
     ImmutableList.Builder<Expression> groupbyBuilder = new ImmutableList.Builder<>();
     for (UnresolvedExpression expr : node.getGroupExprList()) {
       groupbyBuilder.add(expressionAnalyzer.analyze(expr, context));
     }
-    return new LogicalAggregation(child, aggregatorBuilder.build(), groupbyBuilder.build());
+    ImmutableList<Expression> groupBys = groupbyBuilder.build();
+
+    // new context
+    context.push();
+    TypeEnvironment newEnv = context.peek();
+    aggregators.forEach(aggregator -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
+        aggregator.toString()), aggregator.type()));
+    groupBys.forEach(group -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
+        group.toString()), group.type()));
+    return new LogicalAggregation(child, aggregators, groupBys);
   }
 
   /**
@@ -161,18 +185,24 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       Argument argument = node.getArgExprList().get(0);
       Boolean exclude = (Boolean) argument.getValue().getValue();
       if (exclude) {
+        TypeEnvironment curEnv = context.peek();
         List<ReferenceExpression> referenceExpressions =
             node.getProjectList().stream()
                 .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
                 .collect(Collectors.toList());
+        referenceExpressions.forEach(ref -> curEnv.remove(ref));
         return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
       }
     }
 
-    List<NamedExpression> expressions = node.getProjectList().stream()
-        .map(expr -> named(expressionAnalyzer.analyze(expr, context)))
-        .collect(Collectors.toList());
-    return new LogicalProject(child, expressions);
+    List<NamedExpression> namedExpressions =
+        selectExpressionAnalyzer.analyze(node.getProjectList(), context);
+    // new context
+    context.push();
+    TypeEnvironment newEnv = context.peek();
+    namedExpressions.forEach(expr -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
+        expr.getName()), expr.type()));
+    return new LogicalProject(child, namedExpressions);
   }
 
   /**
