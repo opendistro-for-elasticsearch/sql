@@ -24,7 +24,7 @@
 * Select Data Source Type as **Open Distro For Elasticsearch**.
 * Enter Data Source Name and Server values.
 * Select required **Authentication Method**. Select **Anonymous** for auth **NONE**.
-For **AWS_SIGV4**, select **Key** and set aws access credentials for user **PBIEgwSerbive** at path `C:\Windows\ServiceProfiles\PBIEgwService\.aws\`
+For **AWS_SIGV4**, select **Key** and set aws access credentials for user **PBIEgwService** at path `C:\Windows\ServiceProfiles\PBIEgwService\.aws\`
 
 * Select Encryption mode for connection.
 * Click on **Add**.
