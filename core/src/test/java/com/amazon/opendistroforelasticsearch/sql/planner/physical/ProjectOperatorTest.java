@@ -107,8 +107,8 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
         DSL.named("action", DSL.ref("action", STRING)));
 
     assertThat(project.schema().getColumns(), contains(
-        new ExecutionEngine.Schema.Column("response", "response", INTEGER),
-        new ExecutionEngine.Schema.Column("action", "action", STRING)
+        new ExecutionEngine.Schema.Column("response", null, INTEGER),
+        new ExecutionEngine.Schema.Column("action", null, STRING)
     ));
   }
 }

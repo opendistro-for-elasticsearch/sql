@@ -71,6 +71,6 @@ public class ProjectOperator extends PhysicalPlan {
   public ExecutionEngine.Schema schema() {
     return new ExecutionEngine.Schema(getProjectList().stream()
         .map(expr -> new ExecutionEngine.Schema.Column(expr.getName(),
-            expr.getName(), expr.type())).collect(Collectors.toList()));
+            expr.getAlias(), expr.type())).collect(Collectors.toList()));
   }
 }
