@@ -15,17 +15,22 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
@@ -74,7 +79,7 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
   }
 
   @Test
-  public void project_ignore_missing_value() {
+  public void project_keep_missing_value() {
     when(inputPlan.hasNext()).thenReturn(true, true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)))
@@ -90,6 +95,20 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
             iterableWithSize(2),
             hasItems(
                 ExprValueUtils.tupleValue(ImmutableMap.of("response", 200, "action", "GET")),
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST")))));
+                ExprTupleValue.fromExprValueMap(ImmutableMap.of("response",
+                    LITERAL_MISSING,
+                    "action", stringValue("POST"))))));
+  }
+
+  @Test
+  public void project_schema() {
+    PhysicalPlan project = project(inputPlan,
+        DSL.named("response", DSL.ref("response", INTEGER)),
+        DSL.named("action", DSL.ref("action", STRING)));
+
+    assertThat(project.schema().getColumns(), contains(
+        new ExecutionEngine.Schema.Column("response", null, INTEGER),
+        new ExecutionEngine.Schema.Column("action", null, STRING)
+    ));
   }
 }

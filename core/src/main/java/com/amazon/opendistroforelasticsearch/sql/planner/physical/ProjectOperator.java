@@ -17,11 +17,13 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -60,11 +62,15 @@ public class ProjectOperator extends PhysicalPlan {
     ImmutableMap.Builder<String, ExprValue> mapBuilder = new Builder<>();
     for (NamedExpression expr : projectList) {
       ExprValue exprValue = expr.valueOf(inputValue.bindingTuples());
-      // missing value is ignored.
-      if (!exprValue.isMissing()) {
-        mapBuilder.put(expr.getName(), exprValue);
-      }
+      mapBuilder.put(expr.getName(), exprValue);
     }
     return ExprTupleValue.fromExprValueMap(mapBuilder.build());
+  }
+
+  @Override
+  public ExecutionEngine.Schema schema() {
+    return new ExecutionEngine.Schema(getProjectList().stream()
+        .map(expr -> new ExecutionEngine.Schema.Column(expr.getName(),
+            expr.getAlias(), expr.type())).collect(Collectors.toList()));
   }
 }

@@ -1,0 +1,79 @@
+/*
+ *
+ *    Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License").
+ *    You may not use this file except in compliance with the License.
+ *    A copy of the License is located at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    or in the "license" file accompanying this file. This file is distributed
+ *    on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *    express or implied. See the License for the specific language governing
+ *    permissions and limitations under the License.
+ *
+ */
+
+package com.amazon.opendistroforelasticsearch.sql.analysis;
+
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.google.common.collect.ImmutableList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Analyze the select list in the {@link AnalysisContext} to construct the list of
+ * {@link NamedExpression}.
+ */
+@RequiredArgsConstructor
+public class SelectExpressionAnalyzer
+    extends
+    AbstractNodeVisitor<List<NamedExpression>, AnalysisContext> {
+  private final ExpressionAnalyzer expressionAnalyzer;
+
+  /**
+   * Analyze Select fields.
+   */
+  public List<NamedExpression> analyze(List<UnresolvedExpression> selectList,
+                                       AnalysisContext analysisContext) {
+    ImmutableList.Builder<NamedExpression> builder = new ImmutableList.Builder<>();
+    for (UnresolvedExpression unresolvedExpression : selectList) {
+      builder.addAll(unresolvedExpression.accept(this, analysisContext));
+    }
+    return builder.build();
+  }
+
+  @Override
+  public List<NamedExpression> visitField(Field node, AnalysisContext context) {
+    return Collections.singletonList(DSL.named(node.accept(expressionAnalyzer, context)));
+  }
+
+  @Override
+  public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
+    return Collections.singletonList(DSL.named(node.getName(),
+        node.getDelegated().accept(expressionAnalyzer, context),
+        node.getAlias()));
+  }
+
+  @Override
+  public List<NamedExpression> visitAllFields(AllFields node,
+                                              AnalysisContext context) {
+    TypeEnvironment environment = context.peek();
+    Map<String, ExprType> lookupAllFields = environment.lookupAllFields(Namespace.FIELD_NAME);
+    return lookupAllFields.entrySet().stream().map(entry -> DSL.named(entry.getKey(),
+        new ReferenceExpression(entry.getKey(), entry.getValue()))).collect(Collectors.toList());
+  }
+}

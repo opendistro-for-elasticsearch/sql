@@ -35,7 +35,7 @@ public class ExprMissingValue extends AbstractExprValue {
 
   @Override
   public Object value() {
-    throw new ExpressionEvaluationException("invalid to call value operation on missing value");
+    return null;
   }
 
   @Override
