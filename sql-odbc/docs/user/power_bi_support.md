@@ -51,6 +51,38 @@
 
 <img src="img/pbi_simple_graph.png">
 
+## Using .PBIDS Files
+
+More info: https://docs.microsoft.com/en-us/power-bi/connect-data/desktop-data-sources#using-pbids-files-to-get-data
+
+Example PBIDS file for Open Distro for Elasticsearch:
+```json
+{
+    "version": "0.1",
+    "connections": [
+        {
+            "details": {
+                "protocol": "odfesqlodbc",
+                "address": {
+                    "server": "localhost:9200"
+                }
+            },
+            "mode": "Import"
+        }
+    ]
+}
+```
+
+The only part you should change is the `server` attribute, to point to the location of your ODFE server.
+* For AWS connections, this will be the full path of your ODFE instance (ex: `https://aws-odfe-instance.us-west-1.com`).
+* Otherwise, this will be the `host:port` combination for your instance (ex: `localhost:9200`).
+
+Save this as a `.pbids` file. Double-click on it to open up your connection in Power BI Desktop.
+It will take you straight to the **Navigator** window for selecting the tables from the ODFE server.
+* If this is the first time you are connecting to this instance, you will be prompted for your credentials.
+
+<img src="img/pbi_auth.png" width="500">
+
 ## Troubleshooting 
 
 * If you get an following error, please install [Open Distro For Elasticsearch SQL ODBC Driver](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/odbc/).
