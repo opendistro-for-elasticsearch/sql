@@ -3,7 +3,7 @@
 ## Setup
 * Download and Install [On-premises data gateway](https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-install)
 * Change the path for custom data connector folder in On-premises data gateway so that the gateway can find the custom connector.
-> NOTE: Ensure the gateway service account has permissions to access the custom connector folder. 
+> NOTE: Ensure the gateway service account (**PBIEgwService**) has permissions to access the custom connector folder. Alternatively, you can copy connector file to `C:\Windows\ServiceProfiles\PBIEgwService\Documents\Power BI Desktop\Custom Connectors\`.
 
 <img src="img/pbi_gateway_connector_path.png" width=500>
 
@@ -23,7 +23,9 @@
 * Click on **Add data sources to use the gateway**.
 * Select Data Source Type as **Open Distro For Elasticsearch**.
 * Enter Data Source Name and Server values.
-* Select required **Authentication Method**. **Anonymous** refers to auth **NONE** and **Key** refers to auth **AWS_SIGV4**.
+* Select required **Authentication Method**. Select **Anonymous** for auth **NONE**.
+For **AWS_SIGV4**, select **Key** and set aws access credentials for user **PBIEgwSerbive** at path `C:\Windows\ServiceProfiles\PBIEgwService\.aws\`
+
 * Select Encryption mode for connection.
 * Click on **Add**.
 
