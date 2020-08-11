@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
@@ -70,4 +71,10 @@ public abstract class Aggregator<S extends AggregationState>
   public ExprType type() {
     return returnType;
   }
+
+  @Override
+  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
+    return visitor.visitAggregator(this, context);
+  }
+
 }

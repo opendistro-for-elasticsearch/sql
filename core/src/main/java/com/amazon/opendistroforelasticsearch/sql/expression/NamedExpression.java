@@ -71,4 +71,9 @@ public class NamedExpression implements Expression {
     return Strings.isNullOrEmpty(alias) ? name : alias;
   }
 
+  @Override
+  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
+    return visitor.visitNamed(this, context);
+  }
+
 }

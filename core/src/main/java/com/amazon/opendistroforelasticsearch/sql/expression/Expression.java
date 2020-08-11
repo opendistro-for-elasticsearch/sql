@@ -34,4 +34,15 @@ public interface Expression extends Serializable {
    * The type of the expression.
    */
   ExprType type();
+
+  /**
+   * Accept a visitor to visit current expression node.
+   * @param visitor   visitor
+   * @param context   context
+   * @param <T>       result type
+   * @param <C>       context type
+   * @return          result accumulated by visitor when visiting
+   */
+  <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context);
+
 }

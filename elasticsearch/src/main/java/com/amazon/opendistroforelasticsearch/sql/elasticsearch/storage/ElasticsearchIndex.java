@@ -22,7 +22,10 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.Elasticsea
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -31,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.index.query.QueryBuilder;
 
 /** Elasticsearch table (index) implementation. */
 @RequiredArgsConstructor
@@ -43,6 +47,7 @@ public class ElasticsearchIndex implements Table {
   private static final Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
       ImmutableMap.<String, ExprType>builder()
           .put("text", ElasticsearchDataType.ES_TEXT)
+          .put("text_keyword", ElasticsearchDataType.ES_TEXT_KEYWORD)
           .put("keyword", ExprCoreType.STRING)
           .put("integer", ExprCoreType.INTEGER)
           .put("long", ExprCoreType.LONG)
@@ -87,6 +92,20 @@ public class ElasticsearchIndex implements Table {
      * index scan.
      */
     return plan.accept(new DefaultImplementor<ElasticsearchIndexScan>() {
+          @Override
+          public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
+            FilterQueryBuilder queryBuilder =
+                new FilterQueryBuilder(new DefaultExpressionSerializer());
+
+            QueryBuilder query = queryBuilder.build(node.getCondition());
+            if (query == null) { // Use default filter operator if unable to push down
+              return super.visitFilter(node, context);
+            }
+
+            context.pushDown(query);
+            return visitChild(node, context);
+          }
+
           @Override
           public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
             return indexScan;

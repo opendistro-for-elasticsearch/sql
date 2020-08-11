@@ -93,7 +93,7 @@ class ElasticsearchNodeClientTest {
     assertEquals("geo_point", indexMapping.getFieldType("location"));
     assertEquals("some_new_es_type_outside_type_system", indexMapping.getFieldType("new_field"));
     assertEquals("text", indexMapping.getFieldType("field with spaces"));
-    assertEquals("text", indexMapping.getFieldType("employer"));
+    assertEquals("text_keyword", indexMapping.getFieldType("employer"));
     assertEquals("keyword", indexMapping.getFieldType("employer.raw"));
     assertEquals("nested", indexMapping.getFieldType("projects"));
     assertEquals("boolean", indexMapping.getFieldType("projects.active"));
@@ -101,7 +101,7 @@ class ElasticsearchNodeClientTest {
     assertEquals("nested", indexMapping.getFieldType("projects.members"));
     assertEquals("text", indexMapping.getFieldType("projects.members.name"));
     assertEquals("object", indexMapping.getFieldType("manager"));
-    assertEquals("text", indexMapping.getFieldType("manager.name"));
+    assertEquals("text_keyword", indexMapping.getFieldType("manager.name"));
     assertEquals("keyword", indexMapping.getFieldType("manager.name.keyword"));
     assertEquals("keyword", indexMapping.getFieldType("manager.address"));
     assertEquals("long", indexMapping.getFieldType("manager.salary"));

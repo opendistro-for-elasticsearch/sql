@@ -133,7 +133,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
   public void indexJoinNonNestedFieldShouldThrowSemanticException() {
     queryShouldThrowSemanticException(
         "SELECT * FROM elasticsearch-sql_test_index_bank b1, b1.firstname f1",
-        "Operator [JOIN] cannot work with [INDEX, TEXT]."
+        "Operator [JOIN] cannot work with [INDEX, KEYWORD]."
     );
   }
 

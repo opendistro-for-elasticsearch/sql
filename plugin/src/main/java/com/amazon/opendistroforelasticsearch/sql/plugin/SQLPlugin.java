@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ExpressionScriptEngine;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.legacy.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
@@ -47,16 +49,19 @@ import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.plugins.ScriptPlugin;
 import org.elasticsearch.repositories.RepositoriesService;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestHandler;
+import org.elasticsearch.script.ScriptContext;
+import org.elasticsearch.script.ScriptEngine;
 import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.threadpool.ExecutorBuilder;
 import org.elasticsearch.threadpool.FixedExecutorBuilder;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.watcher.ResourceWatcherService;
 
-public class SQLPlugin extends Plugin implements ActionPlugin {
+public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
 
   /**
    * Sql plugin specific settings in ES cluster settings.
@@ -142,6 +147,11 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
         new ImmutableList.Builder<Setting<?>>().addAll(sqlSettings.getSettings())
             .addAll(ElasticsearchSettings.pluginSettings()).build();
     return settings;
+  }
+
+  @Override
+  public ScriptEngine getScriptEngine(Settings settings, Collection<ScriptContext<?>> contexts) {
+    return new ExpressionScriptEngine(new DefaultExpressionSerializer());
   }
 
 }

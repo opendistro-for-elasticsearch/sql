@@ -93,10 +93,15 @@ public class IndexMapping {
         (fieldName, mappingObject) -> {
           Map<String, Object> mapping = (Map<String, Object>) mappingObject;
           String fullFieldName = path.isEmpty() ? fieldName : path + "." + fieldName;
-          String type = (String) mapping.getOrDefault("type", "object");
-          func.accept(fullFieldName, type);
 
-          if (mapping.containsKey("fields")) { // Multi-field
+          if (isMultiField(mapping)) {
+            func.accept(fullFieldName, "text_keyword");
+          } else {
+            String type = (String) mapping.getOrDefault("type", "object");
+            func.accept(fullFieldName, type);
+          }
+
+          if (isMultiField(mapping)) {
             ((Map<String, Map<String, Object>>) mapping.get("fields"))
                 .forEach(
                     (innerFieldName, innerMapping) ->
@@ -110,4 +115,9 @@ public class IndexMapping {
           }
         });
   }
+
+  private boolean isMultiField(Map<String, Object> mapping) {
+    return mapping.containsKey("fields");
+  }
+
 }

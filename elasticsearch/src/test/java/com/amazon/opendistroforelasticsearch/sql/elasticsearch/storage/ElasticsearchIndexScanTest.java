@@ -30,10 +30,13 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import org.elasticsearch.common.bytes.BytesArray;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,6 +87,56 @@ class ElasticsearchIndexScanTest {
       assertFalse(indexScan.hasNext());
     }
     verify(client).cleanup(any());
+  }
+
+  @Test
+  void pushDownFilters() {
+    assertThat()
+        .pushDown(QueryBuilders.termQuery("name", "John"))
+        .shouldQuery(QueryBuilders.termQuery("name", "John"))
+        .pushDown(QueryBuilders.termQuery("age", 30))
+        .shouldQuery(
+            QueryBuilders.boolQuery()
+                .must(QueryBuilders.termQuery("name", "John"))
+                .must(QueryBuilders.termQuery("age", 30)))
+        .pushDown(QueryBuilders.rangeQuery("balance").gte(10000))
+        .shouldQuery(
+            QueryBuilders.boolQuery()
+                .must(QueryBuilders.termQuery("name", "John"))
+                .must(QueryBuilders.termQuery("age", 30))
+                .must(QueryBuilders.rangeQuery("balance").gte(10000)));
+  }
+
+  private PushDownAssertion assertThat() {
+    return new PushDownAssertion(client, exprValueFactory);
+  }
+
+  private static class PushDownAssertion {
+    private final ElasticsearchClient client;
+    private final ElasticsearchIndexScan indexScan;
+    private final ElasticsearchResponse response;
+
+    public PushDownAssertion(ElasticsearchClient client,
+                             ElasticsearchExprValueFactory valueFactory) {
+      this.client = client;
+      this.indexScan = new ElasticsearchIndexScan(client, "test", valueFactory);
+      this.response = mock(ElasticsearchResponse.class);
+      when(response.isEmpty()).thenReturn(true);
+    }
+
+    PushDownAssertion pushDown(QueryBuilder query) {
+      indexScan.pushDown(query);
+      return this;
+    }
+
+    PushDownAssertion shouldQuery(QueryBuilder expected) {
+      ElasticsearchRequest request = new ElasticsearchRequest("test");
+      request.getSourceBuilder().query(expected);
+      when(client.search(request)).thenReturn(response);
+      indexScan.open();
+      return this;
+    }
+
   }
 
   private void mockResponse(SearchHit[]... searchHitBatches) {
