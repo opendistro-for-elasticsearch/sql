@@ -55,7 +55,7 @@ public class SQLQueryRequest {
   /**
    * Pre-check if the request can be supported by meeting the following criteria:
    *  1.Only "query" field in payload. In other word, it's not a cursor request
-   *   (with either "fetch_size" or "cursor" field) or request with extra field
+   *   (with either non-zero "fetch_size" or "cursor" field) or request with extra field
    *   such as "filter".
    *  2.Response format expected is default JDBC format.
    *
