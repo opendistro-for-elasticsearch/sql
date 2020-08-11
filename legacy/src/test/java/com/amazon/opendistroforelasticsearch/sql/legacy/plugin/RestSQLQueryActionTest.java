@@ -53,15 +53,15 @@ public class RestSQLQueryActionTest {
   }
 
   @Test
-  public void skipExplainThatNotSupport() {
+  public void handleExplainThatCanSupport() {
     SQLQueryRequest request = new SQLQueryRequest(
-        new JSONObject("{\"query\": \"SELECT * FROM test\"}"),
-        "SELECT * FROM test",
+        new JSONObject("{\"query\": \"SELECT -123\"}"),
+        "SELECT -123",
         EXPLAIN_API_ENDPOINT,
         "");
 
     RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService);
-    assertSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
+    assertNotSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
   }
 
   @Test

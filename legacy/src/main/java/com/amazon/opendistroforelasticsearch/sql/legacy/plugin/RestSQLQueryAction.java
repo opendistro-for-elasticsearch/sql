@@ -100,6 +100,10 @@ public class RestSQLQueryAction extends BaseRestHandler {
     } catch (SyntaxCheckException e) {
       return NOT_SUPPORTED_YET;
     }
+
+    if (request.isExplainRequest()) {
+      return channel -> sendResponse(channel, sqlService.explain(plan));
+    }
     return channel -> sqlService.execute(plan, createListener(channel));
   }
 
@@ -144,6 +148,10 @@ public class RestSQLQueryAction extends BaseRestHandler {
     } catch (IOException e) {
       throw new IllegalStateException("Failed to perform privileged action", e);
     }
+  }
+
+  private void sendResponse(RestChannel channel, String result) {
+    channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", result));
   }
 
 }
