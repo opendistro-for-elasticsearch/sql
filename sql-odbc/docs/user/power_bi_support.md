@@ -5,6 +5,7 @@
 * [Open Distro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/)
 * [Open Distro for Elasticsearch SQL ODBC driver](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/odbc/)
 * [OdfeSqlOdbcPBIConnector.mez](../../src/PowerBIConnector/bin/Release/) 
+* Optional: [odfesqlodbc_import.pbids](../../src/PowerBIConnector/PBIDSExamples) to help with repeated connections to the same server 
 
 ## Setup
 * Copy `OdfeSqlOdbcPBIConnector.mez` file in the `<User>\Documents\Power BI Desktop\Custom Connectors\` folder. This will let Power BI access custom connector.
@@ -55,7 +56,7 @@
 
 More info: https://docs.microsoft.com/en-us/power-bi/connect-data/desktop-data-sources#using-pbids-files-to-get-data
 
-Example PBIDS file for Open Distro for Elasticsearch:
+Example PBIDS file for Open Distro for Elasticsearch: (available here: [odfesqlodbc_import.pbids](../../src/PowerBIConnector/PBIDSExamples/odfesqlodbc_import.pbids))
 ```json
 {
     "version": "0.1",
