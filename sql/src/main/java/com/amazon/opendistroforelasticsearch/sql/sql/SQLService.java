@@ -89,6 +89,15 @@ public class SQLService {
   }
 
   /**
+   * Given physical plan, explain it.
+   * @param plan        physical plan
+   * @return            explanation
+   */
+  public String explain(PhysicalPlan plan) {
+    return plan.toString();
+  }
+
+  /**
    * Parse query and convert parse tree (CST) to abstract syntax tree (AST).
    */
   public UnresolvedPlan parse(String query) {

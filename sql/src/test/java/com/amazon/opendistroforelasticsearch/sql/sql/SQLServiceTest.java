@@ -88,6 +88,11 @@ class SQLServiceTest {
   }
 
   @Test
+  public void canExplainSqlQuery() {
+    assertNotNull(sqlService.explain(mock(PhysicalPlan.class)));
+  }
+
+  @Test
   public void canExecuteFromPhysicalPlan() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
