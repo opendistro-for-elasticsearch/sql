@@ -172,4 +172,9 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
         validate("SELECT s.`age` FROM semantics AS s");
         validate("SELECT `s`.`age` FROM semantics AS `s`");
     }
+
+    @Test
+    public void queryWithBackticksQuotedFieldNameInFunctionShouldPass() {
+        validate("SELECT SUM(`age`) FROM semantics");
+    }
 }
