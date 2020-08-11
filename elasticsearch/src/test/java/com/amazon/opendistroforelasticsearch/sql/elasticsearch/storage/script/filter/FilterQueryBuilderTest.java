@@ -169,7 +169,7 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_bool_query_for_and_or_expression() {
+  void should_build_bool_query_for_and_or_expression() {
     String[] names = { "must", "should" };
     FunctionExpression expr1 = dsl.equal(ref("name", ES_TEXT_KEYWORD), literal("John"));
     FunctionExpression expr2 = dsl.equal(ref("age", INTEGER), literal(30));
@@ -209,7 +209,7 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_bool_query_for_not_expression() {
+  void should_build_bool_query_for_not_expression() {
     assertEquals(
         "{\n"
             + "  \"bool\" : {\n"

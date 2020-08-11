@@ -107,7 +107,10 @@ public class ElasticsearchIndexScan extends TableScanOperator {
                                   .must(query));
       }
     }
-    source.sort(DOC_FIELD_NAME, ASC); // Make sure consistent order
+
+    if (source.sorts() == null) {
+      source.sort(DOC_FIELD_NAME, ASC); // Make sure consistent order
+    }
   }
 
   @Override

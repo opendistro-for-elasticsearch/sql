@@ -30,7 +30,7 @@ public class TermQuery extends LuceneQuery {
 
   @Override
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
-    if (fieldType == ES_TEXT_KEYWORD) {
+    if (fieldType == ES_TEXT_KEYWORD) { // Assume inner field name is always "keyword"
       fieldName += ".keyword";
     }
     return QueryBuilders.termQuery(fieldName, literal.value());

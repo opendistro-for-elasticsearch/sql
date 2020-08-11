@@ -17,6 +17,8 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static org.elasticsearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
+import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -131,7 +133,9 @@ class ElasticsearchIndexScanTest {
 
     PushDownAssertion shouldQuery(QueryBuilder expected) {
       ElasticsearchRequest request = new ElasticsearchRequest("test");
-      request.getSourceBuilder().query(expected);
+      request.getSourceBuilder()
+             .query(expected)
+             .sort(DOC_FIELD_NAME, ASC);
       when(client.search(request)).thenReturn(response);
       indexScan.open();
       return this;
