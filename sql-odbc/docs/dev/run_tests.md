@@ -18,8 +18,10 @@ First load the sample datasets provided by kibana.
 4. Select 'Add data' under 'Sample eCommerce orders'
 5. Select 'Add data' under 'Sample web logs'
 
-Then load custom data sets using the kibana console.
+Then load the following custom data sets using the kibana console.
 Select the wrench on the left control panel. Enter the following commands into the console and hit the play button after each one.
+
+* [kibana_sample_data_types](./datasets/kibana_sample_data_types.md)
 
 ## Running Tests
 
