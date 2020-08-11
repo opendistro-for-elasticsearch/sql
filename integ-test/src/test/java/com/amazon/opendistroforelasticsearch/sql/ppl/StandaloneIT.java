@@ -110,7 +110,7 @@ public class StandaloneIT extends PPLIntegTestCase {
 
           @Override
           public void onResponse(QueryResponse response) {
-            QueryResult result = new QueryResult(response.getResults());
+            QueryResult result = new QueryResult(response.getSchema(), response.getResults());
             String json = new SimpleJsonResponseFormatter(PRETTY).format(result);
             actual.set(json);
           }

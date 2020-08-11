@@ -47,7 +47,7 @@ public class TestConfig {
   public static final String STRING_TYPE_NULL_VALUE_FILED = "string_null_value";
   public static final String STRING_TYPE_MISSING_VALUE_FILED = "string_missing_value";
 
-  private static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
+  public static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
       .put("integer_value", ExprCoreType.INTEGER)
       .put(INT_TYPE_NULL_VALUE_FIELD, ExprCoreType.INTEGER)
       .put(INT_TYPE_MISSING_VALUE_FIELD, ExprCoreType.INTEGER)

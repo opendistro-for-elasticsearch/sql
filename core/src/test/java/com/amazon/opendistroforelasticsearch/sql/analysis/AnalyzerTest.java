@@ -32,13 +32,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@Configuration
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTest.class})
 class AnalyzerTest extends AnalyzerTestBase {
   @Test
   public void filter_relation() {

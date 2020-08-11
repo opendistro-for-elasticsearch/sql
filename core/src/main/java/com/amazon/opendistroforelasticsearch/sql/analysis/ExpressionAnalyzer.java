@@ -164,13 +164,6 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return visitIdentifier(node.toString(), context);
   }
 
-  @Override
-  public Expression visitAlias(Alias node, AnalysisContext context) {
-    return DSL.named(node.getName(),
-                     node.getDelegated().accept(this, context),
-                     node.getAlias());
-  }
-
   private Expression visitIdentifier(String ident, AnalysisContext context) {
     TypeEnvironment typeEnv = context.peek();
     ReferenceExpression ref = DSL.ref(ident,

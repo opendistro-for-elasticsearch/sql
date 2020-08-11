@@ -17,28 +17,76 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.config.TestConfig;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
-import org.junit.jupiter.api.extension.ExtendWith;
+import com.amazon.opendistroforelasticsearch.sql.storage.Table;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@Configuration
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTestBase.class, TestConfig.class})
+
 public class AnalyzerTestBase {
+
+  protected Map<String, ExprType> typeMapping() {
+    return TestConfig.typeMapping;
+  }
+
+  @Bean
+  protected StorageEngine storageEngine() {
+    return new StorageEngine() {
+      @Override
+      public Table getTable(String name) {
+        return new Table() {
+          @Override
+          public Map<String, ExprType> getFieldTypes() {
+            return typeMapping();
+          }
+
+          @Override
+          public PhysicalPlan implement(LogicalPlan plan) {
+            throw new UnsupportedOperationException();
+          }
+        };
+      }
+    };
+  }
+
+
+  @Bean
+  protected SymbolTable symbolTable() {
+    SymbolTable symbolTable = new SymbolTable();
+    typeMapping().entrySet()
+        .forEach(
+            entry -> symbolTable
+                .store(new Symbol(Namespace.FIELD_NAME, entry.getKey()), entry.getValue()));
+    return symbolTable;
+  }
+
+  @Bean
+  protected Environment<Expression, ExprType> typeEnv() {
+    return var -> {
+      if (var instanceof ReferenceExpression) {
+        ReferenceExpression refExpr = (ReferenceExpression) var;
+        if (typeMapping().containsKey(refExpr.getAttr())) {
+          return typeMapping().get(refExpr.getAttr());
+        }
+      }
+      throw new ExpressionEvaluationException("type resolved failed");
+    };
+  }
 
   @Autowired
   protected DSL dsl;

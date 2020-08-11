@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;

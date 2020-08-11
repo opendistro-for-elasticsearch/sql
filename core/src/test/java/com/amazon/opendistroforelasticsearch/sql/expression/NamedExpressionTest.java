@@ -42,4 +42,13 @@ class NamedExpressionTest extends ExpressionTestBase {
     assertEquals("ten", namedExpression.getName());
   }
 
+  @Test
+  void name_an_named_expression() {
+    LiteralExpression delegated = DSL.literal(10);
+    Expression expression = DSL.named("10", delegated, "ten");
+
+    NamedExpression namedExpression = DSL.named(expression);
+    assertEquals("ten", namedExpression.getName());
+  }
+
 }
