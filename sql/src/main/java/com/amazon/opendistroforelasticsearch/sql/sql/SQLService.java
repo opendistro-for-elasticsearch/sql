@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.planner.Explain;
 import com.amazon.opendistroforelasticsearch.sql.planner.Planner;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -94,7 +95,7 @@ public class SQLService {
    * @return            explanation
    */
   public String explain(PhysicalPlan plan) {
-    return plan.toString();
+    return new Explain().explain(plan);
   }
 
   /**
