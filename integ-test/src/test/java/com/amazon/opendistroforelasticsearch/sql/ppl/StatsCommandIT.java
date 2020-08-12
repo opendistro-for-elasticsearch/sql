@@ -26,7 +26,7 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
-    setQuerySizeLimit();
+    setQuerySizeLimit(2000);
   }
 
   @Test
@@ -99,11 +99,5 @@ public class StatsCommandIT extends PPLIntegTestCase {
             + "  \"size\": 1\n"
             + "}\n",
         result);
-  }
-
-  private void setQuerySizeLimit() throws IOException {
-    updateClusterSettings(
-        new SQLIntegTestCase.ClusterSetting("persistent", "opendistro.query.size_limit",
-            "2000"));
   }
 }
