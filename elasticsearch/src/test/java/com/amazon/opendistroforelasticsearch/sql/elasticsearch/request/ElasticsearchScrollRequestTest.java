@@ -26,9 +26,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 
-class ElasticsearchRequestTest {
+class ElasticsearchScrollRequestTest {
 
-  private final ElasticsearchRequest request = new ElasticsearchRequest("test");
+  private final ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
 
   @Test
   void searchRequest() {
@@ -37,7 +37,7 @@ class ElasticsearchRequestTest {
     assertEquals(
         new SearchRequest()
             .indices("test")
-            .scroll(ElasticsearchRequest.DEFAULT_SCROLL_TIMEOUT)
+            .scroll(ElasticsearchScrollRequest.DEFAULT_SCROLL_TIMEOUT)
             .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("name", "John"))),
         request.searchRequest());
   }
@@ -55,7 +55,7 @@ class ElasticsearchRequestTest {
     request.setScrollId("scroll123");
     assertEquals(
         new SearchScrollRequest()
-            .scroll(ElasticsearchRequest.DEFAULT_SCROLL_TIMEOUT)
+            .scroll(ElasticsearchScrollRequest.DEFAULT_SCROLL_TIMEOUT)
             .scrollId("scroll123"),
         request.scrollRequest());
   }

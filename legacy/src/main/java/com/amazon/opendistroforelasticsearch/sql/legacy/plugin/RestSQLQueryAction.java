@@ -23,6 +23,7 @@ import static org.elasticsearch.rest.RestStatus.OK;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -58,9 +59,15 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   private final ClusterService clusterService;
 
-  public RestSQLQueryAction(ClusterService clusterService) {
+  /**
+   * Settings required by been initialization.
+   */
+  private final Settings pluginSettings;
+
+  public RestSQLQueryAction(ClusterService clusterService, Settings pluginSettings) {
     super();
     this.clusterService = clusterService;
+    this.pluginSettings = pluginSettings;
   }
 
   @Override
@@ -108,6 +115,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       context.registerBean(ClusterService.class, () -> clusterService);
       context.registerBean(NodeClient.class, () -> client);
+      context.registerBean(Settings.class, () -> pluginSettings);
       context.register(ElasticsearchSQLPluginConfig.class);
       context.register(SQLServiceConfig.class);
       context.refresh();
