@@ -23,7 +23,6 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;

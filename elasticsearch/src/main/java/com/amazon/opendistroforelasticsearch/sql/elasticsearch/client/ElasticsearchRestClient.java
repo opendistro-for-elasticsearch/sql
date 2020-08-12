@@ -18,14 +18,12 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchScrollRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.search.ClearScrollRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetMappingsRequest;

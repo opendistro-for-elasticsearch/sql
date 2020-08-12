@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import lombok.RequiredArgsConstructor;
