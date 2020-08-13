@@ -1,0 +1,2 @@
+SELECT ((Origin = 'Munich Airport') and (Dest = 'Venice Marco Polo Airport')) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT ((Origin = 'Munich Airport') or (Dest = 'Venice Marco Polo Airport')) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
