@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
@@ -62,6 +63,8 @@ public class ElasticsearchIndex implements Table {
   /** Elasticsearch client connection. */
   private final ElasticsearchClient client;
 
+  private final Settings settings;
+
   /** Current Elasticsearch index name. */
   private final String indexName;
 
@@ -83,7 +86,7 @@ public class ElasticsearchIndex implements Table {
   /** TODO: Push down operations to index scan operator as much as possible in future. */
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
-    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName,
+    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, settings, indexName,
         new ElasticsearchExprValueFactory(getFieldTypes()));
 
     /*

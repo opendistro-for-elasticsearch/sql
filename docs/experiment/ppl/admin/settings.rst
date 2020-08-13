@@ -46,3 +46,33 @@ PPL query::
       "transient": {}
     }
 
+opendistro.query.size_limit
+=================================
+
+Description
+-----------
+
+The size configure the maximum amount of documents to be pull from Elasticsearch. The default value is: 200
+
+Notes: This setting will impact the correctness of the aggregation operation, for example, there are 1000 docs in the index, by default, only 200 docs will be extract from index and do aggregation.
+
+Example
+-------
+
+PPL query::
+
+    sh$ curl -sS -H 'Content-Type: application/json' \
+    ... -X PUT localhost:9200/_cluster/settings \
+    ... -d '{"persistent" : {"opendistro.query.size_limit" : "1000"}}'
+    {
+      "acknowledged": true,
+      "persistent": {
+        "opendistro": {
+          "query": {
+            "size_limit": "1000"
+          }
+        }
+      },
+      "transient": {}
+    }
+

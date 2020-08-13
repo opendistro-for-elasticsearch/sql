@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchScrollRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSortedMap;
@@ -164,7 +164,7 @@ class ElasticsearchNodeClientTest {
     when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
     // Verify response for first scroll request
-    ElasticsearchRequest request = new ElasticsearchRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     ElasticsearchResponse response1 = client.search(request);
     assertFalse(response1.isEmpty());
 
@@ -208,7 +208,7 @@ class ElasticsearchNodeClientTest {
 
     ElasticsearchNodeClient client =
         new ElasticsearchNodeClient(mock(ClusterService.class), nodeClient);
-    ElasticsearchRequest request = new ElasticsearchRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     request.setScrollId("scroll123");
     client.cleanup(request);
     assertFalse(request.isScrollStarted());
@@ -224,7 +224,7 @@ class ElasticsearchNodeClientTest {
     ElasticsearchNodeClient client =
         new ElasticsearchNodeClient(mock(ClusterService.class), nodeClient);
 
-    ElasticsearchRequest request = new ElasticsearchRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     client.cleanup(request);
     verify(nodeClient, never()).prepareClearScroll();
   }
