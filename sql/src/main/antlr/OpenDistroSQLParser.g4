@@ -146,7 +146,9 @@ timestampLiteral
 
 // Simplified approach for expression
 expression
-    : predicate                                                     #predicateExpression
+    : left=expression AND right=expression                          #andExpression
+    | left=expression OR right=expression                           #orExpression
+    | predicate                                                     #predicateExpression
     ;
 
 predicate
@@ -163,6 +165,14 @@ expressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
+
+/*
+logicalExpression
+    : left=logicalExpression AND right=logicalExpression            #andExpression
+    | left=logicalExpression OR right=logicalExpression             #orExpression
+    | NOT logicalExpression                                         #notExpression
+    ;
+*/
 
 mathOperator
     : PLUS | MINUS | STAR | DIVIDE | MODULE
