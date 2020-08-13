@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
@@ -142,6 +143,23 @@ class AstBuilderTest {
                 + " (age + 10) AS `Age_Expr` "
                 + "FROM test"
         )
+    );
+  }
+
+  @Test
+  public void can_build_where_clause() {
+    assertEquals(
+        project(
+            filter(
+                relation("test"),
+                function(
+                    "=",
+                    qualifiedName("name"),
+                    stringLiteral("John"))
+            ),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test WHERE name = 'John'")
     );
   }
 

@@ -77,8 +77,12 @@ selectElement
 
 fromClause
     : FROM tableName
+      (whereClause)?
     ;
 
+whereClause
+    : WHERE expression
+    ;
 
 //    Literals
 
