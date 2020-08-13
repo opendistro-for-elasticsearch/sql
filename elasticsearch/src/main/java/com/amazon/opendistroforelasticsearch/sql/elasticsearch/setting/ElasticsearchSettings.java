@@ -59,6 +59,12 @@ public class ElasticsearchSettings extends Settings {
       Setting.Property.NodeScope,
       Setting.Property.Dynamic);
 
+  private static final Setting<?> PPL_ENABLED_SETTINGS = Setting.boolSetting(
+      Key.PPL_ENABLED.getKeyValue(),
+      true,
+      Setting.Property.NodeScope,
+      Setting.Property.Dynamic);
+
   /**
    * Construct ElasticsearchSetting.
    * The ElasticsearchSetting must be singleton.
@@ -67,6 +73,8 @@ public class ElasticsearchSettings extends Settings {
     ImmutableMap.Builder<Key, Setting<?>> settingBuilder = new ImmutableMap.Builder<>();
     register(settingBuilder, clusterSettings, Key.PPL_QUERY_MEMORY_LIMIT,
         PPL_QUERY_MEMORY_LIMIT_SETTINGS, new Updater(Key.PPL_QUERY_MEMORY_LIMIT));
+    register(settingBuilder, clusterSettings, Key.PPL_ENABLED,
+        PPL_ENABLED_SETTINGS, new Updater(Key.PPL_ENABLED));
     register(settingBuilder, clusterSettings, Key.QUERY_SIZE_LIMIT,
         QUERY_SIZE_LIMIT_SETTINGS, new Updater(Key.QUERY_SIZE_LIMIT));
     defaultSettings = settingBuilder.build();
@@ -112,6 +120,7 @@ public class ElasticsearchSettings extends Settings {
   public static List<Setting<?>> pluginSettings() {
     return new ImmutableList.Builder<Setting<?>>()
         .add(PPL_QUERY_MEMORY_LIMIT_SETTINGS)
+        .add(PPL_ENABLED_SETTINGS)
         .add(QUERY_SIZE_LIMIT_SETTINGS)
         .build();
   }
