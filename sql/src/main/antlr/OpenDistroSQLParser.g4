@@ -146,7 +146,8 @@ timestampLiteral
 
 // Simplified approach for expression
 expression
-    : left=expression AND right=expression                          #andExpression
+    : NOT expression                                                #notExpression
+    | left=expression AND right=expression                          #andExpression
     | left=expression OR right=expression                           #orExpression
     | predicate                                                     #predicateExpression
     ;

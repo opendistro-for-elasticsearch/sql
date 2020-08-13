@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiter
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
@@ -207,6 +208,11 @@ class AstExpressionBuilderTest {
     assertEquals(
         or(booleanLiteral(true), booleanLiteral(false)),
         buildExprAst("true OR false")
+    );
+
+    assertEquals(
+        not(booleanLiteral(false)),
+        buildExprAst("NOT false")
     );
   }
 
