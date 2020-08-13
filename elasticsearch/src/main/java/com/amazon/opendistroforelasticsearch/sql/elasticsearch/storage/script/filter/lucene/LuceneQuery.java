@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene;
 
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
@@ -67,6 +69,13 @@ public abstract class LuceneQuery {
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
     throw new UnsupportedOperationException(
         "Subclass doesn't implement this and build method either");
+  }
+
+  protected String convertTextToKeyword(String fieldName, ExprType fieldType) {
+    if (fieldType == ES_TEXT_KEYWORD) { // Assume inner field name is always "keyword"
+      return fieldName + ".keyword";
+    }
+    return fieldName;
   }
 
 }
