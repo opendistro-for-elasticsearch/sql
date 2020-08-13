@@ -55,6 +55,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggre
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
@@ -207,6 +208,28 @@ class ElasticsearchIndexTest {
 
     assertTrue(plan instanceof ProjectOperator);
     assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldNotPushDownFilterFarFromRelation() {
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+    Expression filterExpr = dsl.equal(field, literal("John"));
+    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
+    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, indexName);
+    PhysicalPlan plan = index.implement(
+            filter(
+                aggregation(
+                    relation(indexName),
+                    aggregators,
+                    groupByExprs
+                ),
+                filterExpr));
+
+    assertTrue(plan instanceof FilterOperator);
   }
 
 }
