@@ -81,7 +81,7 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
     FunctionName name = func.getFunctionName();
     switch (name.getFunctionName()) {
       case "and":
-        return buildBoolQuery(func, context, BoolQueryBuilder::must);
+        return buildBoolQuery(func, context, BoolQueryBuilder::filter);
       case "or":
         return buildBoolQuery(func, context, BoolQueryBuilder::should);
       case "not":

@@ -170,7 +170,7 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_build_bool_query_for_and_or_expression() {
-    String[] names = { "must", "should" };
+    String[] names = { "filter", "should" };
     FunctionExpression expr1 = dsl.equal(ref("name", ES_TEXT_KEYWORD), literal("John"));
     FunctionExpression expr2 = dsl.equal(ref("age", INTEGER), literal(30));
     Expression[] exprs = {

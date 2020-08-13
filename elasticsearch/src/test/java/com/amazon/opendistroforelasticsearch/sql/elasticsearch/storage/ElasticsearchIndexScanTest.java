@@ -99,14 +99,14 @@ class ElasticsearchIndexScanTest {
         .pushDown(QueryBuilders.termQuery("age", 30))
         .shouldQuery(
             QueryBuilders.boolQuery()
-                .must(QueryBuilders.termQuery("name", "John"))
-                .must(QueryBuilders.termQuery("age", 30)))
+                .filter(QueryBuilders.termQuery("name", "John"))
+                .filter(QueryBuilders.termQuery("age", 30)))
         .pushDown(QueryBuilders.rangeQuery("balance").gte(10000))
         .shouldQuery(
             QueryBuilders.boolQuery()
-                .must(QueryBuilders.termQuery("name", "John"))
-                .must(QueryBuilders.termQuery("age", 30))
-                .must(QueryBuilders.rangeQuery("balance").gte(10000)));
+                .filter(QueryBuilders.termQuery("name", "John"))
+                .filter(QueryBuilders.termQuery("age", 30))
+                .filter(QueryBuilders.rangeQuery("balance").gte(10000)));
   }
 
   private PushDownAssertion assertThat() {

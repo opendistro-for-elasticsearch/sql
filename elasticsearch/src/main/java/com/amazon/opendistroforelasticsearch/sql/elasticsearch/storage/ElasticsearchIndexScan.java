@@ -99,12 +99,12 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     if (current == null) {
       source.query(query);
     } else {
-      if (isBoolMustQuery(current)) {
-        ((BoolQueryBuilder) current).must(query);
+      if (isBoolFilterQuery(current)) {
+        ((BoolQueryBuilder) current).filter(query);
       } else {
         source.query(QueryBuilders.boolQuery()
-                                  .must(current)
-                                  .must(query));
+                                  .filter(current)
+                                  .filter(query));
       }
     }
 
@@ -120,9 +120,9 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     client.cleanup(request);
   }
 
-  private boolean isBoolMustQuery(QueryBuilder current) {
+  private boolean isBoolFilterQuery(QueryBuilder current) {
     return (current instanceof BoolQueryBuilder)
-        && !((BoolQueryBuilder) current).must().isEmpty();
+        && !((BoolQueryBuilder) current).filter().isEmpty();
   }
 
 }
