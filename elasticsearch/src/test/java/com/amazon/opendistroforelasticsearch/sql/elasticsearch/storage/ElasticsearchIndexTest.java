@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
@@ -82,6 +83,9 @@ class ElasticsearchIndexTest {
   @Mock
   private ElasticsearchExprValueFactory exprValueFactory;
 
+  @Mock
+  private Settings settings;
+
   @Test
   void getFieldTypes() {
     when(client.getIndexMappings("test"))
@@ -102,7 +106,7 @@ class ElasticsearchIndexTest {
                         .put("birthday", "date")
                         .build())));
 
-    Table index = new ElasticsearchIndex(client, "test");
+    Table index = new ElasticsearchIndex(client, settings, "test");
     Map<String, ExprType> fieldTypes = index.getFieldTypes();
     assertThat(
         fieldTypes,
@@ -122,15 +126,20 @@ class ElasticsearchIndexTest {
 
   @Test
   void implementRelationOperatorOnly() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
     String indexName = "test";
     LogicalPlan plan = relation(indexName);
-    Table index = new ElasticsearchIndex(client, indexName);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
     assertEquals(
-        new ElasticsearchIndexScan(client, indexName, exprValueFactory), index.implement(plan));
+        new ElasticsearchIndexScan(client, settings, indexName, exprValueFactory),
+        index.implement(plan));
   }
 
   @Test
   void implementOtherLogicalOperators() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
     String indexName = "test";
     NamedExpression include = named("age", ref("age", INTEGER));
     ReferenceExpression exclude = ref("name", STRING);
@@ -165,7 +174,7 @@ class ElasticsearchIndexTest {
                 dedupeField),
             include);
 
-    Table index = new ElasticsearchIndex(client, indexName);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
     assertEquals(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
@@ -176,7 +185,7 @@ class ElasticsearchIndexTest {
                                 PhysicalPlanDSL.agg(
                                     PhysicalPlanDSL.filter(
                                           new ElasticsearchIndexScan(
-                                              client, indexName, exprValueFactory),
+                                              client, settings, indexName, exprValueFactory),
                                           filterExpr),
                                         aggregators,
                                         groupByExprs),
@@ -192,12 +201,14 @@ class ElasticsearchIndexTest {
 
   @Test
   void shouldDiscardPhysicalFilterIfConditionPushedDown() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
     ReferenceExpression field = ref("name", STRING);
     NamedExpression named = named("n", field);
     Expression filterExpr = dsl.equal(field, literal("John"));
 
     String indexName = "test";
-    ElasticsearchIndex index = new ElasticsearchIndex(client, indexName);
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
     PhysicalPlan plan = index.implement(
         project(
             filter(
@@ -212,14 +223,15 @@ class ElasticsearchIndexTest {
 
   @Test
   void shouldNotPushDownFilterFarFromRelation() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
     ReferenceExpression field = ref("name", STRING);
-    NamedExpression named = named("n", field);
     Expression filterExpr = dsl.equal(field, literal("John"));
     List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
     List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
 
     String indexName = "test";
-    ElasticsearchIndex index = new ElasticsearchIndex(client, indexName);
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
     PhysicalPlan plan = index.implement(
             filter(
                 aggregation(

@@ -19,9 +19,11 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import static org.elasticsearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
@@ -37,7 +39,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/** Elasticsearch index scan operator. */
+/**
+ * Elasticsearch index scan operator.
+ */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
 public class ElasticsearchIndexScan extends TableScanOperator {
@@ -58,10 +62,12 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   /**
    * Todo.
    */
-  public ElasticsearchIndexScan(ElasticsearchClient client, String indexName,
+  public ElasticsearchIndexScan(ElasticsearchClient client,
+                                Settings settings, String indexName,
                                 ElasticsearchExprValueFactory exprValueFactory) {
     this.client = client;
-    this.request = new ElasticsearchRequest(indexName);
+    this.request = new ElasticsearchQueryRequest(indexName,
+        settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT));
     this.exprValueFactory = exprValueFactory;
   }
 

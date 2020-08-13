@@ -26,7 +26,15 @@ import lombok.RequiredArgsConstructor;
 public abstract class Settings {
   @RequiredArgsConstructor
   public enum Key {
-    PPL_QUERY_MEMORY_LIMIT("opendistro.ppl.query.memory_limit");
+    /**
+     * PPL Setting.
+     */
+    PPL_QUERY_MEMORY_LIMIT("opendistro.ppl.query.memory_limit"),
+
+    /**
+     * Common Setting for SQL and PPL.
+     */
+    QUERY_SIZE_LIMIT("opendistro.query.size_limit");
 
     @Getter
     private final String keyValue;
