@@ -93,7 +93,7 @@ public class PPLPluginIT extends PPLIntegTestCase {
     result = new JSONObject(TestUtils.getResponseBody(response));
     assertThat(result.getInt("status"), equalTo(400));
     JSONObject error = result.getJSONObject("error");
-    assertThat(error.getString("reason"), equalTo("Invalid SQL query"));
+    assertThat(error.getString("reason"), equalTo("Invalid Query"));
     assertThat(error.getString("details"), equalTo(
         "Either opendistro.ppl.enabled or rest.action.multi.allow_explicit_index setting is "
             + "false"));

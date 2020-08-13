@@ -50,7 +50,7 @@ public class ErrorMessage {
 
   protected String fetchReason() {
     return status == RestStatus.BAD_REQUEST.getStatus()
-        ? "Invalid SQL query"
+        ? "Invalid Query"
         : "There was internal problem at backend";
   }
 

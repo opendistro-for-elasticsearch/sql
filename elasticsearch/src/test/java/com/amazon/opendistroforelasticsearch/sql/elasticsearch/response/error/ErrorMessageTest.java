@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.error;
 
+import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -39,6 +40,21 @@ class ErrorMessageTest {
         + "    \"type\": \"IllegalStateException\"\n"
         + "  },\n"
         + "  \"status\": 503\n"
+        + "}", errorMessage.toString());
+  }
+
+  @Test
+  public void testBadRequestToString() {
+    ErrorMessage errorMessage =
+        new ErrorMessage(new IllegalStateException(),
+            BAD_REQUEST.getStatus());
+    assertEquals("{\n"
+        + "  \"error\": {\n"
+        + "    \"reason\": \"Invalid Query\",\n"
+        + "    \"details\": \"\",\n"
+        + "    \"type\": \"IllegalStateException\"\n"
+        + "  },\n"
+        + "  \"status\": 400\n"
         + "}", errorMessage.toString());
   }
 
