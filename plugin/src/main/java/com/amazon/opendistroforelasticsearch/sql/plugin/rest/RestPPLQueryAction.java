@@ -16,12 +16,18 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
-import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
+import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
+import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.error.ErrorMessageFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
+import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
@@ -32,10 +38,12 @@ import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.service.ClusterService;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
@@ -59,14 +67,20 @@ public class RestPPLQueryAction extends BaseRestHandler {
    */
   private final Settings pluginSettings;
 
+  private final Supplier<Boolean> pplEnabled;
+
   /**
    * Constructor of RestPPLQueryAction.
    */
   public RestPPLQueryAction(RestController restController, ClusterService clusterService,
-                            Settings pluginSettings) {
+                            Settings pluginSettings,
+                            org.elasticsearch.common.settings.Settings clusterSettings) {
     super();
     this.clusterService = clusterService;
     this.pluginSettings = pluginSettings;
+    this.pplEnabled =
+        () -> MULTI_ALLOW_EXPLICIT_INDEX.get(clusterSettings)
+            && (Boolean) pluginSettings.getSettingValue(Settings.Key.PPL_ENABLED);
   }
 
   @Override
@@ -83,6 +97,11 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
   @Override
   protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient nodeClient) {
+    if (!pplEnabled.get()) {
+      return channel -> reportError(channel, new IllegalAccessException(
+          "Either opendistro.ppl.enabled or rest.action.multi.allow_explicit_index setting is false"
+      ), BAD_REQUEST);
+    }
     PPLService pplService = createPPLService(nodeClient);
     return channel -> pplService.execute(
         PPLQueryRequestFactory.getPPLRequest(request), createListener(channel));
@@ -126,7 +145,7 @@ public class RestPPLQueryAction extends BaseRestHandler {
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during query handling", e);
-        sendResponse(INTERNAL_SERVER_ERROR, formatter.format(e));
+        reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
       }
 
       private void sendResponse(RestStatus status, String content) {
@@ -144,4 +163,19 @@ public class RestPPLQueryAction extends BaseRestHandler {
     }
   }
 
+  private void reportError(final RestChannel channel, final Exception e, final RestStatus status) {
+    channel.sendResponse(new BytesRestResponse(status,
+        ErrorMessageFactory.createErrorMessage(e, status.getStatus()).toString()));
+  }
+
+  private static boolean isClientError(Exception e) {
+    return e instanceof NullPointerException
+        // NPE is hard to differentiate but more likely caused by bad query
+        || e instanceof IllegalArgumentException
+        || e instanceof IndexNotFoundException
+        || e instanceof SemanticCheckException
+        || e instanceof ExpressionEvaluationException
+        || e instanceof QueryEngineException
+        || e instanceof SyntaxCheckException;
+  }
 }
