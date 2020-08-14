@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import static com.google.common.collect.ImmutableMap.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protecto
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -122,6 +124,52 @@ class ElasticsearchExecutionEngineTest {
         });
     assertEquals(expected, actual.get());
     verify(plan).close();
+  }
+
+  @Test
+  void explainSuccessfully() {
+    ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client, protector);
+    PhysicalPlan plan = mock(PhysicalPlan.class);
+    JsonNode json = mock(JsonNode.class);
+    when(plan.accept(any(), any())).thenReturn(json);
+    when(json.toPrettyString()).thenReturn("Explain test");
+
+    AtomicReference<String> result = new AtomicReference<>();
+    executor.explain(plan, new ResponseListener<String>() {
+      @Override
+      public void onResponse(String response) {
+        result.set(response);
+      }
+
+      @Override
+      public void onFailure(Exception e) {
+        fail(e);
+      }
+    });
+
+    assertEquals("Explain test", result.get());
+  }
+
+  @Test
+  void explainWithFailure() {
+    ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client, protector);
+    PhysicalPlan plan = mock(PhysicalPlan.class);
+    when(plan.accept(any(), any())).thenThrow(IllegalStateException.class);
+
+    AtomicReference<Exception> result = new AtomicReference<>();
+    executor.explain(plan, new ResponseListener<String>() {
+      @Override
+      public void onResponse(String response) {
+        fail("Should fail as expected");
+      }
+
+      @Override
+      public void onFailure(Exception e) {
+        result.set(e);
+      }
+    });
+
+    assertNotNull(result.get());
   }
 
   @RequiredArgsConstructor

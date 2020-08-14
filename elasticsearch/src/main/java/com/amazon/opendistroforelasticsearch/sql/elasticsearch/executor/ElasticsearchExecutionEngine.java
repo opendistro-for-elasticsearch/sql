@@ -60,7 +60,13 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
 
   @Override
   public void explain(PhysicalPlan plan, ResponseListener<String> listener) {
-    listener.onResponse(new Explain().apply(plan));
+    client.schedule(() -> {
+      try {
+        listener.onResponse(new Explain().apply(plan));
+      } catch (Exception e) {
+        listener.onFailure(e);
+      }
+    });
   }
 
 }
