@@ -44,32 +44,35 @@ public class Explain extends PhysicalPlanNodeVisitor<JsonNode, ObjectNode>
 
   @Override
   public JsonNode visitProject(ProjectOperator node, ObjectNode context) {
-    return explain(node, context, json -> {
+    return explain(node, context, description -> {
       String projectList = node.getProjectList()
                                .stream()
                                .map(NamedExpression::getName)
                                .collect(Collectors.joining(", "));
-      json.put("fields", projectList);
+      description.put("fields", projectList);
     });
   }
 
   @Override
   public JsonNode visitFilter(FilterOperator node, ObjectNode context) {
-    return explain(node, context, json ->
-        json.put("conditions", node.getConditions().toString()));
+    return explain(node, context, description ->
+        description.put("conditions", node.getConditions().toString()));
   }
 
   @Override
   public JsonNode visitTableScan(TableScanOperator node, ObjectNode context) {
-    return explain(node, context, json -> json.put("request", node.toString()));
+    return explain(node, context, description -> description.put("request", node.toString()));
   }
 
   private JsonNode explain(PhysicalPlan node, ObjectNode parent,
-                           Consumer<ObjectNode> explainCurrent) {
+                           Consumer<ObjectNode> describe) {
     ObjectNode json = mapper.createObjectNode();
     parent.set(getOperatorName(node), json);
 
-    explainCurrent.accept(json);
+    ObjectNode description = mapper.createObjectNode();
+    json.set("description", description);
+
+    describe.accept(description);
     explainChild(node, json);
     return parent;
   }

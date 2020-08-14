@@ -55,18 +55,23 @@ class ExplainTest extends ExpressionTestBase {
         project(
             filter(
                 new FakeTableScan(),
-                filterExpr
-            ),
+                filterExpr),
             projectList);
 
     assertEquals(
         "{\n"
             + "  \"ProjectOperator\" : {\n"
-            + "    \"fields\" : \"name, age\",\n"
+            + "    \"description\" : {\n"
+            + "      \"fields\" : \"name, age\"\n"
+            + "    },\n"
             + "    \"FilterOperator\" : {\n"
-            + "      \"conditions\" : \"balance = 10000 and age > 30\",\n"
+            + "      \"description\" : {\n"
+            + "        \"conditions\" : \"balance = 10000 and age > 30\"\n"
+            + "      },\n"
             + "      \"FakeTableScan\" : {\n"
-            + "        \"request\" : \"Fake DSL request\"\n"
+            + "        \"description\" : {\n"
+            + "          \"request\" : \"Fake DSL request\"\n"
+            + "        }\n"
             + "      }\n"
             + "    }\n"
             + "  }\n"
