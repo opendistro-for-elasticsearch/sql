@@ -43,6 +43,11 @@ public class Explain extends PhysicalPlanNodeVisitor<JsonNode, ObjectNode>
   }
 
   @Override
+  protected JsonNode visitNode(PhysicalPlan node, ObjectNode context) {
+    return explain(node, context, description -> {});
+  }
+
+  @Override
   public JsonNode visitProject(ProjectOperator node, ObjectNode context) {
     return explain(node, context, description -> {
       String projectList = node.getProjectList()

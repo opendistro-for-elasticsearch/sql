@@ -23,6 +23,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rename;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -30,7 +31,9 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -72,6 +75,25 @@ class ExplainTest extends ExpressionTestBase {
             + "        \"description\" : {\n"
             + "          \"request\" : \"Fake DSL request\"\n"
             + "        }\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        explain.apply(plan)
+    );
+  }
+
+  @Test
+  void should_have_empty_description_for_unimplemented_operators() {
+    RenameOperator plan = rename(new FakeTableScan(),
+        ImmutableMap.of(ref("full_name", STRING), ref("name", STRING)));
+    assertEquals(
+        "{\n"
+            + "  \"RenameOperator\" : {\n"
+            + "    \"description\" : { },\n"
+            + "    \"FakeTableScan\" : {\n"
+            + "      \"description\" : {\n"
+            + "        \"request\" : \"Fake DSL request\"\n"
             + "      }\n"
             + "    }\n"
             + "  }\n"
