@@ -37,6 +37,14 @@ public interface ExecutionEngine {
   void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener);
 
   /**
+   * Explain physical plan and call back response listener.
+   *
+   * @param plan     executable physical plan
+   * @param listener response listener
+   */
+  void explain(PhysicalPlan plan, ResponseListener<String> listener);
+
+  /**
    * Data class that encapsulates ExprValue.
    */
   @Data

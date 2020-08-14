@@ -14,7 +14,7 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner;
+package com.amazon.opendistroforelasticsearch.sql.executor;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
@@ -29,7 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -41,21 +41,37 @@ class ExplainTest extends ExpressionTestBase {
   private final Explain explain = new Explain();
 
   @Test
-  void can_explain_all_operators() {
-    NamedExpression projectList = named("a", ref("age", INTEGER));
-    Expression filterExpr = dsl.equal(ref("name", STRING), literal("John"));
+  void can_explain_plan_with_project_filter_table_scan() {
+    Expression filterExpr =
+        dsl.and(
+            dsl.equal(ref("balance", INTEGER), literal(10000)),
+            dsl.greater(ref("age", INTEGER), literal(30)));
+    NamedExpression[] projectList = {
+        named("full_name", ref("full_name", STRING), "name"),
+        named("age", ref("age", INTEGER))
+    };
 
-    ProjectOperator plan = project(
-        filter(
-            new FakeTableScan(),
-            filterExpr
-        ),
-        projectList
-    );
+    PhysicalPlan plan =
+        project(
+            filter(
+                new FakeTableScan(),
+                filterExpr
+            ),
+            projectList);
 
     assertEquals(
-        "",
-        explain.explain(plan)
+        "{\n"
+            + "  \"ProjectOperator\" : {\n"
+            + "    \"fields\" : \"name, age\",\n"
+            + "    \"FilterOperator\" : {\n"
+            + "      \"conditions\" : \"balance = 10000 and age > 30\",\n"
+            + "      \"FakeTableScan\" : {\n"
+            + "        \"request\" : \"Fake DSL request\"\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        explain.apply(plan)
     );
   }
 
@@ -68,6 +84,11 @@ class ExplainTest extends ExpressionTestBase {
     @Override
     public ExprValue next() {
       return null;
+    }
+
+    @Override
+    public String toString() {
+      return "Fake DSL request";
     }
   }
 

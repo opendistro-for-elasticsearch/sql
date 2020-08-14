@@ -89,7 +89,24 @@ class SQLServiceTest {
 
   @Test
   public void canExplainSqlQuery() {
-    assertNotNull(sqlService.explain(mock(PhysicalPlan.class)));
+    doAnswer(invocation -> {
+      ResponseListener<String> listener = invocation.getArgument(1);
+      listener.onResponse("Explain test");
+      return null;
+    }).when(executionEngine).explain(any(), any());
+
+    sqlService.explain(mock(PhysicalPlan.class),
+        new ResponseListener<String>() {
+          @Override
+          public void onResponse(String response) {
+            assertNotNull(response);
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            fail(e);
+          }
+        });
   }
 
   @Test
@@ -140,6 +157,24 @@ class SQLServiceTest {
           @Override
           public void onResponse(QueryResponse response) {
             fail();
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            assertNotNull(e);
+          }
+        });
+  }
+
+  @Test
+  public void canCaptureErrorDuringExplain() {
+    doThrow(new RuntimeException()).when(executionEngine).explain(any(), any());
+
+    sqlService.explain(mock(PhysicalPlan.class),
+        new ResponseListener<String>() {
+          @Override
+          public void onResponse(String response) {
+            fail("Should fail as expected");
           }
 
           @Override
