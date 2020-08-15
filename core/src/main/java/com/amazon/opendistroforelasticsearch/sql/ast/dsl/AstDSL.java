@@ -26,6 +26,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -146,6 +148,10 @@ public class AstDSL {
 
   public static Literal booleanLiteral(Boolean value) {
     return literal(value, DataType.BOOLEAN);
+  }
+
+  public static Interval intervalLiteral(Object value, DataType type, String unit) {
+    return new Interval(literal(value, type), unit);
   }
 
   public static Literal nullLiteral() {

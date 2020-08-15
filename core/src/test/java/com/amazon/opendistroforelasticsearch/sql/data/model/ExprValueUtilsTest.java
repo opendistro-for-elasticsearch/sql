@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,6 +33,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -63,15 +65,16 @@ public class ExprValueUtilsTest {
   private static List<ExprValue> numberValues = Stream.of(1, 1L, 1f, 1D)
       .map(ExprValueUtils::fromObjectValue).collect(Collectors.toList());
 
-  private static List<ExprValue> nonNumberValues = Arrays.asList(
-      new ExprStringValue("1"),
-      ExprBooleanValue.of(true),
-      new ExprCollectionValue(ImmutableList.of(new ExprIntegerValue(1))),
-      new ExprTupleValue(testTuple),
-      new ExprDateValue("2012-08-07"),
-      new ExprTimeValue("18:00:00"),
-      new ExprTimestampValue("2012-08-07 18:00:00")
-  );
+  private static List<ExprValue> nonNumberValues =
+      Arrays.asList(
+          new ExprStringValue("1"),
+          ExprBooleanValue.of(true),
+          new ExprCollectionValue(ImmutableList.of(new ExprIntegerValue(1))),
+          new ExprTupleValue(testTuple),
+          new ExprDateValue("2012-08-07"),
+          new ExprTimeValue("18:00:00"),
+          new ExprTimestampValue("2012-08-07 18:00:00"),
+          new ExprIntervalValue(Duration.ofSeconds(100)));
 
   private static List<ExprValue> allValues =
       Lists.newArrayList(Iterables.concat(numberValues, nonNumberValues));
@@ -88,7 +91,8 @@ public class ExprValueUtilsTest {
       ExprValueUtils::getTupleValue,
       ExprValue::dateValue,
       ExprValue::timeValue,
-      ExprValue::timestampValue);
+      ExprValue::timestampValue,
+      ExprValue::intervalValue);
   private static List<Function<ExprValue, Object>> allValueExtractor = Lists.newArrayList(
       Iterables.concat(numberValueExtractor, nonNumberValueExtractor));
 
@@ -97,7 +101,7 @@ public class ExprValueUtilsTest {
           ExprCoreType.DOUBLE);
   private static List<ExprCoreType> nonNumberTypes =
       Arrays.asList(ExprCoreType.STRING, ExprCoreType.BOOLEAN, ExprCoreType.ARRAY,
-          ExprCoreType.STRUCT, DATE, TIME, TIMESTAMP);
+          ExprCoreType.STRUCT, DATE, TIME, TIMESTAMP, INTERVAL);
   private static List<ExprCoreType> allTypes =
       Lists.newArrayList(Iterables.concat(numberTypes, nonNumberTypes));
 
@@ -107,7 +111,8 @@ public class ExprValueUtilsTest {
         ImmutableMap.of("1", integerValue(1)),
         LocalDate.parse("2012-08-07").atStartOfDay(ZoneId.of("UTC")),
         LocalTime.parse("18:00:00"),
-        Instant.ofEpochSecond(1344362400)
+        Instant.ofEpochSecond(1344362400),
+        Duration.ofSeconds(100)
     );
     Stream.Builder<Arguments> builder = Stream.builder();
     for (int i = 0; i < expectedValues.size(); i++) {

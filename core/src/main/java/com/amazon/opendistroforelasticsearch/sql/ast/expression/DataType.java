@@ -29,13 +29,15 @@ public enum DataType {
   NULL(ExprCoreType.UNKNOWN),
 
   INTEGER(ExprCoreType.INTEGER),
+  LONG(ExprCoreType.LONG),
   DOUBLE(ExprCoreType.DOUBLE),
   STRING(ExprCoreType.STRING),
   BOOLEAN(ExprCoreType.BOOLEAN),
 
   DATE(ExprCoreType.DATE),
   TIME(ExprCoreType.TIME),
-  TIMESTAMP(ExprCoreType.TIMESTAMP);
+  TIMESTAMP(ExprCoreType.TIMESTAMP),
+  INTERVAL(ExprCoreType.INTERVAL);
 
   @Getter
   private final ExprCoreType coreType;

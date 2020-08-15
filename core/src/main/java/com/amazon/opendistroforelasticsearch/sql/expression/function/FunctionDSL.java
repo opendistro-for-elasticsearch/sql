@@ -43,7 +43,8 @@ public class FunctionDSL {
    * @param functions    a list of function implementation.
    * @return FunctionResolver.
    */
-  public FunctionResolver define(FunctionName functionName,
+  @SafeVarargs
+  public static FunctionResolver define(FunctionName functionName,
                                  Function<FunctionName, Pair<FunctionSignature,
                                      FunctionBuilder>>... functions) {
     return define(functionName, Arrays.asList(functions));
@@ -56,7 +57,7 @@ public class FunctionDSL {
    * @param functions    a list of function implementation.
    * @return FunctionResolver.
    */
-  public FunctionResolver define(FunctionName functionName,
+  public static FunctionResolver define(FunctionName functionName,
                                  List<Function<FunctionName, Pair<FunctionSignature,
                                      FunctionBuilder>>> functions) {
 
@@ -77,7 +78,7 @@ public class FunctionDSL {
    * @param argsType   argument type.
    * @return Unary Function Implementation.
    */
-  public SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
+  public static SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
       SerializableFunction<ExprValue, ExprValue> function,
       ExprType returnType,
       ExprType argsType) {
@@ -119,7 +120,7 @@ public class FunctionDSL {
    * @param args2Type   argument type.
    * @return Unary Function Implementation.
    */
-  public SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
+  public static SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
       SerializableBiFunction<ExprValue, ExprValue, ExprValue> function,
       ExprType returnType,
       ExprType args1Type,
@@ -155,7 +156,7 @@ public class FunctionDSL {
   /**
    * Wrapper the unary ExprValue function with default NULL and MISSING handling.
    */
-  public SerializableFunction<ExprValue, ExprValue> nullMissingHandling(
+  public static SerializableFunction<ExprValue, ExprValue> nullMissingHandling(
       SerializableFunction<ExprValue, ExprValue> function) {
     return value -> {
       if (value.isMissing()) {
@@ -171,7 +172,7 @@ public class FunctionDSL {
   /**
    * Wrapper the binary ExprValue function with default NULL and MISSING handling.
    */
-  public SerializableBiFunction<ExprValue, ExprValue, ExprValue> nullMissingHandling(
+  public static SerializableBiFunction<ExprValue, ExprValue, ExprValue> nullMissingHandling(
       SerializableBiFunction<ExprValue, ExprValue, ExprValue> function) {
     return (v1, v2) -> {
       if (v1.isMissing() || v2.isMissing()) {
