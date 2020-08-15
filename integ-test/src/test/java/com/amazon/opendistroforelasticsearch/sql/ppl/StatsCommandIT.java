@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 
+import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +26,7 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
+    setQuerySizeLimit(2000);
   }
 
   @Test
