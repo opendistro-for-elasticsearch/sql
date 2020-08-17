@@ -40,6 +40,8 @@ static const std::string OPENDISTRO_SQL_PLUGIN_NAME = "opendistro_sql";
 static const std::string ALLOCATION_TAG = "AWS_SIGV4_AUTH";
 static const std::string SERVICE_NAME = "es";
 static const std::string ESODBC_PROFILE_NAME = "elasticsearchodbc";
+static const std::string ERROR_MSG_PREFIX =
+    "[Open Distro For Elasticsearch][SQL ODBC Driver][SQL Plugin] ";
 static const std::string JSON_SCHEMA =
     "{"  // This was generated from the example elasticsearch data
     "\"type\": \"object\","
@@ -79,6 +81,33 @@ static const std::string CURSOR_JSON_SCHEMA =
     "},"
     "\"required\":  [\"datarows\"]"
     "}";
+static const std::string ERROR_RESPONSE_SCHEMA = R"EOF(
+{
+    "type": "object",
+    "properties": {
+        "error": {
+            "type": "object",
+            "properties": {
+                "reason": { "type": "string" },
+                "details": { "type": "string" },
+                "type": { "type": "string" }
+            },
+            "required": [
+                "reason",
+                "details",
+                "type"
+            ]
+        },
+        "status": {
+            "type": "integer"
+        }
+    },
+    "required": [
+        "error",
+        "status"
+    ]
+}
+)EOF";
 
 void ESCommunication::AwsHttpResponseToString(
     std::shared_ptr< Aws::Http::HttpResponse > response, std::string& output) {
@@ -118,6 +147,49 @@ void ESCommunication::PrepareCursorResult(ESResult& es_result) {
     }
 }
 
+std::shared_ptr< ErrorDetails > ESCommunication::ParseErrorResponse(
+    ESResult& es_result) {
+    // Prepare document and validate schema
+    try {
+        LogMsg(ES_DEBUG, "Parsing error response (with schema validation)");
+        es_result.es_result_doc.parse(es_result.result_json,
+                                      ERROR_RESPONSE_SCHEMA);
+
+        auto error_details = std::make_shared< ErrorDetails >();
+        error_details->reason =
+            es_result.es_result_doc["error"]["reason"].as_string();
+        error_details->details =
+            es_result.es_result_doc["error"]["details"].as_string();
+        error_details->source_type =
+            es_result.es_result_doc["error"]["type"].as_string();
+        return error_details;
+    } catch (const rabbit::parse_error& e) {
+        // The exception rabbit gives is quite useless - providing the json
+        // will aid debugging for users
+        std::string str = "Exception obtained '" + std::string(e.what())
+                          + "' when parsing json string '"
+                          + es_result.result_json + "'.";
+        throw std::runtime_error(str.c_str());
+    }
+}
+
+void ESCommunication::SetErrorDetails(std::string reason, std::string message,
+                                      ConnErrorType error_type) {
+    // Prepare document and validate schema
+    auto error_details = std::make_shared< ErrorDetails >();
+    error_details->reason = reason;
+    error_details->details = message;
+    error_details->source_type = "Dummy type";
+    error_details->type = error_type;
+    m_error_details = error_details;
+}
+
+void ESCommunication::SetErrorDetails(ErrorDetails details) {
+    // Prepare document and validate schema
+    auto error_details = std::make_shared< ErrorDetails >(details);
+    m_error_details = error_details;
+}
+
 void ESCommunication::GetJsonSchema(ESResult& es_result) {
     // Prepare document and validate schema
     try {
@@ -139,6 +211,7 @@ ESCommunication::ESCommunication()
 #pragma clang diagnostic ignored "-Wreorder"
 #endif  // __APPLE__
     : m_status(ConnStatusType::CONNECTION_BAD),
+      m_error_type(ConnErrorType::CONN_ERROR_SUCCESS),
       m_valid_connection_options(false),
       m_is_retrieving(false),
       m_error_message(""),
@@ -159,7 +232,19 @@ ESCommunication::~ESCommunication() {
 
 std::string ESCommunication::GetErrorMessage() {
     // TODO #35 - Check if they expect NULL or "" when there is no error.
-    return m_error_message;
+    if (m_error_details) {
+        m_error_details->details = std::regex_replace(
+            m_error_details->details, std::regex("\\n"), "\\\\n");
+        return ERROR_MSG_PREFIX + m_error_details->reason + ": "
+               + m_error_details->details;
+    } else {
+        return ERROR_MSG_PREFIX
+               + "No error details available; check the driver logs.";
+    }
+}
+
+ConnErrorType ESCommunication::GetErrorType() {
+    return m_error_type;
 }
 
 bool ESCommunication::ConnectionOptions(runtime_options& rt_opts,
@@ -180,8 +265,11 @@ bool ESCommunication::ConnectDBStart() {
     LogMsg(ES_ALL, "Starting DB connection.");
     m_status = ConnStatusType::CONNECTION_BAD;
     if (!m_valid_connection_options) {
+        // TODO: get error message from CheckConnectionOptions
         m_error_message =
             "Invalid connection options, unable to connect to DB.";
+        SetErrorDetails("Invalid connection options", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
         LogMsg(ES_ERROR, m_error_message.c_str());
         DropDBConnection();
         return false;
@@ -190,6 +278,8 @@ bool ESCommunication::ConnectDBStart() {
     m_status = ConnStatusType::CONNECTION_NEEDED;
     if (!EstablishConnection()) {
         m_error_message = "Failed to establish connection to DB.";
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
         LogMsg(ES_ERROR, m_error_message.c_str());
         DropDBConnection();
         return false;
@@ -224,13 +314,19 @@ bool ESCommunication::CheckConnectionOptions() {
                 || m_rt_opts.auth.password.empty()) {
                 m_error_message = AUTHTYPE_BASIC
                     " authentication requires a username and password.";
+                SetErrorDetails("Auth error", m_error_message,
+                                ConnErrorType::CONN_ERROR_INVALID_AUTH);
             }
         } else {
             m_error_message = "Unknown authentication type: '"
                               + m_rt_opts.auth.auth_type + "'";
+            SetErrorDetails("Auth error", m_error_message,
+                            ConnErrorType::CONN_ERROR_INVALID_AUTH);
         }
     } else if (m_rt_opts.conn.server == "") {
         m_error_message = "Host connection option was not specified.";
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_UNABLE_TO_ESTABLISH);
     }
 
     if (m_error_message != "") {
@@ -309,9 +405,9 @@ std::shared_ptr< Aws::Http::HttpResponse > ESCommunication::IssueRequest(
         request->SetAuthorization("Basic " + hashed_userpw);
     } else if (m_rt_opts.auth.auth_type == AUTHTYPE_IAM) {
         std::shared_ptr< Aws::Auth::ProfileConfigFileAWSCredentialsProvider >
-            credential_provider =
-                Aws::MakeShared< Aws::Auth::ProfileConfigFileAWSCredentialsProvider >(
-                    ALLOCATION_TAG.c_str(), ESODBC_PROFILE_NAME.c_str());
+            credential_provider = Aws::MakeShared<
+                Aws::Auth::ProfileConfigFileAWSCredentialsProvider >(
+                ALLOCATION_TAG.c_str(), ESODBC_PROFILE_NAME.c_str());
         Aws::Client::AWSAuthV4Signer signer(credential_provider,
                                             SERVICE_NAME.c_str(),
                                             m_rt_opts.auth.region.c_str());
@@ -334,9 +430,9 @@ bool ESCommunication::IsSQLPluginInstalled(const std::string& plugin_response) {
                 if (!plugin_name.compare(OPENDISTRO_SQL_PLUGIN_NAME)) {
                     std::string sql_plugin_version =
                         it.at("version").as_string();
-                    LogMsg(ES_ERROR, std::string("Found SQL plugin version '"
-                                                 + sql_plugin_version + "'.")
-                                         .c_str());
+                    LogMsg(ES_INFO, std::string("Found SQL plugin version '"
+                                                + sql_plugin_version + "'.")
+                                        .c_str());
                     return true;
                 }
             } else {
@@ -344,21 +440,32 @@ bool ESCommunication::IsSQLPluginInstalled(const std::string& plugin_response) {
                     "Could not find all necessary fields in the plugin "
                     "response object. "
                     "(\"component\", \"version\")";
+                SetErrorDetails("Connection error", m_error_message,
+                                ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
                 throw std::runtime_error(m_error_message.c_str());
             }
         }
     } catch (const rabbit::type_mismatch& e) {
+        m_error_type = ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE;
         m_error_message =
             "Error parsing endpoint response: " + std::string(e.what());
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
     } catch (const rabbit::parse_error& e) {
         m_error_message =
             "Error parsing endpoint response: " + std::string(e.what());
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
     } catch (const std::exception& e) {
         m_error_message =
             "Error parsing endpoint response: " + std::string(e.what());
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
     } catch (...) {
         m_error_message =
             "Unknown exception thrown when parsing plugin endpoint response.";
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
     }
 
     LogMsg(ES_ERROR, m_error_message.c_str());
@@ -382,16 +489,22 @@ bool ESCommunication::EstablishConnection() {
         m_error_message =
             "The SQL plugin must be installed in order to use this driver. "
             "Received NULL response.";
+        SetErrorDetails("HTTP client error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
     } else {
         AwsHttpResponseToString(response, m_response_str);
         if (response->GetResponseCode() != Aws::Http::HttpResponseCode::OK) {
-            m_error_message =
-                "The SQL plugin must be installed in order to use this driver.";
-            if (response->HasClientError())
+            if (response->HasClientError()) {
                 m_error_message += " Client error: '"
                                    + response->GetClientErrorMessage() + "'.";
-            if (!m_response_str.empty())
+                SetErrorDetails("HTTP client error", m_error_message,
+                                ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
+            }
+            if (!m_response_str.empty()) {
                 m_error_message += " Response error: '" + m_response_str + "'.";
+                SetErrorDetails("Connection error", m_error_message,
+                                ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
+            }
         } else {
             if (IsSQLPluginInstalled(m_response_str)) {
                 return true;
@@ -400,6 +513,8 @@ bool ESCommunication::EstablishConnection() {
                     "The SQL plugin must be installed in order to use this "
                     "driver. Response body: '"
                     + m_response_str + "'";
+                SetErrorDetails("Connection error", m_error_message,
+                                ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
             }
         }
     }
@@ -407,13 +522,85 @@ bool ESCommunication::EstablishConnection() {
     return false;
 }
 
+std::vector< std::string > ESCommunication::GetColumnsWithSelectQuery(
+    const std::string table_name) {
+    std::vector< std::string > list_of_column;
+    if (table_name.empty()) {
+        m_error_type = ConnErrorType::CONN_ERROR_INVALID_NULL_PTR;
+        m_error_message = "Query is NULL";
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    // Prepare query
+    std::string query = "SELECT * FROM " + table_name + " LIMIT 0";
+    std::string msg = "Attempting to execute a query \"" + query + "\"";
+    LogMsg(ES_DEBUG, msg.c_str());
+
+    // Issue request
+    std::shared_ptr< Aws::Http::HttpResponse > response =
+        IssueRequest(SQL_ENDPOINT_FORMAT_JDBC, Aws::Http::HttpMethod::HTTP_POST,
+                     ctype, query);
+
+    // Validate response
+    if (response == nullptr) {
+        m_error_message =
+            "Failed to receive response from query. "
+            "Received NULL response.";
+        SetErrorDetails("HTTP client error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    // Convert body from Aws IOStream to string
+    std::unique_ptr< ESResult > result = std::make_unique< ESResult >();
+    AwsHttpResponseToString(response, result->result_json);
+
+    // If response was not valid, set error
+    if (response->GetResponseCode() != Aws::Http::HttpResponseCode::OK) {
+        m_error_type = ConnErrorType::CONN_ERROR_QUERY_SYNTAX;
+        m_error_message =
+            "Http response code was not OK. Code received: "
+            + std::to_string(static_cast< long >(response->GetResponseCode()))
+            + ".";
+        if (response->HasClientError())
+            m_error_message +=
+                " Client error: '" + response->GetClientErrorMessage() + "'.";
+        if (!result->result_json.empty()) {
+            m_error_message +=
+                " Response error: '" + result->result_json + "'.";
+        }
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    GetJsonSchema(*result);
+
+    rabbit::array schema_array = result->es_result_doc["schema"];
+    for (rabbit::array::iterator it = schema_array.begin();
+         it != schema_array.end(); ++it) {
+        std::string column_name = it->at("name").as_string();
+        list_of_column.push_back(column_name);
+    }
+
+    return list_of_column;
+}
+
 int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
+    m_error_details.reset();
     if (!query) {
         m_error_message = "Query is NULL";
+        SetErrorDetails("Execution error", m_error_message,
+                        ConnErrorType::CONN_ERROR_INVALID_NULL_PTR);
         LogMsg(ES_ERROR, m_error_message.c_str());
         return -1;
     } else if (!m_http_client) {
         m_error_message = "Unable to connect. Please try connecting again.";
+        SetErrorDetails("Execution error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
         LogMsg(ES_ERROR, m_error_message.c_str());
         return -1;
     }
@@ -434,6 +621,8 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
         m_error_message =
             "Failed to receive response from query. "
             "Received NULL response.";
+        SetErrorDetails("Execution error", m_error_message,
+                        ConnErrorType::CONN_ERROR_QUERY_SYNTAX);
         LogMsg(ES_ERROR, m_error_message.c_str());
         return -1;
     }
@@ -444,6 +633,7 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
 
     // If response was not valid, set error
     if (response->GetResponseCode() != Aws::Http::HttpResponseCode::OK) {
+        m_error_type = ConnErrorType::CONN_ERROR_QUERY_SYNTAX;
         m_error_message =
             "Http response code was not OK. Code received: "
             + std::to_string(static_cast< long >(response->GetResponseCode()))
@@ -452,6 +642,7 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
             m_error_message +=
                 " Client error: '" + response->GetClientErrorMessage() + "'.";
         if (!result->result_json.empty()) {
+            m_error_details = ParseErrorResponse(*result.get());
             m_error_message +=
                 " Response error: '" + result->result_json + "'.";
         }
@@ -463,10 +654,13 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
     try {
         ConstructESResult(*result);
     } catch (std::runtime_error& e) {
-        m_error_message = "Received runtime exception: " + std::string(e.what());
+        m_error_message =
+            "Received runtime exception: " + std::string(e.what());
         if (!result->result_json.empty()) {
             m_error_message += " Result body: " + result->result_json;
         }
+        SetErrorDetails("Execution error", m_error_message,
+                        ConnErrorType::CONN_ERROR_QUERY_SYNTAX);
         LogMsg(ES_ERROR, m_error_message.c_str());
         return -1;
     }
@@ -481,10 +675,9 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
     result.release();
 
     if (!cursor.empty()) {
-        // If the response has a cursor, this thread will retrieve more result pages asynchronously.
-        std::thread([&, cursor]() {
-            SendCursorQueries(cursor);
-        }).detach();
+        // If the response has a cursor, this thread will retrieve more result
+        // pages asynchronously.
+        std::thread([&, cursor]() { SendCursorQueries(cursor); }).detach();
     }
 
     return 0;
@@ -505,11 +698,13 @@ void ESCommunication::SendCursorQueries(std::string cursor) {
                 m_error_message =
                     "Failed to receive response from cursor. "
                     "Received NULL response.";
+                SetErrorDetails("Cursor error", m_error_message,
+                                ConnErrorType::CONN_ERROR_QUERY_SYNTAX);
                 LogMsg(ES_ERROR, m_error_message.c_str());
                 return;
             }
 
-            std::unique_ptr<ESResult> result = std::make_unique<ESResult>();
+            std::unique_ptr< ESResult > result = std::make_unique< ESResult >();
             AwsHttpResponseToString(response, result->result_json);
             PrepareCursorResult(*result);
 
@@ -525,12 +720,15 @@ void ESCommunication::SendCursorQueries(std::string cursor) {
                    && !m_result_queue.push(QUEUE_TIMEOUT, result.get())) {
             }
 
-            // Don't release when attempting to push to the queue as it may take multiple tries.
+            // Don't release when attempting to push to the queue as it may take
+            // multiple tries.
             result.release();
         }
     } catch (std::runtime_error& e) {
         m_error_message =
             "Received runtime exception: " + std::string(e.what());
+        SetErrorDetails("Cursor error", m_error_message,
+                        ConnErrorType::CONN_ERROR_QUERY_SYNTAX);
         LogMsg(ES_ERROR, m_error_message.c_str());
     }
 
@@ -547,8 +745,10 @@ void ESCommunication::SendCloseCursorRequest(const std::string& cursor) {
                      Aws::Http::HttpMethod::HTTP_POST, ctype, "", "", cursor);
     if (response == nullptr) {
         m_error_message =
-            "Failed to receive response from cursor. "
+            "Failed to receive response from cursor close request. "
             "Received NULL response.";
+        SetErrorDetails("Cursor error", m_error_message,
+                        ConnErrorType::CONN_ERROR_QUERY_SYNTAX);
         LogMsg(ES_ERROR, m_error_message.c_str());
     }
 }
@@ -632,8 +832,10 @@ std::string ESCommunication::GetServerVersion() {
         IssueRequest("", Aws::Http::HttpMethod::HTTP_GET, "", "", "");
     if (response == nullptr) {
         m_error_message =
-            "Failed to receive response from query. "
+            "Failed to receive response from server version query. "
             "Received NULL response.";
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
         LogMsg(ES_ERROR, m_error_message.c_str());
         return "";
     }
@@ -651,14 +853,20 @@ std::string ESCommunication::GetServerVersion() {
         } catch (const rabbit::type_mismatch& e) {
             m_error_message = "Error parsing main endpoint response: "
                               + std::string(e.what());
+            SetErrorDetails("Connection error", m_error_message,
+                            ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
             LogMsg(ES_ERROR, m_error_message.c_str());
         } catch (const rabbit::parse_error& e) {
             m_error_message = "Error parsing main endpoint response: "
                               + std::string(e.what());
+            SetErrorDetails("Connection error", m_error_message,
+                            ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
             LogMsg(ES_ERROR, m_error_message.c_str());
         } catch (const std::exception& e) {
             m_error_message = "Error parsing main endpoint response: "
                               + std::string(e.what());
+            SetErrorDetails("Connection error", m_error_message,
+                            ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
             LogMsg(ES_ERROR, m_error_message.c_str());
         } catch (...) {
             LogMsg(ES_ERROR,
@@ -680,8 +888,10 @@ std::string ESCommunication::GetClusterName() {
         IssueRequest("", Aws::Http::HttpMethod::HTTP_GET, "", "", "");
     if (response == nullptr) {
         m_error_message =
-            "Failed to receive response from query. "
+            "Failed to receive response from cluster name query. "
             "Received NULL response.";
+        SetErrorDetails("Connection error", m_error_message,
+                        ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
         LogMsg(ES_ERROR, m_error_message.c_str());
         return "";
     }
@@ -699,14 +909,20 @@ std::string ESCommunication::GetClusterName() {
         } catch (const rabbit::type_mismatch& e) {
             m_error_message = "Error parsing main endpoint response: "
                               + std::string(e.what());
+            SetErrorDetails("Connection error", m_error_message,
+                            ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
             LogMsg(ES_ERROR, m_error_message.c_str());
         } catch (const rabbit::parse_error& e) {
             m_error_message = "Error parsing main endpoint response: "
                               + std::string(e.what());
+            SetErrorDetails("Connection error", m_error_message,
+                            ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
             LogMsg(ES_ERROR, m_error_message.c_str());
         } catch (const std::exception& e) {
             m_error_message = "Error parsing main endpoint response: "
                               + std::string(e.what());
+            SetErrorDetails("Connection error", m_error_message,
+                            ConnErrorType::CONN_ERROR_COMM_LINK_FAILURE);
             LogMsg(ES_ERROR, m_error_message.c_str());
         } catch (...) {
             LogMsg(ES_ERROR,

@@ -35,6 +35,10 @@ public class ElasticsearchResponse implements Iterable<SearchHit> {
     this.hits = esResponse.getHits(); // TODO: aggregation result is separate and not in SearchHit[]
   }
 
+  public ElasticsearchResponse(SearchHits hits) {
+    this.hits = hits;
+  }
+
   /**
    * Is response empty. As ES doc says, "Each call to the scroll API returns the next batch of
    * results until there are no more results left to return, ie the hits array is empty."

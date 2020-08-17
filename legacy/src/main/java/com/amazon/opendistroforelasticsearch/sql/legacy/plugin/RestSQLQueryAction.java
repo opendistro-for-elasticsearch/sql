@@ -21,10 +21,12 @@ import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format
 import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
@@ -57,9 +59,15 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   private final ClusterService clusterService;
 
-  public RestSQLQueryAction(ClusterService clusterService) {
+  /**
+   * Settings required by been initialization.
+   */
+  private final Settings pluginSettings;
+
+  public RestSQLQueryAction(ClusterService clusterService, Settings pluginSettings) {
     super();
     this.clusterService = clusterService;
+    this.pluginSettings = pluginSettings;
   }
 
   @Override
@@ -89,13 +97,17 @@ public class RestSQLQueryAction extends BaseRestHandler {
     }
 
     SQLService sqlService = createSQLService(nodeClient);
-    UnresolvedPlan ast;
+    PhysicalPlan plan;
     try {
-      ast = sqlService.parse(request.getQuery());
+      // For now analyzing and planning stage may throw syntax exception as well
+      // which hints the fallback to legacy code is necessary here.
+      plan = sqlService.plan(
+                sqlService.analyze(
+                    sqlService.parse(request.getQuery())));
     } catch (SyntaxCheckException e) {
       return NOT_SUPPORTED_YET;
     }
-    return channel -> sqlService.execute(ast, createListener(channel));
+    return channel -> sqlService.execute(plan, createListener(channel));
   }
 
   private SQLService createSQLService(NodeClient client) {
@@ -103,6 +115,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       context.registerBean(ClusterService.class, () -> clusterService);
       context.registerBean(NodeClient.class, () -> client);
+      context.registerBean(Settings.class, () -> pluginSettings);
       context.register(ElasticsearchSQLPluginConfig.class);
       context.register(SQLServiceConfig.class);
       context.refresh();
@@ -116,7 +129,8 @@ public class RestSQLQueryAction extends BaseRestHandler {
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {
-        sendResponse(OK, formatter.format(new QueryResult(response.getResults())));
+        sendResponse(OK, formatter.format(new QueryResult(response.getSchema(),
+            response.getResults())));
       }
 
       @Override

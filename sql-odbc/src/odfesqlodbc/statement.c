@@ -767,6 +767,7 @@ static const struct {
      {STMT_RESTRICTED_DATA_TYPE_ERROR, "07006", "07006"},
      {STMT_INVALID_CURSOR_STATE_ERROR, "07005", "24000"},
      {STMT_CREATE_TABLE_ERROR, "42S01", "S0001"}, /* table already exists */
+     {STMT_QUERY_SYNTAX_ERROR, "42000", "42000"}, /* query syntax error */
      {STMT_NO_CURSOR_NAME, "S1015", "S1015"},
      {STMT_INVALID_CURSOR_NAME, "34000", "34000"},
      {STMT_INVALID_ARGUMENT_NO, "HY024", "S1009"}, /* invalid argument value */

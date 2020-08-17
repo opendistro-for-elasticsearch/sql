@@ -32,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListene
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ class ElasticsearchExecutionEngineTest {
   @Mock private ElasticsearchClient client;
 
   @Mock private ElasticsearchExecutionProtector protector;
+
+  @Mock private static ExecutionEngine.Schema schema;
 
   @BeforeEach
   void setUp() {
@@ -147,6 +150,11 @@ class ElasticsearchExecutionEngineTest {
     @Override
     public ExprValue next() {
       return it.next();
+    }
+
+    @Override
+    public ExecutionEngine.Schema schema() {
+      return schema;
     }
   }
 }

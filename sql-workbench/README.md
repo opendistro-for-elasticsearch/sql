@@ -17,9 +17,16 @@ Please see our technical [documentation](https://opendistro.github.io/for-elasti
    See the [Kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md#setting-up-your-development-environment) for more instructions on setting up your development environment.
    
 1. Change your node version to the version specified in `.node-version` inside the Kibana root directory.
-1. cd into `plugins` directory in the Kibana source code directory.
+1. cd into the Kibana source code directory.
 1. Check out this package from version control into the `plugins` directory.
-1. Run `yarn kbn bootstrap` inside `kibana/plugins/sql-workbench`.
+```
+git clone git@github.com:opendistro-for-elasticsearch/sql.git plugins --no-checkout
+cd plugins
+echo 'sql-workbench/*' >> .git/info/sparse-checkout
+git config core.sparseCheckout true
+git checkout master
+```
+6. Run `yarn kbn bootstrap` inside `kibana/plugins/sql-workbench`.
 
 Ultimately, your directory structure should look like this:
 
@@ -56,7 +63,7 @@ Example output: `./build/opendistro-sql-workbench-*.zip`
 
 ## Bugs, Enhancements or Questions
 
-Please file an issue to report any bugs you may find, enhancements you may need or questions you may have [here](https://github.com/opendistro-for-elasticsearch/sql-workbench/issues).
+Please file an issue to report any bugs you may find, enhancements you may need or questions you may have [here](https://github.com/opendistro-for-elasticsearch/sql/issues).
 
 ## License
 

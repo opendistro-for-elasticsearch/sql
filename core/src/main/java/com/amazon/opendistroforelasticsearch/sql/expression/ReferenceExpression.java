@@ -41,6 +41,11 @@ public class ReferenceExpression implements Expression {
   }
 
   @Override
+  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
+    return visitor.visitReference(this, context);
+  }
+
+  @Override
   public String toString() {
     return attr;
   }

@@ -16,11 +16,17 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -29,6 +35,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.index.query.QueryBuilder;
 
 /** Elasticsearch table (index) implementation. */
 @RequiredArgsConstructor
@@ -36,11 +43,12 @@ public class ElasticsearchIndex implements Table {
 
   /**
    * Type mapping from Elasticsearch data type to expression type in our type system in query
-   * engine. TODO: date, geo, ip etc.
+   * engine. TODO: geo, ip etc.
    */
-  private static final Map<String, ExprCoreType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
-      ImmutableMap.<String, ExprCoreType>builder()
-          .put("text", ExprCoreType.STRING)
+  private static final Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
+      ImmutableMap.<String, ExprType>builder()
+          .put("text", ElasticsearchDataType.ES_TEXT)
+          .put("text_keyword", ElasticsearchDataType.ES_TEXT_KEYWORD)
           .put("keyword", ExprCoreType.STRING)
           .put("integer", ExprCoreType.INTEGER)
           .put("long", ExprCoreType.LONG)
@@ -49,10 +57,13 @@ public class ElasticsearchIndex implements Table {
           .put("boolean", ExprCoreType.BOOLEAN)
           .put("nested", ExprCoreType.ARRAY)
           .put("object", ExprCoreType.STRUCT)
+          .put("date", ExprCoreType.TIMESTAMP)
           .build();
 
   /** Elasticsearch client connection. */
   private final ElasticsearchClient client;
+
+  private final Settings settings;
 
   /** Current Elasticsearch index name. */
   private final String indexName;
@@ -75,7 +86,8 @@ public class ElasticsearchIndex implements Table {
   /** TODO: Push down operations to index scan operator as much as possible in future. */
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
-    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName);
+    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, settings, indexName,
+        new ElasticsearchExprValueFactory(getFieldTypes()));
 
     /*
      * Visit logical plan with index scan as context so logical operators visited, such as
@@ -84,6 +96,25 @@ public class ElasticsearchIndex implements Table {
      */
     return plan.accept(new DefaultImplementor<ElasticsearchIndexScan>() {
           @Override
+          public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
+            // For now (without optimizer), only push down filter close to relation
+            if (!(node.getChild().get(0) instanceof LogicalRelation)) {
+              return super.visitFilter(node, context);
+            }
+
+            FilterQueryBuilder queryBuilder =
+                new FilterQueryBuilder(new DefaultExpressionSerializer());
+
+            QueryBuilder query = queryBuilder.build(node.getCondition());
+            if (query == null) { // Use default filter operator if unable to push down
+              return super.visitFilter(node, context);
+            }
+
+            context.pushDown(query);
+            return visitChild(node, context);
+          }
+
+          @Override
           public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
             return indexScan;
           }
@@ -91,7 +122,7 @@ public class ElasticsearchIndex implements Table {
         indexScan);
   }
 
-  private ExprCoreType transformESTypeToExprType(String esType) {
+  private ExprType transformESTypeToExprType(String esType) {
     return ES_TYPE_TO_EXPR_TYPE_MAPPING.getOrDefault(esType, ExprCoreType.UNKNOWN);
   }
 }

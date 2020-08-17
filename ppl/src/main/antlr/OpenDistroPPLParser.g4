@@ -195,7 +195,7 @@ evalFunctionName
     ;
 
 functionArgs
-    : functionArg (COMMA functionArg)*
+    : (functionArg (COMMA functionArg)*)?
     ;
 
 functionArg
@@ -203,7 +203,13 @@ functionArg
     ;
 
 mathematicalFunctionBase
-    : ABS
+    : ABS | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI |POW | POWER
+    | RAND | ROUND | SIGN | SQRT | TRUNCATE
+    | trigonometricFunctionName
+    ;
+
+trigonometricFunctionName
+    : ACOS | ASIN | ATAN | ATAN2 | COS | COT | DEGREES | RADIANS | SIN | TAN
     ;
 
 dateAndTimeFunctionBase
@@ -226,8 +232,8 @@ binaryOperator
 /** literals and values*/
 literalValue
     : stringLiteral
-    | (PLUS | MINUS)? integerLiteral
-    | (PLUS | MINUS)? decimalLiteral
+    | integerLiteral
+    | decimalLiteral
     | booleanLiteral
     ;
 
@@ -236,11 +242,11 @@ stringLiteral
     ;
 
 integerLiteral
-    : INTEGER_LITERAL
+    : (PLUS | MINUS)? INTEGER_LITERAL
     ;
 
 decimalLiteral
-    : DECIMAL_LITERAL
+    : (PLUS | MINUS)? DECIMAL_LITERAL
     ;
 
 booleanLiteral

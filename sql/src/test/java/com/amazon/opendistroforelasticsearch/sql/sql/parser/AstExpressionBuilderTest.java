@@ -17,10 +17,14 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
@@ -68,6 +72,30 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildDateLiteral() {
+    assertEquals(
+        dateLiteral("2020-07-07"),
+        buildExprAst("DATE '2020-07-07'")
+    );
+  }
+
+  @Test
+  public void canBuildTimeLiteral() {
+    assertEquals(
+        timeLiteral("11:30:45"),
+        buildExprAst("TIME '11:30:45'")
+    );
+  }
+
+  @Test
+  public void canBuildTimestampLiteral() {
+    assertEquals(
+        timestampLiteral("2020-07-07 11:30:45"),
+        buildExprAst("TIMESTAMP '2020-07-07 11:30:45'")
+    );
+  }
+
+  @Test
   public void canBuildArithmeticExpression() {
     assertEquals(
         function("+", intLiteral(1), intLiteral(2)),
@@ -104,6 +132,66 @@ class AstExpressionBuilderTest {
             )
         ),
         buildExprAst("abs(abs(-5) * -1)")
+    );
+  }
+
+  @Test
+  public void canBuildDateAndTimeFunctionCall() {
+    assertEquals(
+        function("dayofmonth", dateLiteral("2020-07-07")),
+        buildExprAst("dayofmonth(DATE '2020-07-07')")
+    );
+  }
+
+  @Test
+  public void canBuildComparisonExpression() {
+    assertEquals(
+        function("!=", intLiteral(1), intLiteral(2)),
+        buildExprAst("1 != 2")
+    );
+
+    assertEquals(
+        function("!=", intLiteral(1), intLiteral(2)),
+        buildExprAst("1 <> 2")
+    );
+  }
+
+  @Test
+  public void canBuildNullTestExpression() {
+    assertEquals(
+        function("is null", intLiteral(1)),
+        buildExprAst("1 is NULL")
+    );
+
+    assertEquals(
+        function("is not null", intLiteral(1)),
+        buildExprAst("1 IS NOT null")
+    );
+  }
+
+  @Test
+  public void canBuildNullTestExpressionWithNULLLiteral() {
+    assertEquals(
+        function("is null", nullLiteral()),
+        buildExprAst("NULL is NULL")
+    );
+
+    assertEquals(
+        function("is not null", nullLiteral()),
+        buildExprAst("NULL IS NOT null")
+    );
+  }
+
+  @Test
+  public void canBuildLikeExpression() {
+    assertEquals(
+        function("like", stringLiteral("str"), stringLiteral("st%")),
+        buildExprAst("'str' like 'st%'")
+    );
+
+    assertEquals(
+        function("not like", stringLiteral("str"), stringLiteral("st%")),
+        buildExprAst("'str' not like 'st%'")
     );
   }
 

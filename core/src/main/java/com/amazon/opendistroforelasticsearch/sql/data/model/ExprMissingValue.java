@@ -16,35 +16,60 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 
 /**
- * The definition of the expression missing value.
+ * Expression Missing Value.
  */
-@EqualsAndHashCode
-public class ExprMissingValue implements ExprValue {
-  private static final ExprValue instance = new ExprMissingValue();
+public class ExprMissingValue extends AbstractExprValue {
+  private static final ExprMissingValue instance = new ExprMissingValue();
 
   private ExprMissingValue() {
   }
 
-  public static ExprValue of() {
+  public static ExprMissingValue of() {
     return instance;
   }
 
   @Override
   public Object value() {
-    throw new ExpressionEvaluationException("invalid to call value operation on missing value");
+    return null;
   }
 
   @Override
-  public ExprCoreType type() {
-    throw new ExpressionEvaluationException("invalid to call type operation on missing value");
+  public ExprType type() {
+    return ExprCoreType.UNKNOWN;
   }
 
   @Override
   public boolean isMissing() {
     return true;
+  }
+
+  @Override
+  public int compare(ExprValue other) {
+    throw new IllegalStateException(String.format("[BUG] Unreachable, Comparing with MISSING is "
+        + "undefined"));
+  }
+
+  /**
+   * Missing value is equal to Missing value.
+   * Notes, this function should only used for Java Object Compare.
+   */
+  @Override
+  public boolean equal(ExprValue other) {
+    return other.isMissing();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode("MISSING");
+  }
+
+  @Override
+  public String toString() {
+    return "MISSING";
   }
 }

@@ -22,6 +22,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.iterableWithSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -116,5 +118,16 @@ class RemoveOperatorTest extends PhysicalPlanTestBase {
     List<ExprValue> result = execute(plan);
 
     assertThat(result, allOf(iterableWithSize(1), hasItems(ExprValueUtils.integerValue(1))));
+  }
+
+  @Test
+  public void invalid_to_retrieve_schema_from_remove() {
+    PhysicalPlan plan = remove(inputPlan, DSL.ref("response", STRING), DSL.ref("referer", STRING));
+    IllegalStateException exception =
+        assertThrows(IllegalStateException.class, () -> plan.schema());
+    assertEquals(
+        "[BUG] schema can been only applied to ProjectOperator, "
+            + "instead of RemoveOperator(input=inputPlan, removeList=[response, referer])",
+        exception.getMessage());
   }
 }

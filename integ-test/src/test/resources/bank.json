@@ -5,7 +5,7 @@
 {"index":{"_id":"13"}}
 {"account_number":13,"balance":32838,"firstname":"Nanette","lastname":"Bates","age":28,"gender":"F","address":"789 Madison Street","employer":"Quility","email":"nanettebates@quility.com","city":"Nogal","state":"VA", "male" : false, "birthdate" : "2018-06-23"}
 {"index":{"_id":"18"}}
-{"account_number":18,"balance":4180,"firstname":"Dale","lastname":"Adams","age":33,"gender":"M","address":"467 Hutchinson Court","employer":"Boink","email":"daleadams@boink.com","city":"Orick","state":"MD","male" : true, "birthdate" : "1542152000"}
+{"account_number":18,"balance":4180,"firstname":"Dale","lastname":"Adams","age":33,"gender":"M","address":"467 Hutchinson Court","employer":"Boink","email":"daleadams@boink.com","city":"Orick","state":"MD","male" : true, "birthdate" : 1542152000000}
 {"index":{"_id":"20"}}
 {"account_number":20,"balance":16418,"firstname":"Elinor","lastname":"Ratliff","age":36,"gender":"M","address":"282 Kings Place","employer":"Scentric","email":"elinorratliff@scentric.com","city":"Ribera","state":"WA", "male" : true, "birthdate" : "2018-06-27"}
 {"index":{"_id":"25"}}

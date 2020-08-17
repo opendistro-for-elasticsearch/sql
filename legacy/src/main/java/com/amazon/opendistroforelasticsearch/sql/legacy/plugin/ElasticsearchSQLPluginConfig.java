@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.legacy.plugin;
 
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchNodeClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
@@ -40,6 +41,9 @@ public class ElasticsearchSQLPluginConfig {
   @Autowired
   private NodeClient nodeClient;
 
+  @Autowired
+  private Settings settings;
+
   @Bean
   public ElasticsearchClient client() {
     return new ElasticsearchNodeClient(clusterService, nodeClient);
@@ -47,7 +51,7 @@ public class ElasticsearchSQLPluginConfig {
 
   @Bean
   public StorageEngine storageEngine() {
-    return new ElasticsearchStorageEngine(client());
+    return new ElasticsearchStorageEngine(client(), settings);
   }
 
   @Bean

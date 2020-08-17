@@ -56,6 +56,9 @@ public class PPLServiceTest {
   @Mock
   private PhysicalPlan plan;
 
+  @Mock
+  private ExecutionEngine.Schema schema;
+
   /**
    * Setup the test context.
    */
@@ -76,7 +79,7 @@ public class PPLServiceTest {
   public void testExecuteShouldPass() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(Collections.emptyList()));
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList()));
       return null;
     }).when(executionEngine).execute(any(), any());
 
@@ -96,6 +99,21 @@ public class PPLServiceTest {
 
   @Test
   public void testExecuteWithIllegalQueryShouldBeCaughtByHandler() {
+    pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<QueryResponse>() {
+      @Override
+      public void onResponse(QueryResponse pplQueryResponse) {
+        Assert.fail();
+      }
+
+      @Override
+      public void onFailure(Exception e) {
+
+      }
+    });
+  }
+
+  @Test
+  public void test() {
     pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse pplQueryResponse) {

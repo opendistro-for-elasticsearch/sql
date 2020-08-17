@@ -35,4 +35,10 @@ public abstract class FunctionExpression implements Expression, FunctionImplemen
 
   @Getter
   private final List<Expression> arguments;
+
+  @Override
+  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
+    return visitor.visitFunction(this, context);
+  }
+
 }

@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
 class SQLSyntaxParserTest {
@@ -28,14 +27,74 @@ class SQLSyntaxParserTest {
   private final SQLSyntaxParser parser = new SQLSyntaxParser();
 
   @Test
+  public void canParseQueryEndWithSemiColon() {
+    assertNotNull(parser.parse("SELECT 123;"));
+  }
+
+  @Test
   public void canParseSelectLiterals() {
-    ParseTree parseTree = parser.parse("SELECT 123, 'hello'");
-    assertNotNull(parseTree);
+    assertNotNull(parser.parse("SELECT 123, 'hello'"));
+  }
+
+  @Test
+  public void canParseSelectLiteralWithAlias() {
+    assertNotNull(parser.parse("SELECT (1 + 2) * 3 AS expr"));
+  }
+
+  @Test
+  public void canParseSelectFields() {
+    assertNotNull(parser.parse("SELECT name, age FROM accounts"));
+  }
+
+  @Test
+  public void canParseSelectFieldWithAlias() {
+    assertNotNull(parser.parse("SELECT name AS n, age AS a FROM accounts"));
+  }
+
+  @Test
+  public void canParseSelectFieldWithQuotedAlias() {
+    assertNotNull(parser.parse("SELECT name AS \"n\", age AS `a` FROM accounts"));
+  }
+
+  @Test
+  public void canParseIndexNameWithDate() {
+    assertNotNull(parser.parse("SELECT * FROM logs_2020_01"));
+    assertNotNull(parser.parse("SELECT * FROM logs-2020-01"));
+  }
+
+  @Test
+  public void canParseHiddenIndexName() {
+    assertNotNull(parser.parse("SELECT * FROM .kibana"));
+  }
+
+  @Test
+  public void canNotParseIndexNameWithSpecialChar() {
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT * FROM hello+world"));
+  }
+
+  @Test
+  public void canParseIndexNameWithSpecialCharQuoted() {
+    assertNotNull(parser.parse("SELECT * FROM `hello+world`"));
+    assertNotNull(parser.parse("SELECT * FROM \"hello$world\""));
+  }
+
+  @Test
+  public void canNotParseIndexNameStartingWithNumber() {
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT * FROM 123test"));
+  }
+
+  @Test
+  public void canNotParseIndexNameSingleQuoted() {
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT * FROM 'test'"));
   }
 
   @Test
   public void canNotParseInvalidSelect() {
-    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT * FROM test"));
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT * FROM test WHERE age = 10"));
   }
 
 }
