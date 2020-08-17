@@ -62,7 +62,7 @@ Currently, the pagination only supports basic queries. For example, the followin
       "query" : "SELECT OriginCountry, DestCountry FROM kibana_sample_data_flights ORDER BY OriginCountry ASC"
     }
 
-The response in JDBC format with cursor id.
+The response in JDBC format with cursor id::
 
     {
       "schema": [
