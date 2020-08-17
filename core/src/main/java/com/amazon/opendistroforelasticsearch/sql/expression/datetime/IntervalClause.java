@@ -161,7 +161,7 @@ public class IntervalClause {
 
             @Override
             public String toString() {
-              return String.format("INTERVAL %s %s", arguments.get(0).toString(),
+              return String.format("INTERVAL '%s %s'", arguments.get(0).toString(),
                   StringUtils.unquoteText(arguments.get(1).toString()));
             }
           };
