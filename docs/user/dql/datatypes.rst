@@ -25,6 +25,9 @@ TODO
 Date and Time Data Types
 ========================
 
+The date and time data types are the types that represent temporal values and SQL plugin supports types including DATE, TIME, DATETIME, TIMESTAMP and INTERVAL. By default, the Elasticsearch DSL uses timestamp type as the only date and time related type, which has contained all information about an absolute time point. To integrate with SQL language, each of the types other than timestamp is holding part of temporal or timezone information, and the usage to explicitly clarify the date and time types is reflected in the datetime functions (see `Functions <functions.rst>`_ for details), where some functions might have restrictions in the input argument type.
+
+
 Date
 ----
 
