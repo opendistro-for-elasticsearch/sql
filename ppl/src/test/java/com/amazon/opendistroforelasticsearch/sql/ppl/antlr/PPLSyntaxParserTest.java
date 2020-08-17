@@ -51,4 +51,22 @@ public class PPLSyntaxParserTest {
 
     new PPLSyntaxParser().analyzeSyntax("search a=1");
   }
+
+  @Test
+  public void testRareCommandShouldPass(){
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | rare a by b");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testTopCommandWithNShouldPass(){
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top 1 a by b");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testTopCommandWithoutNShouldPass(){
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top a by b");
+    assertNotEquals(null, tree);
+  }
 }

@@ -27,6 +27,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WhereCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RareCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.TopCommandContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
@@ -40,6 +42,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rare;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Top;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
@@ -194,6 +198,51 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
             .stream()
             .map(ct -> (Let) visitExpression(ct))
             .collect(Collectors.toList())
+    );
+  }
+
+  /**
+   * Rare command.
+   */
+  @Override
+  public UnresolvedPlan visitRareCommand(RareCommandContext ctx) {
+    List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
+            ctx.byClause()
+                    .fieldList()
+                    .fieldExpression()
+                    .stream()
+                    .map(this::visitExpression)
+                    .collect(Collectors.toList());
+    return new Rare(
+            ctx.fieldList()
+                    .fieldExpression()
+                    .stream()
+                    .map(field -> (Field) visitExpression(field))
+                    .collect(Collectors.toList()),
+            groupList
+    );
+  }
+
+  /**
+   * Top command.
+   */
+  @Override
+  public UnresolvedPlan visitTopCommand(TopCommandContext ctx) {
+    List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
+            ctx.byClause()
+                    .fieldList()
+                    .fieldExpression()
+                    .stream()
+                    .map(this::visitExpression)
+                    .collect(Collectors.toList());
+    return new Top(
+            ArgumentFactory.getArgumentList(ctx),
+            ctx.fieldList()
+                    .fieldExpression()
+                    .stream()
+                    .map(field -> (Field) visitExpression(field))
+                    .collect(Collectors.toList()),
+            groupList
     );
   }
 

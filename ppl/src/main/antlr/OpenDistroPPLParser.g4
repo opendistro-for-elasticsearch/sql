@@ -29,7 +29,7 @@ pplStatement
 /** commands */
 commands
     : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand
-    ;
+    | topCommand | rareCommand;
 
 searchCommand
     : (SEARCH)? fromClause                                          #searchFrom
@@ -73,6 +73,19 @@ sortCommand
 
 evalCommand
     : EVAL evalClause (COMMA evalClause)*
+    ;
+
+topCommand
+    : TOP
+    (number=integerLiteral)?
+    fieldList
+    (byClause)?
+    ;
+
+rareCommand
+    : RARE
+    fieldList
+    (byClause)?
     ;
 
 /** clauses */

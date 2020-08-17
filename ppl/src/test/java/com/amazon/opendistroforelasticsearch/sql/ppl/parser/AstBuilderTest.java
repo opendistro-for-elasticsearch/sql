@@ -41,6 +41,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rare;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.top;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
@@ -299,6 +301,38 @@ public class AstBuilderTest {
             relation("log.2020.04.20."),
             compare("=", field("a"), intLiteral(1))
         ));
+  }
+
+  @Test
+  public void testRareCommand(){
+      assertEqual("source=t | rare a by b",
+              rare(
+                      relation("t"),
+                      exprList(field("b")),
+                      field("a")
+              ));
+  }
+
+  @Test
+  public void testTopCommandWithN(){
+      assertEqual("source=t | top 1 a by b",
+              top(
+                      relation("t"),
+                      exprList(argument("N", intLiteral(1))),
+                      exprList(field("b")),
+                      field("a")
+              ));
+  }
+
+  @Test
+  public void testTopCommandWithoutN(){
+      assertEqual("source=t | top a by b",
+              top(
+                      relation("t"),
+                      exprList(argument("N", intLiteral(10))),
+                      exprList(field("b")),
+                      field("a")
+              ));
   }
 
   protected void assertEqual(String query, Node expectedPlan) {

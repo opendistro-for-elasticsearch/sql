@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.TopCommandContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
@@ -141,6 +142,20 @@ public class ArgumentFactory {
         : ctx instanceof BooleanLiteralContext
         ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
         : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
+  }
+
+  /**
+   * Get list of {@link Argument}.
+   *
+   * @param ctx TopCommandContext instance
+   * @return the list of arguments fetched from the top command
+   */
+  public static List<Argument> getArgumentList(TopCommandContext ctx) {
+    return Collections.singletonList(
+            ctx.number != null
+                    ? new Argument("N", getArgumentValue(ctx.number))
+                    : new Argument("N", new Literal(10, DataType.INTEGER))
+    );
   }
 
 }
