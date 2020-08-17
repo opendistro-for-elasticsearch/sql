@@ -97,6 +97,11 @@ public class ElasticsearchIndex implements Table {
     return plan.accept(new DefaultImplementor<ElasticsearchIndexScan>() {
           @Override
           public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
+            // For now (without optimizer), only push down filter close to relation
+            if (!(node.getChild().get(0) instanceof LogicalRelation)) {
+              return super.visitFilter(node, context);
+            }
+
             FilterQueryBuilder queryBuilder =
                 new FilterQueryBuilder(new DefaultExpressionSerializer());
 

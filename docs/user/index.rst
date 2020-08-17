@@ -49,3 +49,7 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `Troubleshooting <dql/troubleshooting.rst>`_
 
+* **Limitations**
+
+  - `Limitations <limitations/limitations.rst>`_
+
