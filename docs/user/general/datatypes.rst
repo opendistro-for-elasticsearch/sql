@@ -10,10 +10,77 @@ Data Types
    :depth: 2
 
 
-Introduction
-============
+Overview
+========
 
-TODO
+ODFE SQL Data Types
+-------------------
+
+The ODFE SQL Engine support the following data types.
+
++---------------+
+| ODFE SQL Type |
++===============+
+| boolean       |
++---------------+
+| integer       |
++---------------+
+| long          |
++---------------+
+| float         |
++---------------+
+| double        |
++---------------+
+| string        |
++---------------+
+| text          |
++---------------+
+| timestamp     |
++---------------+
+| datetime      |
++---------------+
+| date          |
++---------------+
+| time          |
++---------------+
+| interval      |
++---------------+
+| struct        |
++---------------+
+| array         |
++---------------+
+
+Data Types Mapping
+------------------
+
+The table below list the mapping between Elasticsearch Data Type, ODFE SQL Data Type and SQL Type.
+
++--------------------+---------------+-----------+
+| Elasticsearch Type | ODFE SQL Type | SQL Type  |
++====================+===============+===========+
+| boolean            | boolean       | BOOLEAN   |
++--------------------+---------------+-----------+
+| integer            | integer       | INTEGER   |
++--------------------+---------------+-----------+
+| long               | long          | LONG      |
++--------------------+---------------+-----------+
+| float              | float         | FLOAT     |
++--------------------+---------------+-----------+
+| double             | double        | DOUBLE    |
++--------------------+---------------+-----------+
+| keyword            | string        | VARCHAR   |
++--------------------+---------------+-----------+
+| text               | text          | VARCHAR   |
++--------------------+---------------+-----------+
+| date               | timestamp     | TIMESTAMP |
++--------------------+---------------+-----------+
+| object             | struct        | STRUCT    |
++--------------------+---------------+-----------+
+| nested             | array         | TBD       |
++--------------------+---------------+-----------+
+
+Notes: Not all the ODFE SQL Type has correspond Elasticsearch Type. e.g. data and time. To use function which required such data type, user should explict convert the data type.
+
 
 
 Numeric Data Types
@@ -25,7 +92,7 @@ TODO
 Date and Time Data Types
 ========================
 
-The date and time data types are the types that represent temporal values and SQL plugin supports types including DATE, TIME, DATETIME, TIMESTAMP and INTERVAL. By default, the Elasticsearch DSL uses timestamp type as the only date and time related type, which has contained all information about an absolute time point. To integrate with SQL language, each of the types other than timestamp is holding part of temporal or timezone information, and the usage to explicitly clarify the date and time types is reflected in the datetime functions (see `Functions <functions.rst>`_ for details), where some functions might have restrictions in the input argument type.
+The date and time data types are the types that represent temporal values and SQL plugin supports types including DATE, TIME, DATETIME, TIMESTAMP and INTERVAL. By default, the Elasticsearch DSL uses date type as the only date and time related type, which has contained all information about an absolute time point. To integrate with SQL language, each of the types other than timestamp is holding part of temporal or timezone information, and the usage to explicitly clarify the date and time types is reflected in the datetime functions (see `Functions <functions.rst>`_ for details), where some functions might have restrictions in the input argument type.
 
 
 Date
