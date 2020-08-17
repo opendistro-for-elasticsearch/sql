@@ -56,7 +56,7 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
 
   protected void setQuerySizeLimit(Integer limit) throws IOException {
     updateClusterSettings(
-        new SQLIntegTestCase.ClusterSetting("persistent", "opendistro.query.size_limit",
+        new ClusterSetting("persistent", "opendistro.query.size_limit",
             limit.toString()));
   }
 

@@ -31,6 +31,8 @@ public abstract class Settings {
      */
     PPL_QUERY_MEMORY_LIMIT("opendistro.ppl.query.memory_limit"),
 
+    PPL_ENABLED("opendistro.ppl.enabled"),
+
     /**
      * Common Setting for SQL and PPL.
      */
