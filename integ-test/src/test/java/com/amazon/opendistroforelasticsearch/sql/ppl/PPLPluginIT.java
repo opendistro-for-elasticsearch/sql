@@ -15,8 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 
+import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.IOException;
 import java.util.Locale;
 import org.elasticsearch.client.Request;
@@ -24,16 +29,20 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+import org.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class PPLPluginIT extends PPLIntegTestCase {
-  @Rule public ExpectedException exceptionRule = ExpectedException.none();
+  @Rule
+  public ExpectedException exceptionRule = ExpectedException.none();
+
+  private static final String PERSISTENT = "persistent";
 
   @Override
   protected void init() throws Exception {
-    wipeAllClusterSettings();
+    loadIndex(Index.BANK);
   }
 
   @Test
@@ -59,9 +68,39 @@ public class PPLPluginIT extends PPLIntegTestCase {
   @Test
   public void testQueryEndpointShouldFail() throws IOException {
     exceptionRule.expect(ResponseException.class);
-    exceptionRule.expect(hasProperty("response", statusCode(500)));
+    exceptionRule.expect(hasProperty("response", statusCode(400)));
 
     client().performRequest(makePPLRequest("search invalid"));
+  }
+
+  @Test
+  public void sqlEnableSettingsTest() throws IOException {
+    String query =
+        String.format("search source=%s firstname='Hattie' | fields firstname", TEST_INDEX_BANK);
+    // enable by default
+    JSONObject result = executeQuery(query);
+    verifyDataRows(result, rows("Hattie"));
+
+    // disable
+    updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.ppl.enabled", "false"));
+    Response response = null;
+    try {
+      result = executeQuery(query);
+    } catch (ResponseException ex) {
+      response = ex.getResponse();
+    }
+
+    result = new JSONObject(TestUtils.getResponseBody(response));
+    assertThat(result.getInt("status"), equalTo(400));
+    JSONObject error = result.getJSONObject("error");
+    assertThat(error.getString("reason"), equalTo("Invalid Query"));
+    assertThat(error.getString("details"), equalTo(
+        "Either opendistro.ppl.enabled or rest.action.multi.allow_explicit_index setting is "
+            + "false"));
+    assertThat(error.getString("type"), equalTo("IllegalAccessException"));
+
+    // reset the setting
+    updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.ppl.enabled", null));
   }
 
   protected Request makePPLRequest(String query) {

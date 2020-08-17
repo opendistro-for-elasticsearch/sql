@@ -97,8 +97,8 @@ public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
     Metrics.getInstance().registerDefaultMetrics();
 
     return Arrays.asList(
-        new RestPPLQueryAction(restController, clusterService, pluginSettings),
-        new RestSqlAction(settings, clusterService),
+        new RestPPLQueryAction(restController, clusterService, pluginSettings, settings),
+        new RestSqlAction(settings, clusterService, pluginSettings),
         new RestSqlStatsAction(settings, restController),
         new RestSqlSettingsAction(settings, restController)
     );

@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchRestClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
@@ -32,7 +33,9 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.elasticsearch.client.Node;
 import org.elasticsearch.client.Request;
@@ -61,7 +64,7 @@ public class StandaloneIT extends PPLIntegTestCase {
     ElasticsearchClient client = new ElasticsearchRestClient(restClient);
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.registerBean(StorageEngine.class,
-        () -> new ElasticsearchStorageEngine(client));
+        () -> new ElasticsearchStorageEngine(client, defaultSettings()));
     context.registerBean(ExecutionEngine.class, () -> new ElasticsearchExecutionEngine(client,
         new ElasticsearchExecutionProtector(new AlwaysHealthyMonitor())));
     context.register(PPLServiceConfig.class);
@@ -121,5 +124,18 @@ public class StandaloneIT extends PPLIntegTestCase {
           }
         });
     return actual.get();
+  }
+
+  private Settings defaultSettings() {
+    return new Settings() {
+      private final Map<Key, Integer> defaultSettings = new ImmutableMap.Builder<Key, Integer>()
+          .put(Key.QUERY_SIZE_LIMIT, 200)
+          .build();
+
+      @Override
+      public <T> T getSettingValue(Key key) {
+        return (T) defaultSettings.get(key);
+      }
+    };
   }
 }

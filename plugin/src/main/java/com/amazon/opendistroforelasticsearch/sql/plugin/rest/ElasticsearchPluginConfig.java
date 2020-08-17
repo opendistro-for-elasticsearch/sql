@@ -57,7 +57,7 @@ public class ElasticsearchPluginConfig {
 
   @Bean
   public StorageEngine storageEngine() {
-    return new ElasticsearchStorageEngine(client());
+    return new ElasticsearchStorageEngine(client(), settings);
   }
 
   @Bean
