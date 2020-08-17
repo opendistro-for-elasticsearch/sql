@@ -47,7 +47,6 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.Elasticsea
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
@@ -57,6 +56,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggre
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
@@ -67,7 +67,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -220,6 +219,29 @@ class ElasticsearchIndexTest {
 
     assertTrue(plan instanceof ProjectOperator);
     assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldNotPushDownFilterFarFromRelation() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    Expression filterExpr = dsl.equal(field, literal("John"));
+    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
+    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+            filter(
+                aggregation(
+                    relation(indexName),
+                    aggregators,
+                    groupByExprs
+                ),
+                filterExpr));
+
+    assertTrue(plan instanceof FilterOperator);
   }
 
 }

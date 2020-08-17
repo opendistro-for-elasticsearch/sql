@@ -18,19 +18,22 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.f
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -52,51 +55,127 @@ class FilterQueryBuilderTest {
 
   @BeforeEach
   void set_up() {
-    doAnswer(invocation -> {
-      Expression expr = invocation.getArgument(0);
-      return expr.toString();
-    }).when(serializer).serialize(any());
-
     filterQueryBuilder = new FilterQueryBuilder(serializer);
   }
 
   @Test
   void should_return_null_if_exception() {
-    reset(serializer);
     when(serializer.serialize(any())).thenThrow(IllegalStateException.class);
 
     assertNull(
         filterQueryBuilder.build(
-            dsl.equal(ref("age", INTEGER), literal(30))));
+            dsl.equal(dsl.abs(ref("age", INTEGER)), literal(30))));
   }
 
   @Test
-  void can_build_query_for_comparison_expression() {
+  void should_build_term_query_for_equality_expression() {
+    assertEquals(
+        "{\n"
+            + "  \"term\" : {\n"
+            + "    \"name\" : {\n"
+            + "      \"value\" : \"John\",\n"
+            + "      \"boost\" : 1.0\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.equal(
+                ref("name", STRING), literal("John"))));
+  }
+
+  @Test
+  void should_build_range_query_for_comparison_expression() {
+    Expression[] params = {ref("age", INTEGER), literal(30)};
+    Map<Expression, Object[]> ranges = ImmutableMap.of(
+        dsl.less(params), new Object[]{null, 30, true, false},
+        dsl.greater(params), new Object[]{30, null, false, true},
+        dsl.lte(params), new Object[]{null, 30, true, true},
+        dsl.gte(params), new Object[]{30, null, true, true});
+
+    ranges.forEach((expr, range) ->
+        assertEquals(
+            "{\n"
+                + "  \"range\" : {\n"
+                + "    \"age\" : {\n"
+                + "      \"from\" : " + range[0] + ",\n"
+                + "      \"to\" : " + range[1] + ",\n"
+                + "      \"include_lower\" : " + range[2] + ",\n"
+                + "      \"include_upper\" : " + range[3] + ",\n"
+                + "      \"boost\" : 1.0\n"
+                + "    }\n"
+                + "  }\n"
+                + "}",
+            buildQuery(expr)));
+  }
+
+  @Test
+  void should_build_wildcard_query_for_like_expression() {
+    assertEquals(
+        "{\n"
+            + "  \"wildcard\" : {\n"
+            + "    \"name\" : {\n"
+            + "      \"wildcard\" : \"*John?\",\n"
+            + "      \"boost\" : 1.0\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.like(
+                ref("name", STRING), literal("%John_"))));
+  }
+
+  @Test
+  void should_build_script_query_for_function_expression() {
+    doAnswer(invocation -> {
+      Expression expr = invocation.getArgument(0);
+      return expr.toString();
+    }).when(serializer).serialize(any());
+
     assertEquals(
         "{\n"
             + "  \"script\" : {\n"
             + "    \"script\" : {\n"
-            + "      \"source\" : \"age > 30\",\n"
+            + "      \"source\" : \"abs(age) = 30\",\n"
             + "      \"lang\" : \"opendistro_expression\"\n"
             + "    },\n"
             + "    \"boost\" : 1.0\n"
             + "  }\n"
             + "}",
         buildQuery(
-            dsl.greater(
-                ref("age", INTEGER), literal(30))));
+            dsl.equal(
+                dsl.abs(ref("age", INTEGER)), literal(30))));
   }
 
   @Test
-  void can_build_query_for_and_or_expression() {
-    String[] names = { "must", "should" };
+  void should_build_script_query_for_comparison_between_fields() {
+    doAnswer(invocation -> {
+      Expression expr = invocation.getArgument(0);
+      return expr.toString();
+    }).when(serializer).serialize(any());
+
+    assertEquals(
+        "{\n"
+            + "  \"script\" : {\n"
+            + "    \"script\" : {\n"
+            + "      \"source\" : \"age1 = age2\",\n"
+            + "      \"lang\" : \"opendistro_expression\"\n"
+            + "    },\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.equal(
+                ref("age1", INTEGER), ref("age2", INTEGER))));
+  }
+
+  @Test
+  void should_build_bool_query_for_and_or_expression() {
+    String[] names = { "filter", "should" };
+    FunctionExpression expr1 = dsl.equal(ref("name", ES_TEXT_KEYWORD), literal("John"));
+    FunctionExpression expr2 = dsl.equal(ref("age", INTEGER), literal(30));
     Expression[] exprs = {
-        dsl.and(
-            dsl.equal(ref("name", STRING), literal("John")),
-            dsl.greater(ref("age", INTEGER), literal(30))),
-        dsl.or(
-            dsl.equal(ref("name", STRING), literal("John")),
-            dsl.greater(ref("age", INTEGER), literal(30)))
+        dsl.and(expr1, expr2),
+        dsl.or(expr1, expr2)
     };
 
     for (int i = 0; i < names.length; i++) {
@@ -105,21 +184,19 @@ class FilterQueryBuilderTest {
               + "  \"bool\" : {\n"
               + "    \"" + names[i] + "\" : [\n"
               + "      {\n"
-              + "        \"script\" : {\n"
-              + "          \"script\" : {\n"
-              + "            \"source\" : \"name = \\\"John\\\"\",\n"
-              + "            \"lang\" : \"opendistro_expression\"\n"
-              + "          },\n"
-              + "          \"boost\" : 1.0\n"
+              + "        \"term\" : {\n"
+              + "          \"name.keyword\" : {\n"
+              + "            \"value\" : \"John\",\n"
+              + "            \"boost\" : 1.0\n"
+              + "          }\n"
               + "        }\n"
               + "      },\n"
               + "      {\n"
-              + "        \"script\" : {\n"
-              + "          \"script\" : {\n"
-              + "            \"source\" : \"age > 30\",\n"
-              + "            \"lang\" : \"opendistro_expression\"\n"
-              + "          },\n"
-              + "          \"boost\" : 1.0\n"
+              + "        \"term\" : {\n"
+              + "          \"age\" : {\n"
+              + "            \"value\" : 30,\n"
+              + "            \"boost\" : 1.0\n"
+              + "          }\n"
               + "        }\n"
               + "      }\n"
               + "    ],\n"
@@ -132,18 +209,17 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void can_build_query_for_or_expression() {
+  void should_build_bool_query_for_not_expression() {
     assertEquals(
         "{\n"
             + "  \"bool\" : {\n"
             + "    \"must_not\" : [\n"
             + "      {\n"
-            + "        \"script\" : {\n"
-            + "          \"script\" : {\n"
-            + "            \"source\" : \"age > 30\",\n"
-            + "            \"lang\" : \"opendistro_expression\"\n"
-            + "          },\n"
-            + "          \"boost\" : 1.0\n"
+            + "        \"term\" : {\n"
+            + "          \"age\" : {\n"
+            + "            \"value\" : 30,\n"
+            + "            \"boost\" : 1.0\n"
+            + "          }\n"
             + "        }\n"
             + "      }\n"
             + "    ],\n"
@@ -153,7 +229,7 @@ class FilterQueryBuilderTest {
             + "}",
         buildQuery(
             dsl.not(
-                dsl.greater(
+                dsl.equal(
                     ref("age", INTEGER), literal(30)))));
   }
 
