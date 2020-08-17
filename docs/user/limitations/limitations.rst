@@ -9,6 +9,7 @@ Limitations
    :local:
    :depth: 2
 
+
 Introduction
 ============
 
@@ -29,15 +30,13 @@ Limitations on Subqueries
 Subqueries in the FROM clause
 -----------------------------
 
-Subquery in the `FROM` clause in this format: `SELECT outer FROM (SELECT inner)` is supported only when the query is merged into one query. For example, the following query is supported:
+Subquery in the `FROM` clause in this format: `SELECT outer FROM (SELECT inner)` is supported only when the query is merged into one query. For example, the following query is supported::
 
-```sql
-SELECT t.f, t.d
-FROM (
-    SELECT FlightNum as f, DestCountry as d
-    FROM kibana_sample_data_flights
-    WHERE OriginCountry = 'US') t
-```
+    SELECT t.f, t.d
+    FROM (
+        SELECT FlightNum as f, DestCountry as d
+        FROM kibana_sample_data_flights
+        WHERE OriginCountry = 'US') t
 
 But, if the outer query has `GROUP BY` or `ORDER BY`, then it's not supported.
 
@@ -55,40 +54,36 @@ Limitations on Pagination
 =========================
 
 Pagination only supports basic queries for now. The pagination query enables you to get back paginated responses.
-Currently, the pagination only supports basic queries. For example, the following query returns the data with cursor id.
+Currently, the pagination only supports basic queries. For example, the following query returns the data with cursor id::
 
-```json
-POST _opendistro/_sql/
-{
-  "fetch_size" : 5,
-  "query" : "SELECT OriginCountry, DestCountry FROM kibana_sample_data_flights ORDER BY OriginCountry ASC"
-}
-```
+    POST _opendistro/_sql/
+    {
+      "fetch_size" : 5,
+      "query" : "SELECT OriginCountry, DestCountry FROM kibana_sample_data_flights ORDER BY OriginCountry ASC"
+    }
 
 The response in JDBC format with cursor id.
 
-```json
-{
-  "schema": [
     {
-      "name": "OriginCountry",
-      "type": "keyword"
-    },
-    {
-      "name": "DestCountry",
-      "type": "keyword"
+      "schema": [
+        {
+          "name": "OriginCountry",
+          "type": "keyword"
+        },
+        {
+          "name": "DestCountry",
+          "type": "keyword"
+        }
+      ],
+      "cursor": "d:eyJhIjp7fSwicyI6IkRYRjFaWEo1UVc1a1JtVjBZMmdCQUFBQUFBQUFCSllXVTJKVU4yeExiWEJSUkhsNFVrdDVXVEZSYkVKSmR3PT0iLCJjIjpbeyJuYW1lIjoiT3JpZ2luQ291bnRyeSIsInR5cGUiOiJrZXl3b3JkIn0seyJuYW1lIjoiRGVzdENvdW50cnkiLCJ0eXBlIjoia2V5d29yZCJ9XSwiZiI6MSwiaSI6ImtpYmFuYV9zYW1wbGVfZGF0YV9mbGlnaHRzIiwibCI6MTMwNTh9",
+      "total": 13059,
+      "datarows": [[
+        "AE",
+        "CN"
+      ]],
+      "size": 1,
+      "status": 200
     }
-  ],
-  "cursor": "d:eyJhIjp7fSwicyI6IkRYRjFaWEo1UVc1a1JtVjBZMmdCQUFBQUFBQUFCSllXVTJKVU4yeExiWEJSUkhsNFVrdDVXVEZSYkVKSmR3PT0iLCJjIjpbeyJuYW1lIjoiT3JpZ2luQ291bnRyeSIsInR5cGUiOiJrZXl3b3JkIn0seyJuYW1lIjoiRGVzdENvdW50cnkiLCJ0eXBlIjoia2V5d29yZCJ9XSwiZiI6MSwiaSI6ImtpYmFuYV9zYW1wbGVfZGF0YV9mbGlnaHRzIiwibCI6MTMwNTh9",
-  "total": 13059,
-  "datarows": [[
-    "AE",
-    "CN"
-  ]],
-  "size": 1,
-  "status": 200
-}
-```
 
 The query with `aggregation` and `join` does not support pagination for now.
 
