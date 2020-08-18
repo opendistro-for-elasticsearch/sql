@@ -33,6 +33,10 @@ import lombok.ToString;
 public class Relation extends UnresolvedPlan {
   private final UnresolvedExpression tableName;
 
+  /**
+   * Get original table name or alias.
+   * @return    table name or its alias.
+   */
   public String getTableName() {
     if (tableName instanceof Alias) {
       return ((Alias) tableName).getAlias();

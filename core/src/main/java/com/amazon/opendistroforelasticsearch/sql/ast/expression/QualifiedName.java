@@ -71,7 +71,7 @@ public class QualifiedName extends UnresolvedExpression {
     if (parts.size() == 1) {
       return Optional.empty();
     }
-    return Optional.of(QualifiedName.of(parts.subList(0, parts.size() - 1)));
+    return Optional.of(QualifiedName.of(parts.get(0)));
   }
 
   public String getSuffix() {

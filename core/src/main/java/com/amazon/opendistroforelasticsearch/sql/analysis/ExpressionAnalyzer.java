@@ -19,7 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -155,11 +154,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
-    // Name with qualifier (index.field, index_alias.field, object/nested.inner_field
-    //  text.keyword) is not supported for now
-    if (node.getParts().size() > 1) {
-      throw new SyntaxCheckException(String.format(
-          "Qualified name [%s] is not supported yet", node));
+    Optional<QualifiedName> prefix = node.getPrefix();
+    if (prefix.isPresent() && isSymbolIndex(prefix.get(), context)) {
+      return visitIdentifier(node.getSuffix(), context);
     }
     return visitIdentifier(node.toString(), context);
   }
@@ -175,6 +172,16 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
           "Identifier [%s] of type [%s] is not supported yet", ident, ref.type()));
     }
     return ref;
+  }
+
+  private boolean isSymbolIndex(QualifiedName name, AnalysisContext context) {
+    try {
+      TypeEnvironment typeEnv = context.peek();
+      typeEnv.resolve(new Symbol(Namespace.INDEX_NAME, name.toString()));
+      return true;
+    } catch (SemanticCheckException e) {
+      return false;
+    }
   }
 
   private boolean isTypeNotSupported(ExprType type) {

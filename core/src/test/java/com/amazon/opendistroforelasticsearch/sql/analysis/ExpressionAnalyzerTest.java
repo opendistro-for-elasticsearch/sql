@@ -20,9 +20,12 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
@@ -90,14 +93,11 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void skip_identifier_with_qualifier() {
-    SyntaxCheckException exception =
-        assertThrows(SyntaxCheckException.class,
-            () -> analyze(AstDSL.qualifiedName("index_alias", "integer_value")));
-
-    assertEquals(
-        "Qualified name [index_alias.integer_value] is not supported yet",
-        exception.getMessage()
+  public void qualified_name_with_qualifier() {
+    analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
+    assertAnalyzeEqual(
+        DSL.ref("integer_value", INTEGER),
+        AstDSL.qualifiedName("index_alias", "integer_value")
     );
   }
 
