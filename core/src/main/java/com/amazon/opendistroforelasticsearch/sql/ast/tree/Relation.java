@@ -34,14 +34,26 @@ public class Relation extends UnresolvedPlan {
   private final UnresolvedExpression tableName;
 
   /**
-   * Get original table name or alias.
-   * @return    table name or its alias.
+   * Get original table name.
+   * @return    table name
    */
   public String getTableName() {
     if (tableName instanceof Alias) {
-      return ((Alias) tableName).getAlias();
+      return ((Alias) tableName).getName();
     }
     return tableName.toString();
+  }
+
+  /**
+   * Get original table name or alias if present.
+   * @return    table name or its alias
+   */
+  public String getTableNameOrAlias() {
+    if ((tableName instanceof Alias)
+        && (((Alias) tableName).getAlias() != null)) {
+      return ((Alias) tableName).getAlias();
+    }
+    return getTableName();
   }
 
   @Override

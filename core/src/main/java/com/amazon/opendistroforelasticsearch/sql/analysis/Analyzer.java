@@ -101,7 +101,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     TypeEnvironment curEnv = context.peek();
     Table table = storageEngine.getTable(node.getTableName());
     table.getFieldTypes().forEach((k, v) -> curEnv.define(new Symbol(Namespace.FIELD_NAME, k), v));
-    curEnv.define(new Symbol(Namespace.INDEX_NAME, node.getTableName()), STRUCT);
+    curEnv.define(new Symbol(Namespace.INDEX_NAME, node.getTableNameOrAlias()), STRUCT);
     return new LogicalRelation(node.getTableName());
   }
 
