@@ -27,7 +27,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ExprDatetimeValue extends AbstractExprValue {
   private static final DateTimeFormatter formatter = DateTimeFormatter
       .ofPattern("yyyy-MM-dd HH:mm:ss");

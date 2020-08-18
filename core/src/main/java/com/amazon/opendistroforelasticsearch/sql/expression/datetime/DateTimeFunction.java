@@ -18,14 +18,30 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDateValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDatetimeValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getTimeValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getTimestampValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.DAYOFMONTH;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.define;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.impl;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import lombok.experimental.UtilityClass;
 
@@ -36,18 +52,112 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class DateTimeFunction {
+  /**
+   * Register Date and Time Functions.
+   *
+   * @param repository {@link BuiltinFunctionRepository}.
+   */
   public void register(BuiltinFunctionRepository repository) {
+    repository.register(date());
+    repository.register(datetime());
     repository.register(dayOfMonth());
+    repository.register(time());
+    repository.register(timestamp());
+  }
+
+  /**
+   * Extracts the date part of a date and time value.
+   * Also to construct a date type. The supported signatures:
+   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
+   */
+  private FunctionResolver date() {
+    return define(BuiltinFunctionName.DATE.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
+  }
+
+  /**
+   * Extracts the datetime value of a date and time value.
+   * Also to construct a datetime type. The supported signatures:
+   * STRING/DATE/DATETIME/TIMESTAMP -> DATETIME
+   */
+  private FunctionResolver datetime() {
+    return define(BuiltinFunctionName.DATETIME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDatetime), DATETIME, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprDatetime), DATETIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDatetime), DATETIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprDatetime), DATETIME, TIMESTAMP));
+  }
+
+  /**
+   * Extracts the time part of a date and time value.
+   * Also to construct a time type. The supported signatures:
+   * STRING/DATE/DATETIME/TIME/TIMESTAMP -> TIME
+   */
+  private FunctionResolver time() {
+    return define(BuiltinFunctionName.TIME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprTime), TIME, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprTime), TIME, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprTime), TIME, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTime), TIME, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTime), TIME, TIMESTAMP));
+  }
+
+  /**
+   * Extracts the timestamp of a date and time value.
+   * Also to construct a date type. The supported signatures:
+   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
+   */
+  private FunctionResolver timestamp() {
+    return define(BuiltinFunctionName.TIMESTAMP.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimestamp), TIMESTAMP, TIMESTAMP));
   }
 
   /**
    * DAYOFMONTH(DATE). return the day of the month (1-31).
    */
   private FunctionResolver dayOfMonth() {
-    return FunctionDSL.define(DAYOFMONTH.getName(),
-        FunctionDSL.impl(FunctionDSL.nullMissingHandling(DateTimeFunction::exprDayOfMonth),
+    return define(DAYOFMONTH.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
             INTEGER, DATE)
     );
+  }
+
+  private ExprValue exprDate(ExprValue exprValue) {
+    if (exprValue instanceof ExprStringValue) {
+      return new ExprDateValue(getStringValue(exprValue));
+    } else {
+      return new ExprDateValue(getDateValue(exprValue));
+    }
+  }
+
+  private ExprValue exprDatetime(ExprValue exprValue) {
+    if (exprValue instanceof ExprStringValue) {
+      return new ExprDatetimeValue(getStringValue(exprValue));
+    } else {
+      return new ExprDatetimeValue(getDatetimeValue(exprValue));
+    }
+  }
+
+  private ExprValue exprTime(ExprValue exprValue) {
+    if (exprValue instanceof ExprStringValue) {
+      return new ExprTimeValue(getStringValue(exprValue));
+    } else {
+      return new ExprTimeValue(getTimeValue(exprValue));
+    }
+  }
+
+  private ExprValue exprTimestamp(ExprValue exprValue) {
+    if (exprValue instanceof ExprStringValue) {
+      return new ExprTimestampValue(getStringValue(exprValue));
+    } else {
+      return new ExprTimestampValue(getTimestampValue(exprValue));
+    }
   }
 
   /**

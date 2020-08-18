@@ -49,6 +49,15 @@ public enum BuiltinFunctionName {
   TAN(FunctionName.of("tan")),
 
   /**
+   * Date and Time Functions.
+   */
+  DATE(FunctionName.of("date")),
+  DATETIME(FunctionName.of("datetime")),
+  DAYOFMONTH(FunctionName.of("dayofmonth")),
+  TIME(FunctionName.of("time")),
+  TIMESTAMP(FunctionName.of("timestamp")),
+
+  /**
    * Text Functions.
    */
   TOSTRING(FunctionName.of("tostring")),
@@ -77,11 +86,6 @@ public enum BuiltinFunctionName {
   GTE(FunctionName.of(">=")),
   LIKE(FunctionName.of("like")),
   NOT_LIKE(FunctionName.of("not like")),
-
-  /**
-   * Date and Time Functions.
-   */
-  DAYOFMONTH(FunctionName.of("dayofmonth")),
 
   /**
    * Aggregation Function.
