@@ -55,18 +55,36 @@ public class PPLSyntaxParserTest {
 
   @Test
   public void testRareCommandShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | rare a");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testRareCommandWithGroupByShouldPass() {
     ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | rare a by b");
     assertNotEquals(null, tree);
   }
 
   @Test
+  public void testTopCommandWithoutNShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top a");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
   public void testTopCommandWithNShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top 1 a");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testTopCommandWithNAndGroupByShouldPass() {
     ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top 1 a by b");
     assertNotEquals(null, tree);
   }
 
   @Test
-  public void testTopCommandWithoutNShouldPass() {
+  public void testTopCommandWithoutNAndGroupByShouldPass() {
     ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top a by b");
     assertNotEquals(null, tree);
   }

@@ -305,6 +305,16 @@ public class AstBuilderTest {
 
   @Test
   public void testRareCommand() {
+    assertEqual("source=t | rare a",
+        rare(
+            relation("t"),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testRareCommandWithGroupBy() {
     assertEqual("source=t | rare a by b",
         rare(
             relation("t"),
@@ -326,6 +336,28 @@ public class AstBuilderTest {
 
   @Test
   public void testTopCommandWithN() {
+    assertEqual("source=t | top 1 a",
+        top(
+            relation("t"),
+            exprList(argument("noOfResults", intLiteral(1))),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithoutNAndGroupBy() {
+    assertEqual("source=t | top a",
+        top(
+            relation("t"),
+            exprList(argument("noOfResults", intLiteral(10))),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithNAndGroupBy() {
     assertEqual("source=t | top 1 a by b",
         top(
             relation("t"),
@@ -344,17 +376,6 @@ public class AstBuilderTest {
             exprList(field("c")),
             field("a"),
             field("b")
-        ));
-  }
-
-  @Test
-  public void testTopCommandWithoutN() {
-    assertEqual("source=t | top a by b",
-        top(
-            relation("t"),
-            exprList(argument("noOfResults", intLiteral(10))),
-            exprList(field("b")),
-            field("a")
         ));
   }
 
