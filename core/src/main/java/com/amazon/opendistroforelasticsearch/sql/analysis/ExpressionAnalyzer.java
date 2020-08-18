@@ -155,8 +155,15 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
     Optional<QualifiedName> prefix = node.getPrefix();
-    if (prefix.isPresent() && isSymbolIndex(prefix.get(), context)) {
-      return visitIdentifier(node.getSuffix(), context);
+    if (prefix.isPresent()) {
+      // Remove prefix (qualifier) if it's index name/alias, otherwise raise error
+      if (isSymbolIndex(prefix.get(), context)) {
+        return visitIdentifier(node.getSuffix(), context);
+      } else {
+        throw new SyntaxCheckException(String.format(
+            "The qualifier [%s] of qualified name [%s] must be an index name or its alias "
+                + "within the scope", prefix.get(), node));
+      }
     }
     return visitIdentifier(node.toString(), context);
   }

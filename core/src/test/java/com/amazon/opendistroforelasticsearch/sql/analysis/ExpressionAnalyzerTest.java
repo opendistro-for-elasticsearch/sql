@@ -99,6 +99,16 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         DSL.ref("integer_value", INTEGER),
         AstDSL.qualifiedName("index_alias", "integer_value")
     );
+
+    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "nested_field"), STRUCT);
+    SyntaxCheckException exception =
+        assertThrows(SyntaxCheckException.class,
+            () -> analyze(AstDSL.qualifiedName("nested_field", "integer_value")));
+    assertEquals(
+        "The qualifier [nested_field] of qualified name [nested_field.integer_value] "
+            + "must be an index name or its alias within the scope",
+        exception.getMessage()
+    );
   }
 
   @Test
