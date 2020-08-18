@@ -37,9 +37,11 @@ public interface ExecutionEngine {
   void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener);
 
   /**
-   * Explain physical plan and call back response listener.
+   * Explain physical plan and call back response listener. The reason why this has to
+   * be part of execution engine interface is that the physical plan probably needs to
+   * be executed to get more info for profiling, such as actual execution time, rows fetched etc.
    *
-   * @param plan     executable physical plan
+   * @param plan     physical plan to explain
    * @param listener response listener
    */
   void explain(PhysicalPlan plan, ResponseListener<String> listener);
