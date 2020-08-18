@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -33,6 +34,9 @@ public class Relation extends UnresolvedPlan {
   private final UnresolvedExpression tableName;
 
   public String getTableName() {
+    if (tableName instanceof Alias) {
+      return ((Alias) tableName).getAlias();
+    }
     return tableName.toString();
   }
 

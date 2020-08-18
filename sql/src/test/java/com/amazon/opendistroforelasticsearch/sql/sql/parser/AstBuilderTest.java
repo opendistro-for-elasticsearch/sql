@@ -145,6 +145,28 @@ class AstBuilderTest {
     );
   }
 
+  @Test
+  public void can_build_from_index_with_alias() {
+    assertEquals(
+        project(
+            relation(alias("test", qualifiedName("test"), "tt")),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test AS tt")
+    );
+  }
+
+  @Test
+  public void can_build_from_index_with_alias_quoted() {
+    assertEquals(
+        project(
+            relation(alias("test", qualifiedName("test"), "t")),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test `t`")
+    );
+  }
+
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
     return parseTree.accept(new AstBuilder(query));

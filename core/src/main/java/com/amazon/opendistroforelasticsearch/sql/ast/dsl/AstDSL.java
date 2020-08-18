@@ -59,6 +59,10 @@ public class AstDSL {
     return new Filter(expression).attach(input);
   }
 
+  public UnresolvedPlan relation(UnresolvedExpression tableName) {
+    return new Relation(tableName);
+  }
+
   public static UnresolvedPlan relation(String tableName) {
     return new Relation(qualifiedName(tableName));
   }
