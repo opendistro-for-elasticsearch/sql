@@ -2,6 +2,13 @@ name: Open Distro for Elasticsearch ODBC Driver
 
 on: [push, pull_request]
 
+env:
+  CI_OUTPUT_PATH: "sql-odbc/ci-output"
+  ODBC_LIB_PATH: "./build/odbc/lib"
+  ODBC_BIN_PATH: "./build/odbc/bin"
+  ODBC_BUILD_PATH: "./build/odbc/build"
+  AWS_SDK_INSTALL_PATH: "./build/aws-sdk/install"
+
 jobs:    
   build-mac:
     runs-on: macos-latest
@@ -43,13 +50,13 @@ jobs:
     - name: create-output
       if: success()
       run: |
-        mkdir build
+        mkdir build-output
         mkdir test-output
         mkdir installer
-        cp ./lib64/*.dylib build
-        cp ./lib64/*.a build
-        cp $(ls -d bin64/* | grep -v "\.") build
-        cp ./cmake-build64/*.pkg installer
+        cp ./build/odbc/lib/*.dylib build-output/
+        cp ./build/odbc/lib/*.a build-output/
+        cp ./cmake-build64/*.pkg installer/
+    # cp $(ls -d ./build/odbc/bin/* | grep -v "\.") build-output
     #    cp ./bin64/*.html test-output
     #    cp ./bin64/*.log test-output
     - name: upload-build
@@ -57,7 +64,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: mac64-build
-        path: sql-odbc/build
+        path: sql-odbc/build-output
     - name: upload-installer
       if: success()
       uses: actions/upload-artifact@v1
@@ -85,46 +92,34 @@ jobs:
     - name: build-installer
       if: success()
       run: |
-        $prefix_path = (pwd).path
-        cd cmake-build32
-        cmake ..\\src -D CMAKE_INSTALL_PREFIX=$prefix_path\AWSSDK\bin -D BUILD_WITH_TESTS=OFF
-        msbuild .\PACKAGE.vcxproj -p:Configuration=Release
-        cd ..
+        .\scripts\build_installer.ps1 Release Win32 .\src $Env:ODBC_BUILD_PATH $Env:AWS_SDK_INSTALL_PATH
     #- name: test
     #  run: |
     #    cp .\\libraries\\VisualLeakDetector\\bin32\\*.* .\\bin32\\Release
     #    cp .\\libraries\\VisualLeakDetector\\lib32\\*.lib .\\lib32\\Release
     #    .\run_test_runner.bat
-    - name: create-output
+    - name: prepare-output
       if: always()
       run: |
-        mkdir build
-        mkdir test-output
-        mkdir installer
-        cp .\\bin32\\Release\\*.dll build
-        cp .\\bin32\\Release\\*.exe build
-        cp .\\lib32\\Release\\*.lib build
-        cp .\\cmake-build32\\*.msi installer
-    #    cp .\\bin32\\Release\\*.log test-output
-    #    cp .\\bin32\\Release\\*.html test-output
+        .\scripts\prepare_ci_output.ps1 $Env:ODBC_BIN_PATH $Env:ODBC_LIB_PATH $Env:ODBC_BUILD_PATH
     - name: upload-build
       if: always()
       uses: actions/upload-artifact@v1
       with:
         name: windows32-build
-        path: sql-odbc/build
+        path: sql-odbc/ci-output/build
     - name: upload-installer
       if: always()
       uses: actions/upload-artifact@v1
       with:
         name: windows32-installer
-        path: sql-odbc/installer
+        path: sql-odbc/ci-output/installer
     #- name: upload-test-results
     #  if: always()
     #  uses: actions/upload-artifact@v1
     #  with:
     #    name: windows-test-results
-    #    path: test-output
+    #    path: $CI_OUTPUT_PATH/test
   build-windows64:
     runs-on: windows-latest
     defaults:
@@ -140,43 +135,31 @@ jobs:
     - name: build-installer
       if: success()
       run: |
-        $prefix_path = (pwd).path
-        cd cmake-build64
-        cmake ..\\src -D CMAKE_INSTALL_PREFIX=$prefix_path\AWSSDK\bin -D BUILD_WITH_TESTS=OFF
-        msbuild .\PACKAGE.vcxproj -p:Configuration=Release
-        cd ..
+        .\scripts\build_installer.ps1 Release x64 .\src $Env:ODBC_BUILD_PATH $Env:AWS_SDK_INSTALL_PATH
     #- name: test
     #  run: |
     #    cp .\\libraries\\VisualLeakDetector\\bin64\\*.* .\\bin64\\Release
     #    cp .\\libraries\\VisualLeakDetector\\lib64\\*.lib .\\lib64\\Release
     #    .\run_test_runner.bat
-    - name: create-output
+    - name: prepare-output
       if: always()
       run: |
-        mkdir build
-        mkdir test-output
-        mkdir installer
-        cp .\\bin64\\Release\\*.dll build
-        cp .\\bin64\\Release\\*.exe build
-        cp .\\lib64\\Release\\*.lib build
-        cp .\\cmake-build64\\*.msi installer
-    #    cp .\\bin64\\Release\\*.log test-output
-    #    cp .\\bin64\\Release\\*.html test-output
+        .\scripts\prepare_ci_output.ps1 $Env:ODBC_BIN_PATH $Env:ODBC_LIB_PATH $Env:ODBC_WIN_BUILD_PATH
     - name: upload-build
       if: always()
       uses: actions/upload-artifact@v1
       with:
         name: windows64-build
-        path: sql-odbc/build
+        path: sql-odbc/ci-output/build
     - name: upload-installer
       if: always()
       uses: actions/upload-artifact@v1
       with:
         name: windows64-installer
-        path: sql-odbc/installer
+        path: sql-odbc/ci-output/installer
     #- name: upload-test-results
     #  if: always()
     #  uses: actions/upload-artifact@v1
     #  with:
     #    name: windows-test-results
-    #    path: test-output
+    #    path: sql-odbc/ci-output/test-output
