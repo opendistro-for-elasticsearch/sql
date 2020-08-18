@@ -135,7 +135,7 @@ Datetime type is the combination of date and time. The conversion rule of date o
 Timestamp
 ---------
 
-A timestamp instance is an absolute instant independent of timezone or convention. For example, for a given point of time, if we set the timestamp of this time point into another timezone, the value should also be different accordingly. Bides, the storage of timestamp type is also different from the other types. The timestamp is converted from the current timezone to UTC for storage, and is converted back to the set timezone from UTC when retrieving.
+A timestamp instance is an absolute instant independent of timezone or convention. For example, for a given point of time, if we set the timestamp of this time point into another timezone, the value should also be different accordingly. Besides, the storage of timestamp type is also different from the other types. The timestamp is converted from the current timezone to UTC for storage, and is converted back to the set timezone from UTC when retrieving.
 
 +-----------+----------------------------------+------------------------------------------------------------------+
 | Type      | Syntax                           | Range                                                            |
