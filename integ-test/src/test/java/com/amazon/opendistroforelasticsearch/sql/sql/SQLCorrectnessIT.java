@@ -71,6 +71,4 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
     }
   }
 
-
-
 }

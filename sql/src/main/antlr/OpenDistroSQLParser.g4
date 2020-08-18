@@ -167,14 +167,6 @@ expressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
 
-/*
-logicalExpression
-    : left=logicalExpression AND right=logicalExpression            #andExpression
-    | left=logicalExpression OR right=logicalExpression             #orExpression
-    | NOT logicalExpression                                         #notExpression
-    ;
-*/
-
 mathOperator
     : PLUS | MINUS | STAR | DIVIDE | MODULE
     ;

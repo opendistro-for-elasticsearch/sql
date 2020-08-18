@@ -62,8 +62,8 @@ public abstract class LuceneQuery {
    * from reference and literal in function arguments.
    *
    * @param fieldName   field name
-   * @param fieldType        expr fieldType
-   * @param literal       expr literal
+   * @param fieldType   field type
+   * @param literal     field value literal
    * @return            query
    */
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
@@ -71,8 +71,16 @@ public abstract class LuceneQuery {
         "Subclass doesn't implement this and build method either");
   }
 
+  /**
+   * Convert multi-field text field name to its inner keyword field. The limitation and assumption
+   * is that the keyword field name is always "keyword" which is true by default.
+   *
+   * @param fieldName   field name
+   * @param fieldType   field type
+   * @return            keyword field name for multi-field, otherwise original field name returned
+   */
   protected String convertTextToKeyword(String fieldName, ExprType fieldType) {
-    if (fieldType == ES_TEXT_KEYWORD) { // Assume inner field name is always "keyword"
+    if (fieldType == ES_TEXT_KEYWORD) {
       return fieldName + ".keyword";
     }
     return fieldName;
