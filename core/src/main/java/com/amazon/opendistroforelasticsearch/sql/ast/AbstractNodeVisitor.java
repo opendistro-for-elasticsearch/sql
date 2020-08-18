@@ -39,12 +39,12 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rare;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rare;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Top;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 
 /**
  * AST nodes visitor Defines the traverse path.

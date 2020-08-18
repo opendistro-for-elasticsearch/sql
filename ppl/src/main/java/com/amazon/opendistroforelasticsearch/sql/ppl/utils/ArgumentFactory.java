@@ -136,14 +136,6 @@ public class ArgumentFactory {
     );
   }
 
-  private static Literal getArgumentValue(ParserRuleContext ctx) {
-    return ctx instanceof IntegerLiteralContext
-        ? new Literal(Integer.parseInt(ctx.getText()), DataType.INTEGER)
-        : ctx instanceof BooleanLiteralContext
-        ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
-        : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
-  }
-
   /**
    * Get list of {@link Argument}.
    *
@@ -152,10 +144,18 @@ public class ArgumentFactory {
    */
   public static List<Argument> getArgumentList(TopCommandContext ctx) {
     return Collections.singletonList(
-            ctx.number != null
-                    ? new Argument("N", getArgumentValue(ctx.number))
-                    : new Argument("N", new Literal(10, DataType.INTEGER))
+        ctx.number != null
+            ? new Argument("noOfResults", getArgumentValue(ctx.number))
+            : new Argument("noOfResults", new Literal(10, DataType.INTEGER))
     );
+  }
+
+  private static Literal getArgumentValue(ParserRuleContext ctx) {
+    return ctx instanceof IntegerLiteralContext
+        ? new Literal(Integer.parseInt(ctx.getText()), DataType.INTEGER)
+        : ctx instanceof BooleanLiteralContext
+        ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
+        : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
   }
 
 }

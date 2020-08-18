@@ -40,13 +40,13 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rare;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Top;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rare;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Top;
 import java.util.Arrays;
 import java.util.List;
 import lombok.experimental.UtilityClass;
@@ -290,11 +290,14 @@ public class AstDSL {
     return new Dedupe(input, options, Arrays.asList(fields));
   }
 
-  public static Rare rare(UnresolvedPlan input, List<UnresolvedExpression> groupList, Field... fields) {
+  public static Rare rare(
+          UnresolvedPlan input, List<UnresolvedExpression> groupList, Field... fields) {
     return new Rare(Arrays.asList(fields), groupList).attach(input);
   }
 
-  public static Top top(UnresolvedPlan input, List<Argument> options, List<UnresolvedExpression> groupList, Field... fields) {
+  public static Top top(
+          UnresolvedPlan input, List<Argument> options,
+          List<UnresolvedExpression> groupList, Field... fields) {
     return new Top(options, Arrays.asList(fields), groupList).attach(input);
   }
 }

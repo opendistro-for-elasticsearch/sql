@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class PPLSyntaxParserTest {
+
   @Rule
   public ExpectedException exceptionRule = ExpectedException.none();
 
@@ -53,19 +54,19 @@ public class PPLSyntaxParserTest {
   }
 
   @Test
-  public void testRareCommandShouldPass(){
+  public void testRareCommandShouldPass() {
     ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | rare a by b");
     assertNotEquals(null, tree);
   }
 
   @Test
-  public void testTopCommandWithNShouldPass(){
+  public void testTopCommandWithNShouldPass() {
     ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top 1 a by b");
     assertNotEquals(null, tree);
   }
 
   @Test
-  public void testTopCommandWithoutNShouldPass(){
+  public void testTopCommandWithoutNShouldPass() {
     ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top a by b");
     assertNotEquals(null, tree);
   }

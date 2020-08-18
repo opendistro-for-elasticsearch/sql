@@ -36,12 +36,12 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.top;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
@@ -304,35 +304,58 @@ public class AstBuilderTest {
   }
 
   @Test
-  public void testRareCommand(){
-      assertEqual("source=t | rare a by b",
-              rare(
-                      relation("t"),
-                      exprList(field("b")),
-                      field("a")
-              ));
+  public void testRareCommand() {
+    assertEqual("source=t | rare a by b",
+        rare(
+            relation("t"),
+            exprList(field("b")),
+            field("a")
+        ));
   }
 
   @Test
-  public void testTopCommandWithN(){
-      assertEqual("source=t | top 1 a by b",
-              top(
-                      relation("t"),
-                      exprList(argument("N", intLiteral(1))),
-                      exprList(field("b")),
-                      field("a")
-              ));
+  public void testRareCommandWithMultipleFields() {
+    assertEqual("source=t | rare `a`, `b` by `c`",
+        rare(
+            relation("t"),
+            exprList(field("c")),
+            field("a"),
+            field("b")
+        ));
   }
 
   @Test
-  public void testTopCommandWithoutN(){
-      assertEqual("source=t | top a by b",
-              top(
-                      relation("t"),
-                      exprList(argument("N", intLiteral(10))),
-                      exprList(field("b")),
-                      field("a")
-              ));
+  public void testTopCommandWithN() {
+    assertEqual("source=t | top 1 a by b",
+        top(
+            relation("t"),
+            exprList(argument("noOfResults", intLiteral(1))),
+            exprList(field("b")),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithMultipleFields() {
+    assertEqual("source=t | top 1 `a`, `b` by `c`",
+        top(
+            relation("t"),
+            exprList(argument("noOfResults", intLiteral(1))),
+            exprList(field("c")),
+            field("a"),
+            field("b")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithoutN() {
+    assertEqual("source=t | top a by b",
+        top(
+            relation("t"),
+            exprList(argument("noOfResults", intLiteral(10))),
+            exprList(field("b")),
+            field("a")
+        ));
   }
 
   protected void assertEqual(String query, Node expectedPlan) {
