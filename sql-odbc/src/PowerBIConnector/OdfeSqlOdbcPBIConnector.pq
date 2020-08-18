@@ -151,7 +151,7 @@ OnOdbcError = (errorRecord as record) =>
         if IsDriverNotInstalled then
             error Error.Record("", "The Open Distro For Elasticsearch SQL ODBC driver is not installed. Please install the driver")
         else if IsHostUnreachable then 
-            error Error.Record("", "Couldn't reach server. Please double-check the server and auth. " & ConnectionServer)
+            error Error.Record("", "Couldn't reach server. Please double-check the server and auth. [" & ConnectionServer & "]")
         else 
             error errorRecord;
 
@@ -177,6 +177,19 @@ OdfeSqlOdbcPBIConnector = [
             Label = "AWS_SIGV4",
             KeyLabel = "Region"
         ]
+    ],
+
+    // PBIDS Handler
+    DSRHandlers = [
+      #"odfesqlodbc" = [
+        GetDSR = (server, schema, object, optional options) => [ protocol = "odfesqlodbc", address = [ server = server ] ],
+        GetFormula = (dsr, optional options) => () => 
+          let
+            db = OdfeSqlOdbcPBIConnector.Contents(dsr[address][server])
+          in
+            db,
+        GetFriendlyName = (dsr) => "ODFE SQL ODBC"
+      ]
     ],
 
     // Enable Encryption

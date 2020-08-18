@@ -1,0 +1,13 @@
+{
+  "baseUrl": "http://localhost:5601",
+  "video": true,
+  "fixturesFolder": ".cypress/fixtures",
+  "integrationFolder": ".cypress/integration",
+  "pluginsFile": ".cypress/plugins/index.js",
+  "screenshotsFolder": ".cypress/screenshots",
+  "supportFile": ".cypress/support/index.js",
+  "videosFolder": ".cypress/videos",
+  "requestTimeout": 60000,
+  "responseTimeout": 60000,
+  "defaultCommandTimeout": 60000
+}

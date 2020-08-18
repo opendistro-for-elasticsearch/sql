@@ -20,10 +20,19 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.sc
 import static java.util.Collections.emptyMap;
 import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_TYPE;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.LuceneQuery;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery.Comparison;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.TermQuery;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.WildcardQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -41,6 +50,19 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
   private final ExpressionSerializer serializer;
 
   /**
+   * Mapping from function name to lucene query builder.
+   */
+  private final Map<FunctionName, LuceneQuery> luceneQueries =
+      ImmutableMap.<FunctionName, LuceneQuery>builder()
+          .put(BuiltinFunctionName.EQUAL.getName(), new TermQuery())
+          .put(BuiltinFunctionName.LESS.getName(), new RangeQuery(Comparison.LT))
+          .put(BuiltinFunctionName.GREATER.getName(), new RangeQuery(Comparison.GT))
+          .put(BuiltinFunctionName.LTE.getName(), new RangeQuery(Comparison.LTE))
+          .put(BuiltinFunctionName.GTE.getName(), new RangeQuery(Comparison.GTE))
+          .put(BuiltinFunctionName.LIKE.getName(), new WildcardQuery())
+          .build();
+
+  /**
    * Build Elasticsearch filter query from expression.
    * @param expr  expression
    * @return      query
@@ -55,16 +77,22 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
   }
 
   @Override
-  public QueryBuilder visitFunction(FunctionExpression node, Object context) {
-    switch (node.getFunctionName().getFunctionName()) {
+  public QueryBuilder visitFunction(FunctionExpression func, Object context) {
+    FunctionName name = func.getFunctionName();
+    switch (name.getFunctionName()) {
       case "and":
-        return buildBoolQuery(node, context, BoolQueryBuilder::must);
+        return buildBoolQuery(func, context, BoolQueryBuilder::filter);
       case "or":
-        return buildBoolQuery(node, context, BoolQueryBuilder::should);
+        return buildBoolQuery(func, context, BoolQueryBuilder::should);
       case "not":
-        return buildBoolQuery(node, context, BoolQueryBuilder::mustNot);
-      default:
-        return buildScriptQuery(node);
+        return buildBoolQuery(func, context, BoolQueryBuilder::mustNot);
+      default: {
+        LuceneQuery query = luceneQueries.get(name);
+        if (query != null && query.canSupport(func)) {
+          return query.build(func);
+        }
+        return buildScriptQuery(func);
+      }
     }
   }
 

@@ -17,6 +17,8 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static org.elasticsearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
+import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -108,14 +110,14 @@ class ElasticsearchIndexScanTest {
         .pushDown(QueryBuilders.termQuery("age", 30))
         .shouldQuery(
             QueryBuilders.boolQuery()
-                .must(QueryBuilders.termQuery("name", "John"))
-                .must(QueryBuilders.termQuery("age", 30)))
+                .filter(QueryBuilders.termQuery("name", "John"))
+                .filter(QueryBuilders.termQuery("age", 30)))
         .pushDown(QueryBuilders.rangeQuery("balance").gte(10000))
         .shouldQuery(
             QueryBuilders.boolQuery()
-                .must(QueryBuilders.termQuery("name", "John"))
-                .must(QueryBuilders.termQuery("age", 30))
-                .must(QueryBuilders.rangeQuery("balance").gte(10000)));
+                .filter(QueryBuilders.termQuery("name", "John"))
+                .filter(QueryBuilders.termQuery("age", 30))
+                .filter(QueryBuilders.rangeQuery("balance").gte(10000)));
   }
 
   private PushDownAssertion assertThat() {
@@ -143,7 +145,9 @@ class ElasticsearchIndexScanTest {
 
     PushDownAssertion shouldQuery(QueryBuilder expected) {
       ElasticsearchRequest request = new ElasticsearchQueryRequest("test", 200);
-      request.getSourceBuilder().query(expected);
+      request.getSourceBuilder()
+             .query(expected)
+             .sort(DOC_FIELD_NAME, ASC);
       when(client.search(request)).thenReturn(response);
       indexScan.open();
       return this;

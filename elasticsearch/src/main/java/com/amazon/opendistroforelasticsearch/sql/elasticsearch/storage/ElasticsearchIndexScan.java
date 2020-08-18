@@ -16,6 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static org.elasticsearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
+import static org.elasticsearch.search.sort.SortOrder.ASC;
+
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
@@ -102,13 +105,17 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     if (current == null) {
       source.query(query);
     } else {
-      if (isBoolMustQuery(current)) {
-        ((BoolQueryBuilder) current).must(query);
+      if (isBoolFilterQuery(current)) {
+        ((BoolQueryBuilder) current).filter(query);
       } else {
         source.query(QueryBuilders.boolQuery()
-                                  .must(current)
-                                  .must(query));
+                                  .filter(current)
+                                  .filter(query));
       }
+    }
+
+    if (source.sorts() == null) {
+      source.sort(DOC_FIELD_NAME, ASC); // Make sure consistent order
     }
   }
 
@@ -119,9 +126,9 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     client.cleanup(request);
   }
 
-  private boolean isBoolMustQuery(QueryBuilder current) {
+  private boolean isBoolFilterQuery(QueryBuilder current) {
     return (current instanceof BoolQueryBuilder)
-        && !((BoolQueryBuilder) current).must().isEmpty();
+        && !((BoolQueryBuilder) current).filter().isEmpty();
   }
 
 }
