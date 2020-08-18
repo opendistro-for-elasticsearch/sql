@@ -23,6 +23,10 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.annotations.VisibleForTesting;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -129,6 +133,8 @@ public class ExprValueUtils {
         return new ExprDateValue((String)o);
       case TIME:
         return new ExprTimeValue((String)o);
+      case DATETIME:
+        return new ExprDatetimeValue((String)o);
       default:
         return fromObjectValue(o);
     }
@@ -167,9 +173,30 @@ public class ExprValueUtils {
   }
 
   /**
-   * Get {@link ZonedDateTime} from ExprValue of Date type.
+   * Get {@link LocalDate} from ExprValue of Date type.
    */
-  public static ZonedDateTime getDateValue(ExprValue exprValue) {
+  public static LocalDate getDateValue(ExprValue exprValue) {
     return exprValue.dateValue();
+  }
+
+  /**
+   * Get {@link LocalTime} from ExprValue of Time type.
+   */
+  public static LocalTime getTimeValue(ExprValue exprValue) {
+    return exprValue.timeValue();
+  }
+
+  /**
+   * Get {@link LocalDateTime} from ExprValue of Datetime type.
+   */
+  public static LocalDateTime getDatetimeValue(ExprValue exprValue) {
+    return exprValue.datetimeValue();
+  }
+
+  /**
+   * Get {@link Instant} from ExprValue of Timestamp type.
+   */
+  public static Instant getTimestampValue(ExprValue exprValue) {
+    return exprValue.timestampValue();
   }
 }

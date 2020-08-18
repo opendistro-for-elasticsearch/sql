@@ -17,13 +17,13 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -34,8 +34,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,6 +70,7 @@ public class ExprValueUtilsTest {
       new ExprTupleValue(testTuple),
       new ExprDateValue("2012-08-07"),
       new ExprTimeValue("18:00:00"),
+      new ExprDatetimeValue("2012-08-07 18:00:00"),
       new ExprTimestampValue("2012-08-07 18:00:00")
   );
 
@@ -85,28 +86,35 @@ public class ExprValueUtilsTest {
       ExprValueUtils::getStringValue,
       ExprValueUtils::getBooleanValue,
       ExprValueUtils::getCollectionValue,
-      ExprValueUtils::getTupleValue,
-      ExprValue::dateValue,
-      ExprValue::timeValue,
-      ExprValue::timestampValue);
+      ExprValueUtils::getTupleValue
+  );
+  private static List<Function<ExprValue, Object>> dateAndTimeValueExtractor = Arrays.asList(
+      ExprValueUtils::getDateValue,
+      ExprValueUtils::getTimeValue,
+      ExprValueUtils::getDatetimeValue,
+      ExprValueUtils::getTimestampValue
+  );
   private static List<Function<ExprValue, Object>> allValueExtractor = Lists.newArrayList(
-      Iterables.concat(numberValueExtractor, nonNumberValueExtractor));
+      Iterables.concat(numberValueExtractor, nonNumberValueExtractor, dateAndTimeValueExtractor));
 
   private static List<ExprCoreType> numberTypes =
       Arrays.asList(ExprCoreType.INTEGER, ExprCoreType.LONG, ExprCoreType.FLOAT,
           ExprCoreType.DOUBLE);
   private static List<ExprCoreType> nonNumberTypes =
       Arrays.asList(ExprCoreType.STRING, ExprCoreType.BOOLEAN, ExprCoreType.ARRAY,
-          ExprCoreType.STRUCT, DATE, TIME, TIMESTAMP);
+          ExprCoreType.STRUCT);
+  private static List<ExprCoreType> dateAndTimeTypes =
+      Arrays.asList(DATE, TIME, DATETIME, TIMESTAMP);
   private static List<ExprCoreType> allTypes =
-      Lists.newArrayList(Iterables.concat(numberTypes, nonNumberTypes));
+      Lists.newArrayList(Iterables.concat(numberTypes, nonNumberTypes, dateAndTimeTypes));
 
   private static Stream<Arguments> getValueTestArgumentStream() {
     List<Object> expectedValues = Arrays.asList(1, 1L, 1f, 1D, "1", true,
         Arrays.asList(integerValue(1)),
         ImmutableMap.of("1", integerValue(1)),
-        LocalDate.parse("2012-08-07").atStartOfDay(ZoneId.of("UTC")),
+        LocalDate.parse("2012-08-07"),
         LocalTime.parse("18:00:00"),
+        LocalDateTime.parse("2012-08-07T18:00:00"),
         Instant.ofEpochSecond(1344362400)
     );
     Stream.Builder<Arguments> builder = Stream.builder();
@@ -224,6 +232,8 @@ public class ExprValueUtilsTest {
         ExprValueUtils.fromObjectValue("2012-07-07", DATE));
     assertEquals(new ExprTimeValue("01:01:01"),
         ExprValueUtils.fromObjectValue("01:01:01", TIME));
+    assertEquals(new ExprDatetimeValue("2012-07-07 01:01:01"),
+        ExprValueUtils.fromObjectValue("2012-07-07 01:01:01", DATETIME));
     assertEquals(new ExprTimestampValue("2012-07-07 01:01:01"),
         ExprValueUtils.fromObjectValue("2012-07-07 01:01:01", TIMESTAMP));
   }
@@ -240,6 +250,8 @@ public class ExprValueUtilsTest {
         new ExprDateValue("2012-08-07").hashCode());
     assertEquals(new ExprTimeValue("18:00:00").hashCode(),
         new ExprTimeValue("18:00:00").hashCode());
+    assertEquals(new ExprDatetimeValue("2012-08-07 18:00:00").hashCode(),
+        new ExprDatetimeValue("2012-08-07 18:00:00").hashCode());
     assertEquals(new ExprTimestampValue("2012-08-07 18:00:00").hashCode(),
         new ExprTimestampValue("2012-08-07 18:00:00").hashCode());
   }

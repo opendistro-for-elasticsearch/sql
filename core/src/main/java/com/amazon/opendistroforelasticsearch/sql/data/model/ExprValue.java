@@ -21,6 +21,8 @@ import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationE
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -141,9 +143,17 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
   /**
    * Get date value.
    */
-  default ZonedDateTime dateValue() {
+  default LocalDate dateValue() {
     throw new ExpressionEvaluationException(
         "invalid to get dateValue from value of type " + type());
+  }
+
+  /**
+   * Get datetime value.
+   */
+  default LocalDateTime datetimeValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get datetimeValue from value of type " + type());
   }
 
   /**
