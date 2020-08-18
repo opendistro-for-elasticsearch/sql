@@ -141,7 +141,7 @@ jobs:
     #    cp .\\libraries\\VisualLeakDetector\\bin64\\*.* .\\bin64\\Release
     #    cp .\\libraries\\VisualLeakDetector\\lib64\\*.lib .\\lib64\\Release
     #    .\run_test_runner.bat
-    - name: create-output
+    - name: prepare-output
       if: always()
       run: |
         .\scripts\prepare_ci_output.ps1 $Env:ODBC_BIN_PATH $Env:ODBC_LIB_PATH $Env:ODBC_WIN_BUILD_PATH
