@@ -1,0 +1,2 @@
+SELECT Origin FROM kibana_sample_data_flights WHERE Origin LIKE 'London Hea%'
+SELECT Origin FROM kibana_sample_data_flights WHERE Origin LIKE '%International%'

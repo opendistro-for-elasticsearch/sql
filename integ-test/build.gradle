@@ -114,6 +114,9 @@ task integTestWithNewEngine(type: RestIntegTestTask) {
 
         exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+
+        // Skip old semantic analyzer IT because analyzer in new engine has different behavior
+        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/QueryAnalysisIT.class'
     }
 }
 

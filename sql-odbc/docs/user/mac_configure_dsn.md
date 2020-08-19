@@ -37,3 +37,35 @@ This is not required if you are using the Tableau Connector, but will help with 
 <p align="center"> 
 <img src="img/dsn_default_config.png" width="80%">
 </p>
+
+
+## Troubleshooting
+
+### iODBC Administrator: “General installer error” when saving new ODBC Driver
+
+Try the following:
+
+1. Create the folder `~/Library/ODBC`, then try again
+2. Create two files in `~/Library/ODBC`, then open iODBC Administrator and verify the contents of **odbcinst.ini** and **odbc.ini** align with the format below.
+	* **odbcinst.ini** (will be found in **ODBC Drivers**)
+	```ini
+    [ODBC Drivers]
+    <Driver Name> = Installed
+      
+    [<Driver Name>]
+    Driver = <odbc-root>/lib64/libodfesqlodbc.dylib
+    Setup = <odbc-root>/lib64/libodfesqlodbc.dylib
+	```
+   * **odbc.ini** (will be found in **User DSNs**)
+	```ini
+	[ODBC Data Sources]  
+    <DSN Name> = <Driver Name>
+    
+    [<DSN Name>]
+    Driver = <odbc-root>/lib64/libodfesqlodbc.dylib
+    Description =
+    Host = localhost
+    Port = 9200
+    Username = admin
+    Password = admin
+	```
