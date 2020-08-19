@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -56,7 +55,8 @@ public class DateTimeValueTest {
     ExprValue timestampValue = new ExprTimestampValue("2020-07-07 01:01:01");
 
     assertEquals(TIMESTAMP, timestampValue.type());
-    assertEquals(Instant.ofEpochSecond(1594083661), timestampValue.timestampValue());
+    assertEquals(ZonedDateTime.of(LocalDateTime.parse("2020-07-07T01:01:01"),
+        ZoneId.systemDefault()).toInstant(), timestampValue.timestampValue());
     assertEquals("2020-07-07 01:01:01", timestampValue.value());
     assertEquals("TIMESTAMP '2020-07-07 01:01:01'", timestampValue.toString());
     assertEquals(LocalDate.parse("2020-07-07"), getDateValue(timestampValue));
