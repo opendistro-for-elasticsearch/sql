@@ -35,16 +35,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.*;
+
 import java.util.Arrays;
 import java.util.List;
 import lombok.experimental.UtilityClass;
@@ -286,5 +278,19 @@ public class AstDSL {
 
   public static Dedupe dedupe(UnresolvedPlan input, List<Argument> options, Field... fields) {
     return new Dedupe(input, options, Arrays.asList(fields));
+  }
+
+  public static Head head(UnresolvedPlan input, List<Argument> options) {
+    return new Head(input, options);
+  }
+
+  public static Head head(List<Argument> options) {
+    return new Head(options);
+  }
+
+  public static List<Argument> defaultHeadArgs() {
+    return exprList(
+            argument("number", intLiteral(10)),
+            argument("keeplast", booleanLiteral(false)));
   }
 }

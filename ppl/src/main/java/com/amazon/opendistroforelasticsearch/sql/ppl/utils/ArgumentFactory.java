@@ -30,6 +30,8 @@ import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 
@@ -92,6 +94,23 @@ public class ArgumentFactory {
         ctx.consecutive != null
             ? new Argument("consecutive", getArgumentValue(ctx.consecutive))
             : new Argument("consecutive", new Literal(false, DataType.BOOLEAN))
+    );
+  }
+
+  /**
+   * Get list of {@link Argument}.
+   *
+   * @param ctx HeadCommandContext instance
+   * @return the list of arguments fetched from the head command
+   */
+  public static List<Argument> getArgumentList(OpenDistroPPLParser.HeadCommandContext ctx) {
+    return Arrays.asList(
+        ctx.number != null
+            ? new Argument("number", getArgumentValue(ctx.number))
+            : new Argument("number", new Literal(10, DataType.INTEGER)),
+        ctx.keeplast != null
+            ? new Argument("keeplast", getArgumentValue(ctx.keeplast))
+            : new Argument("keeplast", new Literal(false, DataType.BOOLEAN))
     );
   }
 
