@@ -16,8 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene;
 
-import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
-
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -30,9 +28,7 @@ public class TermQuery extends LuceneQuery {
 
   @Override
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
-    if (fieldType == ES_TEXT_KEYWORD) { // Assume inner field name is always "keyword"
-      fieldName += ".keyword";
-    }
+    fieldName = convertTextToKeyword(fieldName, fieldType);
     return QueryBuilders.termQuery(fieldName, literal.value());
   }
 

@@ -1,0 +1,2 @@
+SELECT FlightNum FROM kibana_sample_data_flights where (AvgTicketPrice + 100) <= 1000
+SELECT FlightNum FROM kibana_sample_data_flights where ROUND(FlightTimeMin) > ABS(FlightDelayMin)
