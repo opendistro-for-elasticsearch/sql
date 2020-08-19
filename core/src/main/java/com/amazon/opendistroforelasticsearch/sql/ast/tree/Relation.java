@@ -16,10 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -27,6 +27,7 @@ import lombok.ToString;
 /**
  * Logical plan node of Relation, the interface for building the searching sources.
  */
+@AllArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
@@ -34,14 +35,16 @@ public class Relation extends UnresolvedPlan {
   private final UnresolvedExpression tableName;
 
   /**
+   * Optional alias name for the relation.
+   */
+  private String alias;
+
+  /**
    * Get original table name. Unwrap and get name if table name expression
    * is actually an Alias.
    * @return    table name
    */
   public String getTableName() {
-    if (tableName instanceof Alias) {
-      return ((Alias) tableName).getName();
-    }
     return tableName.toString();
   }
 
@@ -50,11 +53,7 @@ public class Relation extends UnresolvedPlan {
    * @return    table name or its alias
    */
   public String getTableNameOrAlias() {
-    if ((tableName instanceof Alias)
-        && (((Alias) tableName).getAlias() != null)) {
-      return ((Alias) tableName).getAlias();
-    }
-    return getTableName();
+    return (alias == null) ? getTableName() : alias;
   }
 
   @Override

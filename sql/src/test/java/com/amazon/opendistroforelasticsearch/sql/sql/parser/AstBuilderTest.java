@@ -149,7 +149,7 @@ class AstBuilderTest {
   public void can_build_from_index_with_alias() {
     assertEquals(
         project(
-            relation(alias("test", qualifiedName("test"), "tt")),
+            relation("test", "tt"),
             alias("name", qualifiedName("name"))
         ),
         buildAST("SELECT name FROM test AS tt")
@@ -160,7 +160,7 @@ class AstBuilderTest {
   public void can_build_from_index_with_alias_quoted() {
     assertEquals(
         project(
-            relation(alias("test", qualifiedName("test"), "t")),
+            relation("test", "t"),
             alias("name", qualifiedName("name"))
         ),
         buildAST("SELECT name FROM test `t`")

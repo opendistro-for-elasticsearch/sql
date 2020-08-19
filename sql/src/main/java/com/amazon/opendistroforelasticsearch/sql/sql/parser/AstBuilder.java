@@ -93,7 +93,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
     UnresolvedExpression tableName = visitAstExpression(ctx.tableName());
     if (ctx.alias() != null) {
       String alias = StringUtils.unquoteIdentifier(ctx.alias().getText());
-      return new Relation(new Alias(tableName.toString(), tableName, alias));
+      return new Relation(tableName, alias);
     }
     return new Relation(tableName);
   }

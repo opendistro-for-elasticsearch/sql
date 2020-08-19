@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -59,12 +58,12 @@ public class AstDSL {
     return new Filter(expression).attach(input);
   }
 
-  public UnresolvedPlan relation(UnresolvedExpression tableName) {
-    return new Relation(tableName);
+  public UnresolvedPlan relation(String tableName) {
+    return new Relation(qualifiedName(tableName));
   }
 
-  public static UnresolvedPlan relation(String tableName) {
-    return new Relation(qualifiedName(tableName));
+  public UnresolvedPlan relation(String tableName, String alias) {
+    return new Relation(qualifiedName(tableName), alias);
   }
 
   public static UnresolvedPlan project(UnresolvedPlan input, UnresolvedExpression... projectList) {
