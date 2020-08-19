@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -63,7 +64,7 @@ public class SelectExpressionAnalyzer
 
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
-    return Collections.singletonList(DSL.named(node.getName(),
+    return Collections.singletonList(DSL.named(unqualifiedNameIfFieldOnly(node, context),
         node.getDelegated().accept(expressionAnalyzer, context),
         node.getAlias()));
   }
@@ -76,4 +77,14 @@ public class SelectExpressionAnalyzer
     return lookupAllFields.entrySet().stream().map(entry -> DSL.named(entry.getKey(),
         new ReferenceExpression(entry.getKey(), entry.getValue()))).collect(Collectors.toList());
   }
+
+  private String unqualifiedNameIfFieldOnly(Alias node, AnalysisContext context) {
+    UnresolvedExpression selectItem = node.getDelegated();
+    if (selectItem instanceof QualifiedName) {
+      QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
+      return qualifierAnalyzer.unqualified((QualifiedName) selectItem);
+    }
+    return node.getName();
+  }
+
 }

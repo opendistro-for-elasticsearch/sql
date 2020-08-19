@@ -94,6 +94,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
 
   @Test
   public void qualified_name_with_qualifier() {
+    analysisContext.push();
     analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
     assertAnalyzeEqual(
         DSL.ref("integer_value", INTEGER),
@@ -106,9 +107,10 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
             () -> analyze(AstDSL.qualifiedName("nested_field", "integer_value")));
     assertEquals(
         "The qualifier [nested_field] of qualified name [nested_field.integer_value] "
-            + "must be an index name or its alias within the scope",
+            + "must be an index name or its alias",
         exception.getMessage()
     );
+    analysisContext.pop();
   }
 
   @Test

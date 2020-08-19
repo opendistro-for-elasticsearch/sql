@@ -154,18 +154,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
-    Optional<QualifiedName> prefix = node.getPrefix();
-    if (prefix.isPresent()) {
-      // Remove prefix (qualifier) if it's index name/alias, otherwise raise error
-      if (isSymbolIndex(prefix.get(), context)) {
-        return visitIdentifier(node.getSuffix(), context);
-      } else {
-        throw new SyntaxCheckException(String.format(
-            "The qualifier [%s] of qualified name [%s] must be an index name or its alias "
-                + "within the scope", prefix.get(), node));
-      }
-    }
-    return visitIdentifier(node.toString(), context);
+    QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
+    return visitIdentifier(qualifierAnalyzer.unqualified(node), context);
   }
 
   private Expression visitIdentifier(String ident, AnalysisContext context) {
@@ -179,16 +169,6 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
           "Identifier [%s] of type [%s] is not supported yet", ident, ref.type()));
     }
     return ref;
-  }
-
-  private boolean isSymbolIndex(QualifiedName name, AnalysisContext context) {
-    try {
-      TypeEnvironment typeEnv = context.peek();
-      typeEnv.resolve(new Symbol(Namespace.INDEX_NAME, name.toString()));
-      return true;
-    } catch (SemanticCheckException e) {
-      return false;
-    }
   }
 
   private boolean isTypeNotSupported(ExprType type) {

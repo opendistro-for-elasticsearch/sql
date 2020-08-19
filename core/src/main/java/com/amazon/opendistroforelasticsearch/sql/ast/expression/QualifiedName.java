@@ -60,7 +60,7 @@ public class QualifiedName extends UnresolvedExpression {
     return new QualifiedName(parts);
   }
 
-  private static QualifiedName of(Iterable<String> parts) {
+  public static QualifiedName of(Iterable<String> parts) {
     return new QualifiedName(parts);
   }
 
