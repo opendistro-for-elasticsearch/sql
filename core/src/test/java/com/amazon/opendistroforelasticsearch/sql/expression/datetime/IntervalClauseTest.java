@@ -44,7 +44,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("microsecond"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Duration.ofNanos(1000)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 microsecond'", expr.toString());
   }
 
   @Test
@@ -52,7 +51,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("second"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Duration.ofSeconds(1)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 second'", expr.toString());
   }
 
   @Test
@@ -60,7 +58,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("minute"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Duration.ofMinutes(1)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 minute'", expr.toString());
   }
 
   @Test
@@ -68,7 +65,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("HOUR"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Duration.ofHours(1)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 HOUR'", expr.toString());
   }
 
   @Test
@@ -76,7 +72,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("day"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Duration.ofDays(1)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 day'", expr.toString());
   }
 
   @Test
@@ -84,7 +79,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("week"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Period.ofWeeks(1)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 week'", expr.toString());
   }
 
   @Test
@@ -92,7 +86,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("month"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Period.ofMonths(1)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 month'", expr.toString());
   }
 
   @Test
@@ -100,7 +93,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("quarter"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Period.ofMonths(3)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 quarter'", expr.toString());
   }
 
   @Test
@@ -108,7 +100,6 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("year"));
     assertEquals(INTERVAL, expr.type());
     assertEquals(intervalValue(Period.ofYears(1)), expr.valueOf(env));
-    assertEquals("INTERVAL '1 year'", expr.toString());
   }
 
   @Test
@@ -116,5 +107,11 @@ public class IntervalClauseTest extends ExpressionTestBase {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("year_month"));
     assertThrows(ExpressionEvaluationException.class, () -> expr.valueOf(env),
         "interval unit year_month is not supported");
+  }
+
+  @Test
+  public void to_string() {
+    FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("day"));
+    assertEquals("interval(1, \"day\")", expr.toString());
   }
 }

@@ -18,34 +18,22 @@ package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getIntegerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getLongValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.define;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.impl;
 
-import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntervalValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.SerializableBiFunction;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.SerializableFunction;
 import java.time.Duration;
 import java.time.Period;
-import java.util.Arrays;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang3.tuple.Pair;
 
 @UtilityClass
 public class IntervalClause {
@@ -66,10 +54,8 @@ public class IntervalClause {
 
   private FunctionResolver interval() {
     return define(BuiltinFunctionName.INTERVAL.getName(),
-        intervalImp(IntervalClause::interval, INTEGER),
-        intervalImp(IntervalClause::interval, LONG),
-        intervalImp(IntervalClause::interval, FLOAT),
-        intervalImp(IntervalClause::interval, DOUBLE));
+        impl(IntervalClause::interval, INTERVAL, INTEGER, STRING),
+        impl(IntervalClause::interval, INTERVAL, LONG, STRING));
   }
 
   private ExprValue interval(ExprValue value, ExprValue unit) {
@@ -133,40 +119,4 @@ public class IntervalClause {
   private ExprValue year(ExprValue value) {
     return new ExprIntervalValue(Period.ofYears(getIntegerValue(value)));
   }
-
-  /**
-   * Interval argument implementation as function.
-   */
-  private static SerializableFunction
-      <FunctionName, Pair<FunctionSignature, FunctionBuilder>> intervalImp(
-      SerializableBiFunction<ExprValue, ExprValue, ExprValue> function,
-      ExprType argType) {
-
-    return functionName -> {
-      FunctionSignature functionSignature =
-          new FunctionSignature(functionName, Arrays.asList(argType, ExprCoreType.STRING));
-      FunctionBuilder functionBuilder =
-          arguments -> new FunctionExpression(functionName, arguments) {
-            @Override
-            public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-              ExprValue value = arguments.get(0).valueOf(valueEnv);
-              ExprValue unit = arguments.get(1).valueOf(valueEnv);
-              return function.apply(value, unit);
-            }
-
-            @Override
-            public ExprType type() {
-              return ExprCoreType.INTERVAL;
-            }
-
-            @Override
-            public String toString() {
-              return String.format("INTERVAL '%s %s'", arguments.get(0).toString(),
-                  StringUtils.unquoteText(arguments.get(1).toString()));
-            }
-          };
-      return Pair.of(functionSignature, functionBuilder);
-    };
-  }
-
 }

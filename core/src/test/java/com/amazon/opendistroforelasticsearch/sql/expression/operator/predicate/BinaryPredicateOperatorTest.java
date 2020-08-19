@@ -128,7 +128,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         dsl.and(DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
     assertEquals(BOOLEAN, and.type());
     assertEquals(v1 && v2, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv())));
-    assertEquals(String.format("%s and %s", v1.toString(), v2.toString()), and.toString());
+    assertEquals(String.format("and(%s, %s)", v1.toString(), v2.toString()), and.toString());
   }
 
   @Test
@@ -201,7 +201,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         dsl.or(DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
     assertEquals(BOOLEAN, or.type());
     assertEquals(v1 || v2, ExprValueUtils.getBooleanValue(or.valueOf(valueEnv())));
-    assertEquals(String.format("%s or %s", v1.toString(), v2.toString()), or.toString());
+    assertEquals(String.format("or(%s, %s)", v1.toString(), v2.toString()), or.toString());
   }
 
   @Test
@@ -276,7 +276,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         dsl.xor(DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
     assertEquals(BOOLEAN, xor.type());
     assertEquals(v1 ^ v2, ExprValueUtils.getBooleanValue(xor.valueOf(valueEnv())));
-    assertEquals(String.format("%s xor %s", v1.toString(), v2.toString()), xor.toString());
+    assertEquals(String.format("xor(%s, %s)", v1.toString(), v2.toString()), xor.toString());
   }
 
   @Test
@@ -349,7 +349,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     assertEquals(BOOLEAN, equal.type());
     assertEquals(v1.value().equals(v2.value()),
         ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
-    assertEquals(String.format("%s = %s", v1.toString(), v2.toString()), equal.toString());
+    assertEquals(String.format("=(%s, %s)", v1.toString(), v2.toString()), equal.toString());
   }
 
   @Test
@@ -398,7 +398,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     assertEquals(BOOLEAN, notequal.type());
     assertEquals(!v1.value().equals(v2.value()),
         ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
-    assertEquals(String.format("%s != %s", v1.toString(), v2.toString()), notequal.toString());
+    assertEquals(String.format("!=(%s, %s)", v1.toString(), v2.toString()), notequal.toString());
   }
 
   @Test
@@ -451,7 +451,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     assertEquals(BOOLEAN, less.type());
     assertEquals(compare(v1, v2) < 0,
         ExprValueUtils.getBooleanValue(less.valueOf(valueEnv())));
-    assertEquals(String.format("%s < %s", v1.toString(), v2.toString()), less.toString());
+    assertEquals(String.format("<(%s, %s)", v1.toString(), v2.toString()), less.toString());
   }
 
   @Test
@@ -508,7 +508,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     assertEquals(BOOLEAN, lte.type());
     assertEquals(compare(v1, v2) <= 0,
         ExprValueUtils.getBooleanValue(lte.valueOf(valueEnv())));
-    assertEquals(String.format("%s <= %s", v1.toString(), v2.toString()), lte.toString());
+    assertEquals(String.format("<=(%s, %s)", v1.toString(), v2.toString()), lte.toString());
   }
 
   @Test
@@ -565,7 +565,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     assertEquals(BOOLEAN, greater.type());
     assertEquals(compare(v1, v2) > 0,
         ExprValueUtils.getBooleanValue(greater.valueOf(valueEnv())));
-    assertEquals(String.format("%s > %s", v1.toString(), v2.toString()), greater.toString());
+    assertEquals(String.format(">(%s, %s)", v1.toString(), v2.toString()), greater.toString());
   }
 
   @Test
@@ -622,7 +622,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     assertEquals(BOOLEAN, gte.type());
     assertEquals(compare(v1, v2) >= 0,
         ExprValueUtils.getBooleanValue(gte.valueOf(valueEnv())));
-    assertEquals(String.format("%s >= %s", v1.toString(), v2.toString()), gte.toString());
+    assertEquals(String.format(">=(%s, %s)", v1.toString(), v2.toString()), gte.toString());
   }
 
   @Test
@@ -678,7 +678,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression like = dsl.like(DSL.literal(v1), DSL.literal(v2));
     assertEquals(BOOLEAN, like.type());
     assertEquals(matches(v1, v2), like.valueOf(valueEnv()));
-    assertEquals(String.format("%s like %s", v1.toString(), v2.toString()), like.toString());
+    assertEquals(String.format("like(%s, %s)", v1.toString(), v2.toString()), like.toString());
   }
 
   @Test
@@ -733,11 +733,11 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression notLike = dsl.notLike(DSL.literal("bob"), DSL.literal("tom"));
     assertEquals(BOOLEAN, notLike.type());
     assertTrue(notLike.valueOf(valueEnv()).booleanValue());
-    assertEquals(String.format("\"%s\" not like \"%s\"", "bob", "tom"), notLike.toString());
+    assertEquals(String.format("not like(\"%s\", \"%s\")", "bob", "tom"), notLike.toString());
 
     notLike = dsl.notLike(DSL.literal("bob"), DSL.literal("bo%"));
     assertFalse(notLike.valueOf(valueEnv()).booleanValue());
-    assertEquals(String.format("\"%s\" not like \"%s\"", "bob", "bo%"), notLike.toString());
+    assertEquals(String.format("not like(\"%s\", \"%s\")", "bob", "bo%"), notLike.toString());
   }
 
   /**
