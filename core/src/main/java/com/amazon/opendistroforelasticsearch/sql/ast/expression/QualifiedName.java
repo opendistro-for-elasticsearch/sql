@@ -71,11 +71,39 @@ public class QualifiedName extends UnresolvedExpression {
     if (parts.size() == 1) {
       return Optional.empty();
     }
-    return Optional.of(QualifiedName.of(parts.get(0)));
+    return Optional.of(QualifiedName.of(parts.subList(0, parts.size() - 1)));
   }
 
   public String getSuffix() {
     return parts.get(parts.size() - 1);
+  }
+
+  /**
+   * Get first part of the qualified name.
+   * @return  first part
+   */
+  public Optional<String> first() {
+    if (parts.size() == 1) {
+      return Optional.empty();
+    }
+    return Optional.of(parts.get(0));
+  }
+
+  /**
+   * Get rest parts of the qualified name. Assume that there must be remaining parts
+   * so caller is responsible for the check (first() or size() must be called first).
+   * For example:
+   * {@code
+   *   QualifiedName name = ...
+   *   Optional<String> first = name.first();
+   *   if (first.isPresent()) {
+   *     name.rest() ...
+   *   }
+   * }
+   * @return  rest part(s)
+   */
+  public QualifiedName rest() {
+    return QualifiedName.of(parts.subList(1, parts.size()));
   }
 
   public String toString() {

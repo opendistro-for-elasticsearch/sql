@@ -76,6 +76,13 @@ class QualifierAnalyzerTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  void should_report_error_if_more_parts_in_qualified_name() {
+    runInScope(new Symbol(Namespace.INDEX_NAME, "a"), STRUCT, () ->
+        qualifierAnalyzer.unqualified("a", "integer_value", "invalid")
+    );
+  }
+
   private void runInScope(Symbol symbol, ExprType type, Runnable test) {
     analysisContext.push();
     analysisContext.peek().define(symbol, type);

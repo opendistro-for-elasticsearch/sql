@@ -38,17 +38,20 @@ public class QualifierAnalyzer {
   }
 
   /**
-   * Get unqualified name by removing qualifiers.
-   * @return  unqualified name
+   * Get unqualified name if its qualifier symbol found is in index namespace
+   * on type environment. Unqualified name means name with qualifier removed.
+   * For example, unqualified name of "accounts.age" or "acc.age" is "age".
+   *
+   * @return  unqualified name if criteria met above, otherwise original name
    */
   public String unqualified(QualifiedName fullName) {
-    return isQualifierIndexOrAlias(fullName) ? fullName.getSuffix() : fullName.toString();
+    return isQualifierIndexOrAlias(fullName) ? fullName.rest().toString() : fullName.toString();
   }
 
   private boolean isQualifierIndexOrAlias(QualifiedName fullName) {
-    Optional<QualifiedName> qualifier = fullName.getPrefix();
+    Optional<String> qualifier = fullName.first();
     if (qualifier.isPresent()) {
-      resolveQualifierSymbol(fullName, qualifier.get().toString());
+      resolveQualifierSymbol(fullName, qualifier.get());
       return true;
     }
     return false;

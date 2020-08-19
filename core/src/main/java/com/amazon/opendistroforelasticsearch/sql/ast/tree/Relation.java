@@ -34,7 +34,8 @@ public class Relation extends UnresolvedPlan {
   private final UnresolvedExpression tableName;
 
   /**
-   * Get original table name.
+   * Get original table name. Unwrap and get name if table name expression
+   * is actually an Alias.
    * @return    table name
    */
   public String getTableName() {
@@ -45,7 +46,7 @@ public class Relation extends UnresolvedPlan {
   }
 
   /**
-   * Get original table name or alias if present.
+   * Get original table name or its alias if present in Alias.
    * @return    table name or its alias
    */
   public String getTableNameOrAlias() {
