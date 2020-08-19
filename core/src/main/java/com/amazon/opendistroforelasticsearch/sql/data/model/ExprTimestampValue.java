@@ -38,10 +38,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class ExprTimestampValue extends AbstractExprValue {
-  /**
-   * todo. only support UTC now.
-   */
-  private static final ZoneId ZONE = ZoneId.of("UTC");
+  private static final ZoneId ZONE = ZoneId.systemDefault();
   /**
    * todo. only support timestamp in format yyyy-MM-dd HH:mm:ss.
    */

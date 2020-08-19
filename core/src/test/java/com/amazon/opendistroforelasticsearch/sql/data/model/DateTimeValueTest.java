@@ -33,6 +33,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 public class DateTimeValueTest {
@@ -71,7 +73,8 @@ public class DateTimeValueTest {
     assertEquals(LocalDate.parse("2012-07-07"), dateValue.dateValue());
     assertEquals(LocalTime.parse("00:00:00"), getTimeValue(dateValue));
     assertEquals(LocalDateTime.parse("2012-07-07T00:00:00"), getDatetimeValue(dateValue));
-    assertEquals(Instant.ofEpochSecond(1341644400), getTimestampValue(dateValue));
+    assertEquals(ZonedDateTime.of(LocalDateTime.parse("2012-07-07T00:00:00"),
+        ZoneId.systemDefault()).toInstant(), getTimestampValue(dateValue));
     ExpressionEvaluationException exception =
         assertThrows(ExpressionEvaluationException.class,
             () -> ExprValueUtils.getDateValue(integerValue(1)));
@@ -86,7 +89,8 @@ public class DateTimeValueTest {
     assertEquals(LocalDateTime.parse("2020-08-17T19:44:00"), datetimeValue.datetimeValue());
     assertEquals(LocalDate.parse("2020-08-17"), getDateValue(datetimeValue));
     assertEquals(LocalTime.parse("19:44:00"), getTimeValue(datetimeValue));
-    assertEquals(Instant.ofEpochSecond(1597718640), getTimestampValue(datetimeValue));
+    assertEquals(ZonedDateTime.of(LocalDateTime.parse("2020-08-17T19:44:00"),
+        ZoneId.systemDefault()).toInstant(), getTimestampValue(datetimeValue));
     assertEquals("DATETIME '2020-08-17 19:44:00'", datetimeValue.toString());
     assertThrows(ExpressionEvaluationException.class,
         () -> ExprValueUtils.getDatetimeValue(integerValue(1)),
