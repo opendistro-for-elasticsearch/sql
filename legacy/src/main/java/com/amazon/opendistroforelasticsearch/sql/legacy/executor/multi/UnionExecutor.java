@@ -24,6 +24,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
+import org.elasticsearch.index.mapper.MapperService;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
@@ -68,7 +69,8 @@ public class UnionExecutor implements ElasticHitsExecutor {
         for (SearchHit hit : hits) {
             Map<String, DocumentField> documentFields = new HashMap<>();
             Map<String, DocumentField> metaFields = new HashMap<>();
-            SearchHit.splitFieldsByMetadata(hit.getFields(), documentFields, metaFields);
+            hit.getFields().forEach((fieldName, docField) ->
+                (MapperService.META_FIELDS_BEFORE_7DOT8.contains(fieldName) ? metaFields : documentFields).put(fieldName, docField));
             SearchHit searchHit = new SearchHit(currentId, hit.getId(), new Text(hit.getType()), documentFields, metaFields);
             searchHit.sourceRef(hit.getSourceRef());
             searchHit.getSourceAsMap().clear();

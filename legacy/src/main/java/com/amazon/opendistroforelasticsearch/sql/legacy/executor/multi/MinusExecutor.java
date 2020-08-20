@@ -34,6 +34,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.mapper.MapperService;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
@@ -136,7 +137,8 @@ public class MinusExecutor implements ElasticHitsExecutor {
             fields.put(fieldName, new DocumentField(fieldName, values));
             Map<String, DocumentField> documentFields = new HashMap<>();
             Map<String, DocumentField> metaFields = new HashMap<>();
-            SearchHit.splitFieldsByMetadata(fields, documentFields, metaFields);
+            someHit.getFields().forEach((field, docField) ->
+                (MapperService.META_FIELDS_BEFORE_7DOT8.contains(field) ? metaFields : documentFields).put(field, docField));
             SearchHit searchHit = new SearchHit(currentId, currentId + "", new Text(someHit.getType()),
                     documentFields, metaFields);
             searchHit.sourceRef(someHit.getSourceRef());
@@ -161,7 +163,8 @@ public class MinusExecutor implements ElasticHitsExecutor {
             SearchHit originalHit = result.getOriginalHit();
             Map<String, DocumentField> documentFields = new HashMap<>();
             Map<String, DocumentField> metaFields = new HashMap<>();
-            SearchHit.splitFieldsByMetadata(originalHit.getFields(), documentFields, metaFields);
+            originalHit.getFields().forEach((fieldName, docField) ->
+                (MapperService.META_FIELDS_BEFORE_7DOT8.contains(fieldName) ? metaFields : documentFields).put(fieldName, docField));
             SearchHit searchHit = new SearchHit(currentId, originalHit.getId(), new Text(originalHit.getType()),
                     documentFields, metaFields);
             searchHit.sourceRef(originalHit.getSourceRef());
