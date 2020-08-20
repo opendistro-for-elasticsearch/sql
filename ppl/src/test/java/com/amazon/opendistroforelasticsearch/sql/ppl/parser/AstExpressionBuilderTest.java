@@ -34,6 +34,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intervalLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
@@ -46,6 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLit
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.xor;
 import static java.util.Collections.emptyList;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -404,6 +406,20 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
                 "=",
                 field("a"),
                 booleanLiteral(true)
+            )
+        ));
+  }
+
+  @Test
+  public void testIntervalLiteralExpr() {
+    assertEqual(
+        "source=t a = interval 1 day",
+        filter(
+            relation("t"),
+            compare(
+                "=",
+                field("a"),
+                intervalLiteral(1, DataType.INTEGER, "day")
             )
         ));
   }

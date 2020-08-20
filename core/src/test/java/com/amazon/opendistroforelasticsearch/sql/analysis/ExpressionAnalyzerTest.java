@@ -20,10 +20,12 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
@@ -87,6 +89,13 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         DSL.ref("integer_value", INTEGER),
         AstDSL.qualifiedName("integer_value")
     );
+  }
+
+  @Test
+  public void interval() {
+    assertAnalyzeEqual(
+        dsl.interval(DSL.literal(1L), DSL.literal("DAY")),
+        AstDSL.intervalLiteral(1L, DataType.LONG, "DAY"));
   }
 
   @Test

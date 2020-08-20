@@ -94,7 +94,9 @@ public enum BuiltinFunctionName {
    * NULL Test.
    */
   IS_NULL(FunctionName.of("is null")),
-  IS_NOT_NULL(FunctionName.of("is not null"));
+  IS_NOT_NULL(FunctionName.of("is not null")),
+
+  INTERVAL(FunctionName.of("interval"));
 
   private final FunctionName name;
 

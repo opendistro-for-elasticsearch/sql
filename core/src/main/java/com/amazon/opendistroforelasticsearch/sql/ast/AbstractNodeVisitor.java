@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -186,6 +187,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitAllFields(AllFields node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitInterval(Interval node, C context) {
     return visitChildren(node, context);
   }
 }
