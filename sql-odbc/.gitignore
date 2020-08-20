@@ -54,7 +54,10 @@ CMakeCache.txt
 CPackConfig.cmake
 CPackSourceConfig.cmake
 CTestTestfile.cmake
+/build/
+/sdk-build32/
 /sdk-build64/
+/cmake-build32/
 /cmake-build64/
 /src/PowerBIConnector/bin/Debug/
 /src/PowerBIConnector/obj/

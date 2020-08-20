@@ -109,10 +109,11 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/Resources/odfe_sql_odbc.tdc" DESTINAT
 
 # Install AWS dependencies
 if(WIN32)
-    install(FILES "${PROJECT_ROOT}/sdk-build${BITNESS}/bin/Release/aws-c-common.dll" DESTINATION bin COMPONENT "Driver")
-    install(FILES "${PROJECT_ROOT}/sdk-build${BITNESS}/bin/Release/aws-c-event-stream.dll" DESTINATION bin COMPONENT "Driver")
-    install(FILES "${PROJECT_ROOT}/sdk-build${BITNESS}/bin/Release/aws-checksums.dll" DESTINATION bin COMPONENT "Driver")
-    install(FILES "${PROJECT_ROOT}/sdk-build${BITNESS}/bin/Release/aws-cpp-sdk-core.dll" DESTINATION bin COMPONENT "Driver")
+    set(AWS_SDK_BIN_DIR "${PROJECT_ROOT}/build/aws-sdk/install/bin")
+    install(FILES "${AWS_SDK_BIN_DIR}/aws-c-common.dll" DESTINATION bin COMPONENT "Driver")
+    install(FILES "${AWS_SDK_BIN_DIR}/aws-c-event-stream.dll" DESTINATION bin COMPONENT "Driver")
+    install(FILES "${AWS_SDK_BIN_DIR}/aws-checksums.dll" DESTINATION bin COMPONENT "Driver")
+    install(FILES "${AWS_SDK_BIN_DIR}/aws-cpp-sdk-core.dll" DESTINATION bin COMPONENT "Driver")
 endif()
 
 include(CPack)
