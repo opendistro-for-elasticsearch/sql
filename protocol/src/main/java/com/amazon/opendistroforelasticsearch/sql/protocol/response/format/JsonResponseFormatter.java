@@ -65,7 +65,9 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
 
 
   private String jsonify(Object jsonObject) {
-    JSONObject json = new JSONObject(jsonObject);
+    JSONObject json =
+        (jsonObject instanceof JSONObject)
+            ? (JSONObject) jsonObject : new JSONObject(jsonObject);
     return (style == PRETTY) ? json.toString(2) : json.toString();
   }
 

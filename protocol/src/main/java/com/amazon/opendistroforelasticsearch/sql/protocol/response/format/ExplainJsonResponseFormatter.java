@@ -16,7 +16,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
+
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import org.json.JSONObject;
 
 /**
  * JSON formatter for explain response which has completely different structure than query response.
@@ -29,7 +32,21 @@ public class ExplainJsonResponseFormatter extends JsonResponseFormatter<ExplainR
 
   @Override
   protected Object buildJsonObject(ExplainResponse response) {
-    return response.getRoot();
+    JSONObject root = new JSONObject();
+    doBuild(response.getRoot(), root);
+    return root;
+  }
+
+  private void doBuild(ExplainResponseNode node, JSONObject parent) {
+    if (node == null) {
+      return;
+    }
+
+    JSONObject body = new JSONObject();
+    body.put("description", new JSONObject(node.getDescription()));
+    parent.put(node.getName(), body);
+
+    doBuild(node.getChild(), body);
   }
 
 }

@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor;
 
+import static com.amazon.opendistroforelasticsearch.sql.common.setting.Settings.Key.QUERY_SIZE_LIMIT;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import static com.google.common.collect.ImmutableMap.of;
@@ -30,13 +31,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -129,15 +133,15 @@ class ElasticsearchExecutionEngineTest {
   @Test
   void explainSuccessfully() {
     ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client, protector);
-    PhysicalPlan plan = mock(PhysicalPlan.class);
-    JsonNode json = mock(JsonNode.class);
-    when(plan.accept(any(), any())).thenReturn(json);
-    when(json.toPrettyString()).thenReturn("Explain test");
+    Settings settings = mock(Settings.class);
+    when(settings.getSettingValue(QUERY_SIZE_LIMIT)).thenReturn(100);
+    PhysicalPlan plan = new ElasticsearchIndexScan(mock(ElasticsearchClient.class),
+        settings, "test", mock(ElasticsearchExprValueFactory.class));
 
-    AtomicReference<String> result = new AtomicReference<>();
-    executor.explain(plan, new ResponseListener<String>() {
+    AtomicReference<ExplainResponse> result = new AtomicReference<>();
+    executor.explain(plan, new ResponseListener<ExplainResponse>() {
       @Override
-      public void onResponse(String response) {
+      public void onResponse(ExplainResponse response) {
         result.set(response);
       }
 
@@ -147,7 +151,7 @@ class ElasticsearchExecutionEngineTest {
       }
     });
 
-    assertEquals("Explain test", result.get());
+    assertNotNull(result.get());
   }
 
   @Test
@@ -157,9 +161,9 @@ class ElasticsearchExecutionEngineTest {
     when(plan.accept(any(), any())).thenThrow(IllegalStateException.class);
 
     AtomicReference<Exception> result = new AtomicReference<>();
-    executor.explain(plan, new ResponseListener<String>() {
+    executor.explain(plan, new ResponseListener<ExplainResponse>() {
       @Override
-      public void onResponse(String response) {
+      public void onResponse(ExplainResponse response) {
         fail("Should fail as expected");
       }
 
