@@ -93,10 +93,10 @@ public class JDBCConnection implements DBConnection {
   }
 
   @Override
-  public void insert(String tableName, String[] columnNames, List<String[]> batch) {
+  public void insert(String tableName, String[] columnNames, List<Object[]> batch) {
     try (Statement stmt = connection.createStatement()) {
       String names = String.join(",", columnNames);
-      for (String[] fieldValues : batch) {
+      for (Object[] fieldValues : batch) {
         stmt.addBatch(StringUtils.format(
             "INSERT INTO %s(%s) VALUES (%s)", tableName, names, getValueList(fieldValues)));
       }
@@ -139,8 +139,9 @@ public class JDBCConnection implements DBConnection {
             collect(joining(","));
   }
 
-  private String getValueList(String[] fieldValues) {
+  private String getValueList(Object[] fieldValues) {
     return Arrays.stream(fieldValues).
+        map(String::valueOf).
         map(val -> val.replace(SINGLE_QUOTE, DOUBLE_QUOTE)).
         map(val -> SINGLE_QUOTE + val + SINGLE_QUOTE).
         collect(joining(","));

@@ -37,6 +37,26 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canParseSelectLiteralWithAlias() {
+    assertNotNull(parser.parse("SELECT (1 + 2) * 3 AS expr"));
+  }
+
+  @Test
+  public void canParseSelectFields() {
+    assertNotNull(parser.parse("SELECT name, age FROM accounts"));
+  }
+
+  @Test
+  public void canParseSelectFieldWithAlias() {
+    assertNotNull(parser.parse("SELECT name AS n, age AS a FROM accounts"));
+  }
+
+  @Test
+  public void canParseSelectFieldWithQuotedAlias() {
+    assertNotNull(parser.parse("SELECT name AS \"n\", age AS `a` FROM accounts"));
+  }
+
+  @Test
   public void canParseIndexNameWithDate() {
     assertNotNull(parser.parse("SELECT * FROM logs_2020_01"));
     assertNotNull(parser.parse("SELECT * FROM logs-2020-01"));
@@ -72,9 +92,26 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canParseWhereClause() {
+    assertNotNull(parser.parse("SELECT name FROM test WHERE age = 10"));
+  }
+
+  @Test
+  public void canParseSelectClauseWithLogicalOperator() {
+    assertNotNull(parser.parse(
+        "SELECT age = 10 AND name = 'John' OR NOT (balance > 1000) FROM test"));
+  }
+
+  @Test
+  public void canParseWhereClauseWithLogicalOperator() {
+    assertNotNull(parser.parse("SELECT name FROM test "
+        + "WHERE age = 10 AND name = 'John' OR NOT (balance > 1000)"));
+  }
+
+  @Test
   public void canNotParseInvalidSelect() {
     assertThrows(SyntaxCheckException.class,
-        () -> parser.parse("SELECT * FROM test WHERE age = 10"));
+        () -> parser.parse("SELECT * FROM test WHERE age = 10 GROUP BY name"));
   }
 
 }

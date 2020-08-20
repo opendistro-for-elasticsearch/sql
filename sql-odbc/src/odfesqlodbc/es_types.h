@@ -299,6 +299,12 @@ typedef struct ErrorDetails {
     std::string details;
     std::string source_type;
     ConnErrorType type;
+    ErrorDetails() {
+        reason = "";
+        details = "";
+        source_type = "";
+        type = ConnErrorType::CONN_ERROR_SUCCESS;
+    }
 } ErrorDetails;
 
 #define INVALID_OID 0

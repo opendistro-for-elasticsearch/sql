@@ -1344,7 +1344,7 @@ const char *estype_literal_prefix(const ConnectionClass *conn, OID type) {
         case ES_TYPE_TEXT:
         case ES_TYPE_NESTED:
         case ES_TYPE_OBJECT:
-            return "\"";
+            return "\'";
         default:
             return "";
     }
@@ -1357,7 +1357,7 @@ const char *estype_literal_suffix(const ConnectionClass *conn, OID type) {
         case ES_TYPE_TEXT:
         case ES_TYPE_NESTED:
         case ES_TYPE_OBJECT:
-            return "\"";
+            return "\'";
         default:
             return "";
     }

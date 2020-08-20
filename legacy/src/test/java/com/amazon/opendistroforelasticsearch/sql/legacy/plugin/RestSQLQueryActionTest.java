@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAct
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.service.ClusterService;
@@ -40,6 +41,9 @@ public class RestSQLQueryActionTest {
   @Mock
   private NodeClient nodeClient;
 
+  @Mock
+  private Settings settings;
+
   @Test
   public void handleQueryThatCanSupport() {
     SQLQueryRequest request = new SQLQueryRequest(
@@ -48,7 +52,7 @@ public class RestSQLQueryActionTest {
         QUERY_API_ENDPOINT,
         "");
 
-    RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService);
+    RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService, settings);
     assertNotSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
   }
 
@@ -60,19 +64,19 @@ public class RestSQLQueryActionTest {
         EXPLAIN_API_ENDPOINT,
         "");
 
-    RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService);
+    RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService, settings);
     assertSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
   }
 
   @Test
   public void skipQueryThatNotSupport() {
     SQLQueryRequest request = new SQLQueryRequest(
-        new JSONObject("{\"query\": \"SELECT * FROM test WHERE age = 10\"}"),
-        "SELECT * FROM test WHERE age = 10",
+        new JSONObject("{\"query\": \"SELECT * FROM test WHERE age = 10 GROUP BY age\"}"),
+        "SELECT * FROM test WHERE age = 10 GROUP BY age",
         QUERY_API_ENDPOINT,
         "");
 
-    RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService);
+    RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService, settings);
     assertSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
   }
 

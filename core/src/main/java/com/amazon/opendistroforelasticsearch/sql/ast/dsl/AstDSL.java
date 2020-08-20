@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -43,7 +45,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.experimental.UtilityClass;
@@ -224,6 +225,14 @@ public class AstDSL {
 
   public static Field field(String field, List<Argument> fieldArgs) {
     return new Field(field, fieldArgs);
+  }
+
+  public Alias alias(String name, UnresolvedExpression expr) {
+    return new Alias(name, expr);
+  }
+
+  public Alias alias(String name, UnresolvedExpression expr, String alias) {
+    return new Alias(name, expr, alias);
   }
 
   public static List<UnresolvedExpression> exprList(UnresolvedExpression... exprList) {

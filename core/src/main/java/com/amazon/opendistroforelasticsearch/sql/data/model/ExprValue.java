@@ -59,6 +59,15 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
   }
 
   /**
+   * Is Number value.
+   *
+   * @return true: is number value, otherwise false
+   */
+  default boolean isNumber() {
+    return false;
+  }
+
+  /**
    * Get the {@link BindingTuple}.
    */
   default BindingTuple bindingTuples() {

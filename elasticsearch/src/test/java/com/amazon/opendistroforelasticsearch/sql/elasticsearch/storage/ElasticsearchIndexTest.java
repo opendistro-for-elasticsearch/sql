@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.D
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
@@ -34,9 +35,11 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
@@ -44,13 +47,19 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.Elasticsea
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
@@ -66,11 +75,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchIndexTest {
 
+  private final DSL dsl = new ExpressionConfig().dsl(new ExpressionConfig().functionRepository());
+
   @Mock
   private ElasticsearchClient client;
 
   @Mock
   private ElasticsearchExprValueFactory exprValueFactory;
+
+  @Mock
+  private Settings settings;
 
   @Test
   void getFieldTypes() {
@@ -92,7 +106,7 @@ class ElasticsearchIndexTest {
                         .put("birthday", "date")
                         .build())));
 
-    Table index = new ElasticsearchIndex(client, "test");
+    Table index = new ElasticsearchIndex(client, settings, "test");
     Map<String, ExprType> fieldTypes = index.getFieldTypes();
     assertThat(
         fieldTypes,
@@ -112,17 +126,22 @@ class ElasticsearchIndexTest {
 
   @Test
   void implementRelationOperatorOnly() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
     String indexName = "test";
     LogicalPlan plan = relation(indexName);
-    Table index = new ElasticsearchIndex(client, indexName);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
     assertEquals(
-        new ElasticsearchIndexScan(client, indexName, exprValueFactory), index.implement(plan));
+        new ElasticsearchIndexScan(client, settings, indexName, exprValueFactory),
+        index.implement(plan));
   }
 
   @Test
   void implementOtherLogicalOperators() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
     String indexName = "test";
-    ReferenceExpression include = ref("age", INTEGER);
+    NamedExpression include = named("age", ref("age", INTEGER));
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.of(true));
@@ -155,7 +174,7 @@ class ElasticsearchIndexTest {
                 dedupeField),
             include);
 
-    Table index = new ElasticsearchIndex(client, indexName);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
     assertEquals(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
@@ -164,10 +183,10 @@ class ElasticsearchIndexTest {
                         PhysicalPlanDSL.remove(
                             PhysicalPlanDSL.rename(
                                 PhysicalPlanDSL.agg(
-                                        PhysicalPlanDSL.filter(
-                                                new ElasticsearchIndexScan(
-                                                        client, indexName, exprValueFactory),
-                                                filterExpr),
+                                    PhysicalPlanDSL.filter(
+                                          new ElasticsearchIndexScan(
+                                              client, settings, indexName, exprValueFactory),
+                                          filterExpr),
                                         aggregators,
                                         groupByExprs),
                                 mappings),
@@ -179,4 +198,50 @@ class ElasticsearchIndexTest {
             include),
         index.implement(plan));
   }
+
+  @Test
+  void shouldDiscardPhysicalFilterIfConditionPushedDown() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+    Expression filterExpr = dsl.equal(field, literal("John"));
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            filter(
+                relation(indexName),
+                filterExpr
+            ),
+            named));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldNotPushDownFilterFarFromRelation() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    Expression filterExpr = dsl.equal(field, literal("John"));
+    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
+    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+            filter(
+                aggregation(
+                    relation(indexName),
+                    aggregators,
+                    groupByExprs
+                ),
+                filterExpr));
+
+    assertTrue(plan instanceof FilterOperator);
+  }
+
 }

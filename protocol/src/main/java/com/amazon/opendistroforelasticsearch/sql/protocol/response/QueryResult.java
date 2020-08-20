@@ -18,8 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.protocol.response;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class QueryResult implements Iterable<Object[]> {
+  private final ExecutionEngine.Schema schema;
 
   /**
    * Results which are collection of expression.
@@ -52,13 +53,10 @@ public class QueryResult implements Iterable<Object[]> {
    * @return mapping from column names to its expression type
    */
   public Map<String, String> columnNameTypes() {
-    if (exprValues.isEmpty()) {
-      return Collections.emptyMap();
-    }
-
-    // TODO: Need other way to extract header than inferring from data implicitly
-    Map<String, ExprValue> tupleValue = getFirstTupleValue();
-    return populateColumnNameAndTypes(tupleValue);
+    Map<String, String> colNameTypes = new LinkedHashMap<>();
+    schema.getColumns().forEach(column -> colNameTypes.put(column.getName(),
+        column.getExprType().typeName().toLowerCase()));
+    return colNameTypes;
   }
 
   @Override
@@ -71,29 +69,10 @@ public class QueryResult implements Iterable<Object[]> {
         .iterator();
   }
 
-  private Map<String, ExprValue> getFirstTupleValue() {
-    // Assume expression is always tuple on first level
-    //  and columns (keys) of all tuple values are exactly same
-    ExprValue firstValue = exprValues.iterator().next();
-    return ExprValueUtils.getTupleValue(firstValue);
-  }
-
-  private Map<String, String> populateColumnNameAndTypes(Map<String, ExprValue> tupleValue) {
-    // Use linked hashmap to maintain original order in tuple expression
-    Map<String, String> colNameTypes = new LinkedHashMap<>();
-    tupleValue.forEach((name, expr) -> colNameTypes.put(name, getTypeString(expr)));
-    return colNameTypes;
-  }
-
   private Object[] convertExprValuesToValues(Collection<ExprValue> exprValues) {
     return exprValues
         .stream()
         .map(ExprValue::value)
         .toArray(Object[]::new);
   }
-
-  private String getTypeString(ExprValue exprValue) {
-    return exprValue.type().typeName().toLowerCase();
-  }
-
 }

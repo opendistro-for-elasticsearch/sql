@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -56,7 +57,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
                         ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
                         ImmutableList.of()),
                     ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))),
-                ref),
+                named("ref", ref)),
             ref);
 
     PhysicalPlanPrinter printer = new PhysicalPlanPrinter();
@@ -90,7 +91,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(rename.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan project = PhysicalPlanDSL.project(plan, ref);
+    PhysicalPlan project = PhysicalPlanDSL.project(plan, named("ref", ref));
     assertNull(project.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

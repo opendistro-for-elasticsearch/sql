@@ -66,7 +66,7 @@ public class ESConnection implements DBConnection {
   }
 
   @Override
-  public void insert(String tableName, String[] columnNames, List<String[]> batch) {
+  public void insert(String tableName, String[] columnNames, List<Object[]> batch) {
     Request request = new Request("POST", "/" + tableName + "/_bulk?refresh=true");
     request.setJsonEntity(buildBulkBody(columnNames, batch));
     performRequest(request);
@@ -96,9 +96,9 @@ public class ESConnection implements DBConnection {
     }
   }
 
-  private String buildBulkBody(String[] columnNames, List<String[]> batch) {
+  private String buildBulkBody(String[] columnNames, List<Object[]> batch) {
     StringBuilder body = new StringBuilder();
-    for (String[] fieldValues : batch) {
+    for (Object[] fieldValues : batch) {
       JSONObject json = new JSONObject();
       for (int i = 0; i < columnNames.length; i++) {
         json.put(columnNames[i], fieldValues[i]);

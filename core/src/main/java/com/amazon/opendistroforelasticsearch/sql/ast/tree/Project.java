@@ -52,6 +52,17 @@ public class Project extends UnresolvedPlan {
     return !argExprList.isEmpty();
   }
 
+  /**
+   * The Project could been used to exclude fields from the source.
+   */
+  public boolean isExcluded() {
+    if (hasArgument()) {
+      Argument argument = argExprList.get(0);
+      return (Boolean) argument.getValue().getValue();
+    }
+    return false;
+  }
+
   @Override
   public Project attach(UnresolvedPlan child) {
     this.child = child;

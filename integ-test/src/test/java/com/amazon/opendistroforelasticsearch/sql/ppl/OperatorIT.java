@@ -22,7 +22,6 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 
 import java.io.IOException;
 import org.elasticsearch.client.ResponseException;
-import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -118,7 +117,8 @@ public class OperatorIT extends PPLIntegTestCase {
             String.format(
                 "source=%s | eval f = balance * 1 | fields f", TEST_INDEX_BANK_WITH_NULL_VALUES));
     verifyDataRows(
-        result, rows(39225), rows(32838), rows(4180), rows(48086), rows(), rows(), rows());
+        result, rows(39225), rows(32838), rows(4180), rows(48086), rows(JSONObject.NULL),
+        rows(JSONObject.NULL), rows(JSONObject.NULL));
   }
 
   @Test
@@ -273,19 +273,21 @@ public class OperatorIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void testBinaryPredicateWithNullValue() {
-    queryExecutionShouldThrowExceptionDueToNullOrMissingValue(
-        String.format("source=%s | where age < 32", TEST_INDEX_BANK_WITH_NULL_VALUES),
-        "invalid to call type operation on null value"
-    );
+  public void testBinaryPredicateWithNullValue() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format("source=%s | where age >= 36 | fields age",
+                TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifyDataRows(result, rows(36), rows(36));
   }
 
   @Test
-  public void testBinaryPredicateWithMissingValue() {
-    queryExecutionShouldThrowExceptionDueToNullOrMissingValue(
-        String.format("source=%s | where balance > 3000", TEST_INDEX_BANK_WITH_NULL_VALUES),
-        "invalid to call type operation on missing value"
-    );
+  public void testBinaryPredicateWithMissingValue() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format("source=%s | where balance > 40000 | fields balance",
+                TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifyDataRows(result, rows(48086));
   }
 
   private void queryExecutionShouldThrowExceptionDueToNullOrMissingValue(

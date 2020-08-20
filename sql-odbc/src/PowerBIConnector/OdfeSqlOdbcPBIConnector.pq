@@ -12,22 +12,17 @@ shared OdfeSqlOdbcPBIConnector.Contents = Value.ReplaceType(OdfeSqlOdbcPBIConnec
 
 // Wrapper function to provide additional UI customization.
 OdfeSqlOdbcPBIConnectorType = type function (
-        Host as (type text meta [
-            Documentation.FieldCaption = "Host",
+        Server as (type text meta [
+            Documentation.FieldCaption = "Server",
             Documentation.FieldDescription = "The hostname of the Open Distro For Elasticsearch server.",
-            Documentation.SampleValues = { "localhost" }
-        ]),
-        optional Port as (type number meta [
-            Documentation.FieldCaption = "Port",
-            Documentation.FieldDescription = "The port of the Open Distro For Elasticsearch server is running on.",
-            Documentation.SampleValues = { 9200 }
+            Documentation.SampleValues = { "localhost:9200" }
         ])
     )
     as table meta [
         Documentation.Name = "Open Distro For Elasticsearch"
     ];
 
-OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =>
+OdfeSqlOdbcPBIConnectorImpl = (Server as text) as table =>
     let
         Credential = Extension.CurrentCredential(),
         AuthenticationMode = Credential[AuthenticationKind],
@@ -61,22 +56,15 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
                     UseSSL = 0
                 ],
 
-        // Set host & port in connection string. 
-        // Do not include port in connection string for aws server connection.
-        Server = 
-            if Port <> null then
-            [
-                Host = Host,
-                Port = Port
-            ]
-            else
-            [
-                Host = Host
-            ],
-
         ConnectionString = [
-            Driver = "ODFE SQL ODBC Driver"
+            Driver = "ODFE SQL ODBC Driver",
+            Host = Server
         ],
+
+        SQLGetInfo = Diagnostics.LogValue("SQLGetInfo_Options", [
+            SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All],
+            SQL_SQL_CONFORMANCE = ODBC[SQL_SC][SQL_SC_SQL92_INTERMEDIATE]
+        ]),
 
         SQLGetTypeInfo = (types) => 
             if (EnableTraceOutput <> true) then types else
@@ -102,28 +90,23 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
                     Value.ReplaceType(toTable, Value.Type(source))
             else
                 source,
-             
-        // Add support for `LIMIT` and `OFFSET` clauses (rather than `TOP`)
-        AstVisitor = [
-            // format is "LIMIT [<skip>,]<take>" - ex. LIMIT 2,10 or LIMIT 10
-            LimitClause = (skip, take) =>
-                if (take = null) then
-                    ...
-                else
-                    let
-                        skip =
-                            if (skip = null or skip = 0) then
-                                ""
-                            else
-                                Number.ToText(skip) & ","
-                    in
-                        [
-                            Text = Text.Format("LIMIT #{0}#{1}", { skip, take }),
-                            Location = "AfterQuerySpecification"
-                        ]
-        ],
+        
+        SQLGetFunctions = Diagnostics.LogValue("SQLGetFunctions_Options", [
+            SQL_API_SQLBINDPARAMETER = false
+        ]),
 
-        OdbcDatasource = Odbc.DataSource(ConnectionString & Server & CredentialConnectionString & EncryptedConnectionString, [
+        SqlCapabilities = Diagnostics.LogValue("SqlCapabilities_Options", [
+            SupportsTop = false,
+            LimitClauseKind = LimitClauseKind.LimitOffset,
+            Sql92Conformance = ODBC[SQL_SC][SQL_SC_SQL92_FULL],
+            SupportsNumericLiterals = true,
+            SupportsStringLiterals = true,
+            SupportsOdbcDateLiterals = true,
+            SupportsOdbcTimeLiterals = true,
+            SupportsOdbcTimestampLiterals = true
+        ]),
+
+        OdbcDatasource = Odbc.DataSource(ConnectionString & CredentialConnectionString & EncryptedConnectionString, [
             // Do not view the tables grouped by their schema names.
             HierarchicalNavigation = false,
             // Prevents execution of native SQL statements. Extensions should set this to true.
@@ -136,9 +119,11 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
             ClientConnectionPooling = true,
 
             // These values should be set by previous steps
-            AstVisitor = AstVisitor,
             SQLColumns = SQLColumns,
             SQLGetTypeInfo = SQLGetTypeInfo,
+            SQLGetInfo = SQLGetInfo,
+            SQLGetFunctions = SQLGetFunctions,
+            SqlCapabilities = SqlCapabilities,
 
             OnError = OnOdbcError,
 
@@ -152,7 +137,7 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
 OnOdbcError = (errorRecord as record) =>
     let
         ErrorMessage = errorRecord[Message],
-        ConnectionHostPort = errorRecord[Detail][DataSourcePath], 
+        ConnectionServer = errorRecord[Detail][DataSourcePath], 
         
         IsDriverNotInstalled = Text.Contains(ErrorMessage, "doesn't correspond to an installed ODBC driver"),
         
@@ -166,7 +151,7 @@ OnOdbcError = (errorRecord as record) =>
         if IsDriverNotInstalled then
             error Error.Record("", "The Open Distro For Elasticsearch SQL ODBC driver is not installed. Please install the driver")
         else if IsHostUnreachable then 
-            error Error.Record("", "Couldn't reach server. Please double-check the host, port and auth.")
+            error Error.Record("", "Couldn't reach server. Please double-check the server and auth. [" & ConnectionServer & "]")
         else 
             error errorRecord;
 
@@ -176,10 +161,9 @@ OdfeSqlOdbcPBIConnector = [
     TestConnection = (dataSourcePath) => 
         let
             json = Json.Document(dataSourcePath),
-            Host = json[Host],
-            Port = json[Port]
+            Server = json[Server]
         in
-            { "OdfeSqlOdbcPBIConnector.Contents", Host, Port },
+            { "OdfeSqlOdbcPBIConnector.Contents", Server },
 
     // Authentication modes
     Authentication = [
@@ -195,6 +179,19 @@ OdfeSqlOdbcPBIConnector = [
         ]
     ],
 
+    // PBIDS Handler
+    DSRHandlers = [
+      #"odfesqlodbc" = [
+        GetDSR = (server, schema, object, optional options) => [ protocol = "odfesqlodbc", address = [ server = server ] ],
+        GetFormula = (dsr, optional options) => () => 
+          let
+            db = OdfeSqlOdbcPBIConnector.Contents(dsr[address][server])
+          in
+            db,
+        GetFriendlyName = (dsr) => "ODFE SQL ODBC"
+      ]
+    ],
+
     // Enable Encryption
     SupportsEncryption = true,
 
@@ -207,7 +204,10 @@ OdfeSqlOdbcPBIConnector.Publish = [
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://opendistro.github.io/for-elasticsearch/",
-    SupportsDirectQuery = true,
+    
+    // Disabling direct query due to limited SQL query support
+    SupportsDirectQuery = false,
+
     SourceImage = OdfeSqlOdbcPBIConnector.Icons,
     SourceTypeImage = OdfeSqlOdbcPBIConnector.Icons
 ];

@@ -42,7 +42,7 @@ public class AstQualifiedNameBuilderTest {
   @Test
   public void canBuildRegularIdentifierForElasticsearch() {
     buildFromTableName(".kibana").expectQualifiedName(".kibana");
-    //buildFromIdentifier("@timestamp").expectQualifiedName("@timestamp");//TODO: field name
+    buildFromIdentifier("@timestamp").expectQualifiedName("@timestamp");
     buildFromIdentifier("logs-2020-01").expectQualifiedName("logs-2020-01");
     buildFromIdentifier("*logs*").expectQualifiedName("*logs*");
   }

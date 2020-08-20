@@ -34,6 +34,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -69,6 +70,7 @@ class ElasticsearchExprValueFactoryTest {
           .put("arrayV.info", STRING)
           .put("arrayV.author", STRING)
           .put("textV", ES_TEXT)
+          .put("textKeywordV", ES_TEXT_KEYWORD)
           .build();
   private ElasticsearchExprValueFactory exprValueFactory =
       new ElasticsearchExprValueFactory(MAPPING);
@@ -76,42 +78,56 @@ class ElasticsearchExprValueFactoryTest {
   @Test
   public void constructNullValue() {
     assertEquals(nullValue(), tupleValue("{\"intV\":null}").get("intV"));
+    assertEquals(nullValue(), constructFromObject("intV",  null));
   }
 
   @Test
   public void constructInteger() {
     assertEquals(integerValue(1), tupleValue("{\"intV\":1}").get("intV"));
+    assertEquals(integerValue(1), constructFromObject("intV", 1));
   }
 
   @Test
   public void constructLong() {
     assertEquals(longValue(1L), tupleValue("{\"longV\":1}").get("longV"));
+    assertEquals(longValue(1L), constructFromObject("longV", 1L));
   }
 
   @Test
   public void constructFloat() {
     assertEquals(floatValue(1f), tupleValue("{\"floatV\":1.0}").get("floatV"));
+    assertEquals(floatValue(1f), constructFromObject("floatV", 1f));
   }
 
   @Test
   public void constructDouble() {
     assertEquals(doubleValue(1d), tupleValue("{\"doubleV\":1.0}").get("doubleV"));
+    assertEquals(doubleValue(1d), constructFromObject("doubleV", 1d));
   }
 
   @Test
   public void constructString() {
     assertEquals(stringValue("text"), tupleValue("{\"stringV\":\"text\"}").get("stringV"));
+    assertEquals(stringValue("text"), constructFromObject("stringV", "text"));
   }
 
   @Test
   public void constructBoolean() {
     assertEquals(booleanValue(true), tupleValue("{\"boolV\":true}").get("boolV"));
+    assertEquals(booleanValue(true), constructFromObject("boolV", true));
   }
 
   @Test
   public void constructText() {
-    assertEquals(new ElasticsearchExprTextValue("text"), tupleValue("{\"textV\":\"text\"}").get(
-        "textV"));
+    assertEquals(new ElasticsearchExprTextValue("text"),
+                 tupleValue("{\"textV\":\"text\"}").get("textV"));
+    assertEquals(new ElasticsearchExprTextValue("text"),
+                 constructFromObject("textV", "text"));
+
+    assertEquals(new ElasticsearchExprTextKeywordValue("text"),
+                 tupleValue("{\"textKeywordV\":\"text\"}").get("textKeywordV"));
+    assertEquals(new ElasticsearchExprTextKeywordValue("text"),
+                 constructFromObject("textKeywordV", "text"));
   }
 
   @Test
@@ -131,6 +147,16 @@ class ElasticsearchExprValueFactoryTest {
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         tupleValue("{\"dateV\":1420070400001}").get("dateV"));
+
+    assertEquals(
+        new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+        constructFromObject("dateV", 1420070400001L));
+    assertEquals(
+        new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
+        constructFromObject("dateV", Instant.ofEpochMilli(1420070400001L)));
+    assertEquals(
+        new ExprTimestampValue("2015-01-01 12:10:30"),
+        constructFromObject("dateV", "2015-01-01 12:10:30"));
   }
 
   @Test
@@ -191,10 +217,21 @@ class ElasticsearchExprValueFactoryTest {
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("{\"type\":1}"));
     assertEquals("Unsupported type: TEST_TYPE for field: type, value: 1.", exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("type", 1));
+    assertEquals(
+        "Unsupported type TEST_TYPE to construct expression value "
+            + "from object for field: type, value: 1.",
+        exception.getMessage());
   }
 
   public Map<String, ExprValue> tupleValue(String jsonString) {
     return (Map<String, ExprValue>) exprValueFactory.construct(jsonString).value();
+  }
+
+  private ExprValue constructFromObject(String fieldName, Object value) {
+    return exprValueFactory.construct(fieldName, value);
   }
 
   @EqualsAndHashCode

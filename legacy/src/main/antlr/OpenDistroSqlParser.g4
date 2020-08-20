@@ -231,7 +231,8 @@ uid
 simpleId
     : ID
     | DOT_ID  // note: the current scope by adding DOT_ID to simpleId is large, move DOT_ID upwards tablename if needed
-    | STRING_LITERAL
+    | DOUBLE_QUOTE_ID
+    | BACKTICK_QUOTE_ID
     | keywordsCanBeId
     | functionNameBase
     ;

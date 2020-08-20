@@ -28,7 +28,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
@@ -88,23 +87,15 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
   /** TODO: Scroll doesn't work for aggregation. Support aggregation later. */
   @Override
   public ElasticsearchResponse search(ElasticsearchRequest request) {
-    SearchResponse esResponse;
-    if (request.isScrollStarted()) {
-      esResponse = client.searchScroll(request.scrollRequest()).actionGet();
-    } else {
-      esResponse = client.search(request.searchRequest()).actionGet();
-    }
-    request.setScrollId(esResponse.getScrollId());
-
-    return new ElasticsearchResponse(esResponse);
+    return request.search(
+        req -> client.search(req).actionGet(),
+        req -> client.searchScroll(req).actionGet()
+    );
   }
 
   @Override
   public void cleanup(ElasticsearchRequest request) {
-    if (request.isScrollStarted()) {
-      client.prepareClearScroll().addScrollId(request.getScrollId()).get();
-      request.reset();
-    }
+    request.clean(scrollId -> client.prepareClearScroll().addScrollId(scrollId).get());
   }
 
   @Override

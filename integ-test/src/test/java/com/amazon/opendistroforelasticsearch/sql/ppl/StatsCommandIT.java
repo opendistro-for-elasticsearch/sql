@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 
+import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +26,7 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
+    setQuerySizeLimit(2000);
   }
 
   @Test
@@ -98,4 +100,32 @@ public class StatsCommandIT extends PPLIntegTestCase {
             + "}\n",
         result);
   }
+
+  @Test
+  public void testStatsWhere() throws IOException {
+    String result = executeQueryToString(String.format(
+        "source=%s | stats sum(balance) as a by gender | where a > 13000000", TEST_INDEX_ACCOUNT));
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [\n"
+            + "    {\n"
+            + "      \"name\": \"a\",\n"
+            + "      \"type\": \"long\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"name\": \"gender\",\n"
+            + "      \"type\": \"string\"\n"
+            + "    }\n"
+            + "  ],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[\n"
+            + "    13082527,\n"
+            + "    \"M\"\n"
+            + "  ]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        result
+    );
+  }
+
 }

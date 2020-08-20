@@ -68,17 +68,21 @@ selectClause
     ;
 
 selectElements
-    : (star=STAR | selectElement) (',' selectElement)*
+    : (star=STAR | selectElement) (COMMA selectElement)*
     ;
 
 selectElement
-    : expression                                         #selectExpressionElement
+    : expression (AS? alias)?
     ;
 
 fromClause
     : FROM tableName
+      (whereClause)?
     ;
 
+whereClause
+    : WHERE expression
+    ;
 
 //    Literals
 
@@ -88,8 +92,8 @@ constant
     | sign? realLiteral         #signedReal
     | booleanLiteral            #boolean
     | datetimeLiteral           #datetime
+    | nullLiteral               #null
     // Doesn't support the following types for now
-    //| nullLiteral               #null
     //| BIT_STRING
     //| NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
     //| LEFT_BRACE dateType=(D | T | TS | DATE | TIME | TIMESTAMP) stringLiteral RIGHT_BRACE
@@ -142,15 +146,22 @@ timestampLiteral
 
 // Simplified approach for expression
 expression
-    : predicate                                                     #predicateExpression
+    : NOT expression                                                #notExpression
+    | left=expression AND right=expression                          #andExpression
+    | left=expression OR right=expression                           #orExpression
+    | predicate                                                     #predicateExpression
     ;
 
 predicate
     : expressionAtom                                                #expressionAtomPredicate
+    | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
+    | predicate IS nullNotnull                                      #isNullPredicate
+    | left=predicate NOT? LIKE right=predicate                      #likePredicate
     ;
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | columnName                                                    #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
@@ -158,6 +169,15 @@ expressionAtom
 
 mathOperator
     : PLUS | MINUS | STAR | DIVIDE | MODULE
+    ;
+
+comparisonOperator
+    : '=' | '>' | '<' | '<' '=' | '>' '='
+    | '<' '>' | '!' '='
+    ;
+
+nullNotnull
+    : NOT? NULL_LITERAL
     ;
 
 functionCall

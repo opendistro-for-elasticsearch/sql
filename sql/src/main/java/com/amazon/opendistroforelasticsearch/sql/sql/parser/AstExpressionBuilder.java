@@ -16,27 +16,46 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.DateLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IsNullPredicateContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.LikePredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.MathExpressionAtomContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NotExpressionContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NullLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedDecimalContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedRealContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TimeLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TimestampLiteralContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AndExpressionContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ColumnNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NestedExpressionAtomContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrExpressionContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QualifiedNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TableNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.tree.RuleNode;
+import org.antlr.v4.runtime.RuleContext;
 
 /**
  * Expression builder to parse text to expression in AST.
@@ -45,22 +64,22 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitTableName(TableNameContext ctx) {
-    return new QualifiedName(visitQualifiedNameText(ctx));
+    return visitQualifiedName(ctx.qualifiedName());
+  }
+
+  @Override
+  public UnresolvedExpression visitColumnName(ColumnNameContext ctx) {
+    return visitQualifiedName(ctx.qualifiedName());
   }
 
   @Override
   public UnresolvedExpression visitIdent(IdentContext ctx) {
-    return new QualifiedName(visitQualifiedNameText(ctx));
+    return visitIdentifiers(Collections.singletonList(ctx));
   }
 
   @Override
   public UnresolvedExpression visitQualifiedName(QualifiedNameContext ctx) {
-    return new QualifiedName(
-        ctx.ident()
-           .stream()
-           .map(this::visitQualifiedNameText)
-           .collect(Collectors.toList())
-    );
+    return visitIdentifiers(ctx.ident());
   }
 
   @Override
@@ -89,8 +108,39 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitIsNullPredicate(IsNullPredicateContext ctx) {
+    return new Function(
+        ctx.nullNotnull().NOT() == null ? IS_NULL.getName().getFunctionName() :
+            IS_NOT_NULL.getName().getFunctionName(),
+        Arrays.asList(visit(ctx.predicate())));
+  }
+
+  @Override
+  public UnresolvedExpression visitLikePredicate(LikePredicateContext ctx) {
+    return new Function(
+        ctx.NOT() == null ? LIKE.getName().getFunctionName() :
+            NOT_LIKE.getName().getFunctionName(),
+        Arrays.asList(visit(ctx.left), visit(ctx.right)));
+  }
+
+  @Override
+  public UnresolvedExpression visitAndExpression(AndExpressionContext ctx) {
+    return new And(visit(ctx.left), visit(ctx.right));
+  }
+
+  @Override
+  public UnresolvedExpression visitOrExpression(OrExpressionContext ctx) {
+    return new Or(visit(ctx.left), visit(ctx.right));
+  }
+
+  @Override
+  public UnresolvedExpression visitNotExpression(NotExpressionContext ctx) {
+    return new Not(visit(ctx.expression()));
+  }
+
+  @Override
   public UnresolvedExpression visitString(StringContext ctx) {
-    return AstDSL.stringLiteral(unquoteIdentifier(ctx.getText()));
+    return AstDSL.stringLiteral(StringUtils.unquoteText(ctx.getText()));
   }
 
   @Override
@@ -109,23 +159,43 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitDateLiteral(OpenDistroSQLParser.DateLiteralContext ctx) {
-    return AstDSL.dateLiteral(unquoteIdentifier(ctx.date.getText()));
+  public UnresolvedExpression visitNullLiteral(NullLiteralContext ctx) {
+    return AstDSL.nullLiteral();
   }
 
   @Override
-  public UnresolvedExpression visitTimeLiteral(OpenDistroSQLParser.TimeLiteralContext ctx) {
-    return AstDSL.timeLiteral(unquoteIdentifier(ctx.time.getText()));
+  public UnresolvedExpression visitDateLiteral(DateLiteralContext ctx) {
+    return AstDSL.dateLiteral(StringUtils.unquoteText(ctx.date.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitTimeLiteral(TimeLiteralContext ctx) {
+    return AstDSL.timeLiteral(StringUtils.unquoteText(ctx.time.getText()));
   }
 
   @Override
   public UnresolvedExpression visitTimestampLiteral(
-      OpenDistroSQLParser.TimestampLiteralContext ctx) {
-    return AstDSL.timestampLiteral(unquoteIdentifier(ctx.timestamp.getText()));
+      TimestampLiteralContext ctx) {
+    return AstDSL.timestampLiteral(StringUtils.unquoteText(ctx.timestamp.getText()));
   }
 
-  private String visitQualifiedNameText(RuleNode node) {
-    return unquoteIdentifier(node.getText());
+  @Override
+  public UnresolvedExpression visitBinaryComparisonPredicate(
+      BinaryComparisonPredicateContext ctx) {
+    String functionName = ctx.comparisonOperator().getText();
+    return new Function(
+        functionName.equals("<>") ? "!=" : functionName,
+        Arrays.asList(visit(ctx.left), visit(ctx.right))
+    );
+  }
+
+  private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
+    return new QualifiedName(
+        identifiers.stream()
+                   .map(RuleContext::getText)
+                   .map(StringUtils::unquoteIdentifier)
+                   .collect(Collectors.toList())
+    );
   }
 
 }

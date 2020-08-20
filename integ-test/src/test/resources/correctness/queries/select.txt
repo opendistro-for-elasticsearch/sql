@@ -1,4 +1,15 @@
 SELECT 1 + 2 FROM kibana_sample_data_flights
-SELECT abs(-10) FROM kibana_sample_data_flights
-SELECT DistanceMiles FROM kibana_sample_data_flights
+SELECT Cancelled, AvgTicketPrice, FlightDelayMin, Carrier, timestamp FROM kibana_sample_data_flights
+SELECT `Cancelled`, `AvgTicketPrice` FROM kibana_sample_data_flights
+SELECT ABS(DistanceMiles), (FlightDelayMin * 2) - 3 FROM kibana_sample_data_flights
+SELECT abs(DistanceMiles), Abs(FlightDelayMin) FROM kibana_sample_data_flights
+SELECT Cancelled AS Cancel, AvgTicketPrice AS ATP FROM kibana_sample_data_flights
+SELECT Cancelled AS `Cancel`, AvgTicketPrice AS "ATP" FROM kibana_sample_data_flights
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE NOT AvgTicketPrice <= 500
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500 AND FlightDelayMin = 0
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500 OR FlightDelayMin = 0
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice + 100 <= 500
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE ABS(AvgTicketPrice * -2) > 1000
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE 'JetBeat_'
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE '%Air%'

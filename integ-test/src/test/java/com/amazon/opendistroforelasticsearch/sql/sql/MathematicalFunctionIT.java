@@ -54,7 +54,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   @Test
   public void testCrc32() throws IOException {
     JSONObject result = executeQuery("select crc32('MySQL')");
-    verifySchema(result, schema("crc32(\"MySQL\")", null, "long"));
+    verifySchema(result, schema("crc32('MySQL')", null, "long"));
     verifyDataRows(result, rows(3259397556L));
   }
 

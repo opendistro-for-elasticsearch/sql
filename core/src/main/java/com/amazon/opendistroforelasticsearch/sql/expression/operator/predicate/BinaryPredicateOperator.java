@@ -20,35 +20,18 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
-import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.binaryOperator;
-import static com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils.matches;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
-import com.google.common.collect.ImmutableMap;
+import com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 
@@ -77,6 +60,7 @@ public class BinaryPredicateOperator {
     repository.register(greater());
     repository.register(gte());
     repository.register(like());
+    repository.register(notLike());
   }
 
   /**
@@ -164,39 +148,28 @@ public class BinaryPredicateOperator {
           .build();
 
   private static FunctionResolver and() {
-    FunctionName functionName = BuiltinFunctionName.AND.getName();
-    return FunctionResolver.builder()
-        .functionName(functionName)
-        .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(BOOLEAN, BOOLEAN)), binaryPredicate(functionName,
-            andTable, BOOLEAN))
-        .build();
+    return FunctionDSL.define(BuiltinFunctionName.AND.getName(), FunctionDSL
+        .impl((v1, v2) -> lookupTableFunction(v1, v2, andTable), BOOLEAN, BOOLEAN,
+            BOOLEAN));
   }
 
   private static FunctionResolver or() {
-    FunctionName functionName = BuiltinFunctionName.OR.getName();
-    return FunctionResolver.builder()
-        .functionName(functionName)
-        .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(BOOLEAN, BOOLEAN)), binaryPredicate(functionName,
-            orTable, BOOLEAN))
-        .build();
+    return FunctionDSL.define(BuiltinFunctionName.OR.getName(), FunctionDSL
+        .impl((v1, v2) -> lookupTableFunction(v1, v2, orTable), BOOLEAN, BOOLEAN,
+            BOOLEAN));
   }
 
   private static FunctionResolver xor() {
-    FunctionName functionName = BuiltinFunctionName.XOR.getName();
-    return FunctionResolver.builder()
-        .functionName(functionName)
-        .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(BOOLEAN, BOOLEAN)), binaryPredicate(functionName,
-            xorTable, BOOLEAN))
-        .build();
+    return FunctionDSL.define(BuiltinFunctionName.XOR.getName(), FunctionDSL
+        .impl((v1, v2) -> lookupTableFunction(v1, v2, xorTable), BOOLEAN, BOOLEAN,
+            BOOLEAN));
   }
 
   private static FunctionResolver equal() {
     return FunctionDSL.define(BuiltinFunctionName.EQUAL.getName(),
         ExprCoreType.coreTypes().stream()
-            .map(type -> FunctionDSL.impl((v1, v2) -> ExprBooleanValue.of(v1.equals(v2)),
+            .map(type -> FunctionDSL.impl(
+                FunctionDSL.nullMissingHandling((v1, v2) -> ExprBooleanValue.of(v1.equals(v2))),
                 BOOLEAN, type, type))
             .collect(
                 Collectors.toList()));
@@ -206,160 +179,87 @@ public class BinaryPredicateOperator {
     return FunctionDSL
         .define(BuiltinFunctionName.NOTEQUAL.getName(), ExprCoreType.coreTypes().stream()
             .map(type -> FunctionDSL
-                .impl((v1, v2) -> ExprBooleanValue.of(!v1.equals(v2)), BOOLEAN, type, type))
+                .impl(
+                    FunctionDSL
+                        .nullMissingHandling((v1, v2) -> ExprBooleanValue.of(!v1.equals(v2))),
+                    BOOLEAN,
+                    type,
+                    type))
             .collect(
                 Collectors.toList()));
   }
 
   private static FunctionResolver less() {
-    return new FunctionResolver(
-        BuiltinFunctionName.LESS.getName(),
-        predicate(
-            BuiltinFunctionName.LESS.getName(),
-            (v1, v2) -> v1 < v2,
-            (v1, v2) -> v1 < v2,
-            (v1, v2) -> v1 < v2,
-            (v1, v2) -> v1 < v2,
-            (v1, v2) -> v1.compareTo(v2) < 0
-        )
-    );
+    return FunctionDSL
+        .define(BuiltinFunctionName.LESS.getName(), ExprCoreType.coreTypes().stream()
+            .map(type -> FunctionDSL
+                .impl(FunctionDSL
+                        .nullMissingHandling((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) < 0)),
+                    BOOLEAN,
+                    type, type))
+            .collect(
+                Collectors.toList()));
   }
 
   private static FunctionResolver lte() {
-    return new FunctionResolver(
-        BuiltinFunctionName.LTE.getName(),
-        predicate(
-            BuiltinFunctionName.LTE.getName(),
-            (v1, v2) -> v1 <= v2,
-            (v1, v2) -> v1 <= v2,
-            (v1, v2) -> v1 <= v2,
-            (v1, v2) -> v1 <= v2,
-            (v1, v2) -> v1.compareTo(v2) <= 0
-        )
-    );
+    return FunctionDSL
+        .define(BuiltinFunctionName.LTE.getName(), ExprCoreType.coreTypes().stream()
+            .map(type -> FunctionDSL
+                .impl(
+                    FunctionDSL
+                        .nullMissingHandling(
+                            (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) <= 0)),
+                    BOOLEAN,
+                    type, type))
+            .collect(
+                Collectors.toList()));
   }
 
   private static FunctionResolver greater() {
-    return new FunctionResolver(
-        BuiltinFunctionName.GREATER.getName(),
-        predicate(
-            BuiltinFunctionName.GREATER.getName(),
-            (v1, v2) -> v1 > v2,
-            (v1, v2) -> v1 > v2,
-            (v1, v2) -> v1 > v2,
-            (v1, v2) -> v1 > v2,
-            (v1, v2) -> v1.compareTo(v2) > 0
-        )
-    );
+    return FunctionDSL
+        .define(BuiltinFunctionName.GREATER.getName(), ExprCoreType.coreTypes().stream()
+            .map(type -> FunctionDSL
+                .impl(FunctionDSL
+                        .nullMissingHandling((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) > 0)),
+                    BOOLEAN, type, type))
+            .collect(
+                Collectors.toList()));
   }
 
   private static FunctionResolver gte() {
-    return new FunctionResolver(
-        BuiltinFunctionName.GTE.getName(),
-        predicate(
-            BuiltinFunctionName.GTE.getName(),
-            (v1, v2) -> v1 >= v2,
-            (v1, v2) -> v1 >= v2,
-            (v1, v2) -> v1 >= v2,
-            (v1, v2) -> v1 >= v2,
-            (v1, v2) -> v1.compareTo(v2) >= 0
-        )
-    );
+    return FunctionDSL
+        .define(BuiltinFunctionName.GTE.getName(), ExprCoreType.coreTypes().stream()
+            .map(type -> FunctionDSL
+                .impl(
+                    FunctionDSL.nullMissingHandling(
+                        (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) >= 0)),
+                    BOOLEAN,
+                    type, type))
+            .collect(
+                Collectors.toList()));
   }
 
   private static FunctionResolver like() {
-    return new FunctionResolver(
-        BuiltinFunctionName.LIKE.getName(),
-        predicate(
-            BuiltinFunctionName.LIKE.getName(),
-            (v1, v2) -> matches(v2, v1)
-        )
-    );
+    return FunctionDSL.define(BuiltinFunctionName.LIKE.getName(), FunctionDSL
+        .impl(FunctionDSL.nullMissingHandling(OperatorUtils::matches), BOOLEAN, STRING,
+            STRING));
   }
 
-  /**
-   * Util method to generate binary predicate bundles.
-   * Applicable for integer, long, float, double, string types of operands
-   * Missing/Null value operands follow as {@param table} lists
-   */
-  private static Map<FunctionSignature, FunctionBuilder> predicate(
-      FunctionName functionName,
-      BiFunction<Integer, Integer, Boolean> integerFunc,
-      BiFunction<Long, Long, Boolean> longFunc,
-      BiFunction<Float, Float, Boolean> floatFunc,
-      BiFunction<Double, Double, Boolean> doubleFunc,
-      BiFunction<String, String, Boolean> stringFunc) {
-    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
-    return builder
-        .put(
-            new FunctionSignature(functionName, Arrays.asList(INTEGER, INTEGER)),
-            binaryOperator(
-                functionName, integerFunc, ExprValueUtils::getIntegerValue, BOOLEAN))
-        .put(
-            new FunctionSignature(functionName, Arrays.asList(LONG, LONG)),
-            binaryOperator(
-                functionName, longFunc, ExprValueUtils::getLongValue, BOOLEAN))
-        .put(
-            new FunctionSignature(functionName, Arrays.asList(FLOAT, FLOAT)),
-            binaryOperator(
-                functionName, floatFunc, ExprValueUtils::getFloatValue, BOOLEAN))
-        .put(
-            new FunctionSignature(functionName, Arrays.asList(DOUBLE, DOUBLE)),
-            binaryOperator(
-                functionName, doubleFunc, ExprValueUtils::getDoubleValue, BOOLEAN))
-        .put(
-            new FunctionSignature(functionName, Arrays.asList(STRING, STRING)),
-            binaryOperator(
-                functionName, stringFunc, ExprValueUtils::getStringValue, BOOLEAN))
-        .build();
+  private static FunctionResolver notLike() {
+    return FunctionDSL.define(BuiltinFunctionName.NOT_LIKE.getName(), FunctionDSL
+        .impl(FunctionDSL.nullMissingHandling(
+            (v1, v2) -> UnaryPredicateOperator.not(OperatorUtils.matches(v1, v2))),
+            BOOLEAN,
+            STRING,
+            STRING));
   }
 
-  /**
-   * Util method to generate LIKE predicate bundles.
-   * Applicable for string operands.
-   */
-  private static Map<FunctionSignature, FunctionBuilder> predicate(
-      FunctionName functionName,
-      BiFunction<String, String, Boolean> stringFunc) {
-    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
-    return builder
-        .put(new FunctionSignature(functionName, Arrays.asList(STRING, STRING)),
-            binaryOperator(functionName, stringFunc, ExprValueUtils::getStringValue,
-                BOOLEAN))
-        .build();
-  }
-
-
-  /**
-   * Building method to construct binary logical predicates AND OR XOR
-   * Where operands order does not matter.
-   * Special cases for missing/null operands refer to {@param table}.
-   */
-  private static FunctionBuilder binaryPredicate(FunctionName functionName,
-                                                 Table<ExprValue, ExprValue, ExprValue> table,
-                                                 ExprCoreType returnType) {
-    return arguments -> new FunctionExpression(functionName, arguments) {
-      @Override
-      public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        ExprValue arg1 = arguments.get(0).valueOf(env);
-        ExprValue arg2 = arguments.get(1).valueOf(env);
-        if (table.contains(arg1, arg2)) {
-          return table.get(arg1, arg2);
-        } else {
-          return table.get(arg2, arg1);
-        }
-      }
-
-      @Override
-      public ExprType type() {
-        return returnType;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
-            .get(1).toString());
-      }
-    };
+  private static ExprValue lookupTableFunction(ExprValue arg1, ExprValue arg2,
+                                               Table<ExprValue, ExprValue, ExprValue> table) {
+    if (table.contains(arg1, arg2)) {
+      return table.get(arg1, arg2);
+    } else {
+      return table.get(arg2, arg1);
+    }
   }
 }

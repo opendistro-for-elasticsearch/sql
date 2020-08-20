@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchScrollRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSortedMap;
@@ -93,7 +93,7 @@ class ElasticsearchNodeClientTest {
     assertEquals("geo_point", indexMapping.getFieldType("location"));
     assertEquals("some_new_es_type_outside_type_system", indexMapping.getFieldType("new_field"));
     assertEquals("text", indexMapping.getFieldType("field with spaces"));
-    assertEquals("text", indexMapping.getFieldType("employer"));
+    assertEquals("text_keyword", indexMapping.getFieldType("employer"));
     assertEquals("keyword", indexMapping.getFieldType("employer.raw"));
     assertEquals("nested", indexMapping.getFieldType("projects"));
     assertEquals("boolean", indexMapping.getFieldType("projects.active"));
@@ -101,7 +101,7 @@ class ElasticsearchNodeClientTest {
     assertEquals("nested", indexMapping.getFieldType("projects.members"));
     assertEquals("text", indexMapping.getFieldType("projects.members.name"));
     assertEquals("object", indexMapping.getFieldType("manager"));
-    assertEquals("text", indexMapping.getFieldType("manager.name"));
+    assertEquals("text_keyword", indexMapping.getFieldType("manager.name"));
     assertEquals("keyword", indexMapping.getFieldType("manager.name.keyword"));
     assertEquals("keyword", indexMapping.getFieldType("manager.address"));
     assertEquals("long", indexMapping.getFieldType("manager.salary"));
@@ -164,7 +164,7 @@ class ElasticsearchNodeClientTest {
     when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
     // Verify response for first scroll request
-    ElasticsearchRequest request = new ElasticsearchRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     ElasticsearchResponse response1 = client.search(request);
     assertFalse(response1.isEmpty());
 
@@ -208,7 +208,7 @@ class ElasticsearchNodeClientTest {
 
     ElasticsearchNodeClient client =
         new ElasticsearchNodeClient(mock(ClusterService.class), nodeClient);
-    ElasticsearchRequest request = new ElasticsearchRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     request.setScrollId("scroll123");
     client.cleanup(request);
     assertFalse(request.isScrollStarted());
@@ -224,7 +224,7 @@ class ElasticsearchNodeClientTest {
     ElasticsearchNodeClient client =
         new ElasticsearchNodeClient(mock(ClusterService.class), nodeClient);
 
-    ElasticsearchRequest request = new ElasticsearchRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     client.cleanup(request);
     verify(nodeClient, never()).prepareClearScroll();
   }
