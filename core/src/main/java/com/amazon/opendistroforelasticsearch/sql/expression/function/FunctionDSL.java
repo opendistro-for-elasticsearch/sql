@@ -117,7 +117,7 @@ public class FunctionDSL {
    * @param returnType return type.
    * @param args1Type   argument type.
    * @param args2Type   argument type.
-   * @return Unary Function Implementation.
+   * @return Binary Function Implementation.
    */
   public static SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
       SerializableBiFunction<ExprValue, ExprValue, ExprValue> function,
@@ -144,8 +144,8 @@ public class FunctionDSL {
 
             @Override
             public String toString() {
-              return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
-                  .get(1).toString());
+              return String.format("%s(%s, %s)", functionName, arguments.get(0).toString(),
+                  arguments.get(1).toString());
             }
           };
       return Pair.of(functionSignature, functionBuilder);

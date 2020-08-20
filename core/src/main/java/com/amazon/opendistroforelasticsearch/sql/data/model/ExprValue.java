@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Map;
 
@@ -154,6 +155,14 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
   default LocalDateTime datetimeValue() {
     throw new ExpressionEvaluationException(
         "invalid to get datetimeValue from value of type " + type());
+  }
+
+  /**
+   * Get interval value.
+   */
+  default TemporalAmount intervalValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get intervalValue from value of type " + type());
   }
 
   /**

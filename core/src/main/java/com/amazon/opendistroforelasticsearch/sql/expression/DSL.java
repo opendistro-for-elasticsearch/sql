@@ -340,4 +340,9 @@ public class DSL {
   public FunctionExpression isnotnull(Expression... expressions) {
     return function(BuiltinFunctionName.IS_NOT_NULL, expressions);
   }
+
+  public FunctionExpression interval(Expression value, Expression unit) {
+    return (FunctionExpression) repository.compile(
+        BuiltinFunctionName.INTERVAL.getName(), Arrays.asList(value, unit));
+  }
 }
