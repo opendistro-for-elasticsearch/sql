@@ -80,6 +80,14 @@ public class PhysicalPlanDSL {
         input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
   }
 
+  public static HeadOperator head(PhysicalPlan input) {
+    return new HeadOperator(input);
+  }
+
+  public static HeadOperator head(PhysicalPlan input, int number, boolean keepLast) {
+    return new HeadOperator(input, number, keepLast);
+  }
+
   @SafeVarargs
   public ValuesOperator values(List<LiteralExpression>... values) {
     return new ValuesOperator(Arrays.asList(values));

@@ -16,28 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner;
 
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalValues;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.*;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.*;
 
 /**
  * Default implementor for implementing logical to physical translation. "Default" here means all
@@ -59,6 +39,15 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
         node.getAllowedDuplication(),
         node.getKeepEmpty(),
         node.getConsecutive());
+  }
+
+  @Override
+  public PhysicalPlan visitHead(LogicalHead node, C context) {
+    return new HeadOperator(
+            visitChild(node, context),
+            node.getNumber(),
+            node.getKeeplast()
+    );
   }
 
   @Override
