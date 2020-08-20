@@ -16,13 +16,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intervalLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
@@ -202,6 +205,24 @@ class AstExpressionBuilderTest {
     assertEquals(
         function("not like", stringLiteral("str"), stringLiteral("st%")),
         buildExprAst("'str' not like 'st%'")
+    );
+  }
+
+  @Test
+  public void canBuildLogicalExpression() {
+    assertEquals(
+        and(booleanLiteral(true), booleanLiteral(false)),
+        buildExprAst("true AND false")
+    );
+
+    assertEquals(
+        or(booleanLiteral(true), booleanLiteral(false)),
+        buildExprAst("true OR false")
+    );
+
+    assertEquals(
+        not(booleanLiteral(false)),
+        buildExprAst("NOT false")
     );
   }
 

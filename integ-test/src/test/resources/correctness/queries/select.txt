@@ -6,3 +6,10 @@ SELECT abs(DistanceMiles), Abs(FlightDelayMin) FROM kibana_sample_data_flights
 SELECT Cancelled AS Cancel, AvgTicketPrice AS ATP FROM kibana_sample_data_flights
 SELECT Cancelled AS `Cancel`, AvgTicketPrice AS "ATP" FROM kibana_sample_data_flights
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE NOT AvgTicketPrice <= 500
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500 AND FlightDelayMin = 0
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500 OR FlightDelayMin = 0
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice + 100 <= 500
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE ABS(AvgTicketPrice * -2) > 1000
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE 'JetBeat_'
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE '%Air%'

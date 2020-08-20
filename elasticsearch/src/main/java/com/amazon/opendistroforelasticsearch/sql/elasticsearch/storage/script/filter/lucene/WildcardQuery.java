@@ -28,6 +28,7 @@ public class WildcardQuery extends LuceneQuery {
 
   @Override
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
+    fieldName = convertTextToKeyword(fieldName, fieldType);
     String matchText = convertSqlWildcardToLucene(literal.stringValue());
     return QueryBuilders.wildcardQuery(fieldName, matchText);
   }

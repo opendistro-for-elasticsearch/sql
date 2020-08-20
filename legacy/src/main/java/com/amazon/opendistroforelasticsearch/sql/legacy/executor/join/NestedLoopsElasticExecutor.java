@@ -36,6 +36,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.mapper.MapperService;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
@@ -176,7 +177,8 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
                 nestedLoopsRequest.getSecondTable().getOriginalSelect().isSelectAll());
         Map<String, DocumentField> documentFields = new HashMap<>();
         Map<String, DocumentField> metaFields = new HashMap<>();
-        SearchHit.splitFieldsByMetadata(hitFromFirstTable.getFields(), documentFields, metaFields);
+        matchedHit.getFields().forEach((fieldName, docField) ->
+            (MapperService.META_FIELDS_BEFORE_7DOT8.contains(fieldName) ? metaFields : documentFields).put(fieldName, docField));
         SearchHit searchHit = new SearchHit(currentCombinedResults, hitFromFirstTable.getId() + "|"
                 + matchedHit.getId(), new Text(hitFromFirstTable.getType() + "|" + matchedHit.getType()),
                 documentFields, metaFields);

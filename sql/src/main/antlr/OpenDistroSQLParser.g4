@@ -77,8 +77,12 @@ selectElement
 
 fromClause
     : FROM tableName
+      (whereClause)?
     ;
 
+whereClause
+    : WHERE expression
+    ;
 
 //    Literals
 
@@ -153,7 +157,10 @@ intervalUnit
 
 // Simplified approach for expression
 expression
-    : predicate                                                     #predicateExpression
+    : NOT expression                                                #notExpression
+    | left=expression AND right=expression                          #andExpression
+    | left=expression OR right=expression                           #orExpression
+    | predicate                                                     #predicateExpression
     ;
 
 predicate
