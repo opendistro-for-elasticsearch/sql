@@ -68,7 +68,7 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
         explainNode.setDescription(ImmutableMap.of("request", node.toString())));
   }
 
-  private ExplainResponseNode explain(PhysicalPlan node, Object context,
+  protected ExplainResponseNode explain(PhysicalPlan node, Object context,
                            Consumer<ExplainResponseNode> doExplain) {
     ExplainResponseNode explainNode = new ExplainResponseNode(getOperatorName(node));
     explainNode.setChild(explainChild(node, context));
