@@ -23,6 +23,7 @@
 - Fix for query folding issue with direct query mode in Power BI data connector ([#640](https://github.com/opendistro-for-elasticsearch/sql/pull/640))
 
 ### Infrastructure
+- Adjust release drafter to follow ODFE standards （[#700](https://github.com/opendistro-for-elasticsearch/sql/pull/700))
 - ODBC: improve Windows build process ([#661](https://github.com/opendistro-for-elasticsearch/sql/pull/661))
 - Skip doctest in github release actions ([#648](https://github.com/opendistro-for-elasticsearch/sql/pull/648))
 
