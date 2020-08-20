@@ -92,6 +92,16 @@ public class DateTimeFunction {
   }
 
   /**
+   * DAYOFMONTH(DATE). return the day of the month (1-31).
+   */
+  private FunctionResolver dayOfMonth() {
+    return define(DAYOFMONTH.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
    * Extracts the time part of a date and time value.
    * Also to construct a time type. The supported signatures:
    * STRING/DATE/DATETIME/TIME/TIMESTAMP -> TIME
@@ -119,15 +129,10 @@ public class DateTimeFunction {
   }
 
   /**
-   * DAYOFMONTH(DATE). return the day of the month (1-31).
+   * Date implementation for ExprValue.
+   * @param exprValue ExprValue of Date type or String type.
+   * @return ExprValue.
    */
-  private FunctionResolver dayOfMonth() {
-    return define(DAYOFMONTH.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
-            INTEGER, DATE)
-    );
-  }
-
   private ExprValue exprDate(ExprValue exprValue) {
     if (exprValue instanceof ExprStringValue) {
       return new ExprDateValue(getStringValue(exprValue));
@@ -136,27 +141,16 @@ public class DateTimeFunction {
     }
   }
 
+  /**
+   * Datetime implementation for ExprValue.
+   * @param exprValue ExprValue of Datetime type or String type.
+   * @return ExprValue.
+   */
   private ExprValue exprDatetime(ExprValue exprValue) {
     if (exprValue instanceof ExprStringValue) {
       return new ExprDatetimeValue(getStringValue(exprValue));
     } else {
       return new ExprDatetimeValue(getDatetimeValue(exprValue));
-    }
-  }
-
-  private ExprValue exprTime(ExprValue exprValue) {
-    if (exprValue instanceof ExprStringValue) {
-      return new ExprTimeValue(getStringValue(exprValue));
-    } else {
-      return new ExprTimeValue(getTimeValue(exprValue));
-    }
-  }
-
-  private ExprValue exprTimestamp(ExprValue exprValue) {
-    if (exprValue instanceof ExprStringValue) {
-      return new ExprTimestampValue(getStringValue(exprValue));
-    } else {
-      return new ExprTimestampValue(getTimestampValue(exprValue));
     }
   }
 
@@ -167,5 +161,31 @@ public class DateTimeFunction {
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
     return new ExprIntegerValue(getDateValue(date).getMonthValue());
+  }
+
+  /**
+   * Time implementation for ExprValue.
+   * @param exprValue ExprValue of Time type or String.
+   * @return ExprValue.
+   */
+  private ExprValue exprTime(ExprValue exprValue) {
+    if (exprValue instanceof ExprStringValue) {
+      return new ExprTimeValue(getStringValue(exprValue));
+    } else {
+      return new ExprTimeValue(getTimeValue(exprValue));
+    }
+  }
+
+  /**
+   * Timestamp implementation for ExprValue.
+   * @param exprValue ExprValue of Timestamp type or String type.
+   * @return ExprValue.
+   */
+  private ExprValue exprTimestamp(ExprValue exprValue) {
+    if (exprValue instanceof ExprStringValue) {
+      return new ExprTimestampValue(getStringValue(exprValue));
+    } else {
+      return new ExprTimestampValue(getTimestampValue(exprValue));
+    }
   }
 }
