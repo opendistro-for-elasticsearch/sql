@@ -80,7 +80,6 @@ public abstract class RestIntegTestCase extends ESRestTestCase {
       initClient();
     }
 
-    increaseScriptMaxCompilationsRate();
     init();
   }
 
@@ -152,14 +151,6 @@ public abstract class RestIntegTestCase extends ESRestTestCase {
       createIndexByRestClient(client(), indexName, mapping);
       loadDataByRestClient(client(), indexName, dataSet);
     }
-  }
-
-  /**
-   * Increase script.max_compilations_rate to large enough, which is only 75/5min by default.
-   * This issue is due to our painless script not using params passed to compiled script.
-   */
-  private void increaseScriptMaxCompilationsRate() throws IOException {
-    updateClusterSetting("script.max_compilations_rate", "10000/1m", false);
   }
 
   /**

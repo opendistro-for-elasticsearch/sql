@@ -59,6 +59,7 @@ import java.util.regex.Pattern;
 import static java.util.Collections.emptyList;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -255,7 +256,7 @@ public class CheckScriptContents {
 
     public static IndexNameExpressionResolver mockIndexNameExpressionResolver() {
         IndexNameExpressionResolver mockResolver = mock(IndexNameExpressionResolver.class);
-        when(mockResolver.concreteIndexNames(any(), any(), any())).thenAnswer(
+        when(mockResolver.concreteIndexNames(any(), any(), anyString())).thenAnswer(
             (Answer<String[]>) invocation -> {
                 // Return index expression directly without resolving
                 Object indexExprs = invocation.getArguments()[2];
