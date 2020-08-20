@@ -16,15 +16,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -32,63 +32,57 @@ import java.util.stream.Collectors;
 /**
  * Visitor that explains a physical plan to JSON format.
  */
-public class Explain extends PhysicalPlanNodeVisitor<JsonNode, ObjectNode>
-                     implements Function<PhysicalPlan, String> {
-
-  private final ObjectMapper mapper = new ObjectMapper();
+public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object>
+                     implements Function<PhysicalPlan, ExplainResponse> {
 
   @Override
-  public String apply(PhysicalPlan plan) {
-    return plan.accept(this, mapper.createObjectNode()).toPrettyString();
+  public ExplainResponse apply(PhysicalPlan plan) {
+    return new ExplainResponse(plan.accept(this, null));
   }
 
   @Override
-  protected JsonNode visitNode(PhysicalPlan node, ObjectNode context) {
-    return explain(node, context, description -> {});
+  protected ExplainResponseNode visitNode(PhysicalPlan node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of()));
   }
 
   @Override
-  public JsonNode visitProject(ProjectOperator node, ObjectNode context) {
-    return explain(node, context, description -> {
+  public ExplainResponseNode visitProject(ProjectOperator node, Object context) {
+    return explain(node, context, explainNode -> {
       String projectList = node.getProjectList()
                                .stream()
                                .map(NamedExpression::getName)
                                .collect(Collectors.joining(", "));
-      description.put("fields", projectList);
+      explainNode.setDescription(ImmutableMap.of("fields", projectList));
     });
   }
 
   @Override
-  public JsonNode visitFilter(FilterOperator node, ObjectNode context) {
-    return explain(node, context, description ->
-        description.put("conditions", node.getConditions().toString()));
+  public ExplainResponseNode visitFilter(FilterOperator node, Object context) {
+    return explain(node, context, explainNode ->
+        explainNode.setDescription(ImmutableMap.of("conditions", node.getConditions().toString())));
   }
 
   @Override
-  public JsonNode visitTableScan(TableScanOperator node, ObjectNode context) {
-    return explain(node, context, description -> description.put("request", node.toString()));
+  public ExplainResponseNode visitTableScan(TableScanOperator node, Object context) {
+    return explain(node, context, explainNode ->
+        explainNode.setDescription(ImmutableMap.of("request", node.toString())));
   }
 
-  private JsonNode explain(PhysicalPlan node, ObjectNode parent,
-                           Consumer<ObjectNode> describe) {
-    ObjectNode json = mapper.createObjectNode();
-    parent.set(getOperatorName(node), json);
-
-    ObjectNode description = mapper.createObjectNode();
-    json.set("description", description);
-
-    describe.accept(description);
-    explainChild(node, json);
-    return parent;
+  private ExplainResponseNode explain(PhysicalPlan node, Object context,
+                           Consumer<ExplainResponseNode> doExplain) {
+    ExplainResponseNode explainNode = new ExplainResponseNode(getOperatorName(node));
+    explainNode.setChild(explainChild(node, context));
+    doExplain.accept(explainNode);
+    return explainNode;
   }
 
-  private void explainChild(PhysicalPlan node, ObjectNode json) {
+  private ExplainResponseNode explainChild(PhysicalPlan node, Object context) {
     if (node.getChild().isEmpty()) {
-      return;
+      return null;
     }
 
     PhysicalPlan child = node.getChild().get(0);
-    child.accept(this, json);
+    return child.accept(this, context);
   }
 
   private String getOperatorName(PhysicalPlan node) {

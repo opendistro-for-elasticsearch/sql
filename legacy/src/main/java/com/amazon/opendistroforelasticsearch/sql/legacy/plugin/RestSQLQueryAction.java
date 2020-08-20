@@ -25,8 +25,10 @@ import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckExcepti
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ExplainJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
@@ -126,11 +128,11 @@ public class RestSQLQueryAction extends BaseRestHandler {
     });
   }
 
-  private ResponseListener<String> createExplainResponseListener(RestChannel channel) {
-    return new ResponseListener<String>() {
+  private ResponseListener<ExplainResponse> createExplainResponseListener(RestChannel channel) {
+    return new ResponseListener<ExplainResponse>() {
       @Override
-      public void onResponse(String response) {
-        sendResponse(channel, OK, response);
+      public void onResponse(ExplainResponse response) {
+        sendResponse(channel, OK, new ExplainJsonResponseFormatter(PRETTY).format(response));
       }
 
       @Override

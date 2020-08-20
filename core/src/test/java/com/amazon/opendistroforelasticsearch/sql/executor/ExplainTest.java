@@ -27,6 +27,8 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.physical.Physica
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
@@ -62,23 +64,17 @@ class ExplainTest extends ExpressionTestBase {
             projectList);
 
     assertEquals(
-        "{\n"
-            + "  \"ProjectOperator\" : {\n"
-            + "    \"description\" : {\n"
-            + "      \"fields\" : \"name, age\"\n"
-            + "    },\n"
-            + "    \"FilterOperator\" : {\n"
-            + "      \"description\" : {\n"
-            + "        \"conditions\" : \"balance = 10000 and age > 30\"\n"
-            + "      },\n"
-            + "      \"FakeTableScan\" : {\n"
-            + "        \"description\" : {\n"
-            + "          \"request\" : \"Fake DSL request\"\n"
-            + "        }\n"
-            + "      }\n"
-            + "    }\n"
-            + "  }\n"
-            + "}",
+        new ExplainResponse(
+            new ExplainResponseNode(
+                "ProjectOperator",
+                ImmutableMap.of("fields", "name, age"),
+                new ExplainResponseNode(
+                    "FilterOperator",
+                    ImmutableMap.of("conditions", "balance = 10000 and age > 30"),
+                    new ExplainResponseNode(
+                        "FakeTableScan",
+                        ImmutableMap.of("request", "Fake DSL request"),
+                        null)))),
         explain.apply(plan)
     );
   }
@@ -88,16 +84,14 @@ class ExplainTest extends ExpressionTestBase {
     RenameOperator plan = rename(new FakeTableScan(),
         ImmutableMap.of(ref("full_name", STRING), ref("name", STRING)));
     assertEquals(
-        "{\n"
-            + "  \"RenameOperator\" : {\n"
-            + "    \"description\" : { },\n"
-            + "    \"FakeTableScan\" : {\n"
-            + "      \"description\" : {\n"
-            + "        \"request\" : \"Fake DSL request\"\n"
-            + "      }\n"
-            + "    }\n"
-            + "  }\n"
-            + "}",
+        new ExplainResponse(
+            new ExplainResponseNode(
+                "RenameOperator",
+                ImmutableMap.of(),
+                new ExplainResponseNode(
+                    "FakeTableScan",
+                    ImmutableMap.of("request", "Fake DSL request"),
+                    null))),
         explain.apply(plan)
     );
   }

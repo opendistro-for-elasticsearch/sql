@@ -21,7 +21,11 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import java.util.List;
+import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.Singular;
 
 /**
  * Execution engine that encapsulates execution details.
@@ -44,7 +48,7 @@ public interface ExecutionEngine {
    * @param plan     physical plan to explain
    * @param listener response listener
    */
-  void explain(PhysicalPlan plan, ResponseListener<String> listener);
+  void explain(PhysicalPlan plan, ResponseListener<ExplainResponse> listener);
 
   /**
    * Data class that encapsulates ExprValue.
@@ -65,6 +69,25 @@ public interface ExecutionEngine {
       private final String alias;
       private final ExprType exprType;
     }
+  }
+
+  /**
+   * Data class that encapsulates explain result. This can help decouple core engine
+   * from concrete explain response format.
+   */
+  @Data
+  class ExplainResponse {
+    private final ExplainResponseNode root;
+  }
+
+  @AllArgsConstructor
+  @Data
+  @RequiredArgsConstructor
+  class ExplainResponseNode {
+    private final String name;
+    @Singular
+    private Map<String, String> description;
+    private ExplainResponseNode child;
   }
 
 }

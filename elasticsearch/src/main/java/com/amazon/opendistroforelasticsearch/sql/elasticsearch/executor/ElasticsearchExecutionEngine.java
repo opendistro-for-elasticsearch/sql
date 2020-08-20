@@ -59,7 +59,7 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
   }
 
   @Override
-  public void explain(PhysicalPlan plan, ResponseListener<String> listener) {
+  public void explain(PhysicalPlan plan, ResponseListener<ExplainResponse> listener) {
     client.schedule(() -> {
       try {
         listener.onResponse(new Explain().apply(plan));
