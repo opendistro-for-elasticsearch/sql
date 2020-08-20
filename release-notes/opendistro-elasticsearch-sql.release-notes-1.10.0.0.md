@@ -1,7 +1,6 @@
 ## 2020-08-20 Version 1.10.0.0
 
-### Feature
-- Bumped ES and Kibana versions to v7.9.0 ([#697](https://github.com/opendistro-for-elasticsearch/sql/pull/697)) 
+### Feature 
 - Support WHERE clause in new SQL parser ([#682](https://github.com/opendistro-for-elasticsearch/sql/pull/682)) 
 - Add Cypress testing for SQL Workbench ([#562](https://github.com/opendistro-for-elasticsearch/sql/pull/562)) 
 - Lucene query pushdown optimization ([#671](https://github.com/opendistro-for-elasticsearch/sql/pull/671))
@@ -13,7 +12,7 @@
 - Support NULL and MISSING value in response ([#667](https://github.com/opendistro-for-elasticsearch/sql/pull/667))
 - ODBC: Use literals instead of parameters in Power BI data connector ([#652](https://github.com/opendistro-for-elasticsearch/sql/pull/652))
 - Support select fields and alias in new query engine ([#636](https://github.com/opendistro-for-elasticsearch/sql/pull/636)) 
-- Add comparsion operator for SQL ([#635](https://github.com/opendistro-for-elasticsearch/sql/pull/635))
+- Add comparision operator for SQL ([#635](https://github.com/opendistro-for-elasticsearch/sql/pull/635))
 
 ### Enhancement
 - Parse backtick strings (``) as identifiers instead of string literals ([#678](https://github.com/opendistro-for-elasticsearch/sql/pull/678))
@@ -29,3 +28,6 @@
 
 ### Documentation
 - Update release notes for OD 1.10 release([#699](https://github.com/opendistro-for-elasticsearch/sql/pull/699))
+
+### Maintenance
+- Bumped ES and Kibana versions to v7.9.0 ([#697](https://github.com/opendistro-for-elasticsearch/sql/pull/697))
