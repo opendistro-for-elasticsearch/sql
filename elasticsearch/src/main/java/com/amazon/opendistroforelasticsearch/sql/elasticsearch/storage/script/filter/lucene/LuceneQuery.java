@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene;
 
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
@@ -60,13 +62,28 @@ public abstract class LuceneQuery {
    * from reference and literal in function arguments.
    *
    * @param fieldName   field name
-   * @param fieldType        expr fieldType
-   * @param literal       expr literal
+   * @param fieldType   field type
+   * @param literal     field value literal
    * @return            query
    */
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
     throw new UnsupportedOperationException(
         "Subclass doesn't implement this and build method either");
+  }
+
+  /**
+   * Convert multi-field text field name to its inner keyword field. The limitation and assumption
+   * is that the keyword field name is always "keyword" which is true by default.
+   *
+   * @param fieldName   field name
+   * @param fieldType   field type
+   * @return            keyword field name for multi-field, otherwise original field name returned
+   */
+  protected String convertTextToKeyword(String fieldName, ExprType fieldType) {
+    if (fieldType == ES_TEXT_KEYWORD) {
+      return fieldName + ".keyword";
+    }
+    return fieldName;
   }
 
 }
