@@ -36,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ class ExplainTest extends ExpressionTestBase {
         new ExplainResponse(
             new ExplainResponseNode(
                 "ProjectOperator",
-                ImmutableMap.of("fields", "name, age"),
+                ImmutableMap.of("fields", Arrays.asList("name", "age")),
                 new ExplainResponseNode(
                     "FilterOperator",
                     ImmutableMap.of("conditions", "balance = 10000 and age > 30"),

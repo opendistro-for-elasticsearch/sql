@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 class ExplainJsonResponseFormatterTest {
@@ -32,13 +33,13 @@ class ExplainJsonResponseFormatterTest {
     assertEquals(
         "{\"ProjectOperator\": {\n"
             + "  \"FakeTableScan\": {\"description\": {\"request\": \"Fake request\"}},\n"
-            + "  \"description\": {\"fields\": \"name\"}\n"
+            + "  \"description\": {\"fields\": [\"name\"]}\n"
             + "}}",
         formatter.format(
             new ExplainResponse(
                 new ExplainResponseNode(
                     "ProjectOperator",
-                    ImmutableMap.of("fields", "name"),
+                    ImmutableMap.of("fields", Arrays.asList("name")),
                     new ExplainResponseNode(
                         "FakeTableScan",
                         ImmutableMap.of("request", "Fake request"),

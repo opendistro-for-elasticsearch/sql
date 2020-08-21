@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNo
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.ImmutableMap;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,10 +49,10 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   @Override
   public ExplainResponseNode visitProject(ProjectOperator node, Object context) {
     return explain(node, context, explainNode -> {
-      String projectList = node.getProjectList()
-                               .stream()
-                               .map(NamedExpression::getName)
-                               .collect(Collectors.joining(", "));
+      List<String> projectList = node.getProjectList()
+                                     .stream()
+                                     .map(NamedExpression::getName)
+                                     .collect(Collectors.toList());
       explainNode.setDescription(ImmutableMap.of("fields", projectList));
     });
   }
