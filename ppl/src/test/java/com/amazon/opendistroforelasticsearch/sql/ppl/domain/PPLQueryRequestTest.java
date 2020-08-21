@@ -20,7 +20,7 @@ import org.junit.Test;
 public class PPLQueryRequestTest {
   @Test
   public void getRequestShouldPass() {
-    PPLQueryRequest request = new PPLQueryRequest("source=t a=1", null);
+    PPLQueryRequest request = new PPLQueryRequest("source=t a=1", null, null);
     request.getRequest();
   }
 }

@@ -83,7 +83,7 @@ public class PPLServiceTest {
       return null;
     }).when(executionEngine).execute(any(), any());
 
-    pplService.execute(new PPLQueryRequest("search source=t a=1", null),
+    pplService.execute(new PPLQueryRequest("search source=t a=1", null, null),
         new ResponseListener<QueryResponse>() {
           @Override
           public void onResponse(QueryResponse pplQueryResponse) {
@@ -99,7 +99,7 @@ public class PPLServiceTest {
 
   @Test
   public void testExecuteWithIllegalQueryShouldBeCaughtByHandler() {
-    pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<QueryResponse>() {
+    pplService.execute(new PPLQueryRequest("search", null, null), new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse pplQueryResponse) {
         Assert.fail();
@@ -114,7 +114,7 @@ public class PPLServiceTest {
 
   @Test
   public void test() {
-    pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<QueryResponse>() {
+    pplService.execute(new PPLQueryRequest("search", null, null), new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse pplQueryResponse) {
         Assert.fail();
