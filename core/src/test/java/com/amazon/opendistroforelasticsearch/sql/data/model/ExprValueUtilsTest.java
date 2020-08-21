@@ -103,8 +103,9 @@ public class ExprValueUtilsTest {
       Arrays.asList(ExprCoreType.INTEGER, ExprCoreType.LONG, ExprCoreType.FLOAT,
           ExprCoreType.DOUBLE);
   private static List<ExprCoreType> nonNumberTypes =
-      Arrays.asList(ExprCoreType.STRING, ExprCoreType.BOOLEAN, ExprCoreType.ARRAY,
-          ExprCoreType.STRUCT, DATE, TIME, DATETIME, TIMESTAMP, INTERVAL);
+      Arrays.asList(ExprCoreType.STRING, ExprCoreType.BOOLEAN, ExprCoreType.ARRAY);
+  private static List<ExprCoreType> dateAndTimeTypes =
+      Arrays.asList(DATE, TIME, DATETIME, TIMESTAMP, INTERVAL);
   private static List<ExprCoreType> allTypes =
       Lists.newArrayList(Iterables.concat(numberTypes, nonNumberTypes, dateAndTimeTypes));
 
