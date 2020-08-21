@@ -18,14 +18,20 @@ package com.amazon.opendistroforelasticsearch.sql.executor;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -69,8 +75,28 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
         explainNode.setDescription(ImmutableMap.of("request", node.toString())));
   }
 
+  @Override
+  public ExplainResponseNode visitAggregation(AggregationOperator node, Object context) {
+    return explain(node, context, explainNode -> {
+      Map<FunctionName, List<Expression>> aggList = node.getAggregatorList()
+                                                        .stream()
+                                                        .collect(Collectors.toMap(
+                                                            Aggregator::getFunctionName,
+                                                            Aggregator::getArguments));
+
+      List<String> groupByList = node.getGroupByExprList()
+                                     .stream()
+                                     .map(Expression::toString)
+                                     .collect(Collectors.toList());
+
+      explainNode.setDescription(ImmutableMap.of(
+          "aggregators", aggList,
+          "groupBy", node.getGroupByExprList()));
+    });
+  }
+
   protected ExplainResponseNode explain(PhysicalPlan node, Object context,
-                           Consumer<ExplainResponseNode> doExplain) {
+                                        Consumer<ExplainResponseNode> doExplain) {
     ExplainResponseNode explainNode = new ExplainResponseNode(getOperatorName(node));
     explainNode.setChild(explainChild(node, context));
     doExplain.accept(explainNode);

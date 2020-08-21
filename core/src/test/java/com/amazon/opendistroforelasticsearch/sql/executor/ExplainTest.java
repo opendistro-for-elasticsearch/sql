@@ -16,11 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.AVG;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rename;
@@ -32,11 +35,15 @@ import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Explai
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -76,14 +83,36 @@ class ExplainTest extends ExpressionTestBase {
                         "FakeTableScan",
                         ImmutableMap.of("request", "Fake DSL request"),
                         null)))),
-        explain.apply(plan)
-    );
+        explain.apply(plan));
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Test
+  void can_explain_plan_with_aggregations() {
+    List<Expression> aggExprs = ImmutableList.of(ref("balance", DOUBLE));
+    List<Aggregator> aggList = ImmutableList.of(dsl.avg(aggExprs.toArray(new Expression[0])));
+    List<Expression> groupByList = ImmutableList.of(ref("state", STRING));
+
+    AggregationOperator plan = agg(new FakeTableScan(), aggList, groupByList);
+    assertEquals(
+        new ExplainResponse(
+            new ExplainResponseNode(
+                "AggregationOperator",
+                ImmutableMap.of(
+                    "aggregators", ImmutableMap.of(AVG.getName(), aggExprs),
+                    "groupBy", groupByList),
+                new ExplainResponseNode(
+                    "FakeTableScan",
+                    ImmutableMap.of("request", "Fake DSL request"),
+                    null))),
+        explain.apply(plan));
   }
 
   @Test
   void should_have_empty_description_for_unimplemented_operators() {
     RenameOperator plan = rename(new FakeTableScan(),
         ImmutableMap.of(ref("full_name", STRING), ref("name", STRING)));
+
     assertEquals(
         new ExplainResponse(
             new ExplainResponseNode(
@@ -93,8 +122,7 @@ class ExplainTest extends ExpressionTestBase {
                     "FakeTableScan",
                     ImmutableMap.of("request", "Fake DSL request"),
                     null))),
-        explain.apply(plan)
-    );
+        explain.apply(plan));
   }
 
   private static class FakeTableScan extends TableScanOperator {
