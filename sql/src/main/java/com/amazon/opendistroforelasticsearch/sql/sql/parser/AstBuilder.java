@@ -17,6 +17,8 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SimpleSelectContext;
@@ -24,7 +26,9 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -35,7 +39,9 @@ import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -102,6 +108,21 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitWhereClause(WhereClauseContext ctx) {
     return new Filter(visitAstExpression(ctx.expression()));
+  }
+
+  @Override
+  public UnresolvedPlan visitGroupByClause(GroupByClauseContext ctx) {
+    List<UnresolvedExpression> aggList = new ArrayList<>();
+    List<UnresolvedExpression> groupByList = new ArrayList<>();
+    for (GroupByElementContext groupByItem : ctx.groupByElements().groupByElement()) {
+      UnresolvedExpression expr = visitAstExpression(groupByItem);
+      if (expr instanceof QualifiedName) {
+        groupByList.add(expr);
+      } else {
+        aggList.add(expr);
+      }
+    }
+    return new Aggregation(aggList, Collections.emptyList(), groupByList);
   }
 
   @Override

@@ -109,9 +109,13 @@ class SQLSyntaxParserTest {
   }
 
   @Test
-  public void canNotParseInvalidSelect() {
-    assertThrows(SyntaxCheckException.class,
-        () -> parser.parse("SELECT * FROM test WHERE age = 10 GROUP BY name"));
+  public void canParseGroupByClause() {
+    assertNotNull(parser.parse("SELECT name, AVG(age) FROM test GROUP BY name"));
+    assertNotNull(parser.parse("SELECT name AS n, AVG(age) FROM test GROUP BY n"));
+
+    // Can parse but expect semantic analysis error till it's supported
+    assertNotNull(parser.parse("SELECT ABS(balance) FROM test GROUP BY ABS(balance)"));
+    assertNotNull(parser.parse("SELECT ABS(balance) FROM test GROUP BY 1"));
   }
 
 }

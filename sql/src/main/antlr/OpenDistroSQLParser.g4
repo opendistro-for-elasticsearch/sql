@@ -78,10 +78,23 @@ selectElement
 fromClause
     : FROM tableName
       (whereClause)?
+      (groupByClause)?
     ;
 
 whereClause
     : WHERE expression
+    ;
+
+groupByClause
+    : GROUP BY groupByElements
+    ;
+
+groupByElements
+    : groupByElement (COMMA groupByElement)*
+    ;
+
+groupByElement
+    : expression
     ;
 
 //    Literals
@@ -193,11 +206,16 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    | aggregateFunctionName LR_BRACKET functionArgs? RR_BRACKET     #aggregateFunctionCall
     ;
 
 scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
+    ;
+
+aggregateFunctionName
+    : AVG | SUM | COUNT
     ;
 
 mathematicalFunctionName
@@ -215,7 +233,7 @@ dateTimeFunctionName
     ;
 
 functionArgs
-    : (functionArg (COMMA functionArg)*)?
+    : functionArg (COMMA functionArg)*
     ;
 
 functionArg
