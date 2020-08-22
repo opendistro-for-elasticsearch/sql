@@ -18,13 +18,16 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.google.common.collect.ImmutableList;
@@ -63,9 +66,14 @@ public class SelectExpressionAnalyzer
 
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
-    return Collections.singletonList(DSL.named(node.getName(),
-        node.getDelegated().accept(expressionAnalyzer, context),
-        node.getAlias()));
+    Expression expr;
+    try {
+      ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, node.getName()));
+      expr = DSL.ref(node.getName(), type);
+    } catch (SemanticCheckException e) {
+      expr = node.getDelegated().accept(expressionAnalyzer, context);
+    }
+    return Collections.singletonList(DSL.named(node.getName(), expr, node.getAlias()));
   }
 
   @Override

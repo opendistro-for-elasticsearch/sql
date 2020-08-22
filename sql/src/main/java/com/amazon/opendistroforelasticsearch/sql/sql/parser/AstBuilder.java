@@ -18,15 +18,15 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByClauseContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SimpleSelectContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WhereClauseContext;
+import static java.util.Collections.emptyList;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
@@ -40,9 +40,9 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -57,6 +57,13 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
   /**
+   * Aggregators in SELECT and HAVING clause that needs to push to Aggregation operator.
+   * 1) SELECT name, AVG(age) ... GROUP BY name => Aggregation(agg=avg, groupBy=name)
+   * 2) SELECT name, AVG(age) ... GROUP BY name HAVING MAX(balance) > 100 => Aggregation(agg=avg,max, groupBy=name)
+   */
+  private final List<UnresolvedExpression> aggregators = new ArrayList<>();
+
+  /**
    * SQL query to get original token text. This is necessary because token.getText() returns
    * text without whitespaces or other characters discarded by lexer.
    */
@@ -65,11 +72,11 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitSimpleSelect(SimpleSelectContext ctx) {
     QuerySpecificationContext query = ctx.querySpecification();
-    UnresolvedPlan project = visit(query.selectClause());
+    Project project = (Project) visit(query.selectClause());
 
     if (query.fromClause() == null) {
       Optional<UnresolvedExpression> allFields =
-          ((Project) project).getProjectList().stream().filter(node -> node instanceof AllFields)
+          project.getProjectList().stream().filter(node -> node instanceof AllFields)
               .findFirst();
       if (allFields.isPresent()) {
         throw new SyntaxCheckException("No FROM clause found for select all");
@@ -77,9 +84,16 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       // Attach an Values operator with only a empty row inside so that
       // Project operator can have a chance to evaluate its expression
       // though the evaluation doesn't have any dependency on what's in Values.
-      Values emptyValue = new Values(ImmutableList.of(Collections.emptyList()));
+      Values emptyValue = new Values(ImmutableList.of(emptyList()));
       return project.attach(emptyValue);
     }
+
+    project.getProjectList().forEach(expr -> {
+      if (expr instanceof Alias
+          && ((Alias) expr).getDelegated() instanceof AggregateFunction) {
+        aggregators.add(((Alias) expr).getDelegated());
+      }
+    });
 
     UnresolvedPlan relation = visit(query.fromClause());
     return project.attach(relation);
@@ -99,8 +113,12 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
     UnresolvedPlan result = new Relation(visitAstExpression(ctx.tableName().qualifiedName()));
-    if (ctx.whereClause() != null) {
-      result = visit(ctx.whereClause()).attach(result);
+
+    ParseTree[] children = { ctx.whereClause(), ctx.groupByClause() };
+    for (ParseTree child : children) {
+      if (child != null) {
+        result = visit(child).attach(result);
+      }
     }
     return result;
   }
@@ -112,17 +130,12 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitGroupByClause(GroupByClauseContext ctx) {
-    List<UnresolvedExpression> aggList = new ArrayList<>();
-    List<UnresolvedExpression> groupByList = new ArrayList<>();
-    for (GroupByElementContext groupByItem : ctx.groupByElements().groupByElement()) {
-      UnresolvedExpression expr = visitAstExpression(groupByItem);
-      if (expr instanceof QualifiedName) {
-        groupByList.add(expr);
-      } else {
-        aggList.add(expr);
-      }
-    }
-    return new Aggregation(aggList, Collections.emptyList(), groupByList);
+    List<UnresolvedExpression> groupByList = ctx.groupByElements()
+                                                .groupByElement()
+                                                .stream()
+                                                .map(this::visitAstExpression)
+                                                .collect(Collectors.toList());
+    return new Aggregation(aggregators, emptyList(), groupByList);
   }
 
   @Override

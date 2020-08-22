@@ -206,7 +206,7 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
-    | aggregateFunctionName LR_BRACKET functionArgs? RR_BRACKET     #aggregateFunctionCall
+    | aggregateFunctionName LR_BRACKET functionArg RR_BRACKET       #aggregateFunctionCall
     ;
 
 scalarFunctionName
