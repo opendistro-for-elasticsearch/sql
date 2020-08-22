@@ -64,7 +64,7 @@ public class ExprDatetimeValue extends AbstractExprValue {
 
   @Override
   public Instant timestampValue() {
-    return ZonedDateTime.of(datetime, ZoneId.systemDefault()).toInstant();
+    return ZonedDateTime.of(datetime, ZoneId.of("UTC")).toInstant();
   }
 
   @Override

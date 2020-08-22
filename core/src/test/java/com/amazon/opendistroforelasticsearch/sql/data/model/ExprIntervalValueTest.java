@@ -55,6 +55,13 @@ public class ExprIntervalValueTest {
   }
 
   @Test
+  public void invalid_get_value() {
+    ExprDateValue value = new ExprDateValue("2020-08-20");
+    assertThrows(ExpressionEvaluationException.class, value::intervalValue,
+        String.format("invalid to get intervalValue from value of type %s", value.type()));
+  }
+
+  @Test
   public void value() {
     ExprValue value = new ExprIntervalValue(Period.ofWeeks(1));
     assertEquals(value.value(), Period.ofWeeks(1));

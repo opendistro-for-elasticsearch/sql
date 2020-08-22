@@ -56,7 +56,7 @@ public class DateTimeValueTest {
 
     assertEquals(TIMESTAMP, timestampValue.type());
     assertEquals(ZonedDateTime.of(LocalDateTime.parse("2020-07-07T01:01:01"),
-        ZoneId.systemDefault()).toInstant(), timestampValue.timestampValue());
+        ZoneId.of("UTC")).toInstant(), timestampValue.timestampValue());
     assertEquals("2020-07-07 01:01:01", timestampValue.value());
     assertEquals("TIMESTAMP '2020-07-07 01:01:01'", timestampValue.toString());
     assertEquals(LocalDate.parse("2020-07-07"), getDateValue(timestampValue));
@@ -90,7 +90,7 @@ public class DateTimeValueTest {
     assertEquals(LocalDate.parse("2020-08-17"), getDateValue(datetimeValue));
     assertEquals(LocalTime.parse("19:44:00"), getTimeValue(datetimeValue));
     assertEquals(ZonedDateTime.of(LocalDateTime.parse("2020-08-17T19:44:00"),
-        ZoneId.systemDefault()).toInstant(), getTimestampValue(datetimeValue));
+        ZoneId.of("UTC")).toInstant(), getTimestampValue(datetimeValue));
     assertEquals("DATETIME '2020-08-17 19:44:00'", datetimeValue.toString());
     assertThrows(ExpressionEvaluationException.class,
         () -> ExprValueUtils.getDatetimeValue(integerValue(1)),
