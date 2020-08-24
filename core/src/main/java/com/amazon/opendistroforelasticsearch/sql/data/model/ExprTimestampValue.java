@@ -39,7 +39,7 @@ public class ExprTimestampValue extends AbstractExprValue {
   /**
    * todo. only support UTC now.
    */
-  private static final ZoneId defaultZone = ZoneId.of("UTC");
+  private static final ZoneId ZONE = ZoneId.of("UTC");
   /**
    * todo. only support timestamp in format yyyy-MM-dd HH:mm:ss.
    */
@@ -52,7 +52,7 @@ public class ExprTimestampValue extends AbstractExprValue {
    */
   public ExprTimestampValue(String timestamp) {
     try {
-      this.timestamp = LocalDateTime.parse(timestamp, FORMATTER).atZone(defaultZone)
+      this.timestamp = LocalDateTime.parse(timestamp, FORMATTER).atZone(ZONE)
           .toInstant();
     } catch (DateTimeParseException e) {
       throw new SemanticCheckException(String.format("timestamp:%s in unsupported format, please "
@@ -63,7 +63,7 @@ public class ExprTimestampValue extends AbstractExprValue {
 
   @Override
   public String value() {
-    return FORMATTER.withZone(defaultZone).format(timestamp.truncatedTo(ChronoUnit.SECONDS));
+    return FORMATTER.withZone(ZONE).format(timestamp.truncatedTo(ChronoUnit.SECONDS));
   }
 
   @Override
@@ -78,17 +78,17 @@ public class ExprTimestampValue extends AbstractExprValue {
 
   @Override
   public LocalDate dateValue() {
-    return timestamp.atZone(defaultZone).toLocalDate();
+    return timestamp.atZone(ZONE).toLocalDate();
   }
 
   @Override
   public LocalTime timeValue() {
-    return timestamp.atZone(defaultZone).toLocalTime();
+    return timestamp.atZone(ZONE).toLocalTime();
   }
 
   @Override
   public LocalDateTime datetimeValue() {
-    return timestamp.atZone(defaultZone).toLocalDateTime();
+    return timestamp.atZone(ZONE).toLocalDateTime();
   }
 
   @Override
