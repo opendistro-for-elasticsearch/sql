@@ -15,7 +15,7 @@
 
 buildscript {
     ext {
-        es_version = "7.8.0"
+        es_version = "7.9.0"
     }
 
     repositories {
@@ -43,12 +43,12 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '1.9.0'
+    opendistroVersion = '1.10.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
 allprojects {
-    version = "${opendistroVersion}.1"
+    version = "${opendistroVersion}.0"
 
     plugins.withId('java') {
         sourceCompatibility = targetCompatibility = "1.8"

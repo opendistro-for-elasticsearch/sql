@@ -57,6 +57,7 @@ public enum ExprCoreType implements ExprType {
   TIMESTAMP,
   DATE,
   TIME,
+  INTERVAL,
 
   /**
    * Struct.

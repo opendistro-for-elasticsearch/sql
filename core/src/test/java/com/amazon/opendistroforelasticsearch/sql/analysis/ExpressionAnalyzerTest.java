@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
@@ -111,6 +112,13 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         exception.getMessage()
     );
     analysisContext.pop();
+  }
+
+  @Test
+  public void interval() {
+    assertAnalyzeEqual(
+        dsl.interval(DSL.literal(1L), DSL.literal("DAY")),
+        AstDSL.intervalLiteral(1L, DataType.LONG, "DAY"));
   }
 
   @Test
