@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
@@ -99,6 +101,11 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     TypeEnvironment curEnv = context.peek();
     Table table = storageEngine.getTable(node.getTableName());
     table.getFieldTypes().forEach((k, v) -> curEnv.define(new Symbol(Namespace.FIELD_NAME, k), v));
+
+    // Put index name or its alias in index namespace on type environment so qualifier
+    // can be removed when analyzing qualified name. The value (expr type) here doesn't matter.
+    curEnv.define(new Symbol(Namespace.INDEX_NAME, node.getTableNameOrAlias()), STRUCT);
+
     return new LogicalRelation(node.getTableName());
   }
 

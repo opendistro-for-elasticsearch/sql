@@ -147,6 +147,32 @@ class AstBuilderTest {
   }
 
   @Test
+  public void can_build_from_index_with_alias() {
+    assertEquals(
+        project(
+            filter(
+                relation("test", "tt"),
+                function("=", qualifiedName("tt", "age"), intLiteral(30))),
+            alias("tt.name", qualifiedName("tt", "name"))
+        ),
+        buildAST("SELECT tt.name FROM test AS tt WHERE tt.age = 30")
+    );
+  }
+
+  @Test
+  public void can_build_from_index_with_alias_quoted() {
+    assertEquals(
+        project(
+            filter(
+                relation("test", "t"),
+                function("=", qualifiedName("t", "age"), intLiteral(30))),
+            alias("`t`.name", qualifiedName("t", "name"))
+        ),
+        buildAST("SELECT `t`.name FROM test `t` WHERE `t`.age = 30")
+    );
+  }
+
+  @Test
   public void can_build_where_clause() {
     assertEquals(
         project(

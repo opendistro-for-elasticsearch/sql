@@ -76,7 +76,7 @@ selectElement
     ;
 
 fromClause
-    : FROM tableName
+    : FROM tableName (AS? alias)?
       (whereClause)?
     ;
 

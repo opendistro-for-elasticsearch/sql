@@ -92,11 +92,15 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
-    UnresolvedPlan result = new Relation(visitAstExpression(ctx.tableName().qualifiedName()));
+    UnresolvedExpression tableName = visitAstExpression(ctx.tableName());
+    String tableAlias = (ctx.alias() == null) ? null
+        : StringUtils.unquoteIdentifier(ctx.alias().getText());
+
+    Relation relation = new Relation(tableName, tableAlias);
     if (ctx.whereClause() != null) {
-      result = visit(ctx.whereClause()).attach(result);
+      return visit(ctx.whereClause()).attach(relation);
     }
-    return result;
+    return relation;
   }
 
   @Override
