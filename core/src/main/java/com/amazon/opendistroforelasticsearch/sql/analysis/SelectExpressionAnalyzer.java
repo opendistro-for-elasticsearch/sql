@@ -69,7 +69,7 @@ public class SelectExpressionAnalyzer
     Expression expr;
     try {
       ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, node.getName()));
-      expr = DSL.ref(node.getName(), type);
+      expr = DSL.ref(node.getDelegated().toString(), type); // toString() or getName()? Internally ABS(age) changed to abs(age)
     } catch (SemanticCheckException e) {
       expr = node.getDelegated().accept(expressionAnalyzer, context);
     }
