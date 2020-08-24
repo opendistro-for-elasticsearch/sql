@@ -18,8 +18,11 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -38,20 +41,49 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = {ExpressionConfig.class, SelectExpressionAnalyzerTest.class})
 public class SelectExpressionAnalyzerTest extends AnalyzerTestBase {
 
-
   @Test
   public void named_expression() {
     assertAnalyzeEqual(
-        DSL.named("int", DSL.ref("integer_value", INTEGER)),
-        AstDSL.alias("int", AstDSL.qualifiedName("integer_value"))
+        DSL.named("integer_value", DSL.ref("integer_value", INTEGER)),
+        AstDSL.alias("integer_value", AstDSL.qualifiedName("integer_value"))
     );
   }
 
   @Test
   public void named_expression_with_alias() {
     assertAnalyzeEqual(
-        DSL.named("integer", DSL.ref("integer_value", INTEGER), "int"),
-        AstDSL.alias("integer", AstDSL.qualifiedName("integer_value"), "int")
+        DSL.named("integer_value", DSL.ref("integer_value", INTEGER), "int"),
+        AstDSL.alias("integer_value", AstDSL.qualifiedName("integer_value"), "int")
+    );
+  }
+
+  @Test
+  public void field_name_with_qualifier() {
+    analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
+    assertAnalyzeEqual(
+        DSL.named("integer_value", DSL.ref("integer_value", INTEGER)),
+        AstDSL.alias("integer_alias.integer_value",
+            AstDSL.qualifiedName("index_alias", "integer_value"))
+    );
+  }
+
+  @Test
+  public void field_name_with_qualifier_quoted() {
+    analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
+    assertAnalyzeEqual(
+        DSL.named("integer_value", DSL.ref("integer_value", INTEGER)),
+        AstDSL.alias("`integer_alias`.integer_value", // qualifier in SELECT is quoted originally
+            AstDSL.qualifiedName("index_alias", "integer_value"))
+    );
+  }
+
+  @Test
+  public void field_name_in_expression_with_qualifier() {
+    analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
+    assertAnalyzeEqual(
+        DSL.named("abs(index_alias.integer_value)", dsl.abs(DSL.ref("integer_value", INTEGER))),
+        AstDSL.alias("abs(index_alias.integer_value)",
+            AstDSL.function("abs", AstDSL.qualifiedName("index_alias", "integer_value")))
     );
   }
 

@@ -59,7 +59,8 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   /**
    * Aggregators in SELECT and HAVING clause that needs to push to Aggregation operator.
    * 1) SELECT name, AVG(age) ... GROUP BY name => Aggregation(agg=avg, groupBy=name)
-   * 2) SELECT name, AVG(age) ... GROUP BY name HAVING MAX(balance) > 100 => Aggregation(agg=avg,max, groupBy=name)
+   * 2) SELECT name, AVG(age) ... GROUP BY name HAVING MAX(balance) > 100
+   *    => Aggregation(agg=avg,max, groupBy=name)
    */
   private final List<UnresolvedExpression> aggregators = new ArrayList<>();
 
@@ -112,13 +113,16 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
-    UnresolvedPlan result = new Relation(visitAstExpression(ctx.tableName().qualifiedName()));
+    UnresolvedExpression tableName = visitAstExpression(ctx.tableName());
+    String tableAlias = (ctx.alias() == null) ? null
+        : StringUtils.unquoteIdentifier(ctx.alias().getText());
 
-    ParseTree[] children = { ctx.whereClause(), ctx.groupByClause() };
-    for (ParseTree child : children) {
-      if (child != null) {
-        result = visit(child).attach(result);
-      }
+    UnresolvedPlan result = new Relation(tableName, tableAlias);
+    if (ctx.whereClause() != null) {
+      result = visit(ctx.whereClause()).attach(result);
+    }
+    if (ctx.groupByClause() != null) {
+      result = visit(ctx.groupByClause()).attach(result);
     }
     return result;
   }

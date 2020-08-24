@@ -20,10 +20,12 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -92,22 +94,31 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void qualified_name_with_qualifier() {
+    analysisContext.push();
+    analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
+    assertAnalyzeEqual(
+        DSL.ref("integer_value", INTEGER),
+        AstDSL.qualifiedName("index_alias", "integer_value")
+    );
+
+    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "nested_field"), STRUCT);
+    SyntaxCheckException exception =
+        assertThrows(SyntaxCheckException.class,
+            () -> analyze(AstDSL.qualifiedName("nested_field", "integer_value")));
+    assertEquals(
+        "The qualifier [nested_field] of qualified name [nested_field.integer_value] "
+            + "must be an index name or its alias",
+        exception.getMessage()
+    );
+    analysisContext.pop();
+  }
+
+  @Test
   public void interval() {
     assertAnalyzeEqual(
         dsl.interval(DSL.literal(1L), DSL.literal("DAY")),
         AstDSL.intervalLiteral(1L, DataType.LONG, "DAY"));
-  }
-
-  @Test
-  public void skip_identifier_with_qualifier() {
-    SyntaxCheckException exception =
-        assertThrows(SyntaxCheckException.class,
-            () -> analyze(AstDSL.qualifiedName("index_alias", "integer_value")));
-
-    assertEquals(
-        "Qualified name [index_alias.integer_value] is not supported yet",
-        exception.getMessage()
-    );
   }
 
   @Test

@@ -163,13 +163,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
-    // Name with qualifier (index.field, index_alias.field, object/nested.inner_field
-    //  text.keyword) is not supported for now
-    if (node.getParts().size() > 1) {
-      throw new SyntaxCheckException(String.format(
-          "Qualified name [%s] is not supported yet", node));
-    }
-    return visitIdentifier(node.toString(), context);
+    QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
+    return visitIdentifier(qualifierAnalyzer.unqualified(node), context);
   }
 
   private Expression visitIdentifier(String ident, AnalysisContext context) {
