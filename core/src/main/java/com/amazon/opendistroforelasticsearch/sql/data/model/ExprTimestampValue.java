@@ -52,8 +52,7 @@ public class ExprTimestampValue extends AbstractExprValue {
    */
   public ExprTimestampValue(String timestamp) {
     try {
-      this.timestamp = LocalDateTime.parse(timestamp, FORMATTER).atZone(ZONE)
-          .toInstant();
+      this.timestamp = LocalDateTime.parse(timestamp, FORMATTER).atZone(ZONE).toInstant();
     } catch (DateTimeParseException e) {
       throw new SemanticCheckException(String.format("timestamp:%s in unsupported format, please "
           + "use yyyy-MM-dd HH:mm:ss", timestamp));
