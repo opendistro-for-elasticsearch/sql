@@ -56,22 +56,34 @@ class ExpressionFilterScript extends FilterScript {
    */
   private final Expression expression;
 
+  /**
+   * ElasticsearchExprValueFactory.
+   */
+  @EqualsAndHashCode.Exclude
+  private final ElasticsearchExprValueFactory valueFactory;
+
+  /**
+   * Reference Fields.
+   */
+  @EqualsAndHashCode.Exclude
+  private final Set<ReferenceExpression> fields;
+
   public ExpressionFilterScript(Expression expression,
                                 SearchLookup lookup,
                                 LeafReaderContext context,
                                 Map<String, Object> params) {
     super(params, lookup, context);
     this.expression = expression;
+    this.fields = AccessController.doPrivileged((PrivilegedAction<Set<ReferenceExpression>>) () ->
+        extractFields(expression));
+    this.valueFactory =
+        AccessController.doPrivileged(
+            (PrivilegedAction<ElasticsearchExprValueFactory>) () -> buildValueFactory(fields));
   }
 
   @Override
   public boolean execute() {
-    // Check current script are not being called by unprivileged code.
-    SpecialPermission.check();
-
     return AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
-      Set<ReferenceExpression> fields = extractFields(expression);
-      ElasticsearchExprValueFactory valueFactory = buildValueFactory(fields);
       Environment<Expression, ExprValue> valueEnv = buildValueEnv(fields, valueFactory);
       ExprValue result = evaluateExpression(valueEnv);
       return (Boolean) result.value();
