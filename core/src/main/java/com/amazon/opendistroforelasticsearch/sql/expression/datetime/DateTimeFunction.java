@@ -59,7 +59,6 @@ public class DateTimeFunction {
    */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(date());
-    repository.register(datetime());
     repository.register(dayOfMonth());
     repository.register(time());
     repository.register(timestamp());
@@ -76,19 +75,6 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
-  }
-
-  /**
-   * Extracts the datetime value of a date and time value.
-   * Also to construct a datetime type. The supported signatures:
-   * STRING/DATE/DATETIME/TIMESTAMP -> DATETIME
-   */
-  private FunctionResolver datetime() {
-    return define(BuiltinFunctionName.DATETIME.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDatetime), DATETIME, STRING),
-        impl(nullMissingHandling(DateTimeFunction::exprDatetime), DATETIME, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprDatetime), DATETIME, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprDatetime), DATETIME, TIMESTAMP));
   }
 
   /**
@@ -138,19 +124,6 @@ public class DateTimeFunction {
       return new ExprDateValue(getStringValue(exprValue));
     } else {
       return new ExprDateValue(getDateValue(exprValue));
-    }
-  }
-
-  /**
-   * Datetime implementation for ExprValue.
-   * @param exprValue ExprValue of Datetime type or String type.
-   * @return ExprValue.
-   */
-  private ExprValue exprDatetime(ExprValue exprValue) {
-    if (exprValue instanceof ExprStringValue) {
-      return new ExprDatetimeValue(getStringValue(exprValue));
-    } else {
-      return new ExprDatetimeValue(getDatetimeValue(exprValue));
     }
   }
 

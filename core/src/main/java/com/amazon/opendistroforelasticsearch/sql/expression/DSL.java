@@ -243,10 +243,6 @@ public class DSL {
     return function(BuiltinFunctionName.DATE, expressions);
   }
 
-  public FunctionExpression datetime(Expression... expressions) {
-    return function(BuiltinFunctionName.DATETIME, expressions);
-  }
-
   public FunctionExpression time(Expression... expressions) {
     return function(BuiltinFunctionName.TIME, expressions);
   }

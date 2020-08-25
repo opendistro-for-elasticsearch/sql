@@ -52,7 +52,6 @@ public enum BuiltinFunctionName {
    * Date and Time Functions.
    */
   DATE(FunctionName.of("date")),
-  DATETIME(FunctionName.of("datetime")),
   DAYOFMONTH(FunctionName.of("dayofmonth")),
   TIME(FunctionName.of("time")),
   TIMESTAMP(FunctionName.of("timestamp")),

@@ -211,7 +211,7 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : DAYOFMONTH
+    : DAYOFMONTH | DATE | TIME | TIMESTAMP
     ;
 
 functionArgs

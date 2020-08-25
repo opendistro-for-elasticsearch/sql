@@ -93,24 +93,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void datetime() {
-    when(nullRef.type()).thenReturn(DATETIME);
-    when(missingRef.type()).thenReturn(DATETIME);
-    assertEquals(nullValue(), eval(dsl.datetime(nullRef)));
-    assertEquals(missingValue(), eval(dsl.datetime(missingRef)));
-
-    FunctionExpression expr = dsl.datetime(DSL.literal("2020-08-17 01:01:01"));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2020-08-17 01:01:01"), eval(expr));
-    assertEquals("datetime(\"2020-08-17 01:01:01\")", expr.toString());
-
-    expr = dsl.datetime(DSL.literal(new ExprDatetimeValue("2020-08-17 01:01:01")));
-    assertEquals(DATETIME, expr.type());
-    assertEquals(new ExprDatetimeValue("2020-08-17 01:01:01"), eval(expr));
-    assertEquals("datetime(DATETIME '2020-08-17 01:01:01')", expr.toString());
-  }
-
-  @Test
   public void time() {
     when(nullRef.type()).thenReturn(TIME);
     when(missingRef.type()).thenReturn(TIME);
