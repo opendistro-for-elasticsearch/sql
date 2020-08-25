@@ -24,7 +24,6 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WhereClauseContext;
 import static java.util.Collections.emptyList;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -38,8 +37,8 @@ import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckExcepti
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
+import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.ParsingContext;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,7 +61,8 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
    * 2) SELECT name, AVG(age) ... GROUP BY name HAVING MAX(balance) > 100
    *    => Aggregation(agg=avg,max, groupBy=name)
    */
-  private final List<UnresolvedExpression> aggregators = new ArrayList<>();
+  //private final List<UnresolvedExpression> aggregators = new ArrayList<>();
+  private final ParsingContext context = new ParsingContext();
 
   /**
    * SQL query to get original token text. This is necessary because token.getText() returns
@@ -72,6 +72,9 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitSimpleSelect(SimpleSelectContext ctx) {
+    context.push();
+    context.peek().collect(ctx);
+
     QuerySpecificationContext query = ctx.querySpecification();
     Project project = (Project) visit(query.selectClause());
 
@@ -89,14 +92,10 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       return project.attach(emptyValue);
     }
 
-    project.getProjectList().forEach(expr -> {
-      if (expr instanceof Alias
-          && ((Alias) expr).getDelegated() instanceof AggregateFunction) {
-        aggregators.add(((Alias) expr).getDelegated());
-      }
-    });
-
     UnresolvedPlan relation = visit(query.fromClause());
+
+    context.pop(); // TODO: find better place
+
     return project.attach(relation);
   }
 
@@ -139,7 +138,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
                                                 .stream()
                                                 .map(this::visitAstExpression)
                                                 .collect(Collectors.toList());
-    return new Aggregation(aggregators, emptyList(), groupByList);
+    return new Aggregation(context.peek().getAggregators(), emptyList(), groupByList);
   }
 
   @Override
