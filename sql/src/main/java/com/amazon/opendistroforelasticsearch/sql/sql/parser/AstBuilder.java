@@ -17,17 +17,14 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SimpleSelectContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WhereClauseContext;
 import static java.util.Collections.emptyList;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -39,9 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.ParsingContext;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -71,11 +66,10 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   private final String query;
 
   @Override
-  public UnresolvedPlan visitSimpleSelect(SimpleSelectContext ctx) {
+  public UnresolvedPlan visitQuerySpecification(QuerySpecificationContext query) {
     context.push();
-    context.peek().collect(ctx);
+    context.peek().collect(query);
 
-    QuerySpecificationContext query = ctx.querySpecification();
     Project project = (Project) visit(query.selectClause());
 
     if (query.fromClause() == null) {
@@ -120,25 +114,19 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
     if (ctx.whereClause() != null) {
       result = visit(ctx.whereClause()).attach(result);
     }
-    if (ctx.groupByClause() != null) {
-      result = visit(ctx.groupByClause()).attach(result);
+
+    AstAggregationBuilder aggBuilder = new AstAggregationBuilder(context.peek());
+    UnresolvedPlan aggregation = aggBuilder.visit(ctx.groupByClause());
+    if (aggregation != null) {
+      result = aggregation.attach(result);
     }
+
     return result;
   }
 
   @Override
   public UnresolvedPlan visitWhereClause(WhereClauseContext ctx) {
     return new Filter(visitAstExpression(ctx.expression()));
-  }
-
-  @Override
-  public UnresolvedPlan visitGroupByClause(GroupByClauseContext ctx) {
-    List<UnresolvedExpression> groupByList = ctx.groupByElements()
-                                                .groupByElement()
-                                                .stream()
-                                                .map(this::visitAstExpression)
-                                                .collect(Collectors.toList());
-    return new Aggregation(context.peek().getAggregators(), emptyList(), groupByList);
   }
 
   @Override

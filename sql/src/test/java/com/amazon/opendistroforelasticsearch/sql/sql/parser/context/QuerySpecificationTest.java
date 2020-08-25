@@ -25,9 +25,10 @@ import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCha
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
 class QuerySpecificationTest {
@@ -62,7 +63,7 @@ class QuerySpecificationTest {
         "SELECT name, AVG(age), SUM(balance) FROM test GROUP BY name");
 
     assertEquals(
-        ImmutableList.of(
+        ImmutableSet.of(
             aggregate("AVG", qualifiedName("age")),
             aggregate("SUM", qualifiedName("balance"))),
         querySpec.getAggregators());
@@ -74,8 +75,20 @@ class QuerySpecificationTest {
         "SELECT name, ABS(1 + AVG(age)) FROM test GROUP BY name");
 
     assertEquals(
-        ImmutableList.of(
+        ImmutableSet.of(
             aggregate("AVG", qualifiedName("age"))),
+        querySpec.getAggregators());
+  }
+
+  @Test
+  void should_deduplicate_same_aggregators() {
+    QuerySpecification querySpec = collect(
+        "SELECT AVG(age), AVG(balance), AVG(age) FROM test GROUP BY name");
+
+    assertEquals(
+        ImmutableSet.of(
+            aggregate("AVG", qualifiedName("age")),
+            aggregate("AVG", qualifiedName("balance"))),
         querySpec.getAggregators());
   }
 
@@ -85,7 +98,7 @@ class QuerySpecificationTest {
     return querySpec;
   }
 
-  private ParseTree parse(String query) {
+  private QuerySpecificationContext parse(String query) {
     OpenDistroSQLLexer lexer = new OpenDistroSQLLexer(new CaseInsensitiveCharStream(query));
     OpenDistroSQLParser parser = new OpenDistroSQLParser(new CommonTokenStream(lexer));
     parser.addErrorListener(new SyntaxAnalysisErrorListener());

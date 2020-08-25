@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public class ParsingContext {
 
-  private QuerySpecification query = null;
+  private QuerySpecification query;
 
   public void push() {
     query = new QuerySpecification();

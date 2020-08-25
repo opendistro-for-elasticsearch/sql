@@ -21,16 +21,30 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstExpressionBuilder;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
- * Query specification domain that represents info for a simple query.
+ * Query specification domain that collects and represents essential info for a simple query.
+ * During collect, it avoids collecting sub-query info wrongly.
+ * (I) What is the responsibility?
+ *  This abstraction turns AST building process into two passes:
+ *  1) Query specification collects info
+ *  2) AST builder uses the info to build AST node
+ * (II) Why is this required?
+ *  There are two reasons as follows that make one pass building hard or impossible:
+ *  1) Some info spread across the query: aggregation operators needs to know all
+ *     aggregate function call in SELECT and HAVING clause
+ *  2) Some operator needs info from operator built later: GROUP BY or HAVING clause
+ *     may contain aliases defined in SELECT clause.
  */
 @Getter
 @RequiredArgsConstructor
@@ -40,17 +54,27 @@ public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
 
   private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
+  /**
+   * Items in SELECT clause.
+   */
   private List<UnresolvedExpression> selectItems = new ArrayList<>();
 
-  private List<UnresolvedExpression> aggregators = new ArrayList<>();
+  /**
+   * Aggregate function calls that spreads in SELECT, HAVING clause. Since this is going to be
+   * pushed to aggregation operator, de-duplicate is necessary to avoid duplicate computation.
+   */
+  private Set<UnresolvedExpression> aggregators = new HashSet<>();
 
+  /**
+   * Items in GROUP BY clause that may be simple field name or nested in scalar function call.
+   */
   private List<UnresolvedExpression> groupByItems = new ArrayList<>();
 
   public QuerySpecification() {
     this(null);
   }
 
-  public void collect(ParseTree query) {
+  public void collect(QuerySpecificationContext query) {
     query.accept(this);
   }
 
