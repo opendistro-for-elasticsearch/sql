@@ -24,6 +24,8 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -101,12 +103,43 @@ class AstAggregationBuilderTest {
   }
 
   @Test
+  void should_build_nothing_if_no_group_by_and_no_aggregators_in_select() {
+    assertNull(buildAggregation("SELECT name FROM test"));
+  }
+
+  @Test
   void should_report_error_for_mismatch_between_select_and_group_by_items() {
     SyntaxCheckException error1 = assertThrows(SyntaxCheckException.class, () ->
         buildAggregation("SELECT name FROM test GROUP BY state"));
+    assertEquals(
+        "Expression [name] that contains non-aggregated column is not present in group by clause",
+        error1.getMessage());
 
     SyntaxCheckException error2 = assertThrows(SyntaxCheckException.class, () ->
         buildAggregation("SELECT ABS(name + 1) FROM test GROUP BY name"));
+    assertEquals(
+        "Expression [Function(funcName=ABS, funcArgs=[Function(funcName=+, "
+            + "funcArgs=[name, Literal(value=1, type=INTEGER)])])] that contains "
+            + "non-aggregated column is not present in group by clause",
+        error2.getMessage());
+  }
+
+  @Test
+  void should_report_error_for_non_aggregated_item_in_select_if_no_group_by() {
+    SyntaxCheckException error1 = assertThrows(SyntaxCheckException.class, () ->
+        buildAggregation("SELECT age, AVG(balance) FROM tests"));
+    assertEquals(
+        "Explicit GROUP BY clause is required because expression [age] "
+            + "contains non-aggregate column",
+        error1.getMessage());
+
+    SyntaxCheckException error2 = assertThrows(SyntaxCheckException.class, () ->
+        buildAggregation("SELECT ABS(age + 1), AVG(balance) FROM tests"));
+    assertEquals(
+        "Explicit GROUP BY clause is required because expression [Function(funcName=ABS, "
+            + "funcArgs=[Function(funcName=+, funcArgs=[age, Literal(value=1, type=INTEGER)])])] "
+            + "contains non-aggregate column",
+        error2.getMessage());
   }
 
   private Matcher<UnresolvedPlan> hasGroupByItems(UnresolvedExpression... exprs) {

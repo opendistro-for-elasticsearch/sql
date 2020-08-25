@@ -47,18 +47,25 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   private final QuerySpecification querySpec;
 
   @Override
-  public UnresolvedPlan visit(ParseTree tree) {
-    if (tree == null) {
+  public UnresolvedPlan visit(ParseTree groupByClause) {
+    if (groupByClause == null) {
+      if (isAllSelectItemNonAggregated()) {
+        return null;
+      }
       return buildImplicitAggregation();
     }
-    return super.visit(tree);
+    return super.visit(groupByClause);
   }
 
   @Override
   public UnresolvedPlan visitGroupByClause(GroupByClauseContext ctx) {
-    Optional<UnresolvedExpression> invalidSelectItem = findSelectItemMissingInGroupBy();
+    Optional<UnresolvedExpression> invalidSelectItem =
+        findNonAggregatedSelectItemMissingInGroupBy();
+
     if (invalidSelectItem.isPresent()) {
-      throw new SyntaxCheckException("");
+      throw new SyntaxCheckException(String.format(
+          "Expression [%s] that contains non-aggregated column is not present in group by clause",
+              invalidSelectItem.get()));
     }
 
     return new Aggregation(
@@ -68,28 +75,47 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private UnresolvedPlan buildImplicitAggregation() {
+    Optional<UnresolvedExpression> invalidSelectItem = findNonAggregatedSelectItem();
+
+    if (invalidSelectItem.isPresent()) {
+      throw new SyntaxCheckException(String.format(
+          "Explicit GROUP BY clause is required because expression [%s] "
+              + "contains non-aggregate column", invalidSelectItem.get()));
+    }
+
     return new Aggregation(
         new ArrayList<>(querySpec.getAggregators()),
         emptyList(),
         querySpec.getGroupByItems());
   }
 
-  private Optional<UnresolvedExpression> findSelectItemMissingInGroupBy() {
+  private Optional<UnresolvedExpression> findNonAggregatedSelectItemMissingInGroupBy() {
     Set<UnresolvedExpression> groupByItems = new HashSet<>(querySpec.getGroupByItems());
     return querySpec.getSelectItems().stream()
-                                     .filter(this::isScalarExpression)
+                                     .filter(this::isNonAggregatedExpression)
                                      .filter(expr -> !groupByItems.contains(expr))
                                      .findFirst();
   }
 
-  private boolean isScalarExpression(UnresolvedExpression expr) {
+  private Optional<UnresolvedExpression> findNonAggregatedSelectItem() {
+    return querySpec.getSelectItems().stream()
+                                     .filter(this::isNonAggregatedExpression)
+                                     .findFirst();
+  }
+
+  private boolean isAllSelectItemNonAggregated() {
+    return querySpec.getSelectItems().stream()
+                                     .allMatch(this::isNonAggregatedExpression);
+  }
+
+  private boolean isNonAggregatedExpression(UnresolvedExpression expr) {
     List<? extends Node> children = expr.getChild();
     if (children == null) {
       return true;
     }
     return !(expr instanceof AggregateFunction)
         && children.stream()
-                   .allMatch(child -> isScalarExpression((UnresolvedExpression) child));
+                   .allMatch(child -> isNonAggregatedExpression((UnresolvedExpression) child));
   }
 
 }
