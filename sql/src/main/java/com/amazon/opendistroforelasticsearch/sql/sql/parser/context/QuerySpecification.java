@@ -97,23 +97,6 @@ public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
   }
 
   /*
-  @VisibleForTesting
-  public void addSelectItem(UnresolvedExpression expr) {
-    selectItems.add(expr);
-  }
-
-  @VisibleForTesting
-  public void addAggregator(UnresolvedExpression expr) {
-    aggregators.add(expr);
-  }
-
-  @VisibleForTesting
-  public void addGroupByItems(UnresolvedExpression expr) {
-    groupByItems.add(expr);
-  }
-  */
-
-  /*
   @Override
   public Void visitQuerySpecification(QuerySpecificationContext ctx) {
     // Avoid collecting items on deeper level once sub-queries enabled

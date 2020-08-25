@@ -22,18 +22,21 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
@@ -45,7 +48,7 @@ import org.junit.jupiter.api.Test;
 class AstAggregationBuilderTest {
 
   @Test
-  void can_build_explicit_group_by_clause() {
+  void can_build_group_by_clause() {
     assertThat(
         buildAggregation("SELECT state, AVG(age) FROM test GROUP BY state"),
         allOf(
@@ -54,33 +57,49 @@ class AstAggregationBuilderTest {
   }
 
   @Test
+  void can_build_group_by_clause_without_aggregators() {
+    assertThat(
+        buildAggregation("SELECT state FROM test GROUP BY state"),
+        allOf(
+            hasGroupByItems(qualifiedName("state")),
+            hasAggregators()));
+  }
+
+  @Test
   void can_build_implicit_group_by_clause() {
     assertThat(
-        buildAggregation("SELECT AVG(age) FROM test"),
+        buildAggregation("SELECT AVG(age), SUM(balance) FROM test"),
         allOf(
             hasGroupByItems(),
-            hasAggregators(aggregate("AVG", qualifiedName("age")))));
+            hasAggregators(
+                aggregate("AVG", qualifiedName("age")),
+                aggregate("SUM", qualifiedName("balance")))));
+  }
+
+  @Test
+  void should_report_error_for_mismatch_between_select_and_group_by_items() {
+    SyntaxCheckException error = assertThrows(SyntaxCheckException.class, () ->
+        buildAggregation("SELECT name FROM test GROUP BY state"));
   }
 
   private Matcher<UnresolvedPlan> hasGroupByItems(UnresolvedExpression... exprs) {
-    String name = "groupByItems";
+    return featureValueOf("groupByItems", Aggregation::getGroupExprList, exprs);
+  }
+
+  private Matcher<UnresolvedPlan> hasAggregators(UnresolvedExpression... exprs) {
+    return featureValueOf("aggregators", Aggregation::getAggExprList, exprs);
+  }
+
+  private Matcher<UnresolvedPlan> featureValueOf(String name,
+                                                 Function<Aggregation,
+                                                     List<UnresolvedExpression>> getter,
+                                                 UnresolvedExpression... exprs) {
     Matcher<List<UnresolvedExpression>> subMatcher =
         (exprs.length == 0) ? equalTo(emptyList()) : equalTo(Arrays.asList(exprs));
     return new FeatureMatcher<UnresolvedPlan, List<UnresolvedExpression>>(subMatcher, name, "") {
       @Override
       protected List<UnresolvedExpression> featureValueOf(UnresolvedPlan agg) {
-        return ((Aggregation) agg).getGroupExprList();
-      }
-    };
-  }
-
-  private Matcher<UnresolvedPlan> hasAggregators(UnresolvedExpression... exprs) {
-    String name = "aggregators";
-    Matcher<List<UnresolvedExpression>> subMatcher = equalTo(Arrays.asList(exprs));
-    return new FeatureMatcher<UnresolvedPlan, List<UnresolvedExpression>>(subMatcher, name, "") {
-      @Override
-      protected List<UnresolvedExpression> featureValueOf(UnresolvedPlan agg) {
-        return ((Aggregation) agg).getAggExprList();
+        return getter.apply((Aggregation) agg);
       }
     };
   }
