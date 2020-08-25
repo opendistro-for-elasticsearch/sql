@@ -80,7 +80,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     if (invalidSelectItem.isPresent()) {
       throw new SyntaxCheckException(String.format(
           "Explicit GROUP BY clause is required because expression [%s] "
-              + "contains non-aggregate column", invalidSelectItem.get()));
+              + "contains non-aggregated column", invalidSelectItem.get()));
     }
 
     return new Aggregation(
@@ -110,7 +110,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
 
   private boolean isNonAggregatedExpression(UnresolvedExpression expr) {
     List<? extends Node> children = expr.getChild();
-    if (children == null) {
+    if (children.isEmpty()) {
       return true;
     }
     return !(expr instanceof AggregateFunction)

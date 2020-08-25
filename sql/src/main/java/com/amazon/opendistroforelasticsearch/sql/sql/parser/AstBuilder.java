@@ -51,12 +51,8 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
   /**
-   * Aggregators in SELECT and HAVING clause that needs to push to Aggregation operator.
-   * 1) SELECT name, AVG(age) ... GROUP BY name => Aggregation(agg=avg, groupBy=name)
-   * 2) SELECT name, AVG(age) ... GROUP BY name HAVING MAX(balance) > 100
-   *    => Aggregation(agg=avg,max, groupBy=name)
+   * Parsing context stack that contains context for current query parsing.
    */
-  //private final List<UnresolvedExpression> aggregators = new ArrayList<>();
   private final ParsingContext context = new ParsingContext();
 
   /**
@@ -86,11 +82,9 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       return project.attach(emptyValue);
     }
 
-    UnresolvedPlan relation = visit(query.fromClause());
-
-    context.pop(); // TODO: find better place
-
-    return project.attach(relation);
+    UnresolvedPlan result = project.attach(visit(query.fromClause()));
+    context.pop();
+    return result;
   }
 
   @Override

@@ -130,7 +130,7 @@ class AstAggregationBuilderTest {
         buildAggregation("SELECT age, AVG(balance) FROM tests"));
     assertEquals(
         "Explicit GROUP BY clause is required because expression [age] "
-            + "contains non-aggregate column",
+            + "contains non-aggregated column",
         error1.getMessage());
 
     SyntaxCheckException error2 = assertThrows(SyntaxCheckException.class, () ->
@@ -138,7 +138,7 @@ class AstAggregationBuilderTest {
     assertEquals(
         "Explicit GROUP BY clause is required because expression [Function(funcName=ABS, "
             + "funcArgs=[Function(funcName=+, funcArgs=[age, Literal(value=1, type=INTEGER)])])] "
-            + "contains non-aggregate column",
+            + "contains non-aggregated column",
         error2.getMessage());
   }
 
