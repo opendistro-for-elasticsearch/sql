@@ -24,25 +24,37 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
 import java.util.ArrayList;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+/**
+ * AST aggregation builder that builds AST aggregation node.
+ */
 @RequiredArgsConstructor
 public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
+  /**
+   * Query specification that contains info collected beforehand.
+   */
   private final QuerySpecification querySpec;
 
   @Override
   public UnresolvedPlan visit(ParseTree tree) {
     if (tree == null) {
-      return null;
+      return buildImplicitAggregation();
     }
     return super.visit(tree);
   }
 
   @Override
   public UnresolvedPlan visitGroupByClause(GroupByClauseContext ctx) {
+    return new Aggregation(
+        new ArrayList<>(querySpec.getAggregators()),
+        emptyList(),
+        querySpec.getGroupByItems());
+  }
+
+  private UnresolvedPlan buildImplicitAggregation() {
     return new Aggregation(
         new ArrayList<>(querySpec.getAggregators()),
         emptyList(),
