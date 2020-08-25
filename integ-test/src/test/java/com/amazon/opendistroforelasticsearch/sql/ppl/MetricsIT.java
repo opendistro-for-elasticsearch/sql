@@ -41,10 +41,11 @@ public class MetricsIT extends PPLIntegTestCase {
 
   @Test
   public void requestCount() throws IOException, InterruptedException {
+    int beforeQueries = pplRequestTotal();
     multiQueries(3);
     TimeUnit.SECONDS.sleep(2L);
-    JSONObject jsonObject = new JSONObject(executeStatRequest(makeStatRequest()));
-    assertThat(jsonObject.getInt(MetricName.PPL_REQ_COUNT_TOTAL.getName()), equalTo(3));
+
+    assertThat(pplRequestTotal(), equalTo(beforeQueries + 3));
   }
 
   private void multiQueries(int n) throws IOException {
@@ -57,6 +58,11 @@ public class MetricsIT extends PPLIntegTestCase {
     return new Request(
         "GET", "/_opendistro/_ppl/stats"
     );
+  }
+
+  private int pplRequestTotal() throws IOException {
+    JSONObject jsonObject = new JSONObject(executeStatRequest(makeStatRequest()));
+    return jsonObject.getInt(MetricName.PPL_REQ_TOTAL.getName());
   }
 
   private String executeStatRequest(final Request request) throws IOException {
