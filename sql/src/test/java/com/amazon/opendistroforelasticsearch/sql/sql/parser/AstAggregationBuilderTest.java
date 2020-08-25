@@ -17,6 +17,8 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -57,6 +59,28 @@ class AstAggregationBuilderTest {
   }
 
   @Test
+  void can_build_group_by_clause_with_scalar_expression() {
+    assertThat(
+        buildAggregation("SELECT ABS(age + 1) FROM test GROUP BY ABS(age + 1)"),
+        allOf(
+            hasGroupByItems(
+                function("ABS",
+                    function("+",
+                        qualifiedName("age"),
+                        intLiteral(1)))),
+            hasAggregators()));
+  }
+
+  @Test
+  void can_build_group_by_clause_with_complicated_aggregators() {
+    assertThat(
+        buildAggregation("SELECT state, ABS(2 * AVG(age)) FROM test GROUP BY state"),
+        allOf(
+            hasGroupByItems(qualifiedName("state")),
+            hasAggregators(aggregate("AVG", qualifiedName("age")))));
+  }
+
+  @Test
   void can_build_group_by_clause_without_aggregators() {
     assertThat(
         buildAggregation("SELECT state FROM test GROUP BY state"),
@@ -78,8 +102,11 @@ class AstAggregationBuilderTest {
 
   @Test
   void should_report_error_for_mismatch_between_select_and_group_by_items() {
-    SyntaxCheckException error = assertThrows(SyntaxCheckException.class, () ->
+    SyntaxCheckException error1 = assertThrows(SyntaxCheckException.class, () ->
         buildAggregation("SELECT name FROM test GROUP BY state"));
+
+    SyntaxCheckException error2 = assertThrows(SyntaxCheckException.class, () ->
+        buildAggregation("SELECT ABS(name + 1) FROM test GROUP BY name"));
   }
 
   private Matcher<UnresolvedPlan> hasGroupByItems(UnresolvedExpression... exprs) {
