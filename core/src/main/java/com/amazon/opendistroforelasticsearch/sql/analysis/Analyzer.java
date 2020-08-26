@@ -18,12 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.*;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.*;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
@@ -252,11 +247,16 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
   public LogicalPlan visitHead(Head node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
-    List<Argument> options = node.getOptions();
-    Integer number = (Integer) options.get(0).getValue().getValue();
-    Boolean keeplast = (Boolean) options.get(1).getValue().getValue();
+    List<UnresolvedArgument> options = node.getOptions();
+    Boolean keeplast = (Boolean) getOptionAsLiteral(options, 0).getValue();
+    Expression whileExpr = expressionAnalyzer.analyze(options.get(1).getValue(), context);
+    Integer number = (Integer) getOptionAsLiteral(options, 2).getValue();
 
-    return new LogicalHead(child, number, keeplast);
+    return new LogicalHead(child, keeplast, whileExpr, number);
+  }
+
+  private static Literal getOptionAsLiteral(List<UnresolvedArgument> options, int optionIdx) {
+    return (Literal) options.get(optionIdx).getValue();
   }
 
   @Override

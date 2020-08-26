@@ -4,6 +4,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.google.common.collect.ImmutableList;
 import lombok.*;
 
@@ -20,7 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Head extends UnresolvedPlan {
     private UnresolvedPlan child;
-    private final List<Argument> options;
+    private final List<UnresolvedArgument> options;
 
     @Override
     public Head attach(UnresolvedPlan child) {

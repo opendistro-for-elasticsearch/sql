@@ -1,5 +1,6 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LogicalHead extends LogicalPlan {
     private final LogicalPlan child;
-    private final Integer number;
     private final Boolean keeplast;
+    private final Expression whileExpr;
+    private final Integer number;
 
     @Override
     public List<LogicalPlan> getChild() {

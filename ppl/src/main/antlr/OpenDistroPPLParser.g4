@@ -28,9 +28,7 @@ pplStatement
 
 /** commands */
 commands
-    : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand
-    | headCommand
-    ;
+    : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand | headCommand;
 
 searchCommand
     : (SEARCH)? fromClause                                          #searchFrom
@@ -79,6 +77,7 @@ evalCommand
 headCommand
     : HEAD
     (KEEPLAST EQUAL keeplast=booleanLiteral)?
+    (WHILE LT_PRTHS whileExpr=logicalExpression RT_PRTHS)?
     (number=integerLiteral)?
     ;
 

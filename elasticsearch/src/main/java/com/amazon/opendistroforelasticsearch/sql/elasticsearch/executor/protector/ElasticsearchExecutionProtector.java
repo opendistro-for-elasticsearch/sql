@@ -84,8 +84,12 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
 
   @Override
   public PhysicalPlan visitHead(HeadOperator node, Object context) {
-    return new HeadOperator(visitInput(node.getInput(), context),
-            node.getNumber(), node.getKeepLast());
+    return new HeadOperator(
+            visitInput(node.getInput(), context),
+            node.getKeepLast(),
+            node.getWhileExpr(),
+            node.getNumber()
+    );
   }
 
   @Override

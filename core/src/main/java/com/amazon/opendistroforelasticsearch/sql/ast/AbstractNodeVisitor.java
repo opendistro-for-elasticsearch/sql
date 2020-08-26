@@ -15,25 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ast;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AttributeList;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.*;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.*;
 
 /**
@@ -182,6 +164,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitAllFields(AllFields node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitUnresolvedArgument(UnresolvedArgument node, C context) {
     return visitChildren(node, context);
   }
 }

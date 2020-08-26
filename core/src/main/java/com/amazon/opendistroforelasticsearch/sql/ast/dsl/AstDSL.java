@@ -15,26 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.*;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.*;
 
 import java.util.Arrays;
@@ -195,6 +176,10 @@ public class AstDSL {
     return new Argument(argName, argValue);
   }
 
+  public static UnresolvedArgument unresolvedArg(String argName, UnresolvedExpression argValue) {
+    return new UnresolvedArgument(argName, argValue);
+  }
+
   public static UnresolvedExpression field(UnresolvedExpression field) {
     return new Field((QualifiedName) field);
   }
@@ -232,6 +217,10 @@ public class AstDSL {
   }
 
   public static List<Argument> exprList(Argument... exprList) {
+    return Arrays.asList(exprList);
+  }
+
+  public static List<UnresolvedArgument> unresolvedArgList(UnresolvedArgument... exprList) {
     return Arrays.asList(exprList);
   }
 
@@ -280,17 +269,18 @@ public class AstDSL {
     return new Dedupe(input, options, Arrays.asList(fields));
   }
 
-  public static Head head(UnresolvedPlan input, List<Argument> options) {
+  public static Head head(UnresolvedPlan input, List<UnresolvedArgument> options) {
     return new Head(input, options);
   }
 
-  public static Head head(List<Argument> options) {
+  public static Head head(List<UnresolvedArgument> options) {
     return new Head(options);
   }
 
-  public static List<Argument> defaultHeadArgs() {
-    return exprList(
-            argument("number", intLiteral(10)),
-            argument("keeplast", booleanLiteral(false)));
+  public static List<UnresolvedArgument> defaultHeadArgs() {
+    return unresolvedArgList(
+            unresolvedArg("keeplast", booleanLiteral(false)),
+            unresolvedArg("while", booleanLiteral(false)),
+            unresolvedArg("number", intLiteral(10)));
   }
 }

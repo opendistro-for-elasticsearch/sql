@@ -55,6 +55,7 @@ DEDUP_SPLITVALUES:                  'DEDUP_SPLITVALUES';
 PARTITIONS:                         'PARTITIONS';
 ALLNUM:                             'ALLNUM';
 DELIM:                              'DELIM';
+WHILE:                              'WHILE';
 
 // COMPARISON FUNCTION KEYWORDS
 CASE:                               'CASE';

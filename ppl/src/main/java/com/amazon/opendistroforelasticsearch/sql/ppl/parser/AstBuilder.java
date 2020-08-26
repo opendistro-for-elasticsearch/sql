@@ -167,7 +167,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
    */
   @Override
   public UnresolvedPlan visitHeadCommand(HeadCommandContext ctx) {
-    return new Head(ArgumentFactory.getArgumentList(ctx));
+    return new Head(
+            ArgumentFactory.getArgumentListUE(ctx, visitExpression(ctx.logicalExpression())));
   }
 
   /**
