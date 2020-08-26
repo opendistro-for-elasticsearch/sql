@@ -116,7 +116,7 @@ public class DateTimeFunction {
    */
   private ExprValue exprDate(ExprValue exprValue) {
     if (exprValue instanceof ExprStringValue) {
-      return new ExprDateValue(getStringValue(exprValue));
+      return new ExprDateValue(exprValue.stringValue());
     } else {
       return new ExprDateValue(exprValue.dateValue());
     }
@@ -138,7 +138,7 @@ public class DateTimeFunction {
    */
   private ExprValue exprTime(ExprValue exprValue) {
     if (exprValue instanceof ExprStringValue) {
-      return new ExprTimeValue(getStringValue(exprValue));
+      return new ExprTimeValue(exprValue.stringValue());
     } else {
       return new ExprTimeValue(exprValue.timeValue());
     }
@@ -151,7 +151,7 @@ public class DateTimeFunction {
    */
   private ExprValue exprTimestamp(ExprValue exprValue) {
     if (exprValue instanceof ExprStringValue) {
-      return new ExprTimestampValue(getStringValue(exprValue));
+      return new ExprTimestampValue(exprValue.stringValue());
     } else {
       return new ExprTimestampValue(exprValue.timestampValue());
     }
