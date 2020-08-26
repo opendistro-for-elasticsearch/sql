@@ -144,13 +144,12 @@ public class ArithmeticFunction {
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                    new ExprIntegerValue(Math.floorDiv(v1.integerValue(),
-                        v2.integerValue()))),
+                    new ExprIntegerValue(v1.integerValue() / v2.integerValue())),
             INTEGER, INTEGER, INTEGER),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
-                    new ExprLongValue(Math.floorDiv(v1.longValue(), v2.longValue()))),
+                    new ExprLongValue(v1.longValue() / v2.longValue())),
             LONG, LONG, LONG),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
@@ -176,13 +175,12 @@ public class ArithmeticFunction {
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
-                    new ExprIntegerValue(Math.floorMod(v1.integerValue(),
-                        v2.integerValue()))),
+                    new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
             INTEGER, INTEGER, INTEGER),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
-                    new ExprLongValue(Math.floorMod(v1.longValue(), v2.longValue()))),
+                    new ExprLongValue(v1.longValue() % v2.longValue())),
             LONG, LONG, LONG),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
