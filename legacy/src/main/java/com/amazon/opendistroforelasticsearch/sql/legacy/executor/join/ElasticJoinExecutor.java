@@ -35,6 +35,7 @@ import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.mapper.MapperService;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
@@ -219,7 +220,8 @@ public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
 
         Map<String, DocumentField> documentFields = new HashMap<>();
         Map<String, DocumentField> metaFields = new HashMap<>();
-        SearchHit.splitFieldsByMetadata(hit.getFields(), documentFields, metaFields);
+        hit.getFields().forEach((fieldName, docField) ->
+            (MapperService.META_FIELDS_BEFORE_7DOT8.contains(fieldName) ? metaFields : documentFields).put(fieldName, docField));
         SearchHit searchHit = new SearchHit(docId, unmatchedId, unamatchedType, documentFields, metaFields);
 
         searchHit.sourceRef(hit.getSourceRef());

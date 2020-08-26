@@ -1,0 +1,7 @@
+true AND true AS bool
+false AND true AS bool
+false OR false AS bool
+true or false AS bool
+NOT true AS bool
+NOT false AS bool
+NOT (true AND false) AS bool

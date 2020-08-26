@@ -15,7 +15,7 @@
 
 set PROJECT_DIR=%CD%
 set TEST_RUNNER_DIR=%PROJECT_DIR%\src\TestRunner
-set WORKING_DIR=%PROJECT_DIR%\bin64\Release
+set WORKING_DIR=%PROJECT_DIR%\build\Debug64\odbc\bin\Debug
 
 cd %WORKING_DIR%
 

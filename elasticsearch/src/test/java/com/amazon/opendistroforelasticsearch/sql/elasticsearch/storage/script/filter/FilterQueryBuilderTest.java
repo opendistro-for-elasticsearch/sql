@@ -135,7 +135,7 @@ class FilterQueryBuilderTest {
         "{\n"
             + "  \"script\" : {\n"
             + "    \"script\" : {\n"
-            + "      \"source\" : \"abs(age) = 30\",\n"
+            + "      \"source\" : \"=(abs(age), 30)\",\n"
             + "      \"lang\" : \"opendistro_expression\"\n"
             + "    },\n"
             + "    \"boost\" : 1.0\n"
@@ -157,7 +157,7 @@ class FilterQueryBuilderTest {
         "{\n"
             + "  \"script\" : {\n"
             + "    \"script\" : {\n"
-            + "      \"source\" : \"age1 = age2\",\n"
+            + "      \"source\" : \"=(age1, age2)\",\n"
             + "      \"lang\" : \"opendistro_expression\"\n"
             + "    },\n"
             + "    \"boost\" : 1.0\n"
@@ -171,7 +171,7 @@ class FilterQueryBuilderTest {
   @Test
   void should_build_bool_query_for_and_or_expression() {
     String[] names = { "filter", "should" };
-    FunctionExpression expr1 = dsl.equal(ref("name", ES_TEXT_KEYWORD), literal("John"));
+    FunctionExpression expr1 = dsl.equal(ref("name", STRING), literal("John"));
     FunctionExpression expr2 = dsl.equal(ref("age", INTEGER), literal(30));
     Expression[] exprs = {
         dsl.and(expr1, expr2),
@@ -185,7 +185,7 @@ class FilterQueryBuilderTest {
               + "    \"" + names[i] + "\" : [\n"
               + "      {\n"
               + "        \"term\" : {\n"
-              + "          \"name.keyword\" : {\n"
+              + "          \"name\" : {\n"
               + "            \"value\" : \"John\",\n"
               + "            \"boost\" : 1.0\n"
               + "          }\n"
@@ -231,6 +231,38 @@ class FilterQueryBuilderTest {
             dsl.not(
                 dsl.equal(
                     ref("age", INTEGER), literal(30)))));
+  }
+
+  @Test
+  void should_use_keyword_for_multi_field_in_equality_expression() {
+    assertEquals(
+        "{\n"
+            + "  \"term\" : {\n"
+            + "    \"name.keyword\" : {\n"
+            + "      \"value\" : \"John\",\n"
+            + "      \"boost\" : 1.0\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.equal(
+                ref("name", ES_TEXT_KEYWORD), literal("John"))));
+  }
+
+  @Test
+  void should_use_keyword_for_multi_field_in_like_expression() {
+    assertEquals(
+        "{\n"
+            + "  \"wildcard\" : {\n"
+            + "    \"name.keyword\" : {\n"
+            + "      \"wildcard\" : \"John*\",\n"
+            + "      \"boost\" : 1.0\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.like(
+                ref("name", ES_TEXT_KEYWORD), literal("John%"))));
   }
 
   private String buildQuery(Expression expr) {

@@ -29,6 +29,9 @@ import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationE
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
@@ -97,6 +100,11 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
   @Override
   protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient nodeClient) {
+    Metrics.getInstance().getNumericalMetric(MetricName.PPL_REQ_TOTAL).increment();
+    Metrics.getInstance().getNumericalMetric(MetricName.PPL_REQ_COUNT_TOTAL).increment();
+
+    LogUtils.addRequestId();
+
     if (!pplEnabled.get()) {
       return channel -> reportError(channel, new IllegalAccessException(
           "Either opendistro.ppl.enabled or rest.action.multi.allow_explicit_index setting is false"
@@ -145,7 +153,13 @@ public class RestPPLQueryAction extends BaseRestHandler {
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during query handling", e);
-        reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
+        if (isClientError(e)) {
+          Metrics.getInstance().getNumericalMetric(MetricName.PPL_FAILED_REQ_COUNT_CUS).increment();
+          reportError(channel, e, BAD_REQUEST);
+        } else {
+          Metrics.getInstance().getNumericalMetric(MetricName.PPL_FAILED_REQ_COUNT_SYS).increment();
+          reportError(channel, e, SERVICE_UNAVAILABLE);
+        }
       }
 
       private void sendResponse(RestStatus status, String content) {

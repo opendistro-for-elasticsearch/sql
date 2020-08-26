@@ -5,38 +5,41 @@ template: |
 
 # Setting the formatting and sorting for the release notes body
 name-template: Version $RESOLVED_VERSION
-change-template: "- $TITLE (PR [#$NUMBER](https://github.com/opendistro-for-elasticsearch/sql/pull/$NUMBER))"
+change-template: "* $TITLE ([#$NUMBER](https://github.com/opendistro-for-elasticsearch/sql/pull/$NUMBER))"
 sort-by: merged_at
 sort-direction: ascending
+replacers:
+  - search: '##'
+    replace: '###'
 
-# Organizing the tagged PRs into categories
+# Organizing the tagged PRs into unified ODFE categories
 categories:
-  - title: "Version Upgrades"
+  - title: 'Breaking Changes'
+    labels:
+      - 'Breaking Changes'
+  - title: 'Features'
+    labels:
+      - 'feature'
+  - title: 'Enhancements'
+    labels:
+      - 'enhancement'
+  - title: 'Bug Fixes'
+    labels:
+      - 'bug'
+  - title: 'Infrastructure'
+    labels:
+      - 'infra'
+      - 'test'
+      - 'dependencies'
+      - 'github actions'
+  - title: 'Documentation'
+    labels:
+      - 'documentation'
+  - title: 'Maintenance'
     labels:
       - "version compatibility"
-  - title: "SQL and PPL"
-    labels:
-      - "SQL"
-      - "PPL"
-  - title: "SQL CLI"
-    labels:
-      - "CLI"
-  - title: "SQL JDBC"
-    labels:
-      - "JDBC"
-  - title: "SQL ODBC"
-    labels:
-      - "ODBC"
-  - title: "SQL Workbench"
-    labels:
-      - "Workbench"
-  - title: "Enhancements"
-    labels:
-      - "enhancement"
       - "maintenance"
-  - title: "Bug Fixes"
+  - title: 'Refactoring'
     labels:
-      - "bug"
-  - title: "Documentation"
-    labels:
-      - "documentation"
+      - 'refactor'
+      - 'code quality'

@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlSettingsAc
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlStatsAction;
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLStatsAction;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -100,7 +101,8 @@ public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
         new RestPPLQueryAction(restController, clusterService, pluginSettings, settings),
         new RestSqlAction(settings, clusterService, pluginSettings),
         new RestSqlStatsAction(settings, restController),
-        new RestSqlSettingsAction(settings, restController)
+        new RestSqlSettingsAction(settings, restController),
+        new RestPPLStatsAction(settings, restController)
     );
   }
 

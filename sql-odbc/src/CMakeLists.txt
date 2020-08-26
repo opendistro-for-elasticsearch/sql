@@ -25,6 +25,20 @@ project(global_make_list)
 include("${CMAKE_CURRENT_SOURCE_DIR}/modules/code-coverage.cmake")
 add_code_coverage_all_targets(EXCLUDE libraries aws-cpp-sdk googletest IntegrationTests)
 
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set(BITNESS 64)
+	set(BITNESS_NAME "x64")
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build/odbc/lib")
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build/odbc/lib")
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build/odbc/bin")
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+	set(BITNESS 32)
+	set(BITNESS_NAME "x86")
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build/odbc/lib")
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build/odbc/lib")
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../build/odbc/bin")
+endif()
+
 # This wasn't being picked up on mac, causes some symbol errors
 if(APPLE)
 	set(CMAKE_CXX_STANDARD 20)
@@ -47,20 +61,6 @@ else()
   add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set(BITNESS 64)
-	set(BITNESS_NAME "x64")
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib64")
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib64")
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin64")
-elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-	set(BITNESS 32)
-	set(BITNESS_NAME "x86")
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib32")
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib32")
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin32")
-endif()
-
 if(NOT WIN32)
 	# Unix builds require autoconf
 	option(AUTOCONF_ENABLE "Enable autoconf" ON)
@@ -78,8 +78,8 @@ set(INSTALL_SRC "${CMAKE_CURRENT_SOURCE_DIR}/installer")
 set(DSN_INSTALLER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/DSNInstaller")
 
 # ODBC Driver version 
-set(DRIVER_PACKAGE_VERSION "1.9.0.1")
-set(DRIVER_PACKAGE_VERSION_COMMA_SEPARATED "1,9,0,1")
+set(DRIVER_PACKAGE_VERSION "1.10.0.0")
+set(DRIVER_PACKAGE_VERSION_COMMA_SEPARATED "1,10,0,0")
 add_compile_definitions( ES_ODBC_VERSION="${DRIVER_PACKAGE_VERSION}"
                          # Comma separated version is required for odbc administrator's driver file.
                          ES_ODBC_DRVFILE_VERSION=${DRIVER_PACKAGE_VERSION_COMMA_SEPARATED} )

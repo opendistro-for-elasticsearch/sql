@@ -11,7 +11,7 @@ jobs:
       matrix:
         java: [10]
 
-    name: Build and Release SQL Plugin
+    name: Build and Release JDBC Plugin
     runs-on: ubuntu-latest
     defaults:
       run:
