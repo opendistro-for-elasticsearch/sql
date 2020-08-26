@@ -19,13 +19,9 @@ package com.amazon.opendistroforelasticsearch.sql.sql;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.featureValueOf;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils;
-import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.syntax.SyntaxAnalysisException;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.function.Function;
@@ -34,8 +30,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
-import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -125,53 +119,6 @@ public class QueryValidationIT extends SQLIntegTestCase {
     request.setOptions(restOptionsBuilder);
 
     return client().performRequest(request);
-  }
-
-  private void queryShouldThrowSyntaxException(String query, String... messages) {
-    queryShouldThrowException(query, SyntaxAnalysisException.class, messages);
-  }
-
-  private <T> void queryShouldThrowException(String query,
-                                             Class<T> errorType,
-                                             String... messages) {
-    try {
-      JSONObject response = executeQuery(query);
-      Assert.fail(String.format("Expect response exception but none was thrown for query: %s. "
-          + "Actual response: %s", query, response));
-    } catch (ResponseException e) {
-      ResponseAssertion assertion = new ResponseAssertion(e.getResponse());
-      assertion.assertStatusEqualTo(BAD_REQUEST.getStatus());
-      assertion.assertBodyContains("\"type\": \"" + errorType.getSimpleName() + "\"");
-      for (String msg : messages) {
-        assertion.assertBodyContains(msg);
-      }
-    } catch (IOException e) {
-      throw new IllegalStateException(String.format(
-          "Unexpected IOException raised rather than expected %s for query: %s",
-              errorType.getSimpleName(), query));
-    }
-  }
-
-  private static class ResponseAssertion {
-    private final Response response;
-    private final String body;
-
-    ResponseAssertion(Response response) {
-      this.response = response;
-      try {
-        this.body = TestUtils.getResponseBody(response);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unexpected IOException raised when reading response body");
-      }
-    }
-
-    void assertStatusEqualTo(int expectedStatus) {
-      assertThat(response.getStatusLine().getStatusCode(), equalTo(expectedStatus));
-    }
-
-    void assertBodyContains(String content) {
-      assertThat(body, containsString(content));
-    }
   }
 
 }

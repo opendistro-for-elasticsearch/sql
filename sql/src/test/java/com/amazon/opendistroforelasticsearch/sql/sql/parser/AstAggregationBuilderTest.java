@@ -34,6 +34,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
@@ -109,13 +110,13 @@ class AstAggregationBuilderTest {
 
   @Test
   void should_report_error_for_mismatch_between_select_and_group_by_items() {
-    SyntaxCheckException error1 = assertThrows(SyntaxCheckException.class, () ->
+    SemanticCheckException error1 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT name FROM test GROUP BY state"));
     assertEquals(
         "Expression [name] that contains non-aggregated column is not present in group by clause",
         error1.getMessage());
 
-    SyntaxCheckException error2 = assertThrows(SyntaxCheckException.class, () ->
+    SemanticCheckException error2 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT ABS(name + 1) FROM test GROUP BY name"));
     assertEquals(
         "Expression [Function(funcName=ABS, funcArgs=[Function(funcName=+, "
@@ -126,14 +127,14 @@ class AstAggregationBuilderTest {
 
   @Test
   void should_report_error_for_non_aggregated_item_in_select_if_no_group_by() {
-    SyntaxCheckException error1 = assertThrows(SyntaxCheckException.class, () ->
+    SemanticCheckException error1 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT age, AVG(balance) FROM tests"));
     assertEquals(
         "Explicit GROUP BY clause is required because expression [age] "
             + "contains non-aggregated column",
         error1.getMessage());
 
-    SyntaxCheckException error2 = assertThrows(SyntaxCheckException.class, () ->
+    SemanticCheckException error2 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT ABS(age + 1), AVG(balance) FROM tests"));
     assertEquals(
         "Explicit GROUP BY clause is required because expression [Function(funcName=ABS, "

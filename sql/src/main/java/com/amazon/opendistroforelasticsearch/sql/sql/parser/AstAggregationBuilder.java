@@ -23,7 +23,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
-import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByClauseContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
@@ -76,9 +75,11 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private UnresolvedPlan buildImplicitAggregation() {
-    Optional<UnresolvedExpression> invalidSelectItem = findNonAggregatedSelectItem();
+    Optional<UnresolvedExpression> invalidSelectItem =
+        findNonAggregatedSelectItemMissingInGroupBy();
 
     if (invalidSelectItem.isPresent()) {
+      // Report semantic error to avoid fall back to old engine again
       throw new SemanticCheckException(String.format(
           "Explicit GROUP BY clause is required because expression [%s] "
               + "contains non-aggregated column", invalidSelectItem.get()));
@@ -95,12 +96,6 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     return querySpec.getSelectItems().stream()
                                      .filter(this::isNonAggregatedExpression)
                                      .filter(expr -> !groupByItems.contains(expr))
-                                     .findFirst();
-  }
-
-  private Optional<UnresolvedExpression> findNonAggregatedSelectItem() {
-    return querySpec.getSelectItems().stream()
-                                     .filter(this::isNonAggregatedExpression)
                                      .findFirst();
   }
 
