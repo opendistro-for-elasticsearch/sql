@@ -17,10 +17,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDateValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDatetimeValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getTimeValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getTimestampValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
@@ -46,7 +42,7 @@ public class DateTimeValueTest {
     assertEquals(LocalTime.parse("01:01:01"), timeValue.timeValue());
     assertEquals("01:01:01", timeValue.value());
     assertEquals("TIME '01:01:01'", timeValue.toString());
-    assertThrows(ExpressionEvaluationException.class, () -> getTimeValue(integerValue(1)),
+    assertThrows(ExpressionEvaluationException.class, () -> integerValue(1).timeValue(),
         "invalid to get timeValue from value of type INTEGER");
   }
 
@@ -59,10 +55,10 @@ public class DateTimeValueTest {
         ZoneId.of("UTC")).toInstant(), timestampValue.timestampValue());
     assertEquals("2020-07-07 01:01:01", timestampValue.value());
     assertEquals("TIMESTAMP '2020-07-07 01:01:01'", timestampValue.toString());
-    assertEquals(LocalDate.parse("2020-07-07"), getDateValue(timestampValue));
-    assertEquals(LocalTime.parse("01:01:01"), getTimeValue(timestampValue));
-    assertEquals(LocalDateTime.parse("2020-07-07T01:01:01"), getDatetimeValue(timestampValue));
-    assertThrows(ExpressionEvaluationException.class, () -> getTimestampValue(integerValue(1)),
+    assertEquals(LocalDate.parse("2020-07-07"), timestampValue.dateValue());
+    assertEquals(LocalTime.parse("01:01:01"), timestampValue.timeValue());
+    assertEquals(LocalDateTime.parse("2020-07-07T01:01:01"), timestampValue.datetimeValue());
+    assertThrows(ExpressionEvaluationException.class, () -> integerValue(1).timestampValue(),
         "invalid to get timestampValue from value of type INTEGER");
   }
 
@@ -71,13 +67,12 @@ public class DateTimeValueTest {
     ExprValue dateValue = new ExprDateValue("2012-07-07");
 
     assertEquals(LocalDate.parse("2012-07-07"), dateValue.dateValue());
-    assertEquals(LocalTime.parse("00:00:00"), getTimeValue(dateValue));
-    assertEquals(LocalDateTime.parse("2012-07-07T00:00:00"), getDatetimeValue(dateValue));
+    assertEquals(LocalTime.parse("00:00:00"), dateValue.timeValue());
+    assertEquals(LocalDateTime.parse("2012-07-07T00:00:00"), dateValue.datetimeValue());
     assertEquals(ZonedDateTime.of(LocalDateTime.parse("2012-07-07T00:00:00"),
-        ZoneId.systemDefault()).toInstant(), getTimestampValue(dateValue));
+        ZoneId.systemDefault()).toInstant(), dateValue.timestampValue());
     ExpressionEvaluationException exception =
-        assertThrows(ExpressionEvaluationException.class,
-            () -> ExprValueUtils.getDateValue(integerValue(1)));
+        assertThrows(ExpressionEvaluationException.class, () -> integerValue(1).dateValue());
     assertEquals("invalid to get dateValue from value of type INTEGER",
         exception.getMessage());
   }
@@ -87,13 +82,12 @@ public class DateTimeValueTest {
     ExprValue datetimeValue = new ExprDatetimeValue("2020-08-17 19:44:00");
 
     assertEquals(LocalDateTime.parse("2020-08-17T19:44:00"), datetimeValue.datetimeValue());
-    assertEquals(LocalDate.parse("2020-08-17"), getDateValue(datetimeValue));
-    assertEquals(LocalTime.parse("19:44:00"), getTimeValue(datetimeValue));
+    assertEquals(LocalDate.parse("2020-08-17"), datetimeValue.dateValue());
+    assertEquals(LocalTime.parse("19:44:00"), datetimeValue.timeValue());
     assertEquals(ZonedDateTime.of(LocalDateTime.parse("2020-08-17T19:44:00"),
-        ZoneId.of("UTC")).toInstant(), getTimestampValue(datetimeValue));
+        ZoneId.of("UTC")).toInstant(), datetimeValue.timestampValue());
     assertEquals("DATETIME '2020-08-17 19:44:00'", datetimeValue.toString());
-    assertThrows(ExpressionEvaluationException.class,
-        () -> ExprValueUtils.getDatetimeValue(integerValue(1)),
+    assertThrows(ExpressionEvaluationException.class, () -> integerValue(1).datetimeValue(),
         "invalid to get datetimeValue from value of type INTEGER");
   }
 

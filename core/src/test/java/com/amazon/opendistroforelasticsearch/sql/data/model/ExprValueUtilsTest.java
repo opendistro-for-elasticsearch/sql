@@ -97,10 +97,10 @@ public class ExprValueUtilsTest {
       ExprValueUtils::getTupleValue
   );
   private static List<Function<ExprValue, Object>> dateAndTimeValueExtractor = Arrays.asList(
-      ExprValueUtils::getDateValue,
-      ExprValueUtils::getTimeValue,
-      ExprValueUtils::getDatetimeValue,
-      ExprValueUtils::getTimestampValue,
+      ExprValue::dateValue,
+      ExprValue::timeValue,
+      ExprValue::datetimeValue,
+      ExprValue::timestampValue,
       ExprValue::intervalValue);
   private static List<Function<ExprValue, Object>> allValueExtractor = Lists.newArrayList(
       Iterables.concat(numberValueExtractor, nonNumberValueExtractor, dateAndTimeValueExtractor));

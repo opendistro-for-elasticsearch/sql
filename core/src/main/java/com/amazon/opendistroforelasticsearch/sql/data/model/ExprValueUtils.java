@@ -171,36 +171,4 @@ public class ExprValueUtils {
   public static Boolean getBooleanValue(ExprValue exprValue) {
     return exprValue.booleanValue();
   }
-
-  /**
-   * Get {@link LocalDate} from ExprValue of Date type.
-   */
-  public static LocalDate getDateValue(ExprValue exprValue) {
-    return exprValue.dateValue();
-  }
-
-  /**
-   * Get {@link LocalTime} from ExprValue of Time type.
-   */
-  public static LocalTime getTimeValue(ExprValue exprValue) {
-    return exprValue.timeValue();
-  }
-
-  /**
-   * Get {@link LocalDateTime} from ExprValue of Datetime type.
-   */
-  public static LocalDateTime getDatetimeValue(ExprValue exprValue) {
-    return exprValue.datetimeValue();
-  }
-
-  /**
-   * Get {@link Instant} from ExprValue of Timestamp type.
-   */
-  public static Instant getTimestampValue(ExprValue exprValue) {
-    return exprValue.timestampValue();
-  }
-
-  public static TemporalAmount getIntervalValue(ExprValue exprValue) {
-    return exprValue.intervalValue();
-  }
 }

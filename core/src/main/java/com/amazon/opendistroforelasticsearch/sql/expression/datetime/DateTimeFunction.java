@@ -17,11 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDateValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDatetimeValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getTimeValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getTimestampValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -34,7 +30,6 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Func
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
@@ -123,7 +118,7 @@ public class DateTimeFunction {
     if (exprValue instanceof ExprStringValue) {
       return new ExprDateValue(getStringValue(exprValue));
     } else {
-      return new ExprDateValue(getDateValue(exprValue));
+      return new ExprDateValue(exprValue.dateValue());
     }
   }
 
@@ -133,7 +128,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
-    return new ExprIntegerValue(getDateValue(date).getMonthValue());
+    return new ExprIntegerValue(date.dateValue().getMonthValue());
   }
 
   /**
@@ -145,7 +140,7 @@ public class DateTimeFunction {
     if (exprValue instanceof ExprStringValue) {
       return new ExprTimeValue(getStringValue(exprValue));
     } else {
-      return new ExprTimeValue(getTimeValue(exprValue));
+      return new ExprTimeValue(exprValue.timeValue());
     }
   }
 
@@ -158,7 +153,7 @@ public class DateTimeFunction {
     if (exprValue instanceof ExprStringValue) {
       return new ExprTimestampValue(getStringValue(exprValue));
     } else {
-      return new ExprTimestampValue(getTimestampValue(exprValue));
+      return new ExprTimestampValue(exprValue.timestampValue());
     }
   }
 }

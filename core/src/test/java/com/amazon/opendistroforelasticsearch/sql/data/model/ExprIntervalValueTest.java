@@ -29,7 +29,7 @@ public class ExprIntervalValueTest {
   @Test
   public void equals_to_self() {
     ExprValue interval = ExprValueUtils.intervalValue(Duration.ofNanos(1000));
-    assertEquals(ExprValueUtils.getIntervalValue(interval), Duration.ofNanos(1000));
+    assertEquals(interval.intervalValue(), Duration.ofNanos(1000));
   }
 
   @Test
