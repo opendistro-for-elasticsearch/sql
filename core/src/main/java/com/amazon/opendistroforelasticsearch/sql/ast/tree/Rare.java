@@ -9,6 +9,7 @@ import java.util.List;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -28,6 +29,7 @@ public class Rare extends UnresolvedPlan {
   /**
    * Rare Constructor.
    */
+  @NonNull
   public Rare(List<Field> fields, List<UnresolvedExpression> groupExprList) {
     this.fields = fields;
     this.groupExprList = groupExprList;

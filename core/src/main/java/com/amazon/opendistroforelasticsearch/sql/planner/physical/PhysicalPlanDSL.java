@@ -80,6 +80,21 @@ public class PhysicalPlanDSL {
         input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
   }
 
+  public static RareOperator rare(PhysicalPlan input, List<Expression> groups,
+      Expression... expressions) {
+    return new RareOperator(input, Arrays.asList(expressions), groups);
+  }
+
+  public static TopOperator top(PhysicalPlan input, List<Expression> groups,
+      Expression... expressions) {
+    return new TopOperator(input, Arrays.asList(expressions), groups);
+  }
+
+  public static TopOperator top(PhysicalPlan input, int noOfResults, List<Expression> groups,
+      Expression... expressions) {
+    return new TopOperator(input, noOfResults, Arrays.asList(expressions), groups);
+  }
+
   @SafeVarargs
   public ValuesOperator values(List<LiteralExpression>... values) {
     return new ValuesOperator(Arrays.asList(values));

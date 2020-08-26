@@ -33,6 +33,7 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 @UtilityClass
 public class LogicalPlanDSL {
+
   public static LogicalPlan aggregation(
       LogicalPlan input, List<Aggregator> aggregatorList, List<Expression> groupByList) {
     return new LogicalAggregation(input, aggregatorList, groupByList);
@@ -81,6 +82,16 @@ public class LogicalPlanDSL {
       Expression... fields) {
     return new LogicalDedupe(
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
+  }
+
+  public static LogicalPlan rare(LogicalPlan input, List<Expression> groupByList,
+      Expression... fields) {
+    return new LogicalRare(input, Arrays.asList(fields), groupByList);
+  }
+
+  public static LogicalPlan top(LogicalPlan input, int noOfResults, List<Expression> groupByList,
+      Expression... fields) {
+    return new LogicalTop(input, noOfResults, Arrays.asList(fields), groupByList);
   }
 
   @SafeVarargs

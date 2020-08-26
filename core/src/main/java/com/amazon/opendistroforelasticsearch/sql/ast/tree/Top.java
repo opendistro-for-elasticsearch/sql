@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -28,6 +29,7 @@ public class Top extends UnresolvedPlan {
   /**
    * Top Constructors.
    */
+  @NonNull
   public Top(
       List<Argument> noOfResults, List<Field> fields, List<UnresolvedExpression> groupExprList) {
     this.noOfResults = noOfResults;
