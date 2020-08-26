@@ -23,6 +23,8 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.google.common.base.Objects;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,19 +36,15 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class ExprDateValue extends AbstractExprValue {
-  /**
-   * todo. only support UTC now.
-   */
-  private static final ZoneId ZONE = ZoneId.of("UTC");
-  private final Instant date;
+
+  private final LocalDate date;
 
   /**
    * Constructor of ExprDateValue.
    */
   public ExprDateValue(String date) {
     try {
-      LocalDate localDate = LocalDate.parse(date);
-      this.date = localDate.atStartOfDay(ZONE).toInstant();
+      this.date = LocalDate.parse(date);
     } catch (DateTimeParseException e) {
       throw new SemanticCheckException(String.format("date:%s in unsupported format, please use "
           + "yyyy-MM-dd", date));
@@ -55,7 +53,7 @@ public class ExprDateValue extends AbstractExprValue {
 
   @Override
   public String value() {
-    return DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZONE).format(date);
+    return DateTimeFormatter.ISO_LOCAL_DATE.format(date);
   }
 
   @Override
@@ -64,8 +62,23 @@ public class ExprDateValue extends AbstractExprValue {
   }
 
   @Override
-  public ZonedDateTime dateValue() {
-    return date.atZone(ZONE);
+  public LocalDate dateValue() {
+    return date;
+  }
+
+  @Override
+  public LocalTime timeValue() {
+    return LocalTime.of(0, 0, 0);
+  }
+
+  @Override
+  public LocalDateTime datetimeValue() {
+    return LocalDateTime.of(date, timeValue());
+  }
+
+  @Override
+  public Instant timestampValue() {
+    return ZonedDateTime.of(date, timeValue(), ZoneId.systemDefault()).toInstant();
   }
 
   @Override
@@ -75,12 +88,12 @@ public class ExprDateValue extends AbstractExprValue {
 
   @Override
   public int compare(ExprValue other) {
-    return date.compareTo(other.dateValue().toInstant());
+    return date.compareTo(other.dateValue());
   }
 
   @Override
   public boolean equal(ExprValue other) {
-    return date.atZone(ZONE).equals(other.dateValue());
+    return date.equals(other.dateValue());
   }
 
   @Override

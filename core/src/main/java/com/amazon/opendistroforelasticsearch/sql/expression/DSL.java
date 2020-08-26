@@ -236,8 +236,19 @@ public class DSL {
   }
 
   public FunctionExpression dayofmonth(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.DAYOFMONTH.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.DAYOFMONTH, expressions);
+  }
+
+  public FunctionExpression date(Expression... expressions) {
+    return function(BuiltinFunctionName.DATE, expressions);
+  }
+
+  public FunctionExpression time(Expression... expressions) {
+    return function(BuiltinFunctionName.TIME, expressions);
+  }
+
+  public FunctionExpression timestamp(Expression... expressions) {
+    return function(BuiltinFunctionName.TIMESTAMP, expressions);
   }
 
   public FunctionExpression divide(Expression... expressions) {
