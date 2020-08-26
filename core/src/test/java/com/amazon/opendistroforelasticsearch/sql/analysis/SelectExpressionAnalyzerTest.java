@@ -61,12 +61,12 @@ public class SelectExpressionAnalyzerTest extends AnalyzerTestBase {
   @Test
   public void named_expression_with_delegated_expression_defined_in_symbol_table() {
     analysisContext.push();
-    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "AVG(age)"), FLOAT);
+    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "avg(integer_value)"), FLOAT);
 
     assertAnalyzeEqual(
-        DSL.named("AVG(age)", DSL.ref("AVG(age)", FLOAT)),
-        AstDSL.alias("AVG(age)",
-            AstDSL.aggregate("AVG", AstDSL.qualifiedName("age")))
+        DSL.named("AVG(integer_value)", DSL.ref("avg(integer_value)", FLOAT)),
+        AstDSL.alias("AVG(integer_value)",
+            AstDSL.aggregate("AVG", AstDSL.qualifiedName("integer_value")))
     );
   }
 
