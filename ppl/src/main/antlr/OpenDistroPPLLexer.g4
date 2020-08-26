@@ -196,6 +196,7 @@ TAN:                                'TAN';
 DATE:                               'DATE';
 TIME:                               'TIME';
 TIMESTAMP:                          'TIMESTAMP';
+ADDDATE:                            'ADDDATE';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
