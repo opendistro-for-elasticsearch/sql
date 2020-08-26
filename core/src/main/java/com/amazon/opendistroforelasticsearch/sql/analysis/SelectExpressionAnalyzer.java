@@ -77,9 +77,8 @@ public class SelectExpressionAnalyzer
   private Expression referenceIfSymbolDefined(UnresolvedExpression expr,
                                               AnalysisContext context) {
     try {
-      String symbolName = expr.toString();
+      String symbolName = expressionAnalyzer.analyze(expr, context).toString();
       ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, symbolName));
-      // toString() or getName()? Internally ABS(age) changed to abs(age)
       return DSL.ref(symbolName, type);
     } catch (SemanticCheckException e) {
       return expr.accept(expressionAnalyzer, context);

@@ -1,0 +1,2 @@
+SELECT OriginCountry, COUNT(*) FROM kibana_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry

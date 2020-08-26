@@ -102,6 +102,9 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
+    if (ctx.functionArgs() == null) {
+      return new Function(ctx.scalarFunctionName().getText(), Collections.emptyList());
+    }
     return new Function(
         ctx.scalarFunctionName().getText(),
         ctx.functionArgs()
