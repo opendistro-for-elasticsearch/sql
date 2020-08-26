@@ -53,12 +53,11 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRare;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalTop;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalValues;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
@@ -178,7 +177,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   }
 
   /**
-   * Build {@link LogicalRare}.
+   * Build {@link LogicalRareTopN}.
    */
   @Override
   public LogicalPlan visitRare(Rare node, AnalysisContext context) {
@@ -204,11 +203,11 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     fields.forEach(field -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
         field.toString()), field.type()));
 
-    return new LogicalRare(child, fields, groupBys);
+    return new LogicalRareTopN(child, Boolean.FALSE, 10, fields, groupBys);
   }
 
   /**
-   * Build {@link LogicalTop}.
+   * Build {@link LogicalRareTopN}.
    */
   @Override
   public LogicalPlan visitTop(Top node, AnalysisContext context) {
@@ -237,7 +236,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     List<Argument> options = node.getNoOfResults();
     Integer noOfResults = (Integer) options.get(0).getValue().getValue();
 
-    return new LogicalTop(child, noOfResults, fields, groupBys);
+    return new LogicalRareTopN(child, Boolean.TRUE, noOfResults, fields, groupBys);
   }
 
   /**

@@ -18,18 +18,19 @@ import java.util.PriorityQueue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 /**
- * Group the all the input {@link BindingTuple} by {@link RareOperator#groupByExprList}, Calculate
- * the rare result by using the {@link RareOperator#fieldExprList}.
+ * Group the all the input {@link BindingTuple} by {@link RareTopNOperator#groupByExprList},
+ * Calculate the rare result by using the {@link RareTopNOperator#fieldExprList}.
  */
-@EqualsAndHashCode
-@ToString
-public class RareOperator extends PhysicalPlan {
+public class RareTopNOperator extends PhysicalPlan {
 
   @Getter
   private final PhysicalPlan input;
+  @Getter
+  private final Boolean rareTopFlag;
+  @Getter
+  private final Integer noOfResults;
   @Getter
   private final List<Expression> fieldExprList;
   @Getter
@@ -42,16 +43,27 @@ public class RareOperator extends PhysicalPlan {
 
   private static final Integer DEFAULT_NO_OF_RESULTS = 10;
 
+
+  public RareTopNOperator(PhysicalPlan input, Boolean rareTopFlag, List<Expression> fieldExprList,
+      List<Expression> groupByExprList) {
+    this(input, rareTopFlag, DEFAULT_NO_OF_RESULTS, fieldExprList, groupByExprList);
+  }
+
   /**
-   * RareOperator Constructor.
+   * RareTopNOperator Constructor.
    *
    * @param input           Input {@link PhysicalPlan}
+   * @param rareTopFlag     Flag for Rare/TopN command.
+   * @param noOfResults     Number of results
    * @param fieldExprList   List of {@link Expression}
    * @param groupByExprList List of group by {@link Expression}
    */
-  public RareOperator(PhysicalPlan input, List<Expression> fieldExprList,
+  public RareTopNOperator(PhysicalPlan input, Boolean rareTopFlag, int noOfResults,
+      List<Expression> fieldExprList,
       List<Expression> groupByExprList) {
     this.input = input;
+    this.rareTopFlag = rareTopFlag;
+    this.noOfResults = noOfResults;
     this.fieldExprList = fieldExprList;
     this.groupByExprList = groupByExprList;
     this.group = new Group();
@@ -59,7 +71,7 @@ public class RareOperator extends PhysicalPlan {
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
-    return visitor.visitRare(this, context);
+    return visitor.visitRareTopN(this, context);
   }
 
   @Override
@@ -127,16 +139,36 @@ public class RareOperator extends PhysicalPlan {
       groupListMap.forEach((groups, list) -> {
         LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
         list.forEach(fieldMap -> {
-          List<FieldKey> rareList = findRare(fieldMap);
-          rareList.forEach(rareField -> {
+
+          List<FieldKey> resultlist = new ArrayList<>();
+          if (rareTopFlag) {
+            resultlist = findTop(fieldMap);
+          } else {
+            resultlist = findRare(fieldMap);
+          }
+          resultlist.forEach(field -> {
             map.putAll(groups.groupKeyMap());
-            map.putAll(rareField.fieldKeyMap());
+            map.putAll(field.fieldKeyMap());
             resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
           });
         });
       });
 
       return resultBuilder.build();
+    }
+
+    /**
+     * Get a list of top values.
+     */
+    public List<FieldKey> findTop(HashMap<FieldKey, Integer> map) {
+      PriorityQueue<FieldKey> topQueue = new PriorityQueue<>(new Comparator<FieldKey>() {
+        @Override
+        public int compare(FieldKey e1, FieldKey e2) {
+          return map.get(e1) - map.get(e2);
+        }
+      });
+
+      return getList(map, topQueue, noOfResults);
     }
 
     /**
@@ -150,21 +182,30 @@ public class RareOperator extends PhysicalPlan {
         }
       });
 
+      return getList(map, rareQueue, noOfResults);
+    }
+
+    /**
+     * Get a list of result.
+     */
+    public List<FieldKey> getList(HashMap<FieldKey, Integer> map, PriorityQueue<FieldKey> queue,
+        Integer size) {
       for (Map.Entry<FieldKey, Integer> entry : map.entrySet()) {
-        rareQueue.add(entry.getKey());
-        if (rareQueue.size() > DEFAULT_NO_OF_RESULTS) {
-          rareQueue.poll();
+        queue.add(entry.getKey());
+        if (queue.size() > size) {
+          queue.poll();
         }
       }
 
-      List<FieldKey> rareList = new ArrayList<>();
-      while (!rareQueue.isEmpty()) {
-        rareList.add(rareQueue.poll());
+      List<FieldKey> list = new ArrayList<>();
+      while (!queue.isEmpty()) {
+        list.add(queue.poll());
       }
 
-      Collections.reverse(rareList);
-      return rareList;
+      Collections.reverse(list);
+      return list;
     }
+
   }
 
   /**

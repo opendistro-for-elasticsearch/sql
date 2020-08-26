@@ -10,15 +10,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Logical Top Plan.
+ * Logical Rare and TopN Plan.
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class LogicalTop extends LogicalPlan {
+public class LogicalRareTopN extends LogicalPlan {
 
   private final LogicalPlan child;
+  private final Boolean rareTopFlag;
   private final Integer noOfResults;
   private final List<Expression> fieldList;
   @Getter
@@ -31,6 +32,6 @@ public class LogicalTop extends LogicalPlan {
 
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-    return visitor.visitTop(this, context);
+    return visitor.visitRareTopN(this, context);
   }
 }

@@ -69,11 +69,7 @@ public abstract class PhysicalPlanNodeVisitor<R, C> {
     return visitNode(node, context);
   }
 
-  public R visitRare(RareOperator node, C context) {
-    return visitNode(node, context);
-  }
-
-  public R visitTop(TopOperator node, C context) {
+  public R visitRareTopN(RareTopNOperator node, C context) {
     return visitNode(node, context);
   }
 }

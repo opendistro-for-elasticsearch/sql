@@ -67,11 +67,7 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
     return visitNode(plan, context);
   }
 
-  public R visitRare(LogicalRare plan, C context) {
-    return visitNode(plan, context);
-  }
-
-  public R visitTop(LogicalTop plan, C context) {
+  public R visitRareTopN(LogicalRareTopN plan, C context) {
     return visitNode(plan, context);
   }
 

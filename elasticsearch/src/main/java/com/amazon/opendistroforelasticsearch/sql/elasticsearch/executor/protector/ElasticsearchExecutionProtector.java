@@ -24,11 +24,10 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.TopOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import lombok.RequiredArgsConstructor;
 
@@ -59,14 +58,8 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
   }
 
   @Override
-  public PhysicalPlan visitRare(RareOperator node, Object context) {
-    return new RareOperator(visitInput(node.getInput(), context), node.getFieldExprList(),
-        node.getGroupByExprList());
-  }
-
-  @Override
-  public PhysicalPlan visitTop(TopOperator node, Object context) {
-    return new TopOperator(visitInput(node.getInput(), context), node.getNoOfResults(),
+  public PhysicalPlan visitRareTopN(RareTopNOperator node, Object context) {
+    return new RareTopNOperator(visitInput(node.getInput(), context), node.getRareTopFlag() , node.getNoOfResults(),
         node.getFieldExprList(), node.getGroupByExprList());
   }
 
