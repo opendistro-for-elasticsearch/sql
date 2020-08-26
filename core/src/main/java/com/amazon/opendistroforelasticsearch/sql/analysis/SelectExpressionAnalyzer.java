@@ -77,6 +77,8 @@ public class SelectExpressionAnalyzer
   private Expression referenceIfSymbolDefined(UnresolvedExpression expr,
                                               AnalysisContext context) {
     try {
+      // Since resolved aggregator.toString() is used as symbol name, unresolved expression
+      // needs to be analyzed too to get toString() name for consistency
       String symbolName = expressionAnalyzer.analyze(expr, context).toString();
       ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, symbolName));
       return DSL.ref(symbolName, type);

@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpres
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByClauseContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
@@ -63,7 +64,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
         findNonAggregatedSelectItemMissingInGroupBy();
 
     if (invalidSelectItem.isPresent()) {
-      throw new SyntaxCheckException(String.format(
+      throw new SemanticCheckException(String.format(
           "Expression [%s] that contains non-aggregated column is not present in group by clause",
               invalidSelectItem.get()));
     }
@@ -78,7 +79,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     Optional<UnresolvedExpression> invalidSelectItem = findNonAggregatedSelectItem();
 
     if (invalidSelectItem.isPresent()) {
-      throw new SyntaxCheckException(String.format(
+      throw new SemanticCheckException(String.format(
           "Explicit GROUP BY clause is required because expression [%s] "
               + "contains non-aggregated column", invalidSelectItem.get()));
     }
