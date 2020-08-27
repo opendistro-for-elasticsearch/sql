@@ -57,6 +57,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class MathematicalFunctionTest extends ExpressionTestBase {
+
+  private static Stream<Arguments> testLogShortArguments() {
+    Stream.Builder<Arguments> builder = Stream.builder();
+    return builder.add(Arguments.of((short) 2, (short) 2)).build();
+  }
+
   private static Stream<Arguments> testLogIntegerArguments() {
     Stream.Builder<Arguments> builder = Stream.builder();
     return builder.add(Arguments.of(2, 2)).build();
@@ -1183,19 +1189,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test pow/power with integer value.
+   * Test pow/power with short value.
    */
   @ParameterizedTest(name = "pow({0}, {1}")
-  @MethodSource("testLogIntegerArguments")
-  public void pow_short_value(Integer v1, Integer v2) {
-    FunctionExpression pow = dsl.pow(DSL.literal(v1.shortValue()), DSL.literal(v2.shortValue()));
+  @MethodSource("testLogShortArguments")
+  public void pow_short_value(Short v1, Short v2) {
+    FunctionExpression pow = dsl.pow(DSL.literal(v1), DSL.literal(v2));
     assertThat(
         pow.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
     assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
 
     FunctionExpression power =
-        dsl.power(DSL.literal(v1.shortValue()), DSL.literal(v2.shortValue()));
+        dsl.power(DSL.literal(v1), DSL.literal(v2));
     assertThat(
         power.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));

@@ -163,7 +163,7 @@ class ElasticsearchIndexTest {
                         remove(
                             rename(
                                 aggregation(
-                                    filter(relation(indexName), filterExpr),
+                                    relation(indexName),
                                     aggregators,
                                     groupByExprs),
                                 mappings),
@@ -183,10 +183,8 @@ class ElasticsearchIndexTest {
                         PhysicalPlanDSL.remove(
                             PhysicalPlanDSL.rename(
                                 PhysicalPlanDSL.agg(
-                                    PhysicalPlanDSL.filter(
                                           new ElasticsearchIndexScan(
                                               client, settings, indexName, exprValueFactory),
-                                          filterExpr),
                                         aggregators,
                                         groupByExprs),
                                 mappings),
