@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.jdbc.types;
 
+import java.sql.Date;
 import java.sql.JDBCType;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -71,9 +72,7 @@ public enum ElasticsearchType {
     IP(JDBCType.VARCHAR, String.class, 15, 0, false),
     NESTED(JDBCType.STRUCT, null, 0, 0, false),
     OBJECT(JDBCType.STRUCT, null, 0, 0, false),
-    DATE(JDBCType.DATE, Timestamp.class, 24, 24, false),
-    TIME(JDBCType.TIME, Time.class, 24, 24, false),
-    TIMESTAMP(JDBCType.TIMESTAMP, Timestamp.class, 24, 24, false),
+    DATE(JDBCType.TIMESTAMP, Date.class, 24, 24, false),
     NULL(JDBCType.NULL, null, 0, 0, false),
     UNSUPPORTED(JDBCType.OTHER, null, 0, 0, false);
 
@@ -92,8 +91,8 @@ public enum ElasticsearchType {
         jdbcTypeToESTypeMap.put(JDBCType.REAL, FLOAT);
         jdbcTypeToESTypeMap.put(JDBCType.FLOAT, DOUBLE);
         jdbcTypeToESTypeMap.put(JDBCType.VARCHAR, KEYWORD);
-        jdbcTypeToESTypeMap.put(JDBCType.TIMESTAMP, TIMESTAMP);
-        jdbcTypeToESTypeMap.put(JDBCType.TIME, TIME);
+        jdbcTypeToESTypeMap.put(JDBCType.TIMESTAMP, DATE);
+        jdbcTypeToESTypeMap.put(JDBCType.TIME, DATE);
         jdbcTypeToESTypeMap.put(JDBCType.DATE, DATE);
     }
 

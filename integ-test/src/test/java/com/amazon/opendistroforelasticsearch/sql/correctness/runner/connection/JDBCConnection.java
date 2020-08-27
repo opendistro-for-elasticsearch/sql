@@ -135,8 +135,7 @@ public class JDBCConnection implements DBConnection {
     JSONObject json = (JSONObject) new JSONObject(schema).query("/mappings/properties");
     return json.keySet().stream().
         map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type")))
-        .
-            collect(joining(","));
+        .collect(joining(","));
   }
 
   private String getValueList(Object[] fieldValues) {

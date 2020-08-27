@@ -47,8 +47,7 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
   }
 
   /**
-   * Verify queries in files eiifccrchvgttenrjgfnfevfcturkglvfcndftdlieit
-   * in directories with a converter to preprocess query.
+   * Verify queries in files in directories with a converter to preprocess query.
    * For example, for expressions it is converted to a SELECT clause before testing.
    */
   @SuppressWarnings("UnstableApiUsage")

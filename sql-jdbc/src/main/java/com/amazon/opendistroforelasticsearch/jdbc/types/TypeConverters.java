@@ -70,7 +70,7 @@ public class TypeConverters {
 
         private static final Set<Class> supportedJavaClasses = Collections.unmodifiableSet(
                 new HashSet<>(Arrays.asList(
-                        String.class, Timestamp.class, java.sql.Date.class
+                        String.class, Timestamp.class
                 )));
 
         private TimestampTypeConverter() {
@@ -93,7 +93,7 @@ public class TypeConverters {
 
         private static final Set<Class> supportedJavaClasses = Collections.unmodifiableSet(
                 new HashSet<>(Arrays.asList(
-                        String.class, Timestamp.class, java.sql.Date.class
+                        String.class, Date.class
                 )));
 
         private DateTypeConverter() {
@@ -116,7 +116,7 @@ public class TypeConverters {
 
         private static final Set<Class> supportedJavaClasses = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList(
-                String.class, Time.class, Timestamp.class
+                String.class, Time.class
             )));
 
         private TimeTypeConverter() {

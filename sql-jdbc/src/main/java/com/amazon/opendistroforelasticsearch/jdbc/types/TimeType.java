@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.jdbc.types;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class TimeType implements TypeHelper<Time>{
