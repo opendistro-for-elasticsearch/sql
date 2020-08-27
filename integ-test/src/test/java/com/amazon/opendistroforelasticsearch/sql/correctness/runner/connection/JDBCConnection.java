@@ -135,7 +135,8 @@ public class JDBCConnection implements DBConnection {
   private String parseColumnNameAndTypesInSchemaJson(String schema) {
     JSONObject json = (JSONObject) new JSONObject(schema).query("/mappings/properties");
     return json.keySet().stream().
-        map(colName -> colName + " " + mapToJDBCType(json, colName)).collect(joining(","));
+        map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type")))
+        .collect(joining(","));
   }
 
   private String getValueList(Object[] fieldValues) {
@@ -167,28 +168,6 @@ public class JDBCConnection implements DBConnection {
       }
       result.addRow(row);
     }
-  }
-
-  private String mapToJDBCType(JSONObject json, String column) {
-    String esType = json.getJSONObject(column).getString("type");
-    if (esType.equalsIgnoreCase("date")) {
-      try {
-        String format = json.getJSONObject(column).getString("format");
-        switch (format) {
-          case "yyyy-MM-dd HH:mm:ss":
-            return "TIMESTAMP";
-          case "yyyy-MM-dd":
-            return "DATE";
-          case "epoch_millis":
-            return "TIME";
-          default:
-            break;
-        }
-      } catch (JSONException e) {
-        return "TIMESTAMP";
-      }
-    }
-    return mapToJDBCType(esType);
   }
 
   private String mapToJDBCType(String esType) {
