@@ -131,9 +131,9 @@ public class DateTimeFunction {
   private ExprValue exprDayOfMonth(ExprValue date) {
     if (date instanceof ExprStringValue) {
       return new ExprIntegerValue(
-          new ExprDateValue(date.stringValue()).dateValue().getMonthValue());
+          new ExprDateValue(date.stringValue()).dateValue().getDayOfMonth());
     }
-    return new ExprIntegerValue(date.dateValue().getMonthValue());
+    return new ExprIntegerValue(date.dateValue().getDayOfMonth());
   }
 
   /**

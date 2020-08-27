@@ -73,3 +73,4 @@ sin(-1.57)
 tan(0)
 tan(1.57)
 tan(-1.57)
+dayofmonth('2020-08-26') as dom
