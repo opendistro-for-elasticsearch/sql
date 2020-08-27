@@ -15,12 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,26 +70,35 @@ public class MinAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void test_min_date() {
+    ExprValue result = aggregation(dsl.min(DSL.ref("date_value", DATE)), tuples);
+    assertEquals("1970-01-01", result.value());
+  }
+
+  @Test
+  public void test_min_datetime() {
+    ExprValue result = aggregation(dsl.min(DSL.ref("datetime_value", DATETIME)), tuples);
+    assertEquals("1970-01-01 19:00:00", result.value());
+  }
+
+  @Test
+  public void test_min_time() {
+    ExprValue result = aggregation(dsl.min(DSL.ref("time_value", TIME)), tuples);
+    assertEquals("00:00:00", result.value());
+  }
+
+  @Test
+  public void test_min_timestamp() {
+    ExprValue result = aggregation(dsl.min(DSL.ref("timestamp_value", TIMESTAMP)), tuples);
+    assertEquals("1970-01-01 19:00:00", result.value());
+  }
+
+  @Test
   public void test_min_arithmetic_expression() {
     ExprValue result = aggregation(
         dsl.min(dsl.add(DSL.ref("integer_value", INTEGER),
             DSL.literal(ExprValueUtils.integerValue(0)))), tuples);
     assertEquals(1, result.value());
-  }
-
-  @Test
-  public void test_min_unsupported_type_field() {
-    MinAggregator minAggregator =
-        new MinAggregator(ImmutableList.of(DSL.ref("struct_value", STRUCT)), STRUCT);
-    MinAggregator.MinState minState = minAggregator.create();
-    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> minAggregator
-            .iterate(
-                ExprValueUtils.tupleValue(
-                    ImmutableMap.of("struct_value", ImmutableMap.of("str", 1)))
-                    .bindingTuples(),
-                minState));
-    assertEquals("unexpected type [STRUCT] in min aggregation", exception.getMessage());
   }
 
   @Test

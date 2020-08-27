@@ -17,6 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
@@ -25,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+import java.util.Arrays;
 import java.util.List;
 
 public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
@@ -59,17 +65,21 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
     private boolean isEmptyCollection;
 
     MaxState(ExprCoreType type) {
-      maxResult = type.equals(ExprCoreType.STRING) ? LITERAL_NULL : doubleValue(Double.MIN_VALUE);
+      maxResult = isNumber(type) ? doubleValue(Double.MIN_VALUE) : LITERAL_NULL;
       isEmptyCollection = true;
     }
 
     public void max(ExprValue value) {
-      maxResult = maxResult.compareTo(value) > 0 ? maxResult : value;
+      maxResult = maxResult.isNull() ? value : maxResult.compareTo(value) > 0 ? maxResult : value;
     }
 
     @Override
     public ExprValue result() {
       return isEmptyCollection ? ExprNullValue.of() : maxResult;
+    }
+
+    private boolean isNumber(ExprCoreType type) {
+      return Arrays.asList(SHORT, INTEGER, LONG, FLOAT, DOUBLE).contains(type);
     }
   }
 }

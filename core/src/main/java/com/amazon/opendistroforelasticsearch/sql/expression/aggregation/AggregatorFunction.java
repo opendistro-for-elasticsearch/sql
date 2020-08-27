@@ -17,12 +17,16 @@ package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
@@ -124,6 +128,14 @@ public class AggregatorFunction {
                 arguments -> new MinAggregator(arguments, DOUBLE))
             .put(new FunctionSignature(functionName, Collections.singletonList(STRING)),
                 arguments -> new MinAggregator(arguments, STRING))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DATE)),
+                arguments -> new MinAggregator(arguments, DATE))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
+                arguments -> new MinAggregator(arguments, DATETIME))
+            .put(new FunctionSignature(functionName, Collections.singletonList(TIME)),
+                arguments -> new MinAggregator(arguments, TIME))
+            .put(new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
+                arguments -> new MinAggregator(arguments, TIMESTAMP))
             .build());
   }
 
@@ -142,6 +154,14 @@ public class AggregatorFunction {
                 arguments -> new MaxAggregator(arguments, DOUBLE))
             .put(new FunctionSignature(functionName, Collections.singletonList(STRING)),
                 arguments -> new MaxAggregator(arguments, STRING))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DATE)),
+                arguments -> new MaxAggregator(arguments, DATE))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
+                arguments -> new MaxAggregator(arguments, DATETIME))
+            .put(new FunctionSignature(functionName, Collections.singletonList(TIME)),
+                arguments -> new MaxAggregator(arguments, TIME))
+            .put(new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
+                arguments -> new MaxAggregator(arguments, TIMESTAMP))
             .build()
     );
   }

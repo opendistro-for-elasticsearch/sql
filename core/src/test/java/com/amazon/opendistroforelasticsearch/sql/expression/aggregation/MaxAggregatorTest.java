@@ -15,12 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,26 +70,35 @@ public class MaxAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void test_max_date() {
+    ExprValue result = aggregation(dsl.max(DSL.ref("date_value", DATE)), tuples);
+    assertEquals("2040-01-01", result.value());
+  }
+
+  @Test
+  public void test_max_datetime() {
+    ExprValue result = aggregation(dsl.max(DSL.ref("datetime_value", DATETIME)), tuples);
+    assertEquals("2040-01-01 07:00:00", result.value());
+  }
+
+  @Test
+  public void test_max_time() {
+    ExprValue result = aggregation(dsl.max(DSL.ref("time_value", TIME)), tuples);
+    assertEquals("19:00:00", result.value());
+  }
+
+  @Test
+  public void test_max_timestamp() {
+    ExprValue result = aggregation(dsl.max(DSL.ref("timestamp_value", TIMESTAMP)), tuples);
+    assertEquals("2040-01-01 07:00:00", result.value());
+  }
+
+  @Test
   public void test_max_arithmetic_expression() {
     ExprValue result = aggregation(
         dsl.max(dsl.add(DSL.ref("integer_value", INTEGER),
             DSL.literal(ExprValueUtils.integerValue(0)))), tuples);
     assertEquals(4, result.value());
-  }
-
-  @Test
-  public void test_unsupported_type_field() {
-    MaxAggregator maxAggregator =
-        new MaxAggregator(ImmutableList.of(DSL.ref("struct_value", STRUCT)), STRUCT);
-    MaxAggregator.MaxState maxState = maxAggregator.create();
-    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> maxAggregator
-            .iterate(
-                ExprValueUtils.tupleValue(
-                    ImmutableMap.of("struct_value", ImmutableMap.of("str", 1)))
-                    .bindingTuples(),
-                maxState));
-    assertEquals("unexpected type [STRUCT] in max aggregation", exception.getMessage());
   }
 
   @Test

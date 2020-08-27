@@ -25,6 +25,11 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
@@ -34,6 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationE
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,7 +55,7 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
   @Override
   public MinState create() {
-    return new MinState();
+    return new MinState(returnType);
   }
 
   @Override
@@ -72,17 +78,23 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
     private ExprValue minResult;
     private boolean isEmptyCollection;
 
-    MinState() {
+    MinState(ExprCoreType type) {
+      minResult = isNumber(type) ? doubleValue(Double.MAX_VALUE) : LITERAL_NULL;
       isEmptyCollection = true;
     }
 
     public void min(ExprValue value) {
-      minResult = minResult.compareTo(value) < 0 ? minResult : value;
+      minResult = minResult.isNull() ? value : minResult.compareTo(value) < 0 ? minResult : value;
     }
 
     @Override
     public ExprValue result() {
       return isEmptyCollection ? ExprNullValue.of() : minResult;
+    }
+
+
+    private boolean isNumber(ExprCoreType type) {
+      return Arrays.asList(SHORT, INTEGER, LONG, FLOAT, DOUBLE).contains(type);
     }
   }
 }
