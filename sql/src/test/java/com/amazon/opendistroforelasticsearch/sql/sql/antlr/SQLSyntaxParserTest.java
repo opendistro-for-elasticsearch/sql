@@ -118,4 +118,12 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT ABS(balance) FROM test GROUP BY 1"));
   }
 
+  @Test
+  public void canNotParseAggregateFunctionWithWrongArgument() {
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM() FROM test"));
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG() FROM test"));
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM(a,b) FROM test"));
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG(a,b,c) FROM test"));
+  }
+
 }

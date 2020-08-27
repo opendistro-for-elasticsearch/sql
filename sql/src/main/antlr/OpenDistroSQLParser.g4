@@ -206,7 +206,7 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
-    | aggregateFunctionName LR_BRACKET functionArg RR_BRACKET       #aggregateFunctionCall
+    | aggregateFunction                                             #aggregateFunctionCall
     ;
 
 scalarFunctionName
@@ -214,8 +214,9 @@ scalarFunctionName
     | dateTimeFunctionName
     ;
 
-aggregateFunctionName
-    : AVG | SUM | COUNT
+aggregateFunction
+    : functionName=(AVG | SUM) LR_BRACKET functionArg RR_BRACKET
+    /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
     ;
 
 mathematicalFunctionName
