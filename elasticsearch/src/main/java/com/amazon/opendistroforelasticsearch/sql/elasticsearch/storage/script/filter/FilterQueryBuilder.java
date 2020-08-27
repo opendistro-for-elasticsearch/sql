@@ -68,12 +68,7 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
    * @return      query
    */
   public QueryBuilder build(Expression expr) {
-    try {
-      return expr.accept(this, null);
-    } catch (IllegalStateException e) {
-      //TODO: remove this try-catch once arithmetic and all expressions are serializable
-      return null;
-    }
+    return expr.accept(this, null);
   }
 
   @Override

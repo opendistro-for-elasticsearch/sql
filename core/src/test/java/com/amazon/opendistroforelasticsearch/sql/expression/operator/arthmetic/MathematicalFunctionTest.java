@@ -27,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.D
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.hasType;
 import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.hasValue;
@@ -37,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
@@ -55,6 +57,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class MathematicalFunctionTest extends ExpressionTestBase {
+
+  private static Stream<Arguments> testLogShortArguments() {
+    Stream.Builder<Arguments> builder = Stream.builder();
+    return builder.add(Arguments.of((short) 2, (short) 2)).build();
+  }
+
   private static Stream<Arguments> testLogIntegerArguments() {
     Stream.Builder<Arguments> builder = Stream.builder();
     return builder.add(Arguments.of(2, 2)).build();
@@ -138,6 +146,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         abs.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
+  }
+
+  /**
+   * Test abs with short value.
+   */
+  @ParameterizedTest(name = "abs({0})")
+  @ValueSource(shorts = {-2, 2})
+  public void abs_short_value(Short value) {
+    FunctionExpression abs = dsl.abs(DSL.literal(new ExprShortValue(value)));
+    assertThat(
+        abs.valueOf(valueEnv()),
+        allOf(hasType(SHORT), hasValue(Integer.valueOf(Math.abs(value)).shortValue())));
     assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
@@ -1025,6 +1046,25 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
+   * Test mod with short value.
+   */
+  @ParameterizedTest(name = "mod({0}, {1})")
+  @MethodSource("testLogIntegerArguments")
+  public void mod_short_value(Integer v1, Integer v2) {
+    FunctionExpression mod = dsl.mod(DSL.literal(v1.shortValue()), DSL.literal(v2.shortValue()));
+
+    assertThat(
+        mod.valueOf(valueEnv()),
+        allOf(hasType(SHORT),
+            hasValue(Integer.valueOf(v1.shortValue() % v2.shortValue()).shortValue())));
+    assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
+
+    mod = dsl.mod(DSL.literal(v1.shortValue()), DSL.literal(new ExprShortValue(0)));
+    assertEquals(SHORT, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
+  }
+
+  /**
    * Test mod with integer value.
    */
   @ParameterizedTest(name = "mod({0}, {1})")
@@ -1146,6 +1186,26 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
     assertEquals(INTEGER, mod.type());
     assertTrue(mod.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test pow/power with short value.
+   */
+  @ParameterizedTest(name = "pow({0}, {1}")
+  @MethodSource("testLogShortArguments")
+  public void pow_short_value(Short v1, Short v2) {
+    FunctionExpression pow = dsl.pow(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        pow.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
+
+    FunctionExpression power =
+        dsl.power(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        power.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
   }
 
   /**

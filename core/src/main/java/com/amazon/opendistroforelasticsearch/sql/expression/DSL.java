@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
@@ -27,6 +28,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DSL {
   private final BuiltinFunctionRepository repository;
+
+  public static LiteralExpression literal(Short value) {
+    return new LiteralExpression(new ExprShortValue(value));
+  }
 
   public static LiteralExpression literal(Integer value) {
     return new LiteralExpression(ExprValueUtils.integerValue(value));

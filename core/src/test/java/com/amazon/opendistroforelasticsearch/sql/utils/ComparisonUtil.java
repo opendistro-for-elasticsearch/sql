@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -41,7 +42,9 @@ public class ComparisonUtil {
       throw new ExpressionEvaluationException("invalid to call compare operation on null value");
     }
 
-    if (v1 instanceof ExprIntegerValue) {
+    if (v1 instanceof ExprShortValue) {
+      return v1.shortValue().compareTo(v2.shortValue());
+    } else if (v1 instanceof ExprIntegerValue) {
       return getIntegerValue(v1).compareTo(getIntegerValue(v2));
     } else if (v1 instanceof ExprLongValue) {
       return getLongValue(v1).compareTo(getLongValue(v2));
