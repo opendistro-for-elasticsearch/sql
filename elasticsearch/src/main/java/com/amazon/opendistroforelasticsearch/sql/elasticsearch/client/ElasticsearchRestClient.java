@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.search.ClearScrollRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetMappingsRequest;
@@ -55,38 +54,39 @@ public class ElasticsearchRestClient implements ElasticsearchClient {
 
   @Override
   public ElasticsearchResponse search(ElasticsearchRequest request) {
-    try {
-      SearchResponse esResponse;
-      if (request.isScrollStarted()) {
-        esResponse = client.scroll(request.scrollRequest(), RequestOptions.DEFAULT);
-      } else {
-        esResponse = client.search(request.searchRequest(), RequestOptions.DEFAULT);
-      }
-      request.setScrollId(esResponse.getScrollId());
-
-      return new ElasticsearchResponse(esResponse);
-    } catch (IOException e) {
-      throw new IllegalStateException(
-          "Failed to perform search operation with request " + request, e);
-    }
+    return request.search(
+        req -> {
+          try {
+            return client.search(req, RequestOptions.DEFAULT);
+          } catch (IOException e) {
+            throw new IllegalStateException(
+                "Failed to perform search operation with request " + req, e);
+          }
+        },
+        req -> {
+          try {
+            return client.scroll(req, RequestOptions.DEFAULT);
+          } catch (IOException e) {
+            throw new IllegalStateException(
+                "Failed to perform scroll operation with request " + req, e);
+          }
+        }
+    );
   }
 
   @Override
   public void cleanup(ElasticsearchRequest request) {
-    try {
-      if (!request.isScrollStarted()) {
-        return;
+    request.clean(scrollId -> {
+      try {
+        ClearScrollRequest clearRequest = new ClearScrollRequest();
+        clearRequest.addScrollId(scrollId);
+        client.clearScroll(clearRequest, RequestOptions.DEFAULT);
+      } catch (IOException e) {
+        throw new IllegalStateException(
+            "Failed to clean up resources for search request " + request, e);
       }
+    });
 
-      ClearScrollRequest clearRequest = new ClearScrollRequest();
-      clearRequest.addScrollId(request.getScrollId());
-      client.clearScroll(clearRequest, RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new IllegalStateException(
-          "Failed to clean up resources for search request " + request, e);
-    } finally {
-      request.reset();
-    }
   }
 
   @Override

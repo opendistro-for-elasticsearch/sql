@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.executor;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import java.util.List;
 import lombok.Data;
@@ -40,7 +41,20 @@ public interface ExecutionEngine {
    */
   @Data
   class QueryResponse {
+    private final Schema schema;
     private final List<ExprValue> results;
+  }
+
+  @Data
+  class Schema {
+    private final List<Column> columns;
+
+    @Data
+    public static class Column {
+      private final String name;
+      private final String alias;
+      private final ExprType exprType;
+    }
   }
 
 }

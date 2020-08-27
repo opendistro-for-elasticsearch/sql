@@ -52,6 +52,9 @@ class SQLServiceTest {
   @Mock
   private ExecutionEngine executionEngine;
 
+  @Mock
+  private ExecutionEngine.Schema schema;
+
   @BeforeEach
   public void setUp() {
     context.registerBean(StorageEngine.class, () -> storageEngine);
@@ -65,7 +68,7 @@ class SQLServiceTest {
   public void canExecuteSqlQuery() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(Collections.emptyList()));
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList()));
       return null;
     }).when(executionEngine).execute(any(), any());
 
@@ -88,7 +91,7 @@ class SQLServiceTest {
   public void canExecuteFromPhysicalPlan() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-      listener.onResponse(new QueryResponse(Collections.emptyList()));
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList()));
       return null;
     }).when(executionEngine).execute(any(), any());
 

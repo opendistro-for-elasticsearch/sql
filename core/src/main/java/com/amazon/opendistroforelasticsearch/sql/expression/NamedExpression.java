@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -49,6 +50,7 @@ public class NamedExpression implements Expression {
   /**
    * Optional alias.
    */
+  @Getter
   private String alias;
 
   @Override
@@ -67,6 +69,11 @@ public class NamedExpression implements Expression {
    */
   public String getName() {
     return Strings.isNullOrEmpty(alias) ? name : alias;
+  }
+
+  @Override
+  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
+    return visitor.visitNamed(this, context);
   }
 
 }

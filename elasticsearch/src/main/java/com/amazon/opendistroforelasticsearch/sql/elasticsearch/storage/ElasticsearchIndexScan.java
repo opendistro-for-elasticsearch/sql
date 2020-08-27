@@ -16,9 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static org.elasticsearch.search.sort.FieldSortBuilder.DOC_FIELD_NAME;
+import static org.elasticsearch.search.sort.SortOrder.ASC;
+
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
@@ -28,9 +33,15 @@ import java.util.Iterator;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/** Elasticsearch index scan operator. */
+/**
+ * Elasticsearch index scan operator.
+ */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
 public class ElasticsearchIndexScan extends TableScanOperator {
@@ -51,10 +62,12 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   /**
    * Todo.
    */
-  public ElasticsearchIndexScan(ElasticsearchClient client, String indexName,
+  public ElasticsearchIndexScan(ElasticsearchClient client,
+                                Settings settings, String indexName,
                                 ElasticsearchExprValueFactory exprValueFactory) {
     this.client = client;
-    this.request = new ElasticsearchRequest(indexName);
+    this.request = new ElasticsearchQueryRequest(indexName,
+        settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT));
     this.exprValueFactory = exprValueFactory;
   }
 
@@ -82,10 +95,40 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     return exprValueFactory.construct(hits.next().getSourceAsString());
   }
 
+  /**
+   * Push down query to DSL request.
+   * @param query  query request
+   */
+  public void pushDown(QueryBuilder query) {
+    SearchSourceBuilder source = request.getSourceBuilder();
+    QueryBuilder current = source.query();
+    if (current == null) {
+      source.query(query);
+    } else {
+      if (isBoolFilterQuery(current)) {
+        ((BoolQueryBuilder) current).filter(query);
+      } else {
+        source.query(QueryBuilders.boolQuery()
+                                  .filter(current)
+                                  .filter(query));
+      }
+    }
+
+    if (source.sorts() == null) {
+      source.sort(DOC_FIELD_NAME, ASC); // Make sure consistent order
+    }
+  }
+
   @Override
   public void close() {
     super.close();
 
     client.cleanup(request);
   }
+
+  private boolean isBoolFilterQuery(QueryBuilder current) {
+    return (current instanceof BoolQueryBuilder)
+        && !((BoolQueryBuilder) current).filter().isEmpty();
+  }
+
 }

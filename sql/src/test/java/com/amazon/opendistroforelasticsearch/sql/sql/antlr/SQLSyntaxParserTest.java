@@ -92,9 +92,26 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canParseWhereClause() {
+    assertNotNull(parser.parse("SELECT name FROM test WHERE age = 10"));
+  }
+
+  @Test
+  public void canParseSelectClauseWithLogicalOperator() {
+    assertNotNull(parser.parse(
+        "SELECT age = 10 AND name = 'John' OR NOT (balance > 1000) FROM test"));
+  }
+
+  @Test
+  public void canParseWhereClauseWithLogicalOperator() {
+    assertNotNull(parser.parse("SELECT name FROM test "
+        + "WHERE age = 10 AND name = 'John' OR NOT (balance > 1000)"));
+  }
+
+  @Test
   public void canNotParseInvalidSelect() {
     assertThrows(SyntaxCheckException.class,
-        () -> parser.parse("SELECT * FROM test WHERE age = 10"));
+        () -> parser.parse("SELECT * FROM test WHERE age = 10 GROUP BY name"));
   }
 
 }

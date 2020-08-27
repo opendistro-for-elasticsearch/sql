@@ -20,18 +20,29 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-
+@Configuration
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTestBase.class})
 class ExpressionAnalyzerTest extends AnalyzerTestBase {
 
   @Test
@@ -83,31 +94,31 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void named_expression() {
+  public void qualified_name_with_qualifier() {
+    analysisContext.push();
+    analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
     assertAnalyzeEqual(
-        DSL.named("int", DSL.ref("integer_value", INTEGER)),
-        AstDSL.alias("int", AstDSL.qualifiedName("integer_value"))
+        DSL.ref("integer_value", INTEGER),
+        AstDSL.qualifiedName("index_alias", "integer_value")
     );
-  }
 
-  @Test
-  public void named_expression_with_alias() {
-    assertAnalyzeEqual(
-        DSL.named("integer", DSL.ref("integer_value", INTEGER), "int"),
-        AstDSL.alias("integer", AstDSL.qualifiedName("integer_value"), "int")
-    );
-  }
-
-  @Test
-  public void skip_identifier_with_qualifier() {
+    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "nested_field"), STRUCT);
     SyntaxCheckException exception =
         assertThrows(SyntaxCheckException.class,
-            () -> analyze(AstDSL.qualifiedName("index_alias", "integer_value")));
-
+            () -> analyze(AstDSL.qualifiedName("nested_field", "integer_value")));
     assertEquals(
-        "Qualified name [index_alias.integer_value] is not supported yet",
+        "The qualifier [nested_field] of qualified name [nested_field.integer_value] "
+            + "must be an index name or its alias",
         exception.getMessage()
     );
+    analysisContext.pop();
+  }
+
+  @Test
+  public void interval() {
+    assertAnalyzeEqual(
+        dsl.interval(DSL.literal(1L), DSL.literal("DAY")),
+        AstDSL.intervalLiteral(1L, DataType.LONG, "DAY"));
   }
 
   @Test

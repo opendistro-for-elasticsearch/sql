@@ -15,14 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+
+import java.io.IOException;
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 
 public class WhereCommandIT extends PPLIntegTestCase {
 
@@ -51,6 +50,22 @@ public class WhereCommandIT extends PPLIntegTestCase {
                     + "| fields firstname, lastname, age",
                 TEST_INDEX_ACCOUNT));
     verifyDataRows(result, rows("Amber", "Duke", 32));
+  }
+
+  @Test
+  public void testMultipleWhereCommands() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s "
+                    + "| where firstname='Amber' "
+                    + "| fields lastname, age"
+                    + "| where lastname='Duke' "
+                    + "| fields age "
+                    + "| where age=32 "
+                    + "| fields age",
+                TEST_INDEX_ACCOUNT));
+    verifyDataRows(result, rows(32));
   }
 
   @Test

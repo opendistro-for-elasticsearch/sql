@@ -76,9 +76,13 @@ selectElement
     ;
 
 fromClause
-    : FROM tableName
+    : FROM tableName (AS? alias)?
+      (whereClause)?
     ;
 
+whereClause
+    : WHERE expression
+    ;
 
 //    Literals
 
@@ -88,6 +92,7 @@ constant
     | sign? realLiteral         #signedReal
     | booleanLiteral            #boolean
     | datetimeLiteral           #datetime
+    | intervalLiteral           #interval
     | nullLiteral               #null
     // Doesn't support the following types for now
     //| BIT_STRING
@@ -138,11 +143,24 @@ timestampLiteral
     : TIMESTAMP timestamp=stringLiteral
     ;
 
+intervalLiteral
+    : INTERVAL expression intervalUnit
+    ;
+
+intervalUnit
+    : MICROSECOND | SECOND | MINUTE | HOUR | DAY | WEEK | MONTH | QUARTER | YEAR | SECOND_MICROSECOND
+    | MINUTE_MICROSECOND | MINUTE_SECOND | HOUR_MICROSECOND | HOUR_SECOND | HOUR_MINUTE | DAY_MICROSECOND
+    | DAY_SECOND | DAY_MINUTE | DAY_HOUR | YEAR_MONTH
+    ;
+
 //    Expressions, predicates
 
 // Simplified approach for expression
 expression
-    : predicate                                                     #predicateExpression
+    : NOT expression                                                #notExpression
+    | left=expression AND right=expression                          #andExpression
+    | left=expression OR right=expression                           #orExpression
+    | predicate                                                     #predicateExpression
     ;
 
 predicate
@@ -193,7 +211,7 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : DAYOFMONTH
+    : DAYOFMONTH | DATE | TIME | TIMESTAMP
     ;
 
 functionArgs

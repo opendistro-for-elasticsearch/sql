@@ -19,12 +19,13 @@ import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
@@ -84,6 +85,13 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   public Expression visitLiteral(Literal node, AnalysisContext context) {
     return DSL
         .literal(ExprValueUtils.fromObjectValue(node.getValue(), node.getType().getCoreType()));
+  }
+
+  @Override
+  public Expression visitInterval(Interval node, AnalysisContext context) {
+    Expression value = node.getValue().accept(this, context);
+    Expression unit = DSL.literal(node.getUnit().name());
+    return dsl.interval(value, unit);
   }
 
   @Override
@@ -155,20 +163,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
-    // Name with qualifier (index.field, index_alias.field, object/nested.inner_field
-    //  text.keyword) is not supported for now
-    if (node.getParts().size() > 1) {
-      throw new SyntaxCheckException(String.format(
-          "Qualified name [%s] is not supported yet", node));
-    }
-    return visitIdentifier(node.toString(), context);
-  }
-
-  @Override
-  public Expression visitAlias(Alias node, AnalysisContext context) {
-    return DSL.named(node.getName(),
-                     node.getDelegated().accept(this, context),
-                     node.getAlias());
+    QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
+    return visitIdentifier(qualifierAnalyzer.unqualified(node), context);
   }
 
   private Expression visitIdentifier(String ident, AnalysisContext context) {

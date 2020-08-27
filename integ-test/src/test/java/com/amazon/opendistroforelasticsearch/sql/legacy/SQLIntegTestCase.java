@@ -81,7 +81,6 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
       initClient();
     }
 
-    increaseScriptMaxCompilationsRate();
     enableNewQueryEngine();
     init();
   }
@@ -139,15 +138,6 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
   public static void cleanUpIndices() throws IOException {
     wipeAllODFEIndices();
     wipeAllClusterSettings();
-  }
-
-  /**
-   * Increase script.max_compilations_rate to large enough, which is only 75/5min by default.
-   * This issue is due to our painless script not using params passed to compiled script.
-   */
-  private void increaseScriptMaxCompilationsRate() throws IOException {
-    updateClusterSettings(
-        new ClusterSetting("transient", "script.max_compilations_rate", "10000/1m"));
   }
 
   private void enableNewQueryEngine() throws IOException {

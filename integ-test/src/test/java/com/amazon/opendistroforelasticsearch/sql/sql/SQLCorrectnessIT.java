@@ -32,7 +32,7 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
 
   private static final String ROOT_DIR = "correctness/";
   private static final String[] EXPR_TEST_DIR = { "expressions" };
-  private static final String[] QUERY_TEST_DIR = { "queries"/*, "bugfixes"*/ }; //TODO: skip bugfixes folder for now since it fails
+  private static final String[] QUERY_TEST_DIR = { "queries", "bugfixes" };
 
   @Override
   protected void init() throws Exception {
@@ -70,7 +70,5 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
       throw new IllegalStateException("Failed to read file: " + file, e);
     }
   }
-
-
 
 }

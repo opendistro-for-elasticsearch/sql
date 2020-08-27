@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
@@ -30,6 +31,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
@@ -75,11 +77,27 @@ class AstBuilderTest {
   @Test
   public void can_build_select_all_from_index() {
     assertEquals(
-        relation("test"),
+        project(
+            relation("test"),
+            AllFields.of()
+        ),
         buildAST("SELECT * FROM test")
     );
 
     assertThrows(SyntaxCheckException.class, () -> buildAST("SELECT *"));
+  }
+
+  @Test
+  public void can_build_select_all_and_fields_from_index() {
+    assertEquals(
+        project(
+            relation("test"),
+            AllFields.of(),
+            alias("age", qualifiedName("age")),
+            alias("age", qualifiedName("age"), "a")
+        ),
+        buildAST("SELECT *, age, age as a FROM test")
+    );
   }
 
   @Test
@@ -125,6 +143,49 @@ class AstBuilderTest {
                 + " (age + 10) AS `Age_Expr` "
                 + "FROM test"
         )
+    );
+  }
+
+  @Test
+  public void can_build_from_index_with_alias() {
+    assertEquals(
+        project(
+            filter(
+                relation("test", "tt"),
+                function("=", qualifiedName("tt", "age"), intLiteral(30))),
+            alias("tt.name", qualifiedName("tt", "name"))
+        ),
+        buildAST("SELECT tt.name FROM test AS tt WHERE tt.age = 30")
+    );
+  }
+
+  @Test
+  public void can_build_from_index_with_alias_quoted() {
+    assertEquals(
+        project(
+            filter(
+                relation("test", "t"),
+                function("=", qualifiedName("t", "age"), intLiteral(30))),
+            alias("`t`.name", qualifiedName("t", "name"))
+        ),
+        buildAST("SELECT `t`.name FROM test `t` WHERE `t`.age = 30")
+    );
+  }
+
+  @Test
+  public void can_build_where_clause() {
+    assertEquals(
+        project(
+            filter(
+                relation("test"),
+                function(
+                    "=",
+                    qualifiedName("name"),
+                    stringLiteral("John"))
+            ),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test WHERE name = 'John'")
     );
   }
 

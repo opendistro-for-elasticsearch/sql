@@ -21,7 +21,7 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `Identifiers <general/identifiers.rst>`_
 
-  - `Data Types <general/datatype.rst>`_
+  - `Data Types <general/datatypes.rst>`_
 
 * **Data Query Language**
 
@@ -48,4 +48,8 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 * **Troubleshooting**
 
   - `Troubleshooting <dql/troubleshooting.rst>`_
+
+* **Limitations**
+
+  - `Limitations <limitations/limitations.rst>`_
 

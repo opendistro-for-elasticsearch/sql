@@ -244,6 +244,8 @@ public class MatcherUtils {
             isEqual = ((JSONObject) expected).similar(array.get(i));
           } else if (expected instanceof JSONArray) {
             isEqual = ((JSONArray) expected).similar(array.get(i));
+          } else if (null == expected) {
+            isEqual = JSONObject.NULL == array.get(i);
           } else {
             isEqual = expected.equals(array.get(i));
           }

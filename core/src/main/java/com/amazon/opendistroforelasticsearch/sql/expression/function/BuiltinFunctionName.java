@@ -49,6 +49,14 @@ public enum BuiltinFunctionName {
   TAN(FunctionName.of("tan")),
 
   /**
+   * Date and Time Functions.
+   */
+  DATE(FunctionName.of("date")),
+  DAYOFMONTH(FunctionName.of("dayofmonth")),
+  TIME(FunctionName.of("time")),
+  TIMESTAMP(FunctionName.of("timestamp")),
+
+  /**
    * Text Functions.
    */
   TOSTRING(FunctionName.of("tostring")),
@@ -79,11 +87,6 @@ public enum BuiltinFunctionName {
   NOT_LIKE(FunctionName.of("not like")),
 
   /**
-   * Date and Time Functions.
-   */
-  DAYOFMONTH(FunctionName.of("dayofmonth")),
-
-  /**
    * Aggregation Function.
    */
   AVG(FunctionName.of("avg")),
@@ -96,7 +99,9 @@ public enum BuiltinFunctionName {
    * NULL Test.
    */
   IS_NULL(FunctionName.of("is null")),
-  IS_NOT_NULL(FunctionName.of("is not null"));
+  IS_NOT_NULL(FunctionName.of("is not null")),
+
+  INTERVAL(FunctionName.of("interval"));
 
   private final FunctionName name;
 

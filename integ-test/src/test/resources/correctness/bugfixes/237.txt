@@ -1,0 +1,3 @@
+SELECT ((Origin = 'Munich Airport') AND (Dest = 'Venice Marco Polo Airport')) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT ((Origin = 'Munich Airport') OR (Origin = 'Itami Airport')) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT NOT (Origin = 'Munich Airport') AS Calculation_462181953506873347 FROM kibana_sample_data_flights

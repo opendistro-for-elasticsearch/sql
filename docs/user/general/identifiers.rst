@@ -40,14 +40,14 @@ Here are examples for using index pattern directly without quotes::
 
     od> SELECT * FROM *cc*nt*;
     fetched rows / total rows = 4/4
-    +------------------+-----------+-------------+------------+-------+----------+----------------------+------------+-----------------------+--------+---------+
-    | account_number   | balance   | firstname   | lastname   | age   | gender   | address              | employer   | email                 | city   | state   |
-    |------------------+-----------+-------------+------------+-------+----------+----------------------+------------+-----------------------+--------+---------|
-    | 1                | 39225     | Amber       | Duke       | 32    | M        | 880 Holmes Lane      | Pyrami     | amberduke@pyrami.com  | Brogan | IL      |
-    | 6                | 5686      | Hattie      | Bond       | 36    | M        | 671 Bristol Street   | Netagy     | hattiebond@netagy.com | Dante  | TN      |
-    | 13               | 32838     | Nanette     | Bates      | 28    | F        | 789 Madison Street   | Quility    | null                  | Nogal  | VA      |
-    | 18               | 4180      | Dale        | Adams      | 33    | M        | 467 Hutchinson Court | null       | daleadams@boink.com   | Orick  | MD      |
-    +------------------+-----------+-------------+------------+-------+----------+----------------------+------------+-----------------------+--------+---------+
+    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    | account_number   | firstname   | address              | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
+    |------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
+    | 1                | Amber       | 880 Holmes Lane      | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
+    | 6                | Hattie      | 671 Bristol Street   | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
+    | 13               | Nanette     | 789 Madison Street   | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                  | Bates      |
+    | 18               | Dale        | 467 Hutchinson Court | 4180      | M        | Orick  | null       | MD      | 33    | daleadams@boink.com   | Adams      |
+    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
 
 
 Delimited Identifiers
@@ -76,14 +76,14 @@ Here are examples for quoting an index name by back ticks::
 
     od> SELECT * FROM `accounts`;
     fetched rows / total rows = 4/4
-    +------------------+-----------+-------------+------------+-------+----------+----------------------+------------+-----------------------+--------+---------+
-    | account_number   | balance   | firstname   | lastname   | age   | gender   | address              | employer   | email                 | city   | state   |
-    |------------------+-----------+-------------+------------+-------+----------+----------------------+------------+-----------------------+--------+---------|
-    | 1                | 39225     | Amber       | Duke       | 32    | M        | 880 Holmes Lane      | Pyrami     | amberduke@pyrami.com  | Brogan | IL      |
-    | 6                | 5686      | Hattie      | Bond       | 36    | M        | 671 Bristol Street   | Netagy     | hattiebond@netagy.com | Dante  | TN      |
-    | 13               | 32838     | Nanette     | Bates      | 28    | F        | 789 Madison Street   | Quility    | null                  | Nogal  | VA      |
-    | 18               | 4180      | Dale        | Adams      | 33    | M        | 467 Hutchinson Court | null       | daleadams@boink.com   | Orick  | MD      |
-    +------------------+-----------+-------------+------------+-------+----------+----------------------+------------+-----------------------+--------+---------+
+    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    | account_number   | firstname   | address              | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
+    |------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
+    | 1                | Amber       | 880 Holmes Lane      | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
+    | 6                | Hattie      | 671 Bristol Street   | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
+    | 13               | Nanette     | 789 Madison Street   | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                  | Bates      |
+    | 18               | Dale        | 467 Hutchinson Court | 4180      | M        | Orick  | null       | MD      | 33    | daleadams@boink.com   | Adams      |
+    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
 
 
 Case Sensitivity
@@ -103,6 +103,40 @@ For example, if you run ``SELECT * FROM ACCOUNTS``, it will end up with an index
 Identifier Qualifiers
 =====================
 
-For now, we do not support using Elasticsearch cluster name as catalog name to qualify an index name, such as ``my-cluster.logs``.
+Description
+-----------
 
-TODO: field name qualifiers
+An identifier can be qualified by qualifier(s) or not. The qualifier is meant to avoid ambiguity when interpreting the identifier name. Thus, the name symbol can be associated with a concrete field in Elasticsearch correctly.
+
+In particular, identifier qualifiers follow the specification as below:
+
+1. **Definitions**: A qualified name consists of multiple individual identifiers separated by dot ``.``. An unqualified name can only be a single identifier.
+2. **Qualifier types**: For now, index identifier does not support qualification. Field identifier can be qualified by either full index name or its alias specified in ``FROM`` clause.
+3. **Delimitation**: If necessary, delimit identifiers in each part of a qualified name separately. Do not enclose the entire name which would be interpreted as a single identifier mistakenly. For example, use ``"table"."column"`` rather than ``"table.column"``.
+
+Examples
+--------
+
+The first example is to show a column name qualified by full table name originally in ``FROM`` clause. The qualifier is optional if no ambiguity::
+
+    od> SELECT city, accounts.age, ABS(accounts.balance) FROM accounts WHERE accounts.age < 30;
+    fetched rows / total rows = 1/1
+    +--------+-------+-------------------------+
+    | city   | age   | ABS(accounts.balance)   |
+    |--------+-------+-------------------------|
+    | Nogal  | 28    | 32838                   |
+    +--------+-------+-------------------------+
+
+The second example is to show a field name qualified by index alias specified. Similarly, the alias qualifier is optional in this case::
+
+    od> SELECT city, acc.age, ABS(acc.balance) FROM accounts AS acc WHERE acc.age > 30;
+    fetched rows / total rows = 3/3
+    +--------+-------+--------------------+
+    | city   | age   | ABS(acc.balance)   |
+    |--------+-------+--------------------|
+    | Brogan | 32    | 39225              |
+    | Dante  | 36    | 5686               |
+    | Orick  | 33    | 4180               |
+    +--------+-------+--------------------+
+
+Note that in both examples above, the qualifier is removed in response. This happens only when identifiers selected is a simple field name. In other cases, expressions rather than an atom field, the column name in response is exactly the same as the text in ``SELECT``clause.

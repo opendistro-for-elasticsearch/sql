@@ -22,7 +22,6 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 
 import java.io.IOException;
 import org.elasticsearch.client.ResponseException;
-import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -118,7 +117,8 @@ public class OperatorIT extends PPLIntegTestCase {
             String.format(
                 "source=%s | eval f = balance * 1 | fields f", TEST_INDEX_BANK_WITH_NULL_VALUES));
     verifyDataRows(
-        result, rows(39225), rows(32838), rows(4180), rows(48086), rows(), rows(), rows());
+        result, rows(39225), rows(32838), rows(4180), rows(48086), rows(JSONObject.NULL),
+        rows(JSONObject.NULL), rows(JSONObject.NULL));
   }
 
   @Test
