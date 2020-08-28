@@ -158,7 +158,8 @@ public class ArgumentFactory {
    * @return the list of argument with default number of results for the rare command
    */
   public static List<Argument> getArgumentList(RareCommandContext ctx) {
-    return Collections.singletonList(new Argument("noOfResults", new Literal(10, DataType.INTEGER)));
+    return Collections
+        .singletonList(new Argument("noOfResults", new Literal(10, DataType.INTEGER)));
   }
 
   private static Literal getArgumentValue(ParserRuleContext ctx) {

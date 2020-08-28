@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -298,8 +299,7 @@ public class AstDSL {
   }
 
   public static List<Argument> defaultTopArgs() {
-    return exprList(
-        argument("noOfResults", intLiteral(10)));
+    return exprList(argument("noOfResults", intLiteral(10)));
   }
 
   public static RareTopN rareTopN(UnresolvedPlan input, Boolean rareTopFlag,
