@@ -177,6 +177,15 @@ class AstAggregationBuilderTest {
     assertEquals("Group by ordinal [3] is out of bound of select item list", error2.getMessage());
   }
 
+  @Test
+  void should_report_error_for_non_integer_ordinal_in_group_by_clause() {
+    SemanticCheckException error = assertThrows(SemanticCheckException.class, () ->
+        buildAggregation("SELECT age, AVG(balance) FROM tests GROUP BY 0.0"));
+    assertEquals(
+        "Expression [age] that contains non-aggregated column is not present in group by clause",
+        error.getMessage());
+  }
+
   private Matcher<UnresolvedPlan> hasGroupByItems(UnresolvedExpression... exprs) {
     return featureValueOf("groupByItems", Aggregation::getGroupExprList, exprs);
   }
