@@ -29,6 +29,11 @@ import lombok.ToString;
 public class RareTopNOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
+
+  /**
+   * If rareTopFlag is true, result for top will be returned.
+   * If rareTopFlag is false, result for rare will be returned.
+   */
   @Getter
   private final Boolean rareTopFlag;
   @Getter
