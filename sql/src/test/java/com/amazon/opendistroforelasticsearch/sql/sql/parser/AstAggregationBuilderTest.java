@@ -110,12 +110,25 @@ class AstAggregationBuilderTest {
   @Test
   void should_replace_group_by_alias_by_expression_in_select_clause() {
     assertThat(
-        buildAggregation("SELECT state AS s FROM test GROUP BY s"),
-        hasGroupByItems(qualifiedName("state")));
+        buildAggregation("SELECT state AS s, name FROM test GROUP BY s, name"),
+        hasGroupByItems(qualifiedName("state"), qualifiedName("name")));
 
     assertThat(
         buildAggregation("SELECT ABS(age) AS a FROM test GROUP BY a"),
         hasGroupByItems(function("ABS", qualifiedName("age"))));
+  }
+
+  @Test
+  void should_replace_group_by_ordinal_by_expression_in_select_clause() {
+    assertThat(
+        buildAggregation("SELECT state AS s FROM test GROUP BY 1"),
+        hasGroupByItems(qualifiedName("state")));
+
+    assertThat(
+        buildAggregation("SELECT name, ABS(age) AS a FROM test GROUP BY name, 2"),
+        hasGroupByItems(
+            qualifiedName("name"),
+            function("ABS", qualifiedName("age"))));
   }
 
   @Test

@@ -20,6 +20,9 @@ import static java.util.Collections.emptyList;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
@@ -30,14 +33,26 @@ import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecifi
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
- * AST aggregation builder that builds AST aggregation node.
+ * AST aggregation builder that builds AST aggregation node for the following scenarios:
+ *  1. Explicit GROUP BY
+ *     1.1 Group by column name or scalar expression:
+ *          SELECT ABS(age) FROM test GROUP BY ABS(age)
+ *     1.2 Group by alias in SELECT AS clause:
+ *          SELECT state AS s FROM test GROUP BY s
+ *     1.3 Group by ordinal referring to select list:
+ *          SELECT state FROM test GROUP BY 1
+ *  2. Implicit GROUP BY
+ *     2.1 No non-aggregated item (only aggregate functions):
+ *          SELECT AVG(age), SUM(balance) FROM test
+ *     2.2 Non-aggregated item exists:
+ *          SELECT state, AVG(age) FROM test
+ *         (exception thrown for now. may support this by different SQL mode)
  */
 @RequiredArgsConstructor
 public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
@@ -96,11 +111,15 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private List<UnresolvedExpression> replaceGroupByItemIfAliasOrOrdinal() {
-    Map<String, UnresolvedExpression> selectItemsByAlias = querySpec.getSelectItemsByAlias();
     List<UnresolvedExpression> groupByItems = new ArrayList<>();
     for (UnresolvedExpression expr : querySpec.getGroupByItems()) {
-      groupByItems.add(
-          selectItemsByAlias.getOrDefault(expr.toString(), expr));
+      if (isIntegerLiteral(expr)) {
+        groupByItems.add(getSelectItemByOrdinal(expr));
+      } else if (isAliasInSelectAs(expr)) {
+        groupByItems.add(getSelectItemByAlias(expr));
+      } else {
+        groupByItems.add(expr);
+      }
     }
     return groupByItems;
   }
@@ -127,6 +146,29 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     return !(expr instanceof AggregateFunction)
         && children.stream()
                    .allMatch(child -> isNonAggregatedExpression((UnresolvedExpression) child));
+  }
+
+  private boolean isIntegerLiteral(UnresolvedExpression expr) {
+    return (expr instanceof Literal)
+        && (((Literal) expr).getType() == DataType.INTEGER);
+  }
+
+  private UnresolvedExpression getSelectItemByOrdinal(UnresolvedExpression expr) {
+    int ordinal = (Integer) ((Literal) expr).getValue();
+    if (ordinal <= 0 || ordinal > querySpec.getSelectItems().size()) {
+      throw new SemanticCheckException(String.format(
+          "Group by ordinal %d is out of bound of select item list", ordinal));
+    }
+    return querySpec.getSelectItems().get(ordinal - 1);
+  }
+
+  private boolean isAliasInSelectAs(UnresolvedExpression expr) {
+    return (expr instanceof QualifiedName)
+        && (querySpec.getSelectItemsByAlias().containsKey(expr.toString()));
+  }
+
+  private UnresolvedExpression getSelectItemByAlias(UnresolvedExpression expr) {
+    return querySpec.getSelectItemsByAlias().get(expr.toString());
   }
 
 }
