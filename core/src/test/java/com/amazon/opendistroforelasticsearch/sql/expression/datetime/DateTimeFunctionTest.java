@@ -21,11 +21,17 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.missingValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -66,6 +72,60 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(7), eval(expression));
     assertEquals(nullValue(), eval(dsl.dayofmonth(nullRef)));
     assertEquals(missingValue(), eval(dsl.dayofmonth(missingRef)));
+  }
+
+  @Test
+  public void date() {
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.date(nullRef)));
+    assertEquals(missingValue(), eval(dsl.date(missingRef)));
+
+    FunctionExpression expr = dsl.date(DSL.literal("2020-08-17"));
+    assertEquals(DATE, expr.type());
+    assertEquals(new ExprDateValue("2020-08-17"), eval(expr));
+    assertEquals("date(\"2020-08-17\")", expr.toString());
+
+    expr = dsl.date(DSL.literal(new ExprDateValue("2020-08-17")));
+    assertEquals(DATE, expr.type());
+    assertEquals(new ExprDateValue("2020-08-17"), eval(expr));
+    assertEquals("date(DATE '2020-08-17')", expr.toString());
+  }
+
+  @Test
+  public void time() {
+    when(nullRef.type()).thenReturn(TIME);
+    when(missingRef.type()).thenReturn(TIME);
+    assertEquals(nullValue(), eval(dsl.time(nullRef)));
+    assertEquals(missingValue(), eval(dsl.time(missingRef)));
+
+    FunctionExpression expr = dsl.time(DSL.literal("01:01:01"));
+    assertEquals(TIME, expr.type());
+    assertEquals(new ExprTimeValue("01:01:01"), eval(expr));
+    assertEquals("time(\"01:01:01\")", expr.toString());
+
+    expr = dsl.time(DSL.literal(new ExprTimeValue("01:01:01")));
+    assertEquals(TIME, expr.type());
+    assertEquals(new ExprTimeValue("01:01:01"), eval(expr));
+    assertEquals("time(TIME '01:01:01')", expr.toString());
+  }
+
+  @Test
+  public void timestamp() {
+    when(nullRef.type()).thenReturn(TIMESTAMP);
+    when(missingRef.type()).thenReturn(TIMESTAMP);
+    assertEquals(nullValue(), eval(dsl.timestamp(nullRef)));
+    assertEquals(missingValue(), eval(dsl.timestamp(missingRef)));
+
+    FunctionExpression expr = dsl.timestamp(DSL.literal("2020-08-17 01:01:01"));
+    assertEquals(TIMESTAMP, expr.type());
+    assertEquals(new ExprTimestampValue("2020-08-17 01:01:01"), expr.valueOf(env));
+    assertEquals("timestamp(\"2020-08-17 01:01:01\")", expr.toString());
+
+    expr = dsl.timestamp(DSL.literal(new ExprTimestampValue("2020-08-17 01:01:01")));
+    assertEquals(TIMESTAMP, expr.type());
+    assertEquals(new ExprTimestampValue("2020-08-17 01:01:01"), expr.valueOf(env));
+    assertEquals("timestamp(TIMESTAMP '2020-08-17 01:01:01')", expr.toString());
   }
 
   private ExprValue eval(Expression expression) {

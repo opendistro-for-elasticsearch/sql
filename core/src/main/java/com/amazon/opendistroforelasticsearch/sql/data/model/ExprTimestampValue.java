@@ -21,13 +21,14 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -72,6 +73,21 @@ public class ExprTimestampValue extends AbstractExprValue {
   @Override
   public Instant timestampValue() {
     return timestamp;
+  }
+
+  @Override
+  public LocalDate dateValue() {
+    return timestamp.atZone(ZONE).toLocalDate();
+  }
+
+  @Override
+  public LocalTime timeValue() {
+    return timestamp.atZone(ZONE).toLocalTime();
+  }
+
+  @Override
+  public LocalDateTime datetimeValue() {
+    return timestamp.atZone(ZONE).toLocalDateTime();
   }
 
   @Override

@@ -29,7 +29,7 @@ public class ExprIntervalValueTest {
   @Test
   public void equals_to_self() {
     ExprValue interval = ExprValueUtils.intervalValue(Duration.ofNanos(1000));
-    assertEquals(ExprValueUtils.getIntervalValue(interval), Duration.ofNanos(1000));
+    assertEquals(interval.intervalValue(), Duration.ofNanos(1000));
   }
 
   @Test
@@ -52,6 +52,13 @@ public class ExprIntervalValueTest {
     ExprIntervalValue v2 = new ExprIntervalValue(Duration.ofHours(1));
     assertThrows(ExpressionEvaluationException.class, () -> v1.compare(v2),
         String.format("invalid to compare intervals with units %s and %s", v1.unit(), v2.unit()));
+  }
+
+  @Test
+  public void invalid_get_value() {
+    ExprDateValue value = new ExprDateValue("2020-08-20");
+    assertThrows(ExpressionEvaluationException.class, value::intervalValue,
+        String.format("invalid to get intervalValue from value of type %s", value.type()));
   }
 
   @Test
