@@ -10,7 +10,7 @@
 
  <img src="img/win_system_dsn.png" width="60%">
 
-3. DSN Setup window will open with default values for [configuration options](configuration_options).
+3. DSN Setup window will open with default values for [configuration options](./configuration_options.md).
 
  <img src="img/win_configure_dsn.png" width="50%">
 
