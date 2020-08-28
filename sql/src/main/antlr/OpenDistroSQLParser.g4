@@ -196,8 +196,13 @@ functionCall
     ;
 
 scalarFunctionName
-    : mathematicalFunctionName
+    : aggregationFunctionName
+    | mathematicalFunctionName
     | dateTimeFunctionName
+    ;
+
+aggregationFunctionName
+    : AVG | COUNT | SUM | MIN | MAX
     ;
 
 mathematicalFunctionName
