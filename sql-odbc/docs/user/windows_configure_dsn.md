@@ -1,4 +1,4 @@
-# Configuring a DSN on Windows 10
+# Configuring a DSN on Windows
 
 ## Test Connection
 
@@ -10,7 +10,7 @@
 
  <img src="img/win_system_dsn.png" width="60%">
 
-3. DSN Setup window will open with default values for [configuration options](./configuration_options).
+3. DSN Setup window will open with default values for [configuration options](configuration_options).
 
  <img src="img/win_configure_dsn.png" width="50%">
 
@@ -26,7 +26,7 @@ For example, if you can connect to server using following curl command
 
 5. Click on `Test` to verify connectivity. You will get a message as `Connection successful`.
 
- <img src="img/win_test_dsn.png" width="30%">
+ <img src="img/win_test_dsn.png" width="20%">
 
 6. Click on `OK` to save DSN values.
 
@@ -41,7 +41,7 @@ For example, if you can connect to server using following curl command
 
  <img src="img/win_user_dsn_select_driver.png" width="50%">
 
-3. DSN Setup window will open.
+3. The DSN Setup window will open.
 
  <img src="img/win_user_dsn_configure_options.png" width="50%">
 
