@@ -17,7 +17,6 @@ import { uiModules } from 'ui/modules';
 import chrome from 'ui/chrome';
 import { render, unmountComponentAtNode } from 'react-dom';
 
-import 'ui/autoload/styles';
 import './less/main.less';
 import { Main } from './components/Main/main';
 
