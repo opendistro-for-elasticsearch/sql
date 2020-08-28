@@ -47,7 +47,18 @@ Result:
 
 You need to confirm if the syntax is not supported and disable query analysis if that's the case by the following steps:
 
-1. Identify syntax error in failed query, and correct the syntax if the query does not follow MySQL grammar. Go to step 2 if your query is correct in syntax but it still ends up syntax exception.
+1. Check if there is any identifier (e.g. index name, column name etc.) that contains special characters (e.g. ".", " ", "&", "@",...). The SQL parser gets confused when parsing these characters within the identifiers and throws exception. If you do have such identifiers, try to quote them with backticks to pass the syntax and semantic analysis. For example, assume the index name in the query above is "sample:data" but the plugin fails the analysis, you may well try:
+
+.. code-block:: JSON
+
+    POST /_opendistro/_sql
+	{
+	  "query" : "SELECT * FROM `sample:data`"
+	}
+
+Go to the step 2 if not working.
+
+2. Identify syntax error in failed query, and correct the syntax if the query does not follow MySQL grammar. Go to step 3 if your query is correct in syntax but it still ends up syntax exception.
 
 #. Disable strict query analysis in new ANTLR parser with the following code block.
 
