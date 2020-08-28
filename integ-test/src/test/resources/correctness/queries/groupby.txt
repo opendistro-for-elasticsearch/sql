@@ -15,7 +15,9 @@ SELECT OriginCountry, SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP 
 SELECT OriginCountry, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
 SELECT OriginCountry, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
-SELECT OriginCountry, OriginCityName, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
+SELECT OriginCountry, OriginCityName, COUNT(*) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
+SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
+SELECT OriginCountry, OriginCityName, SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
 SELECT AvgTicketPrice, COUNT(*), AVG(AvgTicketPrice), SUM(AvgTicketPrice) FROM kibana_sample_data_flights GROUP BY AvgTicketPrice
 SELECT FlightDelayMin, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY FlightDelayMin
 SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY 1, 2
@@ -26,3 +28,10 @@ SELECT OriginCountry AS country, AVG(FlightDelayMin) FROM kibana_sample_data_fli
 SELECT OriginCountry AS country, OriginCityName, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY country, 2
 SELECT OriginCountry AS country, OriginCityName AS city, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY country, city
 SELECT ABS(FlightDelayMin) AS delay FROM kibana_sample_data_flights GROUP BY delay
+SELECT flights.OriginCountry, AVG(FlightDelayMin) FROM kibana_sample_data_flights AS flights GROUP BY flights.OriginCountry
+SELECT flights.OriginCountry, flights.OriginCityName, SUM(FlightDelayMin) FROM kibana_sample_data_flights AS flights GROUP BY flights.OriginCountry, flights.OriginCityName
+SELECT flights.OriginCountry, flights.OriginCityName, SUM(FlightDelayMin) FROM kibana_sample_data_flights AS flights GROUP BY 1, 2
+SELECT flights.OriginCountry AS country, flights.OriginCityName AS city, SUM(FlightDelayMin) FROM kibana_sample_data_flights AS flights GROUP BY country, city
+SELECT ABS(flights.FlightDelayMin) AS delay FROM kibana_sample_data_flights AS flights GROUP BY delay
+SELECT `flights`.OriginCountry, AVG(FlightDelayMin) FROM kibana_sample_data_flights AS `flights` GROUP BY `flights`.OriginCountry
+SELECT `flights`.OriginCountry, AVG(FlightDelayMin) FROM kibana_sample_data_flights AS `flights` GROUP BY 1
