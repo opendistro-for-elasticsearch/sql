@@ -53,6 +53,11 @@ import org.antlr.v4.runtime.tree.ParseTree;
  *     2.2 Non-aggregated item exists:
  *          SELECT state, AVG(age) FROM test
  *         (exception thrown for now. may support this by different SQL mode)
+ * Note the responsibility separation between this builder and analyzer in core engine:
+ *  1. This builder is only responsible for AST node building and handle special SQL
+ *     syntactical cases aforementioned. The validation in this builder is essentially
+ *     static based on syntactic information.
+ *  2. Analyzer will perform semantic check and report semantic error as needed.
  */
 @RequiredArgsConstructor
 public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
@@ -157,7 +162,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     int ordinal = (Integer) ((Literal) expr).getValue();
     if (ordinal <= 0 || ordinal > querySpec.getSelectItems().size()) {
       throw new SemanticCheckException(String.format(
-          "Group by ordinal %d is out of bound of select item list", ordinal));
+          "Group by ordinal [%d] is out of bound of select item list", ordinal));
     }
     return querySpec.getSelectItems().get(ordinal - 1);
   }
