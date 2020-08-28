@@ -16,21 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
-import java.util.Arrays;
 import java.util.List;
 
 public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
@@ -41,7 +33,7 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
 
   @Override
   public MaxState create() {
-    return new MaxState(returnType);
+    return new MaxState();
   }
 
   @Override
@@ -49,7 +41,6 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
     if (!(value.isNull() || value.isMissing())) {
-      state.isEmptyCollection = false;
       state.max(value);
     }
     return state;
@@ -62,11 +53,9 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
 
   protected static class MaxState implements AggregationState {
     private ExprValue maxResult;
-    private boolean isEmptyCollection;
 
-    MaxState(ExprCoreType type) {
-      maxResult = isNumber(type) ? doubleValue(Double.MIN_VALUE) : LITERAL_NULL;
-      isEmptyCollection = true;
+    MaxState() {
+      maxResult = LITERAL_NULL;
     }
 
     public void max(ExprValue value) {
@@ -75,11 +64,7 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
 
     @Override
     public ExprValue result() {
-      return isEmptyCollection ? ExprNullValue.of() : maxResult;
-    }
-
-    private boolean isNumber(ExprCoreType type) {
-      return Arrays.asList(SHORT, INTEGER, LONG, FLOAT, DOUBLE).contains(type);
+      return maxResult;
     }
   }
 }

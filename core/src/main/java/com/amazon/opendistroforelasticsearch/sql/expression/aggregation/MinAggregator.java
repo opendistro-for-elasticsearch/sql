@@ -16,30 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.floatValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDoubleValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getFloatValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getIntegerValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getLongValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,7 +38,7 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
   @Override
   public MinState create() {
-    return new MinState(returnType);
+    return new MinState();
   }
 
   @Override
@@ -63,7 +46,6 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
     if (!(value.isNull() || value.isMissing())) {
-      state.isEmptyCollection = false;
       state.min(value);
     }
     return state;
@@ -76,11 +58,9 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
   protected static class MinState implements AggregationState {
     private ExprValue minResult;
-    private boolean isEmptyCollection;
 
-    MinState(ExprCoreType type) {
-      minResult = isNumber(type) ? doubleValue(Double.MAX_VALUE) : LITERAL_NULL;
-      isEmptyCollection = true;
+    MinState() {
+      minResult = LITERAL_NULL;
     }
 
     public void min(ExprValue value) {
@@ -89,12 +69,7 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
     @Override
     public ExprValue result() {
-      return isEmptyCollection ? ExprNullValue.of() : minResult;
-    }
-
-
-    private boolean isNumber(ExprCoreType type) {
-      return Arrays.asList(SHORT, INTEGER, LONG, FLOAT, DOUBLE).contains(type);
+      return minResult;
     }
   }
 }
