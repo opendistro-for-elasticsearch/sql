@@ -83,7 +83,7 @@ public class RareTopNOperatorTest extends PhysicalPlanTestBase {
     List<ExprValue> result = execute(plan);
     assertEquals(2, result.size());
     assertThat(result, containsInAnyOrder(
-        ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "response", 500)),
+        ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "response", 200)),
         ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200))
     ));
   }

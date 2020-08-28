@@ -221,11 +221,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
          * Setting rareTopFlag to FALSE will return list of rare values
          */
         Boolean.FALSE,
-
-        /**
-         * Default number of results for rare is 10.
-         */
-        Collections.singletonList(new Argument("noOfResults", new Literal(10, DataType.INTEGER))),
+        ArgumentFactory.getArgumentList(ctx),
         ctx.fieldList()
             .fieldExpression()
             .stream()

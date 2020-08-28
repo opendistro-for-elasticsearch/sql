@@ -1,3 +1,18 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
@@ -12,9 +27,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +44,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class RareTopNOperator extends PhysicalPlan {
+
   @Getter
   private final PhysicalPlan input;
 
@@ -144,16 +162,10 @@ public class RareTopNOperator extends PhysicalPlan {
       ImmutableList.Builder<ExprValue> resultBuilder = new ImmutableList.Builder<>();
 
       groupListMap.forEach((groups, list) -> {
-        LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
+        Map<String, ExprValue> map = new LinkedHashMap<>();
         list.forEach(fieldMap -> {
-
-          List<FieldKey> resultlist = new ArrayList<>();
-          if (rareTopFlag) {
-            resultlist = findTop(fieldMap);
-          } else {
-            resultlist = findRare(fieldMap);
-          }
-          resultlist.forEach(field -> {
+          List<FieldKey> result = find(fieldMap);
+          result.forEach(field -> {
             map.putAll(groups.groupKeyMap());
             map.putAll(field.fieldKeyMap());
             resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
@@ -165,54 +177,19 @@ public class RareTopNOperator extends PhysicalPlan {
     }
 
     /**
-     * Get a list of top values.
-     */
-    public List<FieldKey> findTop(HashMap<FieldKey, Integer> map) {
-      PriorityQueue<FieldKey> topQueue = new PriorityQueue<>(new Comparator<FieldKey>() {
-        @Override
-        public int compare(FieldKey e1, FieldKey e2) {
-          return map.get(e1) - map.get(e2);
-        }
-      });
-
-      return getList(map, topQueue, noOfResults);
-    }
-
-    /**
-     * Get a list of rare values.
-     */
-    public List<FieldKey> findRare(HashMap<FieldKey, Integer> map) {
-      PriorityQueue<FieldKey> rareQueue = new PriorityQueue<>(new Comparator<FieldKey>() {
-        @Override
-        public int compare(FieldKey e1, FieldKey e2) {
-          return map.get(e2) - map.get(e1);
-        }
-      });
-
-      return getList(map, rareQueue, noOfResults);
-    }
-
-    /**
      * Get a list of result.
      */
-    public List<FieldKey> getList(HashMap<FieldKey, Integer> map, PriorityQueue<FieldKey> queue,
-        Integer size) {
-      for (Map.Entry<FieldKey, Integer> entry : map.entrySet()) {
-        queue.add(entry.getKey());
-        if (queue.size() > size) {
-          queue.poll();
-        }
+    public List<FieldKey> find(HashMap<FieldKey, Integer> map) {
+      Comparator<Map.Entry<FieldKey, Integer>> valueComparator;
+      if (rareTopFlag) {
+        valueComparator = Map.Entry.comparingByValue(Comparator.reverseOrder());
+      } else {
+        valueComparator = Map.Entry.comparingByValue();
       }
 
-      List<FieldKey> list = new ArrayList<>();
-      while (!queue.isEmpty()) {
-        list.add(queue.poll());
-      }
-
-      Collections.reverse(list);
-      return list;
+      return map.entrySet().stream().sorted(valueComparator).limit(noOfResults)
+          .map(Map.Entry::getKey).collect(Collectors.toList());
     }
-
   }
 
   /**
@@ -237,8 +214,8 @@ public class RareTopNOperator extends PhysicalPlan {
     /**
      * Return the Map of field and field value.
      */
-    public LinkedHashMap<String, ExprValue> fieldKeyMap() {
-      LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
+    public Map<String, ExprValue> fieldKeyMap() {
+      Map<String, ExprValue> map = new LinkedHashMap<>();
       for (int i = 0; i < fieldExprList.size(); i++) {
         map.put(fieldExprList.get(i).toString(), fieldByValueList.get(i));
       }
@@ -268,8 +245,8 @@ public class RareTopNOperator extends PhysicalPlan {
     /**
      * Return the Map of group field and group field value.
      */
-    public LinkedHashMap<String, ExprValue> groupKeyMap() {
-      LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
+    public Map<String, ExprValue> groupKeyMap() {
+      Map<String, ExprValue> map = new LinkedHashMap<>();
       for (int i = 0; i < groupByExprList.size(); i++) {
         map.put(groupByExprList.get(i).toString(), groupByValueList.get(i));
       }

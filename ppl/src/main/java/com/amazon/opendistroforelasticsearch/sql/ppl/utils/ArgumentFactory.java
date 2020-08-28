@@ -19,6 +19,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DedupCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RareCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
@@ -148,6 +149,16 @@ public class ArgumentFactory {
             ? new Argument("noOfResults", getArgumentValue(ctx.number))
             : new Argument("noOfResults", new Literal(10, DataType.INTEGER))
     );
+  }
+
+  /**
+   * Get list of {@link Argument}.
+   *
+   * @param ctx RareCommandContext instance
+   * @return the list of argument with default number of results for the rare command
+   */
+  public static List<Argument> getArgumentList(RareCommandContext ctx) {
+    return Collections.singletonList(new Argument("noOfResults", new Literal(10, DataType.INTEGER)));
   }
 
   private static Literal getArgumentValue(ParserRuleContext ctx) {

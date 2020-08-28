@@ -4,7 +4,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -38,7 +38,7 @@ public class RareTopN extends UnresolvedPlan {
 
   @Override
   public List<UnresolvedPlan> getChild() {
-    return ImmutableList.of(this.child);
+    return Collections.singletonList(this.child);
   }
 
   @Override
