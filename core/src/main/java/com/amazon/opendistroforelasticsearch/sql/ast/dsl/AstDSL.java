@@ -26,7 +26,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -41,11 +40,10 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rare;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Top;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import java.util.Arrays;
@@ -299,14 +297,14 @@ public class AstDSL {
     return new Dedupe(input, options, Arrays.asList(fields));
   }
 
-  public static Rare rare(
-          UnresolvedPlan input, List<UnresolvedExpression> groupList, Field... fields) {
-    return new Rare(Arrays.asList(fields), groupList).attach(input);
+  public static List<Argument> defaultTopArgs() {
+    return exprList(
+        argument("noOfResults", intLiteral(10)));
   }
 
-  public static Top top(
-          UnresolvedPlan input, List<Argument> options,
-          List<UnresolvedExpression> groupList, Field... fields) {
-    return new Top(options, Arrays.asList(fields), groupList).attach(input);
+  public static RareTopN rareTopN(UnresolvedPlan input, Boolean rareTopFlag,
+      List<Argument> noOfResults, List<UnresolvedExpression> groupList, Field... fields) {
+    return new RareTopN(input, rareTopFlag, noOfResults, Arrays.asList(fields), groupList)
+        .attach(input);
   }
 }

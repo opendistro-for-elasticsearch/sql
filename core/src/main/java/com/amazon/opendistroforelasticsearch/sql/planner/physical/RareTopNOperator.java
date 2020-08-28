@@ -18,13 +18,15 @@ import java.util.PriorityQueue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Group the all the input {@link BindingTuple} by {@link RareTopNOperator#groupByExprList},
  * Calculate the rare result by using the {@link RareTopNOperator#fieldExprList}.
  */
+@ToString
+@EqualsAndHashCode
 public class RareTopNOperator extends PhysicalPlan {
-
   @Getter
   private final PhysicalPlan input;
   @Getter

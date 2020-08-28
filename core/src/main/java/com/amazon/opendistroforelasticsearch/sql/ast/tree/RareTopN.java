@@ -6,39 +6,32 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
- * AST node represent Top operation.
+ * AST node represent RareTopN operation.
  */
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class Top extends UnresolvedPlan {
+@RequiredArgsConstructor
+@AllArgsConstructor
+public class RareTopN extends UnresolvedPlan {
 
   private UnresolvedPlan child;
+  private final Boolean rareTopFlag;
   private final List<Argument> noOfResults;
   private final List<Field> fields;
   private final List<UnresolvedExpression> groupExprList;
 
-  /**
-   * Top Constructors.
-   */
-  @NonNull
-  public Top(
-      List<Argument> noOfResults, List<Field> fields, List<UnresolvedExpression> groupExprList) {
-    this.noOfResults = noOfResults;
-    this.fields = fields;
-    this.groupExprList = groupExprList;
-  }
-
   @Override
-  public Top attach(UnresolvedPlan child) {
+  public RareTopN attach(UnresolvedPlan child) {
     this.child = child;
     return this;
   }
@@ -50,7 +43,7 @@ public class Top extends UnresolvedPlan {
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-    return nodeVisitor.visitTop(this, context);
+    return nodeVisitor.visitRareTopN(this, context);
   }
 }
 

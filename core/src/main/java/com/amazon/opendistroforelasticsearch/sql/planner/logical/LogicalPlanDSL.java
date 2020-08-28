@@ -84,9 +84,13 @@ public class LogicalPlanDSL {
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
   }
 
-  public static LogicalPlan rareTopN(LogicalPlan input, Boolean rareTopFlag, int noOfResults,
-      List<Expression> groupByList,
-      Expression... fields) {
+  public static LogicalPlan rareTopN(LogicalPlan input, Boolean rareTopFlag,
+      List<Expression> groupByList, Expression... fields) {
+    return rareTopN(input, rareTopFlag, 10, groupByList, fields);
+  }
+
+  public static LogicalPlan rareTopN(LogicalPlan input, boolean rareTopFlag, int noOfResults,
+      List<Expression> groupByList, Expression... fields) {
     return new LogicalRareTopN(input, rareTopFlag, noOfResults, Arrays.asList(fields), groupByList);
   }
 

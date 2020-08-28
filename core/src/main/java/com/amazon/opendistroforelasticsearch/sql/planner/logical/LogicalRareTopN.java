@@ -22,7 +22,6 @@ public class LogicalRareTopN extends LogicalPlan {
   private final Boolean rareTopFlag;
   private final Integer noOfResults;
   private final List<Expression> fieldList;
-  @Getter
   private final List<Expression> groupByList;
 
   @Override

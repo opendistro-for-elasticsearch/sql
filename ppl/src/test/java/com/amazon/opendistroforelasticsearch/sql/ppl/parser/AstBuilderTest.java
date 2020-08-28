@@ -36,13 +36,12 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rare;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.top;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
@@ -306,8 +305,10 @@ public class AstBuilderTest {
   @Test
   public void testRareCommand() {
     assertEqual("source=t | rare a",
-        rare(
+        rareTopN(
             relation("t"),
+            false,
+            exprList(argument("noOfResults", intLiteral(10))),
             emptyList(),
             field("a")
         ));
@@ -316,8 +317,10 @@ public class AstBuilderTest {
   @Test
   public void testRareCommandWithGroupBy() {
     assertEqual("source=t | rare a by b",
-        rare(
+        rareTopN(
             relation("t"),
+            false,
+            exprList(argument("noOfResults", intLiteral(10))),
             exprList(field("b")),
             field("a")
         ));
@@ -326,8 +329,10 @@ public class AstBuilderTest {
   @Test
   public void testRareCommandWithMultipleFields() {
     assertEqual("source=t | rare `a`, `b` by `c`",
-        rare(
+        rareTopN(
             relation("t"),
+            false,
+            exprList(argument("noOfResults", intLiteral(10))),
             exprList(field("c")),
             field("a"),
             field("b")
@@ -337,8 +342,9 @@ public class AstBuilderTest {
   @Test
   public void testTopCommandWithN() {
     assertEqual("source=t | top 1 a",
-        top(
+        rareTopN(
             relation("t"),
+            true,
             exprList(argument("noOfResults", intLiteral(1))),
             emptyList(),
             field("a")
@@ -348,8 +354,9 @@ public class AstBuilderTest {
   @Test
   public void testTopCommandWithoutNAndGroupBy() {
     assertEqual("source=t | top a",
-        top(
+        rareTopN(
             relation("t"),
+            true,
             exprList(argument("noOfResults", intLiteral(10))),
             emptyList(),
             field("a")
@@ -359,8 +366,9 @@ public class AstBuilderTest {
   @Test
   public void testTopCommandWithNAndGroupBy() {
     assertEqual("source=t | top 1 a by b",
-        top(
+        rareTopN(
             relation("t"),
+            true,
             exprList(argument("noOfResults", intLiteral(1))),
             exprList(field("b")),
             field("a")
@@ -370,8 +378,9 @@ public class AstBuilderTest {
   @Test
   public void testTopCommandWithMultipleFields() {
     assertEqual("source=t | top 1 `a`, `b` by `c`",
-        top(
+        rareTopN(
             relation("t"),
+            true,
             exprList(argument("noOfResults", intLiteral(1))),
             exprList(field("c")),
             field("a"),

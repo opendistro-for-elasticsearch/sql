@@ -58,6 +58,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchExecutionProtectorTest {
+
   @Mock
   private ElasticsearchClient client;
 
@@ -99,36 +100,16 @@ class ElasticsearchExecutionProtectorTest {
     assertEquals(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
-                PhysicalPlanDSL.sort(
-                    PhysicalPlanDSL.eval(
-                        PhysicalPlanDSL.remove(
-                            PhysicalPlanDSL.rename(
-                                PhysicalPlanDSL.agg(
-                                    filter(
-                                        resourceMonitor(
-                                            new ElasticsearchIndexScan(
-                                                client, settings, indexName, exprValueFactory)),
-                                        filterExpr),
-                                    aggregators,
-                                    groupByExprs),
-                                mappings),
-                            exclude),
-                        newEvalField),
-                    sortCount,
-                    sortField),
-                dedupeField),
-            include),
-        executionProtector.protect(
-            PhysicalPlanDSL.project(
-                PhysicalPlanDSL.dedupe(
+                PhysicalPlanDSL.rareTopN(
                     PhysicalPlanDSL.sort(
                         PhysicalPlanDSL.eval(
                             PhysicalPlanDSL.remove(
                                 PhysicalPlanDSL.rename(
                                     PhysicalPlanDSL.agg(
                                         filter(
-                                            new ElasticsearchIndexScan(
-                                                client, settings, indexName, exprValueFactory),
+                                            resourceMonitor(
+                                                new ElasticsearchIndexScan(
+                                                    client, settings, indexName, exprValueFactory)),
                                             filterExpr),
                                         aggregators,
                                         groupByExprs),
@@ -137,6 +118,34 @@ class ElasticsearchExecutionProtectorTest {
                             newEvalField),
                         sortCount,
                         sortField),
+                    true,
+                    groupByExprs,
+                    dedupeField),
+                dedupeField),
+            include),
+        executionProtector.protect(
+            PhysicalPlanDSL.project(
+                PhysicalPlanDSL.dedupe(
+                    PhysicalPlanDSL.rareTopN(
+                        PhysicalPlanDSL.sort(
+                            PhysicalPlanDSL.eval(
+                                PhysicalPlanDSL.remove(
+                                    PhysicalPlanDSL.rename(
+                                        PhysicalPlanDSL.agg(
+                                            filter(
+                                                new ElasticsearchIndexScan(
+                                                    client, settings, indexName, exprValueFactory),
+                                                filterExpr),
+                                            aggregators,
+                                            groupByExprs),
+                                        mappings),
+                                    exclude),
+                                newEvalField),
+                            sortCount,
+                            sortField),
+                        true,
+                        groupByExprs,
+                        dedupeField),
                     dedupeField),
                 include)));
   }

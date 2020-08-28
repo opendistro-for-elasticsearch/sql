@@ -59,8 +59,8 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
 
   @Override
   public PhysicalPlan visitRareTopN(RareTopNOperator node, Object context) {
-    return new RareTopNOperator(visitInput(node.getInput(), context), node.getRareTopFlag() , node.getNoOfResults(),
-        node.getFieldExprList(), node.getGroupByExprList());
+    return new RareTopNOperator(visitInput(node.getInput(), context), node.getRareTopFlag(),
+        node.getNoOfResults(), node.getFieldExprList(), node.getGroupByExprList());
   }
 
   @Override

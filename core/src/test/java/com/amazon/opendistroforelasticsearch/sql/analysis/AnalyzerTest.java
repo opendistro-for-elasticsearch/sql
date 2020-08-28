@@ -48,6 +48,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTest.class})
 class AnalyzerTest extends AnalyzerTestBase {
+
   @Test
   public void filter_relation() {
     assertAnalyzeEqual(
@@ -111,6 +112,46 @@ class AnalyzerTest extends AnalyzerTestBase {
             null,
             ImmutableList.of(field("string_value")),
             AstDSL.defaultStatsArgs()));
+  }
+
+  @Test
+  public void rare_source() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.rareTopN(
+            LogicalPlanDSL.relation("schema"),
+            Boolean.FALSE,
+            10,
+            ImmutableList.of(DSL.ref("string_value", STRING)),
+            DSL.ref("integer_value", INTEGER)
+        ),
+        AstDSL.rareTopN(
+            AstDSL.relation("schema"),
+            Boolean.FALSE,
+            ImmutableList.of(argument("noOfResults", intLiteral(10))),
+            ImmutableList.of(field("string_value")),
+            field("integer_value")
+        )
+    );
+  }
+
+  @Test
+  public void top_source() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.rareTopN(
+            LogicalPlanDSL.relation("schema"),
+            Boolean.TRUE,
+            5,
+            ImmutableList.of(DSL.ref("string_value", STRING)),
+            DSL.ref("integer_value", INTEGER)
+        ),
+        AstDSL.rareTopN(
+            AstDSL.relation("schema"),
+            Boolean.TRUE,
+            ImmutableList.of(argument("noOfResults", intLiteral(5))),
+            ImmutableList.of(field("string_value")),
+            field("integer_value")
+        )
+    );
   }
 
   @Test

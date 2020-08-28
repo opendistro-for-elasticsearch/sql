@@ -81,14 +81,12 @@ public class PhysicalPlanDSL {
   }
 
   public static RareTopNOperator rareTopN(PhysicalPlan input, Boolean rareTopFlag,
-      List<Expression> groups,
-      Expression... expressions) {
-    return new RareTopNOperator(input, rareTopFlag, Arrays.asList(expressions), groups);
+      List<Expression> groups, Expression... expressions) {
+    return rareTopN(input, rareTopFlag, 10, groups, expressions);
   }
 
   public static RareTopNOperator rareTopN(PhysicalPlan input, Boolean rareTopFlag, int noOfResults,
-      List<Expression> groups,
-      Expression... expressions) {
+      List<Expression> groups, Expression... expressions) {
     return new RareTopNOperator(input, rareTopFlag, noOfResults, Arrays.asList(expressions),
         groups);
   }

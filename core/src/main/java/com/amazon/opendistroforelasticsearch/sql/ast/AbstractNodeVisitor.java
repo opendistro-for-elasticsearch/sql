@@ -40,11 +40,10 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rare;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Top;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 
 /**
@@ -180,11 +179,7 @@ public abstract class AbstractNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
-  public T visitRare(Rare node, C context) {
-    return visitChildren(node, context);
-  }
-
-  public T visitTop(Top node, C context) {
+  public T visitRareTopN(RareTopN node, C context) {
     return visitChildren(node, context);
   }
 
