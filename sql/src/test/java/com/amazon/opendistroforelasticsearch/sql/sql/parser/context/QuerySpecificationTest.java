@@ -27,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLL
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -81,6 +82,16 @@ class QuerySpecificationTest {
         ImmutableSet.of(
             aggregate("AVG", qualifiedName("age"))),
         querySpec.getAggregators());
+  }
+
+  @Test
+  void can_collect_alias_in_select_clause() {
+    QuerySpecification querySpec = collect(
+        "SELECT name AS n FROM test GROUP BY n");
+
+    assertEquals(
+        ImmutableMap.of("n", qualifiedName("name")),
+        querySpec.getSelectItemsByAlias());
   }
 
   @Test

@@ -19,14 +19,18 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstExpressionBuilder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -58,12 +62,13 @@ public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
    * Items in SELECT clause.
    */
   private final List<UnresolvedExpression> selectItems = new ArrayList<>();
+  private final Map<String, UnresolvedExpression> selectItemsByAlias = new HashMap<>();
 
   /**
    * Aggregate function calls that spreads in SELECT, HAVING clause. Since this is going to be
    * pushed to aggregation operator, de-duplicate is necessary to avoid duplicate computation.
    */
-  private final Set<UnresolvedExpression> aggregators = new HashSet<>();
+  private final Set<AggregateFunction> aggregators = new HashSet<>();
 
   /**
    * Items in GROUP BY clause that may be simple field name or nested in scalar function call.
@@ -80,7 +85,13 @@ public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
 
   @Override
   public Void visitSelectElement(SelectElementContext ctx) {
-    selectItems.add(visitAstExpression(ctx));
+    UnresolvedExpression expr = visitAstExpression(ctx.expression());
+    selectItems.add(expr);
+
+    if (ctx.alias() != null) {
+      String alias = StringUtils.unquoteIdentifier(ctx.alias().getText());
+      selectItemsByAlias.put(alias, expr);
+    }
     return super.visitSelectElement(ctx);
   }
 
@@ -92,7 +103,7 @@ public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
 
   @Override
   public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
-    aggregators.add(visitAstExpression(ctx));
+    aggregators.add((AggregateFunction) visitAstExpression(ctx));
     return super.visitAggregateFunctionCall(ctx);
   }
 

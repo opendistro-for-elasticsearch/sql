@@ -33,7 +33,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
-import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
@@ -106,6 +105,17 @@ class AstAggregationBuilderTest {
   @Test
   void should_build_nothing_if_no_group_by_and_no_aggregators_in_select() {
     assertNull(buildAggregation("SELECT name FROM test"));
+  }
+
+  @Test
+  void should_replace_group_by_alias_by_expression_in_select_clause() {
+    assertThat(
+        buildAggregation("SELECT state AS s FROM test GROUP BY s"),
+        hasGroupByItems(qualifiedName("state")));
+
+    assertThat(
+        buildAggregation("SELECT ABS(age) AS a FROM test GROUP BY a"),
+        hasGroupByItems(function("ABS", qualifiedName("age"))));
   }
 
   @Test

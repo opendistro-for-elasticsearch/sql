@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecifi
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   public UnresolvedPlan visit(ParseTree groupByClause) {
     if (groupByClause == null) {
       if (isAllSelectItemNonAggregated()) {
+        // No GROUP BY and aggregate function in SELECT
         return null;
       }
       return buildImplicitAggregation();
@@ -59,8 +61,10 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
 
   @Override
   public UnresolvedPlan visitGroupByClause(GroupByClauseContext ctx) {
+    List<UnresolvedExpression> groupByItems = replaceGroupByItemIfAliasOrOrdinal();
+
     Optional<UnresolvedExpression> invalidSelectItem =
-        findNonAggregatedSelectItemMissingInGroupBy();
+        findNonAggregatedSelectItemMissingInGroupBy(groupByItems);
 
     if (invalidSelectItem.isPresent()) {
       throw new SemanticCheckException(String.format(
@@ -71,12 +75,12 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     return new Aggregation(
         new ArrayList<>(querySpec.getAggregators()),
         emptyList(),
-        querySpec.getGroupByItems());
+        groupByItems);
   }
 
   private UnresolvedPlan buildImplicitAggregation() {
     Optional<UnresolvedExpression> invalidSelectItem =
-        findNonAggregatedSelectItemMissingInGroupBy();
+        findNonAggregatedSelectItemMissingInGroupBy(emptyList());
 
     if (invalidSelectItem.isPresent()) {
       // Report semantic error to avoid fall back to old engine again
@@ -91,8 +95,19 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
         querySpec.getGroupByItems());
   }
 
-  private Optional<UnresolvedExpression> findNonAggregatedSelectItemMissingInGroupBy() {
-    Set<UnresolvedExpression> groupByItems = new HashSet<>(querySpec.getGroupByItems());
+  private List<UnresolvedExpression> replaceGroupByItemIfAliasOrOrdinal() {
+    Map<String, UnresolvedExpression> selectItemsByAlias = querySpec.getSelectItemsByAlias();
+    List<UnresolvedExpression> groupByItems = new ArrayList<>();
+    for (UnresolvedExpression expr : querySpec.getGroupByItems()) {
+      groupByItems.add(
+          selectItemsByAlias.getOrDefault(expr.toString(), expr));
+    }
+    return groupByItems;
+  }
+
+  private Optional<UnresolvedExpression> findNonAggregatedSelectItemMissingInGroupBy(
+      List<UnresolvedExpression> groupByItemList) {
+    Set<UnresolvedExpression> groupByItems = new HashSet<>(groupByItemList);
     return querySpec.getSelectItems().stream()
                                      .filter(this::isNonAggregatedExpression)
                                      .filter(expr -> !groupByItems.contains(expr))
