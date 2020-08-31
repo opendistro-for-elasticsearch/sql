@@ -31,7 +31,7 @@ For example, if you can connect to server using following curl command
 6. Click on `OK` to save DSN values.
 
 
- ## Add User DSN
+## Add User DSN
 
 1. Open ODBC Data Source Administrator. Click on `User DSN` > `Add`.
 
