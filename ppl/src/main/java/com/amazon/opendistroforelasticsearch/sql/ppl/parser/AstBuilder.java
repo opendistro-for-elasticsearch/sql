@@ -47,7 +47,10 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.ByClauseContext;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldListContext;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 import com.google.common.collect.ImmutableList;
@@ -203,18 +206,25 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     );
   }
 
+  private List<UnresolvedExpression> getGroupByList(ByClauseContext ctx) {
+    return ctx.fieldList().fieldExpression().stream().map(this::visitExpression)
+        .collect(Collectors.toList());
+  }
+
+  private List<Field> getFieldList(FieldListContext ctx) {
+    return ctx.fieldExpression()
+        .stream()
+        .map(field -> (Field) visitExpression(field))
+        .collect(Collectors.toList());
+  }
+
   /**
    * Rare command.
    */
   @Override
   public UnresolvedPlan visitRareCommand(RareCommandContext ctx) {
     List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
-        ctx.byClause()
-            .fieldList()
-            .fieldExpression()
-            .stream()
-            .map(this::visitExpression)
-            .collect(Collectors.toList());
+        getGroupByList(ctx.byClause());
     return new RareTopN(
 
         /**
@@ -222,11 +232,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
          */
         Boolean.FALSE,
         ArgumentFactory.getArgumentList(ctx),
-        ctx.fieldList()
-            .fieldExpression()
-            .stream()
-            .map(field -> (Field) visitExpression(field))
-            .collect(Collectors.toList()),
+        getFieldList(ctx.fieldList()),
         groupList
     );
   }
@@ -237,12 +243,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitTopCommand(TopCommandContext ctx) {
     List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
-        ctx.byClause()
-            .fieldList()
-            .fieldExpression()
-            .stream()
-            .map(this::visitExpression)
-            .collect(Collectors.toList());
+        getGroupByList(ctx.byClause());
     return new RareTopN(
 
         /**
@@ -250,11 +251,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
          */
         Boolean.TRUE,
         ArgumentFactory.getArgumentList(ctx),
-        ctx.fieldList()
-            .fieldExpression()
-            .stream()
-            .map(field -> (Field) visitExpression(field))
-            .collect(Collectors.toList()),
+        getFieldList(ctx.fieldList()),
         groupList
     );
   }

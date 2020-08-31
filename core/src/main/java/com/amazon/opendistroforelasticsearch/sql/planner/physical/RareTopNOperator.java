@@ -21,16 +21,16 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -127,19 +127,17 @@ public class RareTopNOperator extends PhysicalPlan {
   @RequiredArgsConstructor
   public class Group {
 
-    private final Map<GroupKey, List<HashMap<FieldKey, Integer>>> groupListMap = new HashMap<>();
+    private final Map<Key, List<HashMap<Key, Integer>>> groupListMap = new HashMap<>();
 
     /**
-     * Push the BindingTuple to Group. Two functions will be applied to each BindingTuple to
-     * generate the {@link GroupKey} and {@link FieldKey} GroupKey = GroupKey(bindingTuple),
-     * FieldKey = FieldKey(bindingTuple)
+     * Push the BindingTuple to Group.
      */
     public void push(ExprValue inputValue) {
-      GroupKey groupKey = new GroupKey(inputValue);
-      FieldKey fieldKey = new FieldKey(inputValue);
+      Key groupKey = new Key(inputValue, groupByExprList);
+      Key fieldKey = new Key(inputValue, fieldExprList);
       groupListMap.computeIfAbsent(groupKey, k -> {
-        List<HashMap<FieldKey, Integer>> list = new ArrayList<>();
-        HashMap<FieldKey, Integer> map = new HashMap<>();
+        List<HashMap<Key, Integer>> list = new ArrayList<>();
+        HashMap<Key, Integer> map = new HashMap<>();
         map.put(fieldKey, 1);
         list.add(map);
         return list;
@@ -164,10 +162,10 @@ public class RareTopNOperator extends PhysicalPlan {
       groupListMap.forEach((groups, list) -> {
         Map<String, ExprValue> map = new LinkedHashMap<>();
         list.forEach(fieldMap -> {
-          List<FieldKey> result = find(fieldMap);
+          List<Key> result = find(fieldMap);
           result.forEach(field -> {
-            map.putAll(groups.groupKeyMap());
-            map.putAll(field.fieldKeyMap());
+            map.putAll(groups.keyMap(groupByExprList));
+            map.putAll(field.keyMap(fieldExprList));
             resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
           });
         });
@@ -179,8 +177,8 @@ public class RareTopNOperator extends PhysicalPlan {
     /**
      * Get a list of result.
      */
-    public List<FieldKey> find(HashMap<FieldKey, Integer> map) {
-      Comparator<Map.Entry<FieldKey, Integer>> valueComparator;
+    public List<Key> find(HashMap<Key, Integer> map) {
+      Comparator<Map.Entry<Key, Integer>> valueComparator;
       if (rareTopFlag) {
         valueComparator = Map.Entry.comparingByValue(Comparator.reverseOrder());
       } else {
@@ -193,64 +191,33 @@ public class RareTopNOperator extends PhysicalPlan {
   }
 
   /**
-   * Field Key.
+   * Key.
    */
   @EqualsAndHashCode
   @VisibleForTesting
-  public class FieldKey {
+  public class Key {
 
-    private final List<ExprValue> fieldByValueList;
+    private final List<ExprValue> valueList;
 
     /**
-     * FieldKey constructor.
+     * Key constructor.
      */
-    public FieldKey(ExprValue value) {
-      this.fieldByValueList = new ArrayList<>();
-      for (Expression fieldExpr : fieldExprList) {
-        this.fieldByValueList.add(fieldExpr.valueOf(value.bindingTuples()));
-      }
+    public Key(ExprValue value, List<Expression> exprList) {
+      this.valueList = exprList.stream()
+          .map(expr -> expr.valueOf(value.bindingTuples())).collect(Collectors.toList());
     }
 
     /**
-     * Return the Map of field and field value.
+     * Return the Map of key and key value.
      */
-    public Map<String, ExprValue> fieldKeyMap() {
-      Map<String, ExprValue> map = new LinkedHashMap<>();
-      for (int i = 0; i < fieldExprList.size(); i++) {
-        map.put(fieldExprList.get(i).toString(), fieldByValueList.get(i));
-      }
-      return map;
-    }
-  }
+    public Map<String, ExprValue> keyMap(List<Expression> exprList) {
 
-  /**
-   * Group Key.
-   */
-  @EqualsAndHashCode
-  @VisibleForTesting
-  public class GroupKey {
-
-    private final List<ExprValue> groupByValueList;
-
-    /**
-     * GroupKey constructor.
-     */
-    public GroupKey(ExprValue value) {
-      this.groupByValueList = new ArrayList<>();
-      for (Expression groupExpr : groupByExprList) {
-        this.groupByValueList.add(groupExpr.valueOf(value.bindingTuples()));
-      }
-    }
-
-    /**
-     * Return the Map of group field and group field value.
-     */
-    public Map<String, ExprValue> groupKeyMap() {
-      Map<String, ExprValue> map = new LinkedHashMap<>();
-      for (int i = 0; i < groupByExprList.size(); i++) {
-        map.put(groupByExprList.get(i).toString(), groupByValueList.get(i));
-      }
-      return map;
+      return Streams.zip(
+          exprList.stream().map(
+              expression -> expression.toString()),
+          valueList.stream(),
+          AbstractMap.SimpleEntry::new
+      ).collect(Collectors.toMap(key -> key.getKey(), key -> key.getValue()));
     }
   }
 
