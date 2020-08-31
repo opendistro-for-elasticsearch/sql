@@ -84,7 +84,8 @@ public class PhysicalPlanDSL {
     return new HeadOperator(input);
   }
 
-  public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr, int number) {
+  public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr,
+      int number) {
     return new HeadOperator(input, keepLast, whileExpr, number);
   }
 

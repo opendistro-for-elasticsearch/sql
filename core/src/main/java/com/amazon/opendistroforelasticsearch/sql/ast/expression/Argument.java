@@ -18,8 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import java.util.Arrays;
 import java.util.List;
-
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Argument.
