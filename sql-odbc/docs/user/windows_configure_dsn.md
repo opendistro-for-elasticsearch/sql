@@ -6,7 +6,7 @@
 
  <img src="img/win_odbc_data_sources.png" width="30%">
 
-2. Click on `System DSN`. Select `ODFE SQL ODBC DSN` and click on `Configure`.
+2. Click on the `System DSN` tab. Select `ODFE SQL ODBC DSN` and click on `Configure`.
 
  <img src="img/win_system_dsn.png" width="60%">
 
