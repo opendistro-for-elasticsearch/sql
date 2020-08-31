@@ -1,6 +1,6 @@
 # Configuring a DSN on Windows
 
-## Test Connection
+## Test Default Connection
 
 1. Open ODBC Data Source Administrator.
 
