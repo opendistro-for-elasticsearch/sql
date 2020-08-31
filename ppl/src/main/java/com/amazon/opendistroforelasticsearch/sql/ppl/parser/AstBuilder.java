@@ -19,6 +19,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FromClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.HeadCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.PplStatementContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RenameCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SearchFilterFromContext;
@@ -32,15 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.*;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
@@ -167,6 +160,15 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
             .map(field -> (Field) visitExpression(field))
             .collect(Collectors.toList())
     );
+  }
+
+  /**
+   * Head command visitor.
+   */
+  @Override
+  public UnresolvedPlan visitHeadCommand(HeadCommandContext ctx) {
+    return new Head(
+            ArgumentFactory.getArgumentListUE(ctx, visitExpression(ctx.logicalExpression())));
   }
 
   /**

@@ -16,21 +16,26 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import lombok.*;
+
 import java.util.Arrays;
 import java.util.List;
-
-import lombok.*;
 
 /**
  * Argument.
  */
 @Getter
 @ToString
-@RequiredArgsConstructor
+//@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 @EqualsAndHashCode(callSuper = false)
-public class Argument extends UnresolvedExpression {
+public class UnresolvedArgument extends UnresolvedExpression {
   private final String argName;
-  private final Literal value;
+  private final UnresolvedExpression value;
+
+  public UnresolvedArgument(String argName, UnresolvedExpression value) {
+    this.argName = argName;
+    this.value = value;
+  }
 
   //    private final DataType valueType;
   @Override
@@ -40,6 +45,6 @@ public class Argument extends UnresolvedExpression {
 
   @Override
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-    return nodeVisitor.visitArgument(this, context);
+    return nodeVisitor.visitUnresolvedArgument(this, context);
   }
 }

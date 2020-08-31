@@ -178,6 +178,10 @@ public abstract class AbstractNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
+  public T visitHead(Head node, C context) {
+    return visitChildren(node, context);
+  }
+
   public T visitValues(Values node, C context) {
     return visitChildren(node, context);
   }
@@ -191,6 +195,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitInterval(Interval node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitUnresolvedArgument(UnresolvedArgument node, C context) {
     return visitChildren(node, context);
   }
 }

@@ -19,17 +19,19 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DedupCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.HeadCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.*;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 
@@ -98,6 +100,51 @@ public class ArgumentFactory {
   /**
    * Get list of {@link Argument}.
    *
+   * @param ctx HeadCommandContext instance
+   * @return the list of arguments fetched from the head command
+   */
+  public static List<Argument> getArgumentList(HeadCommandContext ctx) {
+    return Arrays.asList(
+        ctx.keeplast != null
+            ? new Argument("keeplast", getArgumentValue(ctx.keeplast))
+            : new Argument("keeplast", new Literal(false, DataType.BOOLEAN)),
+//        ctx.whileExpr != null
+//            ? new Argument("")
+//        ctx.whileExpr()
+//        ctx.children
+//        ctx.
+        ctx.number != null
+            ? new Argument("number", getArgumentValue(ctx.number))
+            : new Argument("number", new Literal(10, DataType.INTEGER))
+    );
+  }
+
+  /**
+   * Get list of {@link Argument}.
+   *
+   * @param ctx HeadCommandContext instance
+   * @return the list of arguments fetched from the head command
+   */
+  public static List<UnresolvedArgument> getArgumentListUE(HeadCommandContext ctx, UnresolvedExpression unresolvedExpr) {
+    return Arrays.asList(
+        ctx.keeplast != null
+            ? new UnresolvedArgument("keeplast", getArgumentValue(ctx.keeplast))
+            : new UnresolvedArgument("keeplast", new Literal(false, DataType.BOOLEAN)),
+        ctx.whileExpr != null
+            ? new UnresolvedArgument("whileExpr", unresolvedExpr)
+            : new UnresolvedArgument("whileExpr", new Literal(false, DataType.BOOLEAN)),
+//        ctx.whileExpr()
+//        ctx.children
+//        ctx.
+        ctx.number != null
+            ? new UnresolvedArgument("number", getArgumentValue(ctx.number))
+            : new UnresolvedArgument("number", new Literal(10, DataType.INTEGER))
+    );
+  }
+
+  /**
+   * Get list of {@link Argument}.
+   *
    * @param ctx SortCommandContext instance
    * @return the list of arguments fetched from the sort command
    */
@@ -142,5 +189,11 @@ public class ArgumentFactory {
         ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
         : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
   }
+
+//  private static UnresolvedExpression getArgumentExpr(ParserRuleContext ctx) {
+//    return ctx instanceof OpenDistroPPLParser.LogicalExpressionContext
+//            ? new Expression()
+////    return new UnresolvedArgument(ctx.);
+//  }
 
 }

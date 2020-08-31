@@ -15,32 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dedupe;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDedupArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.eval;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.*;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
@@ -255,6 +230,15 @@ public class AstBuilderTest {
             null,
             defaultDedupArgs()
         ));
+  }
+
+  @Test
+  public void testHeadCommand() {
+      assertEqual("source=t | head",
+          head(
+              relation("t"),
+              defaultHeadArgs()
+          ));
   }
 
   @Test

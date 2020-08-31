@@ -212,6 +212,10 @@ public class AstDSL {
     return new Argument(argName, argValue);
   }
 
+  public static UnresolvedArgument unresolvedArg(String argName, UnresolvedExpression argValue) {
+    return new UnresolvedArgument(argName, argValue);
+  }
+
   public static UnresolvedExpression field(UnresolvedExpression field) {
     return new Field((QualifiedName) field);
   }
@@ -249,6 +253,10 @@ public class AstDSL {
   }
 
   public static List<Argument> exprList(Argument... exprList) {
+    return Arrays.asList(exprList);
+  }
+
+  public static List<UnresolvedArgument> unresolvedArgList(UnresolvedArgument... exprList) {
     return Arrays.asList(exprList);
   }
 
@@ -295,5 +303,20 @@ public class AstDSL {
 
   public static Dedupe dedupe(UnresolvedPlan input, List<Argument> options, Field... fields) {
     return new Dedupe(input, options, Arrays.asList(fields));
+  }
+
+  public static Head head(UnresolvedPlan input, List<UnresolvedArgument> options) {
+    return new Head(input, options);
+  }
+
+  public static Head head(List<UnresolvedArgument> options) {
+    return new Head(options);
+  }
+
+  public static List<UnresolvedArgument> defaultHeadArgs() {
+    return unresolvedArgList(
+            unresolvedArg("keeplast", booleanLiteral(false)),
+            unresolvedArg("while", booleanLiteral(false)),
+            unresolvedArg("number", intLiteral(10)));
   }
 }
