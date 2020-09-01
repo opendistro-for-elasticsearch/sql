@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprIpValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
@@ -53,11 +54,14 @@ public class ElasticsearchIndex implements Table {
           .put("integer", ExprCoreType.INTEGER)
           .put("long", ExprCoreType.LONG)
           .put("float", ExprCoreType.FLOAT)
+          .put("half_float", ExprCoreType.FLOAT)
           .put("double", ExprCoreType.DOUBLE)
           .put("boolean", ExprCoreType.BOOLEAN)
           .put("nested", ExprCoreType.ARRAY)
           .put("object", ExprCoreType.STRUCT)
           .put("date", ExprCoreType.TIMESTAMP)
+          .put("ip", ElasticsearchDataType.ES_IP)
+          .put("geo_point", ElasticsearchDataType.ES_GEO_POINT)
           .build();
 
   /** Elasticsearch client connection. */

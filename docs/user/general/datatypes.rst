@@ -45,6 +45,10 @@ The ODFE SQL Engine support the following data types.
 +---------------+
 | interval      |
 +---------------+
+| ip            |
++---------------+
+| geo_point     |
++---------------+
 | struct        |
 +---------------+
 | array         |
@@ -66,11 +70,17 @@ The table below list the mapping between Elasticsearch Data Type, ODFE SQL Data 
 +--------------------+---------------+-----------+
 | float              | float         | FLOAT     |
 +--------------------+---------------+-----------+
+| half_float         | float         | FLOAT     |
++--------------------+---------------+-----------+
 | double             | double        | DOUBLE    |
 +--------------------+---------------+-----------+
 | keyword            | string        | VARCHAR   |
 +--------------------+---------------+-----------+
 | text               | text          | VARCHAR   |
++--------------------+---------------+-----------+
+| date               | timestamp     | TIMESTAMP |
++--------------------+---------------+-----------+
+| ip                 | ip            | IP        |
 +--------------------+---------------+-----------+
 | date               | timestamp     | TIMESTAMP |
 +--------------------+---------------+-----------+
