@@ -24,14 +24,19 @@ import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+@EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
+@ToString
 public class WindowOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final List<Expression> windowFunctions;
   private final WindowDefinition windowDefinition;
 
+  @EqualsAndHashCode.Exclude
   private final WindowFrame windowFrame = new WindowFrame();
 
   @Override

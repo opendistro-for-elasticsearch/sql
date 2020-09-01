@@ -21,9 +21,13 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+@EqualsAndHashCode
 @RequiredArgsConstructor
+@ToString
 public class WindowFrame implements Environment<Expression, ExprValue> {
   private final Deque<ExprValue> rows = new ArrayDeque<>();
 

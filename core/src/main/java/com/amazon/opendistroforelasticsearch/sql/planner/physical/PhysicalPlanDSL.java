@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
@@ -78,6 +79,12 @@ public class PhysicalPlanDSL {
       Expression... expressions) {
     return new DedupeOperator(
         input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
+  }
+
+  public WindowOperator window(PhysicalPlan input,
+                               List<Expression> windowFunctions,
+                               WindowDefinition windowDefinition) {
+    return new WindowOperator(input, windowFunctions, windowDefinition);
   }
 
   @SafeVarargs
