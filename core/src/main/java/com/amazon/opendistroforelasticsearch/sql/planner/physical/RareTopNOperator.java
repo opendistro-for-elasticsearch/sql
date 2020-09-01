@@ -127,7 +127,7 @@ public class RareTopNOperator extends PhysicalPlan {
   @RequiredArgsConstructor
   public class Group {
 
-    private final Map<Key, HashMap<Key, Integer>> groupListMap = new HashMap<>();
+    private final Map<Key, Map<Key, Integer>> groupListMap = new HashMap<>();
 
     /**
      * Push the BindingTuple to Group.
@@ -136,7 +136,7 @@ public class RareTopNOperator extends PhysicalPlan {
       Key groupKey = new Key(inputValue, groupByExprList);
       Key fieldKey = new Key(inputValue, fieldExprList);
       groupListMap.computeIfAbsent(groupKey, k -> {
-        HashMap<Key, Integer> map = new HashMap<>();
+        Map<Key, Integer> map = new HashMap<>();
         map.put(fieldKey, 1);
         return map;
       });
@@ -171,7 +171,7 @@ public class RareTopNOperator extends PhysicalPlan {
     /**
      * Get a list of result.
      */
-    public List<Key> find(HashMap<Key, Integer> map) {
+    public List<Key> find(Map<Key, Integer> map) {
       Comparator<Map.Entry<Key, Integer>> valueComparator;
       if (rareTopFlag) {
         valueComparator = Map.Entry.comparingByValue(Comparator.reverseOrder());
