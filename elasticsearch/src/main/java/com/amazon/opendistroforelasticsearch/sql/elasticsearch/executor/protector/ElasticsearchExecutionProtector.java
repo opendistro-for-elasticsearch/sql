@@ -18,7 +18,16 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector;
 
 import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.*;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import lombok.RequiredArgsConstructor;
 
