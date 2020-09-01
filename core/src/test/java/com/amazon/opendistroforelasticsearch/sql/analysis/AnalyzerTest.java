@@ -30,13 +30,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -197,6 +200,35 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.alias("false", AstDSL.booleanLiteral(false))
         )
     );
+  }
+
+  @Test
+  public void window_function() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.window(
+                //This project may be required if window function accesses
+                //field is an expression that calculated by project
+                //LogicalPlanDSL.project(
+                LogicalPlanDSL.relation("test"),
+                //    DSL.named("string_value", DSL.ref("string_value", STRING))),
+                Collections.singletonList(dsl.rowNumber()),
+                new WindowDefinition(
+                    Collections.singletonList(
+                        DSL.ref("string_value", STRING)),
+                    Collections.singletonList(
+                        ImmutablePair.of(Sort.SortOption.PPL_ASC, DSL.ref("integer_value", INTEGER))))),
+            DSL.named("string_value", DSL.ref("string_value", STRING)),
+            DSL.named("window_function", DSL.ref("row_number", INTEGER))),
+        AstDSL.project(
+            AstDSL.relation("test"),
+            AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),
+            AstDSL.alias("window_function",
+                AstDSL.windowed(
+                    AstDSL.function("row_number"),
+                    Collections.singletonList(AstDSL.qualifiedName("string_value")),
+                    Collections.singletonList(
+                        ImmutablePair.of("ASC", AstDSL.qualifiedName("integer_value")))))));
   }
 
 }

@@ -84,6 +84,32 @@ whereClause
     : WHERE expression
     ;
 
+//  Window Function's Details
+windowFunction
+    : function=rankingWindowFunction overClause
+    ;
+
+rankingWindowFunction
+    : functionName=(ROW_NUMBER | RANK | DENSE_RANK) LR_BRACKET RR_BRACKET
+    ;
+
+overClause
+    : OVER LR_BRACKET partitionByClause? orderByClause? RR_BRACKET
+    ;
+
+partitionByClause
+    : PARTITION BY expression (COMMA expression)*
+    ;
+
+orderByClause
+    : ORDER BY orderByElement (COMMA orderByElement)*
+    ;
+
+orderByElement
+    : expression (ASC | DESC)?
+    ;
+
+
 //    Literals
 
 constant
@@ -193,6 +219,7 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    | windowFunction                                                #windowFunctionCall
     ;
 
 scalarFunctionName
