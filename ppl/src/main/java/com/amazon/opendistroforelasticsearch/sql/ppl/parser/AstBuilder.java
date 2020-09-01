@@ -147,12 +147,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
       }
     }
     List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
-        ctx.byClause()
-            .fieldList()
-            .fieldExpression()
-            .stream()
-            .map(this::visitExpression)
-            .collect(Collectors.toList());
+        getGroupByList(ctx.byClause());
     Aggregation aggregation = new Aggregation(
         aggListBuilder.build(),
         Collections.emptyList(),
@@ -170,11 +165,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   public UnresolvedPlan visitDedupCommand(DedupCommandContext ctx) {
     return new Dedupe(
         ArgumentFactory.getArgumentList(ctx),
-        ctx.fieldList()
-            .fieldExpression()
-            .stream()
-            .map(field -> (Field) visitExpression(field))
-            .collect(Collectors.toList())
+        getFieldList(ctx.fieldList())
     );
   }
 

@@ -127,7 +127,7 @@ public class RareTopNOperator extends PhysicalPlan {
   @RequiredArgsConstructor
   public class Group {
 
-    private final Map<Key, List<HashMap<Key, Integer>>> groupListMap = new HashMap<>();
+    private final Map<Key, HashMap<Key, Integer>> groupListMap = new HashMap<>();
 
     /**
      * Push the BindingTuple to Group.
@@ -136,20 +136,16 @@ public class RareTopNOperator extends PhysicalPlan {
       Key groupKey = new Key(inputValue, groupByExprList);
       Key fieldKey = new Key(inputValue, fieldExprList);
       groupListMap.computeIfAbsent(groupKey, k -> {
-        List<HashMap<Key, Integer>> list = new ArrayList<>();
         HashMap<Key, Integer> map = new HashMap<>();
         map.put(fieldKey, 1);
-        list.add(map);
-        return list;
+        return map;
       });
-      groupListMap.computeIfPresent(groupKey, (key, fieldList) -> {
-        fieldList.forEach(map -> {
-          map.computeIfAbsent(fieldKey, f -> 1);
-          map.computeIfPresent(fieldKey, (field, count) -> {
-            return count + 1;
-          });
+      groupListMap.computeIfPresent(groupKey, (key, map) -> {
+        map.computeIfAbsent(fieldKey, f -> 1);
+        map.computeIfPresent(fieldKey, (field, count) -> {
+          return count + 1;
         });
-        return fieldList;
+        return map;
       });
     }
 
@@ -159,15 +155,13 @@ public class RareTopNOperator extends PhysicalPlan {
     public List<ExprValue> result() {
       ImmutableList.Builder<ExprValue> resultBuilder = new ImmutableList.Builder<>();
 
-      groupListMap.forEach((groups, list) -> {
+      groupListMap.forEach((groups, fieldMap) -> {
         Map<String, ExprValue> map = new LinkedHashMap<>();
-        list.forEach(fieldMap -> {
-          List<Key> result = find(fieldMap);
-          result.forEach(field -> {
-            map.putAll(groups.keyMap(groupByExprList));
-            map.putAll(field.keyMap(fieldExprList));
-            resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
-          });
+        List<Key> result = find(fieldMap);
+        result.forEach(field -> {
+          map.putAll(groups.keyMap(groupByExprList));
+          map.putAll(field.keyMap(fieldExprList));
+          resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
         });
       });
 
