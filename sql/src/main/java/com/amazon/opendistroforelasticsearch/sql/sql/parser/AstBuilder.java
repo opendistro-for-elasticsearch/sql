@@ -109,6 +109,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       result = visit(ctx.whereClause()).attach(result);
     }
 
+    // Because aggregation maybe implicit, this has to be handled here instead of visitGroupByClause
     AstAggregationBuilder aggBuilder = new AstAggregationBuilder(context.peek());
     UnresolvedPlan aggregation = aggBuilder.visit(ctx.groupByClause());
     if (aggregation != null) {

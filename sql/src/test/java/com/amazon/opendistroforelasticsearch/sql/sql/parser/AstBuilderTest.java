@@ -207,6 +207,20 @@ class AstBuilderTest {
         buildAST("SELECT name, AVG(age) FROM test GROUP BY name"));
   }
 
+  @Test
+  public void can_build_implicit_group_by_clause() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(aggregate("AVG", qualifiedName("age"))),
+                emptyList(),
+                emptyList(),
+                emptyList()),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT AVG(age) FROM test"));
+  }
+
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
     return parseTree.accept(new AstBuilder(query));

@@ -187,7 +187,7 @@ public class QueryIT extends SQLIntegTestCase {
     checkSelectAllAndFieldAggregationResponseSize(response, "age");
   }
 
-  @Ignore("This is failed because there is no alias field in schema of new engine default formatter")
+  @Ignore("This failed because there is no alias field in schema of new engine default formatter")
   @Test
   public void selectFieldWithAliasAndGroupBy() {
     String response =
