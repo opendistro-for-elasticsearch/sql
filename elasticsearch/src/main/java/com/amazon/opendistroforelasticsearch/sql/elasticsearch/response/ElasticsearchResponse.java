@@ -16,12 +16,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.SearchAggregationResponseHelper.populateSearchAggregationResponse;
+
 import java.util.Iterator;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregations;
 
 /** Elasticsearch search response. */
 @EqualsAndHashCode
@@ -33,6 +36,7 @@ public class ElasticsearchResponse implements Iterable<SearchHit> {
 
   public ElasticsearchResponse(SearchResponse esResponse) {
     this.hits = esResponse.getHits(); // TODO: aggregation result is separate and not in SearchHit[]
+    populateSearchAggregationResponse(esResponse.getAggregations());
   }
 
   public ElasticsearchResponse(SearchHits hits) {

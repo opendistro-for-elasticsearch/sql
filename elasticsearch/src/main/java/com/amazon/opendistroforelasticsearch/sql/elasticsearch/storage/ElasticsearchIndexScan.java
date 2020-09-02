@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.Elasti
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.AggregationQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
@@ -117,6 +119,11 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     if (source.sorts() == null) {
       source.sort(DOC_FIELD_NAME, ASC); // Make sure consistent order
     }
+  }
+
+  public void pushDownAggregation(AggregationBuilder query) {
+    SearchSourceBuilder source = request.getSourceBuilder();
+    source.aggregation(query);
   }
 
   @Override

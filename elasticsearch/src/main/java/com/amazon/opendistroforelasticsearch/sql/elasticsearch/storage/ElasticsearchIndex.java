@@ -16,6 +16,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ExpressionScriptEngine.EXPRESSION_LANG_NAME;
+import static java.util.Collections.emptyMap;
+import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_TYPE;
+
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
@@ -24,19 +28,32 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.Elastic
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprIpValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.AggregationQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
+import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 
 /** Elasticsearch table (index) implementation. */
 @RequiredArgsConstructor
@@ -112,6 +129,36 @@ public class ElasticsearchIndex implements Table {
             QueryBuilder query = queryBuilder.build(node.getCondition());
 
             context.pushDown(query);
+            return visitChild(node, context);
+          }
+
+          @Override
+          public PhysicalPlan visitAggregation(LogicalAggregation node,
+                                              ElasticsearchIndexScan context) {
+            DefaultExpressionSerializer serializer = new DefaultExpressionSerializer();
+            List<Aggregator> aggregatorList = node.getAggregatorList();
+            Expression expression = (Expression) aggregatorList.get(0).getArguments().get(0);
+            Script aggScript = new Script(
+                DEFAULT_SCRIPT_TYPE, EXPRESSION_LANG_NAME, serializer.serialize(expression),
+                emptyMap());
+
+            List<Expression> groupByList = node.getGroupByList();
+            Expression groupExpression = groupByList.get(0);
+            Script groupScript = new Script(
+                DEFAULT_SCRIPT_TYPE, EXPRESSION_LANG_NAME, serializer.serialize(groupExpression),
+                emptyMap());
+
+            List<CompositeValuesSourceBuilder<?>> valuesSourceBuilders =
+                Arrays.asList(new TermsValuesSourceBuilder("groupField").script(groupScript));
+
+            CompositeAggregationBuilder aggregationBuilder =
+                AggregationBuilders.composite("composite_buckets", valuesSourceBuilders)
+                    .subAggregation(AggregationBuilders
+                        .avg("avg")
+                        .script(aggScript));
+
+            context.pushDownAggregation(aggregationBuilder);
+
             return visitChild(node, context);
           }
 
