@@ -24,12 +24,12 @@ import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.lang3.tuple.Pair;
 
 @EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
 @ToString
 public class WindowOperator extends PhysicalPlan {
   private final PhysicalPlan input;
@@ -37,7 +37,19 @@ public class WindowOperator extends PhysicalPlan {
   private final WindowDefinition windowDefinition;
 
   @EqualsAndHashCode.Exclude
-  private final WindowFrame windowFrame = new WindowFrame();
+  private final WindowFrame windowFrame;
+
+  public WindowOperator(PhysicalPlan input,
+                        List<Expression> windowFunctions,
+                        WindowDefinition windowDefinition) {
+    this.input = input;
+    this.windowFunctions = windowFunctions;
+    this.windowDefinition = windowDefinition;
+
+    this.windowFrame = new WindowFrame(
+        windowDefinition.getSortList().stream()
+            .map(Pair::getRight).collect(Collectors.toList()));
+  }
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
@@ -68,7 +80,26 @@ public class WindowOperator extends PhysicalPlan {
   }
 
   private WindowFrame framing(ExprTupleValue inputValue) {
+    if (isNewPartition(inputValue)) {
+      windowFrame.reset();
+    }
+    windowFrame.add(inputValue);
     return windowFrame;
+  }
+
+  private boolean isNewPartition(ExprTupleValue current) {
+    if (windowFrame.getCurrent() == null) {
+      return false;
+    }
+
+    List<ExprValue> precedingValues = evaluateInRow(windowFrame.getCurrent());
+    List<ExprValue> currentValues = evaluateInRow(current);
+    return !precedingValues.equals(currentValues);
+  }
+
+  private List<ExprValue> evaluateInRow(ExprTupleValue row) {
+    return windowDefinition.getPartitionByList().stream()
+        .map(expr -> expr.valueOf(row.bindingTuples())).collect(Collectors.toList());
   }
 
 }

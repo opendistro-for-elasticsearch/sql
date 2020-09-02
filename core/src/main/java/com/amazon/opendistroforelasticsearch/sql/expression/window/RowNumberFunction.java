@@ -32,6 +32,9 @@ public class RowNumberFunction extends RankingWindowFunction {
 
   @Override
   protected int rank(WindowFrame windowFrame) {
+    if (windowFrame.isNewPartition()) {
+      rowNumber = 1;
+    }
     return rowNumber++;
   }
 

@@ -16,38 +16,54 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.List;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Conceptually, window function has access to all the data in the frame defined by
+ * window definition. However, this needs to hold all preceding and following rows.
+ * So here we only hold current row and assume window function maintains the previous
+ * state. This workaround may not work for window functions that needs access to following
+ * rows such as LAG.
+ */
 @EqualsAndHashCode
+@Getter
 @RequiredArgsConstructor
 @ToString
 public class WindowFrame implements Environment<Expression, ExprValue> {
-  private final Deque<ExprValue> rows = new ArrayDeque<>();
+  private final List<Expression> sortList;
+
+  private int rowCount;
+  private ExprTupleValue current;
 
   @Override
   public ExprValue resolve(Expression var) {
-    //return var.valueOf(current().bindingTuples());
-    return null;
+    return var.valueOf(current.bindingTuples());
   }
 
-  /*
-  public ExprValue preceding(Expression var, int offset) {
-    return var.valueOf()
-  }
-  */
-
-  public void add(ExprValue row) {
-    rows.push(row);
+  public boolean isNewPartition() {
+    return (rowCount == 1);
   }
 
-  public ExprValue get(int offset) {
-    return rows.peekLast();
+  public boolean isPrecedingDifferent() {
+    return false;
   }
+
+  public void add(ExprTupleValue row) {
+    rowCount++;
+    current = row;
+  }
+
+  public void reset() {
+    rowCount = 0;
+    current = null;
+  }
+
 }
