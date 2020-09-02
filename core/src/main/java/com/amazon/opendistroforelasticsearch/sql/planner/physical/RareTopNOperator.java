@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -47,13 +48,8 @@ public class RareTopNOperator extends PhysicalPlan {
 
   @Getter
   private final PhysicalPlan input;
-
-  /**
-   * If rareTopFlag is true, result for top will be returned.
-   * If rareTopFlag is false, result for rare will be returned.
-   */
   @Getter
-  private final Boolean rareTopFlag;
+  private final CommandType commandType;
   @Getter
   private final Integer noOfResults;
   @Getter
@@ -69,25 +65,25 @@ public class RareTopNOperator extends PhysicalPlan {
   private static final Integer DEFAULT_NO_OF_RESULTS = 10;
 
 
-  public RareTopNOperator(PhysicalPlan input, Boolean rareTopFlag, List<Expression> fieldExprList,
-      List<Expression> groupByExprList) {
-    this(input, rareTopFlag, DEFAULT_NO_OF_RESULTS, fieldExprList, groupByExprList);
+  public RareTopNOperator(PhysicalPlan input, CommandType commandType,
+      List<Expression> fieldExprList, List<Expression> groupByExprList) {
+    this(input, commandType, DEFAULT_NO_OF_RESULTS, fieldExprList, groupByExprList);
   }
 
   /**
    * RareTopNOperator Constructor.
    *
    * @param input           Input {@link PhysicalPlan}
-   * @param rareTopFlag     Flag for Rare/TopN command.
+   * @param commandType     Enum for Rare/TopN command.
    * @param noOfResults     Number of results
    * @param fieldExprList   List of {@link Expression}
    * @param groupByExprList List of group by {@link Expression}
    */
-  public RareTopNOperator(PhysicalPlan input, Boolean rareTopFlag, int noOfResults,
+  public RareTopNOperator(PhysicalPlan input, CommandType commandType, int noOfResults,
       List<Expression> fieldExprList,
       List<Expression> groupByExprList) {
     this.input = input;
-    this.rareTopFlag = rareTopFlag;
+    this.commandType = commandType;
     this.noOfResults = noOfResults;
     this.fieldExprList = fieldExprList;
     this.groupByExprList = groupByExprList;
@@ -173,7 +169,7 @@ public class RareTopNOperator extends PhysicalPlan {
      */
     public List<Key> find(Map<Key, Integer> map) {
       Comparator<Map.Entry<Key, Integer>> valueComparator;
-      if (rareTopFlag) {
+      if (CommandType.TOP.equals(commandType)) {
         valueComparator = Map.Entry.comparingByValue(Comparator.reverseOrder());
       } else {
         valueComparator = Map.Entry.comparingByValue();

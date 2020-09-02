@@ -34,6 +34,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
@@ -68,7 +69,6 @@ class DefaultImplementorTest {
     Expression filterExpr = literal(ExprBooleanValue.of(true));
     List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
     ReferenceExpression rareTopNField = ref("age", INTEGER);
-    Boolean topFlag = Boolean.TRUE;
     List<Aggregator> aggregators =
         Arrays.asList(new AvgAggregator(groupByExprs, ExprCoreType.DOUBLE));
     Map<ReferenceExpression, ReferenceExpression> mappings =
@@ -96,7 +96,7 @@ class DefaultImplementorTest {
                             newEvalField),
                         sortCount,
                         sortField),
-                    topFlag,
+                    CommandType.TOP,
                     groupByExprs,
                     rareTopNField),
                 dedupeField),
@@ -123,7 +123,7 @@ class DefaultImplementorTest {
                             newEvalField),
                         sortCount,
                         sortField),
-                    topFlag,
+                    CommandType.TOP,
                     groupByExprs,
                     rareTopNField),
                 dedupeField),

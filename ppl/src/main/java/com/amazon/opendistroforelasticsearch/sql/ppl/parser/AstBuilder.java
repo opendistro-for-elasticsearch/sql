@@ -43,6 +43,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
@@ -217,11 +218,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
         getGroupByList(ctx.byClause());
     return new RareTopN(
-
-        /**
-         * Setting rareTopFlag to FALSE will return list of rare values
-         */
-        Boolean.FALSE,
+        CommandType.RARE,
         ArgumentFactory.getArgumentList(ctx),
         getFieldList(ctx.fieldList()),
         groupList
@@ -236,11 +233,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
         getGroupByList(ctx.byClause());
     return new RareTopN(
-
-        /**
-         * Setting rareTopFlag to TRUE will return list of top values
-         */
-        Boolean.TRUE,
+        CommandType.TOP,
         ArgumentFactory.getArgumentList(ctx),
         getFieldList(ctx.fieldList()),
         groupList

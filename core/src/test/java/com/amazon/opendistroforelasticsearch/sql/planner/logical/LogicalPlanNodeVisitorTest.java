@@ -19,6 +19,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -52,7 +53,7 @@ class LogicalPlanNodeVisitorTest {
             LogicalPlanDSL.aggregation(
                 LogicalPlanDSL.rareTopN(
                     LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
-                    true,
+                    CommandType.TOP,
                     ImmutableList.of(expression),
                     expression),
                 ImmutableList.of(aggregator),
@@ -104,7 +105,7 @@ class LogicalPlanNodeVisitorTest {
     }, null));
 
     LogicalPlan rareTopN = LogicalPlanDSL.rareTopN(
-        relation, true, ImmutableList.of(expression), expression);
+        relation, CommandType.TOP, ImmutableList.of(expression), expression);
     assertNull(rareTopN.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
   }

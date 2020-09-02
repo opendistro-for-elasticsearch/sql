@@ -205,7 +205,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     List<Argument> options = node.getNoOfResults();
     Integer noOfResults = (Integer) options.get(0).getValue().getValue();
 
-    return new LogicalRareTopN(child, node.getRareTopFlag(), noOfResults, fields, groupBys);
+    return new LogicalRareTopN(child, node.getCommandType(), noOfResults, fields, groupBys);
   }
 
   /**

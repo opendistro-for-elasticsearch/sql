@@ -40,7 +40,7 @@ import lombok.ToString;
 public class RareTopN extends UnresolvedPlan {
 
   private UnresolvedPlan child;
-  private final Boolean rareTopFlag;
+  private final CommandType commandType;
   private final List<Argument> noOfResults;
   private final List<Field> fields;
   private final List<UnresolvedExpression> groupExprList;
@@ -59,6 +59,11 @@ public class RareTopN extends UnresolvedPlan {
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
     return nodeVisitor.visitRareTopN(this, context);
+  }
+
+  public enum CommandType {
+    TOP,
+    RARE
   }
 }
 

@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
@@ -84,14 +85,14 @@ public class LogicalPlanDSL {
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
   }
 
-  public static LogicalPlan rareTopN(LogicalPlan input, Boolean rareTopFlag,
+  public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType,
       List<Expression> groupByList, Expression... fields) {
-    return rareTopN(input, rareTopFlag, 10, groupByList, fields);
+    return rareTopN(input, commandType, 10, groupByList, fields);
   }
 
-  public static LogicalPlan rareTopN(LogicalPlan input, boolean rareTopFlag, int noOfResults,
+  public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType, int noOfResults,
       List<Expression> groupByList, Expression... fields) {
-    return new LogicalRareTopN(input, rareTopFlag, noOfResults, Arrays.asList(fields), groupByList);
+    return new LogicalRareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupByList);
   }
 
   @SafeVarargs

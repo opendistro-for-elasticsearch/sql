@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
@@ -18,7 +19,7 @@ public class RareTopNOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void rare_without_group() {
     PhysicalPlan plan = new RareTopNOperator(new TestScan(),
-        Boolean.FALSE,
+        CommandType.RARE,
         Collections.singletonList(DSL.ref("action", ExprCoreType.STRING)),
         Collections.emptyList());
     List<ExprValue> result = execute(plan);
@@ -32,7 +33,7 @@ public class RareTopNOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void rare_with_group() {
     PhysicalPlan plan = new RareTopNOperator(new TestScan(),
-        Boolean.FALSE,
+        CommandType.RARE,
         Collections.singletonList(DSL.ref("response", ExprCoreType.INTEGER)),
         Collections.singletonList(DSL.ref("action", ExprCoreType.STRING)));
     List<ExprValue> result = execute(plan);
@@ -48,7 +49,7 @@ public class RareTopNOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void top_without_group() {
     PhysicalPlan plan = new RareTopNOperator(new TestScan(),
-        Boolean.TRUE,
+        CommandType.TOP,
         Collections.singletonList(DSL.ref("action", ExprCoreType.STRING)),
         Collections.emptyList());
     List<ExprValue> result = execute(plan);
@@ -62,7 +63,7 @@ public class RareTopNOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void top_n_without_group() {
     PhysicalPlan plan = new RareTopNOperator(new TestScan(),
-        Boolean.TRUE,
+        CommandType.TOP,
         1,
         Collections.singletonList(DSL.ref("action", ExprCoreType.STRING)),
         Collections.emptyList());
@@ -76,7 +77,7 @@ public class RareTopNOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void top_n_with_group() {
     PhysicalPlan plan = new RareTopNOperator(new TestScan(),
-        Boolean.TRUE,
+        CommandType.TOP,
         1,
         Collections.singletonList(DSL.ref("response", ExprCoreType.INTEGER)),
         Collections.singletonList(DSL.ref("action", ExprCoreType.STRING)));

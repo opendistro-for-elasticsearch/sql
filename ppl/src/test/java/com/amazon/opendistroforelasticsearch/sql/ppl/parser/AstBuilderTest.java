@@ -46,6 +46,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -307,7 +308,7 @@ public class AstBuilderTest {
     assertEqual("source=t | rare a",
         rareTopN(
             relation("t"),
-            false,
+            CommandType.RARE,
             exprList(argument("noOfResults", intLiteral(10))),
             emptyList(),
             field("a")
@@ -319,7 +320,7 @@ public class AstBuilderTest {
     assertEqual("source=t | rare a by b",
         rareTopN(
             relation("t"),
-            false,
+            CommandType.RARE,
             exprList(argument("noOfResults", intLiteral(10))),
             exprList(field("b")),
             field("a")
@@ -331,7 +332,7 @@ public class AstBuilderTest {
     assertEqual("source=t | rare `a`, `b` by `c`",
         rareTopN(
             relation("t"),
-            false,
+            CommandType.RARE,
             exprList(argument("noOfResults", intLiteral(10))),
             exprList(field("c")),
             field("a"),
@@ -344,7 +345,7 @@ public class AstBuilderTest {
     assertEqual("source=t | top 1 a",
         rareTopN(
             relation("t"),
-            true,
+            CommandType.TOP,
             exprList(argument("noOfResults", intLiteral(1))),
             emptyList(),
             field("a")
@@ -356,7 +357,7 @@ public class AstBuilderTest {
     assertEqual("source=t | top a",
         rareTopN(
             relation("t"),
-            true,
+            CommandType.TOP,
             exprList(argument("noOfResults", intLiteral(10))),
             emptyList(),
             field("a")
@@ -368,7 +369,7 @@ public class AstBuilderTest {
     assertEqual("source=t | top 1 a by b",
         rareTopN(
             relation("t"),
-            true,
+            CommandType.TOP,
             exprList(argument("noOfResults", intLiteral(1))),
             exprList(field("b")),
             field("a")
@@ -380,7 +381,7 @@ public class AstBuilderTest {
     assertEqual("source=t | top 1 `a`, `b` by `c`",
         rareTopN(
             relation("t"),
-            true,
+            CommandType.TOP,
             exprList(argument("noOfResults", intLiteral(1))),
             exprList(field("c")),
             field("a"),

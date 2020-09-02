@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +35,7 @@ import lombok.ToString;
 public class LogicalRareTopN extends LogicalPlan {
 
   private final LogicalPlan child;
-  private final Boolean rareTopFlag;
+  private final CommandType commandType;
   private final Integer noOfResults;
   private final List<Expression> fieldList;
   private final List<Expression> groupByList;

@@ -57,7 +57,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   public PhysicalPlan visitRareTopN(LogicalRareTopN node, C context) {
     return new RareTopNOperator(
         visitChild(node, context),
-        node.getRareTopFlag(),
+        node.getCommandType(),
         node.getNoOfResults(),
         node.getFieldList(),
         node.getGroupByList()

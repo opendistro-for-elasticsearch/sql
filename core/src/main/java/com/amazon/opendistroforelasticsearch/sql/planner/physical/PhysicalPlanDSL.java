@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
@@ -80,14 +81,15 @@ public class PhysicalPlanDSL {
         input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
   }
 
-  public static RareTopNOperator rareTopN(PhysicalPlan input, Boolean rareTopFlag,
+  public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,
       List<Expression> groups, Expression... expressions) {
-    return new RareTopNOperator(input, rareTopFlag, Arrays.asList(expressions), groups);
+    return new RareTopNOperator(input, commandType, Arrays.asList(expressions), groups);
   }
 
-  public static RareTopNOperator rareTopN(PhysicalPlan input, Boolean rareTopFlag, int noOfResults,
+  public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,
+      int noOfResults,
       List<Expression> groups, Expression... expressions) {
-    return new RareTopNOperator(input, rareTopFlag, noOfResults, Arrays.asList(expressions),
+    return new RareTopNOperator(input, commandType, noOfResults, Arrays.asList(expressions),
         groups);
   }
 

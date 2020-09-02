@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -58,7 +59,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
                             PhysicalPlanDSL.filter(
                                 new TestScan(),
                                 dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))),
-                            true,
+                            CommandType.TOP,
                             ImmutableList.of(),
                             DSL.ref("response", INTEGER)),
                         ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
@@ -124,7 +125,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     }, null));
 
     PhysicalPlan rareTopN =
-        PhysicalPlanDSL.rareTopN(plan, true, 5, ImmutableList.of(), ref);
+        PhysicalPlanDSL.rareTopN(plan, CommandType.TOP, 5, ImmutableList.of(), ref);
     assertNull(rareTopN.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
   }

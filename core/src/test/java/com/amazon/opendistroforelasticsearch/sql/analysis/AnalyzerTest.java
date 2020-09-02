@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
@@ -119,14 +120,14 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.rareTopN(
             LogicalPlanDSL.relation("schema"),
-            Boolean.FALSE,
+            CommandType.RARE,
             10,
             ImmutableList.of(DSL.ref("string_value", STRING)),
             DSL.ref("integer_value", INTEGER)
         ),
         AstDSL.rareTopN(
             AstDSL.relation("schema"),
-            Boolean.FALSE,
+            CommandType.RARE,
             ImmutableList.of(argument("noOfResults", intLiteral(10))),
             ImmutableList.of(field("string_value")),
             field("integer_value")
@@ -139,14 +140,14 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.rareTopN(
             LogicalPlanDSL.relation("schema"),
-            Boolean.TRUE,
+            CommandType.TOP,
             5,
             ImmutableList.of(DSL.ref("string_value", STRING)),
             DSL.ref("integer_value", INTEGER)
         ),
         AstDSL.rareTopN(
             AstDSL.relation("schema"),
-            Boolean.TRUE,
+            CommandType.TOP,
             ImmutableList.of(argument("noOfResults", intLiteral(5))),
             ImmutableList.of(field("string_value")),
             field("integer_value")

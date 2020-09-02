@@ -27,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.physical.Physica
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
@@ -119,7 +120,7 @@ class ElasticsearchExecutionProtectorTest {
                             newEvalField),
                         sortCount,
                         sortField),
-                    true,
+                    CommandType.TOP,
                     groupByExprs,
                     topField),
                 dedupeField),
@@ -144,7 +145,7 @@ class ElasticsearchExecutionProtectorTest {
                                 newEvalField),
                             sortCount,
                             sortField),
-                        true,
+                        CommandType.TOP,
                         groupByExprs,
                         topField),
                     dedupeField),
