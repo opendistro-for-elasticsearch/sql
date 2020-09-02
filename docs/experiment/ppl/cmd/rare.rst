@@ -13,11 +13,11 @@ Description
 ============
 | Using ``rare`` command to find the least common tuple of values of all fields in the field list.
 
+A maximum of 10 results is returned for each distinct tuple of values of the group-by fields.
 
 Syntax
 ============
 rare <field-list> [by-clause]
-
 
 * field-list: mandatory. comma-delimited list of field names.
 * by-clause: optional. one or more fields to group the results by.
