@@ -107,39 +107,14 @@ public class ArgumentFactory {
    * @param ctx HeadCommandContext instance
    * @return the list of arguments fetched from the head command
    */
-  public static List<Argument> getArgumentList(HeadCommandContext ctx) {
-    return Arrays.asList(
-        ctx.keeplast != null
-            ? new Argument("keeplast", getArgumentValue(ctx.keeplast))
-            : new Argument("keeplast", new Literal(false, DataType.BOOLEAN)),
-        //        ctx.whileExpr != null
-        //            ? new Argument("")
-        //        ctx.whileExpr()
-        //        ctx.children
-        //        ctx.
-        ctx.number != null
-            ? new Argument("number", getArgumentValue(ctx.number))
-            : new Argument("number", new Literal(10, DataType.INTEGER))
-    );
-  }
-
-  /**
-   * Get list of {@link Argument}.
-   *
-   * @param ctx HeadCommandContext instance
-   * @return the list of arguments fetched from the head command
-   */
-  public static List<UnresolvedArgument> getArgumentListUE(HeadCommandContext ctx, UnresolvedExpression unresolvedExpr) {
+  public static List<UnresolvedArgument> getArgumentList(HeadCommandContext ctx, UnresolvedExpression unresolvedExpr) {
     return Arrays.asList(
         ctx.keeplast != null
             ? new UnresolvedArgument("keeplast", getArgumentValue(ctx.keeplast))
             : new UnresolvedArgument("keeplast", new Literal(false, DataType.BOOLEAN)),
-        ctx.whileExpr != null
+        ctx.whileExpr != null && unresolvedExpr != null
             ? new UnresolvedArgument("whileExpr", unresolvedExpr)
             : new UnresolvedArgument("whileExpr", new Literal(false, DataType.BOOLEAN)),
-        //        ctx.whileExpr()
-        //        ctx.children
-        //        ctx.
         ctx.number != null
             ? new UnresolvedArgument("number", getArgumentValue(ctx.number))
             : new UnresolvedArgument("number", new Literal(10, DataType.INTEGER))

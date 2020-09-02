@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
@@ -81,6 +82,12 @@ public class LogicalPlanDSL {
       Expression... fields) {
     return new LogicalDedupe(
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
+  }
+
+  public static LogicalPlan head(
+      LogicalPlan input, boolean keeplast, Expression whileExpr, int number
+  ) {
+    return new LogicalHead(input, keeplast, whileExpr, number);
   }
 
   @SafeVarargs

@@ -234,12 +234,39 @@ public class AstBuilderTest {
 
   @Test
   public void testHeadCommand() {
-      assertEqual("source=t | head",
-          head(
-              relation("t"),
-              defaultHeadArgs()
-          ));
+    assertEqual("source=t | head",
+        head(
+            relation("t"),
+            defaultHeadArgs()
+        ));
   }
+
+  @Test
+  public void testHeadCommandWithNumber() {
+    assertEqual("source=t | head 3",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(false)),
+                unresolvedArg("whileExpr", booleanLiteral(false)),
+                unresolvedArg("number", intLiteral(3)))
+        ));
+  }
+
+/*  @Test
+  public void testHeadCommandWithWhileExpr() {
+
+    assertEqual("source=t | head while (user=garcia) 5",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(false)),
+                unresolvedArg("whileExpr", (compare("=", field("user"), stringLiteral("garcia")))),
+                    booleanLiteral(true)),
+                //unresolvedArg("whileExpr", compare("=", field("user"), stringLiteral("garcia"))),
+                unresolvedArg("number", intLiteral(5)))
+        ));
+  }*/
 
   @Test
   public void testSortCommand() {

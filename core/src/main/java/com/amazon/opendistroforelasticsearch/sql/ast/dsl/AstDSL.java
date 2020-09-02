@@ -311,17 +311,13 @@ public class AstDSL {
     return new Head(input, options);
   }
 
-  public static Head head(List<UnresolvedArgument> options) {
-    return new Head(options);
-  }
-
   /**
    * Default Head Command Args.
    */
   public static List<UnresolvedArgument> defaultHeadArgs() {
     return unresolvedArgList(
             unresolvedArg("keeplast", booleanLiteral(false)),
-            unresolvedArg("while", booleanLiteral(false)),
+            unresolvedArg("whileExpr", booleanLiteral(false)),
             unresolvedArg("number", intLiteral(10)));
   }
 }

@@ -25,7 +25,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
-
 @Getter
 @EqualsAndHashCode
 public class HeadOperator extends PhysicalPlan {
