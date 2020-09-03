@@ -52,7 +52,11 @@ import org.antlr.v4.runtime.tree.ParseTree;
  *          SELECT AVG(age), SUM(balance) FROM test
  *     2.2 Non-aggregated item exists:
  *          SELECT state, AVG(age) FROM test
- *         (exception thrown for now. may support this by different SQL mode)
+ *
+ *  For 1.1 and 2.1, Aggregation node is built with aggregators.
+ *  For 1.2 and 1.3, alias and ordinal is replaced first and then
+ *    Aggregation is built same as above.
+ *  For 2.2, Exception thrown for now. We may support this by different SQL mode.
  *
  * Note the responsibility separation between this builder and analyzer in core engine:
  *
@@ -74,7 +78,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   public UnresolvedPlan visit(ParseTree groupByClause) {
     if (groupByClause == null) {
       if (isAllSelectItemNonAggregated()) {
-        // No GROUP BY and aggregate function in SELECT
+        // Simple select query without GROUP BY and aggregate function in SELECT
         return null;
       }
       return buildImplicitAggregation();
@@ -112,7 +116,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     for (UnresolvedExpression expr : querySpec.getGroupByItems()) {
       if (isIntegerLiteral(expr)) {
         groupByItems.add(getSelectItemByOrdinal(expr));
-      } else if (isAliasInSelectAs(expr)) {
+      } else if (isSelectAlias(expr)) {
         groupByItems.add(getSelectItemByAlias(expr));
       } else {
         groupByItems.add(expr);
@@ -156,7 +160,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     return querySpec.getSelectItems().get(ordinal - 1);
   }
 
-  private boolean isAliasInSelectAs(UnresolvedExpression expr) {
+  private boolean isSelectAlias(UnresolvedExpression expr) {
     return (expr instanceof QualifiedName)
         && (querySpec.getSelectItemsByAlias().containsKey(expr.toString()));
   }

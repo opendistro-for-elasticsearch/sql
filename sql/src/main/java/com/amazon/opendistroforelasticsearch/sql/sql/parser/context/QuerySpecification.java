@@ -32,7 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
@@ -51,7 +53,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
  *
  * </pre>
  */
+@EqualsAndHashCode
 @Getter
+@ToString
 public class QuerySpecification {
 
   /**
@@ -80,7 +84,7 @@ public class QuerySpecification {
   }
 
   /*
-   * Query specification collect that visits the parse tree to collect.
+   * Query specification collector that visits a parse tree to collect query info.
    * Most visit methods only collect info and returns nothing. However, one exception is
    * visitQuerySpec() which needs to change visit ordering to avoid visiting sub-query.
    */
