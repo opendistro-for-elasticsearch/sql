@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -26,6 +25,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -59,8 +60,12 @@ public class AstDSL {
     return new Filter(expression).attach(input);
   }
 
-  public static UnresolvedPlan relation(String tableName) {
+  public UnresolvedPlan relation(String tableName) {
     return new Relation(qualifiedName(tableName));
+  }
+
+  public UnresolvedPlan relation(String tableName, String alias) {
+    return new Relation(qualifiedName(tableName), alias);
   }
 
   public static UnresolvedPlan project(UnresolvedPlan input, UnresolvedExpression... projectList) {
@@ -146,6 +151,10 @@ public class AstDSL {
 
   public static Literal booleanLiteral(Boolean value) {
     return literal(value, DataType.BOOLEAN);
+  }
+
+  public static Interval intervalLiteral(Object value, DataType type, String unit) {
+    return new Interval(literal(value, type), unit);
   }
 
   public static Literal nullLiteral() {

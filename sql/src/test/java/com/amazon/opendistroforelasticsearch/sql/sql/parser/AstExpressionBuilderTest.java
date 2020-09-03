@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiter
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intervalLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
@@ -31,6 +32,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestamp
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
@@ -95,6 +97,14 @@ class AstExpressionBuilderTest {
     assertEquals(
         timestampLiteral("2020-07-07 11:30:45"),
         buildExprAst("TIMESTAMP '2020-07-07 11:30:45'")
+    );
+  }
+
+  @Test
+  public void canBuildIntervalLiteral() {
+    assertEquals(
+        intervalLiteral(1, DataType.INTEGER, "day"),
+        buildExprAst("interval 1 day")
     );
   }
 

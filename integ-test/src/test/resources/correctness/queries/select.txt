@@ -5,6 +5,13 @@ SELECT ABS(DistanceMiles), (FlightDelayMin * 2) - 3 FROM kibana_sample_data_flig
 SELECT abs(DistanceMiles), Abs(FlightDelayMin) FROM kibana_sample_data_flights
 SELECT Cancelled AS Cancel, AvgTicketPrice AS ATP FROM kibana_sample_data_flights
 SELECT Cancelled AS `Cancel`, AvgTicketPrice AS "ATP" FROM kibana_sample_data_flights
+SELECT kibana_sample_data_flights.AvgTicketPrice FROM kibana_sample_data_flights
+SELECT flights.AvgTicketPrice, Carrier FROM kibana_sample_data_flights flights
+SELECT flights.AvgTicketPrice, Carrier FROM kibana_sample_data_flights AS flights
+SELECT kibana_sample_data_flights.AvgTicketPrice AS price FROM kibana_sample_data_flights WHERE kibana_sample_data_flights.AvgTicketPrice > 500
+SELECT flights.AvgTicketPrice AS price, Carrier AS car FROM kibana_sample_data_flights AS flights WHERE flights.AvgTicketPrice > 500
+SELECT `kibana_sample_data_flights`.`AvgTicketPrice` FROM kibana_sample_data_flights WHERE `kibana_sample_data_flights`.`AvgTicketPrice` <= 500
+SELECT `flights`.`AvgTicketPrice`, `Carrier` FROM kibana_sample_data_flights AS flights WHERE `flights`.`AvgTicketPrice` <= 500
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE NOT AvgTicketPrice <= 500
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500 AND FlightDelayMin = 0

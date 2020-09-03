@@ -19,7 +19,7 @@ package com.amazon.opendistroforelasticsearch.jdbc.internal;
 public enum Version {
 
     // keep this in sync with the gradle version
-    Current(1, 9, 0, 1);
+    Current(1, 10, 0, 0);
 
     private int major;
     private int minor;

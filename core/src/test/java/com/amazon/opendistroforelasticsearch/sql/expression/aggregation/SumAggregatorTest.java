@@ -113,7 +113,7 @@ class SumAggregatorTest extends AggregationTest {
   public void test_nested_to_string() {
     Aggregator sumAggregator = dsl.sum(dsl.multiply(DSL.ref("integer_value", INTEGER),
         DSL.literal(ExprValueUtils.integerValue(10))));
-    assertEquals(String.format("sum(%s * %d)", DSL.ref("integer_value", INTEGER), 10),
+    assertEquals(String.format("sum(*(%s, %d))", DSL.ref("integer_value", INTEGER), 10),
         sumAggregator.toString());
   }
 }

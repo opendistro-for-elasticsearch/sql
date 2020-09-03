@@ -11,7 +11,9 @@ repositories {
 dependencies {
     // https://github.com/google/guava/wiki/CVE-2018-10237
     compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
-    compile group: 'org.json', name: 'json', version: '20180813' //TODO: change to other JSON lib?
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.4'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.4'
+    implementation 'com.google.code.gson:gson:2.8.6'
     compile project(':core')
 
     testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')

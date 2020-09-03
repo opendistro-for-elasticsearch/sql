@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
@@ -27,6 +28,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DSL {
   private final BuiltinFunctionRepository repository;
+
+  public static LiteralExpression literal(Short value) {
+    return new LiteralExpression(new ExprShortValue(value));
+  }
 
   public static LiteralExpression literal(Integer value) {
     return new LiteralExpression(ExprValueUtils.integerValue(value));
@@ -236,8 +241,19 @@ public class DSL {
   }
 
   public FunctionExpression dayofmonth(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.DAYOFMONTH.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.DAYOFMONTH, expressions);
+  }
+
+  public FunctionExpression date(Expression... expressions) {
+    return function(BuiltinFunctionName.DATE, expressions);
+  }
+
+  public FunctionExpression time(Expression... expressions) {
+    return function(BuiltinFunctionName.TIME, expressions);
+  }
+
+  public FunctionExpression timestamp(Expression... expressions) {
+    return function(BuiltinFunctionName.TIMESTAMP, expressions);
   }
 
   public FunctionExpression divide(Expression... expressions) {
@@ -324,5 +340,10 @@ public class DSL {
 
   public FunctionExpression isnotnull(Expression... expressions) {
     return function(BuiltinFunctionName.IS_NOT_NULL, expressions);
+  }
+
+  public FunctionExpression interval(Expression value, Expression unit) {
+    return (FunctionExpression) repository.compile(
+        BuiltinFunctionName.INTERVAL.getName(), Arrays.asList(value, unit));
   }
 }

@@ -15,6 +15,10 @@ Introduction
 
 In this doc, the restrictions and limitations of SQL plugin is covered as follows.
 
+Limitations on Identifiers
+==========================
+
+Using Elasticsearch cluster name as catalog name to qualify an index name, such as ``my_cluster.my_index``, is not supported for now.
 
 Limitations on Aggregations
 ===========================

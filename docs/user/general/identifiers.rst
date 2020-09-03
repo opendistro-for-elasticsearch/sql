@@ -103,6 +103,40 @@ For example, if you run ``SELECT * FROM ACCOUNTS``, it will end up with an index
 Identifier Qualifiers
 =====================
 
-For now, we do not support using Elasticsearch cluster name as catalog name to qualify an index name, such as ``my-cluster.logs``.
+Description
+-----------
 
-TODO: field name qualifiers
+An identifier can be qualified by qualifier(s) or not. The qualifier is meant to avoid ambiguity when interpreting the identifier name. Thus, the name symbol can be associated with a concrete field in Elasticsearch correctly.
+
+In particular, identifier qualifiers follow the specification as below:
+
+1. **Definitions**: A qualified name consists of multiple individual identifiers separated by dot ``.``. An unqualified name can only be a single identifier.
+2. **Qualifier types**: For now, index identifier does not support qualification. Field identifier can be qualified by either full index name or its alias specified in ``FROM`` clause.
+3. **Delimitation**: If necessary, delimit identifiers in each part of a qualified name separately. Do not enclose the entire name which would be interpreted as a single identifier mistakenly. For example, use ``"table"."column"`` rather than ``"table.column"``.
+
+Examples
+--------
+
+The first example is to show a column name qualified by full table name originally in ``FROM`` clause. The qualifier is optional if no ambiguity::
+
+    od> SELECT city, accounts.age, ABS(accounts.balance) FROM accounts WHERE accounts.age < 30;
+    fetched rows / total rows = 1/1
+    +--------+-------+-------------------------+
+    | city   | age   | ABS(accounts.balance)   |
+    |--------+-------+-------------------------|
+    | Nogal  | 28    | 32838                   |
+    +--------+-------+-------------------------+
+
+The second example is to show a field name qualified by index alias specified. Similarly, the alias qualifier is optional in this case::
+
+    od> SELECT city, acc.age, ABS(acc.balance) FROM accounts AS acc WHERE acc.age > 30;
+    fetched rows / total rows = 3/3
+    +--------+-------+--------------------+
+    | city   | age   | ABS(acc.balance)   |
+    |--------+-------+--------------------|
+    | Brogan | 32    | 39225              |
+    | Dante  | 36    | 5686               |
+    | Orick  | 33    | 4180               |
+    +--------+-------+--------------------+
+
+Note that in both examples above, the qualifier is removed in response. This happens only when identifiers selected is a simple field name. In other cases, expressions rather than an atom field, the column name in response is exactly the same as the text in ``SELECT``clause.

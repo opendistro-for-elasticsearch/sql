@@ -49,9 +49,13 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
+                counter = 'LINE'
                 minimum = 1.0
             }
-
+            limit {
+                counter = 'BRANCH'
+                minimum = 1.0
+            }
         }
     }
     afterEvaluate {

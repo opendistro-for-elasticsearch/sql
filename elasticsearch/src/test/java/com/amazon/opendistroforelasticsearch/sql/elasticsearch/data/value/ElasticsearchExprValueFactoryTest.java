@@ -33,6 +33,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_GEO_POINT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_IP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,6 +73,8 @@ class ElasticsearchExprValueFactoryTest {
           .put("arrayV.author", STRING)
           .put("textV", ES_TEXT)
           .put("textKeywordV", ES_TEXT_KEYWORD)
+          .put("ipV", ES_IP)
+          .put("geoV", ES_GEO_POINT)
           .build();
   private ElasticsearchExprValueFactory exprValueFactory =
       new ElasticsearchExprValueFactory(MAPPING);
@@ -194,6 +198,18 @@ class ElasticsearchExprValueFactoryTest {
               }
             }),
         tupleValue("{\"structV\":{\"id\":1,\"state\":\"WA\"}}").get("structV"));
+  }
+
+  @Test
+  public void constructIP() {
+    assertEquals(new ElasticsearchExprIpValue("192.168.0.1"),
+        tupleValue("{\"ipV\":\"192.168.0.1\"}").get("ipV"));
+  }
+
+  @Test
+  public void constructGeoPoint() {
+    assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
+        tupleValue("{\"geoV\":{\"lat\":42.60355556,\"lon\":-97.25263889}}").get("geoV"));
   }
 
   @Test
