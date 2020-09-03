@@ -213,7 +213,7 @@ trigonometricFunctionName
     ;
 
 dateAndTimeFunctionBase
-    :
+    : DATE | TIME | TIMESTAMP
     ;
 
 textFunctionBase

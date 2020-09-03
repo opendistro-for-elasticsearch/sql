@@ -67,7 +67,8 @@ TRUE:                               'TRUE';
 FALSE:                              'FALSE';
 LIKE:                               'LIKE';
 
-// INTERVAL AND UNIT KEYWORDS
+// DATETIME, INTERVAL AND UNIT KEYWORDS
+DATETIME:                           'DATETIME';
 INTERVAL:                           'INTERVAL';
 MICROSECOND:                        'MICROSECOND';
 SECOND:                             'SECOND';
@@ -190,6 +191,11 @@ DEGREES:                            'DEGREES';
 RADIANS:                            'RADIANS';
 SIN:                                'SIN';
 TAN:                                'TAN';
+
+// DATE AND TIME FUNCTIONS
+DATE:                               'DATE';
+TIME:                               'TIME';
+TIMESTAMP:                          'TIMESTAMP';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;

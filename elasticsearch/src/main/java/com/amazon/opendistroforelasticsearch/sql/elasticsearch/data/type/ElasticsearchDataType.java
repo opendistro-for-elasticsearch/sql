@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import java.util.Arrays;
@@ -40,7 +41,12 @@ public enum ElasticsearchDataType implements ExprType {
    * Elasticsearch multi-fields which has text and keyword.
    * Ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-fields.html
    */
-  ES_TEXT_KEYWORD(Arrays.asList(STRING, ES_TEXT), "string");
+  ES_TEXT_KEYWORD(Arrays.asList(STRING, ES_TEXT), "string"),
+
+
+  ES_IP(Arrays.asList(UNKNOWN), "ip"),
+
+  ES_GEO_POINT(Arrays.asList(UNKNOWN), "geo_point");
 
   /**
    * Parent of current type.

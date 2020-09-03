@@ -74,7 +74,7 @@ class AvgAggregatorTest extends AggregationTest {
   public void test_nested_to_string() {
     Aggregator avgAggregator = dsl.avg(dsl.multiply(DSL.ref("integer_value", INTEGER),
         DSL.literal(ExprValueUtils.integerValue(10))));
-    assertEquals(String.format("avg(%s * %d)", DSL.ref("integer_value", INTEGER), 10),
+    assertEquals(String.format("avg(*(%s, %d))", DSL.ref("integer_value", INTEGER), 10),
         avgAggregator.toString());
   }
 }

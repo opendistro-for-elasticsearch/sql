@@ -19,19 +19,18 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.D
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.binaryOperator;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
-import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.function.BiFunction;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -58,80 +57,141 @@ public class ArithmeticFunction {
   }
 
   private static FunctionResolver add() {
-    return new FunctionResolver(
-        BuiltinFunctionName.ADD.getName(),
-        scalarFunction(BuiltinFunctionName.ADD.getName(),
-            Math::addExact,
-            Math::addExact,
-            Float::sum,
-            Double::sum)
+    return FunctionDSL.define(BuiltinFunctionName.ADD.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprShortValue(v1.shortValue() + v2.shortValue())),
+            SHORT, SHORT, SHORT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprIntegerValue(Math.addExact(v1.integerValue(),
+                    v2.integerValue()))),
+            INTEGER, INTEGER, INTEGER),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprLongValue(Math.addExact(v1.longValue(), v2.longValue()))),
+            LONG, LONG, LONG),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprFloatValue(v1.floatValue() + v2.floatValue())),
+            FLOAT, FLOAT, FLOAT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() + v2.doubleValue())),
+            DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
   private static FunctionResolver subtract() {
-    return new FunctionResolver(
-        BuiltinFunctionName.SUBTRACT.getName(),
-        scalarFunction(BuiltinFunctionName.SUBTRACT.getName(),
-            Math::subtractExact,
-            Math::subtractExact,
-            (v1, v2) -> v1 - v2,
-            (v1, v2) -> v1 - v2)
+    return FunctionDSL.define(BuiltinFunctionName.SUBTRACT.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprShortValue(v1.shortValue() - v2.shortValue())),
+            SHORT, SHORT, SHORT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprIntegerValue(Math.subtractExact(v1.integerValue(),
+                    v2.integerValue()))),
+            INTEGER, INTEGER, INTEGER),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprLongValue(Math.subtractExact(v1.longValue(), v2.longValue()))),
+            LONG, LONG, LONG),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprFloatValue(v1.floatValue() - v2.floatValue())),
+            FLOAT, FLOAT, FLOAT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() - v2.doubleValue())),
+            DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
   private static FunctionResolver multiply() {
-    return new FunctionResolver(
-        BuiltinFunctionName.MULTIPLY.getName(),
-        scalarFunction(BuiltinFunctionName.MULTIPLY.getName(),
-            Math::multiplyExact,
-            Math::multiplyExact,
-            (v1, v2) -> v1 * v2,
-            (v1, v2) -> v1 * v2)
+    return FunctionDSL.define(BuiltinFunctionName.MULTIPLY.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprShortValue(v1.shortValue() * v2.shortValue())),
+            SHORT, SHORT, SHORT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprIntegerValue(Math.multiplyExact(v1.integerValue(),
+                    v2.integerValue()))),
+            INTEGER, INTEGER, INTEGER),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprLongValue(Math.multiplyExact(v1.longValue(), v2.longValue()))),
+            LONG, LONG, LONG),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprFloatValue(v1.floatValue() * v2.floatValue())),
+            FLOAT, FLOAT, FLOAT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprDoubleValue(v1.doubleValue() * v2.doubleValue())),
+            DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
   private static FunctionResolver divide() {
-    return new FunctionResolver(
-        BuiltinFunctionName.DIVIDE.getName(),
-        scalarFunction(BuiltinFunctionName.DIVIDE.getName(),
-            (v1, v2) -> v2 == 0 ? null : v1 / v2,
-            (v1, v2) -> v2 == 0 ? null : v1 / v2,
-            (v1, v2) -> v2 == 0 ? null : v1 / v2,
-            (v1, v2) -> v2 == 0 ? null : v1 / v2)
+    return FunctionDSL.define(BuiltinFunctionName.DIVIDE.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                    new ExprShortValue(v1.shortValue() / v2.shortValue())),
+            SHORT, SHORT, SHORT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
+                    new ExprIntegerValue(v1.integerValue() / v2.integerValue())),
+            INTEGER, INTEGER, INTEGER),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
+                    new ExprLongValue(v1.longValue() / v2.longValue())),
+            LONG, LONG, LONG),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
+                    new ExprFloatValue(v1.floatValue() / v2.floatValue())),
+            FLOAT, FLOAT, FLOAT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
+                    new ExprDoubleValue(v1.doubleValue() / v2.doubleValue())),
+            DOUBLE, DOUBLE, DOUBLE)
     );
   }
 
 
   private static FunctionResolver modules() {
-    return new FunctionResolver(
-        BuiltinFunctionName.MODULES.getName(),
-        scalarFunction(BuiltinFunctionName.MODULES.getName(),
-            (v1, v2) -> v2 == 0 ? null : v1 % v2,
-            (v1, v2) -> v2 == 0 ? null : v1 % v2,
-            (v1, v2) -> v2 == 0 ? null : v1 % v2,
-            (v1, v2) -> v2 == 0 ? null : v1 % v2)
+    return FunctionDSL.define(BuiltinFunctionName.MODULES.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
+                    new ExprShortValue(v1.shortValue() % v2.shortValue())),
+            SHORT, SHORT, SHORT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.integerValue() == 0 ? ExprNullValue.of() :
+                    new ExprIntegerValue(v1.integerValue() % v2.integerValue())),
+            INTEGER, INTEGER, INTEGER),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.longValue() == 0 ? ExprNullValue.of() :
+                    new ExprLongValue(v1.longValue() % v2.longValue())),
+            LONG, LONG, LONG),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.floatValue() == 0 ? ExprNullValue.of() :
+                    new ExprFloatValue(v1.floatValue() % v2.floatValue())),
+            FLOAT, FLOAT, FLOAT),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.doubleValue() == 0 ? ExprNullValue.of() :
+                    new ExprDoubleValue(v1.doubleValue() % v2.doubleValue())),
+            DOUBLE, DOUBLE, DOUBLE)
     );
-  }
-
-  private static Map<FunctionSignature, FunctionBuilder> scalarFunction(
-      FunctionName functionName,
-      BiFunction<Integer, Integer, Integer> integerFunc,
-      BiFunction<Long, Long, Long> longFunc,
-      BiFunction<Float, Float, Float> floatFunc,
-      BiFunction<Double, Double, Double> doubleFunc) {
-    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
-    builder
-        .put(new FunctionSignature(functionName, Arrays.asList(INTEGER, INTEGER)),
-            binaryOperator(functionName, integerFunc, ExprValueUtils::getIntegerValue,
-                INTEGER));
-    builder.put(new FunctionSignature(functionName, Arrays.asList(LONG, LONG)),
-        binaryOperator(functionName, longFunc, ExprValueUtils::getLongValue, LONG));
-    builder.put(new FunctionSignature(functionName, Arrays.asList(FLOAT, FLOAT)),
-        binaryOperator(functionName, floatFunc, ExprValueUtils::getFloatValue, FLOAT));
-    builder
-        .put(new FunctionSignature(functionName, Arrays.asList(DOUBLE, DOUBLE)),
-            binaryOperator(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
-                DOUBLE));
-    return builder.build();
   }
 }

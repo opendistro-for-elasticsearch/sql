@@ -17,48 +17,40 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import com.google.common.base.Objects;
-import lombok.RequiredArgsConstructor;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 
 /**
- * Expression Number Value.
+ * Expression Short Value.
  */
-@RequiredArgsConstructor
-public abstract class AbstractExprNumberValue extends AbstractExprValue {
-  private final Number value;
+public class ExprShortValue extends AbstractExprNumberValue {
 
-  @Override
-  public boolean isNumber() {
-    return true;
+  public ExprShortValue(Number value) {
+    super(value);
   }
 
   @Override
-  public Short shortValue() {
-    return value.shortValue();
+  public Object value() {
+    return shortValue();
   }
 
   @Override
-  public Integer integerValue() {
-    return value.intValue();
+  public ExprType type() {
+    return ExprCoreType.SHORT;
   }
 
   @Override
-  public Long longValue() {
-    return value.longValue();
+  public String toString() {
+    return shortValue().toString();
   }
 
   @Override
-  public Float floatValue() {
-    return value.floatValue();
+  public int compare(ExprValue other) {
+    return Short.compare(shortValue(), other.shortValue());
   }
 
   @Override
-  public Double doubleValue() {
-    return value.doubleValue();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(value);
+  public boolean equal(ExprValue other) {
+    return shortValue().equals(other.shortValue());
   }
 }

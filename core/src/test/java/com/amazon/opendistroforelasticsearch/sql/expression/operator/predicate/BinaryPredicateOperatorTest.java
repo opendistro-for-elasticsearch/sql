@@ -30,13 +30,21 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
-
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils.matches;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -68,12 +76,19 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   private static Stream<Arguments> testEqualArguments() {
-    List<Object> arguments = Arrays.asList(1, 1L, 1F, 1D, "str", true, ImmutableList.of(1),
-        ImmutableMap.of("str", 1));
     Stream.Builder<Arguments> builder = Stream.builder();
-    for (Object argument : arguments) {
-      builder.add(Arguments.of(fromObjectValue(argument), fromObjectValue(argument)));
-    }
+    builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(1)));
+    builder.add(Arguments.of(new ExprIntegerValue(1), new ExprIntegerValue(1)));
+    builder.add(Arguments.of(new ExprLongValue(1L), new ExprLongValue(1L)));
+    builder.add(Arguments.of(new ExprFloatValue(1F), new ExprFloatValue(1F)));
+    builder.add(Arguments.of(new ExprDoubleValue(1D), new ExprDoubleValue(1D)));
+    builder.add(Arguments.of(new ExprStringValue("str"), new ExprStringValue("str")));
+    builder.add(Arguments.of(ExprBooleanValue.of(true), ExprBooleanValue.of(true)));
+    builder.add(Arguments.of(new ExprCollectionValue(ImmutableList.of(new ExprIntegerValue(1))),
+        new ExprCollectionValue(ImmutableList.of(new ExprIntegerValue(1)))));
+    builder.add(Arguments.of(ExprTupleValue.fromExprValueMap(ImmutableMap.of("str",
+        new ExprIntegerValue(1))),
+        ExprTupleValue.fromExprValueMap(ImmutableMap.of("str", new ExprIntegerValue(1)))));
     return builder.build();
   }
 
@@ -103,6 +118,9 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     for (List<Object> argPair : arguments) {
       builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(1))));
     }
+    builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(1)));
+    builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(2)));
+    builder.add(Arguments.of(new ExprShortValue(2), new ExprShortValue(1)));
     return builder.build();
   }
 
