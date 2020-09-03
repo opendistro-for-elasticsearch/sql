@@ -31,10 +31,8 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -87,16 +85,6 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   @Override
   public UnresolvedPlan visitGroupByClause(GroupByClauseContext ctx) {
     List<UnresolvedExpression> groupByItems = replaceGroupByItemIfAliasOrOrdinal();
-
-    Optional<UnresolvedExpression> invalidSelectItem =
-        findNonAggregatedSelectItemMissingInGroupBy(groupByItems);
-
-    if (invalidSelectItem.isPresent()) {
-      throw new SemanticCheckException(String.format(
-          "Expression [%s] that contains non-aggregated column is not present in group by clause",
-              invalidSelectItem.get()));
-    }
-
     return new Aggregation(
         new ArrayList<>(querySpec.getAggregators()),
         emptyList(),
@@ -104,8 +92,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private UnresolvedPlan buildImplicitAggregation() {
-    Optional<UnresolvedExpression> invalidSelectItem =
-        findNonAggregatedSelectItemMissingInGroupBy(emptyList());
+    Optional<UnresolvedExpression> invalidSelectItem = findNonAggregatedItemInSelect();
 
     if (invalidSelectItem.isPresent()) {
       // Report semantic error to avoid fall back to old engine again
@@ -134,12 +121,9 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     return groupByItems;
   }
 
-  private Optional<UnresolvedExpression> findNonAggregatedSelectItemMissingInGroupBy(
-      List<UnresolvedExpression> groupByItemList) {
-    Set<UnresolvedExpression> groupByItems = new HashSet<>(groupByItemList);
+  private Optional<UnresolvedExpression> findNonAggregatedItemInSelect() {
     return querySpec.getSelectItems().stream()
                                      .filter(this::isNonAggregatedExpression)
-                                     .filter(expr -> !groupByItems.contains(expr))
                                      .findFirst();
   }
 

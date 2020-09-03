@@ -44,6 +44,7 @@ import java.util.function.Function;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -131,6 +132,7 @@ class AstAggregationBuilderTest {
             function("ABS", qualifiedName("age"))));
   }
 
+  @Disabled("This validation is supposed to be in analyzing phase")
   @Test
   void should_report_error_for_mismatch_between_select_and_group_by_items() {
     SemanticCheckException error1 = assertThrows(SemanticCheckException.class, () ->
@@ -177,6 +179,7 @@ class AstAggregationBuilderTest {
     assertEquals("Group by ordinal [3] is out of bound of select item list", error2.getMessage());
   }
 
+  @Disabled
   @Test
   void should_report_error_for_non_integer_ordinal_in_group_by_clause() {
     SemanticCheckException error = assertThrows(SemanticCheckException.class, () ->

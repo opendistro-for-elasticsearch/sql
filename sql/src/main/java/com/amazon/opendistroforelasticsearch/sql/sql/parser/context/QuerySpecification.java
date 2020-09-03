@@ -49,15 +49,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
  *     in SELECT and HAVING clause
  *  2) GROUP BY or HAVING clause may contain aliases defined in SELECT clause
  *
- * (III) Why implement visitor rather than listener?
- *  Most visit methods only collect info and returns nothing. However, one exception is
- *  visitQuerySpec() which needs to change visit ordering to avoid visiting sub-query.
  * </pre>
  */
 @Getter
-public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
-
-  private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
+public class QuerySpecification {
 
   /**
    * Items in SELECT clause and mapping from alias to select item.
@@ -81,41 +76,50 @@ public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
    * @param query   query spec node in parse tree
    */
   public void collect(QuerySpecificationContext query) {
-    query.accept(this);
+    query.accept(new QuerySpecificationCollector());
   }
 
-  @Override
-  public Void visitQuerySpecification(QuerySpecificationContext ctx) {
-    // TODO: avoid collect sub-query
-    return super.visitQuerySpecification(ctx);
-  }
+  /*
+   * Query specification collect that visits the parse tree to collect.
+   * Most visit methods only collect info and returns nothing. However, one exception is
+   * visitQuerySpec() which needs to change visit ordering to avoid visiting sub-query.
+   */
+  private class QuerySpecificationCollector extends OpenDistroSQLParserBaseVisitor<Void> {
+    private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
-  @Override
-  public Void visitSelectElement(SelectElementContext ctx) {
-    UnresolvedExpression expr = visitAstExpression(ctx.expression());
-    selectItems.add(expr);
-
-    if (ctx.alias() != null) {
-      String alias = StringUtils.unquoteIdentifier(ctx.alias().getText());
-      selectItemsByAlias.put(alias, expr);
+    @Override
+    public Void visitQuerySpecification(QuerySpecificationContext ctx) {
+      // TODO: avoid collect sub-query
+      return super.visitQuerySpecification(ctx);
     }
-    return super.visitSelectElement(ctx);
-  }
 
-  @Override
-  public Void visitGroupByElement(GroupByElementContext ctx) {
-    groupByItems.add(visitAstExpression(ctx));
-    return super.visitGroupByElement(ctx);
-  }
+    @Override
+    public Void visitSelectElement(SelectElementContext ctx) {
+      UnresolvedExpression expr = visitAstExpression(ctx.expression());
+      selectItems.add(expr);
 
-  @Override
-  public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
-    aggregators.add((AggregateFunction) visitAstExpression(ctx));
-    return super.visitAggregateFunctionCall(ctx);
-  }
+      if (ctx.alias() != null) {
+        String alias = StringUtils.unquoteIdentifier(ctx.alias().getText());
+        selectItemsByAlias.put(alias, expr);
+      }
+      return super.visitSelectElement(ctx);
+    }
 
-  private UnresolvedExpression visitAstExpression(ParseTree tree) {
-    return expressionBuilder.visit(tree);
+    @Override
+    public Void visitGroupByElement(GroupByElementContext ctx) {
+      groupByItems.add(visitAstExpression(ctx));
+      return super.visitGroupByElement(ctx);
+    }
+
+    @Override
+    public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
+      aggregators.add((AggregateFunction) visitAstExpression(ctx));
+      return super.visitAggregateFunctionCall(ctx);
+    }
+
+    private UnresolvedExpression visitAstExpression(ParseTree tree) {
+      return expressionBuilder.visit(tree);
+    }
   }
 
 }
