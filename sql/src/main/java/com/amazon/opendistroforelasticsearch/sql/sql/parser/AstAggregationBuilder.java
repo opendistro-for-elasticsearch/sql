@@ -39,7 +39,9 @@ import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
+ * <pre>
  * AST aggregation builder that builds AST aggregation node for the following scenarios:
+ *
  *  1. Explicit GROUP BY
  *     1.1 Group by column name or scalar expression:
  *          SELECT ABS(age) FROM test GROUP BY ABS(age)
@@ -53,11 +55,14 @@ import org.antlr.v4.runtime.tree.ParseTree;
  *     2.2 Non-aggregated item exists:
  *          SELECT state, AVG(age) FROM test
  *         (exception thrown for now. may support this by different SQL mode)
+ *
  * Note the responsibility separation between this builder and analyzer in core engine:
+ *
  *  1. This builder is only responsible for AST node building and handle special SQL
  *     syntactical cases aforementioned. The validation in this builder is essentially
  *     static based on syntactic information.
  *  2. Analyzer will perform semantic check and report semantic error as needed.
+ * </pre>
  */
 @RequiredArgsConstructor
 public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {

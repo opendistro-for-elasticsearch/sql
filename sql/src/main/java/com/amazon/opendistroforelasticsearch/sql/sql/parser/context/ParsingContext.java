@@ -16,22 +16,27 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
-import java.util.Objects;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * SQL parsing context that maintains stack of query specifications for nested queries.
+ * Currently this is just a thin wrapper by a stack.
  */
 public class ParsingContext {
 
-  private QuerySpecification query;
+  /**
+   * Use stack rather than linked query specification because there is no need
+   * to look up through the stack.
+   */
+  private final Deque<QuerySpecification> contexts = new ArrayDeque<>();
 
   public void push() {
-    query = new QuerySpecification();
+    contexts.push(new QuerySpecification());
   }
 
   public QuerySpecification peek() {
-    Objects.requireNonNull(query, "Failed to pop context due to empty stack");
-    return query;
+    return contexts.peek();
   }
 
   /**
@@ -39,11 +44,7 @@ public class ParsingContext {
    * @return  query context after popup.
    */
   public QuerySpecification pop() {
-    Objects.requireNonNull(query, "Failed to pop context due to empty stack");
-
-    QuerySpecification current = query;
-    query = query.getParent();
-    return current;
+    return contexts.pop();
   }
 
 }

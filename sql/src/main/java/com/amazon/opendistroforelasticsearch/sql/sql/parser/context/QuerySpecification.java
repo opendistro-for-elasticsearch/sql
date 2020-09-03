@@ -33,40 +33,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
- * Query specification domain that collects and represents essential info for a simple query.
- * During collect, it avoids collecting sub-query info wrongly.
- * (I) What is the responsibility?
- *  This abstraction turns AST building process into two passes:
+ * Query specification domain that collects basic info for a simple query.
+ * <pre>
+ * (I) What is the impact of this new abstraction?
+ *  This abstraction and collecting process turns AST building process into two phases:
  *  1) Query specification collects info
  *  2) AST builder uses the info to build AST node
+ *
  * (II) Why is this required?
- *  There are two reasons as follows that make one pass building hard or impossible:
- *  1) Some info spread across the query: aggregation AST node build needs to know all
- *     aggregate function calls in SELECT and HAVING clause
- *  2) Some AST node needs info from other node built later: GROUP BY or HAVING clause
- *     may contain aliases defined in SELECT clause.
+ *  There are two reasons as follows that make single pass building hard or impossible:
+ *  1) Building aggregation AST node needs to know all aggregate function calls
+ *     in SELECT and HAVING clause
+ *  2) GROUP BY or HAVING clause may contain aliases defined in SELECT clause
+ *
+ * (III) Why implement visitor rather than listener?
+ *  Most visit methods only collect info and returns nothing. However, one exception is
+ *  visitQuerySpec() which needs to change visit ordering to avoid visiting sub-query.
+ * </pre>
  */
 @Getter
-@RequiredArgsConstructor
 public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
-
-  private final QuerySpecification parent;
 
   private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
   /**
-   * Items in SELECT clause.
+   * Items in SELECT clause and mapping from alias to select item.
    */
   private final List<UnresolvedExpression> selectItems = new ArrayList<>();
   private final Map<String, UnresolvedExpression> selectItemsByAlias = new HashMap<>();
 
   /**
    * Aggregate function calls that spreads in SELECT, HAVING clause. Since this is going to be
-   * pushed to aggregation operator, de-duplicate is necessary to avoid duplicate computation.
+   * pushed to aggregation operator, de-duplicate is necessary to avoid duplication.
    */
   private final Set<AggregateFunction> aggregators = new HashSet<>();
 
@@ -75,12 +76,18 @@ public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
    */
   private final List<UnresolvedExpression> groupByItems = new ArrayList<>();
 
-  public QuerySpecification() {
-    this(null);
-  }
-
+  /**
+   * Collect all query information in the parse tree excluding info in sub-query).
+   * @param query   query spec node in parse tree
+   */
   public void collect(QuerySpecificationContext query) {
     query.accept(this);
+  }
+
+  @Override
+  public Void visitQuerySpecification(QuerySpecificationContext ctx) {
+    // TODO: avoid collect sub-query
+    return super.visitQuerySpecification(ctx);
   }
 
   @Override
@@ -106,14 +113,6 @@ public class QuerySpecification extends OpenDistroSQLParserBaseVisitor<Void> {
     aggregators.add((AggregateFunction) visitAstExpression(ctx));
     return super.visitAggregateFunctionCall(ctx);
   }
-
-  /*
-  @Override
-  public Void visitQuerySpecification(QuerySpecificationContext ctx) {
-    // Avoid collecting items on deeper level once sub-queries enabled
-    return null;
-  }
-  */
 
   private UnresolvedExpression visitAstExpression(ParseTree tree) {
     return expressionBuilder.visit(tree);
