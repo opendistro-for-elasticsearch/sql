@@ -34,7 +34,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '10.21.0'
+          node-version: '10.22.0'
 
       - name: Move Workbench to Plugins Dir
         run: |
