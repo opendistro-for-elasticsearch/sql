@@ -23,18 +23,24 @@ import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Visitor that explains a physical plan to JSON format.
@@ -65,14 +71,24 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
 
   @Override
   public ExplainResponseNode visitFilter(FilterOperator node, Object context) {
-    return explain(node, context, explainNode ->
-        explainNode.setDescription(ImmutableMap.of("conditions", node.getConditions().toString())));
+    return explain(node, context, explainNode -> explainNode.setDescription(
+        ImmutableMap.of(
+            "conditions", node.getConditions().toString())));
+  }
+
+  @Override
+  public ExplainResponseNode visitSort(SortOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(
+        ImmutableMap.of(
+            "count", node.getCount(),
+            "sortList", convertPairListToMap(node.getSortList()))));
   }
 
   @Override
   public ExplainResponseNode visitTableScan(TableScanOperator node, Object context) {
-    return explain(node, context, explainNode ->
-        explainNode.setDescription(ImmutableMap.of("request", node.toString())));
+    return explain(node, context, explainNode -> explainNode.setDescription(
+        ImmutableMap.of(
+            "request", node.toString())));
   }
 
   @Override
@@ -83,16 +99,48 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
                                                         .collect(Collectors.toMap(
                                                             Aggregator::getFunctionName,
                                                             Aggregator::getArguments));
-
-      List<String> groupByList = node.getGroupByExprList()
-                                     .stream()
-                                     .map(Expression::toString)
-                                     .collect(Collectors.toList());
-
       explainNode.setDescription(ImmutableMap.of(
           "aggregators", aggList,
-          "groupBy", node.getGroupByExprList()));
+          "groupBy", node.getGroupByExprList().toString()));
     });
+  }
+
+  @Override
+  public ExplainResponseNode visitRename(RenameOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(
+        ImmutableMap.of(
+            "mapping", node.getMapping())));
+  }
+
+  @Override
+  public ExplainResponseNode visitRemove(RemoveOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(
+        ImmutableMap.of(
+            "removeList", node.getRemoveList().toString())));
+  }
+
+  @Override
+  public ExplainResponseNode visitEval(EvalOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(
+        ImmutableMap.of(
+            "expressionList", convertPairListToMap(node.getExpressionList()))));
+  }
+
+  @Override
+  public ExplainResponseNode visitDedupe(DedupeOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(
+        ImmutableMap.of(
+            "dedupeList", node.getDedupeList().toString(),
+            "allowedDuplication", node.getAllowedDuplication(),
+            "keepEmpty", node.getKeepEmpty(),
+            "consecutive", node.getConsecutive())));
+  }
+
+  @Override
+  public ExplainResponseNode visitValues(ValuesOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(
+        ImmutableMap.of(
+            "values", node.getValues())));
   }
 
   protected ExplainResponseNode explain(PhysicalPlan node, Object context,
@@ -114,6 +162,13 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
 
   private String getOperatorName(PhysicalPlan node) {
     return node.getClass().getSimpleName();
+  }
+
+  private <T, U> Map<String, String> convertPairListToMap(List<Pair<T, U>> pairs) {
+    return pairs.stream()
+                .collect(Collectors.toMap(
+                    p -> p.getLeft().toString(),
+                    p -> p.getRight().toString()));
   }
 
 }
