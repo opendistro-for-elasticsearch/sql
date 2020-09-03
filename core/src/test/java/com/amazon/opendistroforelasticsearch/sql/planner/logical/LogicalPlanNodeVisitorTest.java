@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
@@ -50,8 +51,8 @@ class LogicalPlanNodeVisitorTest {
         LogicalPlanDSL.rename(
             LogicalPlanDSL.aggregation(
                 LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
-                ImmutableList.of(aggregator),
-                ImmutableList.of(expression)),
+                ImmutableList.of(DSL.named("avg", aggregator)),
+                ImmutableList.of(DSL.named("group", expression))),
             ImmutableMap.of(ref, ref));
 
     Integer result = logicalPlan.accept(new NodesCount(), null);
@@ -70,7 +71,8 @@ class LogicalPlanNodeVisitorTest {
 
     LogicalPlan aggregation =
         LogicalPlanDSL.aggregation(
-            filter, ImmutableList.of(aggregator), ImmutableList.of(expression));
+            filter, ImmutableList.of(DSL.named("avg", aggregator)), ImmutableList.of(DSL.named(
+                "group", expression)));
     assertNull(aggregation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

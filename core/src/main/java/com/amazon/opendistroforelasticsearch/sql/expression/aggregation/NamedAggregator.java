@@ -1,11 +1,12 @@
 /*
+ *
  *    Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License").
  *    You may not use this file except in compliance with the License.
  *    A copy of the License is located at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  *    or in the "license" file accompanying this file. This file is distributed
  *    on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -14,54 +15,55 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.base.Strings;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Named expression that represents expression with name.
+ * NamedAggregator expression that represents expression with name.
  * Please see more details in associated unresolved expression operator
  * {@link com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias}.
  */
-@AllArgsConstructor
 @EqualsAndHashCode
-@RequiredArgsConstructor
 @ToString
-public class NamedExpression implements Expression {
+public class NamedAggregator extends Aggregator<AggregationState> {
 
   /**
-   * Expression name.
+   * Aggregator name.
    */
   private final String name;
 
   /**
-   * Expression that being named.
+   * Aggregator that being named.
    */
-  @Getter
-  private final Expression delegated;
+  private final Aggregator<AggregationState> delegated;
 
   /**
-   * Optional alias.
+   * NamedAggregator.
+   *
+   * @param name name
+   * @param delegated delegated
    */
-  @Getter
-  private String alias;
-
-  @Override
-  public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    return delegated.valueOf(valueEnv);
+  public NamedAggregator(
+      String name,
+      Aggregator<AggregationState> delegated) {
+    super(delegated.getFunctionName(), delegated.getArguments(), delegated.returnType);
+    this.name = name;
+    this.delegated = delegated;
   }
 
   @Override
-  public ExprType type() {
-    return delegated.type();
+  public AggregationState create() {
+    return delegated.create();
+  }
+
+  @Override
+  public AggregationState iterate(BindingTuple tuple, AggregationState state) {
+    return delegated.iterate(tuple, state);
   }
 
   /**
@@ -69,12 +71,6 @@ public class NamedExpression implements Expression {
    * @return  expression name
    */
   public String getName() {
-    return Strings.isNullOrEmpty(alias) ? name : alias;
+    return name;
   }
-
-  @Override
-  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
-    return visitor.visitNamed(this, context);
-  }
-
 }

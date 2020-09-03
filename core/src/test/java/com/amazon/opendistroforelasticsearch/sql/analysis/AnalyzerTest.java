@@ -80,36 +80,23 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void rename_stats_source() {
-    assertAnalyzeEqual(
-        LogicalPlanDSL.rename(
-            LogicalPlanDSL.aggregation(
-                LogicalPlanDSL.relation("schema"),
-                ImmutableList.of(dsl.avg(DSL.ref("integer_value", INTEGER))),
-                ImmutableList.of()),
-            ImmutableMap.of(DSL.ref("avg(integer_value)", DOUBLE), DSL.ref("ivalue", DOUBLE))),
-        AstDSL.rename(
-            AstDSL.agg(
-                AstDSL.relation("schema"),
-                AstDSL.exprList(AstDSL.aggregate("avg", field("integer_value"))),
-                null,
-                ImmutableList.of(),
-                AstDSL.defaultStatsArgs()),
-            AstDSL.map(AstDSL.aggregate("avg", field("integer_value")), field("ivalue"))));
-  }
-
-  @Test
   public void stats_source() {
     assertAnalyzeEqual(
         LogicalPlanDSL.aggregation(
             LogicalPlanDSL.relation("schema"),
-            ImmutableList.of(dsl.avg(DSL.ref("integer_value", INTEGER))),
-            ImmutableList.of(DSL.ref("string_value", STRING))),
+            ImmutableList
+                .of(DSL.named("avg(integer_value)", dsl.avg(DSL.ref("integer_value", INTEGER)))),
+            ImmutableList.of(DSL.named("string_value", DSL.ref("string_value", STRING)))),
         AstDSL.agg(
             AstDSL.relation("schema"),
-            AstDSL.exprList(AstDSL.aggregate("avg", field("integer_value"))),
+            AstDSL.exprList(
+                AstDSL.alias(
+                    "avg(integer_value)",
+                    AstDSL.aggregate("avg", field("integer_value")))
+            ),
             null,
-            ImmutableList.of(field("string_value")),
+            ImmutableList.of(
+                AstDSL.alias("string_value", field("string_value"))),
             AstDSL.defaultStatsArgs()));
   }
 
@@ -123,7 +110,9 @@ class AnalyzerTest extends AnalyzerTestBase {
                     AstDSL.rename(
                         AstDSL.agg(
                             AstDSL.relation("schema"),
-                            AstDSL.exprList(AstDSL.aggregate("avg", field("integer_value"))),
+                            AstDSL.exprList(
+                                AstDSL.alias("avg(integer_value)", AstDSL.aggregate("avg", field(
+                                    "integer_value")))),
                             Collections.emptyList(),
                             ImmutableList.of(),
                             AstDSL.defaultStatsArgs()),

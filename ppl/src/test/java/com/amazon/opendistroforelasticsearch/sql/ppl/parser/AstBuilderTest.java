@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
@@ -52,7 +53,6 @@ import org.junit.Test;
 public class AstBuilderTest {
 
   private PPLSyntaxParser parser = new PPLSyntaxParser();
-  private AstBuilder astBuilder = new AstBuilder(new AstExpressionBuilder());
 
   @Test
   public void testSearchCommand() {
@@ -159,7 +159,10 @@ public class AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate("count", field("a"))
+                alias(
+                    "count(a)",
+                    aggregate("count", field("a"))
+                )
             ),
             emptyList(),
             emptyList(),
@@ -173,10 +176,17 @@ public class AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate("count", field("a"))
+                alias(
+                    "count(a)",
+                    aggregate("count", field("a"))
+                )
             ),
             emptyList(),
-            exprList(field("b")),
+            exprList(
+                alias(
+                    "b",
+                    field("b")
+                )),
             defaultStatsArgs()
         ));
   }
@@ -184,17 +194,17 @@ public class AstBuilderTest {
   @Test
   public void testStatsCommandWithAlias() {
     assertEqual("source=t | stats count(a) as alias",
-        rename(
-            agg(
-                relation("t"),
-                exprList(
+        agg(
+            relation("t"),
+            exprList(
+                alias(
+                    "alias",
                     aggregate("count", field("a"))
-                ),
-                emptyList(),
-                emptyList(),
-                defaultStatsArgs()
+                )
             ),
-            map(aggregate("count", field("a")), field("alias"))
+            emptyList(),
+            emptyList(),
+            defaultStatsArgs()
         )
     );
   }
@@ -205,10 +215,13 @@ public class AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate(
-                    "sum",
-                    function("+", field("a"), field("b"))
-                )),
+                alias(
+                    "sum(a+b)",
+                    aggregate(
+                        "sum",
+                        function("+", field("a"), field("b"))
+                    ))
+            ),
             emptyList(),
             emptyList(),
             defaultStatsArgs()
@@ -217,12 +230,15 @@ public class AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate(
-                    "sum",
-                    function(
-                        "/",
-                        function("abs", field("a")),
-                        intLiteral(2)
+                alias(
+                    "sum(abs(a)/2)",
+                    aggregate(
+                        "sum",
+                        function(
+                            "/",
+                            function("abs", field("a")),
+                            intLiteral(2)
+                        )
                     )
                 )
             ),
@@ -312,6 +328,7 @@ public class AstBuilderTest {
   }
 
   private Node plan(String query) {
+    AstBuilder astBuilder = new AstBuilder(new AstExpressionBuilder(), query);
     return astBuilder.visit(parser.analyzeSyntax(query));
   }
 }

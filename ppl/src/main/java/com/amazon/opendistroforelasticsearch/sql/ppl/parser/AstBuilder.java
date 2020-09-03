@@ -28,6 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WhereCommandContext;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -41,6 +42,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
@@ -49,6 +51,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
@@ -57,7 +61,14 @@ import org.antlr.v4.runtime.tree.ParseTree;
  */
 @RequiredArgsConstructor
 public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
+
   private final AstExpressionBuilder expressionBuilder;
+
+  /**
+   * PPL query to get original token text. This is necessary because token.getText() returns
+   * text without whitespaces or other characters discarded by lexer.
+   */
+  private final String query;
 
   @Override
   public UnresolvedPlan visitPplStatement(PplStatementContext ctx) {
@@ -128,30 +139,29 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
     ImmutableList.Builder<UnresolvedExpression> aggListBuilder = new ImmutableList.Builder<>();
-    ImmutableList.Builder<Map> renameListBuilder = new ImmutableList.Builder<>();
     for (OpenDistroPPLParser.StatsAggTermContext aggCtx : ctx.statsAggTerm()) {
       UnresolvedExpression aggExpression = visitExpression(aggCtx.statsFunction());
-      aggListBuilder.add(aggExpression);
-      if (aggCtx.alias != null) {
-        renameListBuilder
-            .add(new Map(aggExpression, visitExpression(aggCtx.alias)));
-      }
+      String name = aggCtx.alias == null ? getTextInQuery(aggCtx) : StringUtils
+          .unquoteIdentifier(aggCtx.alias.getText());
+      Alias alias = new Alias(name, aggExpression);
+      aggListBuilder.add(alias);
     }
+
     List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
         ctx.byClause()
             .groupFieldList()
             .valueExpression()
             .stream()
-            .map(this::visitExpression)
+            .map(groupCtx -> new Alias(getTextInQuery(groupCtx), visitExpression(groupCtx)))
             .collect(Collectors.toList());
+
     Aggregation aggregation = new Aggregation(
         aggListBuilder.build(),
         Collections.emptyList(),
         groupList,
         ArgumentFactory.getArgumentList(ctx)
     );
-    List<Map> renameList = renameListBuilder.build();
-    return renameList.isEmpty() ? aggregation : new Rename(renameList, aggregation);
+    return aggregation;
   }
 
   /**
@@ -223,4 +233,12 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     return aggregate;
   }
 
+  /**
+   * Get original text in query.
+   */
+  private String getTextInQuery(ParserRuleContext ctx) {
+    Token start = ctx.getStart();
+    Token stop = ctx.getStop();
+    return query.substring(start.getStartIndex(), stop.getStopIndex() + 1);
+  }
 }

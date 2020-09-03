@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.utils;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dedupe;
@@ -57,7 +58,11 @@ public class ArgumentFactoryTest extends AstBuilderTest {
         "source=t | stats partitions=1 allnum=false delim=',' avg(a) dedup_splitvalues=true",
         agg(
             relation("t"),
-            exprList(aggregate("avg", field("a"))),
+            exprList(
+                alias(
+                    "avg(a)",
+                    aggregate("avg", field("a")))
+                ),
             emptyList(),
             emptyList(),
             exprList(
