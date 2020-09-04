@@ -99,31 +99,33 @@ public class PPLServiceTest {
 
   @Test
   public void testExecuteWithIllegalQueryShouldBeCaughtByHandler() {
-    pplService.execute(new PPLQueryRequest("search", null, null), new ResponseListener<QueryResponse>() {
-      @Override
-      public void onResponse(QueryResponse pplQueryResponse) {
-        Assert.fail();
-      }
+    pplService.execute(new PPLQueryRequest("search", null, null),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse pplQueryResponse) {
+            Assert.fail();
+          }
 
-      @Override
-      public void onFailure(Exception e) {
+          @Override
+          public void onFailure(Exception e) {
 
-      }
-    });
+          }
+        });
   }
 
   @Test
   public void test() {
-    pplService.execute(new PPLQueryRequest("search", null, null), new ResponseListener<QueryResponse>() {
-      @Override
-      public void onResponse(QueryResponse pplQueryResponse) {
-        Assert.fail();
-      }
+    pplService.execute(new PPLQueryRequest("search", null, null),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse pplQueryResponse) {
+            Assert.fail();
+          }
 
-      @Override
-      public void onFailure(Exception e) {
+          @Override
+          public void onFailure(Exception e) {
 
-      }
-    });
+          }
+        });
   }
 }

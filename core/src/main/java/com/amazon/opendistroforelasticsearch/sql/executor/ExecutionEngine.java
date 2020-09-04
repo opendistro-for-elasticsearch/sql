@@ -25,7 +25,6 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.Singular;
 
 /**
  * Execution engine that encapsulates execution details.
@@ -85,7 +84,6 @@ public interface ExecutionEngine {
   @RequiredArgsConstructor
   class ExplainResponseNode {
     private final String name;
-    @Singular
     private Map<String, Object> description;
     private List<ExplainResponseNode> children;
   }

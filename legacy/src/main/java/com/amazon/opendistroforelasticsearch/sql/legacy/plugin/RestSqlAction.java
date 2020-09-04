@@ -26,12 +26,8 @@ import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
 import com.alibaba.druid.sql.parser.ParserException;
-import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
-import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
-import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.SqlAnalysisConfig;
-import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.SqlAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.legacy.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.legacy.domain.QueryActionRequest;
@@ -249,10 +245,7 @@ public class RestSqlAction extends BaseRestHandler {
             || e instanceof SQLFeatureDisabledException
             || e instanceof IllegalArgumentException
             || e instanceof IndexNotFoundException
-            || e instanceof VerificationException
-            || e instanceof SqlAnalysisException
-            || e instanceof QueryEngineException
-            || e instanceof SyntaxCheckException;
+            || e instanceof VerificationException;
     }
 
     private void sendResponse(final RestChannel channel, final String message, final RestStatus status) {

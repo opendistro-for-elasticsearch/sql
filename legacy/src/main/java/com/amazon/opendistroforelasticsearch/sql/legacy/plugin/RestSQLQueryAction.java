@@ -28,7 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.Security
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ExplainJsonResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
@@ -132,7 +132,12 @@ public class RestSQLQueryAction extends BaseRestHandler {
     return new ResponseListener<ExplainResponse>() {
       @Override
       public void onResponse(ExplainResponse response) {
-        sendResponse(channel, OK, new ExplainJsonResponseFormatter(PRETTY).format(response));
+        sendResponse(channel, OK, new JsonResponseFormatter<ExplainResponse>(PRETTY) {
+          @Override
+          protected Object buildJsonObject(ExplainResponse response) {
+            return response;
+          }
+        }.format(response));
       }
 
       @Override

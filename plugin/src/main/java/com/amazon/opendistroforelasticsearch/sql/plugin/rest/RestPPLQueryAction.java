@@ -29,7 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.Security
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
-import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
@@ -39,7 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ExplainJsonResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
@@ -155,12 +155,17 @@ public class RestPPLQueryAction extends BaseRestHandler {
    * common methods to the interface. This is not easy to do now because SQL action handler
    * is still in legacy module.
    */
-  private ResponseListener<ExecutionEngine.ExplainResponse> createExplainResponseListener(
+  private ResponseListener<ExplainResponse> createExplainResponseListener(
       RestChannel channel) {
-    return new ResponseListener<ExecutionEngine.ExplainResponse>() {
+    return new ResponseListener<ExplainResponse>() {
       @Override
-      public void onResponse(ExecutionEngine.ExplainResponse response) {
-        sendResponse(channel, OK, new ExplainJsonResponseFormatter(PRETTY).format(response));
+      public void onResponse(ExplainResponse response) {
+        sendResponse(channel, OK, new JsonResponseFormatter<ExplainResponse>(PRETTY) {
+          @Override
+          protected Object buildJsonObject(ExplainResponse response) {
+            return response;
+          }
+        }.format(response));
       }
 
       @Override
