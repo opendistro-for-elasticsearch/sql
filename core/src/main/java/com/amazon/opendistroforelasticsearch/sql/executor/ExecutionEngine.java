@@ -87,7 +87,7 @@ public interface ExecutionEngine {
     private final String name;
     @Singular
     private Map<String, Object> description;
-    private ExplainResponseNode child;
+    private List<ExplainResponseNode> children;
   }
 
 }

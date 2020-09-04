@@ -31,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -47,11 +48,6 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   @Override
   public ExplainResponse apply(PhysicalPlan plan) {
     return new ExplainResponse(plan.accept(this, null));
-  }
-
-  @Override
-  protected ExplainResponseNode visitNode(PhysicalPlan node, Object context) {
-    return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of()));
   }
 
   @Override
@@ -139,18 +135,15 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   protected ExplainResponseNode explain(PhysicalPlan node, Object context,
                                         Consumer<ExplainResponseNode> doExplain) {
     ExplainResponseNode explainNode = new ExplainResponseNode(getOperatorName(node));
-    explainNode.setChild(explainChild(node, context));
+
+    List<ExplainResponseNode> children = new ArrayList<>();
+    for (PhysicalPlan child : node.getChild()) {
+      children.add(child.accept(this, context));
+    }
+    explainNode.setChildren(children);
+
     doExplain.accept(explainNode);
     return explainNode;
-  }
-
-  private ExplainResponseNode explainChild(PhysicalPlan node, Object context) {
-    if (node.getChild().isEmpty()) {
-      return null;
-    }
-
-    PhysicalPlan child = node.getChild().get(0);
-    return child.accept(this, context);
   }
 
   private String getOperatorName(PhysicalPlan node) {
