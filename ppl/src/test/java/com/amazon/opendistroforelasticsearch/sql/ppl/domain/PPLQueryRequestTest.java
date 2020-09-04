@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 public class PPLQueryRequestTest {
@@ -23,4 +25,12 @@ public class PPLQueryRequestTest {
     PPLQueryRequest request = new PPLQueryRequest("source=t a=1", null, null);
     request.getRequest();
   }
+
+  @Test
+  public void testExplainRequest() {
+    PPLQueryRequest request = new PPLQueryRequest(
+        "source=t a=1", null, "/_opendistro/_ppl/_explain");
+    assertTrue(request.isExplainRequest());
+  }
+
 }
