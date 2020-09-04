@@ -59,7 +59,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     }
   }
 
-  @Ignore("Analyzer has different behavior in old and new engine")
   @Test
   public void testNonResolvingIndexPattern() throws IOException {
     try {
@@ -211,7 +210,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     assertThat(result, not(containsString("male.")));
   }
 
-  @Ignore("Date comparison syntax in new engine changed?")
   @Test
   public void testDateFieldNoKeywordAlias() throws IOException {
 
