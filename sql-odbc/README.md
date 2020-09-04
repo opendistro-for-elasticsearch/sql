@@ -26,6 +26,7 @@ You can use the installers generated as part of the most recent release.
 ### Windows
 
 1. Run the `.msi` installer to install the Open Distro for Elasticsearch SQL ODBC Driver.
+2. [Test connection](./docs/user/windows_configure_dsn.md) using ODBC Data Source Administrator.
 
 To use the driver with Tableau:
 1. Copy the `.tdc` file from `<driver-install-dir>/resources` to `<windows-user-dir>/Documents/My Tableau Repository/Datasources`.
