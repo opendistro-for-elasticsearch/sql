@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.base.Strings;
 import lombok.EqualsAndHashCode;
@@ -72,5 +73,10 @@ public class NamedAggregator extends Aggregator<AggregationState> {
    */
   public String getName() {
     return name;
+  }
+
+  @Override
+  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
+    return visitor.visitNamedAggregator(this, context);
   }
 }

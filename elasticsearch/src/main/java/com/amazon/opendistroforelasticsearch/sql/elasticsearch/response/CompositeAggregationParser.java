@@ -30,6 +30,9 @@ import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 
 public class CompositeAggregationParser {
 
+  /**
+   * Todo.
+   */
   @VisibleForTesting
   public static List<Map<String, Object>> flatten(Aggregations aggregations) {
     List<Aggregation> aggregationList = aggregations.asList();
@@ -42,13 +45,16 @@ public class CompositeAggregationParser {
           builder.add(CompositeAggregationParser.parse(bucket));
         }
       } else {
-        throw new RuntimeException("unsupported aggregation type " + aggregation.getType());
+        builder.add(parseAggregation(aggregations));
       }
 
     }
     return builder.build();
   }
 
+  /**
+   * Todo.
+   */
   public static Map<String, Object> parse(InternalComposite.InternalBucket bucket) {
     ImmutableMap.Builder<String, Object> mapBuilder = new ImmutableMap.Builder<>();
     // The NodeClient return InternalComposite

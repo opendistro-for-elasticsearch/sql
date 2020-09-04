@@ -30,7 +30,6 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
-    setQuerySizeLimit(2000);
   }
 
   @Test
@@ -71,10 +70,11 @@ public class StatsCommandIT extends PPLIntegTestCase {
   public void testStatsWhere() throws IOException {
     JSONObject response =
         executeQuery(String.format(
-            "source=%s | stats sum(balance) as a by gender | where a > 13000000", TEST_INDEX_ACCOUNT));
+            "source=%s | stats sum(balance) as a by state | where a > 600000",
+            TEST_INDEX_ACCOUNT));
     verifySchema(response, schema("a", null, "long"),
-        schema("gender", null, "string"));
-    verifyDataRows(response, rows(13082527, "M"));
+        schema("state", null, "string"));
+    verifyDataRows(response, rows(643489, "AL"));
   }
 
 }

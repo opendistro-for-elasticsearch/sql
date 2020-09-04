@@ -56,14 +56,20 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.Singular;
 import org.elasticsearch.common.time.DateFormatters;
 
 /** Construct ExprValue from Elasticsearch response. */
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ElasticsearchExprValueFactory {
   /** The Mapping of Field and ExprType. */
-  private final Map<String, ExprType> typeMapping;
+  @Setter
+  private Map<String, ExprType> typeMapping;
 
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
@@ -150,13 +156,13 @@ public class ElasticsearchExprValueFactory {
 
     ExprType type = type(field);
     if (type.equals(INTEGER)) {
-      return constructInteger((Integer) value);
+      return constructInteger(((Number) value).intValue());
     } else if (type.equals(LONG)) {
-      return constructLong((Long) value);
+      return constructLong((((Number) value).longValue()));
     } else if (type.equals(FLOAT)) {
-      return constructFloat((Float) value);
+      return constructFloat((((Number) value).floatValue()));
     } else if (type.equals(DOUBLE)) {
-      return constructDouble((Double) value);
+      return constructDouble((((Number) value).doubleValue()));
     } else if (type.equals(STRING)) {
       return constructString((String) value);
     } else if (type.equals(BOOLEAN)) {

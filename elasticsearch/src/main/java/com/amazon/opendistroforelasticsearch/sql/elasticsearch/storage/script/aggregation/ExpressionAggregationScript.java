@@ -24,7 +24,6 @@ import static java.util.stream.Collectors.toMap;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -45,8 +44,9 @@ import org.elasticsearch.script.AggregationScript;
 import org.elasticsearch.search.lookup.SearchLookup;
 
 /**
- * Todo.
+ * Aggregation expression script that executed on each document.
  */
+@EqualsAndHashCode(callSuper = false)
 public class ExpressionAggregationScript extends AggregationScript {
 
   /**
@@ -66,6 +66,9 @@ public class ExpressionAggregationScript extends AggregationScript {
   @EqualsAndHashCode.Exclude
   private final Set<ReferenceExpression> fields;
 
+  /**
+   * Constructor of ExpressionAggregationScript.
+   */
   public ExpressionAggregationScript(
       Expression expression,
       SearchLookup lookup,
@@ -169,12 +172,6 @@ public class ExpressionAggregationScript extends AggregationScript {
     if (result.isNull() || result.isMissing()) {
       return ExprNullValue.of();
     }
-
-//    if (!ExprCoreType.numberTypes().contains(result.type())) {
-//      throw new IllegalStateException(String.format(
-//          "Expression has wrong result type instead of number: "
-//              + "expression [%s], result [%s]", expression, result));
-//    }
     return result;
   }
 }

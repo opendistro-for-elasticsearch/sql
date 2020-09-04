@@ -17,32 +17,66 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation;
 
-import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ExpressionScriptEngine.EXPRESSION_LANG_NAME;
-import static java.util.Collections.emptyMap;
-import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_TYPE;
-
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.dsl.BucketAggregationBuilder;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.dsl.MetricAggregationBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.ScriptQueryBuilder;
-import org.elasticsearch.script.Script;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 
 @RequiredArgsConstructor
-public class AggregationQueryBuilder {
+public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBuilder, Object> {
 
   /**
-   * Serializer that serializes expression for build DSL query.
+   * Bucket Aggregation builder.
    */
-  private final ExpressionSerializer serializer;
+  private final BucketAggregationBuilder bucketBuilder;
 
-  public QueryBuilder build(Expression expr) {
-    return buildScriptQuery((FunctionExpression) expr);
+  /**
+   * Metric Aggregation builder.
+   */
+  private final MetricAggregationBuilder metricBuilder;
+
+  public AggregationQueryBuilder(
+      ExpressionSerializer serializer) {
+    this.bucketBuilder = new BucketAggregationBuilder(serializer);
+    this.metricBuilder = new MetricAggregationBuilder(serializer);
   }
 
-  private ScriptQueryBuilder buildScriptQuery(FunctionExpression node) {
-    return new ScriptQueryBuilder(new Script(
-        DEFAULT_SCRIPT_TYPE, EXPRESSION_LANG_NAME, serializer.serialize(node), emptyMap()));
+  /**
+   * Build AggregationBuilder.
+   */
+  public List<AggregationBuilder> buildAggregationBuilder(List<NamedAggregator> namedAggregatorList,
+                                                          List<NamedExpression> groupByList) {
+    if (groupByList.isEmpty()) {
+      // no bucket
+      return ImmutableList
+          .copyOf(metricBuilder.build(namedAggregatorList).getAggregatorFactories());
+    } else {
+      return Collections.singletonList(AggregationBuilders.composite("composite_buckets",
+          bucketBuilder.build(groupByList))
+          .subAggregations(metricBuilder.build(namedAggregatorList)));
+    }
+  }
+
+  /**
+   * Build ElasticsearchExprValueFactory.
+   */
+  public Map<String, ExprType> buildTypeMapping(
+      List<NamedAggregator> namedAggregatorList,
+      List<NamedExpression> groupByList) {
+    ImmutableMap.Builder<String, ExprType> builder = new ImmutableMap.Builder<>();
+    namedAggregatorList.forEach(agg -> builder.put(agg.getName(), agg.type()));
+    groupByList.forEach(group -> builder.put(group.getName(), group.type()));
+    return builder.build();
   }
 }

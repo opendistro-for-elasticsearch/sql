@@ -44,6 +44,9 @@ public class ExpressionAggregationScriptLeafFactory implements AggregationScript
    */
   private final SearchLookup lookup;
 
+  /**
+   * Constructor of ExpressionAggregationScriptLeafFactory.
+   */
   public ExpressionAggregationScriptLeafFactory(
       Expression expression, Map<String, Object> params, SearchLookup lookup) {
     this.expression = expression;
