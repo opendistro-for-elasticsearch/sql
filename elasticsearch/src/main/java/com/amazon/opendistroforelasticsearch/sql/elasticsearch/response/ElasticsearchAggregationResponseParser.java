@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,10 +77,16 @@ public class ElasticsearchAggregationResponseParser {
     Map<String, Object> resultMap = new HashMap<>();
     if (aggregation instanceof NumericMetricsAggregation.SingleValue) {
       resultMap.put(
-          aggregation.getName(), ((NumericMetricsAggregation.SingleValue) aggregation).value());
+          aggregation.getName(),
+          handleNanValue(((NumericMetricsAggregation.SingleValue) aggregation).value()));
     } else {
       throw new IllegalStateException("unsupported aggregation type " + aggregation.getType());
     }
     return resultMap;
+  }
+
+  @VisibleForTesting
+  protected static Object handleNanValue(double value) {
+    return Double.isNaN(value) ? null : value;
   }
 }

@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
@@ -30,6 +31,7 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
+    loadIndex(Index.BANK_WITH_NULL_VALUES);
   }
 
   @Test
@@ -77,4 +79,21 @@ public class StatsCommandIT extends PPLIntegTestCase {
     verifyDataRows(response, rows(782199, "TX"));
   }
 
+  @Test
+  public void testGroupByNullValue() throws IOException {
+    JSONObject response =
+        executeQuery(String.format(
+            "source=%s | stats avg(balance) as a by age",
+            TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifySchema(response, schema("a", null, "double"),
+        schema("age", null, "integer"));
+    verifyDataRows(response,
+        rows(null, null),
+        rows(32838D, 28),
+        rows(39225D, 32),
+        rows(4180D, 33),
+        rows(48086D, 34),
+        rows(null, 36)
+    );
+  }
 }

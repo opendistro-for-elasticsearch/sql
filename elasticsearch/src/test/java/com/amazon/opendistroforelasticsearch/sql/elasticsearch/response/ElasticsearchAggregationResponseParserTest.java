@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.ImmutableMap;
@@ -37,7 +38,7 @@ class ElasticsearchAggregationResponseParserTest {
    * SELECT MAX(age) as max FROM accounts.
    */
   @Test
-  public void no_bucket_one_metric_should_pass() {
+  void no_bucket_one_metric_should_pass() {
     String response = "{\n"
         + "  \"max#max\": {\n"
         + "    \"value\": 40\n"
@@ -50,7 +51,7 @@ class ElasticsearchAggregationResponseParserTest {
    * SELECT MAX(age) as max, MIN(age) as min FROM accounts.
    */
   @Test
-  public void no_bucket_two_metric_should_pass() {
+  void no_bucket_two_metric_should_pass() {
     String response = "{\n"
         + "  \"max#max\": {\n"
         + "    \"value\": 40\n"
@@ -64,7 +65,7 @@ class ElasticsearchAggregationResponseParserTest {
   }
 
   @Test
-  public void one_bucket_one_metric_should_pass() {
+  void one_bucket_one_metric_should_pass() {
     String response = "{\n"
         + "  \"composite#composite_buckets\": {\n"
         + "    \"after_key\": {\n"
@@ -98,7 +99,7 @@ class ElasticsearchAggregationResponseParserTest {
   }
 
   @Test
-  public void two_bucket_one_metric_should_pass() {
+  void two_bucket_one_metric_should_pass() {
     String response = "{\n"
         + "  \"composite#composite_buckets\": {\n"
         + "    \"after_key\": {\n"
@@ -133,7 +134,7 @@ class ElasticsearchAggregationResponseParserTest {
   }
 
   @Test
-  public void unsupported_aggregation_should_fail() {
+  void unsupported_aggregation_should_fail() {
     String response = "{\n"
         + "  \"date_histogram#max\": {\n"
         + "    \"value\": 40\n"
@@ -142,6 +143,11 @@ class ElasticsearchAggregationResponseParserTest {
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> parse(response));
     assertEquals("unsupported aggregation type date_histogram", exception.getMessage());
+  }
+
+  @Test
+  void nan_value_should_return_null() {
+    assertNull(ElasticsearchAggregationResponseParser.handleNanValue(Double.NaN));
   }
 
   public List<Map<String, Object>> parse(String json) {
