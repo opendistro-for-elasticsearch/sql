@@ -70,11 +70,11 @@ public class StatsCommandIT extends PPLIntegTestCase {
   public void testStatsWhere() throws IOException {
     JSONObject response =
         executeQuery(String.format(
-            "source=%s | stats sum(balance) as a by state | where a > 600000",
+            "source=%s | stats sum(balance) as a by state | where a > 780000",
             TEST_INDEX_ACCOUNT));
     verifySchema(response, schema("a", null, "long"),
         schema("state", null, "string"));
-    verifyDataRows(response, rows(643489, "AL"));
+    verifyDataRows(response, rows(782199, "TX"));
   }
 
 }

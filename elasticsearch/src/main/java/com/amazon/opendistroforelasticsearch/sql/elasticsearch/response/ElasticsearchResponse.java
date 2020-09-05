@@ -78,7 +78,7 @@ public class ElasticsearchResponse implements Iterable<ExprValue> {
    * @return true for empty
    */
   public boolean isEmpty() {
-    return (hits.getHits() == null) || (hits.getHits().length == 0);
+    return (hits.getHits() == null) || (hits.getHits().length == 0) && aggregations == null;
   }
 
   public boolean isAggregationResponse() {
