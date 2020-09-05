@@ -18,37 +18,37 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
-import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.elasticsearch.search.aggregations.AggregatorFactories;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
 import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
 
 /**
  * Bucket Aggregation Builder.
  */
-public class BucketAggregationBuilder extends
-    ExpressionNodeVisitor<CompositeValuesSourceBuilder<?>, AggregatorFactories.Builder> {
+public class BucketAggregationBuilder {
 
-  private final CompositeValuesSourceMaker maker;
+  private final AggregationBuilderHelper<CompositeValuesSourceBuilder<?>> helper;
 
   public BucketAggregationBuilder(
       ExpressionSerializer serializer) {
-    this.maker = new CompositeValuesSourceMaker(serializer);
+    this.helper = new AggregationBuilderHelper<>(serializer);
   }
 
   /**
    * Build the list of CompositeValuesSourceBuilder.
    */
   public List<CompositeValuesSourceBuilder<?>> build(List<NamedExpression> expressions) {
-    ImmutableList.Builder<CompositeValuesSourceBuilder<?>> builder =
+    ImmutableList.Builder<CompositeValuesSourceBuilder<?>> resultBuilder =
         new ImmutableList.Builder<>();
     for (NamedExpression expression : expressions) {
-      builder.add(maker.build(new TermsValuesSourceBuilder(expression.getName()),
-          expression));
+      TermsValuesSourceBuilder valuesSourceBuilder =
+          new TermsValuesSourceBuilder(expression.getName()).missingBucket(true);
+      resultBuilder
+          .add(helper.build(expression.getDelegated(), valuesSourceBuilder::field,
+              valuesSourceBuilder::script));
     }
-    return builder.build();
+    return resultBuilder.build();
   }
 }

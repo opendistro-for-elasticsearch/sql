@@ -20,9 +20,18 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import lombok.experimental.UtilityClass;
 
+/**
+ * Script Utils.
+ */
+@UtilityClass
 public class ScriptUtils {
 
+  /**
+   * Text field doesn't have doc value (exception thrown even when you call "get")
+   * Limitation: assume inner field name is always "keyword".
+   */
   public static String convertTextToKeyword(String fieldName, ExprType fieldType) {
     if (fieldType == ES_TEXT_KEYWORD) {
       return fieldName + ".keyword";

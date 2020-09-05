@@ -17,66 +17,68 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.composite.InternalComposite;
+import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregation;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 
-public class CompositeAggregationParser {
+/**
+ * AggregationResponseParser.
+ */
+@UtilityClass
+public class ElasticsearchAggregationResponseParser {
 
   /**
-   * Todo.
+   * Parse Aggregations as a list of field and value map.
+   *
+   * @param aggregations aggregations
+   * @return a list of field and value map
    */
-  @VisibleForTesting
-  public static List<Map<String, Object>> flatten(Aggregations aggregations) {
+  public static List<Map<String, Object>> parse(Aggregations aggregations) {
     List<Aggregation> aggregationList = aggregations.asList();
     ImmutableList.Builder<Map<String, Object>> builder = new ImmutableList.Builder<>();
 
     for (Aggregation aggregation : aggregationList) {
-      if (aggregation instanceof InternalComposite) {
-        for (InternalComposite.InternalBucket bucket :
-            ((InternalComposite) aggregation).getBuckets()) {
-          builder.add(CompositeAggregationParser.parse(bucket));
+      if (aggregation instanceof CompositeAggregation) {
+        for (CompositeAggregation.Bucket bucket :
+            ((CompositeAggregation) aggregation).getBuckets()) {
+          builder.add(parse(bucket));
         }
       } else {
-        builder.add(parseAggregation(aggregations));
+        builder.add(parseInternal(aggregation));
       }
 
     }
     return builder.build();
   }
 
-  /**
-   * Todo.
-   */
-  public static Map<String, Object> parse(InternalComposite.InternalBucket bucket) {
-    ImmutableMap.Builder<String, Object> mapBuilder = new ImmutableMap.Builder<>();
+  private static Map<String, Object> parse(CompositeAggregation.Bucket bucket) {
+    Map<String, Object> resultMap = new HashMap<>();
     // The NodeClient return InternalComposite
 
     // build <groupKey, value> pair
-    mapBuilder.putAll(bucket.getKey());
+    resultMap.putAll(bucket.getKey());
 
     // build <aggKey, value> pair
-    mapBuilder.putAll(parseAggregation(bucket.getAggregations()));
+    for (Aggregation aggregation : bucket.getAggregations()) {
+      resultMap.putAll(parseInternal(aggregation));
+    }
 
-    return mapBuilder.build();
+    return resultMap;
   }
 
-  private static Map<String, Object> parseAggregation(Aggregations aggregations) {
+  private static Map<String, Object> parseInternal(Aggregation aggregation) {
     Map<String, Object> resultMap = new HashMap<>();
-    for (Aggregation aggregation : aggregations.asList()) {
-      if (aggregation instanceof NumericMetricsAggregation.SingleValue) {
-        resultMap.put(
-            aggregation.getName(), ((NumericMetricsAggregation.SingleValue) aggregation).value());
-      } else {
-        throw new RuntimeException("unsupported aggregation type " + aggregation.getType());
-      }
+    if (aggregation instanceof NumericMetricsAggregation.SingleValue) {
+      resultMap.put(
+          aggregation.getName(), ((NumericMetricsAggregation.SingleValue) aggregation).value());
+    } else {
+      throw new IllegalStateException("unsupported aggregation type " + aggregation.getType());
     }
     return resultMap;
   }

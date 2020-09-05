@@ -21,40 +21,43 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.sc
 import static java.util.Collections.emptyMap;
 import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_TYPE;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ScriptUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.script.Script;
-import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 
+/**
+ * Abstract Aggregation Builder.
+ *
+ * @param <T> type of the actual AggregationBuilder to be built.
+ */
 @RequiredArgsConstructor
-public class ValuesSourceAggregationMaker extends ExpressionNodeVisitor<Object,
-    ValuesSourceAggregationBuilder<?>> {
+public class AggregationBuilderHelper<T> {
 
   private final ExpressionSerializer serializer;
 
-  public ValuesSourceAggregationBuilder<?> build(ValuesSourceAggregationBuilder<?> builder,
-                                                 Expression expression) {
-    expression.accept(this, builder);
-    return builder;
-  }
-
-  @Override
-  public Object visitReference(ReferenceExpression node,
-                               ValuesSourceAggregationBuilder<?> builder) {
-    builder.field(node.getAttr());
-    return null;
-  }
-
-  @Override
-  public Object visitFunction(FunctionExpression node,
-                              ValuesSourceAggregationBuilder<?> builder) {
-    builder.script(new Script(
-        DEFAULT_SCRIPT_TYPE, EXPRESSION_LANG_NAME, serializer.serialize(node),
-        emptyMap()));
-    return null;
+  /**
+   * Build AggregationBuilder from Expression.
+   *
+   * @param expression Expression
+   * @return AggregationBuilder
+   */
+  public T build(Expression expression, Function<String, T> fieldBuilder,
+                 Function<Script, T> scriptBuilder) {
+    if (expression instanceof ReferenceExpression) {
+      String fieldName = ((ReferenceExpression) expression).getAttr();
+      return fieldBuilder.apply(ScriptUtils.convertTextToKeyword(fieldName, expression.type()));
+    } else if (expression instanceof FunctionExpression) {
+      return scriptBuilder.apply(new Script(
+          DEFAULT_SCRIPT_TYPE, EXPRESSION_LANG_NAME, serializer.serialize(expression),
+          emptyMap()));
+    } else {
+      throw new IllegalStateException(String.format("metric aggregation doesn't support "
+          + "expression %s", expression));
+    }
   }
 }

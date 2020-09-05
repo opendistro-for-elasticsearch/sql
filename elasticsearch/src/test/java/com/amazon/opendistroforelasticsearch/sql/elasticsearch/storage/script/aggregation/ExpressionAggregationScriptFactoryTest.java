@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -67,6 +68,8 @@ class ExpressionAggregationScriptFactoryTest {
     when(searchLookup.getLeafSearchLookup(leafReaderContext)).thenReturn(leafSearchLookup);
 
     AggregationScript.LeafFactory leafFactory = factory.newFactory(params, searchLookup);
+    assertFalse(leafFactory.needs_score());
+
     AggregationScript actualScript = leafFactory.newInstance(leafReaderContext);
 
     assertEquals(

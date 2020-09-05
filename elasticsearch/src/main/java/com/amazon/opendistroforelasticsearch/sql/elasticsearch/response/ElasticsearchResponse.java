@@ -78,7 +78,7 @@ public class ElasticsearchResponse implements Iterable<ExprValue> {
    * @return true for empty
    */
   public boolean isEmpty() {
-    return (hits.getHits() == null) || (hits.getHits().length == 0) && (aggregations == null);
+    return (hits.getHits() == null) || (hits.getHits().length == 0);
   }
 
   public boolean isAggregationResponse() {
@@ -92,7 +92,7 @@ public class ElasticsearchResponse implements Iterable<ExprValue> {
    */
   public Iterator<ExprValue> iterator() {
     if (isAggregationResponse()) {
-      return CompositeAggregationParser.flatten(aggregations).stream().map(entry -> {
+      return ElasticsearchAggregationResponseParser.parse(aggregations).stream().map(entry -> {
         ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
         for (Map.Entry<String, Object> value : entry.entrySet()) {
           builder.put(value.getKey(), exprValueFactory.construct(value.getKey(), value.getValue()));

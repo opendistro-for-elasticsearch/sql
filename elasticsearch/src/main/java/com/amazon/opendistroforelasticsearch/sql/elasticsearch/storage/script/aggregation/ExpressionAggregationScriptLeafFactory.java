@@ -55,7 +55,7 @@ public class ExpressionAggregationScriptLeafFactory implements AggregationScript
   }
 
   @Override
-  public AggregationScript newInstance(LeafReaderContext ctx) throws IOException {
+  public AggregationScript newInstance(LeafReaderContext ctx) {
     return new ExpressionAggregationScript(expression, lookup, ctx, params);
   }
 

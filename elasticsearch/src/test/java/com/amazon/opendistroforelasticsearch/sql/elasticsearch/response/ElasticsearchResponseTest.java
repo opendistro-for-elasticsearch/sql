@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
@@ -28,14 +29,16 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.junit.jupiter.api.BeforeEach;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,24 +56,24 @@ class ElasticsearchResponseTest {
   @Mock
   private SearchHit searchHit2;
 
+  @Mock
+  private Aggregations aggregations;
+
   private ExprTupleValue exprTupleValue1 = ExprTupleValue.fromExprValueMap(ImmutableMap.of("id1",
-                                                         new ExprIntegerValue(1)));
+      new ExprIntegerValue(1)));
 
   private ExprTupleValue exprTupleValue2 = ExprTupleValue.fromExprValueMap(ImmutableMap.of("id2",
       new ExprIntegerValue(2)));
 
-  @BeforeEach
-  void setUp() {
+  @Test
+  void isEmpty() {
     when(esResponse.getHits())
         .thenReturn(
             new SearchHits(
                 new SearchHit[] {searchHit1, searchHit2},
                 new TotalHits(2L, TotalHits.Relation.EQUAL_TO),
                 1.0F));
-  }
 
-  @Test
-  void isEmpty() {
     ElasticsearchResponse response1 = new ElasticsearchResponse(esResponse, factory);
     assertFalse(response1.isEmpty());
 
@@ -86,9 +89,54 @@ class ElasticsearchResponseTest {
 
   @Test
   void iterator() {
+    when(esResponse.getHits())
+        .thenReturn(
+            new SearchHits(
+                new SearchHit[] {searchHit1, searchHit2},
+                new TotalHits(2L, TotalHits.Relation.EQUAL_TO),
+                1.0F));
+
     when(searchHit1.getSourceAsString()).thenReturn("{\"id1\", 1}");
     when(searchHit2.getSourceAsString()).thenReturn("{\"id1\", 2}");
     when(factory.construct(any())).thenReturn(exprTupleValue1).thenReturn(exprTupleValue2);
+
+    int i = 0;
+    for (ExprValue hit : new ElasticsearchResponse(esResponse, factory)) {
+      if (i == 0) {
+        assertEquals(exprTupleValue1, hit);
+      } else if (i == 1) {
+        assertEquals(exprTupleValue2, hit);
+      } else {
+        fail("More search hits returned than expected");
+      }
+      i++;
+    }
+  }
+
+  @Test
+  void response_is_aggregation_when_aggregation_not_empty() {
+    when(esResponse.getAggregations()).thenReturn(aggregations);
+
+    ElasticsearchResponse response = new ElasticsearchResponse(esResponse, factory);
+    assertTrue(response.isAggregationResponse());
+  }
+
+  @Test
+  void response_isnot_aggregation_when_aggregation_is_empty() {
+    when(esResponse.getAggregations()).thenReturn(null);
+
+    ElasticsearchResponse response = new ElasticsearchResponse(esResponse, factory);
+    assertFalse(response.isAggregationResponse());
+  }
+
+  @Test
+  void aggregation_iterator() {
+    Mockito.mockStatic(ElasticsearchAggregationResponseParser.class);
+    when(ElasticsearchAggregationResponseParser.parse(any()))
+        .thenReturn(Arrays.asList(ImmutableMap.of("id1", 1), ImmutableMap.of("id2", 2)));
+    when(esResponse.getAggregations()).thenReturn(aggregations);
+    when(factory.construct(anyString(), any())).thenReturn(new ExprIntegerValue(1))
+        .thenReturn(new ExprIntegerValue(2));
 
     int i = 0;
     for (ExprValue hit : new ElasticsearchResponse(esResponse, factory)) {

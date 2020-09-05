@@ -25,24 +25,26 @@ import java.util.List;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.AggregatorFactories;
+import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 
 /**
- * Todo.
+ * Build the Metric Aggregation from {@link NamedAggregator}.
  */
 public class MetricAggregationBuilder
     extends ExpressionNodeVisitor<AggregationBuilder, Object> {
 
-  private final ValuesSourceAggregationMaker maker;
+  private final AggregationBuilderHelper<ValuesSourceAggregationBuilder<?>> helper;
 
   public MetricAggregationBuilder(
       ExpressionSerializer serializer) {
-    this.maker = new ValuesSourceAggregationMaker(serializer);
+    this.helper = new AggregationBuilderHelper<>(serializer);
   }
 
   /**
-   * Todo.
+   * Build AggregatorFactories.Builder from {@link NamedAggregator}.
+   *
    * @param aggregatorList aggregator list
-   * @return
+   * @return AggregatorFactories.Builder
    */
   public AggregatorFactories.Builder build(List<NamedAggregator> aggregatorList) {
     AggregatorFactories.Builder builder = new AggregatorFactories.Builder();
@@ -60,13 +62,19 @@ public class MetricAggregationBuilder
 
     switch (node.getFunctionName().getFunctionName()) {
       case "avg":
-        return maker.build(AggregationBuilders.avg(name), expression);
+        return make(AggregationBuilders.avg(name), expression);
       case "sum":
-        return maker.build(AggregationBuilders.sum(name), expression);
+        return make(AggregationBuilders.sum(name), expression);
       case "count":
-        return maker.build(AggregationBuilders.count(name), expression);
+        return make(AggregationBuilders.count(name), expression);
       default:
-        throw new RuntimeException("visitNamedAggregator exception");
+        throw new IllegalStateException(
+            String.format("unsupported aggregator %s", node.getFunctionName().getFunctionName()));
     }
+  }
+
+  private ValuesSourceAggregationBuilder<?> make(ValuesSourceAggregationBuilder<?> builder,
+                                                  Expression expression) {
+    return helper.build(expression, builder::field, builder::script);
   }
 }

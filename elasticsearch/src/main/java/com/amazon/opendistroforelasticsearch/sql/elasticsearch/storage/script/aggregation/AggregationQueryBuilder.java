@@ -33,8 +33,17 @@ import lombok.RequiredArgsConstructor;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 
+/**
+ * Build the AggregationBuilder from the list of {@link NamedAggregator}
+ * and list of {@link NamedExpression}.
+ */
 @RequiredArgsConstructor
 public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBuilder, Object> {
+
+  /**
+   * How many composite buckets should be returned.
+   */
+  public static final int AGGREGATION_BUCKET_SIZE = 1000;
 
   /**
    * Bucket Aggregation builder.
@@ -64,7 +73,8 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
     } else {
       return Collections.singletonList(AggregationBuilders.composite("composite_buckets",
           bucketBuilder.build(groupByList))
-          .subAggregations(metricBuilder.build(namedAggregatorList)));
+          .subAggregations(metricBuilder.build(namedAggregatorList))
+          .size(AGGREGATION_BUCKET_SIZE));
     }
   }
 
