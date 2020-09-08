@@ -41,4 +41,4 @@
 * Update release notes for OD 1.10.1 release([#699](https://github.com/opendistro-for-elasticsearch/sql/pull/699))
 
 ### Maintenance
-* Bumped ES and Kibana versions to v7.9.1 ([#697](https://github.com/opendistro-for-elasticsearch/sql/pull/697))
+* Bump ES and Kibana to 7.9.1 and release ODFE 1.10.1.0 ([#732](https://github.com/opendistro-for-elasticsearch/sql/pull/732))
