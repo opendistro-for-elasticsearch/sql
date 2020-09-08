@@ -149,8 +149,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
 
     List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
         ctx.byClause()
-            .groupFieldList()
-            .valueExpression()
+            .fieldList()
+            .fieldExpression()
             .stream()
             .map(groupCtx -> new Alias(getTextInQuery(groupCtx), visitExpression(groupCtx)))
             .collect(Collectors.toList());
