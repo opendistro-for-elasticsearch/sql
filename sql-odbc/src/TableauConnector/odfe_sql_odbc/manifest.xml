@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8' ?>
 
-<connector-plugin class='odfe_sql_odbc' superclass='odbc' plugin-version='1.10.0.0' name='SQL' version='18.1' min-version-tableau='2020.1'>
+<connector-plugin class='odfe_sql_odbc' superclass='odbc' plugin-version='1.10.1.0' name='SQL' version='18.1' min-version-tableau='2020.1'>
   <vendor-information>
       <company name="Open Distro for ES"/>
       <support-link url="https://github.com/opendistro-for-elasticsearch/sql"/>

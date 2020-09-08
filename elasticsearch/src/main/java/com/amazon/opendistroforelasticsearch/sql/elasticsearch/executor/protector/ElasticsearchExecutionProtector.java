@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
@@ -54,6 +55,12 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
   public PhysicalPlan visitAggregation(AggregationOperator node, Object context) {
     return new AggregationOperator(visitInput(node.getInput(), context), node.getAggregatorList(),
         node.getGroupByExprList());
+  }
+
+  @Override
+  public PhysicalPlan visitRareTopN(RareTopNOperator node, Object context) {
+    return new RareTopNOperator(visitInput(node.getInput(), context), node.getCommandType(),
+        node.getNoOfResults(), node.getFieldExprList(), node.getGroupByExprList());
   }
 
   @Override
