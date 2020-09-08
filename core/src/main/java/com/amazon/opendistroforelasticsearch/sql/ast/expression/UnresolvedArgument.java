@@ -27,7 +27,6 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-//@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 @EqualsAndHashCode(callSuper = false)
 public class UnresolvedArgument extends UnresolvedExpression {
   private final String argName;
@@ -38,7 +37,6 @@ public class UnresolvedArgument extends UnresolvedExpression {
     this.value = value;
   }
 
-  //    private final DataType valueType;
   @Override
   public List<UnresolvedExpression> getChild() {
     return Arrays.asList(value);

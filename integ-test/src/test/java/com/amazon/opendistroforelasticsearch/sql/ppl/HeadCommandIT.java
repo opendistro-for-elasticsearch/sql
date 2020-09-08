@@ -15,16 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-    import org.json.JSONObject;
-    import org.junit.jupiter.api.Test;
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 
-    import java.io.IOException;
+import java.io.IOException;
 
-    import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
-    import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
-    import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
-    import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
-    import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
 public class HeadCommandIT extends PPLIntegTestCase {
 

@@ -151,12 +151,12 @@ public class ArgumentFactory {
         ctx.sortFieldExpression().AUTO() != null
             ? new Argument("type", new Literal("auto", DataType.STRING))
             : ctx.sortFieldExpression().IP() != null
-                ? new Argument("type", new Literal("ip", DataType.STRING))
-                : ctx.sortFieldExpression().NUM() != null
-                    ? new Argument("type", new Literal("num", DataType.STRING))
-                    : ctx.sortFieldExpression().STR() != null
-                        ? new Argument("type", new Literal("str", DataType.STRING))
-                        : new Argument("type", new Literal(null, DataType.NULL))
+            ? new Argument("type", new Literal("ip", DataType.STRING))
+            : ctx.sortFieldExpression().NUM() != null
+            ? new Argument("type", new Literal("num", DataType.STRING))
+            : ctx.sortFieldExpression().STR() != null
+            ? new Argument("type", new Literal("str", DataType.STRING))
+            : new Argument("type", new Literal(null, DataType.NULL))
     );
   }
 
@@ -164,14 +164,7 @@ public class ArgumentFactory {
     return ctx instanceof IntegerLiteralContext
         ? new Literal(Integer.parseInt(ctx.getText()), DataType.INTEGER)
         : ctx instanceof BooleanLiteralContext
-            ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
-            : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
+        ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
+        : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
   }
-
-  //  private static UnresolvedExpression getArgumentExpr(ParserRuleContext ctx) {
-  //    return ctx instanceof OpenDistroPPLParser.LogicalExpressionContext
-  //            ? new Expression()
-  ////    return new UnresolvedArgument(ctx.);
-  //  }
-
 }

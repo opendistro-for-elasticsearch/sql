@@ -57,7 +57,9 @@ public class HeadOperator extends PhysicalPlan {
    * HeadOperator Constructor.
    *
    * @param input     Input {@link PhysicalPlan}
-   * @param keepLast  Controls whether the last result in the result set is retained
+   * @param keepLast  Controls whether the last result in the result set is retained. The last
+   *                  result returned is the result that caused the whileExpr to evaluate
+   *                  to false or NULL.
    * @param whileExpr The search returns results until this expression evaluates to false
    * @param number    Number of specified results
    */
