@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
@@ -29,8 +28,6 @@ public class HeadCommandIT extends PPLIntegTestCase {
 
   @Override
   public void init() throws IOException {
-    loadIndex(Index.BANK);
-    loadIndex(Index.BANK_WITH_NULL_VALUES);
     loadIndex(Index.ACCOUNT);
   }
 
@@ -54,9 +51,9 @@ public class HeadCommandIT extends PPLIntegTestCase {
   @Test
   public void testHeadWithNumber() throws IOException {
     JSONObject result =
-        executeQuery(String.format("source=%s | fields firstname, age | head 3", TEST_INDEX_BANK));
+        executeQuery(String.format("source=%s | fields firstname, age | head 3", TEST_INDEX_ACCOUNT));
     verifyDataRows(result,
-        rows("Amber JOHnny", 32),
+        rows("Amber", 32),
         rows("Hattie", 36),
         rows("Nanette", 28));
   }
@@ -65,26 +62,26 @@ public class HeadCommandIT extends PPLIntegTestCase {
   public void testHeadWithWhile() throws IOException {
     JSONObject result =
         executeQuery(String
-            .format("source=%s | fields firstname, age | sort age | head while(age < 35) 5",
-                TEST_INDEX_BANK));
+            .format("source=%s | fields firstname, age | sort age | head while(age < 21) 7",
+                TEST_INDEX_ACCOUNT));
     verifyDataRows(result,
-        rows("Nanette", 28),
-        rows("Amber JOHnny", 32),
-        rows("Dale", 33),
-        rows("Dillard", 34));
+        rows("Claudia", 20),
+        rows("Copeland", 20),
+        rows("Cornelia", 20),
+        rows("Schultz", 20));
   }
 
   @Test
   public void testHeadWithKeeplast() throws IOException {
     JSONObject result =
         executeQuery(String.format(
-            "source=%s | fields firstname, age | sort age | head keeplast=true while(age < 35) 5",
-            TEST_INDEX_BANK));
+            "source=%s | fields firstname, age | sort age | head keeplast=true while(age < 21) 7",
+            TEST_INDEX_ACCOUNT));
     verifyDataRows(result,
-        rows("Nanette", 28),
-        rows("Amber JOHnny", 32),
-        rows("Dale", 33),
-        rows("Dillard", 34),
-        rows("Hattie", 36));
+        rows("Claudia", 20),
+        rows("Copeland", 20),
+        rows("Cornelia", 20),
+        rows("Schultz", 20),
+        rows("Simpson", 21));
   }
 }

@@ -43,3 +43,5 @@ OpenDistro PPL Reference Manual
 
   - `where command <cmd/where.rst>`_
 
+  - `head command <cmd/head.rst>`_
+
