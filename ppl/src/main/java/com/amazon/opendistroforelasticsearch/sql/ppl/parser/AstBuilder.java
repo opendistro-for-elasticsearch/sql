@@ -178,8 +178,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   public UnresolvedPlan visitHeadCommand(HeadCommandContext ctx) {
     UnresolvedExpression unresolvedExpr =
         ctx.whileExpr != null ? visitExpression(ctx.logicalExpression()) : null;
-    return new Head(
-            ArgumentFactory.getArgumentList(ctx, unresolvedExpr));
+    return new Head(ArgumentFactory.getArgumentList(ctx, unresolvedExpr));
   }
 
   /**

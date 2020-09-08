@@ -15,15 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
+    import org.json.JSONObject;
+    import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
+    import java.io.IOException;
 
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+    import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+    import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+    import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
+    import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+    import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
 public class HeadCommandIT extends PPLIntegTestCase {
 
@@ -31,12 +32,60 @@ public class HeadCommandIT extends PPLIntegTestCase {
   public void init() throws IOException {
     loadIndex(Index.BANK);
     loadIndex(Index.BANK_WITH_NULL_VALUES);
+    loadIndex(Index.ACCOUNT);
   }
 
   @Test
   public void testHead() throws IOException {
     JSONObject result =
-        executeQuery(String.format("source=%s | head keeplast=true while (age < 30)  1 | fields male", TEST_INDEX_BANK));
-    verifyDataRows(result, rows(false));
+        executeQuery(String.format("source=%s | fields firstname, age | head", TEST_INDEX_ACCOUNT));
+    verifyDataRows(result,
+        rows("Amber", 32),
+        rows("Hattie", 36),
+        rows("Nanette", 28),
+        rows("Dale", 33),
+        rows("Elinor", 36),
+        rows("Virginia", 39),
+        rows("Dillard", 34),
+        rows("Mcgee", 39),
+        rows("Aurelia", 37),
+        rows("Fulton", 23));
+  }
+
+  @Test
+  public void testHeadWithNumber() throws IOException {
+    JSONObject result =
+        executeQuery(String.format("source=%s | fields firstname, age | head 3", TEST_INDEX_BANK));
+    verifyDataRows(result,
+        rows("Amber JOHnny", 32),
+        rows("Hattie", 36),
+        rows("Nanette", 28));
+  }
+
+  @Test
+  public void testHeadWithWhile() throws IOException {
+    JSONObject result =
+        executeQuery(String
+            .format("source=%s | fields firstname, age | sort age | head while(age < 35) 5",
+                TEST_INDEX_BANK));
+    verifyDataRows(result,
+        rows("Nanette", 28),
+        rows("Amber JOHnny", 32),
+        rows("Dale", 33),
+        rows("Dillard", 34));
+  }
+
+  @Test
+  public void testHeadWithKeeplast() throws IOException {
+    JSONObject result =
+        executeQuery(String.format(
+            "source=%s | fields firstname, age | sort age | head keeplast=true while(age < 35) 5",
+            TEST_INDEX_BANK));
+    verifyDataRows(result,
+        rows("Nanette", 28),
+        rows("Amber JOHnny", 32),
+        rows("Dale", 33),
+        rows("Dillard", 34),
+        rows("Hattie", 36));
   }
 }

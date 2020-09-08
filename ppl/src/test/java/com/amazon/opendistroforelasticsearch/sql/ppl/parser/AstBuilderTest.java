@@ -15,7 +15,36 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.*;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dedupe;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDedupArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultHeadArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.eval;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.head;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
@@ -248,25 +277,36 @@ public class AstBuilderTest {
             relation("t"),
             unresolvedArgList(
                 unresolvedArg("keeplast", booleanLiteral(false)),
-                unresolvedArg("whileExpr", booleanLiteral(false)),
+                unresolvedArg("whileExpr", booleanLiteral(true)),
                 unresolvedArg("number", intLiteral(3)))
         ));
   }
 
-/*  @Test
+  @Test
   public void testHeadCommandWithWhileExpr() {
 
-    assertEqual("source=t | head while (user=garcia) 5",
+    assertEqual("source=t | head while(a < 5) 5",
         head(
             relation("t"),
             unresolvedArgList(
                 unresolvedArg("keeplast", booleanLiteral(false)),
-                unresolvedArg("whileExpr", (compare("=", field("user"), stringLiteral("garcia")))),
-                    booleanLiteral(true)),
-                //unresolvedArg("whileExpr", compare("=", field("user"), stringLiteral("garcia"))),
+                unresolvedArg("whileExpr", compare("<", field("a"), intLiteral(5))),
                 unresolvedArg("number", intLiteral(5)))
         ));
-  }*/
+  }
+
+  @Test
+  public void testHeadCommandWithKeepLast() {
+
+    assertEqual("source=t | head keeplast=true while(a < 5) 5",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(true)),
+                unresolvedArg("whileExpr", compare("<", field("a"), intLiteral(5))),
+                unresolvedArg("number", intLiteral(5)))
+        ));
+  }
 
   @Test
   public void testSortCommand() {

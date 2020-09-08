@@ -18,8 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.utils;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DedupCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.HeadCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
@@ -34,8 +34,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 
@@ -107,14 +105,15 @@ public class ArgumentFactory {
    * @param ctx HeadCommandContext instance
    * @return the list of arguments fetched from the head command
    */
-  public static List<UnresolvedArgument> getArgumentList(HeadCommandContext ctx, UnresolvedExpression unresolvedExpr) {
+  public static List<UnresolvedArgument> getArgumentList(HeadCommandContext ctx,
+      UnresolvedExpression unresolvedExpr) {
     return Arrays.asList(
         ctx.keeplast != null
             ? new UnresolvedArgument("keeplast", getArgumentValue(ctx.keeplast))
             : new UnresolvedArgument("keeplast", new Literal(false, DataType.BOOLEAN)),
         ctx.whileExpr != null && unresolvedExpr != null
             ? new UnresolvedArgument("whileExpr", unresolvedExpr)
-            : new UnresolvedArgument("whileExpr", new Literal(false, DataType.BOOLEAN)),
+            : new UnresolvedArgument("whileExpr", new Literal(true, DataType.BOOLEAN)),
         ctx.number != null
             ? new UnresolvedArgument("number", getArgumentValue(ctx.number))
             : new UnresolvedArgument("number", new Literal(10, DataType.INTEGER))
@@ -152,12 +151,12 @@ public class ArgumentFactory {
         ctx.sortFieldExpression().AUTO() != null
             ? new Argument("type", new Literal("auto", DataType.STRING))
             : ctx.sortFieldExpression().IP() != null
-            ? new Argument("type", new Literal("ip", DataType.STRING))
-            : ctx.sortFieldExpression().NUM() != null
-            ? new Argument("type", new Literal("num", DataType.STRING))
-            : ctx.sortFieldExpression().STR() != null
-            ? new Argument("type", new Literal("str", DataType.STRING))
-            : new Argument("type", new Literal(null, DataType.NULL))
+                ? new Argument("type", new Literal("ip", DataType.STRING))
+                : ctx.sortFieldExpression().NUM() != null
+                    ? new Argument("type", new Literal("num", DataType.STRING))
+                    : ctx.sortFieldExpression().STR() != null
+                        ? new Argument("type", new Literal("str", DataType.STRING))
+                        : new Argument("type", new Literal(null, DataType.NULL))
     );
   }
 
@@ -165,14 +164,14 @@ public class ArgumentFactory {
     return ctx instanceof IntegerLiteralContext
         ? new Literal(Integer.parseInt(ctx.getText()), DataType.INTEGER)
         : ctx instanceof BooleanLiteralContext
-        ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
-        : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
+            ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
+            : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
   }
 
-//  private static UnresolvedExpression getArgumentExpr(ParserRuleContext ctx) {
-//    return ctx instanceof OpenDistroPPLParser.LogicalExpressionContext
-//            ? new Expression()
-////    return new UnresolvedArgument(ctx.);
-//  }
+  //  private static UnresolvedExpression getArgumentExpr(ParserRuleContext ctx) {
+  //    return ctx instanceof OpenDistroPPLParser.LogicalExpressionContext
+  //            ? new Expression()
+  ////    return new UnresolvedArgument(ctx.);
+  //  }
 
 }

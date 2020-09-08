@@ -22,6 +22,9 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -57,6 +60,22 @@ class AnalyzerTest extends AnalyzerTestBase {
         AstDSL.filter(
             AstDSL.relation("schema"),
             AstDSL.equalTo(AstDSL.field("integer_value"), AstDSL.intLiteral(1))));
+  }
+
+  @Test
+  public void head_relation() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.head(
+            LogicalPlanDSL.relation("schema"),
+            false, dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))), 10),
+        AstDSL.head(
+            AstDSL.relation("schema"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(false)),
+                unresolvedArg("whileExpr", compare("=", field("integer_value"), intLiteral(1))),
+                unresolvedArg("number", intLiteral(10)))
+        )
+    );
   }
 
   @Test

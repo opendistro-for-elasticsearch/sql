@@ -86,6 +86,9 @@ class ElasticsearchExecutionProtectorTest {
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.of(true));
+    Expression whileExpr = literal(ExprBooleanValue.of(true));
+    Boolean keepLast = false;
+    Integer headNumber = 5;
     List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
     List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
     Map<ReferenceExpression, ReferenceExpression> mappings =
@@ -104,11 +107,15 @@ class ElasticsearchExecutionProtectorTest {
                         PhysicalPlanDSL.remove(
                             PhysicalPlanDSL.rename(
                                 PhysicalPlanDSL.agg(
-                                    filter(
-                                        resourceMonitor(
-                                            new ElasticsearchIndexScan(
-                                                client, settings, indexName, exprValueFactory)),
-                                        filterExpr),
+                                    PhysicalPlanDSL.head(
+                                        filter(
+                                            resourceMonitor(
+                                                new ElasticsearchIndexScan(
+                                                    client, settings, indexName, exprValueFactory)),
+                                            filterExpr),
+                                        keepLast,
+                                        whileExpr,
+                                        headNumber),
                                     aggregators,
                                     groupByExprs),
                                 mappings),
@@ -126,10 +133,14 @@ class ElasticsearchExecutionProtectorTest {
                             PhysicalPlanDSL.remove(
                                 PhysicalPlanDSL.rename(
                                     PhysicalPlanDSL.agg(
-                                        filter(
-                                            new ElasticsearchIndexScan(
-                                                client, settings, indexName, exprValueFactory),
-                                            filterExpr),
+                                        PhysicalPlanDSL.head(
+                                            filter(
+                                                new ElasticsearchIndexScan(
+                                                    client, settings, indexName, exprValueFactory),
+                                                filterExpr),
+                                            keepLast,
+                                            whileExpr,
+                                            headNumber),
                                         aggregators,
                                         groupByExprs),
                                     mappings),

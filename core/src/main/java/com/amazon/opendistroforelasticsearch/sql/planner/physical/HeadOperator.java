@@ -84,16 +84,9 @@ public class HeadOperator extends PhysicalPlan {
     while (input.hasNext() && !foundFirstFalse) {
       ExprValue inputVal = input.next();
       ExprValue exprValue = whileExpr.valueOf(inputVal.bindingTuples());
-      /*  if (!(exprValue.isNull() || exprValue.isMissing()) && (exprValue.booleanValue())) {
-          next = inputValue;
-          return true;
-      }*/
-      boolean exprResolution = (!(exprValue.isNull() || exprValue.isMissing()) && (exprValue
-          .booleanValue()));
-      boolean underRecordLimit = recordCount < number;
 
-      if (underRecordLimit) {
-        if (!exprResolution) {
+      if (recordCount < number) {
+        if (!(!(exprValue.isNull() || exprValue.isMissing()) && (exprValue.booleanValue()))) {
           // First false is when we decide whether to keep the last value
           foundFirstFalse = true;
           if (!keepLast) {

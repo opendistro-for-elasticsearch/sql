@@ -49,13 +49,15 @@ class LogicalPlanNodeVisitorTest {
     LogicalPlan logicalPlan =
         LogicalPlanDSL.rename(
             LogicalPlanDSL.aggregation(
-                LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
+                LogicalPlanDSL.head(
+                    LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
+                    false, expression, 10),
                 ImmutableList.of(aggregator),
                 ImmutableList.of(expression)),
             ImmutableMap.of(ref, ref));
 
     Integer result = logicalPlan.accept(new NodesCount(), null);
-    assertEquals(4, result);
+    assertEquals(5, result);
   }
 
   @Test
@@ -66,6 +68,10 @@ class LogicalPlanNodeVisitorTest {
 
     LogicalPlan filter = LogicalPlanDSL.filter(relation, expression);
     assertNull(filter.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    LogicalPlan head = LogicalPlanDSL.head(relation, false, expression, 10);
+    assertNull(head.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     LogicalPlan aggregation =
@@ -107,6 +113,14 @@ class LogicalPlanNodeVisitorTest {
 
     @Override
     public Integer visitFilter(LogicalFilter plan, Object context) {
+      return 1
+          + plan.getChild().stream()
+          .map(child -> child.accept(this, context))
+          .collect(Collectors.summingInt(Integer::intValue));
+    }
+
+    @Override
+    public Integer visitHead(LogicalHead plan, Object context) {
       return 1
           + plan.getChild().stream()
           .map(child -> child.accept(this, context))

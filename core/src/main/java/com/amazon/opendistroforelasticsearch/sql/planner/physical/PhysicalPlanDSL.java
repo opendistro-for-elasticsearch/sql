@@ -80,10 +80,6 @@ public class PhysicalPlanDSL {
         input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
   }
 
-  public static HeadOperator head(PhysicalPlan input) {
-    return new HeadOperator(input);
-  }
-
   public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr,
       int number) {
     return new HeadOperator(input, keepLast, whileExpr, number);
