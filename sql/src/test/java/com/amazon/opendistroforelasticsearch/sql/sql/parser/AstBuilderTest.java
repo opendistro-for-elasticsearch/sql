@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
@@ -35,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
+import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
@@ -187,6 +190,35 @@ class AstBuilderTest {
         ),
         buildAST("SELECT name FROM test WHERE name = 'John'")
     );
+  }
+
+  @Test
+  public void can_build_group_by_clause() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(aggregate("AVG", qualifiedName("age"))),
+                emptyList(),
+                ImmutableList.of(qualifiedName("name")),
+                emptyList()),
+            alias("name", qualifiedName("name")),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT name, AVG(age) FROM test GROUP BY name"));
+  }
+
+  @Test
+  public void can_build_implicit_group_by_clause() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(aggregate("AVG", qualifiedName("age"))),
+                emptyList(),
+                emptyList(),
+                emptyList()),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT AVG(age) FROM test"));
   }
 
   private UnresolvedPlan buildAST(String query) {

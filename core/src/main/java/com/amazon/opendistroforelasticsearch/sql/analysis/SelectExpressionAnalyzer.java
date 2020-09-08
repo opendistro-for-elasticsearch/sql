@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
@@ -25,7 +26,9 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.google.common.collect.ImmutableList;
@@ -64,10 +67,24 @@ public class SelectExpressionAnalyzer
 
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
+    Expression expr = referenceIfSymbolDefined(node.getDelegated(), context);
     return Collections.singletonList(DSL.named(
         unqualifiedNameIfFieldOnly(node, context),
-        node.getDelegated().accept(expressionAnalyzer, context),
+        expr,
         node.getAlias()));
+  }
+
+  private Expression referenceIfSymbolDefined(UnresolvedExpression expr,
+                                              AnalysisContext context) {
+    try {
+      // Since resolved aggregator.toString() is used as symbol name, unresolved expression
+      // needs to be analyzed too to get toString() name for consistency
+      String symbolName = expressionAnalyzer.analyze(expr, context).toString();
+      ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, symbolName));
+      return DSL.ref(symbolName, type);
+    } catch (SemanticCheckException e) {
+      return expr.accept(expressionAnalyzer, context);
+    }
   }
 
   @Override

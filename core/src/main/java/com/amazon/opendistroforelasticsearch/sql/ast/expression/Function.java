@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class Function extends UnresolvedExpression {
 
   @Override
   public List<UnresolvedExpression> getChild() {
-    return ImmutableList.of();
+    return Collections.unmodifiableList(funcArgs);
   }
 
   @Override
