@@ -38,6 +38,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -131,23 +132,26 @@ class ElasticsearchResponseTest {
 
   @Test
   void aggregation_iterator() {
-    Mockito.mockStatic(ElasticsearchAggregationResponseParser.class);
-    when(ElasticsearchAggregationResponseParser.parse(any()))
-        .thenReturn(Arrays.asList(ImmutableMap.of("id1", 1), ImmutableMap.of("id2", 2)));
-    when(esResponse.getAggregations()).thenReturn(aggregations);
-    when(factory.construct(anyString(), any())).thenReturn(new ExprIntegerValue(1))
-        .thenReturn(new ExprIntegerValue(2));
+    try (
+        MockedStatic<ElasticsearchAggregationResponseParser> mockedStatic = Mockito
+            .mockStatic(ElasticsearchAggregationResponseParser.class)) {
+      when(ElasticsearchAggregationResponseParser.parse(any()))
+          .thenReturn(Arrays.asList(ImmutableMap.of("id1", 1), ImmutableMap.of("id2", 2)));
+      when(esResponse.getAggregations()).thenReturn(aggregations);
+      when(factory.construct(anyString(), any())).thenReturn(new ExprIntegerValue(1))
+          .thenReturn(new ExprIntegerValue(2));
 
-    int i = 0;
-    for (ExprValue hit : new ElasticsearchResponse(esResponse, factory)) {
-      if (i == 0) {
-        assertEquals(exprTupleValue1, hit);
-      } else if (i == 1) {
-        assertEquals(exprTupleValue2, hit);
-      } else {
-        fail("More search hits returned than expected");
+      int i = 0;
+      for (ExprValue hit : new ElasticsearchResponse(esResponse, factory)) {
+        if (i == 0) {
+          assertEquals(exprTupleValue1, hit);
+        } else if (i == 1) {
+          assertEquals(exprTupleValue2, hit);
+        } else {
+          fail("More search hits returned than expected");
+        }
+        i++;
       }
-      i++;
     }
   }
 }

@@ -86,7 +86,7 @@ renameClasue
     ;
 
 byClause
-    : BY groupFieldList
+    : BY fieldList
     ;
 
 sortbyClause
@@ -157,10 +157,6 @@ tableSource
 /** fields */
 fieldList
     : fieldExpression (COMMA fieldExpression)*
-    ;
-
-groupFieldList
-    : valueExpression (COMMA valueExpression)*
     ;
 
 wcFieldList
