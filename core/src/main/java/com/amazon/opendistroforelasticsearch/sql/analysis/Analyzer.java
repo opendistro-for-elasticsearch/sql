@@ -31,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
@@ -51,6 +52,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
@@ -171,6 +173,39 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     groupBys.forEach(group -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
         group.toString()), group.type()));
     return new LogicalAggregation(child, aggregators, groupBys);
+  }
+
+  /**
+   * Build {@link LogicalRareTopN}.
+   */
+  @Override
+  public LogicalPlan visitRareTopN(RareTopN node, AnalysisContext context) {
+    final LogicalPlan child = node.getChild().get(0).accept(this, context);
+
+    ImmutableList.Builder<Expression> groupbyBuilder = new ImmutableList.Builder<>();
+    for (UnresolvedExpression expr : node.getGroupExprList()) {
+      groupbyBuilder.add(expressionAnalyzer.analyze(expr, context));
+    }
+    ImmutableList<Expression> groupBys = groupbyBuilder.build();
+
+    ImmutableList.Builder<Expression> fieldsBuilder = new ImmutableList.Builder<>();
+    for (Field f : node.getFields()) {
+      fieldsBuilder.add(expressionAnalyzer.analyze(f, context));
+    }
+    ImmutableList<Expression> fields = fieldsBuilder.build();
+
+    // new context
+    context.push();
+    TypeEnvironment newEnv = context.peek();
+    groupBys.forEach(group -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
+        group.toString()), group.type()));
+    fields.forEach(field -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
+        field.toString()), field.type()));
+
+    List<Argument> options = node.getNoOfResults();
+    Integer noOfResults = (Integer) options.get(0).getValue().getValue();
+
+    return new LogicalRareTopN(child, node.getCommandType(), noOfResults, fields, groupBys);
   }
 
   /**

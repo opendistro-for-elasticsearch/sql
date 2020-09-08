@@ -22,6 +22,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
  * @param <C> context type.
  */
 public abstract class LogicalPlanNodeVisitor<R, C> {
+
   protected R visitNode(LogicalPlan plan, C context) {
     return null;
   }
@@ -65,4 +66,9 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
   public R visitValues(LogicalValues plan, C context) {
     return visitNode(plan, context);
   }
+
+  public R visitRareTopN(LogicalRareTopN plan, C context) {
+    return visitNode(plan, context);
+  }
+
 }

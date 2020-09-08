@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class PPLSyntaxParserTest {
+
   @Rule
   public ExpectedException exceptionRule = ExpectedException.none();
 
@@ -50,5 +51,41 @@ public class PPLSyntaxParserTest {
     exceptionRule.expectMessage("Failed to parse query due to offending symbol");
 
     new PPLSyntaxParser().analyzeSyntax("search a=1");
+  }
+
+  @Test
+  public void testRareCommandShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | rare a");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testRareCommandWithGroupByShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | rare a by b");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testTopCommandWithoutNShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top a");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testTopCommandWithNShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top 1 a");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testTopCommandWithNAndGroupByShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top 1 a by b");
+    assertNotEquals(null, tree);
+  }
+
+  @Test
+  public void testTopCommandWithoutNAndGroupByShouldPass() {
+    ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 | top a by b");
+    assertNotEquals(null, tree);
   }
 }

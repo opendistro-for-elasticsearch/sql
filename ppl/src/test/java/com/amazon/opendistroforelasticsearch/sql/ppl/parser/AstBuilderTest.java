@@ -36,6 +36,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
@@ -45,6 +46,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -298,6 +300,92 @@ public class AstBuilderTest {
         filter(
             relation("log.2020.04.20."),
             compare("=", field("a"), intLiteral(1))
+        ));
+  }
+
+  @Test
+  public void testRareCommand() {
+    assertEqual("source=t | rare a",
+        rareTopN(
+            relation("t"),
+            CommandType.RARE,
+            exprList(argument("noOfResults", intLiteral(10))),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testRareCommandWithGroupBy() {
+    assertEqual("source=t | rare a by b",
+        rareTopN(
+            relation("t"),
+            CommandType.RARE,
+            exprList(argument("noOfResults", intLiteral(10))),
+            exprList(field("b")),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testRareCommandWithMultipleFields() {
+    assertEqual("source=t | rare `a`, `b` by `c`",
+        rareTopN(
+            relation("t"),
+            CommandType.RARE,
+            exprList(argument("noOfResults", intLiteral(10))),
+            exprList(field("c")),
+            field("a"),
+            field("b")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithN() {
+    assertEqual("source=t | top 1 a",
+        rareTopN(
+            relation("t"),
+            CommandType.TOP,
+            exprList(argument("noOfResults", intLiteral(1))),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithoutNAndGroupBy() {
+    assertEqual("source=t | top a",
+        rareTopN(
+            relation("t"),
+            CommandType.TOP,
+            exprList(argument("noOfResults", intLiteral(10))),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithNAndGroupBy() {
+    assertEqual("source=t | top 1 a by b",
+        rareTopN(
+            relation("t"),
+            CommandType.TOP,
+            exprList(argument("noOfResults", intLiteral(1))),
+            exprList(field("b")),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithMultipleFields() {
+    assertEqual("source=t | top 1 `a`, `b` by `c`",
+        rareTopN(
+            relation("t"),
+            CommandType.TOP,
+            exprList(argument("noOfResults", intLiteral(1))),
+            exprList(field("c")),
+            field("a"),
+            field("b")
         ));
   }
 

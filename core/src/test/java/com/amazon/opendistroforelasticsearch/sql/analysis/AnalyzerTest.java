@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
@@ -48,6 +49,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTest.class})
 class AnalyzerTest extends AnalyzerTestBase {
+
   @Test
   public void filter_relation() {
     assertAnalyzeEqual(
@@ -111,6 +113,46 @@ class AnalyzerTest extends AnalyzerTestBase {
             null,
             ImmutableList.of(field("string_value")),
             AstDSL.defaultStatsArgs()));
+  }
+
+  @Test
+  public void rare_source() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.rareTopN(
+            LogicalPlanDSL.relation("schema"),
+            CommandType.RARE,
+            10,
+            ImmutableList.of(DSL.ref("string_value", STRING)),
+            DSL.ref("integer_value", INTEGER)
+        ),
+        AstDSL.rareTopN(
+            AstDSL.relation("schema"),
+            CommandType.RARE,
+            ImmutableList.of(argument("noOfResults", intLiteral(10))),
+            ImmutableList.of(field("string_value")),
+            field("integer_value")
+        )
+    );
+  }
+
+  @Test
+  public void top_source() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.rareTopN(
+            LogicalPlanDSL.relation("schema"),
+            CommandType.TOP,
+            5,
+            ImmutableList.of(DSL.ref("string_value", STRING)),
+            DSL.ref("integer_value", INTEGER)
+        ),
+        AstDSL.rareTopN(
+            AstDSL.relation("schema"),
+            CommandType.TOP,
+            ImmutableList.of(argument("noOfResults", intLiteral(5))),
+            ImmutableList.of(field("string_value")),
+            field("integer_value")
+        )
+    );
   }
 
   @Test
