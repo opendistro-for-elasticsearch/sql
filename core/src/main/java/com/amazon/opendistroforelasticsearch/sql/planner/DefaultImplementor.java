@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
@@ -36,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
@@ -52,6 +54,17 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator
  * @param <C>   context type
  */
 public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, C> {
+
+  @Override
+  public PhysicalPlan visitRareTopN(LogicalRareTopN node, C context) {
+    return new RareTopNOperator(
+        visitChild(node, context),
+        node.getCommandType(),
+        node.getNoOfResults(),
+        node.getFieldList(),
+        node.getGroupByList()
+    );
+  }
 
   @Override
   public PhysicalPlan visitDedupe(LogicalDedupe node, C context) {

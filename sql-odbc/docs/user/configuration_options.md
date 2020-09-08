@@ -26,6 +26,7 @@
 | `UseSSL` | Whether to establish the connection over SSL/TLS | boolean (`0` or `1`) | false (`0`) |
 | `HostnameVerification` | Indicate whether certificate hostname verification should be performed for an SSL/TLS connection. | boolean (`0` or `1`) | true (`1`) |
 | `ResponseTimeout` | The maximum time to wait for responses from the `Host`, in seconds. | integer | `10` |
+| `FetchSize` | The page size for all cursor requests. The default value (-1) uses server-defined page size. Set FetchSize to 0 for non-cursor behavior. | integer | `-1` |
 
 #### Logging Options
 

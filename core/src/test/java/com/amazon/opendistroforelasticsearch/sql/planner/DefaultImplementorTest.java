@@ -26,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalP
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.head;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.sort;
@@ -34,6 +35,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
@@ -68,6 +70,7 @@ class DefaultImplementorTest {
     ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.of(true));
     List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
+    ReferenceExpression rareTopNField = ref("age", INTEGER);
     List<Aggregator> aggregators =
         Arrays.asList(new AvgAggregator(groupByExprs, ExprCoreType.DOUBLE));
     Map<ReferenceExpression, ReferenceExpression> mappings =
@@ -85,19 +88,23 @@ class DefaultImplementorTest {
         project(
             LogicalPlanDSL.dedupe(
                 head(
-                    sort(
-                        eval(
-                            remove(
-                                rename(
-                                    aggregation(
-                                        filter(values(emptyList()), filterExpr),
-                                        aggregators,
-                                        groupByExprs),
-                                    mappings),
-                                exclude),
-                            newEvalField),
-                        sortCount,
-                        sortField),
+                    rareTopN(
+                        sort(
+                            eval(
+                                remove(
+                                    rename(
+                                        aggregation(
+                                            filter(values(emptyList()), filterExpr),
+                                            aggregators,
+                                            groupByExprs),
+                                        mappings),
+                                    exclude),
+                                newEvalField),
+                            sortCount,
+                            sortField),
+                        CommandType.TOP,
+                        groupByExprs,
+                        rareTopNField),
                     keeplast,
                     whileExpr,
                     number),
@@ -110,25 +117,28 @@ class DefaultImplementorTest {
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
                 PhysicalPlanDSL.head(
-                    PhysicalPlanDSL.sort(
-                        PhysicalPlanDSL.eval(
-                            PhysicalPlanDSL.remove(
-                                PhysicalPlanDSL.rename(
-                                    PhysicalPlanDSL.agg(
-                                        PhysicalPlanDSL.filter(
-                                            PhysicalPlanDSL.values(emptyList()),
-                                            filterExpr),
-                                        aggregators,
-                                        groupByExprs),
-                                    mappings),
-                                exclude),
-                            newEvalField),
-                        sortCount,
-                        sortField),
+                    PhysicalPlanDSL.rareTopN(
+                        PhysicalPlanDSL.sort(
+                            PhysicalPlanDSL.eval(
+                                PhysicalPlanDSL.remove(
+                                    PhysicalPlanDSL.rename(
+                                        PhysicalPlanDSL.agg(
+                                            PhysicalPlanDSL.filter(
+                                                PhysicalPlanDSL.values(emptyList()),
+                                                filterExpr),
+                                            aggregators,
+                                            groupByExprs),
+                                        mappings),
+                                    exclude),
+                                newEvalField),
+                            sortCount,
+                            sortField),
+                        CommandType.TOP,
+                        groupByExprs,
+                        rareTopNField),
                     keeplast,
                     whileExpr,
-                    number
-                ),
+                    number),
                 dedupeField),
             include),
         actual);

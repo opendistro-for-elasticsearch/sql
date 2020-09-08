@@ -21,6 +21,9 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -40,6 +43,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  */
 @ExtendWith(MockitoExtension.class)
 class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
+
   @Mock
   PhysicalPlan plan;
   @Mock
@@ -53,9 +57,13 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
                 PhysicalPlanDSL.rename(
                     PhysicalPlanDSL.agg(
                         PhysicalPlanDSL.head(
-                            PhysicalPlanDSL.filter(
-                                new TestScan(),
-                                dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))),
+                            PhysicalPlanDSL.rareTopN(
+                                PhysicalPlanDSL.filter(
+                                    new TestScan(),
+                                    dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))),
+                                CommandType.TOP,
+                                ImmutableList.of(),
+                                DSL.ref("response", INTEGER)),
                             false,
                             DSL.literal(false),
                             10),
@@ -72,7 +80,8 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
             + "\t\tRename->\n"
             + "\t\t\tAggregation->\n"
             + "\t\t\t\tHead->\n"
-            + "\t\t\t\t\tFilter->",
+            + "\t\t\t\t\tRareTopN->\n"
+            + "\t\t\t\t\t\tFilter->",
         printer.print(plan));
   }
 
@@ -126,6 +135,11 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     PhysicalPlan values = PhysicalPlanDSL.values(Collections.emptyList());
     assertNull(values.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
+
+    PhysicalPlan rareTopN =
+        PhysicalPlanDSL.rareTopN(plan, CommandType.TOP, 5, ImmutableList.of(), ref);
+    assertNull(rareTopN.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
   }
 
   public static class PhysicalPlanPrinter extends PhysicalPlanNodeVisitor<String, Integer> {
@@ -162,6 +176,11 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     @Override
     public String visitRemove(RemoveOperator node, Integer tabs) {
       return name(node, "Remove->", tabs);
+    }
+
+    @Override
+    public String visitRareTopN(RareTopNOperator node, Integer tabs) {
+      return name(node, "RareTopN->", tabs);
     }
 
     private String name(PhysicalPlan node, String current, int tabs) {

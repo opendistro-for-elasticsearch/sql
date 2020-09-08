@@ -29,6 +29,8 @@ DEDUP:                              'DEDUP';
 SORT:                               'SORT';
 EVAL:                               'EVAL';
 HEAD:                               'HEAD';
+TOP:                                'TOP';
+RARE:                               'RARE';
 
 // COMMAND ASSIST KEYWORDS
 AS:                                 'AS';

@@ -67,11 +67,13 @@ public class IdentifierIT extends SQLIntegTestCase {
             + "      \"type\": \"long\"\n"
             + "    }\n"
             + "  ],\n"
+            + "  \"datarows\": [\n"
+            + "    [\n"
+            + "      10,\n"
+            + "      30\n"
+            + "    ]\n"
+            + "  ],\n"
             + "  \"total\": 1,\n"
-            + "  \"datarows\": [[\n"
-            + "    10,\n"
-            + "    30\n"
-            + "  ]],\n"
             + "  \"size\": 1\n"
             + "}\n",
         executeQuery("SELECT @timestamp, `dimensions:major_version` FROM test", "jdbc")
@@ -87,12 +89,18 @@ public class IdentifierIT extends SQLIntegTestCase {
   private void queryAndAssertTheDoc(String sql) {
     assertEquals(
         "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"age\",\n"
-            + "    \"type\": \"long\"\n"
-            + "  }],\n"
+            + "  \"schema\": [\n"
+            + "    {\n"
+            + "      \"name\": \"age\",\n"
+            + "      \"type\": \"long\"\n"
+            + "    }\n"
+            + "  ],\n"
+            + "  \"datarows\": [\n"
+            + "    [\n"
+            + "      30\n"
+            + "    ]\n"
+            + "  ],\n"
             + "  \"total\": 1,\n"
-            + "  \"datarows\": [[30]],\n"
             + "  \"size\": 1\n"
             + "}\n",
         executeQuery(sql.replace("\"", "\\\""), "jdbc")
