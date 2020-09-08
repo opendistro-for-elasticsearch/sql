@@ -27,14 +27,14 @@ jobs:
         uses: actions/checkout@v1
         with:
           repository: opendistro-for-elasticsearch/kibana-oss
-          ref: 7.9.0
+          ref: 7.9.1
           token: ${{secrets.OD_ACCESS}}
           path: sql/kibana
 
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '10.21.0'
+          node-version: '10.22.0'
 
       - name: Move Workbench to Plugins Dir
         run: |

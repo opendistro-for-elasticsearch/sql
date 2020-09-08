@@ -76,12 +76,25 @@ selectElement
     ;
 
 fromClause
-    : FROM tableName
+    : FROM tableName (AS? alias)?
       (whereClause)?
+      (groupByClause)?
     ;
 
 whereClause
     : WHERE expression
+    ;
+
+groupByClause
+    : GROUP BY groupByElements
+    ;
+
+groupByElements
+    : groupByElement (COMMA groupByElement)*
+    ;
+
+groupByElement
+    : expression
     ;
 
 //    Literals
@@ -92,6 +105,7 @@ constant
     | sign? realLiteral         #signedReal
     | booleanLiteral            #boolean
     | datetimeLiteral           #datetime
+    | intervalLiteral           #interval
     | nullLiteral               #null
     // Doesn't support the following types for now
     //| BIT_STRING
@@ -142,6 +156,16 @@ timestampLiteral
     : TIMESTAMP timestamp=stringLiteral
     ;
 
+intervalLiteral
+    : INTERVAL expression intervalUnit
+    ;
+
+intervalUnit
+    : MICROSECOND | SECOND | MINUTE | HOUR | DAY | WEEK | MONTH | QUARTER | YEAR | SECOND_MICROSECOND
+    | MINUTE_MICROSECOND | MINUTE_SECOND | HOUR_MICROSECOND | HOUR_SECOND | HOUR_MINUTE | DAY_MICROSECOND
+    | DAY_SECOND | DAY_MINUTE | DAY_HOUR | YEAR_MONTH
+    ;
+
 //    Expressions, predicates
 
 // Simplified approach for expression
@@ -182,11 +206,17 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    | aggregateFunction                                             #aggregateFunctionCall
     ;
 
 scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
+    ;
+
+aggregateFunction
+    : functionName=(AVG | SUM) LR_BRACKET functionArg RR_BRACKET
+    /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
     ;
 
 mathematicalFunctionName
@@ -200,11 +230,11 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : DAYOFMONTH
+    : DAYOFMONTH | DATE | TIME | TIMESTAMP
     ;
 
 functionArgs
-    : (functionArg (COMMA functionArg)*)?
+    : functionArg (COMMA functionArg)*
     ;
 
 functionArg

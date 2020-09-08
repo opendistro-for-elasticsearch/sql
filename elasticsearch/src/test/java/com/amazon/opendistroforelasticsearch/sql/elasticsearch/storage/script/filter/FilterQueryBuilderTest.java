@@ -59,15 +59,6 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void should_return_null_if_exception() {
-    when(serializer.serialize(any())).thenThrow(IllegalStateException.class);
-
-    assertNull(
-        filterQueryBuilder.build(
-            dsl.equal(dsl.abs(ref("age", INTEGER)), literal(30))));
-  }
-
-  @Test
   void should_build_term_query_for_equality_expression() {
     assertEquals(
         "{\n"
@@ -135,7 +126,7 @@ class FilterQueryBuilderTest {
         "{\n"
             + "  \"script\" : {\n"
             + "    \"script\" : {\n"
-            + "      \"source\" : \"abs(age) = 30\",\n"
+            + "      \"source\" : \"=(abs(age), 30)\",\n"
             + "      \"lang\" : \"opendistro_expression\"\n"
             + "    },\n"
             + "    \"boost\" : 1.0\n"
@@ -157,7 +148,7 @@ class FilterQueryBuilderTest {
         "{\n"
             + "  \"script\" : {\n"
             + "    \"script\" : {\n"
-            + "      \"source\" : \"age1 = age2\",\n"
+            + "      \"source\" : \"=(age1, age2)\",\n"
             + "      \"lang\" : \"opendistro_expression\"\n"
             + "    },\n"
             + "    \"boost\" : 1.0\n"

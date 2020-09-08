@@ -1,0 +1,2 @@
+SELECT Origin, SUM(AvgTicketPrice) FROM kibana_sample_data_flights GROUP BY Origin
+SELECT Dest, AVG(FlightTimeMin) FROM kibana_sample_data_flights GROUP BY Dest

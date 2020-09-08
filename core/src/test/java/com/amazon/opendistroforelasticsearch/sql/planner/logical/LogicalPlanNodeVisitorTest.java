@@ -19,6 +19,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -37,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  */
 @ExtendWith(MockitoExtension.class)
 class LogicalPlanNodeVisitorTest {
+
   @Mock
   Expression expression;
   @Mock
@@ -49,13 +51,17 @@ class LogicalPlanNodeVisitorTest {
     LogicalPlan logicalPlan =
         LogicalPlanDSL.rename(
             LogicalPlanDSL.aggregation(
-                LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
+                LogicalPlanDSL.rareTopN(
+                    LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
+                    CommandType.TOP,
+                    ImmutableList.of(expression),
+                    expression),
                 ImmutableList.of(aggregator),
                 ImmutableList.of(expression)),
             ImmutableMap.of(ref, ref));
 
     Integer result = logicalPlan.accept(new NodesCount(), null);
-    assertEquals(4, result);
+    assertEquals(5, result);
   }
 
   @Test
@@ -97,9 +103,15 @@ class LogicalPlanNodeVisitorTest {
     LogicalPlan dedup = LogicalPlanDSL.dedupe(relation, 1, false, false, expression);
     assertNull(dedup.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
+
+    LogicalPlan rareTopN = LogicalPlanDSL.rareTopN(
+        relation, CommandType.TOP, ImmutableList.of(expression), expression);
+    assertNull(rareTopN.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
   }
 
   private static class NodesCount extends LogicalPlanNodeVisitor<Integer, Object> {
+
     @Override
     public Integer visitRelation(LogicalRelation plan, Object context) {
       return 1;
@@ -123,6 +135,14 @@ class LogicalPlanNodeVisitorTest {
 
     @Override
     public Integer visitRename(LogicalRename plan, Object context) {
+      return 1
+          + plan.getChild().stream()
+          .map(child -> child.accept(this, context))
+          .collect(Collectors.summingInt(Integer::intValue));
+    }
+
+    @Override
+    public Integer visitRareTopN(LogicalRareTopN plan, Object context) {
       return 1
           + plan.getChild().stream()
           .map(child -> child.accept(this, context))

@@ -33,10 +33,6 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class ExprTimeValue extends AbstractExprValue {
-  /**
-   * todo. only support UTC now.
-   */
-  private static final ZoneId ZONE = ZoneId.of("UTC");
   private final LocalTime time;
 
   /**
@@ -53,7 +49,7 @@ public class ExprTimeValue extends AbstractExprValue {
 
   @Override
   public String value() {
-    return DateTimeFormatter.ISO_LOCAL_TIME.withZone(ZONE).format(time);
+    return DateTimeFormatter.ISO_LOCAL_TIME.format(time);
   }
 
   @Override

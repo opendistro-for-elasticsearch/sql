@@ -29,7 +29,7 @@ pplStatement
 /** commands */
 commands
     : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand
-    ;
+    | topCommand | rareCommand;
 
 searchCommand
     : (SEARCH)? fromClause                                          #searchFrom
@@ -73,6 +73,19 @@ sortCommand
 
 evalCommand
     : EVAL evalClause (COMMA evalClause)*
+    ;
+
+topCommand
+    : TOP
+    (number=integerLiteral)?
+    fieldList
+    (byClause)?
+    ;
+
+rareCommand
+    : RARE
+    fieldList
+    (byClause)?
     ;
 
 /** clauses */
@@ -213,7 +226,7 @@ trigonometricFunctionName
     ;
 
 dateAndTimeFunctionBase
-    :
+    : DATE | TIME | TIMESTAMP
     ;
 
 textFunctionBase
@@ -231,10 +244,15 @@ binaryOperator
 
 /** literals and values*/
 literalValue
-    : stringLiteral
+    : intervalLiteral
+    | stringLiteral
     | integerLiteral
     | decimalLiteral
     | booleanLiteral
+    ;
+
+intervalLiteral
+    : INTERVAL valueExpression intervalUnit
     ;
 
 stringLiteral
@@ -252,6 +270,13 @@ decimalLiteral
 booleanLiteral
     : TRUE | FALSE
     ;
+
+intervalUnit
+    : MICROSECOND | SECOND | MINUTE | HOUR | DAY | WEEK | MONTH | QUARTER | YEAR | SECOND_MICROSECOND
+    | MINUTE_MICROSECOND | MINUTE_SECOND | HOUR_MICROSECOND | HOUR_SECOND | HOUR_MINUTE | DAY_MICROSECOND
+    | DAY_SECOND | DAY_MINUTE | DAY_HOUR | YEAR_MONTH
+    ;
+
 
 valueList
     : LT_PRTHS literalValue (COMMA literalValue)* RT_PRTHS

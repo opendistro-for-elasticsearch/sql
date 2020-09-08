@@ -25,7 +25,11 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TE
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnName;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnPattern;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyColumn;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
 public class FieldsCommandIT extends PPLIntegTestCase {
 
@@ -64,20 +68,36 @@ public class FieldsCommandIT extends PPLIntegTestCase {
                     String.format("source=%s | fields birthdate", TEST_INDEX_BANK));
     assertEquals(
         "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"birthdate\",\n"
-            + "    \"type\": \"timestamp\"\n"
-            + "  }],\n"
-            + "  \"total\": 7,\n"
-            + "  \"datarows\": [\n"
-            + "    [\"2017-10-23 00:00:00\"],\n"
-            + "    [\"2017-11-20 00:00:00\"],\n"
-            + "    [\"2018-06-23 00:00:00\"],\n"
-            + "    [\"2018-11-13 23:33:20\"],\n"
-            + "    [\"2018-06-27 00:00:00\"],\n"
-            + "    [\"2018-08-19 00:00:00\"],\n"
-            + "    [\"2018-08-11 00:00:00\"]\n"
+            + "  \"schema\": [\n"
+            + "    {\n"
+            + "      \"name\": \"birthdate\",\n"
+            + "      \"type\": \"timestamp\"\n"
+            + "    }\n"
             + "  ],\n"
+            + "  \"datarows\": [\n"
+            + "    [\n"
+            + "      \"2017-10-23 00:00:00\"\n"
+            + "    ],\n"
+            + "    [\n"
+            + "      \"2017-11-20 00:00:00\"\n"
+            + "    ],\n"
+            + "    [\n"
+            + "      \"2018-06-23 00:00:00\"\n"
+            + "    ],\n"
+            + "    [\n"
+            + "      \"2018-11-13 23:33:20\"\n"
+            + "    ],\n"
+            + "    [\n"
+            + "      \"2018-06-27 00:00:00\"\n"
+            + "    ],\n"
+            + "    [\n"
+            + "      \"2018-08-19 00:00:00\"\n"
+            + "    ],\n"
+            + "    [\n"
+            + "      \"2018-08-11 00:00:00\"\n"
+            + "    ]\n"
+            + "  ],\n"
+            + "  \"total\": 7,\n"
             + "  \"size\": 7\n"
             + "}\n",
         result);

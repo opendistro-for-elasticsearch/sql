@@ -28,6 +28,8 @@ STATS:                              'STATS';
 DEDUP:                              'DEDUP';
 SORT:                               'SORT';
 EVAL:                               'EVAL';
+TOP:                                'TOP';
+RARE:                               'RARE';
 
 // COMMAND ASSIST KEYWORDS
 AS:                                 'AS';
@@ -66,6 +68,30 @@ XOR:                                'XOR';
 TRUE:                               'TRUE';
 FALSE:                              'FALSE';
 LIKE:                               'LIKE';
+
+// DATETIME, INTERVAL AND UNIT KEYWORDS
+DATETIME:                           'DATETIME';
+INTERVAL:                           'INTERVAL';
+MICROSECOND:                        'MICROSECOND';
+SECOND:                             'SECOND';
+MINUTE:                             'MINUTE';
+HOUR:                               'HOUR';
+DAY:                                'DAY';
+WEEK:                               'WEEK';
+MONTH:                              'MONTH';
+QUARTER:                            'QUARTER';
+YEAR:                               'YEAR';
+SECOND_MICROSECOND:                 'SECOND_MICROSECOND';
+MINUTE_MICROSECOND:                 'MINUTE_MICROSECOND';
+MINUTE_SECOND:                      'MINUTE_SECOND';
+HOUR_MICROSECOND:                   'HOUR_MICROSECOND';
+HOUR_SECOND:                        'HOUR_SECOND';
+HOUR_MINUTE:                        'HOUR_MINUTE';
+DAY_MICROSECOND:                    'DAY_MICROSECOND';
+DAY_SECOND:                         'DAY_SECOND';
+DAY_MINUTE:                         'DAY_MINUTE';
+DAY_HOUR:                           'DAY_HOUR';
+YEAR_MONTH:                         'YEAR_MONTH';
 
 // DATASET TYPES
 DATAMODEL:                          'DATAMODEL';
@@ -167,6 +193,11 @@ DEGREES:                            'DEGREES';
 RADIANS:                            'RADIANS';
 SIN:                                'SIN';
 TAN:                                'TAN';
+
+// DATE AND TIME FUNCTIONS
+DATE:                               'DATE';
+TIME:                               'TIME';
+TIMESTAMP:                          'TIMESTAMP';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;

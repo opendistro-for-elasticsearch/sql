@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -26,6 +25,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -40,6 +41,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
@@ -59,8 +62,12 @@ public class AstDSL {
     return new Filter(expression).attach(input);
   }
 
-  public static UnresolvedPlan relation(String tableName) {
+  public UnresolvedPlan relation(String tableName) {
     return new Relation(qualifiedName(tableName));
+  }
+
+  public UnresolvedPlan relation(String tableName, String alias) {
+    return new Relation(qualifiedName(tableName), alias);
   }
 
   public static UnresolvedPlan project(UnresolvedPlan input, UnresolvedExpression... projectList) {
@@ -146,6 +153,10 @@ public class AstDSL {
 
   public static Literal booleanLiteral(Boolean value) {
     return literal(value, DataType.BOOLEAN);
+  }
+
+  public static Interval intervalLiteral(Object value, DataType type, String unit) {
+    return new Interval(literal(value, type), unit);
   }
 
   public static Literal nullLiteral() {
@@ -286,5 +297,15 @@ public class AstDSL {
 
   public static Dedupe dedupe(UnresolvedPlan input, List<Argument> options, Field... fields) {
     return new Dedupe(input, options, Arrays.asList(fields));
+  }
+
+  public static List<Argument> defaultTopArgs() {
+    return exprList(argument("noOfResults", intLiteral(10)));
+  }
+
+  public static RareTopN rareTopN(UnresolvedPlan input, CommandType commandType,
+      List<Argument> noOfResults, List<UnresolvedExpression> groupList, Field... fields) {
+    return new RareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupList)
+        .attach(input);
   }
 }

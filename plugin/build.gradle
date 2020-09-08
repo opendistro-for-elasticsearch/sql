@@ -88,7 +88,7 @@ validateNebulaPom.enabled = false
 // This is afterEvaluate because the bundlePlugin ZIP task is updated afterEvaluate and changes the ZIP name to match the plugin name
 afterEvaluate {
     ospackage {
-        packageName = "${name}"
+        packageName = "${rootProject.name}"
         release = isSnapshot ? "0.1" : '1'
         version = "${project.version}" - "-SNAPSHOT"
 

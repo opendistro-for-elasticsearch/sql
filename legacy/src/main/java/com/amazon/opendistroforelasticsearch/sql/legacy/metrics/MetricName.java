@@ -15,8 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.legacy.metrics;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public enum MetricName {
@@ -29,7 +31,12 @@ public enum MetricName {
     DEFAULT_CURSOR_REQUEST_TOTAL("default_cursor_request_total"),
     DEFAULT_CURSOR_REQUEST_COUNT_TOTAL("default_cursor_request_count"),
     CIRCUIT_BREAKER("circuit_breaker"),
-    DEFAULT("default");
+    DEFAULT("default"),
+
+    PPL_REQ_TOTAL("ppl_request_total"),
+    PPL_REQ_COUNT_TOTAL("ppl_request_count"),
+    PPL_FAILED_REQ_COUNT_SYS("ppl_failed_request_count_syserr"),
+    PPL_FAILED_REQ_COUNT_CUS("ppl_failed_request_count_cuserr");
 
     private String name;
 
@@ -45,10 +52,18 @@ public enum MetricName {
         return Arrays.stream(MetricName.values()).map(v -> v.name).collect(Collectors.toList());
     }
 
+
+    private static Set<MetricName> NUMERICAL_METRIC = new ImmutableSet.Builder<MetricName>()
+        .add(PPL_REQ_TOTAL)
+        .add(PPL_REQ_COUNT_TOTAL)
+        .add(PPL_FAILED_REQ_COUNT_SYS)
+        .add(PPL_FAILED_REQ_COUNT_CUS)
+        .build();
+
     public boolean isNumerical() {
         return this == REQ_TOTAL || this == REQ_COUNT_TOTAL || this == FAILED_REQ_COUNT_SYS
-                || this == FAILED_REQ_COUNT_CUS || this == FAILED_REQ_COUNT_CB || this == DEFAULT
-                || this == DEFAULT_CURSOR_REQUEST_TOTAL || this == DEFAULT_CURSOR_REQUEST_COUNT_TOTAL;
+            || this == FAILED_REQ_COUNT_CUS || this == FAILED_REQ_COUNT_CB || this == DEFAULT
+            || this == DEFAULT_CURSOR_REQUEST_TOTAL || this == DEFAULT_CURSOR_REQUEST_COUNT_TOTAL
+            || NUMERICAL_METRIC.contains(this);
     }
-
 }

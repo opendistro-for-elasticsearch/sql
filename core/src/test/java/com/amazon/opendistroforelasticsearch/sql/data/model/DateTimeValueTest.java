@@ -25,10 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 public class DateTimeValueTest {
@@ -41,6 +42,8 @@ public class DateTimeValueTest {
     assertEquals(LocalTime.parse("01:01:01"), timeValue.timeValue());
     assertEquals("01:01:01", timeValue.value());
     assertEquals("TIME '01:01:01'", timeValue.toString());
+    assertThrows(ExpressionEvaluationException.class, () -> integerValue(1).timeValue(),
+        "invalid to get timeValue from value of type INTEGER");
   }
 
   @Test
@@ -48,22 +51,44 @@ public class DateTimeValueTest {
     ExprValue timestampValue = new ExprTimestampValue("2020-07-07 01:01:01");
 
     assertEquals(TIMESTAMP, timestampValue.type());
-    assertEquals(Instant.ofEpochSecond(1594083661), timestampValue.timestampValue());
+    assertEquals(ZonedDateTime.of(LocalDateTime.parse("2020-07-07T01:01:01"),
+        ZoneId.of("UTC")).toInstant(), timestampValue.timestampValue());
     assertEquals("2020-07-07 01:01:01", timestampValue.value());
     assertEquals("TIMESTAMP '2020-07-07 01:01:01'", timestampValue.toString());
+    assertEquals(LocalDate.parse("2020-07-07"), timestampValue.dateValue());
+    assertEquals(LocalTime.parse("01:01:01"), timestampValue.timeValue());
+    assertEquals(LocalDateTime.parse("2020-07-07T01:01:01"), timestampValue.datetimeValue());
+    assertThrows(ExpressionEvaluationException.class, () -> integerValue(1).timestampValue(),
+        "invalid to get timestampValue from value of type INTEGER");
   }
 
   @Test
   public void dateValueInterfaceTest() {
     ExprValue dateValue = new ExprDateValue("2012-07-07");
 
-    assertEquals(LocalDate.parse("2012-07-07").atStartOfDay(ZoneId.of("UTC")),
-        dateValue.dateValue());
+    assertEquals(LocalDate.parse("2012-07-07"), dateValue.dateValue());
+    assertEquals(LocalTime.parse("00:00:00"), dateValue.timeValue());
+    assertEquals(LocalDateTime.parse("2012-07-07T00:00:00"), dateValue.datetimeValue());
+    assertEquals(ZonedDateTime.of(LocalDateTime.parse("2012-07-07T00:00:00"),
+        ZoneId.systemDefault()).toInstant(), dateValue.timestampValue());
     ExpressionEvaluationException exception =
-        assertThrows(ExpressionEvaluationException.class,
-            () -> ExprValueUtils.getDateValue(integerValue(1)));
+        assertThrows(ExpressionEvaluationException.class, () -> integerValue(1).dateValue());
     assertEquals("invalid to get dateValue from value of type INTEGER",
         exception.getMessage());
+  }
+
+  @Test
+  public void datetimeValueInterfaceTest() {
+    ExprValue datetimeValue = new ExprDatetimeValue("2020-08-17 19:44:00");
+
+    assertEquals(LocalDateTime.parse("2020-08-17T19:44:00"), datetimeValue.datetimeValue());
+    assertEquals(LocalDate.parse("2020-08-17"), datetimeValue.dateValue());
+    assertEquals(LocalTime.parse("19:44:00"), datetimeValue.timeValue());
+    assertEquals(ZonedDateTime.of(LocalDateTime.parse("2020-08-17T19:44:00"),
+        ZoneId.of("UTC")).toInstant(), datetimeValue.timestampValue());
+    assertEquals("DATETIME '2020-08-17 19:44:00'", datetimeValue.toString());
+    assertThrows(ExpressionEvaluationException.class, () -> integerValue(1).datetimeValue(),
+        "invalid to get datetimeValue from value of type INTEGER");
   }
 
   @Test
@@ -89,6 +114,16 @@ public class DateTimeValueTest {
             () -> new ExprTimestampValue("2020-07-07T01:01:01Z"));
     assertEquals(
         "timestamp:2020-07-07T01:01:01Z in unsupported format, please use yyyy-MM-dd HH:mm:ss",
+        exception.getMessage());
+  }
+
+  @Test
+  public void datetimeInUnsupportedFormat() {
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class,
+            () -> new ExprDatetimeValue("2020-07-07T01:01:01Z"));
+    assertEquals(
+        "datetime:2020-07-07T01:01:01Z in unsupported format, please use yyyy-MM-dd HH:mm:ss",
         exception.getMessage());
   }
 }

@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -39,6 +40,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
@@ -177,6 +179,10 @@ public abstract class AbstractNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
+  public T visitRareTopN(RareTopN node, C context) {
+    return visitChildren(node, context);
+  }
+
   public T visitValues(Values node, C context) {
     return visitChildren(node, context);
   }
@@ -186,6 +192,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitAllFields(AllFields node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitInterval(Interval node, C context) {
     return visitChildren(node, context);
   }
 }

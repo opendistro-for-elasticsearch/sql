@@ -18,13 +18,17 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.google.common.collect.ImmutableList;
@@ -63,9 +67,24 @@ public class SelectExpressionAnalyzer
 
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
-    return Collections.singletonList(DSL.named(node.getName(),
-        node.getDelegated().accept(expressionAnalyzer, context),
+    Expression expr = referenceIfSymbolDefined(node.getDelegated(), context);
+    return Collections.singletonList(DSL.named(
+        unqualifiedNameIfFieldOnly(node, context),
+        expr,
         node.getAlias()));
+  }
+
+  private Expression referenceIfSymbolDefined(UnresolvedExpression expr,
+                                              AnalysisContext context) {
+    try {
+      // Since resolved aggregator.toString() is used as symbol name, unresolved expression
+      // needs to be analyzed too to get toString() name for consistency
+      String symbolName = expressionAnalyzer.analyze(expr, context).toString();
+      ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, symbolName));
+      return DSL.ref(symbolName, type);
+    } catch (SemanticCheckException e) {
+      return expr.accept(expressionAnalyzer, context);
+    }
   }
 
   @Override
@@ -76,4 +95,23 @@ public class SelectExpressionAnalyzer
     return lookupAllFields.entrySet().stream().map(entry -> DSL.named(entry.getKey(),
         new ReferenceExpression(entry.getKey(), entry.getValue()))).collect(Collectors.toList());
   }
+
+  /**
+   * Get unqualified name if select item is just a field. For example, suppose an index
+   * named "accounts", return "age" for "SELECT accounts.age". But do nothing for expression
+   * in "SELECT ABS(accounts.age)".
+   * Note that an assumption is made implicitly that original name field in Alias must be
+   * the same as the values in QualifiedName. This is true because AST builder does this.
+   * Otherwise, what unqualified() returns will override Alias's name as NamedExpression's name
+   * even though the QualifiedName doesn't have qualifier.
+   */
+  private String unqualifiedNameIfFieldOnly(Alias node, AnalysisContext context) {
+    UnresolvedExpression selectItem = node.getDelegated();
+    if (selectItem instanceof QualifiedName) {
+      QualifierAnalyzer qualifierAnalyzer = new QualifierAnalyzer(context);
+      return qualifierAnalyzer.unqualified((QualifiedName) selectItem);
+    }
+    return node.getName();
+  }
+
 }

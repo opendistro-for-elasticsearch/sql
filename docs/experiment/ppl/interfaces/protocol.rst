@@ -43,7 +43,6 @@ PPL query::
           "type": "string"
         }
       ],
-      "total": 4,
       "datarows": [
         [
           "Amber",
@@ -62,6 +61,7 @@ PPL query::
           "Adams"
         ]
       ],
+      "total": 4,
       "size": 4
     }
 
@@ -94,7 +94,6 @@ PPL query::
           "type": "string"
         }
       ],
-      "total": 4,
       "datarows": [
         [
           "Amber",
@@ -113,6 +112,7 @@ PPL query::
           "Adams"
         ]
       ],
+      "total": 4,
       "size": 4
     }
 
