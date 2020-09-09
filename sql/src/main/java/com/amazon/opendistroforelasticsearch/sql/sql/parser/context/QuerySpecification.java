@@ -19,7 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
@@ -35,6 +35,8 @@ import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
@@ -68,7 +70,7 @@ public class QuerySpecification {
    * Aggregate function calls that spreads in SELECT, HAVING clause. Since this is going to be
    * pushed to aggregation operator, de-duplicate is necessary to avoid duplication.
    */
-  private final Set<AggregateFunction> aggregators = new HashSet<>();
+  private final Set<UnresolvedExpression> aggregators = new HashSet<>();
 
   /**
    * Items in GROUP BY clause that may be simple field name or nested in scalar function call.
@@ -79,8 +81,8 @@ public class QuerySpecification {
    * Collect all query information in the parse tree excluding info in sub-query).
    * @param query   query spec node in parse tree
    */
-  public void collect(QuerySpecificationContext query) {
-    query.accept(new QuerySpecificationCollector());
+  public void collect(QuerySpecificationContext query, String queryString) {
+    query.accept(new QuerySpecificationCollector(queryString));
   }
 
   /*
@@ -90,6 +92,12 @@ public class QuerySpecification {
    */
   private class QuerySpecificationCollector extends OpenDistroSQLParserBaseVisitor<Void> {
     private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
+
+    private final String queryString;
+
+    public QuerySpecificationCollector(String queryString) {
+      this.queryString = queryString;
+    }
 
     @Override
     public Void visitQuerySpecification(QuerySpecificationContext ctx) {
@@ -117,12 +125,21 @@ public class QuerySpecification {
 
     @Override
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
-      aggregators.add((AggregateFunction) visitAstExpression(ctx));
+      aggregators.add(AstDSL.alias(getTextInQuery(ctx), visitAstExpression(ctx)));
       return super.visitAggregateFunctionCall(ctx);
     }
 
     private UnresolvedExpression visitAstExpression(ParseTree tree) {
       return expressionBuilder.visit(tree);
+    }
+
+    /**
+     * Get original text in query.
+     */
+    private String getTextInQuery(ParserRuleContext ctx) {
+      Token start = ctx.getStart();
+      Token stop = ctx.getStop();
+      return queryString.substring(start.getStartIndex(), stop.getStopIndex() + 1);
     }
   }
 

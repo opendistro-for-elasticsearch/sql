@@ -62,13 +62,13 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   private final String query;
 
   @Override
-  public UnresolvedPlan visitQuerySpecification(QuerySpecificationContext query) {
+  public UnresolvedPlan visitQuerySpecification(QuerySpecificationContext queryContext) {
     context.push();
-    context.peek().collect(query);
+    context.peek().collect(queryContext, query);
 
-    Project project = (Project) visit(query.selectClause());
+    Project project = (Project) visit(queryContext.selectClause());
 
-    if (query.fromClause() == null) {
+    if (queryContext.fromClause() == null) {
       Optional<UnresolvedExpression> allFields =
           project.getProjectList().stream().filter(node -> node instanceof AllFields)
               .findFirst();
@@ -82,7 +82,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       return project.attach(emptyValue);
     }
 
-    UnresolvedPlan result = project.attach(visit(query.fromClause()));
+    UnresolvedPlan result = project.attach(visit(queryContext.fromClause()));
     context.pop();
     return result;
   }

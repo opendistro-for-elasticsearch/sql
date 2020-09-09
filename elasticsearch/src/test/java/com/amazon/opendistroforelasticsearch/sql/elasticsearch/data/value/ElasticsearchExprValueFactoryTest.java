@@ -92,6 +92,11 @@ class ElasticsearchExprValueFactoryTest {
   }
 
   @Test
+  public void constructIntegerValueInStringValue() {
+    assertEquals(integerValue(1), constructFromObject("intV", "1"));
+  }
+
+  @Test
   public void constructLong() {
     assertEquals(longValue(1L), tupleValue("{\"longV\":1}").get("longV"));
     assertEquals(longValue(1L), constructFromObject("longV", 1L));
