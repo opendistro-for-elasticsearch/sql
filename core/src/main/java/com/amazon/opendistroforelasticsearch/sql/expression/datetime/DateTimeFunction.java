@@ -24,7 +24,6 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.I
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
-import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.DAYOFMONTH;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.define;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.impl;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
@@ -38,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
+import com.sun.tools.javac.comp.Lower;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -57,6 +57,10 @@ public class DateTimeFunction {
     repository.register(dayOfMonth());
     repository.register(time());
     repository.register(timestamp());
+    repository.register(day());
+    repository.register(month());
+    repository.register(quarter());
+    repository.register(year());
   }
 
   /**
@@ -76,8 +80,48 @@ public class DateTimeFunction {
    * DAYOFMONTH(DATE). return the day of the month (1-31).
    */
   private FunctionResolver dayOfMonth() {
-    return define(DAYOFMONTH.getName(),
+    return define(BuiltinFunctionName.DAYOFMONTH.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
+   * DAY(DATE). return the day of the month (1-31).
+   */
+  private FunctionResolver day() {
+    return define(BuiltinFunctionName.DAY.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
+   * MONTH(DATE). return the month for date (1-12).
+   */
+  private FunctionResolver month() {
+    return define(BuiltinFunctionName.MONTH.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprMonth),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
+   * QUARTER(DATE). return the month for date (1-4).
+   */
+  private FunctionResolver quarter() {
+    return define(BuiltinFunctionName.QUARTER.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprQuarter),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
+   * YEAR(DATE). return the year for date (1000-9999).
+   */
+  private FunctionResolver year() {
+    return define(BuiltinFunctionName.YEAR.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprYear),
             INTEGER, DATE)
     );
   }
@@ -123,12 +167,42 @@ public class DateTimeFunction {
   }
 
   /**
+   * Month for date implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprMonth(ExprValue date) {
+    return new ExprIntegerValue(date.dateValue().getMonthValue());
+  }
+
+  /**
+   * Quarter for date implementation for ExprValue.
+   *
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprQuarter(ExprValue date) {
+    return new ExprIntegerValue((date.dateValue().getMonthValue() % 3) == 0
+        ? (date.dateValue().getMonthValue() / 3)
+        : ((date.dateValue().getMonthValue() / 3) + 1));
+  }
+
+  /**
+   * Year for date implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprYear(ExprValue date) {
+    return new ExprIntegerValue(date.dateValue().getYear());
+  }
+
+  /**
    * Day of Month implementation for ExprValue.
    * @param date ExprValue of Date type.
    * @return ExprValue.
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
-    return new ExprIntegerValue(date.dateValue().getMonthValue());
+    return new ExprIntegerValue(date.dateValue().getDayOfMonth());
   }
 
   /**

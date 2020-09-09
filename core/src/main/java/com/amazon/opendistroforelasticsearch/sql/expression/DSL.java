@@ -244,6 +244,22 @@ public class DSL {
     return function(BuiltinFunctionName.DAYOFMONTH, expressions);
   }
 
+  public FunctionExpression day(Expression... expressions) {
+    return function(BuiltinFunctionName.DAY, expressions);
+  }
+
+  public FunctionExpression month(Expression... expressions) {
+    return function(BuiltinFunctionName.MONTH, expressions);
+  }
+
+  public FunctionExpression quarter(Expression... expressions) {
+    return function(BuiltinFunctionName.QUARTER, expressions);
+  }
+
+  public FunctionExpression year(Expression... expressions) {
+    return function(BuiltinFunctionName.YEAR, expressions);
+  }
+
   public FunctionExpression date(Expression... expressions) {
     return function(BuiltinFunctionName.DATE, expressions);
   }

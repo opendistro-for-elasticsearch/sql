@@ -323,6 +323,28 @@ Specifications:
 1. DATE_FORMAT(DATE, STRING) -> STRING
 2. DATE_FORMAT(DATE, STRING, STRING) -> STRING
 
+DAY
+=====
+
+Description
+-----------
+
+Usage: day(date) extracts the day of the month for date, in the range 1 to 31, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero day part.
+
+Argument type: DATE
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT DAY(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +----------------------------+
+    | DAY(DATE('2020-08-26')     |
+    |----------------------------|
+    | 26                         |
+    +----------------------------+
+
 
 DAYOFMONTH
 ==========
@@ -598,9 +620,21 @@ MONTH
 Description
 -----------
 
-Specifications: 
+Usage: month(date) returns the month for date, in the range 1 to 12 for January to December, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero month part.
 
-1. MONTH(DATE) -> INTEGER
+Argument type: DATE
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT MONTH(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +----------------------------+
+    | MONTH(DATE('2020-08-26')   |
+    |----------------------------|
+    | 8                          |
+    +----------------------------+
 
 
 MONTHNAME
@@ -701,6 +735,30 @@ Example::
     |---------------+----------------+--------------------|
     | 9.0           | 9.0            | 0.1111111111111111 |
     +---------------+----------------+--------------------+
+
+
+QUARTER
+=====
+
+Description
+-----------
+
+Usage: quarter(date) returns the quarter of the year for date, in the range 1 to 4.
+
+Argument type: DATE
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT QUARTER(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +----------------------------+
+    | QUARTER(DATE('2020-08-26') |
+    |----------------------------|
+    | 3                          |
+    +----------------------------+
+
 
 
 RADIANS
@@ -1018,13 +1076,25 @@ Specifications:
 
 
 YEAR
-====
+=====
 
 Description
 -----------
 
-Specifications: 
+Usage: year(date) returns the year for date, in the range 1000 to 9999, or 0 for the “zero” date.
 
-1. YEAR(DATE) -> INTEGER
+Argument type: DATE
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT YEAR(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +----------------------------+
+    | YEAR(DATE('2020-08-26')    |
+    |----------------------------|
+    | 2020                       |
+    +----------------------------+
 
 
