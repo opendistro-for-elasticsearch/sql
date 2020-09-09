@@ -335,6 +335,8 @@ Argument type: DATE
 
 Return type: INTEGER
 
+Synonyms: DAYOFMONTH
+
 Example::
 
     od> SELECT DAY(DATE('2020-08-26'))
@@ -352,9 +354,23 @@ DAYOFMONTH
 Description
 -----------
 
-Specifications: 
+Usage: dayofmonth(date) extracts the day of the month for date, in the range 1 to 31, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero day part.
 
-1. DAYOFMONTH(DATE) -> INTEGER
+Argument type: DATE
+
+Return type: INTEGER
+
+Synonyms: DAY
+
+Example::
+
+    od> SELECT DAYOFMONTH(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +----------------------------------+
+    | DAYOFMONTH(DATE('2020-08-26'))   |
+    |----------------------------------|
+    | 26                               |
+    +----------------------------------+
 
 
 DEGREES
