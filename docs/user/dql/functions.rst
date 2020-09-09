@@ -373,6 +373,29 @@ Example::
     +----------------------------------+
 
 
+DAYOFYEAR
+==========
+
+Description
+-----------
+
+Usage:  dayofyear(date) returns the day of the year for date, in the range 1 to 366.
+
+Argument type: DATE
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT DAYOFYEAR(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +---------------------------------+
+    | DAYOFYEAR(DATE('2020-08-26'))   |
+    |---------------------------------|
+    | 239                             |
+    +---------------------------------+
+
+
 DEGREES
 =======
 

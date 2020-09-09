@@ -174,6 +174,7 @@ CURDATE:                            'CURDATE';
 DATE:                               'DATE';
 DATE_FORMAT:                        'DATE_FORMAT';
 DAYOFMONTH:                         'DAYOFMONTH';
+DAYOFYEAR:                          'DAYOFYEAR';
 DEGREES:                            'DEGREES';
 E:                                  'E';
 EXP:                                'EXP';

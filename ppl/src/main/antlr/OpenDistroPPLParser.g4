@@ -226,7 +226,7 @@ trigonometricFunctionName
     ;
 
 dateAndTimeFunctionBase
-    : DAYOFMONTH | DATE | TIME | TIMESTAMP | DAY | MONTH | QUARTER | YEAR
+    : DAYOFMONTH | DAYOFYEAR | DATE | TIME | TIMESTAMP | DAY | MONTH | QUARTER | YEAR
     ;
 
 textFunctionBase

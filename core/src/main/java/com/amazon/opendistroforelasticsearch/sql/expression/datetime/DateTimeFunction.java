@@ -37,7 +37,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-import com.sun.tools.javac.comp.Lower;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -55,6 +54,7 @@ public class DateTimeFunction {
   public void register(BuiltinFunctionRepository repository) {
     repository.register(date());
     repository.register(dayOfMonth());
+    repository.register(dayOfYear());
     repository.register(time());
     repository.register(timestamp());
     repository.register(day());
@@ -82,6 +82,16 @@ public class DateTimeFunction {
   private FunctionResolver dayOfMonth() {
     return define(BuiltinFunctionName.DAYOFMONTH.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
+   * DAYOFYEAR(DATE). return the day of the year for date (1-366).
+   */
+  private FunctionResolver dayOfYear() {
+    return define(BuiltinFunctionName.DAYOFYEAR.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfYear),
             INTEGER, DATE)
     );
   }
@@ -203,6 +213,15 @@ public class DateTimeFunction {
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
     return new ExprIntegerValue(date.dateValue().getDayOfMonth());
+  }
+
+  /**
+   * Day of Year implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprDayOfYear(ExprValue date) {
+    return new ExprIntegerValue(date.dateValue().getDayOfYear());
   }
 
   /**

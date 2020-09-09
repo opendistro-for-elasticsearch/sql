@@ -199,6 +199,7 @@ DATE:                               'DATE';
 TIME:                               'TIME';
 TIMESTAMP:                          'TIMESTAMP';
 DAYOFMONTH:                         'DAYOFMONTH';
+DAYOFYEAR:                          'DAYOFYEAR';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
