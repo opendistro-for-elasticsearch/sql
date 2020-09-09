@@ -240,6 +240,10 @@ public class DSL {
     return function(BuiltinFunctionName.MULTIPLY, expressions);
   }
 
+  public FunctionExpression dayname(Expression... expressions) {
+    return function(BuiltinFunctionName.DAYNAME, expressions);
+  }
+
   public FunctionExpression dayofmonth(Expression... expressions) {
     return function(BuiltinFunctionName.DAYOFMONTH, expressions);
   }

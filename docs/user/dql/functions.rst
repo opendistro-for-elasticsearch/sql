@@ -347,6 +347,27 @@ Example::
     | 26                        |
     +---------------------------+
 
+DAYNAME
+==========
+
+Description
+-----------
+
+Usage: dayname(date) returns the name of the weekday for date, including Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
+
+Argument type: DATE
+
+Return type: STRING
+
+Example::
+
+    od> SELECT DAYNAME(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | DAYNAME(DATE('2020-08-26'))   |
+    |-------------------------------|
+    | Wednesday                     |
+    +-------------------------------+
 
 DAYOFMONTH
 ==========

@@ -176,6 +176,7 @@ DATE_FORMAT:                        'DATE_FORMAT';
 DAYOFMONTH:                         'DAYOFMONTH';
 DAYOFWEEK:                          'DAYOFWEEK';
 DAYOFYEAR:                          'DAYOFYEAR';
+DAYNAME:                            'DAYNAME';
 DEGREES:                            'DEGREES';
 E:                                  'E';
 EXP:                                'EXP';

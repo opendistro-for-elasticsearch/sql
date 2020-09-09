@@ -20,9 +20,11 @@ package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.missingValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,6 +61,19 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void setup() {
     when(nullRef.valueOf(env)).thenReturn(nullValue());
     when(missingRef.valueOf(env)).thenReturn(missingValue());
+  }
+
+  @Test
+  public void dayName() {
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+
+    FunctionExpression expression = dsl.dayname(DSL.literal(new ExprDateValue("2020-08-07")));
+    assertEquals(STRING, expression.type());
+    assertEquals("dayname(DATE '2020-08-07')", expression.toString());
+    assertEquals(stringValue("Friday"), eval(expression));
+    assertEquals(nullValue(), eval(dsl.dayname(nullRef)));
+    assertEquals(missingValue(), eval(dsl.dayname(missingRef)));
   }
 
   @Test

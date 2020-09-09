@@ -37,6 +37,8 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -53,6 +55,7 @@ public class DateTimeFunction {
    */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(date());
+    repository.register(dayName());
     repository.register(dayOfMonth());
     repository.register(dayOfWeek());
     repository.register(dayOfYear());
@@ -75,6 +78,17 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
+  }
+
+  /**
+   * DAYNAME(DATE). return the name of the weekday for date, including Monday, Tuesday, Wednesday,
+   * Thursday, Friday, Saturday and Sunday.
+   */
+  private FunctionResolver dayName() {
+    return define(BuiltinFunctionName.DAYNAME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDayName),
+            STRING, DATE)
+    );
   }
 
   /**
@@ -215,6 +229,16 @@ public class DateTimeFunction {
    */
   private ExprValue exprYear(ExprValue date) {
     return new ExprIntegerValue(date.dateValue().getYear());
+  }
+
+  /**
+   * Name of the Weekday implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprDayName(ExprValue date) {
+    return new ExprStringValue(
+        date.dateValue().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
   }
 
   /**
