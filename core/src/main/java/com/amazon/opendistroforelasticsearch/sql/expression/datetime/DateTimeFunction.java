@@ -54,6 +54,7 @@ public class DateTimeFunction {
   public void register(BuiltinFunctionRepository repository) {
     repository.register(date());
     repository.register(dayOfMonth());
+    repository.register(dayOfWeek());
     repository.register(dayOfYear());
     repository.register(time());
     repository.register(timestamp());
@@ -82,6 +83,16 @@ public class DateTimeFunction {
   private FunctionResolver dayOfMonth() {
     return define(BuiltinFunctionName.DAYOFMONTH.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
+   * DAYOFWEEK(DATE). return the weekday index for date (1 = Sunday, 2 = Monday, …, 7 = Saturday).
+   */
+  private FunctionResolver dayOfWeek() {
+    return define(BuiltinFunctionName.DAYOFWEEK.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek),
             INTEGER, DATE)
     );
   }
@@ -213,6 +224,15 @@ public class DateTimeFunction {
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
     return new ExprIntegerValue(date.dateValue().getDayOfMonth());
+  }
+
+  /**
+   * Day of Week implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprDayOfWeek(ExprValue date) {
+    return new ExprIntegerValue(date.dateValue().getDayOfWeek().getValue());
   }
 
   /**

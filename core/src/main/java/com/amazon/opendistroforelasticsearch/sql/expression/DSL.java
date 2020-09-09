@@ -244,6 +244,10 @@ public class DSL {
     return function(BuiltinFunctionName.DAYOFMONTH, expressions);
   }
 
+  public FunctionExpression dayofweek(Expression... expressions) {
+    return function(BuiltinFunctionName.DAYOFWEEK, expressions);
+  }
+
   public FunctionExpression dayofyear(Expression... expressions) {
     return function(BuiltinFunctionName.DAYOFYEAR, expressions);
   }

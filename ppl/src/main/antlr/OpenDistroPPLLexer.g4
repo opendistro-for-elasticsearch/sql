@@ -199,6 +199,7 @@ DATE:                               'DATE';
 TIME:                               'TIME';
 TIMESTAMP:                          'TIMESTAMP';
 DAYOFMONTH:                         'DAYOFMONTH';
+DAYOFWEEK:                          'DAYOFWEEK';
 DAYOFYEAR:                          'DAYOFYEAR';
 
 // LITERALS AND VALUES
