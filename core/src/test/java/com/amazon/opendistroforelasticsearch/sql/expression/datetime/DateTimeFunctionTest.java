@@ -75,6 +75,25 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
+  public void dayOfWeek() {
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+
+    FunctionExpression expression = dsl.dayofweek(DSL.literal(new ExprDateValue("2020-08-07")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("dayofweek(DATE '2020-08-07')", expression.toString());
+    assertEquals(integerValue(6), eval(expression));
+
+    expression = dsl.dayofweek(DSL.literal(new ExprDateValue("2020-08-09")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("dayofweek(DATE '2020-08-09')", expression.toString());
+    assertEquals(integerValue(1), eval(expression));
+
+    assertEquals(nullValue(), eval(dsl.dayofweek(nullRef)));
+    assertEquals(missingValue(), eval(dsl.dayofweek(missingRef)));
+  }
+
+  @Test
   public void dayOfYear() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);

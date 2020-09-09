@@ -232,7 +232,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfWeek(ExprValue date) {
-    return new ExprIntegerValue(date.dateValue().getDayOfWeek().getValue());
+    return new ExprIntegerValue(date.dateValue().getDayOfWeek().getValue() == 7 ? 1
+        : date.dateValue().getDayOfWeek().getValue() + 1);
   }
 
   /**
