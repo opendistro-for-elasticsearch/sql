@@ -720,6 +720,29 @@ Example::
     +-------------+---------------+
 
 
+MINUTE
+=====
+
+Description
+-----------
+
+Usage: minute(time) returns the minute for time, in the range 0 to 59.
+
+Argument type: TIME
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT MINUTE((TIME '01:02:03'))
+    fetched rows / total rows = 1/1
+    +-----------------------------+
+    | MINUTE((TIME '01:02:03'))   |
+    |-----------------------------|
+    | 2                           |
+    +-----------------------------+
+
+
 MONTH
 =====
 

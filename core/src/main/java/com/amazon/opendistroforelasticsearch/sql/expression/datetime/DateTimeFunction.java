@@ -61,6 +61,7 @@ public class DateTimeFunction {
     repository.register(dayOfWeek());
     repository.register(dayOfYear());
     repository.register(hour());
+    repository.register(minute());
     repository.register(time());
     repository.register(timestamp());
     repository.register(day());
@@ -153,6 +154,20 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprHour),
             INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprHour),
+            INTEGER, TIMESTAMP)
+    );
+  }
+
+  /**
+   * MINUTE(TIME). return the minute value for time.
+   */
+  private FunctionResolver minute() {
+    return define(BuiltinFunctionName.MINUTE.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprMinute),
+            INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMinute),
+            INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMinute),
             INTEGER, TIMESTAMP)
     );
   }
@@ -312,6 +327,15 @@ public class DateTimeFunction {
    */
   private ExprValue exprHour(ExprValue exprValue) {
     return new ExprIntegerValue(exprValue.timeValue().getHour());
+  }
+
+  /**
+   * Minute implementation for ExprValue.
+   * @param exprValue ExprValue of Time type.
+   * @return ExprValue.
+   */
+  private ExprValue exprMinute(ExprValue exprValue) {
+    return new ExprIntegerValue(exprValue.timeValue().getMinute());
   }
 
   /**

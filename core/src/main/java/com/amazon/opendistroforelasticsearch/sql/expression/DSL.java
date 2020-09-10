@@ -268,6 +268,10 @@ public class DSL {
     return function(BuiltinFunctionName.HOUR, expressions);
   }
 
+  public FunctionExpression minute(Expression... expressions) {
+    return function(BuiltinFunctionName.MINUTE, expressions);
+  }
+
   public FunctionExpression month(Expression... expressions) {
     return function(BuiltinFunctionName.MONTH, expressions);
   }
