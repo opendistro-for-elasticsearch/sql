@@ -278,7 +278,7 @@ public class AstBuilderTest {
         head(
             relation("t"),
             unresolvedArgList(
-                unresolvedArg("keeplast", booleanLiteral(false)),
+                unresolvedArg("keeplast", booleanLiteral(true)),
                 unresolvedArg("whileExpr", booleanLiteral(true)),
                 unresolvedArg("number", intLiteral(3)))
         ));
@@ -291,7 +291,7 @@ public class AstBuilderTest {
         head(
             relation("t"),
             unresolvedArgList(
-                unresolvedArg("keeplast", booleanLiteral(false)),
+                unresolvedArg("keeplast", booleanLiteral(true)),
                 unresolvedArg("whileExpr", compare("<", field("a"), intLiteral(5))),
                 unresolvedArg("number", intLiteral(5)))
         ));
@@ -300,11 +300,11 @@ public class AstBuilderTest {
   @Test
   public void testHeadCommandWithKeepLast() {
 
-    assertEqual("source=t | head keeplast=true while(a < 5) 5",
+    assertEqual("source=t | head keeplast=false while(a < 5) 5",
         head(
             relation("t"),
             unresolvedArgList(
-                unresolvedArg("keeplast", booleanLiteral(true)),
+                unresolvedArg("keeplast", booleanLiteral(false)),
                 unresolvedArg("whileExpr", compare("<", field("a"), intLiteral(5))),
                 unresolvedArg("number", intLiteral(5)))
         ));

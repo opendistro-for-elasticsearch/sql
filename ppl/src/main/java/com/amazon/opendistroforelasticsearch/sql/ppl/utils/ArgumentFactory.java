@@ -112,7 +112,7 @@ public class ArgumentFactory {
     return Arrays.asList(
         ctx.keeplast != null
             ? new UnresolvedArgument("keeplast", getArgumentValue(ctx.keeplast))
-            : new UnresolvedArgument("keeplast", new Literal(false, DataType.BOOLEAN)),
+            : new UnresolvedArgument("keeplast", new Literal(true, DataType.BOOLEAN)),
         ctx.whileExpr != null && unresolvedExpr != null
             ? new UnresolvedArgument("whileExpr", unresolvedExpr)
             : new UnresolvedArgument("whileExpr", new Literal(true, DataType.BOOLEAN)),

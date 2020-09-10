@@ -79,6 +79,7 @@ PPL query::
     | Copeland      | 20        |
     | Cornelia      | 20        |
     | Schultz       | 20        |
+    | Simpson       | 21        |
     +---------------+-----------+
 
 Example 4: Get first N results with while condition and last result which failed condition
@@ -88,7 +89,7 @@ The example show first N results with while condition and last result which fail
 
 PPL query::
 
-    od> source=accounts | fields firstname, age | sort age | head keeplast=true while(age < 21) 7;
+    od> source=accounts | fields firstname, age | sort age | head keeplast=false while(age < 21) 7;
     fetched rows / total rows = 4/4
     +---------------+-----------+
     | firstname     | age       |
@@ -97,6 +98,5 @@ PPL query::
     | Copeland      | 20        |
     | Cornelia      | 20        |
     | Schultz       | 20        |
-    | Simpson       | 21        |
     +---------------+-----------+
 

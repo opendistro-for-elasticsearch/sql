@@ -318,7 +318,7 @@ public class AstDSL {
    */
   public static List<UnresolvedArgument> defaultHeadArgs() {
     return unresolvedArgList(
-            unresolvedArg("keeplast", booleanLiteral(false)),
+            unresolvedArg("keeplast", booleanLiteral(true)),
             unresolvedArg("whileExpr", booleanLiteral(true)),
             unresolvedArg("number", intLiteral(10)));
   }
