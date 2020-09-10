@@ -258,7 +258,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMonthName(ExprValue date) {
-    return new ExprStringValue(date.dateValue().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
+    return new ExprStringValue(
+        date.dateValue().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
   }
 
   /**
