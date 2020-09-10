@@ -177,7 +177,6 @@ DAYOFMONTH:                         'DAYOFMONTH';
 DAYOFWEEK:                          'DAYOFWEEK';
 DAYOFYEAR:                          'DAYOFYEAR';
 DAYNAME:                            'DAYNAME';
-MONTHNAME:                          'MONTHNAME';
 DEGREES:                            'DEGREES';
 E:                                  'E';
 EXP:                                'EXP';
