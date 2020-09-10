@@ -721,14 +721,25 @@ Example::
 
 
 MONTHNAME
-=========
 
 Description
 -----------
 
-Specifications: 
+Usage: monthname(date) returns the full name of the month for date.
 
-1. MONTHNAME(DATE) -> STRING
+Argument type: DATE
+
+Return type: STRING
+
+Example::
+
+    od> SELECT MONTHNAME(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | MONTHNAME(DATE('2020-08-26')) |
+    |-------------------------------|
+    | August                        |
+    +-------------------------------+
 
 
 MULTIPLY

@@ -56,6 +56,7 @@ public class DateTimeFunction {
   public void register(BuiltinFunctionRepository repository) {
     repository.register(date());
     repository.register(dayName());
+    repository.register(monthName());
     repository.register(dayOfMonth());
     repository.register(dayOfWeek());
     repository.register(dayOfYear());
@@ -87,6 +88,16 @@ public class DateTimeFunction {
   private FunctionResolver dayName() {
     return define(BuiltinFunctionName.DAYNAME.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayName),
+            STRING, DATE)
+    );
+  }
+
+  /**
+   * MONTHNAME(DATE). return the full name of the month for date.
+   */
+  private FunctionResolver monthName() {
+    return define(BuiltinFunctionName.MONTHNAME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprMonthName),
             STRING, DATE)
     );
   }
@@ -239,6 +250,15 @@ public class DateTimeFunction {
   private ExprValue exprDayName(ExprValue date) {
     return new ExprStringValue(
         date.dateValue().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
+  }
+
+  /**
+   * Name of the Month implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprMonthName(ExprValue date) {
+    return new ExprStringValue(date.dateValue().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
   }
 
   /**
