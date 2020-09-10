@@ -264,6 +264,10 @@ public class DSL {
     return function(BuiltinFunctionName.DAY, expressions);
   }
 
+  public FunctionExpression hour(Expression... expressions) {
+    return function(BuiltinFunctionName.HOUR, expressions);
+  }
+
   public FunctionExpression month(Expression... expressions) {
     return function(BuiltinFunctionName.MONTH, expressions);
   }

@@ -523,9 +523,32 @@ FLOOR
 Description
 -----------
 
-Specifications: 
+Specifications:
 
 1. FLOOR(NUMBER T) -> T
+
+
+HOUR
+=====
+
+Description
+-----------
+
+Usage: hour(time) extracts the hour value for time. Different from the time of day value, the time value has a large range and can be greater than 23, so the return value of hour(time) can be also greater than 23.
+
+Argument type: TIME
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT HOUR((TIME '01:02:03'))
+    fetched rows / total rows = 1/1
+    +---------------------------+
+    | HOUR((TIME '01:02:03'))   |
+    |---------------------------|
+    | 1                         |
+    +---------------------------+
 
 
 IF
