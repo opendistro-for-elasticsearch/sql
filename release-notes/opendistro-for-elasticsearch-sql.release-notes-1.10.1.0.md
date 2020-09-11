@@ -38,7 +38,8 @@
 ### Documentation
 * update user documentation for testing odbc driver connection on windows([#722](https://github.com/opendistro-for-elasticsearch/sql/pull/722))
 * Added workaround for identifiers with special characters in troubleshooting page([#718](https://github.com/opendistro-for-elasticsearch/sql/pull/718))
-* Update release notes for OD 1.10.1 release([#699](https://github.com/opendistro-for-elasticsearch/sql/pull/699))
+* Update release notes for OD 1.10 release([#699](https://github.com/opendistro-for-elasticsearch/sql/pull/699))
 
 ### Maintenance
+* Bumped ES and Kibana versions to v7.9.0 ([#697](https://github.com/opendistro-for-elasticsearch/sql/pull/697))
 * Bump ES and Kibana to 7.9.1 and release ODFE 1.10.1.0 ([#732](https://github.com/opendistro-for-elasticsearch/sql/pull/732))
