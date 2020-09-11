@@ -194,6 +194,29 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
+  public void second() {
+    when(nullRef.type()).thenReturn(TIME);
+    when(missingRef.type()).thenReturn(TIME);
+    assertEquals(nullValue(), eval(dsl.second(nullRef)));
+    assertEquals(missingValue(), eval(dsl.second(missingRef)));
+
+    FunctionExpression expression = dsl.second(DSL.literal(new ExprTimeValue("01:02:03")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(3), eval(expression));
+    assertEquals("second(TIME '01:02:03')", expression.toString());
+
+    expression = dsl.second(DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(3), expression.valueOf(env));
+    assertEquals("second(TIMESTAMP '2020-08-17 01:02:03')", expression.toString());
+
+    expression = dsl.second(DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(3), expression.valueOf(env));
+    assertEquals("second(DATETIME '2020-08-17 01:02:03')", expression.toString());
+  }
+
+  @Test
   public void month() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);

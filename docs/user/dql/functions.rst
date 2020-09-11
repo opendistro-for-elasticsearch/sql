@@ -1016,6 +1016,29 @@ Specifications:
 1. RTRIM(STRING T) -> T
 
 
+SECOND
+=====
+
+Description
+-----------
+
+Usage: second(time) returns the second for time, in the range 0 to 59.
+
+Argument type: TIME
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT SECOND((TIME '01:02:03'))
+    fetched rows / total rows = 1/1
+    +-----------------------------+
+    | SECOND((TIME '01:02:03'))   |
+    |-----------------------------|
+    | 3                           |
+    +-----------------------------+
+
+
 SIGN
 ====
 

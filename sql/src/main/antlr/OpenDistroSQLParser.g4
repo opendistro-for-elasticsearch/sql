@@ -212,7 +212,7 @@ trigonometricFunctionName
 
 dateTimeFunctionName
     : DAYNAME | MONTHNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | DATE
-    | TIME | TIMESTAMP | DAY | MONTH | QUARTER | YEAR | HOUR | MINUTE
+    | TIME | TIMESTAMP | DAY | MONTH | QUARTER | YEAR | HOUR | MINUTE | SECOND
     ;
 
 functionArgs

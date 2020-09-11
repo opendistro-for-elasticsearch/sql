@@ -272,6 +272,10 @@ public class DSL {
     return function(BuiltinFunctionName.MINUTE, expressions);
   }
 
+  public FunctionExpression second(Expression... expressions) {
+    return function(BuiltinFunctionName.SECOND, expressions);
+  }
+
   public FunctionExpression month(Expression... expressions) {
     return function(BuiltinFunctionName.MONTH, expressions);
   }
