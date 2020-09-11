@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class PhysicalPlanDSL {
 
   public static AggregationOperator agg(
-      PhysicalPlan input, List<Aggregator> aggregators, List<Expression> groups) {
+      PhysicalPlan input, List<NamedAggregator> aggregators, List<NamedExpression> groups) {
     return new AggregationOperator(input, aggregators, groups);
   }
 

@@ -17,10 +17,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.request;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -57,6 +59,13 @@ public class ElasticsearchQueryRequest implements ElasticsearchRequest {
    */
   private final SearchSourceBuilder sourceBuilder;
 
+
+  /**
+   * ElasticsearchExprValueFactory.
+   */
+  @EqualsAndHashCode.Exclude
+  private final ElasticsearchExprValueFactory exprValueFactory;
+
   /**
    * Indicate the search already done.
    */
@@ -65,23 +74,24 @@ public class ElasticsearchQueryRequest implements ElasticsearchRequest {
   /**
    * Constructor of ElasticsearchQueryRequest.
    */
-  public ElasticsearchQueryRequest(String indexName, int size) {
+  public ElasticsearchQueryRequest(String indexName, int size,
+                                   ElasticsearchExprValueFactory factory) {
     this.indexName = indexName;
     this.sourceBuilder = new SearchSourceBuilder();
     sourceBuilder.from(0);
     sourceBuilder.size(size);
     sourceBuilder.timeout(DEFAULT_QUERY_TIMEOUT);
-
+    this.exprValueFactory = factory;
   }
 
   @Override
   public ElasticsearchResponse search(Function<SearchRequest, SearchResponse> searchAction,
                                       Function<SearchScrollRequest, SearchResponse> scrollAction) {
     if (searchDone) {
-      return new ElasticsearchResponse(SearchHits.empty());
+      return new ElasticsearchResponse(SearchHits.empty(), exprValueFactory);
     } else {
       searchDone = true;
-      return new ElasticsearchResponse(searchAction.apply(searchRequest()));
+      return new ElasticsearchResponse(searchAction.apply(searchRequest()), exprValueFactory);
     }
   }
 
