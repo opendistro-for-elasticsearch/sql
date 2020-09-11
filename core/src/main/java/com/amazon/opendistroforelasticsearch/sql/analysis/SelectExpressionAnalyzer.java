@@ -20,9 +20,11 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
@@ -67,23 +69,42 @@ public class SelectExpressionAnalyzer
 
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
-    Expression expr = referenceIfSymbolDefined(node.getDelegated(), context);
+    Expression expr = referenceIfSymbolDefined(node, context);
     return Collections.singletonList(DSL.named(
         unqualifiedNameIfFieldOnly(node, context),
         expr,
         node.getAlias()));
   }
 
-  private Expression referenceIfSymbolDefined(UnresolvedExpression expr,
+  /**
+   * The Alias could be
+   * 1. SELECT name, AVG(age) FROM s BY name ->
+   * Project(Alias("name", expr), Alias("AVG(age)", aggExpr))
+   * Agg(Alias("AVG(age)", aggExpr))
+   * 2. SELECT length(name), AVG(age) FROM s BY length(name)
+   * Project(Alias("name", expr), Alias("AVG(age)", aggExpr))
+   * Agg(Alias("AVG(age)", aggExpr))
+   * 3. SELECT length(name) as l, AVG(age) FROM s BY l
+   * Project(Alias("name", expr, l), Alias("AVG(age)", aggExpr))
+   * Agg(Alias("AVG(age)", aggExpr), Alias("length(name)", groupExpr))
+   */
+  private Expression referenceIfSymbolDefined(Alias expr,
                                               AnalysisContext context) {
+    UnresolvedExpression delegatedExpr = expr.getDelegated();
     try {
-      // Since resolved aggregator.toString() is used as symbol name, unresolved expression
-      // needs to be analyzed too to get toString() name for consistency
-      String symbolName = expressionAnalyzer.analyze(expr, context).toString();
-      ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, symbolName));
-      return DSL.ref(symbolName, type);
+      if ((delegatedExpr instanceof AggregateFunction)
+          || (delegatedExpr instanceof Function)) {
+        ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, expr.getName()));
+        return DSL.ref(expr.getName(), type);
+      } else {
+        // Since resolved aggregator.toString() is used as symbol name, unresolved expression
+        // needs to be analyzed too to get toString() name for consistency
+        String symbolName = expressionAnalyzer.analyze(delegatedExpr, context).toString();
+        ExprType type = context.peek().resolve(new Symbol(Namespace.FIELD_NAME, symbolName));
+        return DSL.ref(symbolName, type);
+      }
     } catch (SemanticCheckException e) {
-      return expr.accept(expressionAnalyzer, context);
+      return delegatedExpr.accept(expressionAnalyzer, context);
     }
   }
 

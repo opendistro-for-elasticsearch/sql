@@ -38,11 +38,12 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
@@ -67,10 +68,12 @@ class DefaultImplementorTest {
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.of(true));
-    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
+    List<NamedExpression> groupByExprs = Arrays.asList(DSL.named("age", ref("age", INTEGER)));
+    List<Expression> aggExprs = Arrays.asList(ref("age", INTEGER));
     ReferenceExpression rareTopNField = ref("age", INTEGER);
-    List<Aggregator> aggregators =
-        Arrays.asList(new AvgAggregator(groupByExprs, ExprCoreType.DOUBLE));
+    List<Expression> topByExprs = Arrays.asList(ref("age", INTEGER));
+    List<NamedAggregator> aggregators =
+        Arrays.asList(DSL.named("avg(age)", new AvgAggregator(aggExprs, ExprCoreType.DOUBLE)));
     Map<ReferenceExpression, ReferenceExpression> mappings =
         ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
@@ -97,7 +100,7 @@ class DefaultImplementorTest {
                         sortCount,
                         sortField),
                     CommandType.TOP,
-                    groupByExprs,
+                    topByExprs,
                     rareTopNField),
                 dedupeField),
             include);
@@ -124,7 +127,7 @@ class DefaultImplementorTest {
                         sortCount,
                         sortField),
                     CommandType.TOP,
-                    groupByExprs,
+                    topByExprs,
                     rareTopNField),
                 dedupeField),
             include),

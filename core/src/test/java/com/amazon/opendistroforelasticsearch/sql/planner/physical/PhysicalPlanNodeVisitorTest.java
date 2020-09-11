@@ -42,7 +42,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
  */
 @ExtendWith(MockitoExtension.class)
 class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
-
   @Mock
   PhysicalPlan plan;
   @Mock
@@ -62,7 +61,8 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
                             CommandType.TOP,
                             ImmutableList.of(),
                             DSL.ref("response", INTEGER)),
-                        ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
+                        ImmutableList
+                            .of(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
                         ImmutableList.of()),
                     ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))),
                 named("ref", ref)),
@@ -89,7 +89,8 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
 
     PhysicalPlan aggregation =
         PhysicalPlanDSL.agg(
-            filter, ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))), ImmutableList.of());
+            filter, ImmutableList.of(DSL.named("avg(response)",
+                dsl.avg(DSL.ref("response", INTEGER)))), ImmutableList.of());
     assertNull(aggregation.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

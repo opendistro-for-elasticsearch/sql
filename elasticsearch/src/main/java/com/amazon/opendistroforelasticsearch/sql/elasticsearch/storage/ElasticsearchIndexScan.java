@@ -21,6 +21,7 @@ import static org.elasticsearch.search.sort.SortOrder.ASC;
 
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchQueryRequest;
@@ -31,12 +32,13 @@ import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
@@ -49,15 +51,13 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   /** Elasticsearch client. */
   private final ElasticsearchClient client;
 
-  private final ElasticsearchExprValueFactory exprValueFactory;
-
   /** Search request. */
   @EqualsAndHashCode.Include
   @ToString.Include
   private final ElasticsearchRequest request;
 
   /** Search response for current batch. */
-  private Iterator<SearchHit> hits;
+  private Iterator<ExprValue> iterator;
 
   /**
    * Todo.
@@ -67,8 +67,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
                                 ElasticsearchExprValueFactory exprValueFactory) {
     this.client = client;
     this.request = new ElasticsearchQueryRequest(indexName,
-        settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT));
-    this.exprValueFactory = exprValueFactory;
+        settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT), exprValueFactory);
   }
 
   @Override
@@ -82,17 +81,17 @@ public class ElasticsearchIndexScan extends TableScanOperator {
       responses.add(response);
       response = client.search(request);
     }
-    hits = Iterables.concat(responses.toArray(new ElasticsearchResponse[0])).iterator();
+    iterator = Iterables.concat(responses.toArray(new ElasticsearchResponse[0])).iterator();
   }
 
   @Override
   public boolean hasNext() {
-    return hits.hasNext();
+    return iterator.hasNext();
   }
 
   @Override
   public ExprValue next() {
-    return exprValueFactory.construct(hits.next().getSourceAsString());
+    return iterator.next();
   }
 
   /**
@@ -117,6 +116,20 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     if (source.sorts() == null) {
       source.sort(DOC_FIELD_NAME, ASC); // Make sure consistent order
     }
+  }
+
+  /**
+   * Push down aggregation to DSL request.
+   * @param aggregationBuilderList aggregation query.
+   */
+  public void pushDownAggregation(List<AggregationBuilder> aggregationBuilderList) {
+    SearchSourceBuilder source = request.getSourceBuilder();
+    aggregationBuilderList.forEach(aggregationBuilder -> source.aggregation(aggregationBuilder));
+    source.size(0);
+  }
+
+  public void pushTypeMapping(Map<String, ExprType> typeMapping) {
+    request.getExprValueFactory().setTypeMapping(typeMapping);
   }
 
   @Override
