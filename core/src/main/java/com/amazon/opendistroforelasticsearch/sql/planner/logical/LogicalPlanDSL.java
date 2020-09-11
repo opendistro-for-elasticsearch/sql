@@ -87,8 +87,7 @@ public class LogicalPlanDSL {
   }
 
   public static LogicalPlan head(
-      LogicalPlan input, boolean keeplast, Expression whileExpr, int number
-  ) {
+      LogicalPlan input, boolean keeplast, Expression whileExpr, int number) {
     return new LogicalHead(input, keeplast, whileExpr, number);
   }
   

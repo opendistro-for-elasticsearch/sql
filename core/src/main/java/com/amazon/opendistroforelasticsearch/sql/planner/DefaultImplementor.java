@@ -82,8 +82,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
             visitChild(node, context),
             node.getKeeplast(),
             node.getWhileExpr(),
-            node.getNumber()
-    );
+            node.getNumber());
   }
 
   @Override

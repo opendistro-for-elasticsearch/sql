@@ -194,4 +194,5 @@ public class ArgumentFactory {
         ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
         : new Literal(StringUtils.unquoteText(ctx.getText()), DataType.STRING);
   }
+
 }

@@ -30,7 +30,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Streams;
 import java.util.Collections;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
@@ -93,9 +92,8 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan head =
-        PhysicalPlanDSL.head(
-            new TestScan(), false, dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10)), 10);
+    PhysicalPlan head = PhysicalPlanDSL.head(
+        new TestScan(), false, dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10)), 10);
     assertNull(head.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

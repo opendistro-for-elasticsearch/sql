@@ -75,9 +75,7 @@ class AnalyzerTest extends AnalyzerTestBase {
             unresolvedArgList(
                 unresolvedArg("keeplast", booleanLiteral(false)),
                 unresolvedArg("whileExpr", compare("=", field("integer_value"), intLiteral(1))),
-                unresolvedArg("number", intLiteral(10)))
-        )
-    );
+                unresolvedArg("number", intLiteral(10)))));
   }
 
   @Test

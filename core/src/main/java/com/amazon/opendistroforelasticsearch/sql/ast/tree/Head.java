@@ -27,7 +27,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * AST node represent Dedupe operation.
+ * AST node represent Head operation.
  */
 @Getter
 @Setter
