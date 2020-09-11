@@ -30,7 +30,6 @@ import lombok.ToString;
  * {@link com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias}.
  */
 @EqualsAndHashCode
-@ToString
 public class NamedAggregator extends Aggregator<AggregationState> {
 
   /**
@@ -79,4 +78,10 @@ public class NamedAggregator extends Aggregator<AggregationState> {
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
     return visitor.visitNamedAggregator(this, context);
   }
+
+  @Override
+  public String toString() {
+    return getName();
+  }
+
 }

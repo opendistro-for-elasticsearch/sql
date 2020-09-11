@@ -125,8 +125,7 @@ class MetricAggregationBuilderTest {
             named("count(age)",
                 new CountAggregator(Arrays.asList(named("age", ref("age", INTEGER))), INTEGER)))));
     assertEquals(
-        "metric aggregation doesn't support expression "
-            + "NamedExpression(name=age, delegated=age, alias=null)",
+        "metric aggregation doesn't support expression age",
         exception.getMessage());
   }
 

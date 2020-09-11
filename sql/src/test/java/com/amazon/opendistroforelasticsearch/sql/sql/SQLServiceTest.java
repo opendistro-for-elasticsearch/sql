@@ -26,6 +26,8 @@ import static org.mockito.Mockito.mock;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
@@ -88,6 +90,28 @@ class SQLServiceTest {
   }
 
   @Test
+  public void canExplainSqlQuery() {
+    doAnswer(invocation -> {
+      ResponseListener<ExplainResponse> listener = invocation.getArgument(1);
+      listener.onResponse(new ExplainResponse(new ExplainResponseNode("Test")));
+      return null;
+    }).when(executionEngine).explain(any(), any());
+
+    sqlService.explain(mock(PhysicalPlan.class),
+        new ResponseListener<ExplainResponse>() {
+          @Override
+          public void onResponse(ExplainResponse response) {
+            assertNotNull(response);
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            fail(e);
+          }
+        });
+  }
+
+  @Test
   public void canExecuteFromPhysicalPlan() {
     doAnswer(invocation -> {
       ResponseListener<QueryResponse> listener = invocation.getArgument(1);
@@ -135,6 +159,24 @@ class SQLServiceTest {
           @Override
           public void onResponse(QueryResponse response) {
             fail();
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            assertNotNull(e);
+          }
+        });
+  }
+
+  @Test
+  public void canCaptureErrorDuringExplain() {
+    doThrow(new RuntimeException()).when(executionEngine).explain(any(), any());
+
+    sqlService.explain(mock(PhysicalPlan.class),
+        new ResponseListener<ExplainResponse>() {
+          @Override
+          public void onResponse(ExplainResponse response) {
+            fail("Should fail as expected");
           }
 
           @Override
