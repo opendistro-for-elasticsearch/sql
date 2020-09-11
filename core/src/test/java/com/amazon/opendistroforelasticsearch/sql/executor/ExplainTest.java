@@ -45,7 +45,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.ImmutableList;
@@ -96,12 +96,13 @@ class ExplainTest extends ExpressionTestBase {
         explain.apply(plan));
   }
 
-  @SuppressWarnings("rawtypes")
   @Test
   void can_explain_aggregations() {
     List<Expression> aggExprs = ImmutableList.of(ref("balance", DOUBLE));
-    List<Aggregator> aggList = ImmutableList.of(dsl.avg(aggExprs.toArray(new Expression[0])));
-    List<Expression> groupByList = ImmutableList.of(ref("state", STRING));
+    List<NamedAggregator> aggList = ImmutableList.of(
+        named("avg(balance)", dsl.avg(aggExprs.toArray(new Expression[0]))));
+    List<NamedExpression> groupByList = ImmutableList.of(
+        named("state", ref("state", STRING)));
 
     PhysicalPlan plan = agg(new FakeTableScan(), aggList, groupByList);
     assertEquals(

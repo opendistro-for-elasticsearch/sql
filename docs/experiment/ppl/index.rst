@@ -43,3 +43,8 @@ OpenDistro PPL Reference Manual
 
   - `where command <cmd/where.rst>`_
 
+  - `rare command <cmd/rare.rst>`_
+
+  - `top command <cmd/top.rst>`_
+
+

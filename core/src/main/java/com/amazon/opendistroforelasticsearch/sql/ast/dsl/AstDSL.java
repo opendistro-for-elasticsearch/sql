@@ -41,6 +41,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
@@ -295,5 +297,15 @@ public class AstDSL {
 
   public static Dedupe dedupe(UnresolvedPlan input, List<Argument> options, Field... fields) {
     return new Dedupe(input, options, Arrays.asList(fields));
+  }
+
+  public static List<Argument> defaultTopArgs() {
+    return exprList(argument("noOfResults", intLiteral(10)));
+  }
+
+  public static RareTopN rareTopN(UnresolvedPlan input, CommandType commandType,
+      List<Argument> noOfResults, List<UnresolvedExpression> groupList, Field... fields) {
+    return new RareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupList)
+        .attach(input);
   }
 }
