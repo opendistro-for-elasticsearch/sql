@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -53,6 +54,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
 
   /** Search request. */
   @EqualsAndHashCode.Include
+  @Getter
   @ToString.Include
   private final ElasticsearchRequest request;
 
