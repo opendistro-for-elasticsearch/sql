@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -125,21 +126,12 @@ public class QuerySpecification {
 
     @Override
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
-      aggregators.add(AstDSL.alias(getTextInQuery(ctx), visitAstExpression(ctx)));
+      aggregators.add(AstDSL.alias(getTextInQuery(ctx, queryString), visitAstExpression(ctx)));
       return super.visitAggregateFunctionCall(ctx);
     }
 
     private UnresolvedExpression visitAstExpression(ParseTree tree) {
       return expressionBuilder.visit(tree);
-    }
-
-    /**
-     * Get original text in query.
-     */
-    private String getTextInQuery(ParserRuleContext ctx) {
-      Token start = ctx.getStart();
-      Token stop = ctx.getStop();
-      return queryString.substring(start.getStartIndex(), stop.getStopIndex() + 1);
     }
   }
 
