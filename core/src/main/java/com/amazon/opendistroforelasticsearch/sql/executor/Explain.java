@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
@@ -124,6 +125,16 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
         "allowedDuplication", node.getAllowedDuplication(),
         "keepEmpty", node.getKeepEmpty(),
         "consecutive", node.getConsecutive())));
+  }
+
+  @Override
+  public ExplainResponseNode visitRareTopN(RareTopNOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
+        "commandType", node.getCommandType(),
+        "noOfResults", node.getNoOfResults(),
+        "fields", node.getFieldExprList().toString(),
+        "groupBy", node.getGroupByExprList().toString()
+    )));
   }
 
   @Override

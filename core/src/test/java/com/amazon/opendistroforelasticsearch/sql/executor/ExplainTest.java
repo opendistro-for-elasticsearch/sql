@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType.TOP;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -28,6 +29,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.physical.Physica
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.remove;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.sort;
@@ -63,6 +65,8 @@ class ExplainTest extends ExpressionTestBase {
 
   private final Explain explain = new Explain();
 
+  private final FakeTableScan tableScan = new FakeTableScan();
+
   @Test
   void can_explain_project_filter_table_scan() {
     Expression filterExpr =
@@ -77,7 +81,7 @@ class ExplainTest extends ExpressionTestBase {
     PhysicalPlan plan =
         project(
             filter(
-                new FakeTableScan(),
+                tableScan,
                 filterExpr),
             projectList);
 
@@ -89,10 +93,7 @@ class ExplainTest extends ExpressionTestBase {
                 singletonList(new ExplainResponseNode(
                     "FilterOperator",
                     ImmutableMap.of("conditions", "and(=(balance, 10000), >(age, 30))"),
-                    singletonList(new ExplainResponseNode(
-                        "FakeTableScan",
-                        ImmutableMap.of("request", "Fake DSL request"),
-                        emptyList())))))),
+                    singletonList(tableScan.explain()))))),
         explain.apply(plan));
   }
 
@@ -112,10 +113,25 @@ class ExplainTest extends ExpressionTestBase {
                 ImmutableMap.of(
                     "aggregators", "[avg(balance)]",
                     "groupBy", "[state]"),
-                singletonList(new ExplainResponseNode(
-                    "FakeTableScan",
-                    ImmutableMap.of("request", "Fake DSL request"),
-                    emptyList())))),
+                singletonList(tableScan.explain()))),
+        explain.apply(plan));
+  }
+
+  @Test
+  void can_explain_rare_top_n() {
+    Expression field = ref("state", STRING);
+
+    PhysicalPlan plan = rareTopN(tableScan, TOP, emptyList(), field);
+    assertEquals(
+        new ExplainResponse(
+            new ExplainResponseNode(
+                "RareTopNOperator",
+                ImmutableMap.of(
+                    "commandType", TOP,
+                    "noOfResults", 10,
+                    "fields", "[state]",
+                    "groupBy", "[]"),
+                singletonList(tableScan.explain()))),
         explain.apply(plan));
   }
 
@@ -194,6 +210,14 @@ class ExplainTest extends ExpressionTestBase {
     @Override
     public String toString() {
       return "Fake DSL request";
+    }
+
+    /** Used to ignore table scan which is duplicate but required for each operator test. */
+    public ExplainResponseNode explain() {
+      return new ExplainResponseNode(
+          "FakeTableScan",
+          ImmutableMap.of("request", "Fake DSL request"),
+          emptyList());
     }
   }
 
