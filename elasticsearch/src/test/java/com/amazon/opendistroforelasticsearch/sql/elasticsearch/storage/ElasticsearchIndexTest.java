@@ -51,11 +51,12 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
@@ -145,8 +146,10 @@ class ElasticsearchIndexTest {
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.of(true));
-    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
-    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
+    List<NamedExpression> groupByExprs = Arrays.asList(named("age", ref("age", INTEGER)));
+    List<NamedAggregator> aggregators =
+        Arrays.asList(named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)),
+            DOUBLE)));
     Map<ReferenceExpression, ReferenceExpression> mappings =
         ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
@@ -162,10 +165,7 @@ class ElasticsearchIndexTest {
                     eval(
                         remove(
                             rename(
-                                aggregation(
-                                    relation(indexName),
-                                    aggregators,
-                                    groupByExprs),
+                                relation(indexName),
                                 mappings),
                             exclude),
                         newEvalField),
@@ -182,11 +182,8 @@ class ElasticsearchIndexTest {
                     PhysicalPlanDSL.eval(
                         PhysicalPlanDSL.remove(
                             PhysicalPlanDSL.rename(
-                                PhysicalPlanDSL.agg(
-                                          new ElasticsearchIndexScan(
-                                              client, settings, indexName, exprValueFactory),
-                                        aggregators,
-                                        groupByExprs),
+                                new ElasticsearchIndexScan(client, settings, indexName,
+                                    exprValueFactory),
                                 mappings),
                             exclude),
                         newEvalField),
@@ -225,21 +222,80 @@ class ElasticsearchIndexTest {
 
     ReferenceExpression field = ref("name", STRING);
     Expression filterExpr = dsl.equal(field, literal("John"));
-    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
-    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
+    List<NamedExpression> groupByExprs = Arrays.asList(named("age", ref("age", INTEGER)));
+    List<NamedAggregator> aggregators =
+        Arrays.asList(named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)),
+            DOUBLE)));
 
     String indexName = "test";
     ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
     PhysicalPlan plan = index.implement(
-            filter(
-                aggregation(
-                    relation(indexName),
-                    aggregators,
-                    groupByExprs
-                ),
-                filterExpr));
+        filter(
+            aggregation(
+                relation(indexName),
+                aggregators,
+                groupByExprs
+            ),
+            filterExpr));
 
     assertTrue(plan instanceof FilterOperator);
   }
 
+  @Test
+  void shouldPushDownAggregation() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    Expression filterExpr = dsl.equal(field, literal("John"));
+    List<NamedExpression> groupByExprs = Arrays.asList(named("age", ref("age", INTEGER)));
+    List<NamedAggregator> aggregators =
+        Arrays.asList(named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)),
+            DOUBLE)));
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        filter(
+            aggregation(
+                relation(indexName),
+                aggregators,
+                groupByExprs
+            ),
+            filterExpr));
+
+    assertTrue(plan.getChild().get(0) instanceof ElasticsearchIndexScan);
+
+    plan = index.implement(
+        aggregation(
+            filter(
+                relation(indexName),
+                filterExpr),
+            aggregators,
+            groupByExprs));
+    assertTrue(plan instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldNotPushDownAggregationFarFromRelation() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    Expression filterExpr = dsl.equal(field, literal("John"));
+    List<NamedExpression> groupByExprs = Arrays.asList(named("age", ref("age", INTEGER)));
+    List<NamedAggregator> aggregators =
+        Arrays.asList(named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)),
+            DOUBLE)));
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+
+    PhysicalPlan plan = index.implement(
+        aggregation(
+            filter(filter(
+                relation(indexName),
+                filterExpr), filterExpr),
+            aggregators,
+            groupByExprs));
+    assertTrue(plan instanceof AggregationOperator);
+  }
 }

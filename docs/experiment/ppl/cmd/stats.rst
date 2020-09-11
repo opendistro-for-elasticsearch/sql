@@ -13,6 +13,18 @@ Description
 ============
 | Using ``stats`` command to calculate the aggregation from search result.
 
+The following table catalogs the aggregation functions and also indicates how each one handles NULL/MISSING values is handled:
+
++----------+-------------+-------------+
+| Function | NULL        | MISSING     |
++----------+-------------+-------------+
+| COUNT    | Not counted | Not counted |
++----------+-------------+-------------+
+| SUM      | Ignore      | Ignore      |
++----------+-------------+-------------+
+| AVG      | Ignore      | Ignore      |
++----------+-------------+-------------+
+
 
 Syntax
 ============

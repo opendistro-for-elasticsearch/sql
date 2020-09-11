@@ -45,6 +45,7 @@ public class NamedExpression implements Expression {
   /**
    * Expression that being named.
    */
+  @Getter
   private final Expression delegated;
 
   /**

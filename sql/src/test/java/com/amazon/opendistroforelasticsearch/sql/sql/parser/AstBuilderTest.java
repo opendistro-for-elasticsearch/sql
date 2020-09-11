@@ -198,13 +198,73 @@ class AstBuilderTest {
         project(
             agg(
                 relation("test"),
-                ImmutableList.of(aggregate("AVG", qualifiedName("age"))),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
                 emptyList(),
-                ImmutableList.of(qualifiedName("name")),
+                ImmutableList.of(alias("name", qualifiedName("name"))),
                 emptyList()),
             alias("name", qualifiedName("name")),
             alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
         buildAST("SELECT name, AVG(age) FROM test GROUP BY name"));
+  }
+
+  @Test
+  public void can_build_group_by_with_function() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("abs(name)", function("abs", qualifiedName("name")))),
+                emptyList()),
+            alias("abs(name)", function("abs", qualifiedName("name"))),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT abs(name), AVG(age) FROM test GROUP BY abs(name)"));
+  }
+
+  @Test
+  public void can_build_group_by_with_uppercase_function() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("ABS(name)", function("ABS", qualifiedName("name")))),
+                emptyList()),
+            alias("ABS(name)", function("ABS", qualifiedName("name"))),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT ABS(name), AVG(age) FROM test GROUP BY 1"));
+  }
+
+  @Test
+  public void can_build_group_by_with_alias() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("abs(name)", function("abs", qualifiedName("name")))),
+                emptyList()),
+            alias("abs(name)", function("abs", qualifiedName("name")), "n"),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT abs(name) as n, AVG(age) FROM test GROUP BY n"));
+  }
+
+  @Test
+  public void can_build_group_by_with_ordinal() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("abs(name)", function("abs", qualifiedName("name")))),
+                emptyList()),
+            alias("abs(name)", function("abs", qualifiedName("name")), "n"),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT abs(name) as n, AVG(age) FROM test GROUP BY 1"));
   }
 
   @Test
@@ -213,7 +273,7 @@ class AstBuilderTest {
         project(
             agg(
                 relation("test"),
-                ImmutableList.of(aggregate("AVG", qualifiedName("age"))),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
                 emptyList(),
                 emptyList(),
                 emptyList()),

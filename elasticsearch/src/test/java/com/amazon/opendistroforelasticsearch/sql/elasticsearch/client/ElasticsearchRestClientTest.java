@@ -27,6 +27,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchScrollRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
@@ -66,6 +70,15 @@ class ElasticsearchRestClientTest {
   private RestHighLevelClient restClient;
 
   private ElasticsearchRestClient client;
+
+  @Mock
+  private ElasticsearchExprValueFactory factory;
+
+  @Mock
+  private SearchHit searchHit;
+
+  private ExprTupleValue exprTupleValue = ExprTupleValue.fromExprValueMap(ImmutableMap.of("id",
+      new ExprIntegerValue(1)));
 
   @BeforeEach
   void setUp() {
@@ -126,9 +139,11 @@ class ElasticsearchRestClientTest {
     when(searchResponse.getHits())
         .thenReturn(
             new SearchHits(
-                new SearchHit[] {new SearchHit(1)},
+                new SearchHit[] {searchHit},
                 new TotalHits(1L, TotalHits.Relation.EQUAL_TO),
                 1.0F));
+    when(searchHit.getSourceAsString()).thenReturn("{\"id\", 1}");
+    when(factory.construct(any())).thenReturn(exprTupleValue);
 
     // Mock second scroll request followed
     SearchResponse scrollResponse = mock(SearchResponse.class);
@@ -137,13 +152,13 @@ class ElasticsearchRestClientTest {
     when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
     // Verify response for first scroll request
-    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
     ElasticsearchResponse response1 = client.search(request);
     assertFalse(response1.isEmpty());
 
-    Iterator<SearchHit> hits = response1.iterator();
+    Iterator<ExprValue> hits = response1.iterator();
     assertTrue(hits.hasNext());
-    assertEquals(new SearchHit(1), hits.next());
+    assertEquals(exprTupleValue, hits.next());
     assertFalse(hits.hasNext());
 
     // Verify response for second scroll request
@@ -155,7 +170,8 @@ class ElasticsearchRestClientTest {
   void searchWithIOException() throws IOException {
     when(restClient.search(any(), any())).thenThrow(new IOException());
     assertThrows(
-        IllegalStateException.class, () -> client.search(new ElasticsearchScrollRequest("test")));
+        IllegalStateException.class,
+        () -> client.search(new ElasticsearchScrollRequest("test", factory)));
   }
 
   @Test
@@ -175,7 +191,7 @@ class ElasticsearchRestClientTest {
     when(restClient.scroll(any(), any())).thenThrow(new IOException());
 
     // First request run successfully
-    ElasticsearchScrollRequest scrollRequest = new ElasticsearchScrollRequest("test");
+    ElasticsearchScrollRequest scrollRequest = new ElasticsearchScrollRequest("test", factory);
     client.search(scrollRequest);
     assertThrows(
         IllegalStateException.class, () -> client.search(scrollRequest));
@@ -193,7 +209,7 @@ class ElasticsearchRestClientTest {
 
   @Test
   void cleanup() throws IOException {
-    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
     request.setScrollId("scroll123");
     client.cleanup(request);
     verify(restClient).clearScroll(any(), any());
@@ -202,7 +218,7 @@ class ElasticsearchRestClientTest {
 
   @Test
   void cleanupWithoutScrollId() throws IOException {
-    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
     client.cleanup(request);
     verify(restClient, never()).clearScroll(any(), any());
   }
@@ -211,7 +227,7 @@ class ElasticsearchRestClientTest {
   void cleanupWithIOException() throws IOException {
     when(restClient.clearScroll(any(), any())).thenThrow(new IOException());
 
-    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
     request.setScrollId("scroll123");
     assertThrows(IllegalStateException.class, () -> client.cleanup(request));
   }

@@ -25,7 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -45,6 +47,8 @@ class ExpressionNodeVisitorTest {
     assertNull(named("bool", literal(true)).accept(visitor, null));
     assertNull(dsl.abs(literal(-10)).accept(visitor, null));
     assertNull(dsl.sum(literal(10)).accept(visitor, null));
+    assertNull(named("avg", new AvgAggregator(Collections.singletonList(ref("age", INTEGER)),
+        INTEGER)).accept(visitor, null));
   }
 
   @Test

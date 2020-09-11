@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import java.util.Arrays;
@@ -102,6 +103,10 @@ public class DSL {
 
   public static NamedExpression named(String name, Expression expression, String alias) {
     return new NamedExpression(name, expression, alias);
+  }
+
+  public static NamedAggregator named(String name, Aggregator aggregator) {
+    return new NamedAggregator(name, aggregator);
   }
 
   public FunctionExpression abs(Expression... expressions) {
