@@ -63,6 +63,39 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
   }
 
   @Test
+  public void headTest_Number() {
+    HeadOperator plan = new HeadOperator(new CountTestScan(),
+        false, DSL.literal(true), 2);
+    List<ExprValue> result = execute(plan);
+    assertEquals(2, result.size());
+    assertThat(result, containsInAnyOrder(
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 1, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 2, "testString", "asdf"))
+    ));
+  }
+
+  @Test
+  public void headTest_InputEnd() {
+    HeadOperator plan = new HeadOperator(new CountTestScan(),
+        false, DSL.literal(true), 12);
+    List<ExprValue> result = execute(plan);
+    assertEquals(11, result.size());
+    assertThat(result, containsInAnyOrder(
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 1, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 2, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 3, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 4, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 5, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 6, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 7, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 8, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 9, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 10, "testString", "asdf")),
+        ExprValueUtils.tupleValue(ImmutableMap.of("id", 11, "testString", "asdf"))
+    ));
+  }
+
+  @Test
   public void headTest_keepLastTrue() {
     HeadOperator plan = new HeadOperator(new CountTestScan(),
         true, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)), defaultResultCount);

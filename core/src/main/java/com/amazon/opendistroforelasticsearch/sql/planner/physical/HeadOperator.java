@@ -58,8 +58,8 @@ public class HeadOperator extends PhysicalPlan {
    *
    * @param input     Input {@link PhysicalPlan}
    * @param keepLast  Controls whether the last result in the result set is retained. The last
-   *                  result returned is the result that caused the whileExpr to evaluate
-   *                  to false or NULL.
+   *                  result returned is the result that caused the whileExpr to evaluate to false
+   *                  or NULL.
    * @param whileExpr The search returns results until this expression evaluates to false
    * @param number    Number of specified results
    */
@@ -83,24 +83,21 @@ public class HeadOperator extends PhysicalPlan {
 
   @Override
   public boolean hasNext() {
-    while (input.hasNext() && !foundFirstFalse) {
-      ExprValue inputVal = input.next();
-      ExprValue exprValue = whileExpr.valueOf(inputVal.bindingTuples());
-
-      if (recordCount < number) {
-        if (!(!(exprValue.isNull() || exprValue.isMissing()) && (exprValue.booleanValue()))) {
-          // First false is when we decide whether to keep the last value
-          foundFirstFalse = true;
-          if (!keepLast) {
-            return false;
-          }
-        }
-        this.next = inputVal;
-        recordCount++;
-        return true;
+    if (!input.hasNext() || foundFirstFalse || (recordCount >= number)) {
+      return false;
+    }
+    ExprValue inputVal = input.next();
+    ExprValue exprValue = whileExpr.valueOf(inputVal.bindingTuples());
+    if (exprValue.isNull() || exprValue.isMissing() || !(exprValue.booleanValue())) {
+      // First false is when we decide whether to keep the last value
+      foundFirstFalse = true;
+      if (!keepLast) {
+        return false;
       }
     }
-    return false;
+    this.next = inputVal;
+    recordCount++;
+    return true;
   }
 
   @Override

@@ -332,5 +332,4 @@ public class AstDSL {
     return new RareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupList)
         .attach(input);
   }
-  
 }
