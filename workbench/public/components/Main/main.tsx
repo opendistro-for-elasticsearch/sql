@@ -14,12 +14,14 @@
  */
 
 import React from "react";
-import {EuiSpacer} from "@elastic/eui";
+import {EuiSpacer, EuiButtonGroup} from "@elastic/eui";
+import { htmlIdGenerator } from '@elastic/eui/lib/services';
 import {IHttpResponse, IHttpService} from "angular";
 import _ from "lodash";
 import Header from "../Header/Header";
 import QueryEditor from "../QueryEditor/QueryEditor";
 import QueryResults from "../QueryResults/QueryResults";
+import Switch from "../QueryLanguageSwitch/Switch";
 import {getDefaultTabId, getDefaultTabLabel, getQueries, getSelectedResults, Tree} from "../../utils/utils";
 import {MESSAGE_TAB_LABEL} from "../../utils/constants";
 
@@ -77,9 +79,51 @@ interface MainState {
   searchQuery: string;
   itemIdToExpandedRowMap: ItemIdToExpandedRowMap;
   messages: Array<QueryMessage>;
+  queryLanguage: Language;
 }
 
 const SUCCESS_MESSAGE = "Success";
+const idPrefix = htmlIdGenerator()();
+
+export enum Language {
+  sql,
+  ppl
+}
+
+export function queryLang() {
+  const toggleButtons = [
+    {
+      id: `${idPrefix}0`,
+      label: 'Option one',
+    },
+    {
+      id: `${idPrefix}1`,
+      label: 'Option two is selected by default',
+    },
+    {
+      id: `${idPrefix}2`,
+      label: 'Option three',
+    },
+  ];
+  const [toggleIdSelected, setToggleIdSelected] = useState(`${idPrefix}1`);
+
+  const onChange = (optionId: React.SetStateAction<string>) => {
+    setToggleIdSelected(optionId);
+  };
+
+  return (
+      <Fragment>
+        <EuiButtonGroup
+            legend="This is a basic group"
+            options={toggleButtons}
+            idSelected={toggleIdSelected}
+            onChange={id => onChange(id)}
+            color="primary"
+            type="single"
+        />
+      </Fragment>
+  );
+}
 
 // It gets column names and row values to display in a Table from the json API response
 export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]): ResponseDetail<QueryResult>[] {
@@ -191,7 +235,8 @@ export class Main extends React.Component<MainProps, MainState> {
       selectedTabId: MESSAGE_TAB_LABEL,
       searchQuery: "",
       itemIdToExpandedRowMap: {},
-      messages: []
+      messages: [],
+      queryLanguage: Language.sql
     };
 
     this.httpClient = this.props.httpClient;
@@ -239,6 +284,13 @@ export class Main extends React.Component<MainProps, MainState> {
       data: response.data.resp
     };
   }
+
+  onLanguageChange = (): void => {
+    let currentLang = this.state.queryLanguage;
+    this.setState({
+      queryLanguage: currentLang == Language.sql ? Language.ppl : Language.sql
+    })
+  };
 
   onSelectedTabIdChange = (tab: Tab): void => {
     this.setState({
@@ -573,6 +625,11 @@ export class Main extends React.Component<MainProps, MainState> {
               getJdbc={this.getJdbc}
               getCsv={this.getCsv}
               getText={this.getText}
+            />
+          </div>
+          <div>
+            <Switch
+                onChange={this.onLanguageChange}
             />
           </div>
         </div>

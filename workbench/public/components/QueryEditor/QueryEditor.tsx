@@ -20,7 +20,8 @@ import { EuiPanel, EuiButton, EuiText, EuiFlexGroup, EuiFlexItem, EuiCodeEditor}
 import "brace/mode/sql";
 import "brace/mode/json";
 import "../../ace-themes/sql_console";
-import {ResponseDetail, TranslateResult} from "../Main/main";
+import {Language, ResponseDetail, TranslateResult} from "../Main/main";
+import Switch from "../QueryLanguageSwitch/Switch";
 
 interface QueryEditorProps {
   onRun: (queriesString: string) => void;
@@ -28,6 +29,8 @@ interface QueryEditorProps {
   onClear: () => void;
   queryTranslations: ResponseDetail<TranslateResult>[];
   sqlQueriesString: string;
+  queryLanguage: Language;
+  onChange: (id: string, value?: any) => void;
 }
 
 interface QueryEditorState {
@@ -46,6 +49,13 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
 
   updateSQLQueries(newQueriesString: string): void {
     this.setState({ sqlQueriesString: newQueriesString });
+  }
+
+  switchLanguage(language: Language): void {
+    let currentLang = this.state.queryLanguage;
+    this.setState({
+      queryLanguage: currentLang == Language.sql ? Language.ppl : Language.sql
+    })
   }
 
   render() {
@@ -134,6 +144,15 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
+        </div>
+        <div>
+          <EuiButtonGroup
+              options={toggleButtons}
+              idSelected={toggleIdSelected}
+              onChange={
+                () => this.switchLanguage(this.state.queryLanguage)
+              }
+          />
         </div>
       </EuiPanel>
     );
