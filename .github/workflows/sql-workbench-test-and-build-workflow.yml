@@ -30,17 +30,17 @@ jobs:
         with:
           timeout_minutes: 60
           max_attempts: 3
-          command: cd kibana/plugins/sql-workbench; yarn kbn bootstrap
+          command: cd kibana/plugins/workbench; yarn kbn bootstrap
       - name: Test
         run: |
-          cd kibana/plugins/sql-workbench
+          cd kibana/plugins/workbench
           yarn test:jest
       - name: Build Artifact
         run: |
-          cd kibana/plugins/sql-workbench
+          cd kibana/plugins/workbench
           yarn build
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
-          name: sql-workbench
-          path: kibana/plugins/sql-workbench/build
+          name: workbench
+          path: kibana/plugins/workbench/build
