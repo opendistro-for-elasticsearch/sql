@@ -1,0 +1,2 @@
+SELECT avg(log(AvgTicketPrice)) FROM kibana_sample_data_flights GROUP BY DestCountry
+SELECT avg(log(AvgTicketPrice)) FROM kibana_sample_data_flights GROUP BY DestCountry, dayOfWeek

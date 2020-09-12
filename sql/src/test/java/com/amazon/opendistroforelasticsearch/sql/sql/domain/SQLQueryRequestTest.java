@@ -48,12 +48,13 @@ public class SQLQueryRequestTest {
   }
 
   @Test
-  public void shouldNotSupportExplain() {
+  public void shouldSupportExplain() {
     SQLQueryRequest explainRequest =
         SQLQueryRequestBuilder.request("SELECT 1")
                               .path("_opendistro/_sql/_explain")
                               .build();
-    assertFalse(explainRequest.isSupported());
+    assertTrue(explainRequest.isExplainRequest());
+    assertTrue(explainRequest.isSupported());
   }
 
   @Test

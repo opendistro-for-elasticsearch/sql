@@ -276,6 +276,9 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     assertContainsData(getDataRows(response), fields);
   }
 
+  @Ignore("The semantic of this and previous are wrong. The correct semantic is that * will "
+      + "be expanded to all fields of the index. Error should be raise for both due to difference "
+      + "between columns in SELECT and GROUP BY.")
   @Test
   public void groupByMultipleFields() throws IOException {
     JSONObject response = executeQuery(
