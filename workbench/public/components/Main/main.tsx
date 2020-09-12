@@ -14,16 +14,15 @@
  */
 
 import React from "react";
-import {EuiSpacer, EuiButtonGroup} from "@elastic/eui";
-import { htmlIdGenerator } from '@elastic/eui/lib/services';
-import {IHttpResponse, IHttpService} from "angular";
+import { EuiSpacer } from "@elastic/eui";
+import { IHttpResponse, IHttpService } from "angular";
 import _ from "lodash";
 import Header from "../Header/Header";
 import QueryEditor from "../QueryEditor/QueryEditor";
 import QueryResults from "../QueryResults/QueryResults";
 import Switch from "../QueryLanguageSwitch/Switch";
-import {getDefaultTabId, getDefaultTabLabel, getQueries, getSelectedResults, Tree} from "../../utils/utils";
-import {MESSAGE_TAB_LABEL} from "../../utils/constants";
+import { getDefaultTabId, getDefaultTabLabel, getQueries, getSelectedResults, Tree } from "../../utils/utils";
+import { MESSAGE_TAB_LABEL } from "../../utils/constants";
 
 interface ResponseData {
   ok: boolean;
@@ -55,18 +54,22 @@ export interface Tab {
   disabled: boolean;
 }
 
-export type ItemIdToExpandedRowMap = {[key: string]:{
-  nodes: Tree;
-  expandedRow?: {};
-  selectedNodes?: {[key: string]: any};
-}};
+export type ItemIdToExpandedRowMap = {
+  [key: string]: {
+    nodes: Tree;
+    expandedRow?: {};
+    selectedNodes?: { [key: string]: any };
+  }
+};
 
 interface MainProps {
   httpClient: IHttpService;
   sqlQueriesString?: string;
+  onChange: (id: string, value?: any) => void;
 }
 
 interface MainState {
+  language: string;
   queries: string[];
   queryTranslations: Array<ResponseDetail<TranslateResult>>;
   queryResultsTable: Array<ResponseDetail<QueryResult>>;
@@ -79,56 +82,14 @@ interface MainState {
   searchQuery: string;
   itemIdToExpandedRowMap: ItemIdToExpandedRowMap;
   messages: Array<QueryMessage>;
-  queryLanguage: Language;
 }
 
 const SUCCESS_MESSAGE = "Success";
-const idPrefix = htmlIdGenerator()();
-
-export enum Language {
-  sql,
-  ppl
-}
-
-export function queryLang() {
-  const toggleButtons = [
-    {
-      id: `${idPrefix}0`,
-      label: 'Option one',
-    },
-    {
-      id: `${idPrefix}1`,
-      label: 'Option two is selected by default',
-    },
-    {
-      id: `${idPrefix}2`,
-      label: 'Option three',
-    },
-  ];
-  const [toggleIdSelected, setToggleIdSelected] = useState(`${idPrefix}1`);
-
-  const onChange = (optionId: React.SetStateAction<string>) => {
-    setToggleIdSelected(optionId);
-  };
-
-  return (
-      <Fragment>
-        <EuiButtonGroup
-            legend="This is a basic group"
-            options={toggleButtons}
-            idSelected={toggleIdSelected}
-            onChange={id => onChange(id)}
-            color="primary"
-            type="single"
-        />
-      </Fragment>
-  );
-}
 
 // It gets column names and row values to display in a Table from the json API response
 export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]): ResponseDetail<QueryResult>[] {
   return queryResults.map(
-    ( queryResultResponseDetail: ResponseDetail<string> ): ResponseDetail<QueryResult> => {
+    (queryResultResponseDetail: ResponseDetail<string>): ResponseDetail<QueryResult> => {
       if (!queryResultResponseDetail.fulfilled) {
         return {
           fulfilled: queryResultResponseDetail.fulfilled,
@@ -149,7 +110,7 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
             queryType = 'show';
             for (const col of schema.values()) {
               if (_.isEqual(_.get(col, 'name'), 'DATA_TYPE'))
-              queryType = 'describe';
+                queryType = 'describe';
             }
           }
         }
@@ -182,7 +143,7 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
               } catch (e) {
                 console.log('No alias for field ' + field);
               } finally {
-                fields[id] = !alias ?  _.get(field, 'name') : alias;
+                fields[id] = !alias ? _.get(field, 'name') : alias;
               }
             }
             databaseFields = fields;
@@ -191,7 +152,7 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
               let databaseRecord: { [key: string]: any } = {};
               databaseRecord['id'] = id;
               for (const index of schema.keys()) {
-                const fieldname = databaseFields[index+1];
+                const fieldname = databaseFields[index + 1];
                 databaseRecord[fieldname] = datarow[index];
               }
               databaseRecords.push(databaseRecord);
@@ -223,7 +184,10 @@ export class Main extends React.Component<MainProps, MainState> {
   constructor(props: MainProps) {
     super(props);
 
+    this.onChange = this.onChange.bind(this)
+
     this.state = {
+      language: 'SQL',
       queries: [],
       queryTranslations: [],
       queryResultsTable: [],
@@ -235,21 +199,20 @@ export class Main extends React.Component<MainProps, MainState> {
       selectedTabId: MESSAGE_TAB_LABEL,
       searchQuery: "",
       itemIdToExpandedRowMap: {},
-      messages: [],
-      queryLanguage: Language.sql
+      messages: []
     };
 
     this.httpClient = this.props.httpClient;
   }
 
   processTranslateResponse(response: IHttpResponse<ResponseData>): ResponseDetail<TranslateResult> {
-      if(!response){
-        return{
-          fulfilled: false,
-          errorMessage: "no response",
-          data: undefined
-        }
+    if (!response) {
+      return {
+        fulfilled: false,
+        errorMessage: "no response",
+        data: undefined
       }
+    }
     if (!response.data.ok) {
       return {
         fulfilled: false,
@@ -264,8 +227,8 @@ export class Main extends React.Component<MainProps, MainState> {
   }
 
   processQueryResponse(response: IHttpResponse<ResponseData>): ResponseDetail<string> {
-    if(!response){
-      return{
+    if (!response) {
+      return {
         fulfilled: false,
         errorMessage: "no response",
         data: ''
@@ -285,13 +248,6 @@ export class Main extends React.Component<MainProps, MainState> {
     };
   }
 
-  onLanguageChange = (): void => {
-    let currentLang = this.state.queryLanguage;
-    this.setState({
-      queryLanguage: currentLang == Language.sql ? Language.ppl : Language.sql
-    })
-  };
-
   onSelectedTabIdChange = (tab: Tab): void => {
     this.setState({
       selectedTabId: tab.id,
@@ -301,7 +257,7 @@ export class Main extends React.Component<MainProps, MainState> {
     });
   };
 
-  onQueryChange = ({query}: {query : any}) => {
+  onQueryChange = ({ query }: { query: any }) => {
     // Reset pagination state.
     this.setState({
       searchQuery: query,
@@ -314,7 +270,7 @@ export class Main extends React.Component<MainProps, MainState> {
   };
 
   // It returns the error or successful message to display in the Message Tab
-  getMessage( queryResultsForTable: ResponseDetail<QueryResult>[] ): Array<QueryMessage> {
+  getMessage(queryResultsForTable: ResponseDetail<QueryResult>[]): Array<QueryMessage> {
     return queryResultsForTable.map(queryResult => {
       return {
 
@@ -324,7 +280,7 @@ export class Main extends React.Component<MainProps, MainState> {
     });
   }
 
-  getTranslateMessage( translationResult: ResponseDetail<TranslateResult>[] ): Array<QueryMessage> {
+  getTranslateMessage(translationResult: ResponseDetail<TranslateResult>[]): Array<QueryMessage> {
     return translationResult.map(translation => {
       return {
         text: translation.data ? SUCCESS_MESSAGE : translation.errorMessage,
@@ -335,13 +291,15 @@ export class Main extends React.Component<MainProps, MainState> {
 
   onRun = (queriesString: string): void => {
     const queries: string[] = getQueries(queriesString);
-
+    const language = this.state.language
     if (queries.length > 0) {
 
+      console.log("main: " + language)
+      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqlquery" : "pplquery");
       const responsePromise = Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/query", {query})
+            .post(endpoint, { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -358,7 +316,7 @@ export class Main extends React.Component<MainProps, MainState> {
       const translationPromise = Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/translate", {query})
+            .post("../api/sql_console/translate", { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -406,7 +364,7 @@ export class Main extends React.Component<MainProps, MainState> {
       const translationPromise = Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/translate", {query})
+            .post("../api/sql_console/translate", { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -457,7 +415,7 @@ export class Main extends React.Component<MainProps, MainState> {
       Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/queryjson", {query})
+            .post("../api/sql_console/queryjson", { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -487,7 +445,7 @@ export class Main extends React.Component<MainProps, MainState> {
       Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/query", {query})
+            .post("../api/sql_console/query", { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -517,7 +475,7 @@ export class Main extends React.Component<MainProps, MainState> {
       Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/querycsv", {query})
+            .post("../api/sql_console/querycsv", { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -547,7 +505,7 @@ export class Main extends React.Component<MainProps, MainState> {
       Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/querytext", {query})
+            .post("../api/sql_console/querytext", { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -588,17 +546,30 @@ export class Main extends React.Component<MainProps, MainState> {
     });
   };
 
+  onChange = (id: string) => {
+    this.setState({
+      language: id
+    }, () => console.log("Successfully updated language to ", this.state.language)); // added callback function to handle async issues
+  }
+
   render() {
     return (
       <div>
         <Header />
         <div className="sql-console-query-container">
+          <div className="query-language-switch">
+            <Switch
+              onChange={this.onChange}
+              language={this.state.language}
+            />
+          </div>
+          <EuiSpacer size="l" />
           <div className="sql-console-query-editor">
             <QueryEditor
               onRun={this.onRun}
               onTranslate={this.onTranslate}
               onClear={this.onClear}
-              sqlQueriesString={this.props.sqlQueriesString ? this.props.sqlQueriesString : '' }
+              sqlQueriesString={this.props.sqlQueriesString ? this.props.sqlQueriesString : ''}
               queryTranslations={this.state.queryTranslations}
             />
           </div>
@@ -625,11 +596,6 @@ export class Main extends React.Component<MainProps, MainState> {
               getJdbc={this.getJdbc}
               getCsv={this.getCsv}
               getText={this.getText}
-            />
-          </div>
-          <div>
-            <Switch
-                onChange={this.onLanguageChange}
             />
           </div>
         </div>

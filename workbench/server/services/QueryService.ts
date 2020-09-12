@@ -32,7 +32,8 @@ export default class QueryService {
       };
       const { callWithRequest } = await this.client.getCluster(CLUSTER.SQL);
       const createResponse = await callWithRequest(request, format, params);
-      return h.response({ ok: true, resp:
+      return h.response({
+        ok: true, resp:
           _.isEqual(responseFormat, "json") ? JSON.stringify(createResponse) : createResponse
       });
     } catch (err) {
@@ -41,8 +42,12 @@ export default class QueryService {
     return h.response({ ok: false, resp: err.message });
   };
 
-  describeQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.query", "json", err)
+  describeSQLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    return this.describeQueryInternal(request, h, "sql.sqlQuery", "json", err)
+  };
+
+  describePPLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    return this.describeQueryInternal(request, h, "sql.pplQuery", "json", err)
   };
 
   describeQueryCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {

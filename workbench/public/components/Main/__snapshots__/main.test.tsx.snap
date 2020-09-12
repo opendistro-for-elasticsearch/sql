@@ -12,6 +12,81 @@ exports[`<Main /> spec click clear button 1`] = `
       class="sql-console-query-container"
     >
       <div
+        class="query-language-switch"
+      >
+        <fieldset
+          class="euiButtonGroup__fieldset"
+        >
+          <legend
+            class="euiScreenReaderOnly"
+          >
+            query-language-swtich
+          </legend>
+          <div
+            class="euiButtonGroup euiButtonGroup--s query-language-switch"
+          >
+            <div
+              class="euiToggle euiToggle--checked euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="SQL"
+                checked=""
+                class="euiToggle__input euiButtonToggle__input"
+                title="SQL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button euiButtonGroup__button--selected euiButton--fill"
+                id="SQL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    SQL
+                  </span>
+                </span>
+              </button>
+            </div>
+            <div
+              class="euiToggle euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="PPL"
+                class="euiToggle__input euiButtonToggle__input"
+                title="PPL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button"
+                id="PPL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    PPL
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        class="euiSpacer euiSpacer--l"
+      />
+      <div
         class="sql-console-query-editor"
       >
         <div
@@ -26,7 +101,7 @@ exports[`<Main /> spec click clear button 1`] = `
               <div
                 class="euiText euiText--medium sql-query-panel-header"
               >
-                SQL Query
+                Query Editor
               </div>
               <div
                 class="euiCodeEditorWrapper"
@@ -280,7 +355,7 @@ exports[`<Main /> spec click clear button 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -298,7 +373,7 @@ exports[`<Main /> spec click clear button 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -316,7 +391,7 @@ exports[`<Main /> spec click clear button 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -508,6 +583,81 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
       class="sql-console-query-container"
     >
       <div
+        class="query-language-switch"
+      >
+        <fieldset
+          class="euiButtonGroup__fieldset"
+        >
+          <legend
+            class="euiScreenReaderOnly"
+          >
+            query-language-swtich
+          </legend>
+          <div
+            class="euiButtonGroup euiButtonGroup--s query-language-switch"
+          >
+            <div
+              class="euiToggle euiToggle--checked euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="SQL"
+                checked=""
+                class="euiToggle__input euiButtonToggle__input"
+                title="SQL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button euiButtonGroup__button--selected euiButton--fill"
+                id="SQL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    SQL
+                  </span>
+                </span>
+              </button>
+            </div>
+            <div
+              class="euiToggle euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="PPL"
+                class="euiToggle__input euiButtonToggle__input"
+                title="PPL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button"
+                id="PPL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    PPL
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        class="euiSpacer euiSpacer--l"
+      />
+      <div
         class="sql-console-query-editor"
       >
         <div
@@ -522,7 +672,7 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
               <div
                 class="euiText euiText--medium sql-query-panel-header"
               >
-                SQL Query
+                Query Editor
               </div>
               <div
                 class="euiCodeEditorWrapper"
@@ -776,7 +926,7 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -794,7 +944,7 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -812,7 +962,7 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -1004,6 +1154,81 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
       class="sql-console-query-container"
     >
       <div
+        class="query-language-switch"
+      >
+        <fieldset
+          class="euiButtonGroup__fieldset"
+        >
+          <legend
+            class="euiScreenReaderOnly"
+          >
+            query-language-swtich
+          </legend>
+          <div
+            class="euiButtonGroup euiButtonGroup--s query-language-switch"
+          >
+            <div
+              class="euiToggle euiToggle--checked euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="SQL"
+                checked=""
+                class="euiToggle__input euiButtonToggle__input"
+                title="SQL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button euiButtonGroup__button--selected euiButton--fill"
+                id="SQL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    SQL
+                  </span>
+                </span>
+              </button>
+            </div>
+            <div
+              class="euiToggle euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="PPL"
+                class="euiToggle__input euiButtonToggle__input"
+                title="PPL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button"
+                id="PPL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    PPL
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        class="euiSpacer euiSpacer--l"
+      />
+      <div
         class="sql-console-query-editor"
       >
         <div
@@ -1018,7 +1243,7 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
               <div
                 class="euiText euiText--medium sql-query-panel-header"
               >
-                SQL Query
+                Query Editor
               </div>
               <div
                 class="euiCodeEditorWrapper"
@@ -1272,7 +1497,7 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -1290,7 +1515,7 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -1308,7 +1533,7 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -1500,6 +1725,81 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
       class="sql-console-query-container"
     >
       <div
+        class="query-language-switch"
+      >
+        <fieldset
+          class="euiButtonGroup__fieldset"
+        >
+          <legend
+            class="euiScreenReaderOnly"
+          >
+            query-language-swtich
+          </legend>
+          <div
+            class="euiButtonGroup euiButtonGroup--s query-language-switch"
+          >
+            <div
+              class="euiToggle euiToggle--checked euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="SQL"
+                checked=""
+                class="euiToggle__input euiButtonToggle__input"
+                title="SQL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button euiButtonGroup__button--selected euiButton--fill"
+                id="SQL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    SQL
+                  </span>
+                </span>
+              </button>
+            </div>
+            <div
+              class="euiToggle euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="PPL"
+                class="euiToggle__input euiButtonToggle__input"
+                title="PPL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button"
+                id="PPL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    PPL
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        class="euiSpacer euiSpacer--l"
+      />
+      <div
         class="sql-console-query-editor"
       >
         <div
@@ -1514,7 +1814,7 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
               <div
                 class="euiText euiText--medium sql-query-panel-header"
               >
-                SQL Query
+                Query Editor
               </div>
               <div
                 class="euiCodeEditorWrapper"
@@ -1768,7 +2068,7 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -1786,7 +2086,7 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -1804,7 +2104,7 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -1996,6 +2296,81 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
       class="sql-console-query-container"
     >
       <div
+        class="query-language-switch"
+      >
+        <fieldset
+          class="euiButtonGroup__fieldset"
+        >
+          <legend
+            class="euiScreenReaderOnly"
+          >
+            query-language-swtich
+          </legend>
+          <div
+            class="euiButtonGroup euiButtonGroup--s query-language-switch"
+          >
+            <div
+              class="euiToggle euiToggle--checked euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="SQL"
+                checked=""
+                class="euiToggle__input euiButtonToggle__input"
+                title="SQL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button euiButtonGroup__button--selected euiButton--fill"
+                id="SQL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    SQL
+                  </span>
+                </span>
+              </button>
+            </div>
+            <div
+              class="euiToggle euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="PPL"
+                class="euiToggle__input euiButtonToggle__input"
+                title="PPL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button"
+                id="PPL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    PPL
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        class="euiSpacer euiSpacer--l"
+      />
+      <div
         class="sql-console-query-editor"
       >
         <div
@@ -2010,7 +2385,7 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
               <div
                 class="euiText euiText--medium sql-query-panel-header"
               >
-                SQL Query
+                Query Editor
               </div>
               <div
                 class="euiCodeEditorWrapper"
@@ -2264,7 +2639,7 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -2282,7 +2657,7 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -2300,7 +2675,7 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -2492,6 +2867,81 @@ exports[`<Main /> spec renders the component 1`] = `
       class="sql-console-query-container"
     >
       <div
+        class="query-language-switch"
+      >
+        <fieldset
+          class="euiButtonGroup__fieldset"
+        >
+          <legend
+            class="euiScreenReaderOnly"
+          >
+            query-language-swtich
+          </legend>
+          <div
+            class="euiButtonGroup euiButtonGroup--s query-language-switch"
+          >
+            <div
+              class="euiToggle euiToggle--checked euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="SQL"
+                checked=""
+                class="euiToggle__input euiButtonToggle__input"
+                title="SQL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button euiButtonGroup__button--selected euiButton--fill"
+                id="SQL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    SQL
+                  </span>
+                </span>
+              </button>
+            </div>
+            <div
+              class="euiToggle euiButtonToggle__wrapper euiButtonGroup__toggle"
+            >
+              <input
+                aria-label="PPL"
+                class="euiToggle__input euiButtonToggle__input"
+                title="PPL"
+                type="radio"
+                value=""
+              />
+              <button
+                class="euiButton euiButton--primary euiButton--small euiButtonToggle euiButtonGroup__button"
+                id="PPL"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="euiButtonContent euiButton__content"
+                >
+                  <span
+                    class="euiButton__text"
+                  >
+                    PPL
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div
+        class="euiSpacer euiSpacer--l"
+      />
+      <div
         class="sql-console-query-editor"
       >
         <div
@@ -2506,7 +2956,7 @@ exports[`<Main /> spec renders the component 1`] = `
               <div
                 class="euiText euiText--medium sql-query-panel-header"
               >
-                SQL Query
+                Query Editor
               </div>
               <div
                 class="euiCodeEditorWrapper"
@@ -2760,7 +3210,7 @@ exports[`<Main /> spec renders the component 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -2778,7 +3228,7 @@ exports[`<Main /> spec renders the component 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"
@@ -2796,7 +3246,7 @@ exports[`<Main /> spec renders the component 1`] = `
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButton__content"
                   >
                     <span
                       class="euiButton__text"

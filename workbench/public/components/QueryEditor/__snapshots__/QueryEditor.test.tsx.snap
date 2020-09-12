@@ -14,7 +14,7 @@ exports[`<QueryEditor /> spec renders the component 1`] = `
         <div
           class="euiText euiText--medium sql-query-panel-header"
         >
-          SQL Query
+          Query Editor
         </div>
         <div
           class="euiCodeEditorWrapper"
@@ -268,7 +268,7 @@ exports[`<QueryEditor /> spec renders the component 1`] = `
             type="button"
           >
             <span
-              class="euiButton__content"
+              class="euiButtonContent euiButton__content"
             >
               <span
                 class="euiButton__text"
@@ -286,7 +286,7 @@ exports[`<QueryEditor /> spec renders the component 1`] = `
             type="button"
           >
             <span
-              class="euiButton__content"
+              class="euiButtonContent euiButton__content"
             >
               <span
                 class="euiButton__text"
@@ -304,7 +304,7 @@ exports[`<QueryEditor /> spec renders the component 1`] = `
             type="button"
           >
             <span
-              class="euiButton__content"
+              class="euiButtonContent euiButton__content"
             >
               <span
                 class="euiButton__text"
@@ -334,7 +334,7 @@ exports[`<QueryEditor /> spec tests the action buttons 1`] = `
         <div
           class="euiText euiText--medium sql-query-panel-header"
         >
-          SQL Query
+          Query Editor
         </div>
         <div
           class="euiCodeEditorWrapper"
@@ -588,7 +588,7 @@ exports[`<QueryEditor /> spec tests the action buttons 1`] = `
             type="button"
           >
             <span
-              class="euiButton__content"
+              class="euiButtonContent euiButton__content"
             >
               <span
                 class="euiButton__text"
@@ -606,7 +606,7 @@ exports[`<QueryEditor /> spec tests the action buttons 1`] = `
             type="button"
           >
             <span
-              class="euiButton__content"
+              class="euiButtonContent euiButton__content"
             >
               <span
                 class="euiButton__text"
@@ -624,7 +624,7 @@ exports[`<QueryEditor /> spec tests the action buttons 1`] = `
             type="button"
           >
             <span
-              class="euiButton__content"
+              class="euiButtonContent euiButton__content"
             >
               <span
                 class="euiButton__text"

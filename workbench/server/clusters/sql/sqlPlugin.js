@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-import { TRANSLATE_ROUTE, QUERY_ROUTE, FORMAT_CSV, FORMAT_JSON, FORMAT_TEXT } from '../../services/utils/constants';
+import { SQL_TRANSLATE_ROUTE, SQL_QUERY_ROUTE, PPL_QUERY_ROUTE, FORMAT_CSV, FORMAT_JSON, FORMAT_TEXT } from '../../services/utils/constants';
 
 export default function sqlPlugin(Client, config, components) {
   const ca = components.clientAction.factory;
@@ -23,15 +23,23 @@ export default function sqlPlugin(Client, config, components) {
 
   sql.getTranslation = ca({
     url: {
-      fmt: `${TRANSLATE_ROUTE}`,
+      fmt: `${SQL_TRANSLATE_ROUTE}`,
     },
     needBody: true,
     method: 'POST',
   });
 
-  sql.query = ca({
+  sql.sqlQuery = ca({
     url: {
-      fmt: `${QUERY_ROUTE}`,
+      fmt: `${SQL_QUERY_ROUTE}`,
+    },
+    needBody: true,
+    method: 'POST',
+  }); //default: jdbc
+
+  sql.pplQuery = ca({
+    url: {
+      fmt: `${PPL_QUERY_ROUTE}`,
     },
     needBody: true,
     method: 'POST',
@@ -39,7 +47,7 @@ export default function sqlPlugin(Client, config, components) {
 
   sql.getJdbc = ca({
     url: {
-      fmt: `${QUERY_ROUTE}`,
+      fmt: `${SQL_QUERY_ROUTE}`,
     },
     needBody: true,
     method: 'POST',
@@ -47,23 +55,23 @@ export default function sqlPlugin(Client, config, components) {
 
   sql.getJson = ca({
     url: {
-      fmt: `${QUERY_ROUTE}?${FORMAT_JSON}`,
+      fmt: `${SQL_QUERY_ROUTE}?${FORMAT_JSON}`,
     },
     needBody: true,
     method: 'POST',
   });
 
   sql.getCsv = ca({
-	url: {
-	  fmt: `${QUERY_ROUTE}?${FORMAT_CSV}`,
-	},
-	needBody: true,
-	method: 'POST',
+    url: {
+      fmt: `${SQL_QUERY_ROUTE}?${FORMAT_CSV}`,
+    },
+    needBody: true,
+    method: 'POST',
   });
 
   sql.getText = ca({
     url: {
-      fmt: `${QUERY_ROUTE}?${FORMAT_TEXT}`,
+      fmt: `${SQL_QUERY_ROUTE}?${FORMAT_TEXT}`,
     },
     needBody: true,
     method: 'POST',

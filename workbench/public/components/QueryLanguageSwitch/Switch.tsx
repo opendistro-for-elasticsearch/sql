@@ -14,19 +14,51 @@
  */
 
 import React from "react";
+import _ from "lodash";
+import { EuiButtonGroup } from "@elastic/eui";
+// @ts-ignore
+import { htmlIdGenerator } from "@elastic/eui/lib/services";
 
-interface Switch {
-    queryLanguage: Language;
+interface SwitchProps {
     onChange: (id: string, value?: any) => void;
+    language: string;
 }
 
-enum Language {
-    sql,
-    ppl
+interface SwitchState {
+    // language: string
 }
 
-class Switch extends React.Component{
+const toggleButtons = [
+    {
+        id: 'SQL',
+        label: 'SQL',
+    },
+    {
+        id: 'PPL',
+        label: 'PPL',
+    }
+];
 
+class Switch extends React.Component<SwitchProps, SwitchState> {
+    constructor(props: SwitchProps) {
+        super(props);
+        this.state = {
+            language: 'SQL'
+        };
+    }
+
+    render() {
+
+        return (
+            <EuiButtonGroup className="query-language-switch"
+                legend="query-language-swtich"
+                options={toggleButtons}
+                onChange={(id) => this.props.onChange(id)}
+                idSelected={this.props.language}
+                color={"primary"}
+            />
+        )
+    }
 }
 
 export default Switch;

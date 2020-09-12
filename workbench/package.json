@@ -39,7 +39,7 @@
     "@elastic/elasticsearch": "^7.2.0",
     "@elastic/eslint-config-kibana": "link:../../packages/eslint-config-kibana",
     "@elastic/eslint-import-resolver-kibana": "link:../../packages/kbn-eslint-import-resolver-kibana",
-    "@elastic/eui": "^23.1.0",
+    "@elastic/eui": "^28.4.0",
     "@kbn/expect": "link:../../packages/kbn-expect",
     "@kbn/i18n": "link:../../packages/kbn-i18n",
     "@kbn/plugin-helpers": "link:../../packages/kbn-plugin-helpers",

@@ -459,11 +459,11 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButton euiButton--primary euiButton--iconRight"
+                  class="euiButton euiButton--primary"
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButton__content"
                   >
                     EuiIconMock
                     <span
@@ -501,7 +501,7 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                 >
                   <input
                     aria-label="This is a search bar. As you type, the results lower in the page will automatically filter."
-                    class="euiFieldSearch euiFieldSearch--fullWidth"
+                    class="euiFieldSearch euiFieldSearch--fullWidth euiFieldSearch-isClearable"
                     placeholder="Search"
                     type="search"
                     value=""
@@ -533,12 +533,12 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                   data-test-subj="tablePaginationPopoverButton"
                   type="button"
                 >
                   <span
-                    class="euiButtonEmpty__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                   >
                     EuiIconMock
                     <span
@@ -556,9 +556,9 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
           <div
             class="euiFlexItem euiFlexItem--flexGrowZero"
           >
-            <div
+            <nav
               class="euiPagination"
-              role="group"
+              data-test-subj="Pagination-button"
             >
               <button
                 aria-label="Previous page"
@@ -569,47 +569,61 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
               >
                 EuiIconMock
               </button>
-              <button
-                aria-label="Page 1 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-0"
-                type="button"
+              <ul
+                class="euiPagination__list"
               >
-                <span
-                  class="euiButtonEmpty__content"
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-current="true"
+                    aria-label="Page 1 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty-isDisabled euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-0"
+                    disabled=""
+                    type="button"
                   >
-                    1
-                  </span>
-                </span>
-              </button>
-              <button
-                aria-label="Page 2 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-1"
-                type="button"
-              >
-                <span
-                  class="euiButtonEmpty__content"
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        1
+                      </span>
+                    </span>
+                  </button>
+                </li>
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-label="Page 2 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-1"
+                    type="button"
                   >
-                    2
-                  </span>
-                </span>
-              </button>
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        2
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              </ul>
               <button
-                aria-label="Next page"
+                aria-label="Next page, 2"
                 class="euiButtonIcon euiButtonIcon--text"
                 data-test-subj="pagination-button-next"
                 type="button"
               >
                 EuiIconMock
               </button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
@@ -640,6 +654,7 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
               >
                 <table
                   class="euiTable euiTable--responsive"
+                  tabindex="-1"
                 >
                   <thead
                     class="table-header"
@@ -5229,12 +5244,12 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                   data-test-subj="tablePaginationPopoverButton"
                   type="button"
                 >
                   <span
-                    class="euiButtonEmpty__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                   >
                     EuiIconMock
                     <span
@@ -5252,9 +5267,8 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
           <div
             class="euiFlexItem euiFlexItem--flexGrowZero"
           >
-            <div
+            <nav
               class="euiPagination"
-              role="group"
             >
               <button
                 aria-label="Previous page"
@@ -5265,47 +5279,61 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
               >
                 EuiIconMock
               </button>
-              <button
-                aria-label="Page 1 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-0"
-                type="button"
+              <ul
+                class="euiPagination__list"
               >
-                <span
-                  class="euiButtonEmpty__content"
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-current="true"
+                    aria-label="Page 1 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty-isDisabled euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-0"
+                    disabled=""
+                    type="button"
                   >
-                    1
-                  </span>
-                </span>
-              </button>
-              <button
-                aria-label="Page 2 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-1"
-                type="button"
-              >
-                <span
-                  class="euiButtonEmpty__content"
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        1
+                      </span>
+                    </span>
+                  </button>
+                </li>
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-label="Page 2 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-1"
+                    type="button"
                   >
-                    2
-                  </span>
-                </span>
-              </button>
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        2
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              </ul>
               <button
-                aria-label="Next page"
+                aria-label="Next page, 2"
                 class="euiButtonIcon euiButtonIcon--text"
                 data-test-subj="pagination-button-next"
                 type="button"
               >
                 EuiIconMock
               </button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
@@ -5559,11 +5587,11 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButton euiButton--primary euiButton--iconRight"
+                  class="euiButton euiButton--primary"
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButton__content"
                   >
                     EuiIconMock
                     <span
@@ -5601,7 +5629,7 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
                 >
                   <input
                     aria-label="This is a search bar. As you type, the results lower in the page will automatically filter."
-                    class="euiFieldSearch euiFieldSearch--fullWidth"
+                    class="euiFieldSearch euiFieldSearch--fullWidth euiFieldSearch-isClearable"
                     placeholder="Search"
                     type="search"
                     value=""
@@ -5633,12 +5661,12 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                   data-test-subj="tablePaginationPopoverButton"
                   type="button"
                 >
                   <span
-                    class="euiButtonEmpty__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                   >
                     EuiIconMock
                     <span
@@ -5656,9 +5684,9 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
           <div
             class="euiFlexItem euiFlexItem--flexGrowZero"
           >
-            <div
+            <nav
               class="euiPagination"
-              role="group"
+              data-test-subj="Pagination-button"
             >
               <button
                 aria-label="Previous page"
@@ -5669,47 +5697,61 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
               >
                 EuiIconMock
               </button>
-              <button
-                aria-label="Page 1 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-0"
-                type="button"
+              <ul
+                class="euiPagination__list"
               >
-                <span
-                  class="euiButtonEmpty__content"
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-current="true"
+                    aria-label="Page 1 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty-isDisabled euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-0"
+                    disabled=""
+                    type="button"
                   >
-                    1
-                  </span>
-                </span>
-              </button>
-              <button
-                aria-label="Page 2 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-1"
-                type="button"
-              >
-                <span
-                  class="euiButtonEmpty__content"
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        1
+                      </span>
+                    </span>
+                  </button>
+                </li>
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-label="Page 2 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-1"
+                    type="button"
                   >
-                    2
-                  </span>
-                </span>
-              </button>
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        2
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              </ul>
               <button
-                aria-label="Next page"
+                aria-label="Next page, 2"
                 class="euiButtonIcon euiButtonIcon--text"
                 data-test-subj="pagination-button-next"
                 type="button"
               >
                 EuiIconMock
               </button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
@@ -5740,6 +5782,7 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
               >
                 <table
                   class="euiTable euiTable--responsive"
+                  tabindex="-1"
                 >
                   <thead
                     class="table-header"
@@ -10329,12 +10372,12 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                   data-test-subj="tablePaginationPopoverButton"
                   type="button"
                 >
                   <span
-                    class="euiButtonEmpty__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                   >
                     EuiIconMock
                     <span
@@ -10352,9 +10395,8 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
           <div
             class="euiFlexItem euiFlexItem--flexGrowZero"
           >
-            <div
+            <nav
               class="euiPagination"
-              role="group"
             >
               <button
                 aria-label="Previous page"
@@ -10365,47 +10407,61 @@ exports[`<QueryResults with data/> spec renders the component to test tabs right
               >
                 EuiIconMock
               </button>
-              <button
-                aria-label="Page 1 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-0"
-                type="button"
+              <ul
+                class="euiPagination__list"
               >
-                <span
-                  class="euiButtonEmpty__content"
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-current="true"
+                    aria-label="Page 1 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty-isDisabled euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-0"
+                    disabled=""
+                    type="button"
                   >
-                    1
-                  </span>
-                </span>
-              </button>
-              <button
-                aria-label="Page 2 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-1"
-                type="button"
-              >
-                <span
-                  class="euiButtonEmpty__content"
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        1
+                      </span>
+                    </span>
+                  </button>
+                </li>
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-label="Page 2 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-1"
+                    type="button"
                   >
-                    2
-                  </span>
-                </span>
-              </button>
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        2
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              </ul>
               <button
-                aria-label="Next page"
+                aria-label="Next page, 2"
                 class="euiButtonIcon euiButtonIcon--text"
                 data-test-subj="pagination-button-next"
                 type="button"
               >
                 EuiIconMock
               </button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
@@ -10659,11 +10715,11 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButton euiButton--primary euiButton--iconRight"
+                  class="euiButton euiButton--primary"
                   type="button"
                 >
                   <span
-                    class="euiButton__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButton__content"
                   >
                     EuiIconMock
                     <span
@@ -10701,7 +10757,7 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                 >
                   <input
                     aria-label="This is a search bar. As you type, the results lower in the page will automatically filter."
-                    class="euiFieldSearch euiFieldSearch--fullWidth"
+                    class="euiFieldSearch euiFieldSearch--fullWidth euiFieldSearch-isClearable"
                     placeholder="Search"
                     type="search"
                     value=""
@@ -10733,12 +10789,12 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                   data-test-subj="tablePaginationPopoverButton"
                   type="button"
                 >
                   <span
-                    class="euiButtonEmpty__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                   >
                     EuiIconMock
                     <span
@@ -10756,9 +10812,9 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
           <div
             class="euiFlexItem euiFlexItem--flexGrowZero"
           >
-            <div
+            <nav
               class="euiPagination"
-              role="group"
+              data-test-subj="Pagination-button"
             >
               <button
                 aria-label="Previous page"
@@ -10769,47 +10825,61 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
               >
                 EuiIconMock
               </button>
-              <button
-                aria-label="Page 1 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-0"
-                type="button"
+              <ul
+                class="euiPagination__list"
               >
-                <span
-                  class="euiButtonEmpty__content"
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-current="true"
+                    aria-label="Page 1 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty-isDisabled euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-0"
+                    disabled=""
+                    type="button"
                   >
-                    1
-                  </span>
-                </span>
-              </button>
-              <button
-                aria-label="Page 2 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-1"
-                type="button"
-              >
-                <span
-                  class="euiButtonEmpty__content"
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        1
+                      </span>
+                    </span>
+                  </button>
+                </li>
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-label="Page 2 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-1"
+                    type="button"
                   >
-                    2
-                  </span>
-                </span>
-              </button>
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        2
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              </ul>
               <button
-                aria-label="Next page"
+                aria-label="Next page, 2"
                 class="euiButtonIcon euiButtonIcon--text"
                 data-test-subj="pagination-button-next"
                 type="button"
               >
                 EuiIconMock
               </button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
@@ -10840,6 +10910,7 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
               >
                 <table
                   class="euiTable euiTable--responsive"
+                  tabindex="-1"
                 >
                   <thead
                     class="table-header"
@@ -15429,12 +15500,12 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                 class="euiPopover__anchor"
               >
                 <button
-                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                  class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                   data-test-subj="tablePaginationPopoverButton"
                   type="button"
                 >
                   <span
-                    class="euiButtonEmpty__content"
+                    class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                   >
                     EuiIconMock
                     <span
@@ -15452,9 +15523,8 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
           <div
             class="euiFlexItem euiFlexItem--flexGrowZero"
           >
-            <div
+            <nav
               class="euiPagination"
-              role="group"
             >
               <button
                 aria-label="Previous page"
@@ -15465,47 +15535,61 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
               >
                 EuiIconMock
               </button>
-              <button
-                aria-label="Page 1 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-0"
-                type="button"
+              <ul
+                class="euiPagination__list"
               >
-                <span
-                  class="euiButtonEmpty__content"
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-current="true"
+                    aria-label="Page 1 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty-isDisabled euiPaginationButton euiPaginationButton-isActive euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-0"
+                    disabled=""
+                    type="button"
                   >
-                    1
-                  </span>
-                </span>
-              </button>
-              <button
-                aria-label="Page 2 of 2"
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
-                data-test-subj="pagination-button-1"
-                type="button"
-              >
-                <span
-                  class="euiButtonEmpty__content"
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        1
+                      </span>
+                    </span>
+                  </button>
+                </li>
+                <li
+                  class="euiPagination__item"
                 >
-                  <span
-                    class="euiButtonEmpty__text"
+                  <button
+                    aria-label="Page 2 of 2"
+                    class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiPaginationButton euiPaginationButton--hideOnMobile"
+                    data-test-subj="pagination-button-1"
+                    type="button"
                   >
-                    2
-                  </span>
-                </span>
-              </button>
+                    <span
+                      class="euiButtonContent euiButtonEmpty__content"
+                    >
+                      <span
+                        class="euiButtonEmpty__text"
+                      >
+                        2
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              </ul>
               <button
-                aria-label="Next page"
+                aria-label="Next page, 2"
                 class="euiButtonIcon euiButtonIcon--text"
                 data-test-subj="pagination-button-next"
                 type="button"
               >
                 EuiIconMock
               </button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>

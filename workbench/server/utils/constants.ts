@@ -13,7 +13,8 @@
  *   permissions and limitations under the License.
  */
 
-export const ROUTE_PATH_QUERY = '/api/sql_console/query';
+export const ROUTE_PATH_SQL_QUERY = '/api/sql_console/sqlquery';
+export const ROUTE_PATH_PPL_QUERY = '/api/sql_console/pplquery';
 export const ROUTE_PATH_QUERY_CSV = '/api/sql_console/querycsv';
 export const ROUTE_PATH_QUERY_JDBC = '/api/sql_console/queryjdbc';
 export const ROUTE_PATH_QUERY_JSON = '/api/sql_console/queryjson';

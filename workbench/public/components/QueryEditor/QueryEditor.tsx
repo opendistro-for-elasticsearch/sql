@@ -13,15 +13,16 @@
  *   permissions and limitations under the License.
  */
 
-import React from "react";
+import React from 'react';
 import _ from "lodash";
 // @ts-ignore
-import { EuiPanel, EuiButton, EuiText, EuiFlexGroup, EuiFlexItem, EuiCodeEditor} from "@elastic/eui";
+import { EuiPanel, EuiButton, EuiText, EuiFlexGroup, EuiFlexItem, EuiCodeEditor, EuiButtonGroup } from "@elastic/eui";
+// @ts-ignore
+import { htmlIdGenerator } from "@elastic/eui/lib/services";
 import "brace/mode/sql";
 import "brace/mode/json";
 import "../../ace-themes/sql_console";
-import {Language, ResponseDetail, TranslateResult} from "../Main/main";
-import Switch from "../QueryLanguageSwitch/Switch";
+import { ResponseDetail, TranslateResult } from "../Main/main";
 
 interface QueryEditorProps {
   onRun: (queriesString: string) => void;
@@ -29,8 +30,6 @@ interface QueryEditorProps {
   onClear: () => void;
   queryTranslations: ResponseDetail<TranslateResult>[];
   sqlQueriesString: string;
-  queryLanguage: Language;
-  onChange: (id: string, value?: any) => void;
 }
 
 interface QueryEditorState {
@@ -41,7 +40,7 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
   constructor(props: QueryEditorProps) {
     super(props);
     this.state = {
-      sqlQueriesString: this.props.sqlQueriesString ? this.props.sqlQueriesString : "show tables like %;\n" + "describe tables like %;"
+      sqlQueriesString: this.props.sqlQueriesString ? this.props.sqlQueriesString : "SHOW tables LIKE %;\n" + "DESCRIBE tables LIKE %;",
     };
 
     this.updateSQLQueries = _.debounce(this.updateSQLQueries, 250).bind(this);
@@ -51,13 +50,6 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
     this.setState({ sqlQueriesString: newQueriesString });
   }
 
-  switchLanguage(language: Language): void {
-    let currentLang = this.state.queryLanguage;
-    this.setState({
-      queryLanguage: currentLang == Language.sql ? Language.ppl : Language.sql
-    })
-  }
-
   render() {
     return (
       <EuiPanel className="sql-console-query-editor container-panel"
@@ -65,7 +57,7 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
       >
         <EuiFlexGroup gutterSize="s">
           <EuiFlexItem grow={1} className="sql-query-panel">
-            <EuiText className="sql-query-panel-header">SQL Query</EuiText>
+            <EuiText className="sql-query-panel-header">Query Editor</EuiText>
             <EuiCodeEditor
               mode="sql"
               theme="sql_console"
@@ -144,15 +136,6 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
               </EuiButton>
             </EuiFlexItem>
           </EuiFlexGroup>
-        </div>
-        <div>
-          <EuiButtonGroup
-              options={toggleButtons}
-              idSelected={toggleIdSelected}
-              onChange={
-                () => this.switchLanguage(this.state.queryLanguage)
-              }
-          />
         </div>
       </EuiPanel>
     );

@@ -32,11 +32,11 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
               class="euiPopover__anchor"
             >
               <button
-                class="euiButton euiButton--primary euiButton--iconRight"
+                class="euiButton euiButton--primary"
                 type="button"
               >
                 <span
-                  class="euiButton__content"
+                  class="euiButtonContent euiButtonContent--iconRight euiButton__content"
                 >
                   EuiIconMock
                   <span
@@ -74,7 +74,7 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
               >
                 <input
                   aria-label="This is a search bar. As you type, the results lower in the page will automatically filter."
-                  class="euiFieldSearch euiFieldSearch--fullWidth"
+                  class="euiFieldSearch euiFieldSearch--fullWidth euiFieldSearch-isClearable"
                   placeholder="Search"
                   type="search"
                   value=""
@@ -106,12 +106,12 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
               class="euiPopover__anchor"
             >
               <button
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                 data-test-subj="tablePaginationPopoverButton"
                 type="button"
               >
                 <span
-                  class="euiButtonEmpty__content"
+                  class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                 >
                   EuiIconMock
                   <span
@@ -129,9 +129,9 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
         <div
           class="euiFlexItem euiFlexItem--flexGrowZero"
         >
-          <div
+          <nav
             class="euiPagination"
-            role="group"
+            data-test-subj="Pagination-button"
           >
             <button
               aria-label="Previous page"
@@ -142,15 +142,18 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
             >
               EuiIconMock
             </button>
+            <ul
+              class="euiPagination__list"
+            />
             <button
-              aria-label="Next page"
+              aria-label="Next page, 2"
               class="euiButtonIcon euiButtonIcon--text"
               data-test-subj="pagination-button-next"
               type="button"
             >
               EuiIconMock
             </button>
-          </div>
+          </nav>
         </div>
       </div>
     </div>
@@ -181,6 +184,7 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
             >
               <table
                 class="euiTable euiTable--responsive"
+                tabindex="-1"
               >
                 <thead
                   class="table-header"
@@ -5150,12 +5154,12 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
               class="euiPopover__anchor"
             >
               <button
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                 data-test-subj="tablePaginationPopoverButton"
                 type="button"
               >
                 <span
-                  class="euiButtonEmpty__content"
+                  class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                 >
                   EuiIconMock
                   <span
@@ -5173,9 +5177,8 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
         <div
           class="euiFlexItem euiFlexItem--flexGrowZero"
         >
-          <div
+          <nav
             class="euiPagination"
-            role="group"
           >
             <button
               aria-label="Previous page"
@@ -5186,15 +5189,18 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
             >
               EuiIconMock
             </button>
+            <ul
+              class="euiPagination__list"
+            />
             <button
-              aria-label="Next page"
+              aria-label="Next page, 2"
               class="euiButtonIcon euiButtonIcon--text"
               data-test-subj="pagination-button-next"
               type="button"
             >
               EuiIconMock
             </button>
-          </div>
+          </nav>
         </div>
       </div>
     </div>
@@ -5234,11 +5240,11 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
               class="euiPopover__anchor"
             >
               <button
-                class="euiButton euiButton--primary euiButton--iconRight"
+                class="euiButton euiButton--primary"
                 type="button"
               >
                 <span
-                  class="euiButton__content"
+                  class="euiButtonContent euiButtonContent--iconRight euiButton__content"
                 >
                   EuiIconMock
                   <span
@@ -5276,7 +5282,7 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
               >
                 <input
                   aria-label="This is a search bar. As you type, the results lower in the page will automatically filter."
-                  class="euiFieldSearch euiFieldSearch--fullWidth"
+                  class="euiFieldSearch euiFieldSearch--fullWidth euiFieldSearch-isClearable"
                   placeholder="Search"
                   type="search"
                   value=""
@@ -5319,12 +5325,12 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
               class="euiPopover__anchor"
             >
               <button
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                 data-test-subj="tablePaginationPopoverButton"
                 type="button"
               >
                 <span
-                  class="euiButtonEmpty__content"
+                  class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                 >
                   EuiIconMock
                   <span
@@ -5342,9 +5348,9 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
         <div
           class="euiFlexItem euiFlexItem--flexGrowZero"
         >
-          <div
+          <nav
             class="euiPagination"
-            role="group"
+            data-test-subj="Pagination-button"
           >
             <button
               aria-label="Previous page"
@@ -5355,15 +5361,18 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
             >
               EuiIconMock
             </button>
+            <ul
+              class="euiPagination__list"
+            />
             <button
-              aria-label="Next page"
+              aria-label="Next page, 2"
               class="euiButtonIcon euiButtonIcon--text"
               data-test-subj="pagination-button-next"
               type="button"
             >
               EuiIconMock
             </button>
-          </div>
+          </nav>
         </div>
       </div>
     </div>
@@ -5394,6 +5403,7 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
             >
               <table
                 class="euiTable euiTable--responsive"
+                tabindex="-1"
               >
                 <thead
                   class="table-header"
@@ -6645,6 +6655,7 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
                                           <div>
                                             <table
                                               class="euiTable sideNav-table euiTable--responsive"
+                                              tabindex="-1"
                                             >
                                               <thead
                                                 class="table-header"
@@ -10619,12 +10630,12 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
               class="euiPopover__anchor"
             >
               <button
-                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall euiButtonEmpty--iconRight"
+                class="euiButtonEmpty euiButtonEmpty--text euiButtonEmpty--xSmall"
                 data-test-subj="tablePaginationPopoverButton"
                 type="button"
               >
                 <span
-                  class="euiButtonEmpty__content"
+                  class="euiButtonContent euiButtonContent--iconRight euiButtonEmpty__content"
                 >
                   EuiIconMock
                   <span
@@ -10642,9 +10653,8 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
         <div
           class="euiFlexItem euiFlexItem--flexGrowZero"
         >
-          <div
+          <nav
             class="euiPagination"
-            role="group"
           >
             <button
               aria-label="Previous page"
@@ -10655,15 +10665,18 @@ exports[`<QueryResultsBody /> spec renders component with mock QueryResults data
             >
               EuiIconMock
             </button>
+            <ul
+              class="euiPagination__list"
+            />
             <button
-              aria-label="Next page"
+              aria-label="Next page, 2"
               class="euiButtonIcon euiButtonIcon--text"
               data-test-subj="pagination-button-next"
               type="button"
             >
               EuiIconMock
             </button>
-          </div>
+          </nav>
         </div>
       </div>
     </div>
