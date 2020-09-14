@@ -37,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
+import com.google.common.base.CharMatcher;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import lombok.experimental.UtilityClass;
@@ -63,6 +64,7 @@ public class DateTimeFunction {
     repository.register(hour());
     repository.register(minute());
     repository.register(second());
+    repository.register(microsecond());
     repository.register(time());
     repository.register(timestamp());
     repository.register(day());
@@ -183,6 +185,20 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprSecond),
             INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprSecond),
+            INTEGER, TIMESTAMP)
+    );
+  }
+
+  /**
+   * MICROSECOND(TIME). return the microsecond value for time.
+   */
+  private FunctionResolver microsecond() {
+    return define(BuiltinFunctionName.MICROSECOND.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
+            INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
+            INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
             INTEGER, TIMESTAMP)
     );
   }
@@ -360,6 +376,17 @@ public class DateTimeFunction {
    */
   private ExprValue exprSecond(ExprValue exprValue) {
     return new ExprIntegerValue(exprValue.timeValue().getSecond());
+  }
+
+  /**
+   * Microsecond implementation for ExprValue.
+   * @param exprValue ExprValue of Time type.
+   * @return ExprValue.
+   */
+  private ExprValue exprMicrosecond(ExprValue exprValue) {
+    return new ExprIntegerValue((exprValue.timeValue().getNano() == 0) ? 0
+        : Integer.parseInt(CharMatcher.is('0')
+            .trimTrailingFrom(Integer.toString(exprValue.timeValue().getNano()))));
   }
 
   /**

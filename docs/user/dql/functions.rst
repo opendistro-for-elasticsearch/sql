@@ -697,27 +697,27 @@ Specifications:
 1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
 
 
-MOD
-=======
+MICROSECOND
+=====
 
 Description
 -----------
 
-Usage: MOD(n, m) calculates the remainder of the number n divided by m.
+Usage: microsecond(expr) returns the microseconds from the time or datetime expression expr as a number in the range from 0 to 999999.
 
-Argument type: INTEGER/LONG/FLOAT/DOUBLE
+Argument type: TIME
 
-Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
+Return type: INTEGER
 
 Example::
 
-    od> SELECT MOD(3, 2), MOD(3.1, 2)
+    od> SELECT MICROSECOND((TIME '01:02:03.123456'))
     fetched rows / total rows = 1/1
-    +-------------+---------------+
-    | MOD(3, 2)   | MOD(3.1, 2)   |
-    |-------------+---------------|
-    | 1           | 1.1           |
-    +-------------+---------------+
+    +-----------------------------------------+
+    | MICROSECOND((TIME '01:02:03.123456'))   |
+    |-----------------------------------------|
+    | 123456                                  |
+    +-----------------------------------------+
 
 
 MINUTE
@@ -741,6 +741,30 @@ Example::
     |-----------------------------|
     | 2                           |
     +-----------------------------+
+
+
+MOD
+=======
+
+Description
+-----------
+
+Usage: MOD(n, m) calculates the remainder of the number n divided by m.
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
+
+Example::
+
+    od> SELECT MOD(3, 2), MOD(3.1, 2)
+    fetched rows / total rows = 1/1
+    +-------------+---------------+
+    | MOD(3, 2)   | MOD(3.1, 2)   |
+    |-------------+---------------|
+    | 1           | 1.1           |
+    +-------------+---------------+
+
 
 
 MONTH

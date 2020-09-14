@@ -217,6 +217,36 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   }
 
   @Test
+  public void microsecond() {
+    when(nullRef.type()).thenReturn(TIME);
+    when(missingRef.type()).thenReturn(TIME);
+    assertEquals(nullValue(), eval(dsl.microsecond(nullRef)));
+    assertEquals(missingValue(), eval(dsl.microsecond(missingRef)));
+
+    FunctionExpression expression = dsl
+        .microsecond(DSL.literal(new ExprTimeValue("01:02:03.123456")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(123456), eval(expression));
+    assertEquals("microsecond(TIME '01:02:03.123456')", expression.toString());
+
+    expression = dsl.microsecond(DSL.literal(new ExprTimeValue("01:02:03.00")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(0), eval(expression));
+    assertEquals("microsecond(TIME '01:02:03')", expression.toString());
+
+    /*
+    expression = dsl.microsecond(DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03.123456")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(123456), expression.valueOf(env));
+    assertEquals("microsecond(TIMESTAMP '2020-08-17 01:02:03.123456')", expression.toString());
+
+    expression = dsl.microsecond(DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03.123456")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(123456), expression.valueOf(env));
+    assertEquals("microsecond(DATETIME '2020-08-17 01:02:03.123456')", expression.toString());*/
+  }
+
+  @Test
   public void month() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
