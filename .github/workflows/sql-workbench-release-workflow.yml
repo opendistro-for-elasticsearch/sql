@@ -39,7 +39,7 @@ jobs:
       - name: Move Workbench to Plugins Dir
         run: |
           mkdir kibana/plugins
-          mv sql-workbench kibana/plugins
+          mv workbench kibana/plugins
 
       - name: Kibana Plugin Bootstrap
         uses: nick-invision/retry@v1

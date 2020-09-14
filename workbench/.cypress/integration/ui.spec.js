@@ -20,7 +20,7 @@ import { delay, testQueries, verifyDownloadData, files } from "../utils/constant
 
 describe('Test UI buttons', () => {
   beforeEach(() => {
-    cy.visit('app/opendistro-sql-workbench');
+    cy.visit('app/opendistro-query-workbench');
   });
 
   it('Test Run button and field search', () => {
@@ -85,7 +85,7 @@ describe('Test and verify downloads', () => {
 
 describe('Test table display', () => {
   beforeEach(() => {
-    cy.visit('app/opendistro-sql-workbench');
+    cy.visit('app/opendistro-query-workbench');
     cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}', { force: true });
     cy.wait(delay);
   });

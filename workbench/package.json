@@ -1,17 +1,17 @@
 {
-  "name": "opendistro-sql-workbench",
+  "name": "opendistro-query-workbench",
   "version": "1.10.1.0",
-  "description": "SQL Workbench",
+  "description": "Query Workbench",
   "main": "index.js",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-workbench",
+  "homepage": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench",
   "kibana": {
     "version": "7.9.1",
     "templateVersion": "6.3.3"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-workbench"
+    "url": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench"
   },
   "scripts": {
     "preinstall": "node ../../preinstall_check",

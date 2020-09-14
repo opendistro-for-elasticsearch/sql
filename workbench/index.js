@@ -23,7 +23,7 @@ import TranslateService from './server/services/TranslateService';
 import { createSqlCluster } from './server/clusters';
 import { DEFAULT_APP_CATEGORIES } from '../../src/core/utils';
 
-export const PLUGIN_NAME = 'opendistro-sql-workbench';
+export const PLUGIN_NAME = 'opendistro-query-workbench';
 
 export default function (kibana) {
   return new kibana.Plugin({

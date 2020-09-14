@@ -1,6 +1,6 @@
-# Open Distro for Elasticsearch SQL Workbench
+# Open Distro for Elasticsearch Query Workbench
 
-The Open Distro for Elasticsearch SQL Workbench enables you to query your Elasticsearch data using SQL syntax from a dedicated Kibana UI. You can download your query results data in JSON, JDBC, CSV and raw text formats.
+The Open Distro for Elasticsearch Query Workbench enables you to query your Elasticsearch data using either SQL or PPL syntax from a dedicated Kibana UI. You can download your query results data in JSON, JDBC, CSV and raw text formats.
 
 
 ## Documentation
@@ -22,11 +22,11 @@ Please see our technical [documentation](https://opendistro.github.io/for-elasti
 ```
 git clone git@github.com:opendistro-for-elasticsearch/sql.git plugins --no-checkout
 cd plugins
-echo 'sql-workbench/*' >> .git/info/sparse-checkout
+echo 'workbench/*' >> .git/info/sparse-checkout
 git config core.sparseCheckout true
 git checkout master
 ```
-6. Run `yarn kbn bootstrap` inside `kibana/plugins/sql-workbench`.
+6. Run `yarn kbn bootstrap` inside `kibana/plugins/workbench`.
 
 Ultimately, your directory structure should look like this:
 
@@ -34,7 +34,7 @@ Ultimately, your directory structure should look like this:
 .
 ├── kibana
 │   └── plugins
-│       └── sql-workbench
+│       └── workbench
 ```
 
 
@@ -42,7 +42,7 @@ Ultimately, your directory structure should look like this:
 
 To build the plugin's distributable zip simply run `yarn build`.
 
-Example output: `./build/opendistro-sql-workbench-*.zip`
+Example output: `./build/opendistro-query-workbench-*.zip`
 
 
 ## Run
