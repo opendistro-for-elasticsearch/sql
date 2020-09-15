@@ -18,12 +18,14 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.missingValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
@@ -288,6 +290,19 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(2020), eval(expression));
     assertEquals(nullValue(), eval(dsl.year(nullRef)));
     assertEquals(missingValue(), eval(dsl.year(missingRef)));
+  }
+
+  @Test
+  public void time_to_sec() {
+    when(nullRef.type()).thenReturn(TIME);
+    when(missingRef.type()).thenReturn(TIME);
+    assertEquals(nullValue(), eval(dsl.time_to_sec(nullRef)));
+    assertEquals(missingValue(), eval(dsl.time_to_sec(missingRef)));
+
+    FunctionExpression expression = dsl.time_to_sec(DSL.literal(new ExprTimeValue("22:23:00")));
+    assertEquals(LONG, expression.type());
+    assertEquals("time_to_sec(TIME '22:23:00')", expression.toString());
+    assertEquals(longValue(80580L), eval(expression));
   }
 
   @Test

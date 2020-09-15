@@ -1202,6 +1202,29 @@ Example::
     +----------+
 
 
+TIME_TO_SEC
+===
+
+Description
+-----------
+
+Usage: time_to_sec(time) returns the time argument, converted to seconds.
+
+Argument type: TIME
+
+Return type: LONG
+
+Example::
+
+    od> SELECT time_to_sec(TIME '22:23:00')
+    fetched rows / total rows = 1/1
+    +--------------------------------+
+    | time_to_sec(TIME '22:23:00')   |
+    |--------------------------------|
+    | 80580                          |
+    +--------------------------------+
+
+
 TIMESTAMP
 =========
 

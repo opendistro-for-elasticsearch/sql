@@ -292,6 +292,10 @@ public class DSL {
     return function(BuiltinFunctionName.YEAR, expressions);
   }
 
+  public FunctionExpression time_to_sec(Expression... expressions) {
+    return function(BuiltinFunctionName.TIME_TO_SEC, expressions);
+  }
+
   public FunctionExpression date(Expression... expressions) {
     return function(BuiltinFunctionName.DATE, expressions);
   }

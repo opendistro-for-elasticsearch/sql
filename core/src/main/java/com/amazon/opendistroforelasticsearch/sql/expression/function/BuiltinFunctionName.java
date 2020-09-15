@@ -67,6 +67,7 @@ public enum BuiltinFunctionName {
   MONTH(FunctionName.of("month")),
   QUARTER(FunctionName.of("quarter")),
   YEAR(FunctionName.of("year")),
+  TIME_TO_SEC(FunctionName.of("time_to_sec")),
 
   /**
    * Text Functions.

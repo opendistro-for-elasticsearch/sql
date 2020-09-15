@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
@@ -30,6 +31,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Func
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
@@ -71,6 +73,7 @@ public class DateTimeFunction {
     repository.register(month());
     repository.register(quarter());
     repository.register(year());
+    repository.register(time_to_sec());
   }
 
   /**
@@ -230,6 +233,16 @@ public class DateTimeFunction {
     return define(BuiltinFunctionName.YEAR.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprYear),
             INTEGER, DATE)
+    );
+  }
+
+  /**
+   * TIME_TO_SEC(TIME). return the time argument, converted to seconds.
+   */
+  private FunctionResolver time_to_sec() {
+    return define(BuiltinFunctionName.TIME_TO_SEC.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprTimeToSec),
+            LONG, TIME)
     );
   }
 
@@ -413,5 +426,14 @@ public class DateTimeFunction {
     } else {
       return new ExprTimestampValue(exprValue.timestampValue());
     }
+  }
+
+  /**
+   * Time To Sec implementation for ExprValue.
+   * @param exprValue ExprValue of Time type.
+   * @return ExprValue.
+   */
+  private ExprValue exprTimeToSec(ExprValue exprValue) {
+    return new ExprLongValue(exprValue.timeValue().toSecondOfDay());
   }
 }
