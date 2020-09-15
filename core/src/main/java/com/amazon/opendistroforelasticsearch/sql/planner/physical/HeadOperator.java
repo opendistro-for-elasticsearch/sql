@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -19,12 +19,19 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate.BinaryPredicateOperator;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
+/**
+ * The Head operator returns the first {@link HeadOperator#number} number of results until the
+ * {@link HeadOperator#whileExpr} evaluates to true. If {@link HeadOperator#keepLast} is true then
+ * first result which evalutes {@link HeadOperator#whileExpr} to false is also returned.
+ * The NULL and MISSING are handled by the logic defined in {@link BinaryPredicateOperator}.
+ */
 @Getter
 @EqualsAndHashCode
 public class HeadOperator extends PhysicalPlan {
