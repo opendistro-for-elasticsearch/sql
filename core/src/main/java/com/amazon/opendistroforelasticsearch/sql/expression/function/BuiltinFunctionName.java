@@ -52,22 +52,24 @@ public enum BuiltinFunctionName {
    * Date and Time Functions.
    */
   DATE(FunctionName.of("date")),
+  DATE_SUB(FunctionName.of("date_sub")),
+  DAY(FunctionName.of("day")),
   DAYNAME(FunctionName.of("dayname")),
-  MONTHNAME(FunctionName.of("monthname")),
   DAYOFMONTH(FunctionName.of("dayofmonth")),
   DAYOFWEEK(FunctionName.of("dayofweek")),
   DAYOFYEAR(FunctionName.of("dayofyear")),
   HOUR(FunctionName.of("hour")),
-  MINUTE(FunctionName.of("minute")),
-  SECOND(FunctionName.of("second")),
   MICROSECOND(FunctionName.of("microsecond")),
-  TIME(FunctionName.of("time")),
-  TIMESTAMP(FunctionName.of("timestamp")),
-  DAY(FunctionName.of("day")),
+  MINUTE(FunctionName.of("minute")),
   MONTH(FunctionName.of("month")),
+  MONTHNAME(FunctionName.of("monthname")),
   QUARTER(FunctionName.of("quarter")),
-  YEAR(FunctionName.of("year")),
+  SECOND(FunctionName.of("second")),
+  SUBDATE(FunctionName.of("subdate")),
+  TIME(FunctionName.of("time")),
   TIME_TO_SEC(FunctionName.of("time_to_sec")),
+  TIMESTAMP(FunctionName.of("timestamp")),
+  YEAR(FunctionName.of("year")),
 
   /**
    * Text Functions.

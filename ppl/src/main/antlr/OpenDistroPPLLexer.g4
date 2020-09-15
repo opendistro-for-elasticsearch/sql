@@ -196,14 +196,16 @@ TAN:                                'TAN';
 
 // DATE AND TIME FUNCTIONS
 DATE:                               'DATE';
-TIME:                               'TIME';
-TIMESTAMP:                          'TIMESTAMP';
+DATE_SUB:                           'DATE_SUB';
 DAYOFMONTH:                         'DAYOFMONTH';
 DAYOFWEEK:                          'DAYOFWEEK';
 DAYOFYEAR:                          'DAYOFYEAR';
 DAYNAME:                            'DAYNAME';
 MONTHNAME:                          'MONTHNAME';
+SUBDATE:                            'SUBDATE';
+TIME:                               'TIME';
 TIME_TO_SEC:                        'TIME_TO_SEC';
+TIMESTAMP:                          'TIMESTAMP';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;

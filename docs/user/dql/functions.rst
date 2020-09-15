@@ -7,7 +7,7 @@ SQL Functions
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 Introduction
 ============
@@ -322,6 +322,30 @@ Specifications:
 
 1. DATE_FORMAT(DATE, STRING) -> STRING
 2. DATE_FORMAT(DATE, STRING, STRING) -> STRING
+
+DATE_SUB
+=====
+
+Description
+-----------
+
+Usage: date_sub(date, INTERVAL expr unit) subtracts the time interval expr from date
+
+Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL
+
+Return type: (DATE, DATE INTERVAL) -> DATE (DATE, TIME INTERVAL) -> DATETIME (DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+
+Synonyms: SUBDATE
+
+Example::
+
+    od> SELECT DATE_SUB(DATE('2008-01-02'), INTERVAL 31 DAY), DATE_SUB(DATE('2020-08-26'), 1)
+    fetched rows / total rows = 1/1
+    +------------------------------------------------+----------------------------------+
+    | DATE_SUB(DATE('2008-01-02'), INTERVAL 31 DAY)  | DATE_SUB(DATE('2008-01-02'), 1)  |
+    |------------------------------------------------+----------------------------------|
+    | 2007-12-02 00:00:00                            | 2020-08-25                       |
+    +------------------------------------------------+----------------------------------+
 
 DAY
 =====
@@ -1157,6 +1181,30 @@ Example::
     +-----------+--------------+
 
 
+SUBDATE
+=====
+
+Description
+-----------
+
+Usage: subdate(date,INTERVAL expr unit) subtracts time interval from date. subdate(expr, days) subtracts interval in day unit from the temporal expression expr.
+
+Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL
+
+Return type: (DATE, DATE INTERVAL) -> DATE (DATE, TIME INTERVAL) -> DATETIME (DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+
+Synonyms: DATE_SUB
+
+Example::
+
+    od> SELECT SUBDATE(DATE('2008-01-02'), INTERVAL 31 DAY), SUBDATE(DATE('2020-08-26'), 1)
+    fetched rows / total rows = 1/1
+    +-----------------------------------------------+---------------------------------+
+    | SUBDATE(DATE('2008-01-02'), INTERVAL 31 DAY)  | SUBDATE(DATE('2008-01-02'), 1)  |
+    |-----------------------------------------------+---------------------------------|
+    | 2007-12-02 00:00:00                           | 2020-08-25                      |
+    +-----------------------------------------------+---------------------------------+
+
 SUBSTRING
 =========
 
@@ -1216,10 +1264,10 @@ Return type: LONG
 
 Example::
 
-    od> SELECT time_to_sec(TIME '22:23:00')
+    od> SELECT TIME_TO_SEC(TIME '22:23:00')
     fetched rows / total rows = 1/1
     +--------------------------------+
-    | time_to_sec(TIME '22:23:00')   |
+    | TIME_TO_SEC(TIME '22:23:00')   |
     |--------------------------------|
     | 80580                          |
     +--------------------------------+

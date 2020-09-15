@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
@@ -30,6 +31,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Func
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
@@ -58,22 +60,24 @@ public class DateTimeFunction {
    */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(date());
+    repository.register(date_sub());
+    repository.register(day());
     repository.register(dayName());
-    repository.register(monthName());
     repository.register(dayOfMonth());
     repository.register(dayOfWeek());
     repository.register(dayOfYear());
     repository.register(hour());
-    repository.register(minute());
-    repository.register(second());
     repository.register(microsecond());
-    repository.register(time());
-    repository.register(timestamp());
-    repository.register(day());
+    repository.register(minute());
     repository.register(month());
+    repository.register(monthName());
     repository.register(quarter());
-    repository.register(year());
+    repository.register(second());
+    repository.register(subdate());
+    repository.register(time());
     repository.register(time_to_sec());
+    repository.register(timestamp());
+    repository.register(year());
   }
 
   /**
@@ -87,6 +91,44 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
+  }
+
+  /**
+   * Extracts the date part of a date and time value.
+   * Also to construct a date type. The supported signatures:
+   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
+   */
+  private FunctionResolver date_sub() {
+    return define(BuiltinFunctionName.DATE_SUB.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATE, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATETIME, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
+            DATETIME, DATETIME, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
+            DATETIME, TIMESTAMP, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATE, DATE, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, DATETIME, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIMESTAMP, LONG)
+    );
+  }
+
+  /**
+   * Extracts the date part of a date and time value.
+   * Also to construct a date type. The supported signatures:
+   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
+   */
+  private FunctionResolver subdate() {
+    return define(BuiltinFunctionName.SUBDATE.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATE, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATETIME, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
+            DATETIME, DATETIME, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
+            DATETIME, TIMESTAMP, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATE, DATE, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, DATETIME, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIMESTAMP, LONG)
+    );
   }
 
   /**
@@ -283,6 +325,32 @@ public class DateTimeFunction {
       return new ExprDateValue(exprValue.stringValue());
     } else {
       return new ExprDateValue(exprValue.dateValue());
+    }
+  }
+
+  /**
+   * SUBDATE function implementation for ExprValue.
+   *
+   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param expr ExprValue of Interval type, the temporal amount to subtract.
+   * @return Date/Datetime resulted from expr subtracted to date.
+   */
+  private ExprValue exprSubDateInterval(ExprValue date, ExprValue expr) {
+    return new ExprDatetimeValue(date.datetimeValue().minus(expr.intervalValue()));
+  }
+
+  /**
+   * SUBDATE function implementation for ExprValue.
+   *
+   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param days ExprValue of Long type, representing the number of days to subtract.
+   * @return Date/Datetime resulted from days subtracted to date.
+   */
+  private ExprValue exprSubDateDays(ExprValue date, ExprValue days) {
+    if (date instanceof ExprDateValue) {
+      return new ExprDateValue(date.dateValue().minusDays(days.longValue()));
+    } else {
+      return new ExprDatetimeValue(date.datetimeValue().minusDays(days.longValue()));
     }
   }
 

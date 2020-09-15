@@ -240,12 +240,20 @@ public class DSL {
     return function(BuiltinFunctionName.MULTIPLY, expressions);
   }
 
-  public FunctionExpression dayname(Expression... expressions) {
-    return function(BuiltinFunctionName.DAYNAME, expressions);
+  public FunctionExpression date(Expression... expressions) {
+    return function(BuiltinFunctionName.DATE, expressions);
   }
 
-  public FunctionExpression monthname(Expression... expressions) {
-    return function(BuiltinFunctionName.MONTHNAME, expressions);
+  public FunctionExpression date_sub(Expression... expressions) {
+    return function(BuiltinFunctionName.DATE_SUB, expressions);
+  }
+
+  public FunctionExpression day(Expression... expressions) {
+    return function(BuiltinFunctionName.DAY, expressions);
+  }
+
+  public FunctionExpression dayname(Expression... expressions) {
+    return function(BuiltinFunctionName.DAYNAME, expressions);
   }
 
   public FunctionExpression dayofmonth(Expression... expressions) {
@@ -260,52 +268,52 @@ public class DSL {
     return function(BuiltinFunctionName.DAYOFYEAR, expressions);
   }
 
-  public FunctionExpression day(Expression... expressions) {
-    return function(BuiltinFunctionName.DAY, expressions);
-  }
-
   public FunctionExpression hour(Expression... expressions) {
     return function(BuiltinFunctionName.HOUR, expressions);
-  }
-
-  public FunctionExpression minute(Expression... expressions) {
-    return function(BuiltinFunctionName.MINUTE, expressions);
-  }
-
-  public FunctionExpression second(Expression... expressions) {
-    return function(BuiltinFunctionName.SECOND, expressions);
   }
 
   public FunctionExpression microsecond(Expression... expressions) {
     return function(BuiltinFunctionName.MICROSECOND, expressions);
   }
 
+  public FunctionExpression minute(Expression... expressions) {
+    return function(BuiltinFunctionName.MINUTE, expressions);
+  }
+
   public FunctionExpression month(Expression... expressions) {
     return function(BuiltinFunctionName.MONTH, expressions);
+  }
+
+  public FunctionExpression monthname(Expression... expressions) {
+    return function(BuiltinFunctionName.MONTHNAME, expressions);
   }
 
   public FunctionExpression quarter(Expression... expressions) {
     return function(BuiltinFunctionName.QUARTER, expressions);
   }
 
-  public FunctionExpression year(Expression... expressions) {
-    return function(BuiltinFunctionName.YEAR, expressions);
+  public FunctionExpression second(Expression... expressions) {
+    return function(BuiltinFunctionName.SECOND, expressions);
   }
 
-  public FunctionExpression time_to_sec(Expression... expressions) {
-    return function(BuiltinFunctionName.TIME_TO_SEC, expressions);
-  }
-
-  public FunctionExpression date(Expression... expressions) {
-    return function(BuiltinFunctionName.DATE, expressions);
+  public FunctionExpression subdate(Expression... expressions) {
+    return function(BuiltinFunctionName.SUBDATE, expressions);
   }
 
   public FunctionExpression time(Expression... expressions) {
     return function(BuiltinFunctionName.TIME, expressions);
   }
 
+  public FunctionExpression time_to_sec(Expression... expressions) {
+    return function(BuiltinFunctionName.TIME_TO_SEC, expressions);
+  }
+
   public FunctionExpression timestamp(Expression... expressions) {
     return function(BuiltinFunctionName.TIMESTAMP, expressions);
+  }
+
+  public FunctionExpression year(Expression... expressions) {
+    return function(BuiltinFunctionName.YEAR, expressions);
   }
 
   public FunctionExpression divide(Expression... expressions) {
