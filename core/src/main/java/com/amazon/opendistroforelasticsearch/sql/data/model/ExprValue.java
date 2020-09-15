@@ -78,6 +78,14 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
   }
 
   /**
+   * Get short value.
+   */
+  default Short shortValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get shortValue from value of type " + type());
+  }
+
+  /**
    * Get integer value.
    */
   default Integer integerValue() {

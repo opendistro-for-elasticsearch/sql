@@ -17,7 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 
@@ -51,18 +53,9 @@ public class PPLPluginIT extends PPLIntegTestCase {
     request.setJsonEntity("{\"name\": \"hello\"}");
     client().performRequest(request);
 
-    String response = executeQueryToString("search source=a");
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"name\",\n"
-            + "    \"type\": \"string\"\n"
-            + "  }],\n"
-            + "  \"total\": 1,\n"
-            + "  \"datarows\": [[\"hello\"]],\n"
-            + "  \"size\": 1\n"
-            + "}\n",
-        response);
+    JSONObject response = executeQuery("search source=a");
+    verifySchema(response, schema("name", null, "string"));
+    verifyDataRows(response, rows("hello"));
   }
 
   @Test

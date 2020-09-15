@@ -84,30 +84,14 @@ public class OperatorIT extends PPLIntegTestCase {
 
   @Test
   public void testArithmeticOperatorWithNullValue() throws IOException {
-    String result =
-        executeQueryToString(
+    JSONObject result =
+        executeQuery(
             String.format(
                 "source=%s | eval f = age + 0 | fields f",
                 TEST_INDEX_BANK_WITH_NULL_VALUES));
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"f\",\n"
-            + "    \"type\": \"integer\"\n"
-            + "  }],\n"
-            + "  \"total\": 7,\n"
-            + "  \"datarows\": [\n"
-            + "    [32],\n"
-            + "    [36],\n"
-            + "    [28],\n"
-            + "    [33],\n"
-            + "    [36],\n"
-            + "    [null],\n"
-            + "    [34]\n"
-            + "  ],\n"
-            + "  \"size\": 7\n"
-            + "}\n",
-        result);
+    verifyDataRows(
+        result, rows(32), rows(36), rows(28), rows(33), rows(36), rows(JSONObject.NULL),
+        rows(34));
   }
 
   @Test

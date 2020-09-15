@@ -25,9 +25,10 @@ import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckExcepti
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
@@ -107,7 +108,11 @@ public class RestSQLQueryAction extends BaseRestHandler {
     } catch (SyntaxCheckException e) {
       return NOT_SUPPORTED_YET;
     }
-    return channel -> sqlService.execute(plan, createListener(channel));
+
+    if (request.isExplainRequest()) {
+      return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
+    }
+    return channel -> sqlService.execute(plan, createQueryResponseListener(channel));
   }
 
   private SQLService createSQLService(NodeClient client) {
@@ -123,25 +128,41 @@ public class RestSQLQueryAction extends BaseRestHandler {
     });
   }
 
+  private ResponseListener<ExplainResponse> createExplainResponseListener(RestChannel channel) {
+    return new ResponseListener<ExplainResponse>() {
+      @Override
+      public void onResponse(ExplainResponse response) {
+        sendResponse(channel, OK, new JsonResponseFormatter<ExplainResponse>(PRETTY) {
+          @Override
+          protected Object buildJsonObject(ExplainResponse response) {
+            return response;
+          }
+        }.format(response));
+      }
+
+      @Override
+      public void onFailure(Exception e) {
+        LOG.error("Error happened during explain", e);
+        sendResponse(channel, INTERNAL_SERVER_ERROR,
+            "Failed to explain the query due to error: " + e.getMessage());
+      }
+    };
+  }
+
   // TODO: duplicate code here as in RestPPLQueryAction
-  private ResponseListener<QueryResponse> createListener(RestChannel channel) {
+  private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel) {
     SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {
-        sendResponse(OK, formatter.format(new QueryResult(response.getSchema(),
-            response.getResults())));
+        sendResponse(channel, OK,
+            formatter.format(new QueryResult(response.getSchema(), response.getResults())));
       }
 
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during query handling", e);
-        sendResponse(INTERNAL_SERVER_ERROR, formatter.format(e));
-      }
-
-      private void sendResponse(RestStatus status, String content) {
-        channel.sendResponse(new BytesRestResponse(
-            status, "application/json; charset=UTF-8", content));
+        sendResponse(channel, INTERNAL_SERVER_ERROR, formatter.format(e));
       }
     };
   }
@@ -152,6 +173,11 @@ public class RestSQLQueryAction extends BaseRestHandler {
     } catch (IOException e) {
       throw new IllegalStateException("Failed to perform privileged action", e);
     }
+  }
+
+  private void sendResponse(RestChannel channel, RestStatus status, String content) {
+    channel.sendResponse(new BytesRestResponse(
+        status, "application/json; charset=UTF-8", content));
   }
 
 }

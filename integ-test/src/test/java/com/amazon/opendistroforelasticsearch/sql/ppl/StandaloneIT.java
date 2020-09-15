@@ -91,15 +91,21 @@ public class StandaloneIT extends PPLIntegTestCase {
     String actual = executeByStandaloneQueryEngine("source=test | fields name");
     assertEquals(
         "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"name\",\n"
-            + "    \"type\": \"string\"\n"
-            + "  }],\n"
-            + "  \"total\": 2,\n"
-            + "  \"datarows\": [\n"
-            + "    [\"hello\"],\n"
-            + "    [\"world\"]\n"
+            + "  \"schema\": [\n"
+            + "    {\n"
+            + "      \"name\": \"name\",\n"
+            + "      \"type\": \"string\"\n"
+            + "    }\n"
             + "  ],\n"
+            + "  \"datarows\": [\n"
+            + "    [\n"
+            + "      \"hello\"\n"
+            + "    ],\n"
+            + "    [\n"
+            + "      \"world\"\n"
+            + "    ]\n"
+            + "  ],\n"
+            + "  \"total\": 2,\n"
             + "  \"size\": 2\n"
             + "}",
         actual);
@@ -108,7 +114,7 @@ public class StandaloneIT extends PPLIntegTestCase {
   private String executeByStandaloneQueryEngine(String query) {
     AtomicReference<String> actual = new AtomicReference<>();
     pplService.execute(
-        new PPLQueryRequest(query, null),
+        new PPLQueryRequest(query, null, null),
         new ResponseListener<QueryResponse>() {
 
           @Override

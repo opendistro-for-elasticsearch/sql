@@ -57,22 +57,22 @@ public class RestSQLQueryActionTest {
   }
 
   @Test
-  public void skipExplainThatNotSupport() {
+  public void handleExplainThatCanSupport() {
     SQLQueryRequest request = new SQLQueryRequest(
-        new JSONObject("{\"query\": \"SELECT * FROM test\"}"),
-        "SELECT * FROM test",
+        new JSONObject("{\"query\": \"SELECT -123\"}"),
+        "SELECT -123",
         EXPLAIN_API_ENDPOINT,
         "");
 
     RestSQLQueryAction queryAction = new RestSQLQueryAction(clusterService, settings);
-    assertSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
+    assertNotSame(NOT_SUPPORTED_YET, queryAction.prepareRequest(request, nodeClient));
   }
 
   @Test
   public void skipQueryThatNotSupport() {
     SQLQueryRequest request = new SQLQueryRequest(
-        new JSONObject("{\"query\": \"SELECT * FROM test WHERE age = 10 GROUP BY age\"}"),
-        "SELECT * FROM test WHERE age = 10 GROUP BY age",
+        new JSONObject("{\"query\": \"SELECT * FROM test WHERE age = 10 GROUP BY age LIMIT 10\"}"),
+        "SELECT * FROM test WHERE age = 10 GROUP BY age LIMIT 10",
         QUERY_API_ENDPOINT,
         "");
 

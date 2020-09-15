@@ -15,12 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
@@ -33,8 +35,9 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 @UtilityClass
 public class LogicalPlanDSL {
+
   public static LogicalPlan aggregation(
-      LogicalPlan input, List<Aggregator> aggregatorList, List<Expression> groupByList) {
+      LogicalPlan input, List<NamedAggregator> aggregatorList, List<NamedExpression> groupByList) {
     return new LogicalAggregation(input, aggregatorList, groupByList);
   }
 
@@ -81,6 +84,16 @@ public class LogicalPlanDSL {
       Expression... fields) {
     return new LogicalDedupe(
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
+  }
+
+  public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType,
+      List<Expression> groupByList, Expression... fields) {
+    return rareTopN(input, commandType, 10, groupByList, fields);
+  }
+
+  public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType, int noOfResults,
+      List<Expression> groupByList, Expression... fields) {
+    return new LogicalRareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupByList);
   }
 
   @SafeVarargs

@@ -1,12 +1,12 @@
 {
   "name": "opendistro-sql-workbench",
-  "version": "1.10.0.0",
+  "version": "1.10.1.0",
   "description": "SQL Workbench",
   "main": "index.js",
   "license": "Apache-2.0",
   "homepage": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-workbench",
   "kibana": {
-    "version": "7.9.0",
+    "version": "7.9.1",
     "templateVersion": "6.3.3"
   },
   "repository": {
@@ -82,7 +82,7 @@
     "typescript": "3.0.3"
   },
   "engines": {
-    "node": "10.21.0",
+    "node": "10.22.0",
     "yarn": "^1.21.1"
   },
   "resolutions": {

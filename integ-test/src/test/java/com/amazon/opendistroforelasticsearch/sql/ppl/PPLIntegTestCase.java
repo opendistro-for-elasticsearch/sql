@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResponseBody;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
@@ -38,13 +39,19 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
   }
 
   protected String executeQueryToString(String query) throws IOException {
-    Response response = client().performRequest(buildRequest(query));
+    Response response = client().performRequest(buildRequest(query, QUERY_API_ENDPOINT));
     Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     return getResponseBody(response, true);
   }
 
-  protected Request buildRequest(String query) {
-    Request request = new Request("POST", QUERY_API_ENDPOINT);
+  protected String explainQueryToString(String query) throws IOException {
+    Response response = client().performRequest(buildRequest(query, EXPLAIN_API_ENDPOINT));
+    Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+    return getResponseBody(response, true);
+  }
+
+  protected Request buildRequest(String query, String endpoint) {
+    Request request = new Request("POST", endpoint);
     request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
 
     RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();

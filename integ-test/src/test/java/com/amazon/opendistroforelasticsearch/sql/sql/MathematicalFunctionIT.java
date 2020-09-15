@@ -80,7 +80,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   public void testRound() throws IOException {
     JSONObject result = executeQuery("select round(56.78)");
     verifySchema(result, schema("round(56.78)", null, "double"));
-    verifyDataRows(result, rows(57));
+    verifyDataRows(result, rows(57.0));
 
     result = executeQuery("select round(56.78, 1)");
     verifySchema(result, schema("round(56.78, 1)", null, "double"));
@@ -88,7 +88,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
 
     result = executeQuery("select round(56.78, -1)");
     verifySchema(result, schema("round(56.78, -1)", null, "double"));
-    verifyDataRows(result, rows(60));
+    verifyDataRows(result, rows(60.0));
 
     result = executeQuery("select round(-56)");
     verifySchema(result, schema("round(-56)", null, "long"));
@@ -125,7 +125,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
 
     result = executeQuery("select truncate(56.78, -1)");
     verifySchema(result, schema("truncate(56.78, -1)", null, "double"));
-    verifyDataRows(result, rows(50));
+    verifyDataRows(result, rows(50.0));
 
     result = executeQuery("select truncate(-56, 1)");
     verifySchema(result, schema("truncate(-56, 1)", null, "long"));

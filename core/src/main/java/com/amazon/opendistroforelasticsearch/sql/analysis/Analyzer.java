@@ -31,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
@@ -45,12 +46,14 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
@@ -78,6 +81,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
   private final SelectExpressionAnalyzer selectExpressionAnalyzer;
 
+  private final NamedExpressionAnalyzer namedExpressionAnalyzer;
+
   private final StorageEngine storageEngine;
 
   /**
@@ -89,6 +94,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     this.expressionAnalyzer = expressionAnalyzer;
     this.storageEngine = storageEngine;
     this.selectExpressionAnalyzer = new SelectExpressionAnalyzer(expressionAnalyzer);
+    this.namedExpressionAnalyzer = new NamedExpressionAnalyzer(expressionAnalyzer);
   }
 
   public LogicalPlan analyze(UnresolvedPlan unresolved, AnalysisContext context) {
@@ -151,11 +157,36 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitAggregation(Aggregation node, AnalysisContext context) {
     final LogicalPlan child = node.getChild().get(0).accept(this, context);
-    ImmutableList.Builder<Aggregator> aggregatorBuilder = new ImmutableList.Builder<>();
+    ImmutableList.Builder<NamedAggregator> aggregatorBuilder = new ImmutableList.Builder<>();
     for (UnresolvedExpression expr : node.getAggExprList()) {
-      aggregatorBuilder.add((Aggregator) expressionAnalyzer.analyze(expr, context));
+      NamedExpression aggExpr = namedExpressionAnalyzer.analyze(expr, context);
+      aggregatorBuilder
+          .add(new NamedAggregator(aggExpr.getName(), (Aggregator) aggExpr.getDelegated()));
     }
-    ImmutableList<Aggregator> aggregators = aggregatorBuilder.build();
+    ImmutableList<NamedAggregator> aggregators = aggregatorBuilder.build();
+
+    ImmutableList.Builder<NamedExpression> groupbyBuilder = new ImmutableList.Builder<>();
+    for (UnresolvedExpression expr : node.getGroupExprList()) {
+      groupbyBuilder.add(namedExpressionAnalyzer.analyze(expr, context));
+    }
+    ImmutableList<NamedExpression> groupBys = groupbyBuilder.build();
+
+    // new context
+    context.push();
+    TypeEnvironment newEnv = context.peek();
+    aggregators.forEach(aggregator -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
+        aggregator.getName()), aggregator.type()));
+    groupBys.forEach(group -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
+        group.getName()), group.type()));
+    return new LogicalAggregation(child, aggregators, groupBys);
+  }
+
+  /**
+   * Build {@link LogicalRareTopN}.
+   */
+  @Override
+  public LogicalPlan visitRareTopN(RareTopN node, AnalysisContext context) {
+    final LogicalPlan child = node.getChild().get(0).accept(this, context);
 
     ImmutableList.Builder<Expression> groupbyBuilder = new ImmutableList.Builder<>();
     for (UnresolvedExpression expr : node.getGroupExprList()) {
@@ -163,14 +194,24 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     }
     ImmutableList<Expression> groupBys = groupbyBuilder.build();
 
+    ImmutableList.Builder<Expression> fieldsBuilder = new ImmutableList.Builder<>();
+    for (Field f : node.getFields()) {
+      fieldsBuilder.add(expressionAnalyzer.analyze(f, context));
+    }
+    ImmutableList<Expression> fields = fieldsBuilder.build();
+
     // new context
     context.push();
     TypeEnvironment newEnv = context.peek();
-    aggregators.forEach(aggregator -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
-        aggregator.toString()), aggregator.type()));
     groupBys.forEach(group -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
         group.toString()), group.type()));
-    return new LogicalAggregation(child, aggregators, groupBys);
+    fields.forEach(field -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
+        field.toString()), field.type()));
+
+    List<Argument> options = node.getNoOfResults();
+    Integer noOfResults = (Integer) options.get(0).getValue().getValue();
+
+    return new LogicalRareTopN(child, node.getCommandType(), noOfResults, fields, groupBys);
   }
 
   /**

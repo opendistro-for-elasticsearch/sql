@@ -50,8 +50,8 @@ class SimpleJsonResponseFormatterTest {
     SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
     assertEquals(
         "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},"
-            + "{\"name\":\"age\",\"type\":\"integer\"}],"
-            + "\"total\":2,\"datarows\":[[\"John\",20],[\"Smith\",30]],\"size\":2}",
+            + "{\"name\":\"age\",\"type\":\"integer\"}],\"datarows\":"
+            + "[[\"John\",20],[\"Smith\",30]],\"total\":2,\"size\":2}",
         formatter.format(response));
   }
 
@@ -76,7 +76,6 @@ class SimpleJsonResponseFormatterTest {
             + "      \"type\": \"integer\"\n"
             + "    }\n"
             + "  ],\n"
-            + "  \"total\": 2,\n"
             + "  \"datarows\": [\n"
             + "    [\n"
             + "      \"John\",\n"
@@ -87,6 +86,7 @@ class SimpleJsonResponseFormatterTest {
             + "      30\n"
             + "    ]\n"
             + "  ],\n"
+            + "  \"total\": 2,\n"
             + "  \"size\": 2\n"
             + "}",
         formatter.format(response));
@@ -104,8 +104,8 @@ class SimpleJsonResponseFormatterTest {
     SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
     assertEquals(
         "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},"
-            + "{\"name\":\"age\",\"type\":\"integer\"}],\"total\":2,"
-            + "\"datarows\":[[\"John\",null],[\"Smith\",30]],\"size\":2}",
+            + "{\"name\":\"age\",\"type\":\"integer\"}],"
+            + "\"datarows\":[[\"John\",null],[\"Smith\",30]],\"total\":2,\"size\":2}",
         formatter.format(response));
   }
 
@@ -113,7 +113,7 @@ class SimpleJsonResponseFormatterTest {
   void formatError() {
     SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
     assertEquals(
-        "{\"reason\":\"This is an exception\",\"type\":\"RuntimeException\"}",
+        "{\"type\":\"RuntimeException\",\"reason\":\"This is an exception\"}",
         formatter.format(new RuntimeException("This is an exception")));
   }
 
@@ -122,8 +122,8 @@ class SimpleJsonResponseFormatterTest {
     SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
     assertEquals(
         "{\n"
-            + "  \"reason\": \"This is an exception\",\n"
-            + "  \"type\": \"RuntimeException\"\n"
+            + "  \"type\": \"RuntimeException\",\n"
+            + "  \"reason\": \"This is an exception\"\n"
             + "}",
         formatter.format(new RuntimeException("This is an exception")));
   }
