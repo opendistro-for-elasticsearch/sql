@@ -113,7 +113,7 @@ public class DateTimeValueTest {
         assertThrows(SemanticCheckException.class,
             () -> new ExprTimestampValue("2020-07-07T01:01:01Z"));
     assertEquals(
-        "timestamp:2020-07-07T01:01:01Z in unsupported format, please use yyyy-MM-dd HH:mm:ss",
+        "timestamp:2020-07-07T01:01:01Z in unsupported format, please use yyyy-MM-dd HH:mm:ss[.n]",
         exception.getMessage());
   }
 
@@ -123,7 +123,8 @@ public class DateTimeValueTest {
         assertThrows(SemanticCheckException.class,
             () -> new ExprDatetimeValue("2020-07-07T01:01:01Z"));
     assertEquals(
-        "datetime:2020-07-07T01:01:01Z in unsupported format, please use yyyy-MM-dd HH:mm:ss",
+        "datetime:2020-07-07T01:01:01Z in unsupported format, "
+            + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
 }
