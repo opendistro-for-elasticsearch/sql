@@ -50,4 +50,9 @@ ident
     : DOT? ID
     | DOUBLE_QUOTE_ID
     | BACKTICK_QUOTE_ID
+    | keywordsCanBeId
+    ;
+
+keywordsCanBeId
+    : DAYOFWEEK
     ;
