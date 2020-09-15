@@ -71,7 +71,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
                     scan,
                     dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))
                 ),
-                ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
+                ImmutableList.of(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
                 ImmutableList.of()
             ),
             ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))
@@ -82,7 +82,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
                     LogicalPlanDSL.relation("schema"),
                     dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))
                 ),
-                ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
+                ImmutableList.of(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
                 ImmutableList.of()
             ),
             ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))

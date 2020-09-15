@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.jdbc.types;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,7 @@ public abstract class BaseTypeConverter implements TypeConverter {
 
         typeHandlerMap.put(Timestamp.class, TimestampType.INSTANCE);
         typeHandlerMap.put(Date.class, DateType.INSTANCE);
+        typeHandlerMap.put(Time.class, TimeType.INSTANCE);
 
     }
 

@@ -124,17 +124,19 @@ public class SelectAnalyzeTest extends AnalyzerTestBase {
         LogicalPlanDSL.project(
             LogicalPlanDSL.aggregation(
                 LogicalPlanDSL.relation("schema"),
-                ImmutableList.of(dsl.avg(DSL.ref("integer_value", INTEGER))),
-                ImmutableList.of(DSL.ref("string_value", STRING))),
+                ImmutableList.of(DSL
+                    .named("avg(integer_value)", dsl.avg(DSL.ref("integer_value", INTEGER)))),
+                ImmutableList.of(DSL.named("string_value", DSL.ref("string_value", STRING)))),
             DSL.named("string_value", DSL.ref("string_value", STRING)),
             DSL.named("avg(integer_value)", DSL.ref("avg(integer_value)", DOUBLE))
         ),
         AstDSL.projectWithArg(
             AstDSL.agg(
                 AstDSL.relation("schema"),
-                AstDSL.exprList(AstDSL.aggregate("avg", field("integer_value"))),
+                AstDSL.exprList(AstDSL.alias("avg(integer_value)", AstDSL.aggregate("avg",
+                    field("integer_value")))),
                 null,
-                ImmutableList.of(field("string_value")),
+                ImmutableList.of(AstDSL.alias("string_value", field("string_value"))),
                 AstDSL.defaultStatsArgs()), AstDSL.defaultFieldsArgs(),
             AllFields.of()));
   }

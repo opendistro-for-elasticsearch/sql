@@ -21,12 +21,13 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprIpValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.AggregationQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
@@ -34,9 +35,11 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 
 /** Elasticsearch table (index) implementation. */
 @RequiredArgsConstructor
@@ -113,6 +116,33 @@ public class ElasticsearchIndex implements Table {
 
             context.pushDown(query);
             return visitChild(node, context);
+          }
+
+          @Override
+          public PhysicalPlan visitAggregation(LogicalAggregation node,
+                                              ElasticsearchIndexScan context) {
+            // Todo, aggregation in the following pattern can be push down
+            // aggregation -> relation
+            // aggregation -> filter -> relation
+            if ((node.getChild().get(0) instanceof LogicalRelation)
+                || (node.getChild().get(0) instanceof LogicalFilter && node.getChild().get(0)
+                .getChild().get(0) instanceof LogicalRelation)) {
+              AggregationQueryBuilder builder =
+                  new AggregationQueryBuilder(new DefaultExpressionSerializer());
+
+              List<AggregationBuilder> aggregationBuilder =
+                  builder.buildAggregationBuilder(node.getAggregatorList(),
+                      node.getGroupByList());
+
+              context.pushDownAggregation(aggregationBuilder);
+              context.pushTypeMapping(
+                  builder.buildTypeMapping(node.getAggregatorList(),
+                      node.getGroupByList()));
+
+              return visitChild(node, context);
+            } else {
+              return super.visitAggregation(node, context);
+            }
           }
 
           @Override

@@ -16,7 +16,7 @@ The following projects have been merged into this repository as separate folders
 * [SQL CLI](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-cli)
 * [SQL JDBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-jdbc)
 * [SQL ODBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc)
-* [SQL Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-workbench)
+* [SQL Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench)
 
 
 ## Documentation

@@ -114,7 +114,7 @@ public class StandaloneIT extends PPLIntegTestCase {
   private String executeByStandaloneQueryEngine(String query) {
     AtomicReference<String> actual = new AtomicReference<>();
     pplService.execute(
-        new PPLQueryRequest(query, null),
+        new PPLQueryRequest(query, null, null),
         new ResponseListener<QueryResponse>() {
 
           @Override
