@@ -78,7 +78,8 @@ public class DateTimeFunction {
   private FunctionResolver dayOfMonth() {
     return define(DAYOFMONTH.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
-            INTEGER, DATE)
+            INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING)
     );
   }
 
@@ -128,7 +129,11 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
-    return new ExprIntegerValue(date.dateValue().getMonthValue());
+    if (date instanceof ExprStringValue) {
+      return new ExprIntegerValue(
+          new ExprDateValue(date.stringValue()).dateValue().getDayOfMonth());
+    }
+    return new ExprIntegerValue(date.dateValue().getDayOfMonth());
   }
 
   /**
