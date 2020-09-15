@@ -14,7 +14,7 @@
  */
 
 import React from "react";
-import { EuiSpacer } from "@elastic/eui";
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from "@elastic/eui";
 import { IHttpResponse, IHttpService } from "angular";
 import _ from "lodash";
 import Header from "../Header/Header";
@@ -558,10 +558,23 @@ export class Main extends React.Component<MainProps, MainState> {
         <Header />
         <div className="sql-console-query-container">
           <div className="query-language-switch">
-            <Switch
-              onChange={this.onChange}
-              language={this.state.language}
-            />
+            <EuiFlexGroup>
+              <EuiFlexItem>
+                <Switch
+                  onChange={this.onChange}
+                  language={this.state.language}
+                />
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
+                <EuiButton
+                  href="https://opendistro.github.io/for-elasticsearch-docs/docs/sql/"
+                  iconType="popout"
+                  iconSide="right">
+                  SQL Documentation
+                </EuiButton>
+              </EuiFlexItem>
+            </EuiFlexGroup>
+
           </div>
           <EuiSpacer size="l" />
           <div className="sql-console-query-editor">
