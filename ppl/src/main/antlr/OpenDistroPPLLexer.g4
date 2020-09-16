@@ -206,6 +206,7 @@ SUBDATE:                            'SUBDATE';
 TIME:                               'TIME';
 TIME_TO_SEC:                        'TIME_TO_SEC';
 TIMESTAMP:                          'TIMESTAMP';
+TO_DAYS:                            'TO_DAYS';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;

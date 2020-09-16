@@ -17,7 +17,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -77,6 +76,7 @@ public class DateTimeFunction {
     repository.register(time());
     repository.register(time_to_sec());
     repository.register(timestamp());
+    repository.register(to_days());
     repository.register(year());
   }
 
@@ -317,6 +317,15 @@ public class DateTimeFunction {
   }
 
   /**
+   * TO_DAYS(DATE). return the day number of the given date.
+   */
+  private FunctionResolver to_days() {
+    return define(BuiltinFunctionName.TO_DAYS.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, DATETIME));
+  }
+
+  /**
    * Date implementation for ExprValue.
    * @param exprValue ExprValue of Date type or String type.
    * @return ExprValue.
@@ -499,6 +508,16 @@ public class DateTimeFunction {
     } else {
       return new ExprTimestampValue(exprValue.timestampValue());
     }
+  }
+
+  /**
+   * To_days implementation for ExprValue.
+   * @param exprValue ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprToDays(ExprValue exprValue) {
+    long days0000To1970 = (146097 * 5L) - (30L * 365L + 7L);
+    return new ExprLongValue(exprValue.dateValue().toEpochDay() + days0000To1970);
   }
 
   /**

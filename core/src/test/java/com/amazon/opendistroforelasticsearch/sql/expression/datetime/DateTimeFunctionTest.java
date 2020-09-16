@@ -463,6 +463,24 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("timestamp(TIMESTAMP '2020-08-17 01:01:01')", expr.toString());
   }
 
+  @Test
+  public void to_days() {
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.to_days(nullRef)));
+    assertEquals(missingValue(), eval(dsl.to_days(missingRef)));
+
+    FunctionExpression expression = dsl.to_days(DSL.literal(new ExprDateValue("2008-10-07")));
+    assertEquals(LONG, expression.type());
+    assertEquals("to_days(DATE '2008-10-07')", expression.toString());
+    assertEquals(longValue(733687L), eval(expression));
+
+    expression = dsl.to_days(DSL.literal(new ExprDateValue("1969-12-31")));
+    assertEquals(LONG, expression.type());
+    assertEquals("to_days(DATE '1969-12-31')", expression.toString());
+    assertEquals(longValue(719527L), eval(expression));
+  }
+
   private ExprValue eval(Expression expression) {
     return expression.valueOf(env);
   }

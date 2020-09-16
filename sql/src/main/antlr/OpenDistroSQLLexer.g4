@@ -220,6 +220,7 @@ TIME:                               'TIME';
 TIME_TO_SEC:                        'TIME_TO_SEC';
 TIMESTAMP:                          'TIMESTAMP';
 TRUNCATE:                           'TRUNCATE';
+TO_DAYS:                            'TO_DAYS';
 UPPER:                              'UPPER';
 
 D:                                  'D';

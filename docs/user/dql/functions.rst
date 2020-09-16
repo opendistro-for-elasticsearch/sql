@@ -1284,6 +1284,29 @@ Specifications:
 1. TIMESTAMP(DATE) -> DATE
 
 
+TO_DAYS
+===
+
+Description
+-----------
+
+Usage: to_days(date) returns the day number (the number of days since year 0) of the given date. Returns NULL if date is invalid.
+
+Argument type: DATE
+
+Return type: LONG
+
+Example::
+
+    od> SELECT TO_DAYS(DATE '2008-10-07')
+    fetched rows / total rows = 1/1
+    +------------------------------+
+    | TO_DAYS(DATE '2008-10-07')   |
+    |------------------------------|
+    | 733687                       |
+    +------------------------------+
+
+
 TRIM
 ====
 

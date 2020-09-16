@@ -317,6 +317,10 @@ public class DSL {
     return function(BuiltinFunctionName.TIMESTAMP, expressions);
   }
 
+  public FunctionExpression to_days(Expression... expressions) {
+    return function(BuiltinFunctionName.TO_DAYS, expressions);
+  }
+
   public FunctionExpression year(Expression... expressions) {
     return function(BuiltinFunctionName.YEAR, expressions);
   }
