@@ -82,6 +82,11 @@ public class PhysicalPlanDSL {
         input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
   }
 
+  public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr,
+      int number) {
+    return new HeadOperator(input, keepLast, whileExpr, number);
+  }
+
   public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,
       List<Expression> groups, Expression... expressions) {
     return new RareTopNOperator(input, commandType, Arrays.asList(expressions), groups);

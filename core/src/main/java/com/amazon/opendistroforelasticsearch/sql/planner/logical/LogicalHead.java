@@ -15,38 +15,33 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-/**
- * Logical Rare and TopN Plan.
- */
+
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class LogicalRareTopN extends LogicalPlan {
+public class LogicalHead extends LogicalPlan {
 
   private final LogicalPlan child;
-  private final CommandType commandType;
-  private final Integer noOfResults;
-  private final List<Expression> fieldList;
-  private final List<Expression> groupByList;
+  private final Boolean keeplast;
+  private final Expression whileExpr;
+  private final Integer number;
 
   @Override
   public List<LogicalPlan> getChild() {
-    return Collections.singletonList(child);
+    return Arrays.asList(child);
   }
 
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-    return visitor.visitRareTopN(this, context);
+    return visitor.visitHead(this, context);
   }
 }

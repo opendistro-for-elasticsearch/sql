@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOpe
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
@@ -134,6 +135,15 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
         "noOfResults", node.getNoOfResults(),
         "fields", node.getFieldExprList().toString(),
         "groupBy", node.getGroupByExprList().toString()
+    )));
+  }
+
+  @Override
+  public ExplainResponseNode visitHead(HeadOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
+        "keepLast", node.getKeepLast(),
+        "whileExpr", node.getWhileExpr().toString(),
+        "number", node.getNumber()
     )));
   }
 

@@ -21,7 +21,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
@@ -86,6 +85,11 @@ public class LogicalPlanDSL {
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
   }
 
+  public static LogicalPlan head(
+      LogicalPlan input, boolean keeplast, Expression whileExpr, int number) {
+    return new LogicalHead(input, keeplast, whileExpr, number);
+  }
+  
   public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType,
       List<Expression> groupByList, Expression... fields) {
     return rareTopN(input, commandType, 10, groupByList, fields);

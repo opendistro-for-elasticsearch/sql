@@ -28,6 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.physical.Physica
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.dedupe;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.head;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.remove;
@@ -131,6 +132,28 @@ class ExplainTest extends ExpressionTestBase {
                     "noOfResults", 10,
                     "fields", "[state]",
                     "groupBy", "[]"),
+                singletonList(tableScan.explain()))),
+        explain.apply(plan));
+  }
+
+  @Test
+  void can_explain_head() {
+    Boolean keepLast = false;
+    Expression whileExpr = dsl.and(
+        dsl.equal(ref("balance", INTEGER), literal(10000)),
+        dsl.greater(ref("age", INTEGER), literal(30)));
+    Integer number = 5;
+
+    PhysicalPlan plan = head(tableScan, keepLast, whileExpr, number);
+
+    assertEquals(
+        new ExplainResponse(
+            new ExplainResponseNode(
+                "HeadOperator",
+                ImmutableMap.of(
+                    "keepLast", false,
+                    "whileExpr", "and(=(balance, 10000), >(age, 30))",
+                    "number", 5),
                 singletonList(tableScan.explain()))),
         explain.apply(plan));
   }
