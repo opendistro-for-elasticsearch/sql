@@ -313,34 +313,14 @@ export class Main extends React.Component<MainProps, MainState> {
         )
       );
 
-      const translationPromise = Promise.all(
-        queries.map((query: string) =>
-          this.httpClient
-            .post("../api/sql_console/translate", { query })
-            .catch((error: any) => {
-              this.setState({
-                messages: [
-                  {
-                    text: error.message,
-                    className: "error-message"
-                  }
-                ]
-              });
-            })
-        )
-      );
-
-      Promise.all([responsePromise, translationPromise]).then(([response, translationResponse]) => {
+      Promise.all([responsePromise]).then(([response]) => {
         const results: ResponseDetail<string>[] = response.map(response =>
           this.processQueryResponse(response as IHttpResponse<ResponseData>));
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
-        const translationResult: ResponseDetail<TranslateResult>[] = translationResponse.map(translationResponse =>
-          this.processTranslateResponse(translationResponse as IHttpResponse<ResponseData>));
 
         this.setState({
           queries: queries,
           queryResults: results,
-          queryTranslations: translationResult,
           queryResultsTable: resultTable,
           selectedTabId: getDefaultTabId(results),
           selectedTabName: getDefaultTabLabel(results, queries[0]),
@@ -392,18 +372,7 @@ export class Main extends React.Component<MainProps, MainState> {
           this.setState({
             queries,
             queryTranslations: translationResult,
-            messages: this.getTranslateMessage(translationResult),
-
-            // clean all the results generated from the last cached query
-            queryResults: [],
-            queryResultsTable: [],
-            selectedTabName: MESSAGE_TAB_LABEL,
-            selectedTabId: MESSAGE_TAB_LABEL,
-            itemIdToExpandedRowMap: {},
-            queryResultsJSON: [],
-            queryResultsCSV: [],
-            queryResultsTEXT: [],
-            searchQuery: ""
+            messages: this.getTranslateMessage(translationResult)
           }, () => console.log("Successfully updated the states"))
         }
       });
