@@ -1,18 +1,7 @@
 {
   "bash": [
-    "experiment/ppl/interfaces/endpoint.rst",
-    "experiment/ppl/interfaces/protocol.rst",
-    "experiment/ppl/admin/settings.rst"
   ],
   "ppl_cli": [
-    "experiment/ppl/cmd/dedup.rst",
-    "experiment/ppl/cmd/eval.rst",
-    "experiment/ppl/cmd/fields.rst",
-    "experiment/ppl/cmd/rename.rst",
-    "experiment/ppl/cmd/search.rst",
-    "experiment/ppl/cmd/sort.rst",
-    "experiment/ppl/cmd/stats.rst",
-    "experiment/ppl/cmd/where.rst"
   ],
   "sql_cli": [
     "user/dql/expressions.rst",
