@@ -117,6 +117,9 @@ task integTestWithNewEngine(type: RestIntegTestTask) {
 
         // Skip old semantic analyzer IT because analyzer in new engine has different behavior
         exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/QueryAnalysisIT.class'
+
+        // Exclude PPL
+        exclude 'com/amazon/opendistroforelasticsearch/sql/ppl/**'
     }
 }
 
