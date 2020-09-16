@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -159,6 +160,19 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(7), eval(expression));
     assertEquals(nullValue(), eval(dsl.day(nullRef)));
     assertEquals(missingValue(), eval(dsl.day(missingRef)));
+  }
+
+  @Test
+  public void from_days() {
+    when(nullRef.type()).thenReturn(LONG);
+    when(missingRef.type()).thenReturn(LONG);
+    assertEquals(nullValue(), eval(dsl.from_days(nullRef)));
+    assertEquals(missingValue(), eval(dsl.from_days(missingRef)));
+
+    FunctionExpression expression = dsl.from_days(DSL.literal(new ExprLongValue(730669)));
+    assertEquals(DATE, expression.type());
+    assertEquals("from_days(730669)", expression.toString());
+    assertEquals(new ExprDateValue("2000-07-03"), expression.valueOf(env));
   }
 
   @Test

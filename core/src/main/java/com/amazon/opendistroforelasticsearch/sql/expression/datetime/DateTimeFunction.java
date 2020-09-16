@@ -41,6 +41,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunc
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.google.common.base.CharMatcher;
+import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import lombok.experimental.UtilityClass;
@@ -52,6 +53,10 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class DateTimeFunction {
+
+  // The number of days from year zero to year 1970.
+  private static final Long DAYS_0000_TO_1970 = (146097 * 5L) - (30L * 365L + 7L);
+
   /**
    * Register Date and Time Functions.
    *
@@ -65,6 +70,7 @@ public class DateTimeFunction {
     repository.register(dayOfMonth());
     repository.register(dayOfWeek());
     repository.register(dayOfYear());
+    repository.register(from_days());
     repository.register(hour());
     repository.register(microsecond());
     repository.register(minute());
@@ -191,6 +197,14 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
             INTEGER, DATE)
     );
+  }
+
+  /**
+   * FROM_DAYS(DATE). return the date value given the day number N.
+   */
+  private FunctionResolver from_days() {
+    return define(BuiltinFunctionName.FROM_DAYS.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprFromDays), DATE, LONG));
   }
 
   /**
@@ -446,6 +460,14 @@ public class DateTimeFunction {
     return new ExprIntegerValue(date.dateValue().getDayOfYear());
   }
 
+  /** From_days implementation for ExprValue.
+   * @param exprValue Day number N.
+   * @return ExprValue.
+   */
+  private ExprValue exprFromDays(ExprValue exprValue) {
+    return new ExprDateValue(LocalDate.ofEpochDay(exprValue.longValue() - DAYS_0000_TO_1970));
+  }
+
   /**
    * Hour implementation for ExprValue.
    * @param exprValue ExprValue of Time type.
@@ -516,8 +538,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprToDays(ExprValue exprValue) {
-    long days0000To1970 = (146097 * 5L) - (30L * 365L + 7L);
-    return new ExprLongValue(exprValue.dateValue().toEpochDay() + days0000To1970);
+    return new ExprLongValue(exprValue.dateValue().toEpochDay() + DAYS_0000_TO_1970);
   }
 
   /**

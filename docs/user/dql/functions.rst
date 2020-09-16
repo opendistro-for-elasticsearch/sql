@@ -552,6 +552,29 @@ Specifications:
 1. FLOOR(NUMBER T) -> T
 
 
+FROM_DAYS
+===
+
+Description
+-----------
+
+Usage: from_days(N) returns the date value given the day number N.
+
+Argument type: INTEGER/LONG
+
+Return type: DATE
+
+Example::
+
+    od> SELECT FROM_DAYS(733687)
+    fetched rows / total rows = 1/1
+    +---------------------+
+    | FROM_DAYS(733687)   |
+    |---------------------|
+    | 2008-10-07          |
+    +---------------------+
+
+
 HOUR
 =====
 

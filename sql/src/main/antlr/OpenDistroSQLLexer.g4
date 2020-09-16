@@ -183,6 +183,7 @@ E:                                  'E';
 EXP:                                'EXP';
 EXPM1:                              'EXPM1';
 FLOOR:                              'FLOOR';
+FROM_DAYS:                          'FROM_DAYS';
 IF:                                 'IF';
 IFNULL:                             'IFNULL';
 ISNULL:                             'ISNULL';

@@ -201,6 +201,7 @@ DAYOFMONTH:                         'DAYOFMONTH';
 DAYOFWEEK:                          'DAYOFWEEK';
 DAYOFYEAR:                          'DAYOFYEAR';
 DAYNAME:                            'DAYNAME';
+FROM_DAYS:                          'FROM_DAYS';
 MONTHNAME:                          'MONTHNAME';
 SUBDATE:                            'SUBDATE';
 TIME:                               'TIME';

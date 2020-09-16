@@ -273,6 +273,10 @@ public class DSL {
     return function(BuiltinFunctionName.DAYOFYEAR, expressions);
   }
 
+  public FunctionExpression from_days(Expression... expressions) {
+    return function(BuiltinFunctionName.FROM_DAYS, expressions);
+  }
+
   public FunctionExpression hour(Expression... expressions) {
     return function(BuiltinFunctionName.HOUR, expressions);
   }
