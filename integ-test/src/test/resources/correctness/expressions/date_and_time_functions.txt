@@ -1,2 +1,0 @@
-adddate(date('2020-08-26'), interval 1 hour)
-adddate(date('2020-08-26'), 1)

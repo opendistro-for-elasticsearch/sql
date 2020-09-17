@@ -128,12 +128,9 @@ public class DateTimeFunction {
             DATETIME, DATETIME, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
             DATETIME, TIMESTAMP, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, STRING, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATE, DATE, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, STRING, LONG)
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG)
     );
   }
 
@@ -197,14 +194,6 @@ public class DateTimeFunction {
    * @return Date/Datetime resulted from expr added to date.
    */
   private ExprValue exprAddDateInterval(ExprValue date, ExprValue expr) {
-    if (date instanceof ExprStringValue) {
-      String value = date.stringValue();
-      if (value.length() <= 10) {
-        return exprAddDateInterval(new ExprDateValue(value), expr);
-      } else {
-        return exprAddDateInterval(new ExprTimestampValue(value), expr);
-      }
-    }
     return new ExprDatetimeValue(date.datetimeValue().plus(expr.intervalValue()));
   }
 
@@ -216,14 +205,6 @@ public class DateTimeFunction {
    * @return Date/Datetime resulted from days added to date.
    */
   private ExprValue exprAddDateDays(ExprValue date, ExprValue days) {
-    if (date instanceof ExprStringValue) {
-      String value = date.stringValue();
-      if (value.length() <= 10) {
-        return exprAddDateDays(new ExprDateValue(value), days);
-      } else {
-        return exprAddDateDays(new ExprTimestampValue(date.stringValue()), days);
-      }
-    }
     if (date instanceof ExprDateValue) {
       return new ExprDateValue(date.dateValue().plusDays(days.longValue()));
     }
