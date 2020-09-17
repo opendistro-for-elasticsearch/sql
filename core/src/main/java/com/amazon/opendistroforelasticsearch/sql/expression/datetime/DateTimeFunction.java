@@ -123,8 +123,8 @@ public class DateTimeFunction {
    */
   private FunctionResolver day() {
     return define(BuiltinFunctionName.DAY.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
-            INTEGER, DATE)
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING)
     );
   }
 
@@ -134,8 +134,8 @@ public class DateTimeFunction {
    */
   private FunctionResolver dayName() {
     return define(BuiltinFunctionName.DAYNAME.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDayName),
-            STRING, DATE)
+        impl(nullMissingHandling(DateTimeFunction::exprDayName), STRING, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDayName), STRING, STRING)
     );
   }
 
@@ -144,8 +144,7 @@ public class DateTimeFunction {
    */
   private FunctionResolver dayOfMonth() {
     return define(BuiltinFunctionName.DAYOFMONTH.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
-            INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING)
     );
   }
@@ -155,8 +154,8 @@ public class DateTimeFunction {
    */
   private FunctionResolver dayOfWeek() {
     return define(BuiltinFunctionName.DAYOFWEEK.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek),
-            INTEGER, DATE)
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfWeek), INTEGER, STRING)
     );
   }
 
@@ -165,8 +164,8 @@ public class DateTimeFunction {
    */
   private FunctionResolver dayOfYear() {
     return define(BuiltinFunctionName.DAYOFYEAR.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfYear),
-            INTEGER, DATE)
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfYear), INTEGER, STRING)
     );
   }
 
@@ -183,12 +182,9 @@ public class DateTimeFunction {
    */
   private FunctionResolver hour() {
     return define(BuiltinFunctionName.HOUR.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprHour),
-            INTEGER, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprHour),
-            INTEGER, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprHour),
-            INTEGER, TIMESTAMP)
+        impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprHour), INTEGER, TIMESTAMP)
     );
   }
 
@@ -197,12 +193,9 @@ public class DateTimeFunction {
    */
   private FunctionResolver microsecond() {
     return define(BuiltinFunctionName.MICROSECOND.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
-            INTEGER, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
-            INTEGER, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
-            INTEGER, TIMESTAMP)
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond), INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond), INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond), INTEGER, TIMESTAMP)
     );
   }
 
@@ -211,12 +204,9 @@ public class DateTimeFunction {
    */
   private FunctionResolver minute() {
     return define(BuiltinFunctionName.MINUTE.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprMinute),
-            INTEGER, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprMinute),
-            INTEGER, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprMinute),
-            INTEGER, TIMESTAMP)
+        impl(nullMissingHandling(DateTimeFunction::exprMinute), INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMinute), INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMinute), INTEGER, TIMESTAMP)
     );
   }
 
@@ -225,8 +215,8 @@ public class DateTimeFunction {
    */
   private FunctionResolver month() {
     return define(BuiltinFunctionName.MONTH.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprMonth),
-            INTEGER, DATE)
+        impl(nullMissingHandling(DateTimeFunction::exprMonth), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprMonth), INTEGER, STRING)
     );
   }
 
@@ -235,8 +225,8 @@ public class DateTimeFunction {
    */
   private FunctionResolver monthName() {
     return define(BuiltinFunctionName.MONTHNAME.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprMonthName),
-            STRING, DATE)
+        impl(nullMissingHandling(DateTimeFunction::exprMonthName), STRING, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprMonthName), STRING, STRING)
     );
   }
 
@@ -245,8 +235,8 @@ public class DateTimeFunction {
    */
   private FunctionResolver quarter() {
     return define(BuiltinFunctionName.QUARTER.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprQuarter),
-            INTEGER, DATE)
+        impl(nullMissingHandling(DateTimeFunction::exprQuarter), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprQuarter), INTEGER, STRING)
     );
   }
 
@@ -255,12 +245,9 @@ public class DateTimeFunction {
    */
   private FunctionResolver second() {
     return define(BuiltinFunctionName.SECOND.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprSecond),
-            INTEGER, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSecond),
-            INTEGER, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprSecond),
-            INTEGER, TIMESTAMP)
+        impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprSecond), INTEGER, TIMESTAMP)
     );
   }
 
@@ -302,8 +289,9 @@ public class DateTimeFunction {
    */
   private FunctionResolver time_to_sec() {
     return define(BuiltinFunctionName.TIME_TO_SEC.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprTimeToSec),
-            LONG, TIME)
+        impl(nullMissingHandling(DateTimeFunction::exprTimeToSec), LONG, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprTimeToSec), LONG, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprTimeToSec), LONG, DATETIME)
     );
   }
 
@@ -325,6 +313,7 @@ public class DateTimeFunction {
    */
   private FunctionResolver to_days() {
     return define(BuiltinFunctionName.TO_DAYS.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprToDays), LONG, DATETIME));
   }
@@ -334,8 +323,8 @@ public class DateTimeFunction {
    */
   private FunctionResolver year() {
     return define(BuiltinFunctionName.YEAR.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprYear),
-            INTEGER, DATE)
+        impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, STRING)
     );
   }
 
@@ -358,6 +347,9 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayName(ExprValue date) {
+    if (date instanceof ExprStringValue) {
+      date = new ExprDateValue(date.stringValue());
+    }
     return new ExprStringValue(
         date.dateValue().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
   }
@@ -369,8 +361,7 @@ public class DateTimeFunction {
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
     if (date instanceof ExprStringValue) {
-      return new ExprIntegerValue(
-          new ExprDateValue(date.stringValue()).dateValue().getDayOfMonth());
+      date = new ExprDateValue(date.stringValue());
     }
     return new ExprIntegerValue(date.dateValue().getDayOfMonth());
   }
@@ -381,6 +372,9 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfWeek(ExprValue date) {
+    if (date instanceof ExprStringValue) {
+      date = new ExprDateValue(date.stringValue());
+    }
     return new ExprIntegerValue(date.dateValue().getDayOfWeek().getValue() == 7 ? 1
         : date.dateValue().getDayOfWeek().getValue() + 1);
   }
@@ -391,6 +385,9 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfYear(ExprValue date) {
+    if (date instanceof ExprStringValue) {
+      date = new ExprDateValue(date.stringValue());
+    }
     return new ExprIntegerValue(date.dateValue().getDayOfYear());
   }
 
@@ -437,6 +434,9 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMonth(ExprValue date) {
+    if (date instanceof ExprStringValue) {
+      date = new ExprDateValue(date.stringValue());
+    }
     return new ExprIntegerValue(date.dateValue().getMonthValue());
   }
 
@@ -446,6 +446,9 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMonthName(ExprValue date) {
+    if (date instanceof ExprStringValue) {
+      date = new ExprDateValue(date.stringValue());
+    }
     return new ExprStringValue(
         date.dateValue().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
   }
@@ -457,6 +460,9 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprQuarter(ExprValue date) {
+    if (date instanceof ExprStringValue) {
+      date = new ExprDateValue(date.stringValue());
+    }
     return new ExprIntegerValue((date.dateValue().getMonthValue() % 3) == 0
         ? (date.dateValue().getMonthValue() / 3)
         : ((date.dateValue().getMonthValue() / 3) + 1));
@@ -534,11 +540,14 @@ public class DateTimeFunction {
 
   /**
    * To_days implementation for ExprValue.
-   * @param exprValue ExprValue of Date type.
+   * @param date ExprValue of Date type.
    * @return ExprValue.
    */
-  private ExprValue exprToDays(ExprValue exprValue) {
-    return new ExprLongValue(exprValue.dateValue().toEpochDay() + DAYS_0000_TO_1970);
+  private ExprValue exprToDays(ExprValue date) {
+    if (date instanceof ExprStringValue) {
+      date = new ExprDateValue(date.stringValue());
+    }
+    return new ExprLongValue(date.dateValue().toEpochDay() + DAYS_0000_TO_1970);
   }
 
   /**
@@ -547,6 +556,9 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprYear(ExprValue date) {
+    if (date instanceof ExprStringValue) {
+      date = new ExprDateValue(date.stringValue());
+    }
     return new ExprIntegerValue(date.dateValue().getYear());
   }
 }

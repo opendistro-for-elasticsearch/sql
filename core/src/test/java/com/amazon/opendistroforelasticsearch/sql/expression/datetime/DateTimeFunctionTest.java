@@ -143,6 +143,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("day(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(7), eval(expression));
+
+    expression = dsl.day(DSL.literal("2020-08-07"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("day(\"2020-08-07\")", expression.toString());
+    assertEquals(integerValue(7), eval(expression));
   }
 
   @Test
@@ -155,6 +160,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     FunctionExpression expression = dsl.dayname(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(STRING, expression.type());
     assertEquals("dayname(DATE '2020-08-07')", expression.toString());
+    assertEquals(stringValue("Friday"), eval(expression));
+
+    expression = dsl.dayname(DSL.literal("2020-08-07"));
+    assertEquals(STRING, expression.type());
+    assertEquals("dayname(\"2020-08-07\")", expression.toString());
     assertEquals(stringValue("Friday"), eval(expression));
   }
 
@@ -192,6 +202,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("dayofweek(DATE '2020-08-09')", expression.toString());
     assertEquals(integerValue(1), eval(expression));
+
+    expression = dsl.dayofweek(DSL.literal("2020-08-09"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("dayofweek(\"2020-08-09\")", expression.toString());
+    assertEquals(integerValue(1), eval(expression));
   }
 
   @Test
@@ -204,6 +219,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     FunctionExpression expression = dsl.dayofyear(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
     assertEquals("dayofyear(DATE '2020-08-07')", expression.toString());
+    assertEquals(integerValue(220), eval(expression));
+
+    expression = dsl.dayofyear(DSL.literal("2020-08-07"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("dayofyear(\"2020-08-07\")", expression.toString());
     assertEquals(integerValue(220), eval(expression));
   }
 
@@ -306,6 +326,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("month(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(8), eval(expression));
+
+    expression = dsl.month(DSL.literal("2020-08-07"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("month(\"2020-08-07\")", expression.toString());
+    assertEquals(integerValue(8), eval(expression));
   }
 
   @Test
@@ -318,6 +343,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     FunctionExpression expression = dsl.monthname(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(STRING, expression.type());
     assertEquals("monthname(DATE '2020-08-07')", expression.toString());
+    assertEquals(stringValue("August"), eval(expression));
+
+    expression = dsl.monthname(DSL.literal("2020-08-07"));
+    assertEquals(STRING, expression.type());
+    assertEquals("monthname(\"2020-08-07\")", expression.toString());
     assertEquals(stringValue("August"), eval(expression));
   }
 
@@ -333,9 +363,9 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("quarter(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(3), eval(expression));
 
-    expression = dsl.quarter(DSL.literal(new ExprDateValue("2020-12-07")));
+    expression = dsl.quarter(DSL.literal("2020-12-07"));
     assertEquals(INTEGER, expression.type());
-    assertEquals("quarter(DATE '2020-12-07')", expression.toString());
+    assertEquals("quarter(\"2020-12-07\")", expression.toString());
     assertEquals(integerValue(4), eval(expression));
   }
 
@@ -469,9 +499,9 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("to_days(DATE '2008-10-07')", expression.toString());
     assertEquals(longValue(733687L), eval(expression));
 
-    expression = dsl.to_days(DSL.literal(new ExprDateValue("1969-12-31")));
+    expression = dsl.to_days(DSL.literal("1969-12-31"));
     assertEquals(LONG, expression.type());
-    assertEquals("to_days(DATE '1969-12-31')", expression.toString());
+    assertEquals("to_days(\"1969-12-31\")", expression.toString());
     assertEquals(longValue(719527L), eval(expression));
   }
 
@@ -485,6 +515,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     FunctionExpression expression = dsl.year(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
     assertEquals("year(DATE '2020-08-07')", expression.toString());
+    assertEquals(integerValue(2020), eval(expression));
+
+    expression = dsl.year(DSL.literal("2020-08-07"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("year(\"2020-08-07\")", expression.toString());
     assertEquals(integerValue(2020), eval(expression));
   }
 
