@@ -74,10 +74,6 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
     })
   }
 
-  josnifyTranslationResults(): string {
-    return this.props.queryTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n");
-  }
-
   render() {
     const closeModal = () => this.setIsModalVisible(false);
     const showModal = () => this.setIsModalVisible(true);
