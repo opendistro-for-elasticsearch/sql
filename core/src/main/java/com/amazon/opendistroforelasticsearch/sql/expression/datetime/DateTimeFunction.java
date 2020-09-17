@@ -119,21 +119,12 @@ public class DateTimeFunction {
   }
 
   /**
-   * Extracts the date part of a date and time value.
-   * Also to construct a date type. The supported signatures:
-   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
+   * DAY(DATE). return the day of the month (1-31).
    */
-  private FunctionResolver subdate() {
-    return define(BuiltinFunctionName.SUBDATE.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATE, DATE, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATETIME, DATE, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-            DATETIME, DATETIME, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-            DATETIME, TIMESTAMP, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATE, DATE, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIMESTAMP, LONG)
+  private FunctionResolver day() {
+    return define(BuiltinFunctionName.DAY.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
+            INTEGER, DATE)
     );
   }
 
@@ -144,16 +135,6 @@ public class DateTimeFunction {
   private FunctionResolver dayName() {
     return define(BuiltinFunctionName.DAYNAME.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayName),
-            STRING, DATE)
-    );
-  }
-
-  /**
-   * MONTHNAME(DATE). return the full name of the month for date.
-   */
-  private FunctionResolver monthName() {
-    return define(BuiltinFunctionName.MONTHNAME.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprMonthName),
             STRING, DATE)
     );
   }
@@ -190,16 +171,6 @@ public class DateTimeFunction {
   }
 
   /**
-   * DAY(DATE). return the day of the month (1-31).
-   */
-  private FunctionResolver day() {
-    return define(BuiltinFunctionName.DAY.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
-            INTEGER, DATE)
-    );
-  }
-
-  /**
    * FROM_DAYS(DATE). return the date value given the day number N.
    */
   private FunctionResolver from_days() {
@@ -222,6 +193,20 @@ public class DateTimeFunction {
   }
 
   /**
+   * MICROSECOND(TIME). return the microsecond value for time.
+   */
+  private FunctionResolver microsecond() {
+    return define(BuiltinFunctionName.MICROSECOND.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
+            INTEGER, TIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
+            INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
+            INTEGER, TIMESTAMP)
+    );
+  }
+
+  /**
    * MINUTE(TIME). return the minute value for time.
    */
   private FunctionResolver minute() {
@@ -232,6 +217,36 @@ public class DateTimeFunction {
             INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprMinute),
             INTEGER, TIMESTAMP)
+    );
+  }
+
+  /**
+   * MONTH(DATE). return the month for date (1-12).
+   */
+  private FunctionResolver month() {
+    return define(BuiltinFunctionName.MONTH.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprMonth),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
+   * MONTHNAME(DATE). return the full name of the month for date.
+   */
+  private FunctionResolver monthName() {
+    return define(BuiltinFunctionName.MONTHNAME.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprMonthName),
+            STRING, DATE)
+    );
+  }
+
+  /**
+   * QUARTER(DATE). return the month for date (1-4).
+   */
+  private FunctionResolver quarter() {
+    return define(BuiltinFunctionName.QUARTER.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprQuarter),
+            INTEGER, DATE)
     );
   }
 
@@ -250,56 +265,21 @@ public class DateTimeFunction {
   }
 
   /**
-   * MICROSECOND(TIME). return the microsecond value for time.
+   * Extracts the date part of a date and time value.
+   * Also to construct a date type. The supported signatures:
+   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
    */
-  private FunctionResolver microsecond() {
-    return define(BuiltinFunctionName.MICROSECOND.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
-            INTEGER, TIME),
-        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
-            INTEGER, DATETIME),
-        impl(nullMissingHandling(DateTimeFunction::exprMicrosecond),
-            INTEGER, TIMESTAMP)
-    );
-  }
-
-  /**
-   * MONTH(DATE). return the month for date (1-12).
-   */
-  private FunctionResolver month() {
-    return define(BuiltinFunctionName.MONTH.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprMonth),
-            INTEGER, DATE)
-    );
-  }
-
-  /**
-   * QUARTER(DATE). return the month for date (1-4).
-   */
-  private FunctionResolver quarter() {
-    return define(BuiltinFunctionName.QUARTER.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprQuarter),
-            INTEGER, DATE)
-    );
-  }
-
-  /**
-   * YEAR(DATE). return the year for date (1000-9999).
-   */
-  private FunctionResolver year() {
-    return define(BuiltinFunctionName.YEAR.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprYear),
-            INTEGER, DATE)
-    );
-  }
-
-  /**
-   * TIME_TO_SEC(TIME). return the time argument, converted to seconds.
-   */
-  private FunctionResolver time_to_sec() {
-    return define(BuiltinFunctionName.TIME_TO_SEC.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprTimeToSec),
-            LONG, TIME)
+  private FunctionResolver subdate() {
+    return define(BuiltinFunctionName.SUBDATE.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATE, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATETIME, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
+            DATETIME, DATETIME, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
+            DATETIME, TIMESTAMP, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATE, DATE, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, DATETIME, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIMESTAMP, LONG)
     );
   }
 
@@ -315,6 +295,16 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprTime), TIME, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprTime), TIME, TIME),
         impl(nullMissingHandling(DateTimeFunction::exprTime), TIME, TIMESTAMP));
+  }
+
+  /**
+   * TIME_TO_SEC(TIME). return the time argument, converted to seconds.
+   */
+  private FunctionResolver time_to_sec() {
+    return define(BuiltinFunctionName.TIME_TO_SEC.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprTimeToSec),
+            LONG, TIME)
+    );
   }
 
   /**
@@ -340,6 +330,16 @@ public class DateTimeFunction {
   }
 
   /**
+   * YEAR(DATE). return the year for date (1000-9999).
+   */
+  private FunctionResolver year() {
+    return define(BuiltinFunctionName.YEAR.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprYear),
+            INTEGER, DATE)
+    );
+  }
+
+  /**
    * Date implementation for ExprValue.
    * @param exprValue ExprValue of Date type or String type.
    * @return ExprValue.
@@ -353,62 +353,6 @@ public class DateTimeFunction {
   }
 
   /**
-   * SUBDATE function implementation for ExprValue.
-   *
-   * @param date ExprValue of Date/Datetime/Timestamp type.
-   * @param expr ExprValue of Interval type, the temporal amount to subtract.
-   * @return Date/Datetime resulted from expr subtracted to date.
-   */
-  private ExprValue exprSubDateInterval(ExprValue date, ExprValue expr) {
-    return new ExprDatetimeValue(date.datetimeValue().minus(expr.intervalValue()));
-  }
-
-  /**
-   * SUBDATE function implementation for ExprValue.
-   *
-   * @param date ExprValue of Date/Datetime/Timestamp type.
-   * @param days ExprValue of Long type, representing the number of days to subtract.
-   * @return Date/Datetime resulted from days subtracted to date.
-   */
-  private ExprValue exprSubDateDays(ExprValue date, ExprValue days) {
-    if (date instanceof ExprDateValue) {
-      return new ExprDateValue(date.dateValue().minusDays(days.longValue()));
-    } else {
-      return new ExprDatetimeValue(date.datetimeValue().minusDays(days.longValue()));
-    }
-  }
-
-  /**
-   * Month for date implementation for ExprValue.
-   * @param date ExprValue of Date type.
-   * @return ExprValue.
-   */
-  private ExprValue exprMonth(ExprValue date) {
-    return new ExprIntegerValue(date.dateValue().getMonthValue());
-  }
-
-  /**
-   * Quarter for date implementation for ExprValue.
-   *
-   * @param date ExprValue of Date type.
-   * @return ExprValue.
-   */
-  private ExprValue exprQuarter(ExprValue date) {
-    return new ExprIntegerValue((date.dateValue().getMonthValue() % 3) == 0
-        ? (date.dateValue().getMonthValue() / 3)
-        : ((date.dateValue().getMonthValue() / 3) + 1));
-  }
-
-  /**
-   * Year for date implementation for ExprValue.
-   * @param date ExprValue of Date type.
-   * @return ExprValue.
-   */
-  private ExprValue exprYear(ExprValue date) {
-    return new ExprIntegerValue(date.dateValue().getYear());
-  }
-
-  /**
    * Name of the Weekday implementation for ExprValue.
    * @param date ExprValue of Date type.
    * @return ExprValue.
@@ -416,16 +360,6 @@ public class DateTimeFunction {
   private ExprValue exprDayName(ExprValue date) {
     return new ExprStringValue(
         date.dateValue().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
-  }
-
-  /**
-   * Name of the Month implementation for ExprValue.
-   * @param date ExprValue of Date type.
-   * @return ExprValue.
-   */
-  private ExprValue exprMonthName(ExprValue date) {
-    return new ExprStringValue(
-        date.dateValue().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
   }
 
   /**
@@ -478,12 +412,54 @@ public class DateTimeFunction {
   }
 
   /**
+   * Microsecond implementation for ExprValue.
+   * @param exprValue ExprValue of Time type.
+   * @return ExprValue.
+   */
+  private ExprValue exprMicrosecond(ExprValue exprValue) {
+    return new ExprIntegerValue((exprValue.timeValue().getNano() == 0) ? 0
+        : Integer.parseInt(CharMatcher.is('0')
+            .trimTrailingFrom(Integer.toString(exprValue.timeValue().getNano()))));
+  }
+
+  /**
    * Minute implementation for ExprValue.
    * @param exprValue ExprValue of Time type.
    * @return ExprValue.
    */
   private ExprValue exprMinute(ExprValue exprValue) {
     return new ExprIntegerValue(exprValue.timeValue().getMinute());
+  }
+
+  /**
+   * Month for date implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprMonth(ExprValue date) {
+    return new ExprIntegerValue(date.dateValue().getMonthValue());
+  }
+
+  /**
+   * Name of the Month implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprMonthName(ExprValue date) {
+    return new ExprStringValue(
+        date.dateValue().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
+  }
+
+  /**
+   * Quarter for date implementation for ExprValue.
+   *
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprQuarter(ExprValue date) {
+    return new ExprIntegerValue((date.dateValue().getMonthValue() % 3) == 0
+        ? (date.dateValue().getMonthValue() / 3)
+        : ((date.dateValue().getMonthValue() / 3) + 1));
   }
 
   /**
@@ -496,14 +472,29 @@ public class DateTimeFunction {
   }
 
   /**
-   * Microsecond implementation for ExprValue.
-   * @param exprValue ExprValue of Time type.
-   * @return ExprValue.
+   * SUBDATE function implementation for ExprValue.
+   *
+   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param days ExprValue of Long type, representing the number of days to subtract.
+   * @return Date/Datetime resulted from days subtracted to date.
    */
-  private ExprValue exprMicrosecond(ExprValue exprValue) {
-    return new ExprIntegerValue((exprValue.timeValue().getNano() == 0) ? 0
-        : Integer.parseInt(CharMatcher.is('0')
-            .trimTrailingFrom(Integer.toString(exprValue.timeValue().getNano()))));
+  private ExprValue exprSubDateDays(ExprValue date, ExprValue days) {
+    if (date instanceof ExprDateValue) {
+      return new ExprDateValue(date.dateValue().minusDays(days.longValue()));
+    } else {
+      return new ExprDatetimeValue(date.datetimeValue().minusDays(days.longValue()));
+    }
+  }
+
+  /**
+   * SUBDATE function implementation for ExprValue.
+   *
+   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param expr ExprValue of Interval type, the temporal amount to subtract.
+   * @return Date/Datetime resulted from expr subtracted to date.
+   */
+  private ExprValue exprSubDateInterval(ExprValue date, ExprValue expr) {
+    return new ExprDatetimeValue(date.datetimeValue().minus(expr.intervalValue()));
   }
 
   /**
@@ -533,6 +524,15 @@ public class DateTimeFunction {
   }
 
   /**
+   * Time To Sec implementation for ExprValue.
+   * @param exprValue ExprValue of Time type.
+   * @return ExprValue.
+   */
+  private ExprValue exprTimeToSec(ExprValue exprValue) {
+    return new ExprLongValue(exprValue.timeValue().toSecondOfDay());
+  }
+
+  /**
    * To_days implementation for ExprValue.
    * @param exprValue ExprValue of Date type.
    * @return ExprValue.
@@ -542,11 +542,11 @@ public class DateTimeFunction {
   }
 
   /**
-   * Time To Sec implementation for ExprValue.
-   * @param exprValue ExprValue of Time type.
+   * Year for date implementation for ExprValue.
+   * @param date ExprValue of Date type.
    * @return ExprValue.
    */
-  private ExprValue exprTimeToSec(ExprValue exprValue) {
-    return new ExprLongValue(exprValue.timeValue().toSecondOfDay());
+  private ExprValue exprYear(ExprValue date) {
+    return new ExprIntegerValue(date.dateValue().getYear());
   }
 }
