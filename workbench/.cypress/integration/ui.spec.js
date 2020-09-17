@@ -71,7 +71,7 @@ describe('Test and verify downloads', () => {
         url: url,
         headers: {
           'content-type': 'application/json;charset=UTF-8',
-          'kbn-version': '7.8.0',
+          'kbn-version': '7.9.1',
         },
         body: {
           'query': 'select * from accounts where balance > 49500'

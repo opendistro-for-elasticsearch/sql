@@ -23,7 +23,6 @@
 
 .sql-console-query-container {
   padding: $euiSizeL;
-  height: 1142px;
 }
 
 .sql-console-query-editor {
@@ -69,7 +68,6 @@
   }
 }
 .sql-console-query-result{
-  height: 577px;
   scroll-behavior: smooth;
   .sql-console-results-container {
     overflow: auto;
