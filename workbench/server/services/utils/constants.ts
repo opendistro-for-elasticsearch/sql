@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-export const SQL_TRANSLATE_ROUTE = `_opendistro/_sql/_explain`;
-export const PPL_TRANSLATE_ROUTE = `_opendistro/_ppl/_explain`;
-export const SQL_QUERY_ROUTE = `_opendistro/_sql`;
-export const PPL_QUERY_ROUTE = `_opendistro/_ppl`;
+export const SQL_TRANSLATE_ROUTE = `/_opendistro/_sql/_explain`;
+export const PPL_TRANSLATE_ROUTE = `/_opendistro/_ppl/_explain`;
+export const SQL_QUERY_ROUTE = `/_opendistro/_sql`;
+export const PPL_QUERY_ROUTE = `/_opendistro/_ppl`;
 export const FORMAT_CSV = `format=csv`;
 export const FORMAT_JSON = `format=json`;
 export const FORMAT_TEXT = `format=raw`;

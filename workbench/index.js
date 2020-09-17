@@ -13,8 +13,8 @@
  *   permissions and limitations under the License.
  */
 
-import {resolve} from 'path';
-import {existsSync} from "fs";
+import { resolve } from 'path';
+import { existsSync } from "fs";
 
 import query from './server/routes/query';
 import translate from './server/routes/translate';
@@ -31,10 +31,10 @@ export default function (kibana) {
     name: PLUGIN_NAME,
     uiExports: {
       app: {
-        title: 'SQL Workbench',
-        description: 'SQL Workbench',
+        title: 'Query Workbench',
+        description: 'Query Workbench',
         main: 'plugins/' + PLUGIN_NAME + '/app',
-        icon:'plugins/' + PLUGIN_NAME + '/icons/sql.svg',
+        icon: 'plugins/' + PLUGIN_NAME + '/icons/sql.svg',
         order: 9050,
         category: DEFAULT_APP_CATEGORIES.kibana,
       },
