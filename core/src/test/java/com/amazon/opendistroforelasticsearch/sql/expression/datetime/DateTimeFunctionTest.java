@@ -136,44 +136,39 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void day() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.day(nullRef)));
+    assertEquals(missingValue(), eval(dsl.day(missingRef)));
 
     FunctionExpression expression = dsl.day(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
     assertEquals("day(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(7), eval(expression));
-    assertEquals(nullValue(), eval(dsl.day(nullRef)));
-    assertEquals(missingValue(), eval(dsl.day(missingRef)));
   }
 
   @Test
   public void dayName() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.dayname(nullRef)));
+    assertEquals(missingValue(), eval(dsl.dayname(missingRef)));
 
     FunctionExpression expression = dsl.dayname(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(STRING, expression.type());
     assertEquals("dayname(DATE '2020-08-07')", expression.toString());
     assertEquals(stringValue("Friday"), eval(expression));
-    assertEquals(nullValue(), eval(dsl.dayname(nullRef)));
-    assertEquals(missingValue(), eval(dsl.dayname(missingRef)));
   }
 
   @Test
   public void dayOfMonth() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.dayofmonth(nullRef)));
+    assertEquals(missingValue(), eval(dsl.dayofmonth(missingRef)));
 
     FunctionExpression expression = dsl.dayofmonth(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
     assertEquals("dayofmonth(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(7), eval(expression));
-    assertEquals(nullValue(), eval(dsl.dayofmonth(nullRef)));
-    assertEquals(missingValue(), eval(dsl.dayofmonth(missingRef)));
-
-    expression = dsl.dayofmonth(DSL.literal(new ExprDateValue("2020-07-08")));
-    assertEquals(INTEGER, expression.type());
-    assertEquals("dayofmonth(DATE '2020-07-08')", expression.toString());
-    assertEquals(integerValue(8), eval(expression));
 
     expression = dsl.dayofmonth(DSL.literal("2020-07-08"));
     assertEquals(INTEGER, expression.type());
@@ -185,6 +180,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void dayOfWeek() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.dayofweek(nullRef)));
+    assertEquals(missingValue(), eval(dsl.dayofweek(missingRef)));
 
     FunctionExpression expression = dsl.dayofweek(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
@@ -195,22 +192,19 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("dayofweek(DATE '2020-08-09')", expression.toString());
     assertEquals(integerValue(1), eval(expression));
-
-    assertEquals(nullValue(), eval(dsl.dayofweek(nullRef)));
-    assertEquals(missingValue(), eval(dsl.dayofweek(missingRef)));
   }
 
   @Test
   public void dayOfYear() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.dayofyear(nullRef)));
+    assertEquals(missingValue(), eval(dsl.dayofyear(missingRef)));
 
     FunctionExpression expression = dsl.dayofyear(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
     assertEquals("dayofyear(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(220), eval(expression));
-    assertEquals(nullValue(), eval(dsl.dayofyear(nullRef)));
-    assertEquals(missingValue(), eval(dsl.dayofyear(missingRef)));
   }
 
   @Test
@@ -305,32 +299,34 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void month() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.month(nullRef)));
+    assertEquals(missingValue(), eval(dsl.month(missingRef)));
 
     FunctionExpression expression = dsl.month(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
     assertEquals("month(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(8), eval(expression));
-    assertEquals(nullValue(), eval(dsl.month(nullRef)));
-    assertEquals(missingValue(), eval(dsl.month(missingRef)));
   }
 
   @Test
   public void monthName() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.monthname(nullRef)));
+    assertEquals(missingValue(), eval(dsl.monthname(missingRef)));
 
     FunctionExpression expression = dsl.monthname(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(STRING, expression.type());
     assertEquals("monthname(DATE '2020-08-07')", expression.toString());
     assertEquals(stringValue("August"), eval(expression));
-    assertEquals(nullValue(), eval(dsl.monthname(nullRef)));
-    assertEquals(missingValue(), eval(dsl.monthname(missingRef)));
   }
 
   @Test
   public void quarter() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.quarter(nullRef)));
+    assertEquals(missingValue(), eval(dsl.quarter(missingRef)));
 
     FunctionExpression expression = dsl.quarter(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
@@ -341,9 +337,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("quarter(DATE '2020-12-07')", expression.toString());
     assertEquals(integerValue(4), eval(expression));
-
-    assertEquals(nullValue(), eval(dsl.quarter(nullRef)));
-    assertEquals(missingValue(), eval(dsl.quarter(missingRef)));
   }
 
   @Test
@@ -486,13 +479,13 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void year() {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.year(nullRef)));
+    assertEquals(missingValue(), eval(dsl.year(missingRef)));
 
     FunctionExpression expression = dsl.year(DSL.literal(new ExprDateValue("2020-08-07")));
     assertEquals(INTEGER, expression.type());
     assertEquals("year(DATE '2020-08-07')", expression.toString());
     assertEquals(integerValue(2020), eval(expression));
-    assertEquals(nullValue(), eval(dsl.year(nullRef)));
-    assertEquals(missingValue(), eval(dsl.year(missingRef)));
   }
 
   private ExprValue eval(Expression expression) {
