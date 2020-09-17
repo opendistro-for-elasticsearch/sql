@@ -293,8 +293,6 @@ export class Main extends React.Component<MainProps, MainState> {
     const queries: string[] = getQueries(queriesString);
     const language = this.state.language
     if (queries.length > 0) {
-
-      console.log("main: " + language)
       let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqlquery" : "pplquery");
       const responsePromise = Promise.all(
         queries.map((query: string) =>
@@ -414,7 +412,7 @@ export class Main extends React.Component<MainProps, MainState> {
       Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/query", { query })
+            .post("../api/sql_console/queryjdbc", { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
