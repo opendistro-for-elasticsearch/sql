@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-import { SQL_TRANSLATE_ROUTE, SQL_QUERY_ROUTE, PPL_QUERY_ROUTE, FORMAT_CSV, FORMAT_JSON, FORMAT_TEXT } from '../../services/utils/constants';
+import { SQL_TRANSLATE_ROUTE, SQL_QUERY_ROUTE, PPL_QUERY_ROUTE, PPL_TRANSLATE_ROUTE, FORMAT_CSV, FORMAT_JSON, FORMAT_TEXT } from '../../services/utils/constants';
 
 export default function sqlPlugin(Client, config, components) {
   const ca = components.clientAction.factory;
@@ -21,9 +21,17 @@ export default function sqlPlugin(Client, config, components) {
   Client.prototype.sql = components.clientAction.namespaceFactory();
   const sql = Client.prototype.sql.prototype;
 
-  sql.getTranslation = ca({
+  sql.translateSQL = ca({
     url: {
       fmt: `${SQL_TRANSLATE_ROUTE}`,
+    },
+    needBody: true,
+    method: 'POST',
+  });
+
+  sql.translatePPL = ca({
+    url: {
+      fmt: `${PPL_TRANSLATE_ROUTE}`,
     },
     needBody: true,
     method: 'POST',
