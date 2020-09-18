@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.RankingWindowFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;

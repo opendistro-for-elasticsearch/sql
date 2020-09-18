@@ -14,10 +14,11 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.window;
+package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = false)

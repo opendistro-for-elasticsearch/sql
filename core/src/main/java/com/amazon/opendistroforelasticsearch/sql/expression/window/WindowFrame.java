@@ -21,6 +21,8 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +40,10 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @ToString
 public class WindowFrame implements Environment<Expression, ExprValue> {
-  private final List<Expression> sortList;
 
-  private int rowCount;
+  private final WindowDefinition windowDefinition;
+
+  private ExprTupleValue previous;
   private ExprTupleValue current;
 
   @Override
@@ -48,8 +51,20 @@ public class WindowFrame implements Environment<Expression, ExprValue> {
     return var.valueOf(current.bindingTuples());
   }
 
+  /**
+   * Check is current row the beginning of a new partition according to window definition.
+   * @return  true if a new partition begins here, otherwise false.
+   */
   public boolean isNewPartition() {
-    return (rowCount == 1);
+    Objects.requireNonNull(current);
+
+    if (previous == null) {
+      return true;
+    }
+
+    List<ExprValue> preValues = resolve(windowDefinition.getPartitionByList(), previous);
+    List<ExprValue> curValues = resolve(windowDefinition.getPartitionByList(), current);
+    return !preValues.equals(curValues);
   }
 
   public boolean isPrecedingDifferent() {
@@ -57,13 +72,15 @@ public class WindowFrame implements Environment<Expression, ExprValue> {
   }
 
   public void add(ExprTupleValue row) {
-    rowCount++;
+    previous = current;
     current = row;
   }
 
-  public void reset() {
-    rowCount = 0;
-    current = null;
+  private List<ExprValue> resolve(List<Expression> expressions, ExprTupleValue row) {
+    Environment<Expression, ExprValue> valueEnv = row.bindingTuples();
+    return expressions.stream()
+                      .map(expr -> expr.valueOf(valueEnv))
+                      .collect(Collectors.toList());
   }
 
 }

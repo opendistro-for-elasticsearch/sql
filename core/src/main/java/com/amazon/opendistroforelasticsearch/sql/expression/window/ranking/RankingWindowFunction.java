@@ -14,7 +14,7 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.window;
+package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
 import java.util.Collections;
 import java.util.List;
 

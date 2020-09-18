@@ -24,11 +24,12 @@ import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.commons.lang3.tuple.Pair;
 
+/**
+ * Physical operator for window function computation.
+ */
 @EqualsAndHashCode(callSuper = false)
 @ToString
 public class WindowOperator extends PhysicalPlan {
@@ -37,6 +38,7 @@ public class WindowOperator extends PhysicalPlan {
   private final WindowDefinition windowDefinition;
 
   @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private final WindowFrame windowFrame;
 
   /**
@@ -51,10 +53,7 @@ public class WindowOperator extends PhysicalPlan {
     this.input = input;
     this.windowFunction = windowFunction;
     this.windowDefinition = windowDefinition;
-
-    this.windowFrame = new WindowFrame(
-        windowDefinition.getSortList().stream()
-            .map(Pair::getRight).collect(Collectors.toList()));
+    this.windowFrame = new WindowFrame(windowDefinition);
   }
 
   @Override
@@ -74,36 +73,16 @@ public class WindowOperator extends PhysicalPlan {
 
   @Override
   public ExprValue next() {
+    // Preserve all columns in tuple
     ExprTupleValue inputValue = (ExprTupleValue) input.next();
     ImmutableMap.Builder<String, ExprValue> mapBuilder = new ImmutableMap.Builder<>();
     inputValue.tupleValue().forEach(mapBuilder::put);
 
-    ExprValue exprValue = windowFunction.valueOf(framing(inputValue));
+    // Enrich by adding window function calculated result
+    windowFrame.add(inputValue);
+    ExprValue exprValue = windowFunction.valueOf(windowFrame);
     mapBuilder.put(windowFunction.toString(), exprValue);
     return ExprTupleValue.fromExprValueMap(mapBuilder.build());
-  }
-
-  private WindowFrame framing(ExprTupleValue inputValue) {
-    if (isNewPartition(inputValue)) {
-      windowFrame.reset();
-    }
-    windowFrame.add(inputValue);
-    return windowFrame;
-  }
-
-  private boolean isNewPartition(ExprTupleValue current) {
-    if (windowFrame.getCurrent() == null) {
-      return false;
-    }
-
-    List<ExprValue> precedingValues = evaluateInRow(windowFrame.getCurrent());
-    List<ExprValue> currentValues = evaluateInRow(current);
-    return !precedingValues.equals(currentValues);
-  }
-
-  private List<ExprValue> evaluateInRow(ExprTupleValue row) {
-    return windowDefinition.getPartitionByList().stream()
-        .map(expr -> expr.valueOf(row.bindingTuples())).collect(Collectors.toList());
   }
 
 }
