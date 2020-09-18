@@ -323,6 +323,35 @@ Specifications:
 1. DATE_FORMAT(DATE, STRING) -> STRING
 2. DATE_FORMAT(DATE, STRING, STRING) -> STRING
 
+DATE_ADD
+=====
+
+Description
+-----------
+
+Usage: date_add(date, INTERVAL expr unit) adds the time interval expr to date
+
+Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL
+
+Return type:
+
+(DATE, DATE INTERVAL) -> DATE
+(DATE, TIME INTERVAL) -> DATETIME
+(DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+
+Synonyms: ADDDATE
+
+Example::
+
+    od> SELECT DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR), DATE_ADD(DATE('2020-08-26'), 1)
+    fetched rows / total rows = 1/1
+    +-------------------------------------------------+-----------------------------------+
+    | DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR)   | DATE_ADD(DATE('2020-08-26'), 1)   |
+    |-------------------------------------------------+-----------------------------------|
+    | 2020-08-26 01:00:00                             | 2020-08-27                        |
+    +-------------------------------------------------+-----------------------------------+
+
+
 DATE_SUB
 =====
 
@@ -333,7 +362,11 @@ Usage: date_sub(date, INTERVAL expr unit) subtracts the time interval expr from 
 
 Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL
 
-Return type: (DATE, DATE INTERVAL) -> DATE (DATE, TIME INTERVAL) -> DATETIME (DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+Return type:
+
+(DATE, DATE INTERVAL) -> DATE
+(DATE, TIME INTERVAL) -> DATETIME
+(DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
 
 Synonyms: SUBDATE
 
@@ -1214,7 +1247,11 @@ Usage: subdate(date,INTERVAL expr unit) subtracts time interval from date. subda
 
 Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL
 
-Return type: (DATE, DATE INTERVAL) -> DATE (DATE, TIME INTERVAL) -> DATETIME (DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+Return type:
+
+(DATE, DATE INTERVAL) -> DATE
+(DATE, TIME INTERVAL) -> DATETIME
+(DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
 
 Synonyms: DATE_SUB
 

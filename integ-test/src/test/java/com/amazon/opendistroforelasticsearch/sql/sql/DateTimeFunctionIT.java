@@ -41,6 +41,19 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void testDateAdd() throws IOException {
+    JSONObject result =
+        executeQuery("select date_add(timestamp('2020-09-16 17:30:00'), interval 1 day)");
+    verifySchema(result,
+        schema("date_add(timestamp('2020-09-16 17:30:00'), interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17 17:30:00"));
+
+    result = executeQuery("select date_add(date('2020-09-16'), 1)");
+    verifySchema(result, schema("date_add(date('2020-09-16'), 1)", null, "date"));
+    verifyDataRows(result, rows("2020-09-17"));
+  }
+
+  @Test
   public void testDateSub() throws IOException {
     JSONObject result =
         executeQuery("select date_sub(timestamp('2020-09-16 17:30:00'), interval 1 day)");

@@ -249,6 +249,10 @@ public class DSL {
     return function(BuiltinFunctionName.DATE, expressions);
   }
 
+  public FunctionExpression date_add(Expression... expressions) {
+    return function(BuiltinFunctionName.DATE_ADD, expressions);
+  }
+
   public FunctionExpression date_sub(Expression... expressions) {
     return function(BuiltinFunctionName.DATE_SUB, expressions);
   }

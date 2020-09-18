@@ -173,6 +173,7 @@ CRC32:                              'CRC32';
 CURDATE:                            'CURDATE';
 DATE:                               'DATE';
 DATE_FORMAT:                        'DATE_FORMAT';
+DATE_ADD:                           'DATE_ADD';
 DATE_SUB:                           'DATE_SUB';
 DAYOFMONTH:                         'DAYOFMONTH';
 DAYOFWEEK:                          'DAYOFWEEK';

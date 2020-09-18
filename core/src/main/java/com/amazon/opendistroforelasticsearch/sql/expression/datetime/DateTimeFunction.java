@@ -64,6 +64,7 @@ public class DateTimeFunction {
    */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(date());
+    repository.register(date_add());
     repository.register(date_sub());
     repository.register(day());
     repository.register(dayName());
@@ -97,6 +98,27 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
+  }
+
+  /**
+   * Specify a start date and add a temporal amount to the date.
+   * The return type depends on the date type and the interval unit. Detailed supported signatures:
+   * (DATE, DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+   * (DATE, LONG) -> DATE
+   * (DATETIME/TIMESTAMP, LONG) -> DATETIME
+   */
+  private FunctionResolver date_add() {
+    return define(BuiltinFunctionName.DATE_ADD.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATE, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATETIME, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
+            DATETIME, DATETIME, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
+            DATETIME, TIMESTAMP, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATE, DATE, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, DATETIME, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG)
+    );
   }
 
   /**
@@ -330,6 +352,31 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, STRING)
     );
+  }
+
+  /**
+   * ADDDATE function implementation for ExprValue.
+   *
+   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param expr ExprValue of Interval type, the temporal amount to add.
+   * @return Date/Datetime resulted from expr added to date.
+   */
+  private ExprValue exprAddDateInterval(ExprValue date, ExprValue expr) {
+    return new ExprDatetimeValue(date.datetimeValue().plus(expr.intervalValue()));
+  }
+
+  /**
+   * ADDDATE function implementation for ExprValue.
+   *
+   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param days ExprValue of Long type, representing the number of days to add.
+   * @return Date/Datetime resulted from days added to date.
+   */
+  private ExprValue exprAddDateDays(ExprValue date, ExprValue days) {
+    if (date instanceof ExprDateValue) {
+      return new ExprDateValue(date.dateValue().plusDays(days.longValue()));
+    }
+    return new ExprDatetimeValue(date.datetimeValue().plusDays(days.longValue()));
   }
 
   /**

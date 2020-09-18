@@ -196,6 +196,7 @@ TAN:                                'TAN';
 
 // DATE AND TIME FUNCTIONS
 DATE:                               'DATE';
+DATE_ADD:                           'DATE_ADD';
 DATE_SUB:                           'DATE_SUB';
 DAYOFMONTH:                         'DAYOFMONTH';
 DAYOFWEEK:                          'DAYOFWEEK';
