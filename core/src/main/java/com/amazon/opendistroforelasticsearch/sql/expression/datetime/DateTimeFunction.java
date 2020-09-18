@@ -44,6 +44,7 @@ import com.google.common.base.CharMatcher;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -414,9 +415,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMicrosecond(ExprValue exprValue) {
-    return new ExprIntegerValue((exprValue.timeValue().getNano() == 0) ? 0
-        : Integer.parseInt(CharMatcher.is('0')
-            .trimTrailingFrom(Integer.toString(exprValue.timeValue().getNano()))));
+    return new ExprIntegerValue(
+        TimeUnit.MICROSECONDS.convert(exprValue.timeValue().getNano(), TimeUnit.NANOSECONDS));
   }
 
   /**

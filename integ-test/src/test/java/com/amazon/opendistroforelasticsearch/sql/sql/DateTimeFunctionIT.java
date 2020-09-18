@@ -112,9 +112,9 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("microsecond(timestamp('2020-09-16 17:30:00.123456'))", null, "integer"));
     verifyDataRows(result, rows(123456));
 
-    result = executeQuery("select microsecond(time('17:30:00.123456'))");
-    verifySchema(result, schema("microsecond(time('17:30:00.123456'))", null, "integer"));
-    verifyDataRows(result, rows(123456));
+    result = executeQuery("select microsecond(time('17:30:00.000010'))");
+    verifySchema(result, schema("microsecond(time('17:30:00.000010'))", null, "integer"));
+    verifyDataRows(result, rows(10));
   }
 
   @Test

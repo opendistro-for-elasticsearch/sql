@@ -281,15 +281,20 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(0), eval(expression));
     assertEquals("microsecond(TIME '01:02:03')", expression.toString());
 
-    expression = dsl.microsecond(DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03.123456")));
+    expression = dsl.microsecond(DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03.000010")));
     assertEquals(INTEGER, expression.type());
-    assertEquals(integerValue(123456), expression.valueOf(env));
-    assertEquals("microsecond(TIMESTAMP '2020-08-17 01:02:03.123456')", expression.toString());
+    assertEquals(integerValue(10), expression.valueOf(env));
+    assertEquals("microsecond(DATETIME '2020-08-17 01:02:03.00001')", expression.toString());
 
     expression = dsl.microsecond(DSL.literal(new ExprDatetimeValue("2020-08-17 01:02:03.123456")));
     assertEquals(INTEGER, expression.type());
     assertEquals(integerValue(123456), expression.valueOf(env));
     assertEquals("microsecond(DATETIME '2020-08-17 01:02:03.123456')", expression.toString());
+
+    expression = dsl.microsecond(DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03.000010")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(integerValue(10), expression.valueOf(env));
+    assertEquals("microsecond(TIMESTAMP '2020-08-17 01:02:03.000010')", expression.toString());
   }
 
   @Test
