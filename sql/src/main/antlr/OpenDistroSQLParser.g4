@@ -84,6 +84,15 @@ whereClause
     : WHERE expression
     ;
 
+orderByClause
+    : ORDER BY orderByElement (COMMA orderByElement)*
+    ;
+
+orderByElement
+    : expression order=(ASC | DESC)?
+    ;
+
+
 //  Window Function's Details
 windowFunction
     : function=rankingWindowFunction overClause
@@ -99,14 +108,6 @@ overClause
 
 partitionByClause
     : PARTITION BY expression (COMMA expression)*
-    ;
-
-orderByClause
-    : ORDER BY orderByElement (COMMA orderByElement)*
-    ;
-
-orderByElement
-    : expression (ASC | DESC)?
     ;
 
 
