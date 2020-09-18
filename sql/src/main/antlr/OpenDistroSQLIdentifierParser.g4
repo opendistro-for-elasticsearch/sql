@@ -32,14 +32,17 @@ options { tokenVocab=OpenDistroSQLLexer; }
 
 tableName
     : qualifiedName
+    | keywordsCanBeId
     ;
 
 columnName
     : qualifiedName
+    | keywordsCanBeId
     ;
 
 alias
     : ident
+    | keywordsCanBeId
     ;
 
 qualifiedName
@@ -50,4 +53,10 @@ ident
     : DOT? ID
     | DOUBLE_QUOTE_ID
     | BACKTICK_QUOTE_ID
+    ;
+
+keywordsCanBeId
+    : FULL
+    | FIELD | D | T | TS // OD SQL and ODBC special
+    | TIMESTAMP | DATE | TIME
     ;
