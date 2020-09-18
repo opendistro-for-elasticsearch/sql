@@ -40,7 +40,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-import com.google.common.base.CharMatcher;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -101,9 +100,11 @@ public class DateTimeFunction {
   }
 
   /**
-   * Extracts the date part of a date and time value.
-   * Also to construct a date type. The supported signatures:
-   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
+   * Specify a start date and subtract a temporal amount to the date.
+   * The return type depends on the date type and the interval unit. Detailed supported signatures:
+   * (DATE, DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+   * (DATE, LONG) -> DATE
+   * (DATETIME/TIMESTAMP, LONG) -> DATETIME
    */
   private FunctionResolver date_sub() {
     return define(BuiltinFunctionName.DATE_SUB.getName(),
@@ -253,9 +254,11 @@ public class DateTimeFunction {
   }
 
   /**
-   * Extracts the date part of a date and time value.
-   * Also to construct a date type. The supported signatures:
-   * STRING/DATE/DATETIME/TIMESTAMP -> DATE
+   * Specify a start date and subtract a temporal amount to the date.
+   * The return type depends on the date type and the interval unit. Detailed supported signatures:
+   * (DATE, DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+   * (DATE, LONG) -> DATE
+   * (DATETIME/TIMESTAMP, LONG) -> DATETIME
    */
   private FunctionResolver subdate() {
     return define(BuiltinFunctionName.SUBDATE.getName(),

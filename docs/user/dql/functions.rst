@@ -353,7 +353,7 @@ DAY
 Description
 -----------
 
-Usage: day(date) extracts the day of the month for date, in the range 1 to 31, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero day part.
+Usage: day(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 
 Argument type: DATE
 
@@ -399,7 +399,7 @@ DAYOFMONTH
 Description
 -----------
 
-Usage: dayofmonth(date) extracts the day of the month for date, in the range 1 to 31, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero day part.
+Usage: dayofmonth(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 
 Argument type: DATE
 
@@ -820,7 +820,7 @@ MONTH
 Description
 -----------
 
-Usage: month(date) returns the month for date, in the range 1 to 12 for January to December, or 0 for dates such as '0000-00-00' or '2008-00-00' that have a zero month part.
+Usage: month(date) returns the month for date, in the range 1 to 12 for January to December. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 
 Argument type: DATE
 
