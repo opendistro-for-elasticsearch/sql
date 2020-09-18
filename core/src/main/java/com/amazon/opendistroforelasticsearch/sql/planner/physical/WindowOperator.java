@@ -39,6 +39,12 @@ public class WindowOperator extends PhysicalPlan {
   @EqualsAndHashCode.Exclude
   private final WindowFrame windowFrame;
 
+  /**
+   * Initialize window operator.
+   * @param input             child operator
+   * @param windowFunction    window function
+   * @param windowDefinition  window definition
+   */
   public WindowOperator(PhysicalPlan input,
                         Expression windowFunction,
                         WindowDefinition windowDefinition) {

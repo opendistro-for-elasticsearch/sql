@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window;
 
+import static java.util.Collections.emptyList;
+
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
@@ -23,7 +25,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionNam
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
 import java.util.function.Supplier;
 import lombok.experimental.UtilityClass;
 
@@ -40,7 +41,7 @@ public class WindowFunctions {
 
   private FunctionResolver rankingFunction(FunctionName functionName,
                                            Supplier<RankingWindowFunction> constructor) {
-    FunctionSignature functionSignature = new FunctionSignature(functionName, Collections.emptyList());
+    FunctionSignature functionSignature = new FunctionSignature(functionName, emptyList());
     FunctionBuilder functionBuilder = arguments -> constructor.get();
     return new FunctionResolver(functionName, ImmutableMap.of(functionSignature, functionBuilder));
   }
