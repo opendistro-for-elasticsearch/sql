@@ -154,7 +154,7 @@ class DefaultImplementorTest {
         project(
             window(
                 values(),
-                windowFunctions,
+                null,//windowFunctions,
                 windowDefinition),
             projectList);
 

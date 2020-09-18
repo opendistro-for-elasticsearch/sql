@@ -30,7 +30,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.windowed;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.window;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
@@ -233,14 +233,14 @@ class AstExpressionBuilderTest {
   @Test
   public void canBuildWindowFunction() {
     assertEquals(
-        windowed(
+        window(
             function("RANK"),
             ImmutableList.of(qualifiedName("state")),
             ImmutableList.of(ImmutablePair.of("ASC", qualifiedName("age")))),
         buildExprAst("RANK() OVER (PARTITION BY state ORDER BY age)"));
 
     assertEquals(
-        windowed(
+        window(
             function("DENSE_RANK"),
             ImmutableList.of(),
             ImmutableList.of(ImmutablePair.of("DESC", qualifiedName("age")))),

@@ -26,23 +26,38 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalWindow;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+/**
+ * Windowed expression analyzer that analyzes window function expression.
+ */
 @RequiredArgsConstructor
-public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
+public class WindowedExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
 
+  /**
+   * Expression analyzer.
+   */
   private final ExpressionAnalyzer expressionAnalyzer;
 
+  /**
+   * Child node.
+   */
   private final LogicalPlan child;
 
+  /**
+   * Analyze the given project item and return window operator if window function found.
+   * @param projectItem   project item
+   * @param context       analysis context
+   * @return              window operator or original child if not windowed
+   */
   public LogicalPlan analyze(UnresolvedExpression projectItem, AnalysisContext context) {
-    if (isWindowFunction(projectItem)) {
+    if (isWindowed(projectItem)) {
       return projectItem.accept(this, context);
     }
     return child;
@@ -55,29 +70,38 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
 
   @Override
   public LogicalPlan visitWindowFunction(WindowFunction node, AnalysisContext context) {
-    List<Expression> partitionByList = node.getPartitionByList()
-                                           .stream()
-                                           .map(expr -> expressionAnalyzer.analyze(expr, context))
-                                           .collect(Collectors.toList());
-
-    List<Pair<Sort.SortOption, Expression>> sortList =
-        node.getSortList()
-            .stream()
-            .map(pair -> ImmutablePair
-                .of(Sort.SortOption.PPL_ASC, expressionAnalyzer.analyze(pair.getRight(), context)))
-            .collect(Collectors.toList());
-
     Expression windowFunction = expressionAnalyzer.analyze(node, context);
+    List<Expression> partitionByList = analyzePartitionList(node, context);
+    List<Pair<Sort.SortOption, Expression>> sortList = analyzeSortList(node, context);
+    WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
+
     context.peek().define(
         new Symbol(Namespace.FIELD_NAME, windowFunction.toString()), windowFunction.type());
 
     return new LogicalWindow(
-        child,
-        Collections.singletonList(windowFunction),
-        new WindowDefinition(partitionByList, sortList));
+        new LogicalSort(child, 1000, sortList),
+        windowFunction,
+        windowDefinition);
   }
 
-  private boolean isWindowFunction(UnresolvedExpression projectItem) {
+  private List<Expression> analyzePartitionList(WindowFunction node, AnalysisContext context) {
+    return node.getPartitionByList()
+               .stream()
+               .map(expr -> expressionAnalyzer.analyze(expr, context))
+               .collect(Collectors.toList());
+  }
+
+  private List<Pair<Sort.SortOption, Expression>> analyzeSortList(WindowFunction node,
+                                                                  AnalysisContext context) {
+    return node.getSortList()
+               .stream()
+               .map(pair -> ImmutablePair
+                   .of(Sort.SortOption.PPL_ASC,
+                       expressionAnalyzer.analyze(pair.getRight(), context)))
+               .collect(Collectors.toList());
+  }
+
+  private boolean isWindowed(UnresolvedExpression projectItem) {
     return (projectItem instanceof Alias)
         && (((Alias) projectItem).getDelegated() instanceof WindowFunction);
   }

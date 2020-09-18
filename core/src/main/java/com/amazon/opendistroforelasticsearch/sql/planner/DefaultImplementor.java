@@ -75,7 +75,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
             visitChild(node, context),
             10000,
             node.getAllSortList()),
-        node.getWindowFunctions(),
+        null,//node.getWindowFunctions(),
         node.getWindowDefinition());
   }
 

@@ -35,7 +35,7 @@ import org.apache.commons.lang3.tuple.Pair;
 @ToString
 public class LogicalWindow extends LogicalPlan {
   private final LogicalPlan child;
-  private final List<Expression> windowFunctions;
+  private final Expression windowFunctions;
   private final WindowDefinition windowDefinition;
 
   @Override

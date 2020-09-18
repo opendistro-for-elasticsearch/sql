@@ -22,6 +22,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -30,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
@@ -40,6 +42,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -202,29 +205,30 @@ class AnalyzerTest extends AnalyzerTestBase {
     );
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void window_function() {
+    Pair<SortOption, Expression> sortItem =
+        ImmutablePair.of(PPL_ASC, DSL.ref("integer_value", INTEGER));
+
     assertAnalyzeEqual(
         LogicalPlanDSL.project(
             LogicalPlanDSL.window(
-                //This project may be required if window function accesses
-                //field is an expression that calculated by project
-                //LogicalPlanDSL.project(
-                LogicalPlanDSL.relation("test"),
-                //    DSL.named("string_value", DSL.ref("string_value", STRING))),
-                Collections.singletonList(dsl.rowNumber()),
+                LogicalPlanDSL.sort(
+                    LogicalPlanDSL.relation("test"),
+                    1000,
+                    sortItem),
+                dsl.rowNumber(),
                 new WindowDefinition(
-                    Collections.singletonList(
-                        DSL.ref("string_value", STRING)),
-                    Collections.singletonList(
-                        ImmutablePair.of(Sort.SortOption.PPL_ASC, DSL.ref("integer_value", INTEGER))))),
+                    ImmutableList.of(DSL.ref("string_value", STRING)),
+                    ImmutableList.of(sortItem))),
             DSL.named("string_value", DSL.ref("string_value", STRING)),
             DSL.named("window_function", DSL.ref("row_number", INTEGER))),
         AstDSL.project(
             AstDSL.relation("test"),
             AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),
             AstDSL.alias("window_function",
-                AstDSL.windowed(
+                AstDSL.window(
                     AstDSL.function("row_number"),
                     Collections.singletonList(AstDSL.qualifiedName("string_value")),
                     Collections.singletonList(

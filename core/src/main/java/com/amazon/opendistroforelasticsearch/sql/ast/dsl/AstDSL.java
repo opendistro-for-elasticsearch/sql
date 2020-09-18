@@ -184,9 +184,9 @@ public class AstDSL {
     return new Function(funcName, Arrays.asList(funcArgs));
   }
 
-  public UnresolvedExpression windowed(Function function,
-                                       List<UnresolvedExpression> partitionByList,
-                                       List<Pair<String, UnresolvedExpression>> sortList) {
+  public UnresolvedExpression window(Function function,
+                                     List<UnresolvedExpression> partitionByList,
+                                     List<Pair<String, UnresolvedExpression>> sortList) {
     return new WindowFunction(function, partitionByList, sortList);
   }
 
