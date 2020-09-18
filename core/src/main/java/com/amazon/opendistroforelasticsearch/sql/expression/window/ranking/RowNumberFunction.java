@@ -17,18 +17,19 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Row number window function that assigns row number starting from 1 to each row in a partition.
+ */
 @EqualsAndHashCode(callSuper = false)
 public class RowNumberFunction extends RankingWindowFunction {
 
   private int rowNumber = 1;
 
-  @Override
-  public FunctionName getFunctionName() {
-    return BuiltinFunctionName.ROW_NUMBER.getName();
+  public RowNumberFunction() {
+    super(BuiltinFunctionName.ROW_NUMBER.getName());
   }
 
   @Override

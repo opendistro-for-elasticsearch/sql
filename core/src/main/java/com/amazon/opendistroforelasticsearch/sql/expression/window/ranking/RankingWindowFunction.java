@@ -16,19 +16,27 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
+import static java.util.Collections.emptyList;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
-import java.util.Collections;
-import java.util.List;
 
-public abstract class RankingWindowFunction implements Expression, FunctionImplementation {
+/**
+ * Ranking window function base class that captures same info across different ranking functions,
+ * such as same return type (integer), same argument list (no arg).
+ */
+public abstract class RankingWindowFunction extends FunctionExpression {
+
+  public RankingWindowFunction(FunctionName functionName) {
+    super(functionName, emptyList());
+  }
 
   @Override
   public ExprType type() {
@@ -36,19 +44,8 @@ public abstract class RankingWindowFunction implements Expression, FunctionImple
   }
 
   @Override
-  public List<Expression> getArguments() {
-    return Collections.emptyList();
-  }
-
-  @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
     return new ExprIntegerValue(rank((WindowFrame) valueEnv));
-  }
-
-  @Override
-  public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
-    //return visitor.vi;
-    return null;
   }
 
   protected abstract int rank(WindowFrame windowFrame);
