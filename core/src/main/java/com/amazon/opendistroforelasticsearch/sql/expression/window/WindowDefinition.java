@@ -17,10 +17,13 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.window;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 @Data
@@ -28,5 +31,16 @@ public class WindowDefinition {
 
   private final List<Expression> partitionByList;
   private final List<Pair<SortOption, Expression>> sortList;
+
+  /**
+   * Return all items in partition by and sort by list.
+   * @return  all sort items
+   */
+  public List<Pair<SortOption, Expression>> getAllSortItems() {
+    List<Pair<SortOption, Expression>> allSorts = new ArrayList<>();
+    partitionByList.forEach(expr -> allSorts.add(ImmutablePair.of(PPL_ASC, expr)));
+    allSorts.addAll(sortList);
+    return allSorts;
+  }
 
 }

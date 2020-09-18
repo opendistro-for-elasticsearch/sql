@@ -133,8 +133,8 @@ class DefaultImplementorTest {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
-  public void windowOperator() {
-    List<Expression> windowFunctions = Collections.singletonList(new RowNumberFunction());
+  public void visitWindowOperatorShouldReturnPhysicalWindowOperator() {
+    Expression windowFunction = new RowNumberFunction();
     WindowDefinition windowDefinition = new WindowDefinition(
         Collections.singletonList(ref("state", STRING)),
         Collections.singletonList(
@@ -144,7 +144,6 @@ class DefaultImplementorTest {
         named("state", ref("state", STRING)),
         named("row_number", ref("row_number", INTEGER))
     };
-
     Pair[] sortList = {
         ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("state", STRING)),
         ImmutablePair.of(Sort.SortOption.PPL_DESC, ref("age", STRING))
@@ -153,8 +152,11 @@ class DefaultImplementorTest {
     LogicalPlan logicalPlan =
         project(
             window(
-                values(),
-                null,//windowFunctions,
+                sort(
+                    values(),
+                    10000,
+                    sortList),
+                windowFunction,
                 windowDefinition),
             projectList);
 
@@ -165,7 +167,7 @@ class DefaultImplementorTest {
                     PhysicalPlanDSL.values(),
                     10000,
                     sortList),
-                windowFunctions,
+                windowFunction,
                 windowDefinition),
             projectList);
 

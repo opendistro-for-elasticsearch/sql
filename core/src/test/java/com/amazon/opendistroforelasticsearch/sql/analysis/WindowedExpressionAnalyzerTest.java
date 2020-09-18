@@ -22,9 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -59,19 +57,18 @@ class WindowedExpressionAnalyzerTest extends AnalyzerTestBase {
   @SuppressWarnings("unchecked")
   @Test
   void should_wrap_child_with_window_and_sort_operator_if_project_item_windowed() {
-    ImmutablePair<Sort.SortOption, Expression> sortItem =
-        ImmutablePair.of(PPL_ASC, DSL.ref("integer_value", INTEGER));
 
     assertEquals(
         LogicalPlanDSL.window(
             LogicalPlanDSL.sort(
                 LogicalPlanDSL.relation("test"),
                 1000,
-                sortItem),
+                ImmutablePair.of(PPL_ASC, DSL.ref("string_value", STRING)),
+                ImmutablePair.of(PPL_ASC, DSL.ref("integer_value", INTEGER))),
             dsl.rowNumber(),
             new WindowDefinition(
                 ImmutableList.of(DSL.ref("string_value", STRING)),
-                ImmutableList.of(sortItem))),
+                ImmutableList.of(ImmutablePair.of(PPL_ASC, DSL.ref("integer_value", INTEGER))))),
         analyzer.analyze(
             AstDSL.alias(
                 "row_number",

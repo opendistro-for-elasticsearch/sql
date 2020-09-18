@@ -16,18 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -35,7 +31,7 @@ import org.apache.commons.lang3.tuple.Pair;
 @ToString
 public class LogicalWindow extends LogicalPlan {
   private final LogicalPlan child;
-  private final Expression windowFunctions;
+  private final Expression windowFunction;
   private final WindowDefinition windowDefinition;
 
   @Override
@@ -46,14 +42,6 @@ public class LogicalWindow extends LogicalPlan {
   @Override
   public List<LogicalPlan> getChild() {
     return Collections.singletonList(child);
-  }
-
-  public List<Pair<Sort.SortOption, Expression>> getAllSortList() {
-    List<Pair<Sort.SortOption, Expression>> allSorts = new ArrayList<>();
-    windowDefinition.getPartitionByList()
-                    .forEach(expr -> allSorts.add(ImmutablePair.of(Sort.SortOption.PPL_ASC, expr)));
-    allSorts.addAll(windowDefinition.getSortList());
-    return allSorts;
   }
 
 }

@@ -71,11 +71,8 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   @Override
   public PhysicalPlan visitWindow(LogicalWindow node, C context) {
     return new WindowOperator(
-        new SortOperator(
-            visitChild(node, context),
-            10000,
-            node.getAllSortList()),
-        null,//node.getWindowFunctions(),
+        visitChild(node, context),
+        node.getWindowFunction(),
         node.getWindowDefinition());
   }
 

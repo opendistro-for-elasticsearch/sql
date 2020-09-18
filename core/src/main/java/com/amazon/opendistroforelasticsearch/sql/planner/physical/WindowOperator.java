@@ -33,17 +33,17 @@ import org.apache.commons.lang3.tuple.Pair;
 @ToString
 public class WindowOperator extends PhysicalPlan {
   private final PhysicalPlan input;
-  private final List<Expression> windowFunctions;
+  private final Expression windowFunction;
   private final WindowDefinition windowDefinition;
 
   @EqualsAndHashCode.Exclude
   private final WindowFrame windowFrame;
 
   public WindowOperator(PhysicalPlan input,
-                        List<Expression> windowFunctions,
+                        Expression windowFunction,
                         WindowDefinition windowDefinition) {
     this.input = input;
-    this.windowFunctions = windowFunctions;
+    this.windowFunction = windowFunction;
     this.windowDefinition = windowDefinition;
 
     this.windowFrame = new WindowFrame(
@@ -72,10 +72,8 @@ public class WindowOperator extends PhysicalPlan {
     ImmutableMap.Builder<String, ExprValue> mapBuilder = new ImmutableMap.Builder<>();
     inputValue.tupleValue().forEach(mapBuilder::put);
 
-    for (Expression windowFunc : windowFunctions) {
-      ExprValue exprValue = windowFunc.valueOf(framing(inputValue));
-      mapBuilder.put(windowFunc.toString(), exprValue);
-    }
+    ExprValue exprValue = windowFunction.valueOf(framing(inputValue));
+    mapBuilder.put(windowFunction.toString(), exprValue);
     return ExprTupleValue.fromExprValueMap(mapBuilder.build());
   }
 

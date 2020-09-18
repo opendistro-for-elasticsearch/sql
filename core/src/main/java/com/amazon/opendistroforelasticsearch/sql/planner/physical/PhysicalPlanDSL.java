@@ -82,9 +82,9 @@ public class PhysicalPlanDSL {
   }
 
   public WindowOperator window(PhysicalPlan input,
-                               List<Expression> windowFunctions,
+                               Expression windowFunction,
                                WindowDefinition windowDefinition) {
-    return new WindowOperator(input, windowFunctions, windowDefinition);
+    return new WindowOperator(input, windowFunction, windowDefinition);
   }
 
   @SafeVarargs

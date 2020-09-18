@@ -79,9 +79,14 @@ public class WindowedExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan,
         new Symbol(Namespace.FIELD_NAME, windowFunction.toString()), windowFunction.type());
 
     return new LogicalWindow(
-        new LogicalSort(child, 1000, sortList),
+        new LogicalSort(child, 1000, windowDefinition.getAllSortItems()),
         windowFunction,
         windowDefinition);
+  }
+
+  private boolean isWindowed(UnresolvedExpression projectItem) {
+    return (projectItem instanceof Alias)
+        && (((Alias) projectItem).getDelegated() instanceof WindowFunction);
   }
 
   private List<Expression> analyzePartitionList(WindowFunction node, AnalysisContext context) {
@@ -99,11 +104,6 @@ public class WindowedExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan,
                    .of(Sort.SortOption.PPL_ASC,
                        expressionAnalyzer.analyze(pair.getRight(), context)))
                .collect(Collectors.toList());
-  }
-
-  private boolean isWindowed(UnresolvedExpression projectItem) {
-    return (projectItem instanceof Alias)
-        && (((Alias) projectItem).getDelegated() instanceof WindowFunction);
   }
 
 }
