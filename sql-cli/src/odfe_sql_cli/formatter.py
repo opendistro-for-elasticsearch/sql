@@ -14,6 +14,7 @@ permissions and limitations under the License.
 """
 import click
 import itertools
+import json 
 
 from cli_helpers.tabular_output import TabularOutputFormatter
 from cli_helpers.tabular_output.preprocessors import format_numbers
@@ -64,7 +65,8 @@ class Formatter:
         formatter = TabularOutputFormatter(format_name=self.table_format)
 
         # parse response data
-        print("Data: " + str(data))
+        if not data.has_key("datarows"):
+            return json.dumps(data)
         datarows = data["datarows"]
         schema = data["schema"]
         total_hits = data["total"]

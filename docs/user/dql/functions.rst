@@ -609,7 +609,7 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT LTRIM('   hello'), LTRIM('hello   ');
+    od> SELECT LTRIM('   hello'), LTRIM('hello   ')
     fetched rows / total rows = 1/1
     +---------------------+---------------------+
     | LTRIM('   hello')   | LTRIM('hello   ')   |
@@ -881,7 +881,7 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT RTRIM('   hello'), RTRIM('hello   ');
+    od> SELECT RTRIM('   hello'), RTRIM('hello   ')
     fetched rows / total rows = 1/1
     +---------------------+---------------------+
     | RTRIM('   hello')   | RTRIM('hello   ')   |
@@ -997,7 +997,7 @@ Return Type: INTEGER
 
 Example::
 
-    od> SELECT STRCMP('hello', 'world'), STRCMP('world', 'hello'), STRCMP('hello', 'hello');
+    od> SELECT STRCMP('hello', 'world'), STRCMP('world', 'hello'), STRCMP('hello', 'hello')
     fetched rows / total rows = 1/1
     +----------------------------+----------------------------+----------------------------+
     | STRCMP('hello', 'world')   | STRCMP('hello', 'world')   | STRCMP('hello', 'hello')   |
@@ -1021,7 +1021,7 @@ Synonyms: SUBSTR
 
 Example::
 
-    od> SELECT SUBSTRING('helloworld', 5), SUBSTRING('helloworld', 5, 3);
+    od> SELECT SUBSTRING('helloworld', 5), SUBSTRING('helloworld', 5, 3)
     fetched rows / total rows = 1/1
     +------------------------------+---------------------------------+
     | SUBSTRING('helloworld', 5)   | SUBSTRING("helloworld", 5, 3)   |
@@ -1135,7 +1135,7 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT UPPER('helloworld'), UPPER('HELLOWORLD');
+    od> SELECT UPPER('helloworld'), UPPER('HELLOWORLD')
     fetched rows / total rows = 1/1
     +-----------------------+-----------------------+
     | UPPER('helloworld')   | UPPER("HELLOWORLD")   |
