@@ -185,13 +185,13 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT CONCAT('hello', 'world'), CONCAT('he', NULL, 'o');
+    od> SELECT CONCAT('hello', 'world');
     fetched rows / total rows = 1/1
-    +----------------------------+---------------------------+
-    | CONCAT('hello', 'world')   | CONCAT('he', NULL, 'o')   |
-    |----------------------------+---------------------------|
-    | helloworld                 | NULL                      |
-    +----------------------------+---------------------------+
+    +----------------------------+
+    | CONCAT('hello', 'world')   |
+    |----------------------------|
+    | helloworld                 |
+    +----------------------------+
 
 CONCAT_WS
 =========
@@ -207,14 +207,13 @@ Return Type: INTEGER
 
 Example::
 
-    od> SELECT CONCAT_WS(',', 'hello', 'world'), CONCAT_WS(',', 'he', NULL, 'o'), CONCAT_WS(NULL, 'hello', 'world');
+    od> SELECT CONCAT_WS(',', 'hello', 'world');
     fetched rows / total rows = 1/1
-    +------------------------------------+-----------------------------------+-------------------------------------+
-    | CONCAT_WS(',', 'hello', 'world')   | CONCAT_WS(',', 'he', NULL, 'o')   | CONCAT_WS(NULL, 'hello', 'world')   |
-    |------------------------------------+-----------------------------------+-------------------------------------|
-    | hello,world                        | he,o                              | NULL                                |
-    +------------------------------------+-----------------------------------+-------------------------------------+
-
+    +------------------------------------+
+    | CONCAT_WS(',', 'hello', 'world')   |
+    |------------------------------------|
+    | hello,world                        |
+    +------------------------------------+
 
 CONV
 ====
@@ -509,14 +508,13 @@ Return Type: INTEGER
 
 Example::
 
-    od> SELECT LENGTH('helloworld', 5);
+    od> SELECT LENGTH('helloworld');
     fetched rows / total rows = 1/1
     +-------------------+
     | LENGTH('hello')   |
     |-------------------|
-    | 5                 |
+    | 20                |
     +-------------------+
-
 
 LN
 ==
@@ -597,7 +595,6 @@ Example::
     | helloworld            | helloworld            |
     +-----------------------+-----------------------+
 
-
 LTRIM
 =====
 
@@ -619,7 +616,6 @@ Example::
     |---------------------+---------------------|
     | hello               | hello               |
     +---------------------+---------------------+
-
 
 MAKETIME
 ========
@@ -893,7 +889,6 @@ Example::
     |    hello            | hello               |
     +---------------------+---------------------+
 
-
 SIGN
 ====
 
@@ -1010,7 +1005,6 @@ Example::
     | -1                         | 1                          | 0                          |
     +----------------------------+----------------------------+----------------------------+
 
-
 SUBSTRING
 =========
 
@@ -1027,14 +1021,13 @@ Synonyms: SUBSTR
 
 Example::
 
-    od> SELECT SUBSTRING('helloworld', 5), SUBSTRING('helloworld', 5, 3)
+    od> SELECT SUBSTRING('helloworld', 5), SUBSTRING('helloworld', 5, 3);
     fetched rows / total rows = 1/1
     +------------------------------+---------------------------------+
     | SUBSTRING('helloworld', 5)   | SUBSTRING("helloworld", 5, 3)   |
     |------------------------------+---------------------------------|
     | world                        | wor                             |
     +------------------------------+---------------------------------+
-
 
 SUBTRACT
 ========
@@ -1142,14 +1135,13 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT UPPER('helloworld'), UPPER('HELLOWORLD')
+    od> SELECT UPPER('helloworld'), UPPER('HELLOWORLD');
     fetched rows / total rows = 1/1
     +-----------------------+-----------------------+
     | UPPER('helloworld')   | UPPER("HELLOWORLD")   |
     |-----------------------+-----------------------|
     | HELLOWORLD            | HELLOWORLD            |
     +-----------------------+-----------------------+
-
 
 YEAR
 ====
