@@ -212,6 +212,7 @@ functionCall
 scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
+    | textFunctionName
     ;
 
 aggregateFunction
@@ -231,6 +232,10 @@ trigonometricFunctionName
 
 dateTimeFunctionName
     : DAYOFMONTH | DATE | TIME | TIMESTAMP
+    ;
+
+textFunctionName
+    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
     ;
 
 functionArgs
