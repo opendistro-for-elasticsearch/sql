@@ -76,10 +76,9 @@ public class TextFunctionTest extends ExpressionTestBase {
   private static List<String> UPPER_LOWER_STRINGS = ImmutableList.of(
       "test", " test", "test ", " test ", "TesT", "TEST", " TEST", "TEST ", " TEST ", " ", "");
   private static List<StringPatternPair> STRING_PATTERN_PAIRS = ImmutableList.of(
-      new StringPatternPair("Michael!", ".*"),
-      new StringPatternPair("new*\\n*line", "new\\\\*.\\\\*line"),
-      new StringPatternPair("a", "^[a-d]"), new StringPatternPair("helo", "world"),
-      new StringPatternPair("a", "A"));
+      new StringPatternPair("Michael!", "Michael!"),
+      new StringPatternPair("hello", "world"),
+      new StringPatternPair("world", "hello"));
   private static List<String> TRIM_STRINGS = ImmutableList.of(
       " test", "     test", "test     ", "test", "     test    ", "", " ");
   private static List<List<String>> CONCAT_STRING_LISTS = ImmutableList.of(
