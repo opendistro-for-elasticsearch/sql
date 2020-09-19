@@ -141,6 +141,12 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitRegexpPredicate(RegexpPredicateContext ctx) {
+    return new Function(REGEXP.getName().getFunctionName(),
+            Arrays.asList(visit(ctx.left), visit(ctx.right)));
+  }
+
+  @Override
   public UnresolvedExpression visitAndExpression(AndExpressionContext ctx) {
     return new And(visit(ctx.left), visit(ctx.right));
   }
