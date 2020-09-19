@@ -48,6 +48,11 @@ public abstract class RankingWindowFunction extends FunctionExpression {
     return new ExprIntegerValue(rank((WindowFrame) valueEnv));
   }
 
-  protected abstract int rank(WindowFrame windowFrame);
+  /**
+   * Rank logic that sub-class needs to implement.
+   * @param frame   window frame
+   * @return        rank number
+   */
+  protected abstract int rank(WindowFrame frame);
 
 }

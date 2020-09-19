@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression.window;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -40,7 +41,7 @@ class WindowFrameTest {
   private final WindowFrame windowFrame = new WindowFrame(windowDefinition);
 
   @Test
-  void should_be_aware_of_new_partition() {
+  void should_return_new_partition_if_partition_by_field_value_changed() {
     ExprTupleValue tuple1 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "state", new ExprStringValue("WA"),
         "age", new ExprIntegerValue(20)));
@@ -58,6 +59,26 @@ class WindowFrameTest {
         "age", new ExprIntegerValue(18)));
     windowFrame.add(tuple3);
     assertTrue(windowFrame.isNewPartition());
+  }
+
+  @Test
+  void can_resolve_sort_item_value_on_position() {
+    windowFrame.add(ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"),
+        "age", new ExprIntegerValue(20))));
+    assertEquals(
+        ImmutableList.of(new ExprIntegerValue(20)),
+        windowFrame.resolveSortItemValues(0));
+
+    windowFrame.add(ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"),
+        "age", new ExprIntegerValue(30))));
+    assertEquals(
+        ImmutableList.of(new ExprIntegerValue(20)),
+        windowFrame.resolveSortItemValues(-1));
+    assertEquals(
+        ImmutableList.of(new ExprIntegerValue(30)),
+        windowFrame.resolveSortItemValues(0));
   }
 
 }

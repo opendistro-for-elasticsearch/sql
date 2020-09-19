@@ -331,6 +331,11 @@ public class DSL {
         BuiltinFunctionName.ROW_NUMBER.getName(), Collections.emptyList());
   }
 
+  public RankingWindowFunction rank() {
+    return (RankingWindowFunction) repository.compile(
+        BuiltinFunctionName.RANK.getName(), Collections.emptyList());
+  }
+
   private FunctionExpression function(BuiltinFunctionName functionName, Expression... expressions) {
     return (FunctionExpression) repository.compile(
         functionName.getName(), Arrays.asList(expressions));

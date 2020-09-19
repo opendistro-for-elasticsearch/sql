@@ -16,36 +16,49 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
-import lombok.EqualsAndHashCode;
+import java.util.List;
 
 /**
- * Row number window function that assigns row number starting from 1 to each row in a partition.
+ * Rank window function that assigns a rank ...
  */
-@EqualsAndHashCode(callSuper = false)
-public class RowNumberFunction extends RankingWindowFunction {
+public class RankFunction extends RankingWindowFunction {
 
   /**
-   * Current row number assigned.
+   * Total number of rows have seen in current partition.
    */
-  private int rowNumber;
+  private int total;
 
-  public RowNumberFunction() {
-    super(BuiltinFunctionName.ROW_NUMBER.getName());
+  /**
+   * Current rank number assigned.
+   */
+  private int rank;
+
+  public RankFunction() {
+    super(BuiltinFunctionName.RANK.getName());
   }
 
   @Override
   protected int rank(WindowFrame frame) {
     if (frame.isNewPartition()) {
-      rowNumber = 1;
+      total = 1;
+      rank = 1;
+    } else {
+      total++;
+
+      if (isSortByFieldValueDifferent(frame)) {
+        rank = total;
+      }
     }
-    return rowNumber++;
+    return rank;
   }
 
-  @Override
-  public String toString() {
-    return getFunctionName().toString();
+  private boolean isSortByFieldValueDifferent(WindowFrame frame) {
+    List<ExprValue> previous = frame.resolveSortItemValues(-1);
+    List<ExprValue> current = frame.resolveSortItemValues(0);
+    return !current.equals(previous);
   }
 
 }

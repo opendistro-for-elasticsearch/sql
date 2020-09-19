@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBui
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RowNumberFunction;
 import com.google.common.collect.ImmutableMap;
@@ -38,10 +39,15 @@ public class WindowFunctions {
 
   public void register(BuiltinFunctionRepository repository) {
     repository.register(rowNumber());
+    repository.register(rank());
   }
 
   private FunctionResolver rowNumber() {
     return rankingFunction(BuiltinFunctionName.ROW_NUMBER.getName(), RowNumberFunction::new);
+  }
+
+  private FunctionResolver rank() {
+    return rankingFunction(BuiltinFunctionName.RANK.getName(), RankFunction::new);
   }
 
   private FunctionResolver rankingFunction(FunctionName functionName,

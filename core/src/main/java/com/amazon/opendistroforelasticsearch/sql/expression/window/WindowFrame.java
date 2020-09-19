@@ -27,6 +27,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Conceptually, window function has access to all the data in the frame defined by
@@ -74,13 +75,25 @@ public class WindowFrame implements Environment<Expression, ExprValue> {
     return !preValues.equals(curValues);
   }
 
-  public boolean isPrecedingDifferent() {
-    return false;
-  }
-
+  /**
+   * Update frame with a new row.
+   * @param row   data row
+   */
   public void add(ExprTupleValue row) {
     previous = current;
     current = row;
+  }
+
+  /**
+   * Resolve sort item values on certain position.
+   * @param offset offset
+   * @return       value list
+   */
+  public List<ExprValue> resolveSortItemValues(int offset) {
+    List<Expression> sortItems =
+        windowDefinition.getSortList().stream().map(Pair::getRight).collect(Collectors.toList());
+
+    return (offset == 0) ? resolve(sortItems, current) : resolve(sortItems, previous);
   }
 
 }

@@ -19,8 +19,11 @@ package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
+import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -35,11 +38,14 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
   @Mock
   private WindowFrame windowFrame;
 
+  @BeforeEach
+  void setUp() {
+    when(windowFrame.isNewPartition()).thenReturn(true);
+  }
+
   @Test
   void test_row_number() {
     RankingWindowFunction rowNumber = dsl.rowNumber();
-
-    when(windowFrame.isNewPartition()).thenReturn(true);
     assertEquals(1, rowNumber.rank(windowFrame));
 
     when(windowFrame.isNewPartition()).thenReturn(false);
@@ -48,6 +54,27 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
 
     when(windowFrame.isNewPartition()).thenReturn(true);
     assertEquals(1, rowNumber.rank(windowFrame));
+  }
+
+  @Test
+  void test_rank() {
+    RankingWindowFunction rank = dsl.rank();
+    assertEquals(1, rank.rank(windowFrame));
+
+    when(windowFrame.isNewPartition()).thenReturn(false);
+    when(windowFrame.resolveSortItemValues(0)).thenReturn(
+        ImmutableList.of(new ExprIntegerValue(30)));
+    when(windowFrame.resolveSortItemValues(-1)).thenReturn(
+        ImmutableList.of(new ExprIntegerValue(30)));
+    assertEquals(1, rank.rank(windowFrame));
+    assertEquals(1, rank.rank(windowFrame));
+
+    when(windowFrame.resolveSortItemValues(0)).thenReturn(
+        ImmutableList.of(new ExprIntegerValue(50)));
+    assertEquals(4, rank.rank(windowFrame));
+
+    when(windowFrame.isNewPartition()).thenReturn(true);
+    assertEquals(1, rank.rank(windowFrame));
   }
 
 }
