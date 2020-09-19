@@ -20,14 +20,11 @@ package com.amazon.opendistroforelasticsearch.sql.expression.text;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.missingValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -37,7 +34,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

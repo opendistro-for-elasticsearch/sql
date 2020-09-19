@@ -510,11 +510,11 @@ Example::
 
     od> SELECT LENGTH('helloworld')
     fetched rows / total rows = 1/1
-    +-------------------+
-    | LENGTH('hello')   |
-    |-------------------|
-    | 10                |
-    +-------------------+
+    +------------------------+
+    | LENGTH('helloworld')   |
+    |------------------------|
+    | 10                     |
+    +------------------------+
 
 LN
 ==
@@ -590,7 +590,7 @@ Example::
     od> SELECT LOWER('helloworld'), LOWER('HELLOWORLD')
     fetched rows / total rows = 1/1
     +-----------------------+-----------------------+
-    | LOWER('helloworld')   | LOWER("HELLOWORLD")   |
+    | LOWER('helloworld')   | LOWER('HELLOWORLD')   |
     |-----------------------+-----------------------|
     | helloworld            | helloworld            |
     +-----------------------+-----------------------+
@@ -997,13 +997,13 @@ Return Type: INTEGER
 
 Example::
 
-    od> SELECT STRCMP('hello', 'world'), STRCMP('world', 'hello'), STRCMP('hello', 'hello')
+    od> SELECT STRCMP('hello', 'world'), STRCMP('hello', 'hello')
     fetched rows / total rows = 1/1
-    +----------------------------+----------------------------+----------------------------+
-    | STRCMP('hello', 'world')   | STRCMP('hello', 'world')   | STRCMP('hello', 'hello')   |
-    |----------------------------+----------------------------+----------------------------|
-    | -1                         | 1                          | 0                          |
-    +----------------------------+----------------------------+----------------------------+
+    +----------------------------+----------------------------+
+    | STRCMP('hello', 'world')   | STRCMP('hello', 'world')   |
+    |----------------------------+----------------------------|
+    | -1                         | 1                          |
+    +----------------------------+----------------------------+
 
 SUBSTRING
 =========
@@ -1024,7 +1024,7 @@ Example::
     od> SELECT SUBSTRING('helloworld', 5), SUBSTRING('helloworld', 5, 3)
     fetched rows / total rows = 1/1
     +------------------------------+---------------------------------+
-    | SUBSTRING('helloworld', 5)   | SUBSTRING("helloworld", 5, 3)   |
+    | SUBSTRING('helloworld', 5)   | SUBSTRING('helloworld', 5, 3)   |
     |------------------------------+---------------------------------|
     | world                        | wor                             |
     +------------------------------+---------------------------------+
@@ -1138,7 +1138,7 @@ Example::
     od> SELECT UPPER('helloworld'), UPPER('HELLOWORLD')
     fetched rows / total rows = 1/1
     +-----------------------+-----------------------+
-    | UPPER('helloworld')   | UPPER("HELLOWORLD")   |
+    | UPPER('helloworld')   | UPPER('HELLOWORLD')   |
     |-----------------------+-----------------------|
     | HELLOWORLD            | HELLOWORLD            |
     +-----------------------+-----------------------+
