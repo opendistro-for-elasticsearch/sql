@@ -5,6 +5,3 @@ true or false AS bool
 NOT true AS bool
 NOT false AS bool
 NOT (true AND false) AS bool
-'a' REGEXP 'a'
-'a' REGEXP 'b'
-'a' REGEXP '.*'
