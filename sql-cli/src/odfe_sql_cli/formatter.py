@@ -14,7 +14,6 @@ permissions and limitations under the License.
 """
 import click
 import itertools
-import json 
 
 from cli_helpers.tabular_output import TabularOutputFormatter
 from cli_helpers.tabular_output.preprocessors import format_numbers

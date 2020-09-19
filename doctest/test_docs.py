@@ -45,15 +45,9 @@ class DocTestConnection(ESConnection):
 
     def process(self, statement):
         data = self.execute_query(statement, use_console=False)
-        output = str(data)
-        try:
-           output = self.formatter.format_output(data)
-           output = "\n".join(output)
-        except Exception as e:
-            if data is not None:
-                click.echo("data: " + data + ". Exception: " + str(e))
-            else:
-                click.echo(str(e))
+        output = self.formatter.format_output(data)
+        output = "\n".join(output)
+
         click.echo(output)
 
 
