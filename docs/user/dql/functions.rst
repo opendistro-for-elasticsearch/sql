@@ -177,7 +177,21 @@ CONCAT
 Description
 -----------
 
-Specification is undefined and type check is skipped for now
+Usage: CONCAT(str1, str2, ...) returns all strings concatenated together. A NULL value causes a NULL return.
+
+Argument type: STRING, STRING, ...
+
+Return Type: STRING
+
+Example::
+
+    od> SELECT CONCAT('hello', 'world'), CONCAT('he', NULL, 'o')
+    fetched rows / total rows = 1/1
+    +----------------------------+---------------------------+
+    | CONCAT('hello', 'world')   | CONCAT('he', NULL, 'o')   |
+    |----------------------------+---------------------------|
+    | helloworld                 | NULL                      |
+    +----------------------------+---------------------------+
 
 CONCAT_WS
 =========
@@ -185,7 +199,21 @@ CONCAT_WS
 Description
 -----------
 
-Specification is undefined and type check is skipped for now
+Usage: CONCAT_WS(sep, str1, str2, ...) returns all strings concatenated together with separator between. NULL values are skipped. A NULL separator causes a NULL return.
+
+Argument type: STRING, STRING, STRING, ...
+
+Return Type: INTEGER
+
+Example::
+
+    od> SELECT CONCAT_WS(',', 'hello', 'world'), CONCAT_WS(',', 'he', NULL, 'o'), CONCAT_WS(NULL, 'hello', 'world')
+    fetched rows / total rows = 1/1
+    +------------------------------------+-----------------------------------+-------------------------------------+
+    | CONCAT_WS(',', 'hello', 'world')   | CONCAT_WS(',', 'he', NULL, 'o')   | CONCAT_WS(NULL, 'hello', 'world')   |
+    |------------------------------------+-----------------------------------+-------------------------------------|
+    | hello,world                        | he,o                              | NULL                                |
+    +------------------------------------+-----------------------------------+-------------------------------------+
 
 
 CONV
@@ -473,9 +501,21 @@ LENGTH
 Description
 -----------
 
-Specifications: 
+Usage: length(str) returns length of string measured in bytes.
 
-1. LENGTH(STRING) -> INTEGER
+Argument type: STRING
+
+Return Type: INTEGER
+
+Example::
+
+    od> SELECT LENGTH('helloworld', 5)
+    fetched rows / total rows = 1/1
+    +-------------------+
+    | LENGTH('hello')   |
+    |-------------------|
+    | 5                 |
+    +-------------------+
 
 
 LN
@@ -541,10 +581,21 @@ LOWER
 Description
 -----------
 
-Specifications: 
+Usage: lower(string) converts the string to lowercase.
 
-1. LOWER(STRING T) -> T
-2. LOWER(STRING T, STRING) -> T
+Argument type: STRING
+
+Return Type: STRING
+
+Example::
+
+    od> SELECT LOWER('helloworld'), LOWER('HELLOWORLD')
+    fetched rows / total rows = 1/1
+    +-----------------------+-----------------------+
+    | LOWER('helloworld')   | LOWER("HELLOWORLD")   |
+    |-----------------------+-----------------------|
+    | helloworld            | helloworld            |
+    +-----------------------+-----------------------+
 
 
 LTRIM
@@ -553,9 +604,21 @@ LTRIM
 Description
 -----------
 
-Specifications: 
+Usage: ltrim(str) trims leading space characters from the string.
 
-1. LTRIM(STRING T) -> T
+Argument type: STRING
+
+Return Type: STRING
+
+Example::
+
+    od> SELECT LTRIM('   hello'), LTRIM('hello   ')
+    fetched rows / total rows = 1/1
+    +---------------------+---------------------+
+    | LTRIM('   hello')   | LTRIM('hello   ')   |
+    |---------------------+---------------------|
+    | 'hello'             | 'hello   '          |
+    +---------------------+---------------------+
 
 
 MAKETIME
@@ -814,9 +877,21 @@ RTRIM
 Description
 -----------
 
-Specifications: 
+Usage: rtrim(str) trims trailing space characters from the string.
 
-1. RTRIM(STRING T) -> T
+Argument type: STRING
+
+Return Type: STRING
+
+Example::
+
+    od> SELECT RTRIM('   hello'), RTRIM('hello   ')
+    fetched rows / total rows = 1/1
+    +---------------------+---------------------+
+    | RTRIM('   hello')   | RTRIM('hello   ')   |
+    |---------------------+---------------------|
+    | '   hello'          | 'hello'             |
+    +---------------------+---------------------+
 
 
 SIGN
@@ -913,15 +988,52 @@ Example::
     +-----------+--------------+
 
 
+STRCMP
+=========
+
+Description
+-----------
+
+Usage: strcmp(str1, str2) returns 0 if strings are same, -1 if first arg < second arg according to current sort order, and 1 otherwise.
+
+Argument type: STRING, STRING
+
+Return Type: INTEGER
+
+Example::
+
+    od> SELECT STRCMP('hello', 'world'), STRCMP('world', 'hello'), STRCMP('hello', 'hello')
+    fetched rows / total rows = 1/1
+    +----------------------------+----------------------------+----------------------------+
+    | STRCMP('hello', 'world')   | STRCMP('hello', 'world')   | STRCMP('hello', 'hello')   |
+    |----------------------------+----------------------------+----------------------------|
+    | -1                         | 1                          | 0                          |
+    +----------------------------+----------------------------+----------------------------+
+
+
 SUBSTRING
 =========
 
 Description
 -----------
 
-Specifications: 
+Usage: substring(str, start) or substring(str, start, length) returns substring using start and length. With no length, entire string from start is returned.
 
-1. SUBSTRING(STRING T, INTEGER, INTEGER) -> T
+Argument type: STRING, INTEGER, INTEGER
+
+Return Type: STRING
+
+Synonyms: SUBSTR
+
+Example::
+
+    od> SELECT SUBSTRING('helloworld', 5), SUBSTRING('helloworld', 5, 3)
+    fetched rows / total rows = 1/1
+    +------------------------------+---------------------------------+
+    | SUBSTRING('helloworld', 5)   | SUBSTRING("helloworld", 5, 3)   |
+    |------------------------------+---------------------------------|
+    | world                        | wor                             |
+    +------------------------------+---------------------------------+
 
 
 SUBTRACT
@@ -975,10 +1087,21 @@ TRIM
 Description
 -----------
 
-Specifications: 
+Usage: trim(str) trims leading and trailing space characters from the string.
 
-1. TRIM(STRING T) -> T
+Argument type: STRING
 
+Return Type: STRING
+
+Example::
+
+    od> SELECT TRIM('   hello'), TRIM('hello   ')
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | TRIM('   hello')   | TRIM('hello   ')   |
+    |--------------------+--------------------|
+    | 'hello'            | 'hello'            |
+    +--------------------+--------------------+
 
 TRUNCATE
 ========
@@ -1011,10 +1134,21 @@ UPPER
 Description
 -----------
 
-Specifications: 
+Usage: upper(string) converts the string to uppercase.
 
-1. UPPER(STRING T) -> T
-2. UPPER(STRING T, STRING) -> T
+Argument type: STRING
+
+Return Type: STRING
+
+Example::
+
+    od> SELECT UPPER('helloworld'), UPPER('HELLOWORLD')
+    fetched rows / total rows = 1/1
+    +-----------------------+-----------------------+
+    | UPPER('helloworld')   | UPPER("HELLOWORLD")   |
+    |-----------------------+-----------------------|
+    | helloworld            | helloworld            |
+    +-----------------------+-----------------------+
 
 
 YEAR
