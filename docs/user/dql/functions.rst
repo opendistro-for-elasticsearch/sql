@@ -185,7 +185,7 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT CONCAT('hello', 'world');
+    od> SELECT CONCAT('hello', 'world')
     fetched rows / total rows = 1/1
     +----------------------------+
     | CONCAT('hello', 'world')   |
@@ -203,11 +203,11 @@ Usage: CONCAT_WS(sep, str1, str2, ...) returns all strings concatenated together
 
 Argument type: STRING, STRING, STRING, ...
 
-Return Type: INTEGER
+Return Type: STRING
 
 Example::
 
-    od> SELECT CONCAT_WS(',', 'hello', 'world');
+    od> SELECT CONCAT_WS(',', 'hello', 'world')
     fetched rows / total rows = 1/1
     +------------------------------------+
     | CONCAT_WS(',', 'hello', 'world')   |
@@ -508,12 +508,12 @@ Return Type: INTEGER
 
 Example::
 
-    od> SELECT LENGTH('helloworld');
+    od> SELECT LENGTH('helloworld')
     fetched rows / total rows = 1/1
     +-------------------+
     | LENGTH('hello')   |
     |-------------------|
-    | 20                |
+    | 10                |
     +-------------------+
 
 LN
@@ -587,7 +587,7 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT LOWER('helloworld'), LOWER('HELLOWORLD');
+    od> SELECT LOWER('helloworld'), LOWER('HELLOWORLD')
     fetched rows / total rows = 1/1
     +-----------------------+-----------------------+
     | LOWER('helloworld')   | LOWER("HELLOWORLD")   |

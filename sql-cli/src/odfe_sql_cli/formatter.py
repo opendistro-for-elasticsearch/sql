@@ -64,6 +64,7 @@ class Formatter:
         formatter = TabularOutputFormatter(format_name=self.table_format)
 
         # parse response data
+        print("Data: " + str(data))
         datarows = data["datarows"]
         schema = data["schema"]
         total_hits = data["total"]
