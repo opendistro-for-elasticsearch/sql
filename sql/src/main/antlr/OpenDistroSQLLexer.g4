@@ -269,6 +269,7 @@ WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
 // TEXT FUNCTIONS
 SUBSTR:                             'SUBSTR';
+STRCMP:                             'STRCMP';
 
 // Operators
 
