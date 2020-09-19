@@ -416,7 +416,7 @@ predicate
     | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
     | predicate NOT? BETWEEN predicate AND predicate                #betweenPredicate
     | predicate NOT? LIKE predicate                                 #likePredicate
-    | predicate NOT? REGEXP predicate                               #regexpPredicate
+    | predicate NOT? regex=REGEXP predicate                         #regexpPredicate
     | expressionAtom                                                #expressionAtomPredicate
     ;
 
