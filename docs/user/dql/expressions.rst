@@ -177,7 +177,7 @@ REGEXP value test
 
 expr REGEXP pattern. The expr is string value, pattern is supports regular expression patterns::
 
-    od> SELECT 'Hello!' REGEXP '.*', 'a' REGEXP 'b'
+    od> SELECT 'Hello!' REGEXP '.*', 'a' REGEXP 'b';
     fetched rows / total rows = 1/1
     +------------------------+------------------+
     | 'Hello!' REGEXP '.*'   | 'a' REGEXP 'b'   |
