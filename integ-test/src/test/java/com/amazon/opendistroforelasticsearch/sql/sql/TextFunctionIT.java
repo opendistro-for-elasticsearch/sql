@@ -46,10 +46,16 @@ public class TextFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(output));
   }
 
+  void verifyQuery(String query, String type, Integer output) throws IOException {
+    JSONObject result = executeQuery("select " + query);
+    verifySchema(result, schema(query, null, type));
+    verifyDataRows(result, rows(output));
+  }
+
   @Test
   public void testRegexp() throws IOException {
-    verifyQuery("'a' regexp 'b'", "INT", "0");
-    verifyQuery("'a' regexp '.*'", "INT", "1");
+    verifyQuery("'a' regexp 'b'", "integer", 0);
+    verifyQuery("'a' regexp '.*'", "integer", 1);
   }
 
   @Test
@@ -92,7 +98,7 @@ public class TextFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void testLtrim() throws IOException {
-    verifyQuery("ltrim(' hello')", "string", "hello ");
+    verifyQuery("ltrim(' hello')", "string", "hello");
     verifyQuery("ltrim('hello ')", "string", "hello");
     verifyQuery("ltrim('  hello  ')", "string", "hello  ");
   }
@@ -111,13 +117,13 @@ public class TextFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void testLength() throws IOException {
-    verifyQuery("length('hello')", "integer", "5");
+    verifyQuery("length('hello')", "integer", 5);
   }
 
   @Test
   public void testStrcmp() throws IOException {
-    verifyQuery("strcmp('hello', 'world')", "integer", "-1");
-    verifyQuery("strcmp('hello', 'hello')", "integer", "0");
+    verifyQuery("strcmp('hello', 'world')", "integer", -1);
+    verifyQuery("strcmp('hello', 'hello')", "integer", 0);
   }
 
   protected JSONObject executeQuery(String query) throws IOException {
