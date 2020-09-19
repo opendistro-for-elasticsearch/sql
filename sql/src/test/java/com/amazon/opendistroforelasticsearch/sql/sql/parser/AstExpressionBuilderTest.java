@@ -217,6 +217,14 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildRegexpExpression() {
+    assertEquals(
+        function("regexp", stringLiteral("str"), stringLiteral(".*")),
+        buildExprAst("'str' regexp '.*'")
+    );
+  }
+
+  @Test
   public void canBuildLogicalExpression() {
     assertEquals(
         and(booleanLiteral(true), booleanLiteral(false)),
