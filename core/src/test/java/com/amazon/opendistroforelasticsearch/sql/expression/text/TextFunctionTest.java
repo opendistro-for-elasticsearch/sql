@@ -88,16 +88,7 @@ public class TextFunctionTest extends ExpressionTestBase {
       " test", "     test", "test     ", "test", "     test    ", "", " ");
   private static List<List<String>> CONCAT_STRING_LISTS = ImmutableList.of(
       ImmutableList.of("hello", "world"),
-      ImmutableList.of("123", "5325", "asdfgasdf", "asdgfasghads"),
-      new ArrayList<String>() {{
-          add("123");
-          add(null);
-          add("asdfgasdf");
-          add("asdgfasghads");
-        }
-      },
-      ImmutableList.of("lasojndif"),
-      ImmutableList.of(""));
+      ImmutableList.of("123", "5325"));
 
   @AllArgsConstructor
   @Getter
@@ -253,28 +244,36 @@ public class TextFunctionTest extends ExpressionTestBase {
   void concat() {
     CONCAT_STRING_LISTS.forEach(this::testConcatString);
 
-    when(nullRef.type()).thenReturn(ARRAY);
-    when(missingRef.type()).thenReturn(ARRAY);
-    assertEquals(nullValue(), eval(dsl.concat(nullRef)));
-    assertEquals(missingValue(), eval(dsl.concat(missingRef)));
+    when(nullRef.type()).thenReturn(STRING);
+    when(missingRef.type()).thenReturn(STRING);
+    assertEquals(missingValue(), eval(
+            dsl.concat(missingRef, DSL.literal("1"))));
+    assertEquals(nullValue(), eval(
+            dsl.concat(nullRef, DSL.literal("1"))));
+    assertEquals(missingValue(), eval(
+            dsl.concat(DSL.literal("1"), missingRef)));
+    assertEquals(nullValue(), eval(
+            dsl.concat(DSL.literal("1"), nullRef)));
   }
 
   @Test
   void concat_ws() {
     CONCAT_STRING_LISTS.forEach(s -> testConcatString(s, ","));
 
-
     when(nullRef.type()).thenReturn(STRING);
     when(missingRef.type()).thenReturn(STRING);
-    assertEquals(missingValue(), eval(dsl.concat_ws(missingRef,
-            DSL.literal(new ExprCollectionValue(ImmutableList.of())))));
-    assertEquals(nullValue(), eval(dsl.concat_ws(nullRef,
-            DSL.literal(new ExprCollectionValue(ImmutableList.of())))));
-
-    when(nullRef.type()).thenReturn(ARRAY);
-    when(missingRef.type()).thenReturn(ARRAY);
-    assertEquals(missingValue(), eval(dsl.concat_ws(DSL.literal("1"), missingRef)));
-    assertEquals(nullValue(), eval(dsl.concat_ws(DSL.literal("1"), nullRef)));
+    assertEquals(missingValue(), eval(
+        dsl.concat_ws(missingRef, DSL.literal("1"), DSL.literal("1"))));
+    assertEquals(nullValue(), eval(
+        dsl.concat_ws(nullRef, DSL.literal("1"), DSL.literal("1"))));
+    assertEquals(missingValue(), eval(
+        dsl.concat_ws(DSL.literal("1"), missingRef, DSL.literal("1"))));
+    assertEquals(nullValue(), eval(
+        dsl.concat_ws(DSL.literal("1"), nullRef, DSL.literal("1"))));
+    assertEquals(missingValue(), eval(
+        dsl.concat_ws(DSL.literal("1"), DSL.literal("1"), missingRef)));
+    assertEquals(nullValue(), eval(
+        dsl.concat_ws(DSL.literal("1"), DSL.literal("1"), nullRef)));
   }
 
   @Test
@@ -304,21 +303,19 @@ public class TextFunctionTest extends ExpressionTestBase {
     if (strings.stream().noneMatch(Objects::isNull)) {
       expected = String.join("", strings);
     }
-    List<ExprValue> exprs = new ArrayList<>();
 
-    strings.forEach(s -> exprs.add((s == null) ? ExprNullValue.of() : new ExprStringValue(s)));
-    FunctionExpression expression = dsl.concat(DSL.literal(new ExprCollectionValue(exprs)));
+    FunctionExpression expression = dsl.concat(
+        DSL.literal(strings.get(0)), DSL.literal(strings.get(1)));
     assertEquals(STRING, expression.type());
     assertEquals(expected, eval(expression).stringValue());
   }
 
   void testConcatString(List<String> strings, String delim) {
     String expected = strings.stream()
-            .filter(Objects::nonNull).collect(Collectors.joining(","));
-    List<ExprValue> exprs = new ArrayList<>();
-    strings.forEach(s -> exprs.add((s == null) ? ExprNullValue.of() : new ExprStringValue(s)));
-    FunctionExpression expression = dsl.concat_ws(DSL.literal(
-        new ExprStringValue(delim)), DSL.literal(new ExprCollectionValue(exprs)));
+        .filter(Objects::nonNull).collect(Collectors.joining(","));
+
+    FunctionExpression expression = dsl.concat_ws(
+        DSL.literal(delim), DSL.literal(strings.get(0)), DSL.literal(strings.get(1)));
     assertEquals(STRING, expression.type());
     assertEquals(expected, eval(expression).stringValue());
   }

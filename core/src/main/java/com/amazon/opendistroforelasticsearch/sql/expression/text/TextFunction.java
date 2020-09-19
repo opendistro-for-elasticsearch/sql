@@ -137,31 +137,30 @@ public class TextFunction {
   }
 
   /**
+   * TODO: https://github.com/opendistro-for-elasticsearch/sql/issues/710
+   *  Extend to accept variable argument amounts.
    * Concatenates a list of Strings.
    * Supports following signatures:
-   * ARRAY -> STRING
+   * (STRING, STRING) -> STRING
    */
   private FunctionResolver concat() {
     return define(BuiltinFunctionName.CONCAT.getName(),
-        impl(nullMissingHandling((strs) ->
-            // Returns null is any values are null.
-            new ExprStringValue(strs.collectionValue().stream().anyMatch(ExprValue::isNull)
-                ? null : strs.collectionValue().stream().map(ExprValue::stringValue)
-                    .collect(Collectors.joining("")))), STRING, ARRAY));
+        impl(nullMissingHandling((str1, str2) ->
+            new ExprStringValue(str1.stringValue() + str2.stringValue())), STRING, STRING, STRING));
   }
 
   /**
+   * TODO: https://github.com/opendistro-for-elasticsearch/sql/issues/710
+   *  Extend to accept variable argument amounts.
    * Concatenates a list of Strings with a separator string.
    * Supports following signatures:
-   * (STRING, ARRAY) -> STRING
+   * (STRING, STRING, STRING) -> STRING
    */
   private FunctionResolver concat_ws() {
     return define(BuiltinFunctionName.CONCAT_WS.getName(),
-        impl(nullMissingHandling((sep, strs) ->
-            // Skips null values, so filter !e.isNull().
-            new ExprStringValue(strs.collectionValue().stream().filter(e -> !e.isNull())
-                .map(ExprValue::stringValue)
-                .collect(Collectors.joining(sep.stringValue())))), STRING, STRING, ARRAY));
+        impl(nullMissingHandling((sep, str1, str2) ->
+            new ExprStringValue(str1.stringValue() + sep.stringValue() + str2.stringValue())),
+                STRING, STRING, STRING, STRING));
   }
 
   /**

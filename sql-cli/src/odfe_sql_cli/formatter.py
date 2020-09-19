@@ -65,8 +65,6 @@ class Formatter:
         formatter = TabularOutputFormatter(format_name=self.table_format)
 
         # parse response data
-        if not data.has_key("datarows"):
-            return json.dumps(data)
         datarows = data["datarows"]
         schema = data["schema"]
         total_hits = data["total"]
