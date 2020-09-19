@@ -93,7 +93,7 @@ public class TextFunctionTest extends ExpressionTestBase {
     private final String patt;
 
     int strCmpTest() {
-      return str.compareTo(patt);
+      return Integer.compare(str.compareTo(patt), 0);
     }
   }
 

@@ -197,7 +197,8 @@ public class TextFunction {
   private FunctionResolver strcmp() {
     return define(BuiltinFunctionName.STRCMP.getName(),
         impl(nullMissingHandling((str1, str2) ->
-            new ExprIntegerValue(str1.stringValue().compareTo(str2.stringValue()))),
+            new ExprIntegerValue(Integer.compare(
+                str1.stringValue().compareTo(str2.stringValue()), 0))),
             INTEGER, STRING, STRING));
   }
 
