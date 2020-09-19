@@ -52,6 +52,7 @@ public class TextFunction {
    */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(substr());
+    repository.register(substring());
     repository.register(ltrim());
     repository.register(rtrim());
     repository.register(trim());
@@ -61,6 +62,20 @@ public class TextFunction {
     repository.register(concat_ws());
     repository.register(length());
     repository.register(strcmp());
+  }
+
+  /**
+   * Gets substring starting at given point, for optional given length.
+   * Form of this function using keywords instead of comma delimited variables is not supported.
+   * Supports following signatures:
+   * (STRING, INTEGER)/(STRING, INTEGER, INTEGER) -> STRING
+   */
+  private FunctionResolver substring() {
+    return define(BuiltinFunctionName.SUBSTRING.getName(),
+            impl(nullMissingHandling(TextFunction::exprSubstrStart),
+                    STRING, STRING, INTEGER),
+            impl(nullMissingHandling(TextFunction::exprSubstrStartLength),
+                    STRING, STRING, INTEGER, INTEGER));
   }
 
   /**

@@ -267,8 +267,7 @@ public class DSL {
   public FunctionExpression substr(Expression... expressions) {
     return function(BuiltinFunctionName.SUBSTR, expressions);
   }
-
-  // SUBSTRING is an alias of SUBSTR, so simply invoke SUBSTR.
+  
   public FunctionExpression substring(Expression... expressions) {
     return function(BuiltinFunctionName.SUBSTR, expressions);
   }
