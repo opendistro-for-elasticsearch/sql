@@ -34,102 +34,102 @@ import org.junit.jupiter.api.Test;
 
 public class TextFunctionIT extends SQLIntegTestCase {
 
-    @Override
-    public void init() throws Exception {
-        super.init();
-        TestUtils.enableNewQueryEngine(client());
-    }
+  @Override
+  public void init() throws Exception {
+    super.init();
+    TestUtils.enableNewQueryEngine(client());
+  }
 
-    void verifyQuery(String query, String type, String output) throws IOException {
-        JSONObject result = executeQuery("select " + query);
-        verifySchema(result, schema(query, null, type));
-        verifyDataRows(result, rows(output));
-    }
+  void verifyQuery(String query, String type, String output) throws IOException {
+    JSONObject result = executeQuery("select " + query);
+    verifySchema(result, schema(query, null, type));
+    verifyDataRows(result, rows(output));
+  }
 
-    @Test
-    public void testRegexp() throws IOException {
-        verifyQuery("'a' regexp 'b'", "INT", "0");
-        verifyQuery("'a' regexp '.*'", "INT", "1");
-    }
+  @Test
+  public void testRegexp() throws IOException {
+    verifyQuery("'a' regexp 'b'", "INT", "0");
+    verifyQuery("'a' regexp '.*'", "INT", "1");
+  }
 
-    @Test
-    public void testSubstr() throws IOException {
-        verifyQuery("substr('hello', 2)", "TEXT", "ello");
-        verifyQuery("substr('hello', 2, 2)", "TEXT", "el");
-    }
+  @Test
+  public void testSubstr() throws IOException {
+    verifyQuery("substr('hello', 2)", "TEXT", "ello");
+    verifyQuery("substr('hello', 2, 2)", "TEXT", "el");
+  }
 
-    @Test
-    public void testSubstring() throws IOException {
-        verifyQuery("substring('hello', 2)", "TEXT", "ello");
-        verifyQuery("substring('hello', 2, 2)", "TEXT", "el");
-    }
+  @Test
+  public void testSubstring() throws IOException {
+    verifyQuery("substring('hello', 2)", "TEXT", "ello");
+    verifyQuery("substring('hello', 2, 2)", "TEXT", "el");
+  }
 
-    @Test
-    public void testUpper() throws IOException {
-        verifyQuery("upper('hello')", "TEXT", "HELLO");
-        verifyQuery("upper('HELLO')", "TEXT", "HELLO");
-    }
+  @Test
+  public void testUpper() throws IOException {
+    verifyQuery("upper('hello')", "TEXT", "HELLO");
+    verifyQuery("upper('HELLO')", "TEXT", "HELLO");
+  }
 
-    @Test
-    public void testLower() throws IOException {
-        verifyQuery("lower('hello')", "TEXT", "hello");
-        verifyQuery("lower('HELLO')", "TEXT", "hello");
-    }
+  @Test
+  public void testLower() throws IOException {
+    verifyQuery("lower('hello')", "TEXT", "hello");
+    verifyQuery("lower('HELLO')", "TEXT", "hello");
+  }
 
-    @Test
-    public void testTrim() throws IOException {
-        verifyQuery("trim(' hello')", "TEXT", "hello");
-        verifyQuery("trim('hello ')", "TEXT", "hello");
-        verifyQuery("trim('  hello  ')", "TEXT", "hello");
-    }
+  @Test
+  public void testTrim() throws IOException {
+    verifyQuery("trim(' hello')", "TEXT", "hello");
+    verifyQuery("trim('hello ')", "TEXT", "hello");
+    verifyQuery("trim('  hello  ')", "TEXT", "hello");
+  }
 
-    @Test
-    public void testRtrim() throws IOException {
-        verifyQuery("rtrim(' hello')", "TEXT", " hello");
-        verifyQuery("rtrim('hello ')", "TEXT", "hello");
-        verifyQuery("rtrim('  hello  ')", "TEXT", "  hello");
-    }
+  @Test
+  public void testRtrim() throws IOException {
+    verifyQuery("rtrim(' hello')", "TEXT", " hello");
+    verifyQuery("rtrim('hello ')", "TEXT", "hello");
+    verifyQuery("rtrim('  hello  ')", "TEXT", "  hello");
+  }
 
-    @Test
-    public void testLtrim() throws IOException {
-        verifyQuery("ltrim(' hello')", "TEXT", "hello ");
-        verifyQuery("ltrim('hello ')", "TEXT", "hello");
-        verifyQuery("ltrim('  hello  ')", "TEXT", "hello  ");
-    }
+  @Test
+  public void testLtrim() throws IOException {
+    verifyQuery("ltrim(' hello')", "TEXT", "hello ");
+    verifyQuery("ltrim('hello ')", "TEXT", "hello");
+    verifyQuery("ltrim('  hello  ')", "TEXT", "hello  ");
+  }
 
-    @Test
-    public void testConcat() throws IOException {
-        verifyQuery("concat('hello', 'world')", "TEXT", "helloworld");
-        verifyQuery("concat('', 'hello')", "TEXT", "hello");
-    }
+  @Test
+  public void testConcat() throws IOException {
+    verifyQuery("concat('hello', 'world')", "TEXT", "helloworld");
+    verifyQuery("concat('', 'hello')", "TEXT", "hello");
+  }
 
-    @Test
-    public void testConcat_ws() throws IOException {
-        verifyQuery("concat_ws(',', 'hello', 'world')", "TEXT", "hello,world");
-        verifyQuery("concat_ws(',', '', 'hello')", "TEXT", ",hello");
-    }
+  @Test
+  public void testConcat_ws() throws IOException {
+    verifyQuery("concat_ws(',', 'hello', 'world')", "TEXT", "hello,world");
+    verifyQuery("concat_ws(',', '', 'hello')", "TEXT", ",hello");
+  }
 
-    @Test
-    public void testLength() throws IOException {
-        verifyQuery("concat_ws(',', 'hello', 'world')", "INT", "hello,world");
-        verifyQuery("concat_ws(',', '', 'hello')", "INT", ",hello");
-    }
+  @Test
+  public void testLength() throws IOException {
+    verifyQuery("concat_ws(',', 'hello', 'world')", "INT", "hello,world");
+    verifyQuery("concat_ws(',', '', 'hello')", "INT", ",hello");
+  }
 
-    @Test
-    public void testStrcmp() throws IOException {
-        verifyQuery("strcmp('hello', 'world')", "INT", "-1");
-        verifyQuery("strcmp('hello', 'hello')", "INT", "0");
-    }
+  @Test
+  public void testStrcmp() throws IOException {
+    verifyQuery("strcmp('hello', 'world')", "INT", "-1");
+    verifyQuery("strcmp('hello', 'hello')", "INT", "0");
+  }
 
-    protected JSONObject executeQuery(String query) throws IOException {
-        Request request = new Request("POST", QUERY_API_ENDPOINT);
-        request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
+  protected JSONObject executeQuery(String query) throws IOException {
+    Request request = new Request("POST", QUERY_API_ENDPOINT);
+    request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
 
-        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
-        restOptionsBuilder.addHeader("Content-Type", "application/json");
-        request.setOptions(restOptionsBuilder);
+    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+    restOptionsBuilder.addHeader("Content-Type", "application/json");
+    request.setOptions(restOptionsBuilder);
 
-        Response response = client().performRequest(request);
-        return new JSONObject(getResponseBody(response));
-    }
+    Response response = client().performRequest(request);
+    return new JSONObject(getResponseBody(response));
+  }
 }
