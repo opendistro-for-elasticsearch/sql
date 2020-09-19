@@ -181,6 +181,7 @@ predicate
     | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate NOT? LIKE right=predicate                      #likePredicate
+    | left=predicate REGEXP right=predicate                         #regexpPredicate
     ;
 
 expressionAtom
