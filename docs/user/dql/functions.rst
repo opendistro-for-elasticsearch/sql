@@ -1000,9 +1000,9 @@ Example::
     od> SELECT STRCMP('hello', 'world'), STRCMP('hello', 'hello')
     fetched rows / total rows = 1/1
     +----------------------------+----------------------------+
-    | STRCMP('hello', 'world')   | STRCMP('hello', 'world')   |
+    | STRCMP('hello', 'world')   | STRCMP('hello', 'hello')   |
     |----------------------------+----------------------------|
-    | -1                         | 1                          |
+    | -1                         | 0                          |
     +----------------------------+----------------------------+
 
 SUBSTRING
