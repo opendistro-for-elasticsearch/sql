@@ -184,6 +184,7 @@ expr REGEXP pattern. The expr is string value, pattern is supports regular expre
     |------------------------+------------------+
     | 1                      | 0                |
     +------------------------+------------------+
+
 Function Call
 =============
 
