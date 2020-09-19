@@ -132,6 +132,7 @@ class OdfeSqlCli:
 
             try:
                 output = self.es_executor.execute_query(text)
+                print("Query returned: " + str(output))
                 if output:
                     formatter = Formatter(settings)
                     formatted_output = formatter.format_output(output)
