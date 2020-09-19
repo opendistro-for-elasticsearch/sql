@@ -177,9 +177,9 @@ CONCAT
 Description
 -----------
 
-Usage: CONCAT(str1, str2, ...) returns all strings concatenated together. A NULL value causes a NULL return.
+Usage: CONCAT(str1, str2) returns str1 and str strings concatenated together.
 
-Argument type: STRING, STRING, ...
+Argument type: STRING, STRING
 
 Return Type: STRING
 
@@ -199,9 +199,9 @@ CONCAT_WS
 Description
 -----------
 
-Usage: CONCAT_WS(sep, str1, str2, ...) returns all strings concatenated together with separator between. NULL values are skipped. A NULL separator causes a NULL return.
+Usage: CONCAT_WS(sep, str1, str2) returns str1 concatenated with str2 using sep as a separator between them.
 
-Argument type: STRING, STRING, STRING, ...
+Argument type: STRING, STRING, STRING
 
 Return Type: STRING
 

@@ -236,7 +236,7 @@ dateTimeFunctionName
     ;
 
 textFunctionName
-    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
+    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER | CONCAT | CONCAT_WS | SUBSTR | LENGTH
     ;
 
 functionArgs

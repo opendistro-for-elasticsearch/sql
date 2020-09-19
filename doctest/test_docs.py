@@ -50,7 +50,10 @@ class DocTestConnection(ESConnection):
            output = self.formatter.format_output(data)
            output = "\n".join(output)
         except Exception as e:
-            click.echo("data: " + data + ". Exception: " + str(e))
+            if data is not None:
+                click.echo("data: " + data + ". Exception: " + str(e))
+            else:
+                click.echo(str(e))
         click.echo(output)
 
 
