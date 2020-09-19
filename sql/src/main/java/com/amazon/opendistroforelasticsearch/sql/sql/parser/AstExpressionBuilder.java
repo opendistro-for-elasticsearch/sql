@@ -134,18 +134,10 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitLikePredicate(LikePredicateContext ctx) {
-    System.out.println("visitLikePredicate");
     return new Function(
         ctx.NOT() == null ? LIKE.getName().getFunctionName() :
             NOT_LIKE.getName().getFunctionName(),
         Arrays.asList(visit(ctx.left), visit(ctx.right)));
-  }
-
-  @Override
-  public UnresolvedExpression visitRegexpPredicate(RegexpPredicateContext ctx) {
-    System.out.println("visitRegexpPredicate");
-    return new Function(REGEXP.getName().getFunctionName(),
-            Arrays.asList(visit(ctx.left), visit(ctx.right)));
   }
 
   @Override
