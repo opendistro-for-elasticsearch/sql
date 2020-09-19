@@ -45,11 +45,12 @@ class DocTestConnection(ESConnection):
 
     def process(self, statement):
         data = self.execute_query(statement, use_console=False)
+        output = str(data)
         try:
            output = self.formatter.format_output(data)
            output = "\n".join(output)
-        except e:
-            click.echo("data: " + data)
+        except Exception as e:
+            click.echo("data: " + data + ". Exception: " + str(e)))
         click.echo(output)
 
 
