@@ -99,7 +99,7 @@ public class TextFunctionIT extends SQLIntegTestCase {
   @Test
   public void testLtrim() throws IOException {
     verifyQuery("ltrim(' hello')", "string", "hello");
-    verifyQuery("ltrim('hello ')", "string", "hello");
+    verifyQuery("ltrim('hello ')", "string", "hello ");
     verifyQuery("ltrim('  hello  ')", "string", "hello  ");
   }
 
