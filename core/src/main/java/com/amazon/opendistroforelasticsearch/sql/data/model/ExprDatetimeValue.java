@@ -80,11 +80,9 @@ public class ExprDatetimeValue extends AbstractExprValue {
 
   @Override
   public String value() {
-    return datetime.getNano() == 0
-        ? String.format("%s %s", DateTimeFormatter.ISO_DATE.format(datetime),
-        DateTimeFormatter.ISO_TIME.format(datetime.truncatedTo(ChronoUnit.SECONDS)))
-        : String.format("%s %s", DateTimeFormatter.ISO_DATE.format(datetime),
-            DateTimeFormatter.ISO_TIME.format(datetime));
+    return String.format("%s %s", DateTimeFormatter.ISO_DATE.format(datetime),
+        DateTimeFormatter.ISO_TIME.format((datetime.getNano() == 0)
+            ? datetime.truncatedTo(ChronoUnit.SECONDS) : datetime));
   }
 
   @Override

@@ -426,8 +426,7 @@ public class DateTimeFunction {
     if (date instanceof ExprStringValue) {
       date = new ExprDateValue(date.stringValue());
     }
-    return new ExprIntegerValue(date.dateValue().getDayOfWeek().getValue() == 7 ? 1
-        : date.dateValue().getDayOfWeek().getValue() + 1);
+    return new ExprIntegerValue((date.dateValue().getDayOfWeek().getValue() % 7) + 1);
   }
 
   /**
@@ -513,9 +512,8 @@ public class DateTimeFunction {
     if (date instanceof ExprStringValue) {
       date = new ExprDateValue(date.stringValue());
     }
-    return new ExprIntegerValue((date.dateValue().getMonthValue() % 3) == 0
-        ? (date.dateValue().getMonthValue() / 3)
-        : ((date.dateValue().getMonthValue() / 3) + 1));
+    int month = date.dateValue().getMonthValue();
+    return new ExprIntegerValue((month / 3) + ((month % 3) == 0 ? 0 : 1));
   }
 
   /**
