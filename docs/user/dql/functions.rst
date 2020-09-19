@@ -185,7 +185,7 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT CONCAT('hello', 'world'), CONCAT('he', NULL, 'o')
+    od> SELECT CONCAT('hello', 'world'), CONCAT('he', NULL, 'o');
     fetched rows / total rows = 1/1
     +----------------------------+---------------------------+
     | CONCAT('hello', 'world')   | CONCAT('he', NULL, 'o')   |
@@ -207,7 +207,7 @@ Return Type: INTEGER
 
 Example::
 
-    od> SELECT CONCAT_WS(',', 'hello', 'world'), CONCAT_WS(',', 'he', NULL, 'o'), CONCAT_WS(NULL, 'hello', 'world')
+    od> SELECT CONCAT_WS(',', 'hello', 'world'), CONCAT_WS(',', 'he', NULL, 'o'), CONCAT_WS(NULL, 'hello', 'world');
     fetched rows / total rows = 1/1
     +------------------------------------+-----------------------------------+-------------------------------------+
     | CONCAT_WS(',', 'hello', 'world')   | CONCAT_WS(',', 'he', NULL, 'o')   | CONCAT_WS(NULL, 'hello', 'world')   |
@@ -509,7 +509,7 @@ Return Type: INTEGER
 
 Example::
 
-    od> SELECT LENGTH('helloworld', 5)
+    od> SELECT LENGTH('helloworld', 5);
     fetched rows / total rows = 1/1
     +-------------------+
     | LENGTH('hello')   |
@@ -589,7 +589,7 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT LOWER('helloworld'), LOWER('HELLOWORLD')
+    od> SELECT LOWER('helloworld'), LOWER('HELLOWORLD');
     fetched rows / total rows = 1/1
     +-----------------------+-----------------------+
     | LOWER('helloworld')   | LOWER("HELLOWORLD")   |
@@ -612,12 +612,12 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT LTRIM('   hello'), LTRIM('hello   ')
+    od> SELECT LTRIM('   hello'), LTRIM('hello   ');
     fetched rows / total rows = 1/1
     +---------------------+---------------------+
     | LTRIM('   hello')   | LTRIM('hello   ')   |
     |---------------------+---------------------|
-    | 'hello'             | 'hello   '          |
+    | hello               | hello               |
     +---------------------+---------------------+
 
 
@@ -885,12 +885,12 @@ Return Type: STRING
 
 Example::
 
-    od> SELECT RTRIM('   hello'), RTRIM('hello   ')
+    od> SELECT RTRIM('   hello'), RTRIM('hello   ');
     fetched rows / total rows = 1/1
     +---------------------+---------------------+
     | RTRIM('   hello')   | RTRIM('hello   ')   |
     |---------------------+---------------------|
-    | '   hello'          | 'hello'             |
+    |    hello            | hello               |
     +---------------------+---------------------+
 
 
@@ -1002,7 +1002,7 @@ Return Type: INTEGER
 
 Example::
 
-    od> SELECT STRCMP('hello', 'world'), STRCMP('world', 'hello'), STRCMP('hello', 'hello')
+    od> SELECT STRCMP('hello', 'world'), STRCMP('world', 'hello'), STRCMP('hello', 'hello');
     fetched rows / total rows = 1/1
     +----------------------------+----------------------------+----------------------------+
     | STRCMP('hello', 'world')   | STRCMP('hello', 'world')   | STRCMP('hello', 'hello')   |
@@ -1100,7 +1100,7 @@ Example::
     +--------------------+--------------------+
     | TRIM('   hello')   | TRIM('hello   ')   |
     |--------------------+--------------------|
-    | 'hello'            | 'hello'            |
+    | hello              | hello              |
     +--------------------+--------------------+
 
 TRUNCATE
@@ -1147,7 +1147,7 @@ Example::
     +-----------------------+-----------------------+
     | UPPER('helloworld')   | UPPER("HELLOWORLD")   |
     |-----------------------+-----------------------|
-    | helloworld            | helloworld            |
+    | HELLOWORLD            | HELLOWORLD            |
     +-----------------------+-----------------------+
 
 
