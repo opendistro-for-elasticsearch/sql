@@ -181,7 +181,7 @@ expr REGEXP pattern. The expr is string value, pattern is supports regular expre
     fetched rows / total rows = 1/1
     +------------------------+------------------+
     | 'Hello!' REGEXP '.*'   | 'a' REGEXP 'b'   |
-    |------------------------+------------------+
+    |------------------------+------------------|
     | 1                      | 0                |
     +------------------------+------------------+
 
