@@ -61,6 +61,7 @@ public class BinaryPredicateOperator {
     repository.register(gte());
     repository.register(like());
     repository.register(notLike());
+    repository.register(regexp());
   }
 
   /**
@@ -243,6 +244,12 @@ public class BinaryPredicateOperator {
     return FunctionDSL.define(BuiltinFunctionName.LIKE.getName(), FunctionDSL
         .impl(FunctionDSL.nullMissingHandling(OperatorUtils::matches), BOOLEAN, STRING,
             STRING));
+  }
+
+  private static FunctionResolver regexp() {
+    return FunctionDSL.define(BuiltinFunctionName.REGEXP.getName(), FunctionDSL
+        .impl(FunctionDSL.nullMissingHandling(OperatorUtils::matchesRegexp),
+            BOOLEAN, STRING, STRING));
   }
 
   private static FunctionResolver notLike() {

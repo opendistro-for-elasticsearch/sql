@@ -21,7 +21,6 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -105,10 +104,6 @@ public class TextFunctionTest extends ExpressionTestBase {
   static class StringPatternPair {
     private final String str;
     private final String patt;
-
-    boolean regExpTest() {
-      return str.matches(patt);
-    }
 
     int strCmpTest() {
       return str.compareTo(patt);
@@ -255,15 +250,6 @@ public class TextFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  void regexp() {
-    STRING_PATTERN_PAIRS.forEach(this::testRegexpString);
-
-    when(nullRef.type()).thenReturn(STRING);
-    when(missingRef.type()).thenReturn(STRING);
-    assertEquals(missingValue(), eval(dsl.regexp(nullRef, missingRef)));
-  }
-
-  @Test
   void concat() {
     CONCAT_STRING_LISTS.forEach(this::testConcatString);
 
@@ -341,16 +327,6 @@ public class TextFunctionTest extends ExpressionTestBase {
     FunctionExpression expression = dsl.length(DSL.literal(new ExprStringValue(str)));
     assertEquals(INTEGER, expression.type());
     assertEquals(str.getBytes().length, eval(expression).integerValue());
-  }
-
-  void testRegexpString(StringPatternPair stringPatternPair) {
-    String foo = stringPatternPair.getStr();
-    String bar = stringPatternPair.getPatt();
-    FunctionExpression expression = dsl.regexp(
-            DSL.literal(new ExprStringValue(foo)),
-            DSL.literal(new ExprStringValue(bar)));
-    assertEquals(BOOLEAN, expression.type());
-    assertEquals(stringPatternPair.regExpTest(), eval(expression).booleanValue());
   }
 
   void testStcmpString(StringPatternPair stringPatternPair) {

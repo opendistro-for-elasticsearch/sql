@@ -35,6 +35,16 @@ public class OperatorUtils {
             .matches());
   }
 
+  /**
+   * Checks if text matches regular expression pattern.
+   * @param pattern string pattern to match.
+   * @return if text matches pattern returns true; else return false.
+   */
+  public static ExprBooleanValue matchesRegexp(ExprValue text, ExprValue pattern) {
+    return ExprBooleanValue.of(Pattern.compile(pattern.stringValue()).matcher(text.stringValue())
+                    .matches());
+  }
+
   private static final char DEFAULT_ESCAPE = '\\';
 
   private static String patternToRegex(String patternString) {

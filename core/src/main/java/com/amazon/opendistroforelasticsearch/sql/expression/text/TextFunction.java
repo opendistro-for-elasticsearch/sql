@@ -57,7 +57,6 @@ public class TextFunction {
     repository.register(trim());
     repository.register(lower());
     repository.register(upper());
-    repository.register(regexp());
     repository.register(concat());
     repository.register(concat_ws());
     repository.register(length());
@@ -135,18 +134,6 @@ public class TextFunction {
         impl(nullMissingHandling((v) -> new ExprStringValue((v.stringValue().toUpperCase()))),
             STRING, STRING)
     );
-  }
-
-  /**
-   * Performs regular expression string to pattern comparison.
-   * Supports following signatures:
-   * (STRING, STRING) -> BOOLEAN
-   */
-  private FunctionResolver regexp() {
-    return define(BuiltinFunctionName.REGEXP.getName(),
-            impl(nullMissingHandling((str, patt) ->
-                    ExprBooleanValue.of(str.stringValue().matches(patt.stringValue()))
-            ), BOOLEAN, STRING, STRING));
   }
 
   /**
