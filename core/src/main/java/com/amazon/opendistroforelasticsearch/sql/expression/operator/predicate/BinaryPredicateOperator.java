@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
@@ -249,7 +250,7 @@ public class BinaryPredicateOperator {
   private static FunctionResolver regexp() {
     return FunctionDSL.define(BuiltinFunctionName.REGEXP.getName(), FunctionDSL
         .impl(FunctionDSL.nullMissingHandling(OperatorUtils::matchesRegexp),
-            BOOLEAN, STRING, STRING));
+            INTEGER, STRING, STRING));
   }
 
   private static FunctionResolver notLike() {

@@ -87,8 +87,8 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     private final String str;
     private final String patt;
 
-    boolean regExpTest() {
-      return str.matches(patt);
+    int regExpTest() {
+      return str.matches(patt) ? 1 : 0;
     }
   }
 
@@ -790,9 +790,9 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression expression = dsl.regexp(
             DSL.literal(new ExprStringValue(stringPatternPair.getStr())),
             DSL.literal(new ExprStringValue(stringPatternPair.getPatt())));
-    assertEquals(BOOLEAN, expression.type());
+    assertEquals(INTEGER, expression.type());
     assertEquals(stringPatternPair.regExpTest(), expression
-        .valueOf(valueEnv()).booleanValue());
+        .valueOf(valueEnv()).integerValue());
   }
 
   /**
