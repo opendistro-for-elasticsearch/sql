@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBui
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.DenseRankFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RowNumberFunction;
@@ -37,9 +38,14 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class WindowFunctions {
 
+  /**
+   * Register all window functions to function repository.
+   * @param repository  function repository
+   */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(rowNumber());
     repository.register(rank());
+    repository.register(denseRank());
   }
 
   private FunctionResolver rowNumber() {
@@ -48,6 +54,10 @@ public class WindowFunctions {
 
   private FunctionResolver rank() {
     return rankingFunction(BuiltinFunctionName.RANK.getName(), RankFunction::new);
+  }
+
+  private FunctionResolver denseRank() {
+    return rankingFunction(BuiltinFunctionName.DENSE_RANK.getName(), DenseRankFunction::new);
   }
 
   private FunctionResolver rankingFunction(FunctionName functionName,

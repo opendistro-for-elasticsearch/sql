@@ -22,36 +22,27 @@ import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
 import java.util.List;
 
 /**
- * Rank window function that assigns a rank number to each row based on sort items
- * defined in window definition. Use same rank number if sort item values same on
- * previous and current row.
+ * Dense rank window function that assigns a rank number to each row similarly as
+ * rank function. The difference is there is no gap between rank number assigned.
  */
-public class RankFunction extends RankingWindowFunction {
-
-  /**
-   * Total number of rows have seen in current partition.
-   */
-  private int total;
+public class DenseRankFunction extends RankingWindowFunction {
 
   /**
    * Current rank number assigned.
    */
   private int rank;
 
-  public RankFunction() {
-    super(BuiltinFunctionName.RANK.getName());
+  public DenseRankFunction() {
+    super(BuiltinFunctionName.DENSE_RANK.getName());
   }
 
   @Override
   protected int rank(WindowFrame frame) {
     if (frame.isNewPartition()) {
-      total = 1;
       rank = 1;
     } else {
-      total++;
-
       if (isSortByFieldValueDifferent(frame)) {
-        rank = total;
+        rank++;
       }
     }
     return rank;

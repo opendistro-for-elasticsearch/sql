@@ -336,6 +336,11 @@ public class DSL {
         BuiltinFunctionName.RANK.getName(), Collections.emptyList());
   }
 
+  public RankingWindowFunction denseRank() {
+    return (RankingWindowFunction) repository.compile(
+        BuiltinFunctionName.DENSE_RANK.getName(), Collections.emptyList());
+  }
+
   private FunctionExpression function(BuiltinFunctionName functionName, Expression... expressions) {
     return (FunctionExpression) repository.compile(
         functionName.getName(), Arrays.asList(expressions));

@@ -73,8 +73,37 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
         ImmutableList.of(new ExprIntegerValue(50)));
     assertEquals(4, rank.rank(windowFrame));
 
+    when(windowFrame.resolveSortItemValues(0)).thenReturn(
+        ImmutableList.of(new ExprIntegerValue(55)));
+    assertEquals(5, rank.rank(windowFrame));
+
     when(windowFrame.isNewPartition()).thenReturn(true);
     assertEquals(1, rank.rank(windowFrame));
+  }
+
+  @Test
+  void test_dense_rank() {
+    RankingWindowFunction denseRank = dsl.denseRank();
+    assertEquals(1, denseRank.rank(windowFrame));
+
+    when(windowFrame.isNewPartition()).thenReturn(false);
+    when(windowFrame.resolveSortItemValues(0)).thenReturn(
+        ImmutableList.of(new ExprIntegerValue(30)));
+    when(windowFrame.resolveSortItemValues(-1)).thenReturn(
+        ImmutableList.of(new ExprIntegerValue(30)));
+    assertEquals(1, denseRank.rank(windowFrame));
+    assertEquals(1, denseRank.rank(windowFrame));
+
+    when(windowFrame.resolveSortItemValues(0)).thenReturn(
+        ImmutableList.of(new ExprIntegerValue(50)));
+    assertEquals(2, denseRank.rank(windowFrame));
+
+    when(windowFrame.resolveSortItemValues(0)).thenReturn(
+        ImmutableList.of(new ExprIntegerValue(55)));
+    assertEquals(3, denseRank.rank(windowFrame));
+
+    when(windowFrame.isNewPartition()).thenReturn(true);
+    assertEquals(1, denseRank.rank(windowFrame));
   }
 
 }
