@@ -131,6 +131,39 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("timestamp(TIMESTAMP '2020-08-17 01:01:01')", expr.toString());
   }
 
+  @Test
+  public void week() {
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.week(nullRef)));
+    assertEquals(missingValue(), eval(dsl.week(missingRef)));
+
+    FunctionExpression expression = dsl.week(DSL.literal(new ExprDateValue("2008-02-20")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(DATE '2008-02-20')", expression.toString());
+    assertEquals(integerValue(7), eval(expression));
+
+    expression = dsl.week(DSL.literal(new ExprDateValue("2008-02-20")), DSL.literal(1));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(DATE '2008-02-20', 1)", expression.toString());
+    assertEquals(integerValue(8), eval(expression));
+
+    expression = dsl.week(DSL.literal(new ExprDateValue("2008-12-31")), DSL.literal(1));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(DATE '2008-12-31', 1)", expression.toString());
+    assertEquals(integerValue(53), eval(expression));
+
+    expression = dsl.week(DSL.literal(new ExprDateValue("2000-01-01")), DSL.literal(2));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(DATE '2000-01-01', 2)", expression.toString());
+    assertEquals(integerValue(52), eval(expression));
+
+    expression = dsl.week(DSL.literal(new ExprDateValue("2000-01-01")), DSL.literal(0));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(DATE '2000-01-01', 0)", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+  }
+
   private ExprValue eval(Expression expression) {
     return expression.valueOf(env);
   }

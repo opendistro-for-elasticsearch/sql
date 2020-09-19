@@ -38,6 +38,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
+import java.util.Calendar;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -57,6 +58,7 @@ public class DateTimeFunction {
     repository.register(dayOfMonth());
     repository.register(time());
     repository.register(timestamp());
+    repository.register(week());
   }
 
   /**
@@ -111,10 +113,20 @@ public class DateTimeFunction {
   }
 
   /**
-   * Date implementation for ExprValue.
-   * @param exprValue ExprValue of Date type or String type.
-   * @return ExprValue.
+   * WEEK(DATE[,mode]). return the week number for date.
    */
+  private FunctionResolver week() {
+    return define(BuiltinFunctionName.WEEK.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER)
+    );
+  }
+
+    /**
+     * Date implementation for ExprValue.
+     * @param exprValue ExprValue of Date type or String type.
+     * @return ExprValue.
+     */
   private ExprValue exprDate(ExprValue exprValue) {
     if (exprValue instanceof ExprStringValue) {
       return new ExprDateValue(exprValue.stringValue());
@@ -161,4 +173,50 @@ public class DateTimeFunction {
       return new ExprTimestampValue(exprValue.timestampValue());
     }
   }
+
+  /**
+   * Week for date implementation for ExprValue.
+   * @param date ExprValue of Date type.
+   * @return ExprValue.
+   */
+  private ExprValue exprWeekWithoutMode(ExprValue date) {
+    return exprWeek(date, new ExprIntegerValue(0));
+  }
+
+  private ExprValue exprWeek(ExprValue date, ExprValue mode) {
+    Calendar calendar = Calendar.getInstance();
+    switch (mode.integerValue()) {
+      case 0:
+      case 2:
+        calendar.setFirstDayOfWeek(Calendar.SUNDAY);
+        calendar.setMinimalDaysInFirstWeek(7);
+        break;
+      case 1:
+      case 3:
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.setMinimalDaysInFirstWeek(5);
+        break;
+      case 4:
+      case 6:
+        calendar.setFirstDayOfWeek(Calendar.SUNDAY);
+        calendar.setMinimalDaysInFirstWeek(4);
+        break;
+      case 5:
+      case 7:
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.setMinimalDaysInFirstWeek(6);
+        break;
+    }
+
+    calendar.set(date.dateValue().getYear(), date.dateValue().getMonthValue()-1, date.dateValue().getDayOfMonth());
+    int weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
+
+    if(weekNumber == 0){
+      calendar.set(date.dateValue().getYear() - 1, 12, 31);
+      weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    return new ExprIntegerValue(weekNumber);
+  }
+
 }
