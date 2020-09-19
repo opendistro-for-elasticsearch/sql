@@ -17,23 +17,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.text;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.define;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.impl;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-
-import java.util.stream.Collectors;
 
 import lombok.experimental.UtilityClass;
 
