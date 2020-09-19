@@ -44,17 +44,18 @@ class WindowFrameTest {
     ExprTupleValue tuple1 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "state", new ExprStringValue("WA"),
         "age", new ExprIntegerValue(20)));
+    windowFrame.add(tuple1);
+    assertTrue(windowFrame.isNewPartition());
+
     ExprTupleValue tuple2 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "state", new ExprStringValue("WA"),
         "age", new ExprIntegerValue(30)));
+    windowFrame.add(tuple2);
+    assertFalse(windowFrame.isNewPartition());
+
     ExprTupleValue tuple3 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "state", new ExprStringValue("CA"),
         "age", new ExprIntegerValue(18)));
-
-    windowFrame.add(tuple1);
-    assertTrue(windowFrame.isNewPartition());
-    windowFrame.add(tuple2);
-    assertFalse(windowFrame.isNewPartition());
     windowFrame.add(tuple3);
     assertTrue(windowFrame.isNewPartition());
   }

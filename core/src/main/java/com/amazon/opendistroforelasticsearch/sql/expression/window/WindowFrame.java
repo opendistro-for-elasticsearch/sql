@@ -51,6 +51,13 @@ public class WindowFrame implements Environment<Expression, ExprValue> {
     return var.valueOf(current.bindingTuples());
   }
 
+  private List<ExprValue> resolve(List<Expression> expressions, ExprTupleValue row) {
+    Environment<Expression, ExprValue> valueEnv = row.bindingTuples();
+    return expressions.stream()
+                      .map(expr -> expr.valueOf(valueEnv))
+                      .collect(Collectors.toList());
+  }
+
   /**
    * Check is current row the beginning of a new partition according to window definition.
    * @return  true if a new partition begins here, otherwise false.
@@ -74,13 +81,6 @@ public class WindowFrame implements Environment<Expression, ExprValue> {
   public void add(ExprTupleValue row) {
     previous = current;
     current = row;
-  }
-
-  private List<ExprValue> resolve(List<Expression> expressions, ExprTupleValue row) {
-    Environment<Expression, ExprValue> valueEnv = row.bindingTuples();
-    return expressions.stream()
-                      .map(expr -> expr.valueOf(valueEnv))
-                      .collect(Collectors.toList());
   }
 
 }
