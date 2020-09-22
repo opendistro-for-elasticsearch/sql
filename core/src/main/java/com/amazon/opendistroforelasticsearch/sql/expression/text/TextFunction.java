@@ -40,6 +40,8 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class TextFunction {
+  private static String EMPTY_STRING = "";
+
   /**
    * Register String Functions.
    *
@@ -47,7 +49,6 @@ public class TextFunction {
    */
   public void register(BuiltinFunctionRepository repository) {
     repository.register(substr());
-    repository.register(substring());
     repository.register(ltrim());
     repository.register(rtrim());
     repository.register(trim());
@@ -57,20 +58,6 @@ public class TextFunction {
     repository.register(concat_ws());
     repository.register(length());
     repository.register(strcmp());
-  }
-
-  /**
-   * Gets substring starting at given point, for optional given length.
-   * Form of this function using keywords instead of comma delimited variables is not supported.
-   * Supports following signatures:
-   * (STRING, INTEGER)/(STRING, INTEGER, INTEGER) -> STRING
-   */
-  private FunctionResolver substring() {
-    return define(BuiltinFunctionName.SUBSTRING.getName(),
-            impl(nullMissingHandling(TextFunction::exprSubstrStart),
-                    STRING, STRING, INTEGER),
-            impl(nullMissingHandling(TextFunction::exprSubstrStartLength),
-                    STRING, STRING, INTEGER, INTEGER));
   }
 
   /**
@@ -200,15 +187,10 @@ public class TextFunction {
   private static ExprValue exprSubstrStart(ExprValue exprValue, ExprValue start) {
     int startIdx = start.integerValue();
     if (startIdx == 0) {
-      return new ExprStringValue("");
+      return new ExprStringValue(EMPTY_STRING);
     }
     String str = exprValue.stringValue();
-    startIdx = (startIdx > 0) ? (startIdx - 1) : (str.length() + startIdx);
-    if (startIdx > str.length()) {
-      return new ExprStringValue("");
-    }
-
-    return new ExprStringValue(str.substring(startIdx));
+    return exprSubStr(str, startIdx, 0);
   }
 
   private static ExprValue exprSubstrStartLength(
@@ -216,20 +198,25 @@ public class TextFunction {
     int startIdx = start.integerValue();
     int len = length.integerValue();
     if ((startIdx == 0) || (len == 0)) {
-      return new ExprStringValue("");
+      return new ExprStringValue(EMPTY_STRING);
     }
-
     String str = exprValue.stringValue();
-    startIdx = (startIdx > 0) ? (startIdx - 1) : (str.length() + startIdx);
-    if ((startIdx + len) > str.length()) {
-      if (startIdx > str.length()) {
-        return new ExprStringValue("");
-      }
+    return exprSubStr(str, startIdx, len);
+  }
 
-      // Return full String after start if start + len > string length
-      return new ExprStringValue(str.substring(startIdx));
+  private static ExprValue exprSubStr(String str, int start, int len) {
+    // Correct negative start
+    start = (start > 0) ? (start - 1) : (str.length() + start);
+
+    // Length 0 is only given by exprSubstrStart, exprSubstrStartLength handles this explicitly.
+    if ((start + len > str.length()) || (len == 0)) {
+      // Start is after string, return empty.
+      if (start > str.length()) {
+        return new ExprStringValue(EMPTY_STRING);
+      }
+      return new ExprStringValue(str.substring(start));
     }
-    return new ExprStringValue(str.substring(startIdx, startIdx + len));
+    return new ExprStringValue(str.substring(start, start + len));
   }
 }
 
