@@ -495,7 +495,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     BANK_WITH_STRING_VALUES(TestsConstants.TEST_INDEX_STRINGS,
         "strings",
         getStringIndexMapping(),
-        "src/test/resources/bank_with_null_values.json"),
+        "src/test/resources/strings.json"),
     ORDER(TestsConstants.TEST_INDEX_ORDER,
         "_doc",
         getOrderIndexMapping(),
