@@ -43,6 +43,7 @@ import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.TestInstantiationException;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -85,6 +86,38 @@ public class TextFunctionTest extends ExpressionTestBase {
       ImmutableList.of("hello", "world"),
       ImmutableList.of("123", "5325"));
 
+  interface SubstrSubstring {
+    FunctionExpression getFunction(SubstringInfo strInfo);
+  }
+
+  class Substr implements SubstrSubstring {
+    public FunctionExpression getFunction(SubstringInfo strInfo) {
+      FunctionExpression expr;
+      if (strInfo.getLen() == null) {
+        expr = dsl.substr(DSL.literal(strInfo.getExpr()), DSL.literal(strInfo.getStart()));
+      } else {
+        expr = dsl.substr(DSL.literal(strInfo.getExpr()),
+            DSL.literal(strInfo.getStart()),
+            DSL.literal(strInfo.getLen()));
+      }
+      return expr;
+    }
+  }
+
+  class Substring implements SubstrSubstring {
+    public FunctionExpression getFunction(SubstringInfo strInfo) {
+      FunctionExpression expr;
+      if (strInfo.getLen() == null) {
+        expr = dsl.substring(DSL.literal(strInfo.getExpr()), DSL.literal(strInfo.getStart()));
+      } else {
+        expr = dsl.substring(DSL.literal(strInfo.getExpr()),
+            DSL.literal(strInfo.getStart()),
+            DSL.literal(strInfo.getLen()));
+      }
+      return expr;
+    }
+  }
+
   @AllArgsConstructor
   @Getter
   static class StringPatternPair {
@@ -112,59 +145,29 @@ public class TextFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void substr() {
-    SUBSTRING_STRINGS.forEach(this::substrTest);
+  public void substrSubString() {
+    SUBSTRING_STRINGS.forEach(s -> substrSubStringTest(s, new Substr()));
+    SUBSTRING_STRINGS.forEach(s -> substrSubStringTest(s, new Substring()));
 
     when(nullRef.type()).thenReturn(STRING);
     when(missingRef.type()).thenReturn(STRING);
     assertEquals(missingValue(), eval(dsl.substr(missingRef, DSL.literal(1))));
     assertEquals(nullValue(), eval(dsl.substr(nullRef, DSL.literal(1))));
+    assertEquals(missingValue(), eval(dsl.substring(missingRef, DSL.literal(1))));
+    assertEquals(nullValue(), eval(dsl.substring(nullRef, DSL.literal(1))));
 
     when(nullRef.type()).thenReturn(INTEGER);
     when(missingRef.type()).thenReturn(INTEGER);
     assertEquals(missingValue(), eval(dsl.substr(DSL.literal("hello"), missingRef)));
     assertEquals(nullValue(), eval(dsl.substr(DSL.literal("hello"), nullRef)));
+    assertEquals(missingValue(), eval(dsl.substring(DSL.literal("hello"), missingRef)));
+    assertEquals(nullValue(), eval(dsl.substring(DSL.literal("hello"), nullRef)));
   }
 
-  void substrTest(SubstringInfo strInfo) {
-    FunctionExpression expr;
-    if (strInfo.getLen() == null) {
-      expr = dsl.substr(DSL.literal(strInfo.getExpr()), DSL.literal(strInfo.getStart()));
-    } else {
-      expr = dsl.substr(DSL.literal(strInfo.getExpr()),
-          DSL.literal(strInfo.getStart()),
-          DSL.literal(strInfo.getLen()));
-    }
+  void substrSubStringTest(SubstringInfo strInfo, SubstrSubstring substrSubstring) {
+    FunctionExpression expr = substrSubstring.getFunction(strInfo);
     assertEquals(STRING, expr.type());
     assertEquals(strInfo.getRes(), eval(expr).stringValue());
-  }
-
-  void substringTest(SubstringInfo strInfo) {
-    FunctionExpression expr;
-    if (strInfo.getLen() == null) {
-      expr = dsl.substring(DSL.literal(strInfo.getExpr()), DSL.literal(strInfo.getStart()));
-    } else {
-      expr = dsl.substring(DSL.literal(strInfo.getExpr()),
-          DSL.literal(strInfo.getStart()),
-          DSL.literal(strInfo.getLen()));
-    }
-    assertEquals(STRING, expr.type());
-    assertEquals(strInfo.getRes(), eval(expr).stringValue());
-  }
-
-  @Test
-  public void substring() {
-    SUBSTRING_STRINGS.forEach(this::substringTest);
-
-    when(nullRef.type()).thenReturn(STRING);
-    when(missingRef.type()).thenReturn(STRING);
-    assertEquals(missingValue(), eval(dsl.substr(missingRef, DSL.literal(1))));
-    assertEquals(nullValue(), eval(dsl.substr(nullRef, DSL.literal(1))));
-
-    when(nullRef.type()).thenReturn(INTEGER);
-    when(missingRef.type()).thenReturn(INTEGER);
-    assertEquals(missingValue(), eval(dsl.substr(DSL.literal("hello"), missingRef)));
-    assertEquals(nullValue(), eval(dsl.substr(DSL.literal("hello"), nullRef)));
   }
 
   @Test

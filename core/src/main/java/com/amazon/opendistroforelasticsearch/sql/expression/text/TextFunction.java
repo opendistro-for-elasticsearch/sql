@@ -75,12 +75,6 @@ public class TextFunction {
                     STRING, STRING, INTEGER, INTEGER));
   }
 
-  /**
-   * Gets substring starting at given point, for optional given length.
-   * Form of this function using keywords instead of comma delimited variables is not supported.
-   * Supports following signatures:
-   * (STRING, INTEGER)/(STRING, INTEGER, INTEGER) -> STRING
-   */
   private FunctionResolver substr() {
     return define(BuiltinFunctionName.SUBSTR.getName(),
       impl(nullMissingHandling(TextFunction::exprSubstrStart),
