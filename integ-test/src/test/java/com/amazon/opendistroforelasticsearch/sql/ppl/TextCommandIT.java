@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_STRINGS;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
@@ -36,8 +36,8 @@ public class TextCommandIT extends PPLIntegTestCase {
   void verifyQuery(String command, String initialArgs, String additionalArgs,
                    String outputRow1, String outputRow2, String outputRow3) throws IOException {
     String query = String.format(
-        "source=%s | eval f = %s(%sname%s) | fields f", TEST_INDEX_BANK, command, initialArgs, additionalArgs);
-    JSONObject result = executeQuery(String.format("eval f = %s", query));
+        "source=%s | eval f = %s(%sname%s) | fields f", TEST_INDEX_STRINGS, command, initialArgs, additionalArgs);
+    JSONObject result = executeQuery(query);
     verifySchema(result, schema("f", null, "string"));
     verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
   }
@@ -45,16 +45,16 @@ public class TextCommandIT extends PPLIntegTestCase {
   void verifyQuery(String command, String initialArgs, String additionalArgs,
                      Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
     String query = String.format(
-        "source=%s | eval f = %s(%sname%s) | fields f", TEST_INDEX_BANK, command, initialArgs, additionalArgs);
-    JSONObject result = executeQuery(String.format("eval f = %s", query));
+        "source=%s | eval f = %s(%sname%s) | fields f", TEST_INDEX_STRINGS, command, initialArgs, additionalArgs);
+    JSONObject result = executeQuery(query);
     verifySchema(result, schema("f", null, "integer"));
     verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
   }
 
   void verifyRegexQuery(String pattern, Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
     String query = String.format(
-        "source=%s | eval f = name regexp '%s' | fields f", TEST_INDEX_BANK, pattern);
-    JSONObject result = executeQuery(String.format("eval f = %s", query));
+        "source=%s | eval f = name regexp \"%s\" | fields f", TEST_INDEX_STRINGS, pattern);
+    JSONObject result = executeQuery(query);
     verifySchema(result, schema("f", null, "integer"));
     verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
   }
@@ -104,23 +104,23 @@ public class TextCommandIT extends PPLIntegTestCase {
 
   @Test
   public void testConcat() throws IOException {
-    verifyQuery("concat", "", ", 'there'",
+    verifyQuery("concat", "", ", \"there\"",
         "hellothere", "worldthere", "helloworldthere");
   }
 
   @Test
   public void testConcat_ws() throws IOException {
-    verifyQuery("concat_ws", "',', ", ", 'there'",
+    verifyQuery("concat_ws", "\",\", ", ", \"there\"",
         "hello,there", "world,there", "helloworld,there");
   }
 
   @Test
   public void testLength() throws IOException {
-    verifyQuery("length", "',', ", "", 5, 5, 10);
+    verifyQuery("length", "", "", 5, 5, 10);
   }
 
   @Test
   public void testStrcmp() throws IOException {
-    verifyQuery("strcmp", "", ", 'world'", -1, 0, -1);
+    verifyQuery("strcmp", "", ", \"world\"", -1, 0, -1);
   }
 }
