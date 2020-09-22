@@ -336,7 +336,7 @@ export class Main extends React.Component<MainProps, MainState> {
 
   onTranslate = (queriesString: string): void => {
     const queries: string[] = getQueries(queriesString);
-    const language = this.state.language
+    const language = this.state.language;
 
     if (queries.length > 0) {
       let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "translatesql" : "translateppl");
