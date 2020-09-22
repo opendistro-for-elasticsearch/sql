@@ -47,6 +47,7 @@ public class TextCommandIT extends PPLIntegTestCase {
                    Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
     String query = String.format(
         "source=%s | eval f=%s(%sname%s) | fields f", TEST_INDEX_STRINGS, command, initialArgs, additionalArgs);
+    System.out.println("Query: " + query);
     JSONObject result = executeQuery(query);
     verifySchema(result, schema("f", null, "integer"));
     verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
@@ -55,6 +56,7 @@ public class TextCommandIT extends PPLIntegTestCase {
   void verifyRegexQuery(String pattern, Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
     String query = String.format(
         "source=%s | eval f=name regexp \"%s\" | fields f", TEST_INDEX_STRINGS, pattern);
+    System.out.println("Query: " + query);
     JSONObject result = executeQuery(query);
     verifySchema(result, schema("f", null, "integer"));
     verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
