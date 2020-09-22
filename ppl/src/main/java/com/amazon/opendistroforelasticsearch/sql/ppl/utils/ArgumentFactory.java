@@ -18,18 +18,24 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.utils;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DedupCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.HeadCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RareCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.TopCommandContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 
 
@@ -98,6 +104,27 @@ public class ArgumentFactory {
   /**
    * Get list of {@link Argument}.
    *
+   * @param ctx HeadCommandContext instance
+   * @return the list of arguments fetched from the head command
+   */
+  public static List<UnresolvedArgument> getArgumentList(HeadCommandContext ctx,
+      UnresolvedExpression unresolvedExpr) {
+    return Arrays.asList(
+        ctx.keeplast != null
+            ? new UnresolvedArgument("keeplast", getArgumentValue(ctx.keeplast))
+            : new UnresolvedArgument("keeplast", new Literal(true, DataType.BOOLEAN)),
+        ctx.whileExpr != null && unresolvedExpr != null
+            ? new UnresolvedArgument("whileExpr", unresolvedExpr)
+            : new UnresolvedArgument("whileExpr", new Literal(true, DataType.BOOLEAN)),
+        ctx.number != null
+            ? new UnresolvedArgument("number", getArgumentValue(ctx.number))
+            : new UnresolvedArgument("number", new Literal(10, DataType.INTEGER))
+    );
+  }
+
+  /**
+   * Get list of {@link Argument}.
+   *
    * @param ctx SortCommandContext instance
    * @return the list of arguments fetched from the sort command
    */
@@ -133,6 +160,31 @@ public class ArgumentFactory {
             ? new Argument("type", new Literal("str", DataType.STRING))
             : new Argument("type", new Literal(null, DataType.NULL))
     );
+  }
+
+  /**
+   * Get list of {@link Argument}.
+   *
+   * @param ctx TopCommandContext instance
+   * @return the list of arguments fetched from the top command
+   */
+  public static List<Argument> getArgumentList(TopCommandContext ctx) {
+    return Collections.singletonList(
+        ctx.number != null
+            ? new Argument("noOfResults", getArgumentValue(ctx.number))
+            : new Argument("noOfResults", new Literal(10, DataType.INTEGER))
+    );
+  }
+
+  /**
+   * Get list of {@link Argument}.
+   *
+   * @param ctx RareCommandContext instance
+   * @return the list of argument with default number of results for the rare command
+   */
+  public static List<Argument> getArgumentList(RareCommandContext ctx) {
+    return Collections
+        .singletonList(new Argument("noOfResults", new Literal(10, DataType.INTEGER)));
   }
 
   private static Literal getArgumentValue(ParserRuleContext ctx) {

@@ -216,7 +216,7 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
                 "source=%s | eval f = pow(age, 2) | fields f", TEST_INDEX_BANK));
     verifySchema(pow, schema("f", null, "double"));
     verifyDataRows(
-        pow, rows(1024), rows(1296), rows(784), rows(1089), rows(1296), rows(1521), rows(1156));
+        pow, rows(1024.0), rows(1296.0), rows(784.0), rows(1089.0), rows(1296.0), rows(1521.0), rows(1156.0));
 
     JSONObject power =
         executeQuery(
@@ -224,7 +224,7 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
                 "source=%s | eval f = power(age, 2) | fields f", TEST_INDEX_BANK));
     verifySchema(power, schema("f", null, "double"));
     verifyDataRows(
-        power, rows(1024), rows(1296), rows(784), rows(1089), rows(1296), rows(1521), rows(1156));
+        power, rows(1024.0), rows(1296.0), rows(784.0), rows(1089.0), rows(1296.0), rows(1521.0), rows(1156.0));
 
   }
 
@@ -266,8 +266,8 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
                 "source=%s | eval f = sqrt(age) | fields f", TEST_INDEX_BANK));
     verifySchema(result, schema("f", null, "double"));
     verifyDataRows(result,
-        rows(5.656854249492381), rows(6), rows(5.291502622129181),
-        rows(5.744562646538029), rows(6), rows(6.244997998398398),
+        rows(5.656854249492381), rows(6.0), rows(5.291502622129181),
+        rows(5.744562646538029), rows(6.0), rows(6.244997998398398),
         rows(5.830951894845301));
   }
 

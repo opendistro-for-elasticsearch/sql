@@ -109,9 +109,19 @@ class SQLSyntaxParserTest {
   }
 
   @Test
-  public void canNotParseInvalidSelect() {
-    assertThrows(SyntaxCheckException.class,
-        () -> parser.parse("SELECT * FROM test WHERE age = 10 GROUP BY name"));
+  public void canParseGroupByClause() {
+    assertNotNull(parser.parse("SELECT name, AVG(age) FROM test GROUP BY name"));
+    assertNotNull(parser.parse("SELECT name AS n, AVG(age) FROM test GROUP BY n"));
+    assertNotNull(parser.parse("SELECT ABS(balance) FROM test GROUP BY ABS(balance)"));
+    assertNotNull(parser.parse("SELECT ABS(balance) FROM test GROUP BY 1"));
+  }
+
+  @Test
+  public void canNotParseAggregateFunctionWithWrongArgument() {
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM() FROM test"));
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG() FROM test"));
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM(a,b) FROM test"));
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG(a,b,c) FROM test"));
   }
 
 }

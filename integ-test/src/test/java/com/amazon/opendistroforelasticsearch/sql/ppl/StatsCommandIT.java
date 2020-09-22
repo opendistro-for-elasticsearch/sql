@@ -16,9 +16,14 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
-import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import java.io.IOException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 public class StatsCommandIT extends PPLIntegTestCase {
@@ -26,106 +31,69 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
-    setQuerySizeLimit(2000);
+    loadIndex(Index.BANK_WITH_NULL_VALUES);
   }
 
   @Test
   public void testStatsAvg() throws IOException {
-    String result =
-        executeQueryToString(String.format("source=%s | stats avg(age)", TEST_INDEX_ACCOUNT));
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"avg(age)\",\n"
-            + "    \"type\": \"double\"\n"
-            + "  }],\n"
-            + "  \"total\": 1,\n"
-            + "  \"datarows\": [[30.171]],\n"
-            + "  \"size\": 1\n"
-            + "}\n",
-        result);
+    JSONObject response =
+        executeQuery(String.format("source=%s | stats avg(age)", TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("avg(age)", null, "double"));
+    verifyDataRows(response, rows(30.171D));
   }
 
   @Test
   public void testStatsSum() throws IOException {
-    String result =
-        executeQueryToString(String.format("source=%s | stats sum(balance)", TEST_INDEX_ACCOUNT));
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"sum(balance)\",\n"
-            + "    \"type\": \"long\"\n"
-            + "  }],\n"
-            + "  \"total\": 1,\n"
-            + "  \"datarows\": [[25714837]],\n"
-            + "  \"size\": 1\n"
-            + "}\n",
-        result);
+    JSONObject response =
+        executeQuery(String.format("source=%s | stats sum(balance)", TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("sum(balance)", null, "long"));
+    verifyDataRows(response, rows(25714837));
   }
 
   @Test
   public void testStatsCount() throws IOException {
-    String result =
-        executeQueryToString(
-            String.format("source=%s | stats count(account_number)", TEST_INDEX_ACCOUNT));
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"count(account_number)\",\n"
-            + "    \"type\": \"integer\"\n"
-            + "  }],\n"
-            + "  \"total\": 1,\n"
-            + "  \"datarows\": [[1000]],\n"
-            + "  \"size\": 1\n"
-            + "}\n",
-        result);
+    JSONObject response =
+        executeQuery(String.format("source=%s | stats count(account_number)", TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("count(account_number)", null, "integer"));
+    verifyDataRows(response, rows(1000));
   }
 
   // TODO: each stats aggregate function should be tested here when implemented
 
   @Test
   public void testStatsNested() throws IOException {
-    String result =
-        executeQueryToString(
-            String.format("source=%s | stats avg(abs(age)*2) as AGE", TEST_INDEX_ACCOUNT));
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [{\n"
-            + "    \"name\": \"AGE\",\n"
-            + "    \"type\": \"double\"\n"
-            + "  }],\n"
-            + "  \"total\": 1,\n"
-            + "  \"datarows\": [[60.342]],\n"
-            + "  \"size\": 1\n"
-            + "}\n",
-        result);
+    JSONObject response =
+        executeQuery(String.format("source=%s | stats avg(abs(age)*2) as AGE", TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("AGE", null, "double"));
+    verifyDataRows(response, rows(60.342));
   }
 
   @Test
   public void testStatsWhere() throws IOException {
-    String result = executeQueryToString(String.format(
-        "source=%s | stats sum(balance) as a by gender | where a > 13000000", TEST_INDEX_ACCOUNT));
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [\n"
-            + "    {\n"
-            + "      \"name\": \"a\",\n"
-            + "      \"type\": \"long\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"name\": \"gender\",\n"
-            + "      \"type\": \"string\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"total\": 1,\n"
-            + "  \"datarows\": [[\n"
-            + "    13082527,\n"
-            + "    \"M\"\n"
-            + "  ]],\n"
-            + "  \"size\": 1\n"
-            + "}\n",
-        result
-    );
+    JSONObject response =
+        executeQuery(String.format(
+            "source=%s | stats sum(balance) as a by state | where a > 780000",
+            TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("a", null, "long"),
+        schema("state", null, "string"));
+    verifyDataRows(response, rows(782199, "TX"));
   }
 
+  @Test
+  public void testGroupByNullValue() throws IOException {
+    JSONObject response =
+        executeQuery(String.format(
+            "source=%s | stats avg(balance) as a by age",
+            TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifySchema(response, schema("a", null, "double"),
+        schema("age", null, "integer"));
+    verifyDataRows(response,
+        rows(null, null),
+        rows(32838D, 28),
+        rows(39225D, 32),
+        rows(4180D, 33),
+        rows(48086D, 34),
+        rows(null, 36)
+    );
+  }
 }

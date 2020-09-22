@@ -121,6 +121,14 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildFunctionWithoutArguments() {
+    assertEquals(
+        function("PI"),
+        buildExprAst("PI()")
+    );
+  }
+
+  @Test
   public void canBuildExpressionWithParentheses() {
     assertEquals(
         function("*",

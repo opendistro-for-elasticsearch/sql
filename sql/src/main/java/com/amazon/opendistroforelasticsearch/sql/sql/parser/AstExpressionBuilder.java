@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Buil
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.DateLiteralContext;
@@ -40,6 +41,7 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
@@ -107,6 +109,9 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
+    if (ctx.functionArgs() == null) {
+      return new Function(ctx.scalarFunctionName().getText(), Collections.emptyList());
+    }
     return new Function(
         ctx.scalarFunctionName().getText(),
         ctx.functionArgs()
@@ -144,6 +149,13 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitRankingWindowFunction(RankingWindowFunctionContext ctx) {
     return new Function(ctx.functionName.getText(), Collections.emptyList());
+  }
+
+  @Override
+  public UnresolvedExpression visitAggregateFunction(AggregateFunctionContext ctx) {
+    return new AggregateFunction(
+        ctx.functionName.getText(),
+        visitFunctionArg(ctx.functionArg()));
   }
 
   @Override

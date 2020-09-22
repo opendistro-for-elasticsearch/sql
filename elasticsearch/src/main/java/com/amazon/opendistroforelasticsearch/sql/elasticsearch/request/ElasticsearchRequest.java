@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.request;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,4 +54,10 @@ public interface ElasticsearchRequest {
    * @return SearchSourceBuilder.
    */
   SearchSourceBuilder getSourceBuilder();
+
+  /**
+   * Get the ElasticsearchExprValueFactory.
+   * @return ElasticsearchExprValueFactory.
+   */
+  ElasticsearchExprValueFactory getExprValueFactory();
 }

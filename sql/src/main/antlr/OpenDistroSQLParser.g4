@@ -78,10 +78,23 @@ selectElement
 fromClause
     : FROM tableName (AS? alias)?
       (whereClause)?
+      (groupByClause)?
     ;
 
 whereClause
     : WHERE expression
+    ;
+
+groupByClause
+    : GROUP BY groupByElements
+    ;
+
+groupByElements
+    : groupByElement (COMMA groupByElement)*
+    ;
+
+groupByElement
+    : expression
     ;
 
 orderByClause
@@ -221,11 +234,17 @@ nullNotnull
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
     | windowFunction                                                #windowFunctionCall
+    | aggregateFunction                                             #aggregateFunctionCall
     ;
 
 scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
+    ;
+
+aggregateFunction
+    : functionName=(AVG | SUM) LR_BRACKET functionArg RR_BRACKET
+    /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
     ;
 
 mathematicalFunctionName
@@ -239,11 +258,11 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : DAYOFMONTH | DATE | TIME | TIMESTAMP
+    : DAYOFMONTH | DATE | TIME | TIMESTAMP | ADDDATE
     ;
 
 functionArgs
-    : (functionArg (COMMA functionArg)*)?
+    : functionArg (COMMA functionArg)*
     ;
 
 functionArg
