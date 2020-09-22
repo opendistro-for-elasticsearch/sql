@@ -37,6 +37,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getOrde
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getPeople2IndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getPhraseIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResponseBody;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getStringIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getWeblogsIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.isIndexExist;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.loadDataByRestClient;
@@ -493,7 +494,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
         "src/test/resources/bank_with_null_values.json"),
     BANK_WITH_STRING_VALUES(TestsConstants.TEST_INDEX_STRINGS,
         "strings",
-        getBankWithNullValuesIndexMapping(),
+        getStringIndexMapping(),
         "src/test/resources/bank_with_null_values.json"),
     ORDER(TestsConstants.TEST_INDEX_ORDER,
         "_doc",

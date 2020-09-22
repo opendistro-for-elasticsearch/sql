@@ -1,0 +1,10 @@
+{
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "fielddata": true
+      }
+    }
+  }
+}

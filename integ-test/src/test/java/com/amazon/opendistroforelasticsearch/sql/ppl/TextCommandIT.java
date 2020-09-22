@@ -37,13 +37,14 @@ public class TextCommandIT extends PPLIntegTestCase {
                    String outputRow1, String outputRow2, String outputRow3) throws IOException {
     String query = String.format(
         "source=%s | eval f = %s(%sname%s) | fields f", TEST_INDEX_STRINGS, command, initialArgs, additionalArgs);
+    System.out.println("Query: " + query);
     JSONObject result = executeQuery(query);
     verifySchema(result, schema("f", null, "string"));
     verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
   }
 
   void verifyQuery(String command, String initialArgs, String additionalArgs,
-                     Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
+                   Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
     String query = String.format(
         "source=%s | eval f = %s(%sname%s) | fields f", TEST_INDEX_STRINGS, command, initialArgs, additionalArgs);
     JSONObject result = executeQuery(query);
@@ -67,14 +68,14 @@ public class TextCommandIT extends PPLIntegTestCase {
 
  @Test
   public void testSubstr() throws IOException {
-    verifyQuery("substr", "", ", 2)", "ello", "orld", "elloworld");
-    verifyQuery("substr", "", ", 2, 2)", "el", "or", "el");
+    verifyQuery("substr", "", ", 2", "ello", "orld", "elloworld");
+    verifyQuery("substr", "", ", 2, 2", "el", "or", "el");
   }
 
   @Test
   public void testSubstring() throws IOException {
-    verifyQuery("substring", "", ", 2)", "ello", "orld", "elloworld");
-    verifyQuery("substring", "", ", 2, 2)", "el", "or", "el");
+    verifyQuery("substring", "", ", 2", "ello", "orld", "elloworld");
+    verifyQuery("substring", "", ", 2, 2", "el", "or", "el");
   }
 
   @Test

@@ -1,6 +1,6 @@
 {"index":{"_id":"1"}}
-{"id" : 1 , "name" : "hello"}
+{"name" : "hello"}
 {"index":{"_id":"2"}}
-{"id" : 3 , "name" : "world"}
+{"name" : "world"}
 {"index":{"_id":"3"}}
-{"id" : 2 , "name" :  "helloworld"}
+{"name" :  "helloworld"}
