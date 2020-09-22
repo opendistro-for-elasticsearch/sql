@@ -30,91 +30,97 @@ public class TextCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.BANK);
-    loadIndex(Index.BANK_WITH_NULL_VALUES);
+    loadIndex(Index.BANK_WITH_STRING_VALUES);
   }
 
-  void verifyQuery(String query, String output) throws IOException {
+  void verifyQuery(String command, String initialArgs, String additionalArgs,
+                   String outputRow1, String outputRow2, String outputRow3) throws IOException {
+    String query = String.format(
+        "source=%s | eval f = %s(%sname%s) | fields f", TEST_INDEX_BANK, command, initialArgs, additionalArgs);
     JSONObject result = executeQuery(String.format("eval f = %s", query));
     verifySchema(result, schema("f", null, "string"));
-    verifyDataRows(result, rows(output));
+    verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
   }
 
-  void verifyQuery(String query, Integer output) throws IOException {
+  void verifyQuery(String command, String initialArgs, String additionalArgs,
+                     Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
+    String query = String.format(
+        "source=%s | eval f = %s(%sname%s) | fields f", TEST_INDEX_BANK, command, initialArgs, additionalArgs);
     JSONObject result = executeQuery(String.format("eval f = %s", query));
     verifySchema(result, schema("f", null, "integer"));
-    verifyDataRows(result, rows(output));
+    verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
+  }
+
+  void verifyRegexQuery(String pattern, Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
+    String query = String.format(
+        "source=%s | eval f = name regexp '%s' | fields f", TEST_INDEX_BANK, pattern);
+    JSONObject result = executeQuery(String.format("eval f = %s", query));
+    verifySchema(result, schema("f", null, "integer"));
+    verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
   }
 
   @Test
   public void testRegexp() throws IOException {
-    verifyQuery("'a' regexp 'b'", 0);
-    verifyQuery("'a' regexp '.*'", 1);
+    verifyRegexQuery("hello", 1, 0, 0);
+    verifyRegexQuery(".*", 1, 1, 1);
   }
+
  @Test
   public void testSubstr() throws IOException {
-    verifyQuery("substr('hello', 2)", "ello");
-    verifyQuery("substr('hello', 2, 2)", "el");
+    verifyQuery("substr", "", ", 2)", "ello", "orld", "elloworld");
+    verifyQuery("substr", "", ", 2, 2)", "el", "or", "el");
   }
 
   @Test
   public void testSubstring() throws IOException {
-    verifyQuery("substring('hello', 2)", "ello");
-    verifyQuery("substring('hello', 2, 2)", "el");
+    verifyQuery("substring", "", ", 2)", "ello", "orld", "elloworld");
+    verifyQuery("substring", "", ", 2, 2)", "el", "or", "el");
   }
 
   @Test
   public void testUpper() throws IOException {
-    verifyQuery("upper('hello')", "HELLO");
-    verifyQuery("upper('HELLO')", "HELLO");
+    verifyQuery("upper", "", "", "HELLO", "WORLD", "HELLOWORLD");
   }
 
   @Test
   public void testLower() throws IOException {
-    verifyQuery("lower('hello')", "hello");
-    verifyQuery("lower('HELLO')", "hello");
+    verifyQuery("lower", "", "", "hello", "world", "helloworld");
   }
 
   @Test
   public void testTrim() throws IOException {
-      verifyQuery("trim(' hello')", "hello");
-      verifyQuery("trim('hello ')", "hello");
-      verifyQuery("trim('  hello  ')", "hello");
+    verifyQuery("trim", "", "", "hello", "world", "helloworld");
   }
 
   @Test
   public void testRtrim() throws IOException {
-    verifyQuery("rtrim(' hello')", " hello");
-    verifyQuery("rtrim('hello ')", "hello");
-    verifyQuery("rtrim('  hello  ')", "  hello");
+    verifyQuery("rtrim", "", "", "hello", "world", "helloworld");
   }
 
   @Test
   public void testLtrim() throws IOException {
-    verifyQuery("ltrim(' hello')", "hello");
-    verifyQuery("ltrim('hello ')", "hello ");
-    verifyQuery("ltrim('  hello  ')", "hello  ");
+    verifyQuery("ltrim", "", "", "hello", "world", "helloworld");
   }
 
   @Test
   public void testConcat() throws IOException {
-    verifyQuery("concat('hello', 'world')", "helloworld");
-    verifyQuery("concat('', 'hello')", "hello");
+    verifyQuery("concat", "", ", 'there'",
+        "hellothere", "worldthere", "helloworldthere");
   }
 
   @Test
   public void testConcat_ws() throws IOException {
-    verifyQuery("concat_ws(',', 'hello', 'world')", "hello,world");
-    verifyQuery("concat_ws(',', '', 'hello')", ",hello");
+    verifyQuery("concat_ws", "',', ", ", 'there'",
+        "hello,there", "world,there", "helloworld,there");
   }
 
   @Test
   public void testLength() throws IOException {
-    verifyQuery("length('hello')", 5);
+    verifyQuery("length", "',', ", "", 5, 5, 10);
   }
 
   @Test
   public void testStrcmp() throws IOException {
-    verifyQuery("strcmp('hello', 'world')", -1);
-    verifyQuery("strcmp('hello', 'hello')", 0);
+    verifyQuery("strcmp", "", ", 'world'", -1, 0, -1);
   }
 }
