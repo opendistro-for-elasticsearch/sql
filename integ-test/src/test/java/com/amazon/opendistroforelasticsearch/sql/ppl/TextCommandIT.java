@@ -53,21 +53,6 @@ public class TextCommandIT extends PPLIntegTestCase {
     verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
   }
 
-  void verifyRegexQuery(String pattern, Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
-    String query = String.format(
-        "source=%s | eval f=name regexp \"%s\" | fields f", TEST_INDEX_STRINGS, pattern);
-    System.out.println("Query: " + query);
-    JSONObject result = executeQuery(query);
-    verifySchema(result, schema("f", null, "integer"));
-    verifyDataRows(result, rows(outputRow1), rows(outputRow2), rows(outputRow3));
-  }
-
-  @Test
-  public void testRegexp() throws IOException {
-    verifyRegexQuery("hello", 1, 0, 0);
-    verifyRegexQuery(".*", 1, 1, 1);
-  }
-
  @Test
   public void testSubstr() throws IOException {
     verifyQuery("substr", "", ", 2", "ello", "orld", "elloworld");
@@ -106,24 +91,7 @@ public class TextCommandIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void testConcat() throws IOException {
-    verifyQuery("concat", "", ", \"there\"",
-        "hellothere", "worldthere", "helloworldthere");
-  }
-
-  @Test
-  public void testConcat_ws() throws IOException {
-    verifyQuery("concat_ws", "\",\", ", ", \"there\"",
-        "hello,there", "world,there", "helloworld,there");
-  }
-
-  @Test
   public void testLength() throws IOException {
     verifyQuery("length", "", "", 5, 5, 10);
-  }
-
-  @Test
-  public void testStrcmp() throws IOException {
-    verifyQuery("strcmp", "", ", \"world\"", -1, 0, -1);
   }
 }
