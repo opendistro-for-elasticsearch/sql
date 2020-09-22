@@ -145,9 +145,9 @@ public class TextFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  public void substrSubString() {
-    SUBSTRING_STRINGS.forEach(s -> substrSubStringTest(s, new Substr()));
-    SUBSTRING_STRINGS.forEach(s -> substrSubStringTest(s, new Substring()));
+  public void substrSubstring() {
+    SUBSTRING_STRINGS.forEach(s -> substrSubstringTest(s, new Substr()));
+    SUBSTRING_STRINGS.forEach(s -> substrSubstringTest(s, new Substring()));
 
     when(nullRef.type()).thenReturn(STRING);
     when(missingRef.type()).thenReturn(STRING);
@@ -164,7 +164,7 @@ public class TextFunctionTest extends ExpressionTestBase {
     assertEquals(nullValue(), eval(dsl.substring(DSL.literal("hello"), nullRef)));
   }
 
-  void substrSubStringTest(SubstringInfo strInfo, SubstrSubstring substrSubstring) {
+  void substrSubstringTest(SubstringInfo strInfo, SubstrSubstring substrSubstring) {
     FunctionExpression expr = substrSubstring.getFunction(strInfo);
     assertEquals(STRING, expr.type());
     assertEquals(strInfo.getRes(), eval(expr).stringValue());
