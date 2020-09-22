@@ -1,4 +1,3 @@
-
 =============
 SQL Functions
 =============
@@ -7,7 +6,7 @@ SQL Functions
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 Introduction
 ============
@@ -16,22 +15,38 @@ There is support for a wide variety of SQL functions. We are intend to generate 
 
 Most of the specifications can be self explained just as a regular function with data type as argument. The only notation that needs elaboration is generic type ``T`` which binds to an actual type and can be used as return type. For example, ``ABS(NUMBER T) -> T`` means function ``ABS`` accepts an numerical argument of type ``T`` which could be any sub-type of ``NUMBER`` type and returns the actual type of ``T`` as return type. The actual type binds to generic type at runtime dynamically.
 
-ABS
-===
+
+Type Conversion
+===============
+
+CAST
+----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specification is undefined and type check is skipped for now
+
+
+Mathematical Functions
+======================
+
+ABS
+---
+
+Description
+>>>>>>>>>>>
+
+Specifications:
 
 1. ABS(NUMBER T) -> T
 
 
 ACOS
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: acos(x) calculate the arc cosine of x. Returns NULL if x is not in the range -1 to 1.
 
@@ -51,32 +66,21 @@ Example::
 
 
 ADD
-===
+---
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. ADD(NUMBER T, NUMBER) -> T
 
 
-ASCII
-=====
-
-Description
------------
-
-Specifications: 
-
-1. ASCII(STRING T) -> INTEGER
-
-
 ASIN
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: asin(x) calculate the arc sine of x. Returns NULL if x is not in the range -1 to 1.
 
@@ -96,10 +100,10 @@ Example::
 
 
 ATAN
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: atan(x) calculates the arc tangent of x. atan(y, x) calculates the arc tangent of y / x, except that the signs of both arguments are used to determine the quadrant of the result.
 
@@ -119,10 +123,10 @@ Example::
 
 
 ATAN2
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: atan2(y, x) calculates the arc tangent of y / x, except that the signs of both arguments are used to determine the quadrant of the result.
 
@@ -141,58 +145,33 @@ Example::
     +--------------------+
 
 
-CAST
-====
-
-Description
------------
-
-Specification is undefined and type check is skipped for now
-
 CBRT
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. CBRT(NUMBER T) -> T
 
 
 CEIL
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. CEIL(NUMBER T) -> T
 
 
-CONCAT
-======
-
-Description
------------
-
-Specification is undefined and type check is skipped for now
-
-CONCAT_WS
-=========
-
-Description
------------
-
-Specification is undefined and type check is skipped for now
-
-
 CONV
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: CONV(x, a, b) converts the number x from a base to b base.
 
@@ -211,10 +190,10 @@ Example::
     +----------------------+----------------------+-------------------+---------------------+
 
 COS
-===
+---
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: cos(x) calculate the cosine of x, where x is given in radians.
 
@@ -234,21 +213,21 @@ Example::
 
 
 COSH
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. COSH(NUMBER T) -> DOUBLE
 
 
 COT
-===
+---
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: cot(x) calculate the cotangent of x. Returns out-of-range error if x equals to 0.
 
@@ -268,10 +247,10 @@ Example::
 
 
 CRC32
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: Calculates a cyclic redundancy check value and returns a 32-bit unsigned value.
 
@@ -290,56 +269,11 @@ Example::
     +------------------+
 
 
-CURDATE
-=======
-
-Description
------------
-
-Specifications: 
-
-1. CURDATE() -> DATE
-
-
-DATE
-====
-
-Description
------------
-
-Specifications: 
-
-1. DATE(DATE) -> DATE
-
-
-DATE_FORMAT
-===========
-
-Description
------------
-
-Specifications: 
-
-1. DATE_FORMAT(DATE, STRING) -> STRING
-2. DATE_FORMAT(DATE, STRING, STRING) -> STRING
-
-
-DAYOFMONTH
-==========
-
-Description
------------
-
-Specifications: 
-
-1. DAYOFMONTH(DATE) -> INTEGER
-
-
 DEGREES
-=======
+-------
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: degrees(x) converts x from radians to degrees.
 
@@ -359,21 +293,21 @@ Example::
 
 
 DIVIDE
-======
+------
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. DIVIDE(NUMBER T, NUMBER) -> T
 
 
 E
-=
+-
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: E() returns the Euler's number
 
@@ -391,189 +325,88 @@ Example::
 
 
 EXP
-===
+---
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. EXP(NUMBER T) -> T
 
 
 EXPM1
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. EXPM1(NUMBER T) -> T
 
 
 FLOOR
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. FLOOR(NUMBER T) -> T
 
 
-IF
-==
-
-Description
------------
-
-Specifications: 
-
-1. IF(BOOLEAN, ES_TYPE, ES_TYPE) -> ES_TYPE
-
-
-IFNULL
-======
-
-Description
------------
-
-Specifications: 
-
-1. IFNULL(ES_TYPE, ES_TYPE) -> ES_TYPE
-
-
-ISNULL
-======
-
-Description
------------
-
-Specifications: 
-
-1. ISNULL(ES_TYPE) -> INTEGER
-
-
-LEFT
-====
-
-Description
------------
-
-Specifications: 
-
-1. LEFT(STRING T, INTEGER) -> T
-
-
-LENGTH
-======
-
-Description
------------
-
-Specifications: 
-
-1. LENGTH(STRING) -> INTEGER
-
-
 LN
-==
+--
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. LN(NUMBER T) -> DOUBLE
 
 
-LOCATE
-======
-
-Description
------------
-
-Specifications: 
-
-1. LOCATE(STRING, STRING, INTEGER) -> INTEGER
-2. LOCATE(STRING, STRING) -> INTEGER
-
-
 LOG
-===
+---
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. LOG(NUMBER T) -> DOUBLE
 2. LOG(NUMBER T, NUMBER) -> DOUBLE
 
 
 LOG2
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. LOG2(NUMBER T) -> DOUBLE
 
 
 LOG10
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. LOG10(NUMBER T) -> DOUBLE
 
 
-LOWER
-=====
-
-Description
------------
-
-Specifications: 
-
-1. LOWER(STRING T) -> T
-2. LOWER(STRING T, STRING) -> T
-
-
-LTRIM
-=====
-
-Description
------------
-
-Specifications: 
-
-1. LTRIM(STRING T) -> T
-
-
-MAKETIME
-========
-
-Description
------------
-
-Specifications: 
-
-1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
-
-
 MOD
-=======
+---
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: MOD(n, m) calculates the remainder of the number n divided by m.
 
@@ -592,55 +425,22 @@ Example::
     +-------------+---------------+
 
 
-MONTH
-=====
-
-Description
------------
-
-Specifications: 
-
-1. MONTH(DATE) -> INTEGER
-
-
-MONTHNAME
-=========
-
-Description
------------
-
-Specifications: 
-
-1. MONTHNAME(DATE) -> STRING
-
-
 MULTIPLY
-========
+--------
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. MULTIPLY(NUMBER T, NUMBER) -> NUMBER
 
 
-NOW
-===
-
-Description
------------
-
-Specifications: 
-
-1. NOW() -> DATE
-
-
 PI
-==
+--
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: PI() returns the constant pi
 
@@ -658,16 +458,18 @@ Example::
 
 
 POW
-===
+---
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: POW(x, y) calculates the value of x raised to the power of y. Bad inputs return NULL result.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: DOUBLE
+
+Synonyms: `POWER`_
 
 Example::
 
@@ -681,16 +483,18 @@ Example::
 
 
 POWER
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: POWER(x, y) calculates the value of x raised to the power of y. Bad inputs return NULL result.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: DOUBLE
+
+Synonyms: `POW`_
 
 Example::
 
@@ -704,10 +508,10 @@ Example::
 
 
 RADIANS
-=======
+-------
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: radians(x) converts x from degrees to radians.
 
@@ -727,10 +531,10 @@ Example::
 
 
 RAND
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: RAND()/RAND(N) returns a random floating-point value in the range 0 <= value < 1.0. If integer N is specified, the seed is initialized prior to execution. One implication of this behavior is with identical argument N, rand(N) returns the same value each time, and thus produces a repeatable sequence of column values.
 
@@ -749,44 +553,22 @@ Example::
     +------------+
 
 
-REPLACE
-=======
-
-Description
------------
-
-Specifications: 
-
-1. REPLACE(STRING T, STRING, STRING) -> T
-
-
-RIGHT
-=====
-
-Description
------------
-
-Specifications: 
-
-1. RIGHT(STRING T, INTEGER) -> T
-
-
 RINT
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. RINT(NUMBER T) -> T
 
 
 ROUND
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: ROUND(x, d) rounds the argument x to d decimal places, d defaults to 0 if not specified
 
@@ -808,22 +590,11 @@ Example::
     +----------------+-------------------+--------------------+----------------+
 
 
-RTRIM
-=====
-
-Description
------------
-
-Specifications: 
-
-1. RTRIM(STRING T) -> T
-
-
 SIGN
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: Returns the sign of the argument as -1, 0, or 1, depending on whether the number is negative, zero, or positive
 
@@ -843,21 +614,21 @@ Example::
 
 
 SIGNUM
-======
+------
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. SIGNUM(NUMBER T) -> T
 
 
 SIN
-===
+---
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: sin(x) calculate the sine of x, where x is given in radians.
 
@@ -877,21 +648,21 @@ Example::
 
 
 SINH
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. SINH(NUMBER T) -> DOUBLE
 
 
 SQRT
-====
+----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: Calculates the square root of a non-negative number
 
@@ -913,33 +684,22 @@ Example::
     +-----------+--------------+
 
 
-SUBSTRING
-=========
-
-Description
------------
-
-Specifications: 
-
-1. SUBSTRING(STRING T, INTEGER, INTEGER) -> T
-
-
 SUBTRACT
-========
+--------
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
 1. SUBTRACT(NUMBER T, NUMBER) -> T
 
 
 TAN
-===
+---
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: tan(x) calculate the tangent of x, where x is given in radians.
 
@@ -958,33 +718,11 @@ Example::
     +----------+
 
 
-TIMESTAMP
-=========
-
-Description
------------
-
-Specifications: 
-
-1. TIMESTAMP(DATE) -> DATE
-
-
-TRIM
-====
-
-Description
------------
-
-Specifications: 
-
-1. TRIM(STRING T) -> T
-
-
 TRUNCATE
-========
+--------
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: TRUNCATE(x, d) returns the number x, truncated to d decimal place
 
@@ -1005,26 +743,391 @@ Example::
     +----------------------+-----------------------+-------------------+
 
 
-UPPER
-=====
+
+Date and Time Functions
+=======================
+
+CURDATE
+-------
 
 Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. CURDATE() -> DATE
+
+
+DATE
+----
+
+Description
+>>>>>>>>>>>
+
+Usage: date(expr) constructs a date type with the input string expr as a date. If the argument is of date/datetime/timestamp, it extracts the date value part from the expression.
+
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: DATE
+
+Example::
+
+    >od SELECT DATE('2020-08-26'), DATE(TIMESTAMP('2020-08-26 13:49:00'))
+    fetched rows / total rows = 1/1
+    +----------------------+------------------------------------------+
+    | DATE('2020-08-26')   | DATE(TIMESTAMP('2020-08-26 13:49:00'))   |
+    |----------------------+------------------------------------------|
+    | DATE '2020-08-26'    | DATE '2020-08-26'                        |
+    +----------------------+------------------------------------------+
+
+
+ADDDATE
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: adddate(date, INTERVAL expr unit) adds the time interval of second argument to date; adddate(date, days) adds the second argument as integer number of days to date.
+
+Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
+
+Return type map:
+
+(DATE/DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+(DATE, LONG) -> DATE
+(DATETIME/TIMESTAMP, LONG) -> DATETIME
+
+Synonyms: `DATE_ADD`_
+
+Example::
+
+    >od SELECT ADDDATE(DATE('2020-08-26'), INTERVAL 1 HOUR), ADDDATE(DATE('2020-08-26'), 1)
+    fetched rows / total rows = 1/1
+    +------------------------------------------------+----------------------------------+
+    | ADDDATE(DATE('2020-08-26'), INTERVAL 1 HOUR)   | ADDDATE(DATE('2020-08-26'), 1)   |
+    |------------------------------------------------+----------------------------------|
+    | DATETIME '2020-08-26 01:00:00'                 | DATE '2020-08-26'                |
+    +------------------------------------------------+----------------------------------+
+
+
+DATE_ADD
+--------
+
+todo
+
+
+DATE_FORMAT
 -----------
 
-Specifications: 
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. DATE_FORMAT(DATE, STRING) -> STRING
+2. DATE_FORMAT(DATE, STRING, STRING) -> STRING
+
+
+DAYOFMONTH
+----------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. DAYOFMONTH(DATE) -> INTEGER
+
+
+MAKETIME
+--------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
+
+
+MONTH
+-----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. MONTH(DATE) -> INTEGER
+
+
+MONTHNAME
+---------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. MONTHNAME(DATE) -> STRING
+
+
+NOW
+---
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. NOW() -> DATE
+
+
+TIME
+----
+
+Description
+>>>>>>>>>>>
+
+Usage: time(expr) constructs a time type with the input string expr as a time. If the argument is of date/datetime/time/timestamp, it extracts the time value part from the expression.
+
+Argument type: STRING/DATE/DATETIME/TIME/TIMESTAMP
+
+Return type: TIME
+
+Example::
+
+    >od SELECT TIME('13:49:00'), TIME(TIMESTAMP('2020-08-26 13:49:00'))
+    fetched rows / total rows = 1/1
+    +--------------------+------------------------------------------+
+    | TIME('13:49:00')   | TIME(TIMESTAMP('2020-08-26 13:49:00'))   |
+    |--------------------+------------------------------------------|
+    | TIME '13:49:00'    | TIME '13:49:00'                          |
+    +--------------------+------------------------------------------+
+
+
+TIMESTAMP
+---------
+
+Description
+>>>>>>>>>>>
+
+Usage: timestamp(expr) construct a timestamp type with the input string expr as an timestamp. If the argument is of date/datetime/timestamp type, cast expr to timestamp type with default timezone UTC.
+
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: TIMESTAMP
+
+Example::
+
+    >od SELECT TIMESTAMP('2020-08-26 13:49:00')
+    fetched rows / total rows = 1/1
+    +------------------------------------+
+    | TIMESTAMP('2020-08-26 13:49:00')   |
+    |------------------------------------|
+    | TIMESTAMP '2020-08-26 13:49:00     |
+    +------------------------------------+
+
+
+YEAR
+----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. YEAR(DATE) -> INTEGER
+
+
+
+String Functions
+================
+
+ASCII
+-----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. ASCII(STRING T) -> INTEGER
+
+
+CONCAT
+------
+
+Description
+>>>>>>>>>>>
+
+Specification is undefined and type check is skipped for now
+
+CONCAT_WS
+---------
+
+Description
+>>>>>>>>>>>
+
+Specification is undefined and type check is skipped for now
+
+
+LEFT
+----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. LEFT(STRING T, INTEGER) -> T
+
+
+LENGTH
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. LENGTH(STRING) -> INTEGER
+
+
+LOCATE
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. LOCATE(STRING, STRING, INTEGER) -> INTEGER
+2. LOCATE(STRING, STRING) -> INTEGER
+
+
+LOWER
+-----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. LOWER(STRING T) -> T
+2. LOWER(STRING T, STRING) -> T
+
+
+LTRIM
+-----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. LTRIM(STRING T) -> T
+
+
+REPLACE
+-------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. REPLACE(STRING T, STRING, STRING) -> T
+
+
+RIGHT
+-----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. RIGHT(STRING T, INTEGER) -> T
+
+
+RTRIM
+-----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. RTRIM(STRING T) -> T
+
+
+SUBSTRING
+---------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. SUBSTRING(STRING T, INTEGER, INTEGER) -> T
+
+
+TRIM
+----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. TRIM(STRING T) -> T
+
+
+UPPER
+-----
+
+Description
+>>>>>>>>>>>
+
+Specifications:
 
 1. UPPER(STRING T) -> T
 2. UPPER(STRING T, STRING) -> T
 
 
-YEAR
-====
+
+Conditional Functions
+=====================
+
+IF
+--
 
 Description
------------
+>>>>>>>>>>>
 
-Specifications: 
+Specifications:
 
-1. YEAR(DATE) -> INTEGER
+1. IF(BOOLEAN, ES_TYPE, ES_TYPE) -> ES_TYPE
 
 
+IFNULL
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. IFNULL(ES_TYPE, ES_TYPE) -> ES_TYPE
+
+
+ISNULL
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. ISNULL(ES_TYPE) -> INTEGER
