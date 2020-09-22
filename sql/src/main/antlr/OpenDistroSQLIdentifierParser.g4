@@ -58,5 +58,6 @@ ident
 keywordsCanBeId
     : FULL
     | FIELD | D | T | TS // OD SQL and ODBC special
+    | COUNT | SUM | AVG | MAX | MIN
     | TIMESTAMP | DATE | TIME
     ;
