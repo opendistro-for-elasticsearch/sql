@@ -55,7 +55,7 @@ public class TextCommandIT extends PPLIntegTestCase {
 
   void verifyRegexQuery(String pattern, Integer outputRow1, Integer outputRow2, Integer outputRow3) throws IOException {
     String query = String.format(
-        "source=%s name regexp \"%s\" | fields name", TEST_INDEX_STRINGS, pattern);
+        "source=%s | eval f=name regexp '%s' | fields f", TEST_INDEX_STRINGS, pattern);
     System.out.println("Query: " + query);
     JSONObject result = executeQuery(query);
     verifySchema(result, schema("f", null, "integer"));
