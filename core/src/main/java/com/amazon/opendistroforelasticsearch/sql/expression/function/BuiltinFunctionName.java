@@ -97,7 +97,6 @@ public enum BuiltinFunctionName {
    * Text Functions.
    */
   SUBSTR(FunctionName.of("substr")),
-  SUBSTRING(FunctionName.of("substring")),
   RTRIM(FunctionName.of("rtrim")),
   LTRIM(FunctionName.of("ltrim")),
   TRIM(FunctionName.of("trim")),
