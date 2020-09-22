@@ -34,13 +34,13 @@ public class TextCommandIT extends PPLIntegTestCase {
   }
 
   void verifyQuery(String query, String output) throws IOException {
-    JSONObject result = executeQuery(String.format("source=%s | eval v = %s", TEST_INDEX_BANK, query));
+    JSONObject result = executeQuery(String.format("eval f = %s", TEST_INDEX_BANK, query));
     verifySchema(result, schema("f", null, "string"));
     verifyDataRows(result, rows(output));
   }
 
   void verifyQuery(String query, Integer output) throws IOException {
-    JSONObject result = executeQuery(String.format("source=%s | eval v = %s", TEST_INDEX_BANK, query));
+    JSONObject result = executeQuery(String.format("eval f = %s", TEST_INDEX_BANK, query));
     verifySchema(result, schema("f", null, "integer"));
     verifyDataRows(result, rows(output));
   }
