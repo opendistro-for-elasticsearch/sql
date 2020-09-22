@@ -1,0 +1,1 @@
+SELECT FlightNum, ROW_NUMBER() OVER(ORDER BY DistanceMiles) AS num FROM kibana_sample_data_flights
