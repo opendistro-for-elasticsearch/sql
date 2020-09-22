@@ -41,7 +41,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * Windowed expression analyzer that analyzes window function expression.
  */
 @RequiredArgsConstructor
-public class WindowedExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
+public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
 
   /**
    * Expression analyzer.

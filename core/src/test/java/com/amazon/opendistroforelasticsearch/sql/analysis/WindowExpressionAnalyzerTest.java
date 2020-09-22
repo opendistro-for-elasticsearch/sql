@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_DESC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,32 +44,31 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ExpressionConfig.class, SelectExpressionAnalyzerTest.class})
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class WindowedExpressionAnalyzerTest extends AnalyzerTestBase {
+class WindowExpressionAnalyzerTest extends AnalyzerTestBase {
 
   private final LogicalPlan child = new LogicalRelation("test");
 
-  private WindowedExpressionAnalyzer analyzer;
+  private WindowExpressionAnalyzer analyzer;
 
   @BeforeEach
   void setUp() {
-    analyzer = new WindowedExpressionAnalyzer(expressionAnalyzer, child);
+    analyzer = new WindowExpressionAnalyzer(expressionAnalyzer, child);
   }
 
   @SuppressWarnings("unchecked")
   @Test
   void should_wrap_child_with_window_and_sort_operator_if_project_item_windowed() {
-
     assertEquals(
         LogicalPlanDSL.window(
             LogicalPlanDSL.sort(
                 LogicalPlanDSL.relation("test"),
                 1000,
                 ImmutablePair.of(PPL_ASC, DSL.ref("string_value", STRING)),
-                ImmutablePair.of(PPL_ASC, DSL.ref("integer_value", INTEGER))),
+                ImmutablePair.of(PPL_DESC, DSL.ref("integer_value", INTEGER))),
             dsl.rowNumber(),
             new WindowDefinition(
                 ImmutableList.of(DSL.ref("string_value", STRING)),
-                ImmutableList.of(ImmutablePair.of(PPL_ASC, DSL.ref("integer_value", INTEGER))))),
+                ImmutableList.of(ImmutablePair.of(PPL_DESC, DSL.ref("integer_value", INTEGER))))),
         analyzer.analyze(
             AstDSL.alias(
                 "row_number",
@@ -76,7 +76,7 @@ class WindowedExpressionAnalyzerTest extends AnalyzerTestBase {
                     AstDSL.function("row_number"),
                     ImmutableList.of(AstDSL.qualifiedName("string_value")),
                     ImmutableList.of(
-                        ImmutablePair.of("ASC", AstDSL.qualifiedName("integer_value"))))),
+                        ImmutablePair.of("DESC", AstDSL.qualifiedName("integer_value"))))),
             analysisContext));
   }
 

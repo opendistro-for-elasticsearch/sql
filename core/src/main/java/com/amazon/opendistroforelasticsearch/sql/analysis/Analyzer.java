@@ -250,8 +250,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     // Note that another project operator with non-windowed expression may be required
     // if window function accesses a scalar expression calculated in other project item.
     for (UnresolvedExpression expr : node.getProjectList()) {
-      WindowedExpressionAnalyzer windowAnalyzer =
-          new WindowedExpressionAnalyzer(expressionAnalyzer, child);
+      WindowExpressionAnalyzer windowAnalyzer =
+          new WindowExpressionAnalyzer(expressionAnalyzer, child);
       child = windowAnalyzer.analyze(expr, context);
     }
 
