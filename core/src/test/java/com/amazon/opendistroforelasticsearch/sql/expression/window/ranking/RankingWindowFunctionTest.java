@@ -31,6 +31,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/**
+ * Rank window function test collection.
+ */
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
 class RankingWindowFunctionTest extends ExpressionTestBase {
@@ -41,6 +44,12 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
   @BeforeEach
   void setUp() {
     when(windowFrame.isNewPartition()).thenReturn(true);
+  }
+
+  @Test
+  void test_value_of() {
+    RankingWindowFunction rowNumber = dsl.rowNumber();
+    assertEquals(new ExprIntegerValue(1), rowNumber.valueOf(windowFrame));
   }
 
   @Test

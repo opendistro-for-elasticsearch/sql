@@ -62,6 +62,16 @@ class WindowFrameTest {
   }
 
   @Test
+  void can_resolve_single_expression_value() {
+    windowFrame.add(ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"),
+        "age", new ExprIntegerValue(20))));
+    assertEquals(
+        new ExprIntegerValue(20),
+        windowFrame.resolve(DSL.ref("age", INTEGER)));
+  }
+
+  @Test
   void can_resolve_sort_item_value_on_position() {
     windowFrame.add(ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "state", new ExprStringValue("WA"),

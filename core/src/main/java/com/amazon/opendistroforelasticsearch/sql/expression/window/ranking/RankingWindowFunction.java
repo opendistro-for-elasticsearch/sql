@@ -55,4 +55,8 @@ public abstract class RankingWindowFunction extends FunctionExpression {
    */
   protected abstract int rank(WindowFrame frame);
 
+  @Override
+  public String toString() {
+    return getFunctionName() + "()";
+  }
 }
