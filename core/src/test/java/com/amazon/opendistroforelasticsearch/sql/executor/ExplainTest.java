@@ -35,6 +35,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.physical.Physica
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.values;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.window;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,12 +44,14 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.ImmutableList;
@@ -154,6 +157,31 @@ class ExplainTest extends ExpressionTestBase {
                     "keepLast", false,
                     "whileExpr", "and(=(balance, 10000), >(age, 30))",
                     "number", 5),
+                singletonList(tableScan.explain()))),
+        explain.apply(plan));
+  }
+
+  @Test
+  void can_explain_window() {
+    List<Expression> partitionByList = ImmutableList.of(DSL.ref("state", STRING));
+    List<Pair<Sort.SortOption, Expression>> sortList = ImmutableList.of(
+        ImmutablePair.of(PPL_ASC, ref("age", INTEGER)));
+
+    PhysicalPlan plan = window(tableScan, dsl.rank(),
+        new WindowDefinition(partitionByList, sortList));
+
+    assertEquals(
+        new ExplainResponse(
+            new ExplainResponseNode(
+                "WindowOperator",
+                ImmutableMap.of(
+                    "function", "rank()",
+                    "definition", ImmutableMap.of(
+                        "partitionBy", "[state]",
+                        "sortList", ImmutableMap.of(
+                            "age", ImmutableMap.of(
+                                "sortOrder", "ASC",
+                                "nullOrder", "NULL_FIRST")))),
                 singletonList(tableScan.explain()))),
         explain.apply(plan));
   }

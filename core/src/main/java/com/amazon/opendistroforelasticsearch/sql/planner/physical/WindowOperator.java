@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
 /**
@@ -34,7 +35,11 @@ import lombok.ToString;
 @ToString
 public class WindowOperator extends PhysicalPlan {
   private final PhysicalPlan input;
+
+  @Getter
   private final Expression windowFunction;
+
+  @Getter
   private final WindowDefinition windowDefinition;
 
   @EqualsAndHashCode.Exclude

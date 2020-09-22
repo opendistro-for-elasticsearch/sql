@@ -16,8 +16,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
@@ -31,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.WindowOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -66,18 +69,9 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
 
   @Override
   public ExplainResponseNode visitSort(SortOperator node, Object context) {
-    Map<String, Map<String, String>> sortListDescription =
-        node.getSortList()
-            .stream()
-            .collect(Collectors.toMap(
-                p -> p.getRight().toString(),
-                p -> ImmutableMap.of(
-                    "sortOrder", p.getLeft().getSortOrder().toString(),
-                    "nullOrder", p.getLeft().getNullOrder().toString())));
-
     return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
         "count", node.getCount(),
-        "sortList", sortListDescription)));
+        "sortList", describeSortList(node.getSortList()))));
   }
 
   @Override
@@ -91,6 +85,15 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
     return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
         "aggregators", node.getAggregatorList().toString(),
         "groupBy", node.getGroupByExprList().toString())));
+  }
+
+  @Override
+  public ExplainResponseNode visitWindow(WindowOperator node, Object context) {
+    return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
+        "function", node.getWindowFunction().toString(),
+        "definition", ImmutableMap.of(
+            "partitionBy", node.getWindowDefinition().getPartitionByList().toString(),
+            "sortList", describeSortList(node.getWindowDefinition().getSortList())))));
   }
 
   @Override
@@ -176,6 +179,16 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
                 .collect(Collectors.toMap(
                     p -> p.getLeft().toString(),
                     p -> p.getRight().toString()));
+  }
+
+  private Map<String, Map<String, String>> describeSortList(
+      List<Pair<Sort.SortOption, Expression>> sortList) {
+    return sortList.stream()
+                   .collect(Collectors.toMap(
+                       p -> p.getRight().toString(),
+                       p -> ImmutableMap.of(
+                           "sortOrder", p.getLeft().getSortOrder().toString(),
+                           "nullOrder", p.getLeft().getNullOrder().toString())));
   }
 
 }
