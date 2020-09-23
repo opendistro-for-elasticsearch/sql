@@ -51,6 +51,16 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select date_add(date('2020-09-16'), 1)");
     verifySchema(result, schema("date_add(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result, rows("2020-09-17"));
+
+    result = executeQuery("select date_add('2020-09-16', 1)");
+    verifySchema(result, schema("date_add('2020-09-16', 1)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17"));
+
+    result =
+        executeQuery("select date_add('2020-09-16 17:30:00', interval 1 day)");
+    verifySchema(result,
+        schema("date_add('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17 17:30:00"));
   }
 
   @Test
@@ -64,12 +74,26 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select date_sub(date('2020-09-16'), 1)");
     verifySchema(result, schema("date_sub(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result, rows("2020-09-15"));
+
+    result = executeQuery("select date_sub('2020-09-16', 1)");
+    verifySchema(result, schema("date_sub('2020-09-16', 1)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-15"));
+
+    result =
+        executeQuery("select date_sub('2020-09-16 17:30:00', interval 1 day)");
+    verifySchema(result,
+        schema("date_sub('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-15 17:30:00"));
   }
 
   @Test
   public void testDay() throws IOException {
     JSONObject result = executeQuery("select day(date('2020-09-16'))");
     verifySchema(result, schema("day(date('2020-09-16'))", null, "integer"));
+    verifyDataRows(result, rows(16));
+
+    result = executeQuery("select day('2020-09-16')");
+    verifySchema(result, schema("day('2020-09-16')", null, "integer"));
     verifyDataRows(result, rows(16));
   }
 
@@ -78,12 +102,20 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     JSONObject result = executeQuery("select dayname(date('2020-09-16'))");
     verifySchema(result, schema("dayname(date('2020-09-16'))", null, "string"));
     verifyDataRows(result, rows("Wednesday"));
+
+    result = executeQuery("select dayname('2020-09-16')");
+    verifySchema(result, schema("dayname('2020-09-16')", null, "string"));
+    verifyDataRows(result, rows("Wednesday"));
   }
 
   @Test
   public void testDayOfMonth() throws IOException {
     JSONObject result = executeQuery("select dayofmonth(date('2020-09-16'))");
     verifySchema(result, schema("dayofmonth(date('2020-09-16'))", null, "integer"));
+    verifyDataRows(result, rows(16));
+
+    result = executeQuery("select dayofmonth('2020-09-16')");
+    verifySchema(result, schema("dayofmonth('2020-09-16')", null, "integer"));
     verifyDataRows(result, rows(16));
   }
 
@@ -92,12 +124,20 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     JSONObject result = executeQuery("select dayofweek(date('2020-09-16'))");
     verifySchema(result, schema("dayofweek(date('2020-09-16'))", null, "integer"));
     verifyDataRows(result, rows(4));
+
+    result = executeQuery("select dayofweek('2020-09-16')");
+    verifySchema(result, schema("dayofweek('2020-09-16')", null, "integer"));
+    verifyDataRows(result, rows(4));
   }
 
   @Test
   public void testDayOfYear() throws IOException {
     JSONObject result = executeQuery("select dayofyear(date('2020-09-16'))");
     verifySchema(result, schema("dayofyear(date('2020-09-16'))", null, "integer"));
+    verifyDataRows(result, rows(260));
+
+    result = executeQuery("select dayofyear('2020-09-16')");
+    verifySchema(result, schema("dayofyear('2020-09-16')", null, "integer"));
     verifyDataRows(result, rows(260));
   }
 
@@ -117,6 +157,14 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select hour(time('17:30:00'))");
     verifySchema(result, schema("hour(time('17:30:00'))", null, "integer"));
     verifyDataRows(result, rows(17));
+
+    result = executeQuery("select hour('2020-09-16 17:30:00')");
+    verifySchema(result, schema("hour('2020-09-16 17:30:00')", null, "integer"));
+    verifyDataRows(result, rows(17));
+
+    result = executeQuery("select hour('17:30:00')");
+    verifySchema(result, schema("hour('17:30:00')", null, "integer"));
+    verifyDataRows(result, rows(17));
   }
 
   @Test
@@ -127,6 +175,14 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
     result = executeQuery("select microsecond(time('17:30:00.000010'))");
     verifySchema(result, schema("microsecond(time('17:30:00.000010'))", null, "integer"));
+    verifyDataRows(result, rows(10));
+
+    result = executeQuery("select microsecond('2020-09-16 17:30:00.123456')");
+    verifySchema(result, schema("microsecond('2020-09-16 17:30:00.123456')", null, "integer"));
+    verifyDataRows(result, rows(123456));
+
+    result = executeQuery("select microsecond('17:30:00.000010')");
+    verifySchema(result, schema("microsecond('17:30:00.000010')", null, "integer"));
     verifyDataRows(result, rows(10));
   }
 
@@ -139,12 +195,24 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select minute(time('17:30:00'))");
     verifySchema(result, schema("minute(time('17:30:00'))", null, "integer"));
     verifyDataRows(result, rows(30));
+
+    result = executeQuery("select minute('2020-09-16 17:30:00')");
+    verifySchema(result, schema("minute('2020-09-16 17:30:00')", null, "integer"));
+    verifyDataRows(result, rows(30));
+
+    result = executeQuery("select minute('17:30:00')");
+    verifySchema(result, schema("minute('17:30:00')", null, "integer"));
+    verifyDataRows(result, rows(30));
   }
 
   @Test
   public void testMonth() throws IOException {
     JSONObject result = executeQuery("select month(date('2020-09-16'))");
     verifySchema(result, schema("month(date('2020-09-16'))", null, "integer"));
+    verifyDataRows(result, rows(9));
+
+    result = executeQuery("select month('2020-09-16')");
+    verifySchema(result, schema("month('2020-09-16')", null, "integer"));
     verifyDataRows(result, rows(9));
   }
 
@@ -153,12 +221,20 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     JSONObject result = executeQuery("select monthname(date('2020-09-16'))");
     verifySchema(result, schema("monthname(date('2020-09-16'))", null, "string"));
     verifyDataRows(result, rows("September"));
+
+    result = executeQuery("select monthname('2020-09-16')");
+    verifySchema(result, schema("monthname('2020-09-16')", null, "string"));
+    verifyDataRows(result, rows("September"));
   }
 
   @Test
   public void testQuarter() throws IOException {
     JSONObject result = executeQuery("select quarter(date('2020-09-16'))");
     verifySchema(result, schema("quarter(date('2020-09-16'))", null, "integer"));
+    verifyDataRows(result, rows(3));
+
+    result = executeQuery("select quarter('2020-09-16')");
+    verifySchema(result, schema("quarter('2020-09-16')", null, "integer"));
     verifyDataRows(result, rows(3));
   }
 
@@ -170,6 +246,14 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
     result = executeQuery("select second(time('17:30:00'))");
     verifySchema(result, schema("second(time('17:30:00'))", null, "integer"));
+    verifyDataRows(result, rows(0));
+
+    result = executeQuery("select second('2020-09-16 17:30:00')");
+    verifySchema(result, schema("second('2020-09-16 17:30:00')", null, "integer"));
+    verifyDataRows(result, rows(0));
+
+    result = executeQuery("select second('17:30:00')");
+    verifySchema(result, schema("second('17:30:00')", null, "integer"));
     verifyDataRows(result, rows(0));
   }
 
@@ -184,12 +268,26 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select subdate(date('2020-09-16'), 1)");
     verifySchema(result, schema("subdate(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result, rows("2020-09-15"));
+
+    result =
+        executeQuery("select subdate('2020-09-16 17:30:00', interval 1 day)");
+    verifySchema(result,
+        schema("subdate('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-15 17:30:00"));
+
+    result = executeQuery("select subdate('2020-09-16', 1)");
+    verifySchema(result, schema("subdate('2020-09-16', 1)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-15"));
   }
 
   @Test
   public void testTimeToSec() throws IOException {
     JSONObject result = executeQuery("select time_to_sec(time('17:30:00'))");
     verifySchema(result, schema("time_to_sec(time('17:30:00'))", null, "long"));
+    verifyDataRows(result, rows(63000));
+
+    result = executeQuery("select time_to_sec('17:30:00')");
+    verifySchema(result, schema("time_to_sec('17:30:00')", null, "long"));
     verifyDataRows(result, rows(63000));
   }
 
@@ -198,12 +296,20 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     JSONObject result = executeQuery("select to_days(date('2020-09-16'))");
     verifySchema(result, schema("to_days(date('2020-09-16'))", null, "long"));
     verifyDataRows(result, rows(738049));
+
+    result = executeQuery("select to_days('2020-09-16')");
+    verifySchema(result, schema("to_days('2020-09-16')", null, "long"));
+    verifyDataRows(result, rows(738049));
   }
 
   @Test
   public void testYear() throws IOException {
     JSONObject result = executeQuery("select year(date('2020-09-16'))");
     verifySchema(result, schema("year(date('2020-09-16'))", null, "integer"));
+    verifyDataRows(result, rows(2020));
+
+    result = executeQuery("select year('2020-09-16')");
+    verifySchema(result, schema("year('2020-09-16')", null, "integer"));
     verifyDataRows(result, rows(2020));
   }
 

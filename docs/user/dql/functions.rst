@@ -22,7 +22,7 @@ ABS
 Description
 -----------
 
-Specifications: 
+Specifications:
 
 1. ABS(NUMBER T) -> T
 
@@ -329,28 +329,27 @@ DATE_ADD
 Description
 -----------
 
-Usage: date_add(date, INTERVAL expr unit) adds the time interval expr to date
+Usage: date_add(date, INTERVAL expr unit)/ date_add(date, expr) adds the time interval expr to date
 
-Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL
+Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
 
-Return type:
+Return type map:
 
-(DATE, DATE INTERVAL) -> DATE
-(DATE, TIME INTERVAL) -> DATETIME
-(DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+DATE/DATETIME/TIMESTAMP, INTERVAL -> DATETIME
+DATE, LONG -> DATE
+DATETIME/TIMESTAMP, LONG -> DATETIME
 
 Synonyms: ADDDATE
 
 Example::
 
-    od> SELECT DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR), DATE_ADD(DATE('2020-08-26'), 1)
+    od> SELECT DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR), DATE_ADD(DATE('2020-08-26'), 1), DATE_ADD(TIMESTAMP('2020-08-26 01:01:01'), 1)
     fetched rows / total rows = 1/1
-    +-------------------------------------------------+-----------------------------------+
-    | DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR)   | DATE_ADD(DATE('2020-08-26'), 1)   |
-    |-------------------------------------------------+-----------------------------------|
-    | 2020-08-26 01:00:00                             | 2020-08-27                        |
-    +-------------------------------------------------+-----------------------------------+
-
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+    | DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR)   | DATE_ADD(DATE('2020-08-26'), 1)   | DATE_ADD(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
+    |-------------------------------------------------+-----------------------------------+-------------------------------------------------|
+    | 2020-08-26 01:00:00                             | 2020-08-27                        | 2020-08-27 01:01:01                             |
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
 
 DATE_SUB
 =====
@@ -358,27 +357,28 @@ DATE_SUB
 Description
 -----------
 
-Usage: date_sub(date, INTERVAL expr unit) subtracts the time interval expr from date
+Usage: date_sub(date, INTERVAL expr unit)/ date_sub(date, expr) subtracts the time interval expr from date
 
-Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL
+Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
 
-Return type:
+Return type map:
 
-(DATE, DATE INTERVAL) -> DATE
-(DATE, TIME INTERVAL) -> DATETIME
-(DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+DATE/DATETIME/TIMESTAMP, INTERVAL -> DATETIME
+DATE, LONG -> DATE
+DATETIME/TIMESTAMP, LONG -> DATETIME
 
 Synonyms: SUBDATE
 
 Example::
 
-    od> SELECT DATE_SUB(DATE('2008-01-02'), INTERVAL 31 DAY), DATE_SUB(DATE('2020-08-26'), 1)
+    od> SELECT DATE_SUB(DATE('2008-01-02'), INTERVAL 31 DAY), DATE_SUB(DATE('2020-08-26'), 1), DATE_SUB(TIMESTAMP('2020-08-26 01:01:01'), 1)
     fetched rows / total rows = 1/1
-    +-------------------------------------------------+-----------------------------------+
-    | DATE_SUB(DATE('2008-01-02'), INTERVAL 31 DAY)   | DATE_SUB(DATE('2020-08-26'), 1)   |
-    |-------------------------------------------------+-----------------------------------|
-    | 2007-12-02 00:00:00                             | 2020-08-25                        |
-    +-------------------------------------------------+-----------------------------------+
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+    | DATE_SUB(DATE('2008-01-02'), INTERVAL 31 DAY)   | DATE_SUB(DATE('2020-08-26'), 1)   | DATE_SUB(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
+    |-------------------------------------------------+-----------------------------------+-------------------------------------------------|
+    | 2007-12-02 00:00:00                             | 2020-08-25                        | 2020-08-25 01:01:01                             |
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+
 
 DAY
 =====
@@ -1243,27 +1243,28 @@ SUBDATE
 Description
 -----------
 
-Usage: subdate(date,INTERVAL expr unit) subtracts time interval from date. subdate(expr, days) subtracts interval in day unit from the temporal expression expr.
+Usage: subdate(date, INTERVAL expr unit)/ subdate(date, expr) subtracts the time interval expr from date
 
-Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL
+Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
 
-Return type:
+Return type map:
 
-(DATE, DATE INTERVAL) -> DATE
-(DATE, TIME INTERVAL) -> DATETIME
-(DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+DATE/DATETIME/TIMESTAMP, INTERVAL -> DATETIME
+DATE, LONG -> DATE
+DATETIME/TIMESTAMP, LONG -> DATETIME
 
 Synonyms: DATE_SUB
 
 Example::
 
-    od> SELECT SUBDATE(DATE('2008-01-02'), INTERVAL 31 DAY), SUBDATE(DATE('2020-08-26'), 1)
+    od> SELECT SUBDATE(DATE('2008-01-02'), INTERVAL 31 DAY), SUBDATE(DATE('2020-08-26'), 1), SUBDATE(TIMESTAMP('2020-08-26 01:01:01'), 1)
     fetched rows / total rows = 1/1
-    +------------------------------------------------+----------------------------------+
-    | SUBDATE(DATE('2008-01-02'), INTERVAL 31 DAY)   | SUBDATE(DATE('2020-08-26'), 1)   |
-    |------------------------------------------------+----------------------------------|
-    | 2007-12-02 00:00:00                            | 2020-08-25                       |
-    +------------------------------------------------+----------------------------------+
+    +------------------------------------------------+----------------------------------+------------------------------------------------+
+    | SUBDATE(DATE('2008-01-02'), INTERVAL 31 DAY)   | SUBDATE(DATE('2020-08-26'), 1)   | SUBDATE(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
+    |------------------------------------------------+----------------------------------+------------------------------------------------|
+    | 2007-12-02 00:00:00                            | 2020-08-25                       | 2020-08-25 01:01:01                            |
+    +------------------------------------------------+----------------------------------+------------------------------------------------+
+
 
 SUBSTRING
 =========
