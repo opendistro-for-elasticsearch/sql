@@ -36,7 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Configuration
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTest.class})
-class AggregationExpressionOptimizerTest extends AnalyzerTestBase {
+class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
 
   @Test
   void expression_without_aggregation_should_not_be_replaced() {
@@ -71,8 +71,8 @@ class AggregationExpressionOptimizerTest extends AnalyzerTestBase {
   }
 
   Expression optimize(Expression expression) {
-    final AggregationExpressionOptimizer optimizer =
-        new AggregationExpressionOptimizer(functionRepository, logicalPlan());
+    final ExpressionReferenceOptimizer optimizer =
+        new ExpressionReferenceOptimizer(functionRepository, logicalPlan());
     return optimizer.optimize(expression, new AnalysisContext());
   }
 

@@ -46,14 +46,14 @@ public class SelectExpressionAnalyzer
     AbstractNodeVisitor<List<NamedExpression>, AnalysisContext> {
   private final ExpressionAnalyzer expressionAnalyzer;
 
-  private AggregationExpressionOptimizer optimizer;
+  private ExpressionReferenceOptimizer optimizer;
 
   /**
    * Analyze Select fields.
    */
   public List<NamedExpression> analyze(List<UnresolvedExpression> selectList,
                                        AnalysisContext analysisContext,
-                                       AggregationExpressionOptimizer optimizer) {
+                                       ExpressionReferenceOptimizer optimizer) {
     this.optimizer = optimizer;
     ImmutableList.Builder<NamedExpression> builder = new ImmutableList.Builder<>();
     for (UnresolvedExpression unresolvedExpression : selectList) {

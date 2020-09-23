@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * The optimizer used to replace the aggregation/group by expression refered in the SelectClause
+ * The optimizer used to replace the expression referred in the SelectClause
  * e.g. The query SELECT abs(name), sum(age)-avg(age) FROM test GROUP BY abs(name).
  * will be translated the AST
  * Project[abs(age), sub(sum(age), avg(age))
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  *  LogicalAgg(agg=[sum(age), avg(age)], group=[abs(age)]]
  *   LogicalRelation
  */
-public class AggregationExpressionOptimizer
+public class ExpressionReferenceOptimizer
     extends ExpressionNodeVisitor<Expression, AnalysisContext> {
   private final BuiltinFunctionRepository repository;
 
@@ -54,7 +54,7 @@ public class AggregationExpressionOptimizer
    */
   private final Map<Expression, Expression> expressionMap = new HashMap<>();
 
-  public AggregationExpressionOptimizer(
+  public ExpressionReferenceOptimizer(
       BuiltinFunctionRepository repository, LogicalPlan logicalPlan) {
     this.repository = repository;
     logicalPlan.accept(new ExpressionMapBuilder(), null);
