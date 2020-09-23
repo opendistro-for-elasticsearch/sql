@@ -357,54 +357,6 @@ Specifications:
 1. FLOOR(NUMBER T) -> T
 
 
-<<<<<<< HEAD
-IF
-==
-
-Description
------------
-
-Specifications:
-
-1. IF(BOOLEAN, ES_TYPE, ES_TYPE) -> ES_TYPE
-
-
-IFNULL
-======
-
-Description
------------
-
-Specifications:
-
-1. IFNULL(ES_TYPE, ES_TYPE) -> ES_TYPE
-
-
-ISNULL
-======
-
-Description
------------
-
-Specifications:
-
-1. ISNULL(ES_TYPE) -> INTEGER
-
-
-LEFT
-====
-
-Description
------------
-
-Specifications:
-
-1. LEFT(STRING T, INTEGER) -> T
-
-
-
-=======
->>>>>>> 485208e069e8e916f39991cf9a79903dc5d0fa78
 LN
 --
 
@@ -450,19 +402,6 @@ Specifications:
 1. LOG10(NUMBER T) -> DOUBLE
 
 
-MAKETIME
-========
-
-Description
------------
-
-Specifications:
-
-1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
-
-
-=======
->>>>>>> 485208e069e8e916f39991cf9a79903dc5d0fa78
 MOD
 ---
 
@@ -755,7 +694,7 @@ Usage: strcmp(str1, str2) returns 0 if strings are same, -1 if first arg < secon
 
 Argument type: STRING, STRING
 
-Return Type: INTEGER
+Return type: INTEGER
 
 Example::
 
@@ -828,6 +767,7 @@ Example::
     +----------------------+-----------------------+-------------------+
 
 
+
 Date and Time Functions
 =======================
 
@@ -840,6 +780,7 @@ Description
 Specifications:
 
 1. CURDATE() -> DATE
+
 
 DATE
 ----
@@ -1048,7 +989,7 @@ Usage: CONCAT(str1, str2) returns str1 and str strings concatenated together.
 
 Argument type: STRING, STRING
 
-Return Type: STRING
+Return type: STRING
 
 Example::
 
@@ -1071,7 +1012,7 @@ Usage: CONCAT_WS(sep, str1, str2) returns str1 concatenated with str2 using sep 
 
 Argument type: STRING, STRING, STRING
 
-Return Type: STRING
+Return type: STRING
 
 Example::
 
@@ -1094,6 +1035,7 @@ Specifications:
 
 1. LEFT(STRING T, INTEGER) -> T
 
+
 LENGTH
 ------
 
@@ -1108,7 +1050,7 @@ Usage: length(str) returns length of string measured in bytes.
 
 Argument type: STRING
 
-Return Type: INTEGER
+Return type: INTEGER
 
 Example::
 
@@ -1134,16 +1076,16 @@ Specifications:
 
 
 LOWER
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: lower(string) converts the string to lowercase.
 
 Argument type: STRING
 
-Return Type: STRING
+Return type: STRING
 
 Example::
 
@@ -1157,16 +1099,16 @@ Example::
 
 
 LTRIM
-=====
+-----
 
 Description
------------
+>>>>>>>>>>>
 
 Usage: ltrim(str) trims leading space characters from the string.
 
 Argument type: STRING
 
-Return Type: STRING
+Return type: STRING
 
 Example::
 
@@ -1211,7 +1153,7 @@ Usage: rtrim(str) trims trailing space characters from the string.
 
 Argument type: STRING
 
-Return Type: STRING
+Return type: STRING
 
 Example::
 
@@ -1234,7 +1176,7 @@ Usage: substring(str, start) or substring(str, start, length) returns substring 
 
 Argument type: STRING, INTEGER, INTEGER
 
-Return Type: STRING
+Return type: STRING
 
 Synonyms: SUBSTR
 
@@ -1255,7 +1197,9 @@ TRIM
 Description
 >>>>>>>>>>>
 
-Return Type: STRING
+Argument Type: STRING
+
+Return type: STRING
 
 Example::
 
@@ -1278,7 +1222,7 @@ Usage: upper(string) converts the string to uppercase.
 
 Argument type: STRING
 
-Return Type: STRING
+Return type: STRING
 
 Example::
 
