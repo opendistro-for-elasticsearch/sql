@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script;
 
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.ExpressionAggregationScriptFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.ExpressionFilterScriptFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.script.AggregationScript;
 import org.elasticsearch.script.FilterScript;
 import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.script.ScriptEngine;
@@ -46,10 +44,10 @@ public class ExpressionScriptEngine implements ScriptEngine {
    * All supported script contexts and function to create factory from expression.
    */
   private static final Map<ScriptContext<?>, Function<Expression, Object>> CONTEXTS =
-      new ImmutableMap.Builder<ScriptContext<?>, Function<Expression, Object>>()
-          .put(FilterScript.CONTEXT, ExpressionFilterScriptFactory::new)
-          .put(AggregationScript.CONTEXT, ExpressionAggregationScriptFactory::new)
-          .build();
+      ImmutableMap.of(
+          FilterScript.CONTEXT,
+          ExpressionFilterScriptFactory::new
+      );
 
   /**
    * Expression serializer that (de-)serializes expression.

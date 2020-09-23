@@ -56,17 +56,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import lombok.AllArgsConstructor;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import org.elasticsearch.common.time.DateFormatters;
 
 /** Construct ExprValue from Elasticsearch response. */
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ElasticsearchExprValueFactory {
   /** The Mapping of Field and ExprType. */
-  @Setter
-  private Map<String, ExprType> typeMapping;
+  private final Map<String, ExprType> typeMapping;
 
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
@@ -153,13 +150,13 @@ public class ElasticsearchExprValueFactory {
 
     ExprType type = type(field);
     if (type.equals(INTEGER)) {
-      return constructInteger(parseNumberValue(value, Integer::valueOf, Number::intValue));
+      return constructInteger((Integer) value);
     } else if (type.equals(LONG)) {
-      return constructLong(parseNumberValue(value, Long::valueOf, Number::longValue));
+      return constructLong((Long) value);
     } else if (type.equals(FLOAT)) {
-      return constructFloat(parseNumberValue(value, Float::valueOf, Number::floatValue));
+      return constructFloat((Float) value);
     } else if (type.equals(DOUBLE)) {
-      return constructDouble(parseNumberValue(value, Double::valueOf, Number::doubleValue));
+      return constructDouble((Double) value);
     } else if (type.equals(STRING)) {
       return constructString((String) value);
     } else if (type.equals(BOOLEAN)) {
@@ -180,18 +177,6 @@ public class ElasticsearchExprValueFactory {
       throw new IllegalStateException(String.format(
           "Unsupported type %s to construct expression value from object for "
               + "field: %s, value: %s.", type.typeName(), field, value));
-    }
-  }
-
-  /**
-   * Elastisearch could return value String value even the type is Number.
-   */
-  private <T> T parseNumberValue(Object value, Function<String, T> stringTFunction,
-                                 Function<Number, T> numberTFunction) {
-    if (value instanceof String) {
-      return stringTFunction.apply((String) value);
-    } else {
-      return numberTFunction.apply((Number) value);
     }
   }
 

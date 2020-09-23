@@ -34,6 +34,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode
 @RequiredArgsConstructor
+@ToString
 public class NamedExpression implements Expression {
 
   /**
@@ -44,7 +45,6 @@ public class NamedExpression implements Expression {
   /**
    * Expression that being named.
    */
-  @Getter
   private final Expression delegated;
 
   /**
@@ -74,11 +74,6 @@ public class NamedExpression implements Expression {
   @Override
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
     return visitor.visitNamed(this, context);
-  }
-
-  @Override
-  public String toString() {
-    return getName();
   }
 
 }

@@ -34,9 +34,8 @@ class AggregationOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void avg_with_one_groups() {
     PhysicalPlan plan = new AggregationOperator(new TestScan(),
-        Collections
-            .singletonList(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
-        Collections.singletonList(DSL.named("action", DSL.ref("action", STRING))));
+        Collections.singletonList(dsl.avg(DSL.ref("response", INTEGER))),
+        Collections.singletonList(DSL.ref("action", STRING)));
     List<ExprValue> result = execute(plan);
     assertEquals(2, result.size());
     assertThat(result, containsInAnyOrder(
@@ -48,10 +47,8 @@ class AggregationOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void avg_with_two_groups() {
     PhysicalPlan plan = new AggregationOperator(new TestScan(),
-        Collections
-            .singletonList(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
-        Arrays.asList(DSL.named("action", DSL.ref("action", STRING)),
-            DSL.named("ip", DSL.ref("ip", STRING))));
+        Collections.singletonList(dsl.avg(DSL.ref("response", INTEGER))),
+        Arrays.asList(DSL.ref("action", STRING), DSL.ref("ip", STRING)));
     List<ExprValue> result = execute(plan);
     assertEquals(3, result.size());
     assertThat(result, containsInAnyOrder(
@@ -67,9 +64,8 @@ class AggregationOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void sum_with_one_groups() {
     PhysicalPlan plan = new AggregationOperator(new TestScan(),
-        Collections
-            .singletonList(DSL.named("sum(response)", dsl.sum(DSL.ref("response", INTEGER)))),
-        Collections.singletonList(DSL.named("action", DSL.ref("action", STRING))));
+        Collections.singletonList(dsl.sum(DSL.ref("response", INTEGER))),
+        Collections.singletonList(DSL.ref("action", STRING)));
     List<ExprValue> result = execute(plan);
     assertEquals(2, result.size());
     assertThat(result, containsInAnyOrder(

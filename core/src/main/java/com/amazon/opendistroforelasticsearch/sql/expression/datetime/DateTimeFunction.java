@@ -17,11 +17,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
@@ -31,7 +30,6 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Func
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
@@ -59,7 +57,6 @@ public class DateTimeFunction {
     repository.register(dayOfMonth());
     repository.register(time());
     repository.register(timestamp());
-    repository.register(adddate());
   }
 
   /**
@@ -81,8 +78,7 @@ public class DateTimeFunction {
   private FunctionResolver dayOfMonth() {
     return define(DAYOFMONTH.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth),
-            INTEGER, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprDayOfMonth), INTEGER, STRING)
+            INTEGER, DATE)
     );
   }
 
@@ -114,27 +110,6 @@ public class DateTimeFunction {
   }
 
   /**
-   * Specify a start date and add a temporal amount to the date.
-   * The return type depends on the date type and the interval unit. Detailed supported signatures:
-   * (DATE, DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
-   * (DATE, LONG) -> DATE
-   * (DATETIME/TIMESTAMP, LONG) -> DATETIME
-   */
-  private FunctionResolver adddate() {
-    return define(BuiltinFunctionName.ADDDATE.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATE, DATE, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATETIME, DATE, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, DATETIME, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, TIMESTAMP, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATE, DATE, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG)
-    );
-  }
-
-  /**
    * Date implementation for ExprValue.
    * @param exprValue ExprValue of Date type or String type.
    * @return ExprValue.
@@ -153,11 +128,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
-    if (date instanceof ExprStringValue) {
-      return new ExprIntegerValue(
-          new ExprDateValue(date.stringValue()).dateValue().getDayOfMonth());
-    }
-    return new ExprIntegerValue(date.dateValue().getDayOfMonth());
+    return new ExprIntegerValue(date.dateValue().getMonthValue());
   }
 
   /**
@@ -184,30 +155,5 @@ public class DateTimeFunction {
     } else {
       return new ExprTimestampValue(exprValue.timestampValue());
     }
-  }
-
-  /**
-   * ADDDATE function implementation for ExprValue.
-   *
-   * @param date ExprValue of Date/Datetime/Timestamp type.
-   * @param expr ExprValue of Interval type, the temporal amount to add.
-   * @return Date/Datetime resulted from expr added to date.
-   */
-  private ExprValue exprAddDateInterval(ExprValue date, ExprValue expr) {
-    return new ExprDatetimeValue(date.datetimeValue().plus(expr.intervalValue()));
-  }
-
-  /**
-   * ADDDATE function implementation for ExprValue.
-   *
-   * @param date ExprValue of Date/Datetime/Timestamp type.
-   * @param days ExprValue of Long type, representing the number of days to add.
-   * @return Date/Datetime resulted from days added to date.
-   */
-  private ExprValue exprAddDateDays(ExprValue date, ExprValue days) {
-    if (date instanceof ExprDateValue) {
-      return new ExprDateValue(date.dateValue().plusDays(days.longValue()));
-    }
-    return new ExprDatetimeValue(date.datetimeValue().plusDays(days.longValue()));
   }
 }

@@ -29,7 +29,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -136,7 +135,8 @@ public class JDBCConnection implements DBConnection {
     JSONObject json = (JSONObject) new JSONObject(schema).query("/mappings/properties");
     return json.keySet().stream().
         map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type")))
-        .collect(joining(","));
+        .
+            collect(joining(","));
   }
 
   private String getValueList(Object[] fieldValues) {

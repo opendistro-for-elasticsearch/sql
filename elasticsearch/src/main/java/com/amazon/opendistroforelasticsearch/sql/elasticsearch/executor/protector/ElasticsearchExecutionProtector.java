@@ -22,7 +22,6 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOpe
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
@@ -96,16 +95,6 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
   public PhysicalPlan visitDedupe(DedupeOperator node, Object context) {
     return new DedupeOperator(visitInput(node.getInput(), context), node.getDedupeList(),
         node.getAllowedDuplication(), node.getKeepEmpty(), node.getConsecutive());
-  }
-
-  @Override
-  public PhysicalPlan visitHead(HeadOperator node, Object context) {
-    return new HeadOperator(
-            visitInput(node.getInput(), context),
-            node.getKeepLast(),
-            node.getWhileExpr(),
-            node.getNumber()
-    );
   }
 
   @Override

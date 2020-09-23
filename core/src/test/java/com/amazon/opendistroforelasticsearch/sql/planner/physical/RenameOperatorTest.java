@@ -43,9 +43,8 @@ public class RenameOperatorTest extends PhysicalPlanTestBase {
   public void avg_aggregation_rename() {
     PhysicalPlan plan = new RenameOperator(
         new AggregationOperator(new TestScan(),
-            Collections
-                .singletonList(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
-            Collections.singletonList(DSL.named("action", DSL.ref("action", STRING)))),
+            Collections.singletonList(dsl.avg(DSL.ref("response", INTEGER))),
+            Collections.singletonList(DSL.ref("action", STRING))),
         ImmutableMap.of(DSL.ref("avg(response)", DOUBLE), DSL.ref("avg", DOUBLE))
     );
     List<ExprValue> result = execute(plan);

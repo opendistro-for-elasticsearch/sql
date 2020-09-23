@@ -81,21 +81,21 @@ class ElasticsearchIndexScanTest {
   @Test
   void queryAllResults() {
     mockResponse(
-        new ExprValue[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
-        new ExprValue[]{employee(3, "Allen", "IT")});
+        new SearchHit[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
+        new SearchHit[]{employee(3, "Allen", "IT")});
 
     try (ElasticsearchIndexScan indexScan =
              new ElasticsearchIndexScan(client, settings, "employees", exprValueFactory)) {
       indexScan.open();
 
       assertTrue(indexScan.hasNext());
-      assertEquals(employee(1, "John", "IT"), indexScan.next());
+      assertEquals(tupleValue(employee(1, "John", "IT")), indexScan.next());
 
       assertTrue(indexScan.hasNext());
-      assertEquals(employee(2, "Smith", "HR"), indexScan.next());
+      assertEquals(tupleValue(employee(2, "Smith", "HR")), indexScan.next());
 
       assertTrue(indexScan.hasNext());
-      assertEquals(employee(3, "Allen", "IT"), indexScan.next());
+      assertEquals(tupleValue(employee(3, "Allen", "IT")), indexScan.next());
 
       assertFalse(indexScan.hasNext());
     }
@@ -128,7 +128,6 @@ class ElasticsearchIndexScanTest {
     private final ElasticsearchClient client;
     private final ElasticsearchIndexScan indexScan;
     private final ElasticsearchResponse response;
-    private final ElasticsearchExprValueFactory factory;
 
     public PushDownAssertion(ElasticsearchClient client,
                              ElasticsearchExprValueFactory valueFactory,
@@ -136,7 +135,6 @@ class ElasticsearchIndexScanTest {
       this.client = client;
       this.indexScan = new ElasticsearchIndexScan(client, settings, "test", valueFactory);
       this.response = mock(ElasticsearchResponse.class);
-      this.factory = valueFactory;
       when(response.isEmpty()).thenReturn(true);
     }
 
@@ -146,7 +144,7 @@ class ElasticsearchIndexScanTest {
     }
 
     PushDownAssertion shouldQuery(QueryBuilder expected) {
-      ElasticsearchRequest request = new ElasticsearchQueryRequest("test", 200, factory);
+      ElasticsearchRequest request = new ElasticsearchQueryRequest("test", 200);
       request.getSourceBuilder()
              .query(expected)
              .sort(DOC_FIELD_NAME, ASC);
@@ -157,7 +155,7 @@ class ElasticsearchIndexScanTest {
 
   }
 
-  private void mockResponse(ExprValue[]... searchHitBatches) {
+  private void mockResponse(SearchHit[]... searchHitBatches) {
     when(client.search(any()))
         .thenAnswer(
             new Answer<ElasticsearchResponse>() {
@@ -169,7 +167,7 @@ class ElasticsearchIndexScanTest {
                 int totalBatch = searchHitBatches.length;
                 if (batchNum < totalBatch) {
                   when(response.isEmpty()).thenReturn(false);
-                  ExprValue[] searchHit = searchHitBatches[batchNum];
+                  SearchHit[] searchHit = searchHitBatches[batchNum];
                   when(response.iterator()).thenReturn(Arrays.asList(searchHit).iterator());
                 } else if (batchNum == totalBatch) {
                   when(response.isEmpty()).thenReturn(true);
@@ -183,11 +181,11 @@ class ElasticsearchIndexScanTest {
             });
   }
 
-  protected ExprValue employee(int docId, String name, String department) {
+  protected SearchHit employee(int docId, String name, String department) {
     SearchHit hit = new SearchHit(docId);
     hit.sourceRef(
         new BytesArray("{\"name\":\"" + name + "\",\"department\":\"" + department + "\"}"));
-    return tupleValue(hit);
+    return hit;
   }
 
   private ExprValue tupleValue(SearchHit hit) {

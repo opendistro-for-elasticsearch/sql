@@ -19,7 +19,6 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static java.util.Collections.emptyList;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
-import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
@@ -38,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
- * <pre>SelectExpressionAnalyzerTest
+ * <pre>
  * AST aggregation builder that builds AST aggregation node for the following scenarios:
  *
  *  1. Explicit GROUP BY
@@ -120,7 +119,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
       } else if (isSelectAlias(expr)) {
         groupByItems.add(getSelectItemByAlias(expr));
       } else {
-        groupByItems.add(AstDSL.alias(expr.toString(), expr));
+        groupByItems.add(expr);
       }
     }
     return groupByItems;
@@ -158,8 +157,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
       throw new SemanticCheckException(String.format(
           "Group by ordinal [%d] is out of bound of select item list", ordinal));
     }
-    final UnresolvedExpression groupExpr = querySpec.getSelectItems().get(ordinal - 1);
-    return AstDSL.alias(groupExpr.toString(), groupExpr);
+    return querySpec.getSelectItems().get(ordinal - 1);
   }
 
   private boolean isSelectAlias(UnresolvedExpression expr) {
@@ -168,7 +166,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private UnresolvedExpression getSelectItemByAlias(UnresolvedExpression expr) {
-    final UnresolvedExpression groupExpr = querySpec.getSelectItemsByAlias().get(expr.toString());
-    return AstDSL.alias(groupExpr.toString(), groupExpr);
+    return querySpec.getSelectItemsByAlias().get(expr.toString());
   }
+
 }

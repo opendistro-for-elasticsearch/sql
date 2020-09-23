@@ -22,7 +22,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +36,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class PhysicalPlanDSL {
 
   public static AggregationOperator agg(
-      PhysicalPlan input, List<NamedAggregator> aggregators, List<NamedExpression> groups) {
+      PhysicalPlan input, List<Aggregator> aggregators, List<Expression> groups) {
     return new AggregationOperator(input, aggregators, groups);
   }
 
@@ -80,11 +79,6 @@ public class PhysicalPlanDSL {
       Expression... expressions) {
     return new DedupeOperator(
         input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
-  }
-
-  public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr,
-      int number) {
-    return new HeadOperator(input, keepLast, whileExpr, number);
   }
 
   public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,

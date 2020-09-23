@@ -19,7 +19,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FromClauseContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.HeadCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.PplStatementContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RareCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RenameCommandContext;
@@ -31,7 +30,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.TopCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WhereCommandContext;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
@@ -43,7 +41,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
@@ -51,7 +48,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
-import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.ByClauseContext;
@@ -63,8 +59,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
@@ -73,14 +67,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
  */
 @RequiredArgsConstructor
 public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
-
   private final AstExpressionBuilder expressionBuilder;
-
-  /**
-   * PPL query to get original token text. This is necessary because token.getText() returns
-   * text without whitespaces or other characters discarded by lexer.
-   */
-  private final String query;
 
   @Override
   public UnresolvedPlan visitPplStatement(PplStatementContext ctx) {
@@ -151,29 +138,25 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
     ImmutableList.Builder<UnresolvedExpression> aggListBuilder = new ImmutableList.Builder<>();
+    ImmutableList.Builder<Map> renameListBuilder = new ImmutableList.Builder<>();
     for (OpenDistroPPLParser.StatsAggTermContext aggCtx : ctx.statsAggTerm()) {
       UnresolvedExpression aggExpression = visitExpression(aggCtx.statsFunction());
-      String name = aggCtx.alias == null ? getTextInQuery(aggCtx) : StringUtils
-          .unquoteIdentifier(aggCtx.alias.getText());
-      Alias alias = new Alias(name, aggExpression);
-      aggListBuilder.add(alias);
+      aggListBuilder.add(aggExpression);
+      if (aggCtx.alias != null) {
+        renameListBuilder
+            .add(new Map(aggExpression, visitExpression(aggCtx.alias)));
+      }
     }
-
     List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
-        ctx.byClause()
-            .fieldList()
-            .fieldExpression()
-            .stream()
-            .map(groupCtx -> new Alias(getTextInQuery(groupCtx), visitExpression(groupCtx)))
-            .collect(Collectors.toList());
-
+        getGroupByList(ctx.byClause());
     Aggregation aggregation = new Aggregation(
         aggListBuilder.build(),
         Collections.emptyList(),
         groupList,
         ArgumentFactory.getArgumentList(ctx)
     );
-    return aggregation;
+    List<Map> renameList = renameListBuilder.build();
+    return renameList.isEmpty() ? aggregation : new Rename(renameList, aggregation);
   }
 
   /**
@@ -185,16 +168,6 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
         ArgumentFactory.getArgumentList(ctx),
         getFieldList(ctx.fieldList())
     );
-  }
-
-  /**
-   * Head command visitor.
-   */
-  @Override
-  public UnresolvedPlan visitHeadCommand(HeadCommandContext ctx) {
-    UnresolvedExpression unresolvedExpr =
-        ctx.whileExpr != null ? visitExpression(ctx.logicalExpression()) : null;
-    return new Head(ArgumentFactory.getArgumentList(ctx, unresolvedExpr));
   }
 
   /**
@@ -293,12 +266,4 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     return aggregate;
   }
 
-  /**
-   * Get original text in query.
-   */
-  private String getTextInQuery(ParserRuleContext ctx) {
-    Token start = ctx.getStart();
-    Token stop = ctx.getStop();
-    return query.substring(start.getStartIndex(), stop.getStopIndex() + 1);
-  }
 }

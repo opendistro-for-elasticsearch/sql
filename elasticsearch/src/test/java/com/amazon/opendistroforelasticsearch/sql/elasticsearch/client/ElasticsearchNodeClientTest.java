@@ -28,15 +28,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchScrollRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.Resources;
 import java.io.IOException;
@@ -77,15 +72,6 @@ class ElasticsearchNodeClientTest {
 
   @Mock(answer = RETURNS_DEEP_STUBS)
   private NodeClient nodeClient;
-
-  @Mock
-  private ElasticsearchExprValueFactory factory;
-
-  @Mock
-  private SearchHit searchHit;
-
-  private ExprTupleValue exprTupleValue = ExprTupleValue.fromExprValueMap(ImmutableMap.of("id",
-      new ExprIntegerValue(1)));
 
   @Test
   public void getIndexMappings() throws IOException {
@@ -167,11 +153,9 @@ class ElasticsearchNodeClientTest {
     when(searchResponse.getHits())
         .thenReturn(
             new SearchHits(
-                new SearchHit[] {searchHit},
+                new SearchHit[] {new SearchHit(1)},
                 new TotalHits(1L, TotalHits.Relation.EQUAL_TO),
                 1.0F));
-    when(searchHit.getSourceAsString()).thenReturn("{\"id\", 1}");
-    when(factory.construct(any())).thenReturn(exprTupleValue);
 
     // Mock second scroll request followed
     SearchResponse scrollResponse = mock(SearchResponse.class);
@@ -180,13 +164,13 @@ class ElasticsearchNodeClientTest {
     when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
     // Verify response for first scroll request
-    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     ElasticsearchResponse response1 = client.search(request);
     assertFalse(response1.isEmpty());
 
-    Iterator<ExprValue> hits = response1.iterator();
+    Iterator<SearchHit> hits = response1.iterator();
     assertTrue(hits.hasNext());
-    assertEquals(exprTupleValue, hits.next());
+    assertEquals(new SearchHit(1), hits.next());
     assertFalse(hits.hasNext());
 
     // Verify response for second scroll request
@@ -224,7 +208,7 @@ class ElasticsearchNodeClientTest {
 
     ElasticsearchNodeClient client =
         new ElasticsearchNodeClient(mock(ClusterService.class), nodeClient);
-    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     request.setScrollId("scroll123");
     client.cleanup(request);
     assertFalse(request.isScrollStarted());
@@ -240,7 +224,7 @@ class ElasticsearchNodeClientTest {
     ElasticsearchNodeClient client =
         new ElasticsearchNodeClient(mock(ClusterService.class), nodeClient);
 
-    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
+    ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
     client.cleanup(request);
     verify(nodeClient, never()).prepareClearScroll();
   }

@@ -17,7 +17,6 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
@@ -58,8 +57,8 @@ class AstAggregationBuilderTest {
     assertThat(
         buildAggregation("SELECT state, AVG(age) FROM test GROUP BY state"),
         allOf(
-            hasGroupByItems(alias("state", qualifiedName("state"))),
-            hasAggregators(alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
+            hasGroupByItems(qualifiedName("state")),
+            hasAggregators(aggregate("AVG", qualifiedName("age")))));
   }
 
   @Test
@@ -68,10 +67,10 @@ class AstAggregationBuilderTest {
         buildAggregation("SELECT ABS(age + 1) FROM test GROUP BY ABS(age + 1)"),
         allOf(
             hasGroupByItems(
-                alias("ABS(+(age, 1))", function("ABS",
+                function("ABS",
                     function("+",
                         qualifiedName("age"),
-                        intLiteral(1))))),
+                        intLiteral(1)))),
             hasAggregators()));
   }
 
@@ -80,8 +79,8 @@ class AstAggregationBuilderTest {
     assertThat(
         buildAggregation("SELECT state, ABS(2 * AVG(age)) FROM test GROUP BY state"),
         allOf(
-            hasGroupByItems(alias("state", qualifiedName("state"))),
-            hasAggregators(alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
+            hasGroupByItems(qualifiedName("state")),
+            hasAggregators(aggregate("AVG", qualifiedName("age")))));
   }
 
   @Test
@@ -89,7 +88,7 @@ class AstAggregationBuilderTest {
     assertThat(
         buildAggregation("SELECT state FROM test GROUP BY state"),
         allOf(
-            hasGroupByItems(alias("state", qualifiedName("state"))),
+            hasGroupByItems(qualifiedName("state")),
             hasAggregators()));
   }
 
@@ -100,8 +99,8 @@ class AstAggregationBuilderTest {
         allOf(
             hasGroupByItems(),
             hasAggregators(
-                alias("AVG(age)", aggregate("AVG", qualifiedName("age"))),
-                alias("SUM(balance)", aggregate("SUM", qualifiedName("balance"))))));
+                aggregate("AVG", qualifiedName("age")),
+                aggregate("SUM", qualifiedName("balance")))));
   }
 
   @Test
@@ -113,25 +112,24 @@ class AstAggregationBuilderTest {
   void should_replace_group_by_alias_by_expression_in_select_clause() {
     assertThat(
         buildAggregation("SELECT state AS s, name FROM test GROUP BY s, name"),
-        hasGroupByItems(alias("state", qualifiedName("state")),
-            alias("name", qualifiedName("name"))));
+        hasGroupByItems(qualifiedName("state"), qualifiedName("name")));
 
     assertThat(
         buildAggregation("SELECT ABS(age) AS a FROM test GROUP BY a"),
-        hasGroupByItems(alias("ABS(age)", function("ABS", qualifiedName("age")))));
+        hasGroupByItems(function("ABS", qualifiedName("age"))));
   }
 
   @Test
   void should_replace_group_by_ordinal_by_expression_in_select_clause() {
     assertThat(
         buildAggregation("SELECT state AS s FROM test GROUP BY 1"),
-        hasGroupByItems(alias("state", qualifiedName("state"))));
+        hasGroupByItems(qualifiedName("state")));
 
     assertThat(
         buildAggregation("SELECT name, ABS(age) AS a FROM test GROUP BY name, 2"),
         hasGroupByItems(
-            alias("name", qualifiedName("name")),
-            alias("ABS(age)", function("ABS", qualifiedName("age")))));
+            qualifiedName("name"),
+            function("ABS", qualifiedName("age"))));
   }
 
   @Disabled("This validation is supposed to be in analyzing phase")
@@ -164,7 +162,8 @@ class AstAggregationBuilderTest {
     SemanticCheckException error2 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT ABS(age + 1), AVG(balance) FROM tests"));
     assertEquals(
-        "Explicit GROUP BY clause is required because expression [ABS(+(age, 1))] "
+        "Explicit GROUP BY clause is required because expression [Function(funcName=ABS, "
+            + "funcArgs=[Function(funcName=+, funcArgs=[age, Literal(value=1, type=INTEGER)])])] "
             + "contains non-aggregated column",
         error2.getMessage());
   }
@@ -214,14 +213,14 @@ class AstAggregationBuilderTest {
 
   private UnresolvedPlan buildAggregation(String sql) {
     QuerySpecificationContext query = parse(sql);
-    QuerySpecification querySpec = collect(query, sql);
+    QuerySpecification querySpec = collect(query);
     AstAggregationBuilder aggBuilder = new AstAggregationBuilder(querySpec);
     return aggBuilder.visit(query.fromClause().groupByClause());
   }
 
-  private QuerySpecification collect(QuerySpecificationContext query, String sql) {
+  private QuerySpecification collect(QuerySpecificationContext query) {
     QuerySpecification querySpec = new QuerySpecification();
-    querySpec.collect(query, sql);
+    querySpec.collect(query);
     return querySpec;
   }
 

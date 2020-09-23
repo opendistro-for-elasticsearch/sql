@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.request;
 
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -50,11 +49,6 @@ public class ElasticsearchScrollRequest implements ElasticsearchRequest {
   /** Index name. */
   private final String indexName;
 
-  /** Index name. */
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
-  private final ElasticsearchExprValueFactory exprValueFactory;
-
   /**
    * Scroll id which is set after first request issued. Because ElasticsearchClient is shared by
    * multi-thread so this state has to be maintained here.
@@ -76,7 +70,7 @@ public class ElasticsearchScrollRequest implements ElasticsearchRequest {
     }
     setScrollId(esResponse.getScrollId());
 
-    return new ElasticsearchResponse(esResponse, exprValueFactory);
+    return new ElasticsearchResponse(esResponse);
   }
 
   @Override

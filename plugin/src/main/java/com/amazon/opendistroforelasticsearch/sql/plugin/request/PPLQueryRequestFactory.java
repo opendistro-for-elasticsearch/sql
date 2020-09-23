@@ -51,7 +51,7 @@ public class PPLQueryRequestFactory {
     if (ppl == null) {
       throw new IllegalArgumentException("Cannot find ppl parameter from the URL");
     }
-    return new PPLQueryRequest(ppl, null, restRequest.path());
+    return new PPLQueryRequest(ppl, null);
   }
 
   private static PPLQueryRequest parsePPLRequestFromPayload(RestRequest restRequest) {
@@ -62,7 +62,6 @@ public class PPLQueryRequestFactory {
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse request payload", e);
     }
-    return new PPLQueryRequest(jsonContent.getString(PPL_FIELD_NAME),
-        jsonContent, restRequest.path());
+    return new PPLQueryRequest(jsonContent.getString(PPL_FIELD_NAME), jsonContent);
   }
 }

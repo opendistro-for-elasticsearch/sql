@@ -271,9 +271,6 @@ WILDCARD_QUERY:                     'WILDCARD_QUERY';
 SUBSTR:                             'SUBSTR';
 STRCMP:                             'STRCMP';
 
-// DATE AND TIME FUNCTIONS
-ADDDATE:                            'ADDDATE';
-
 // Operators
 
 // Operators. Arithmetics

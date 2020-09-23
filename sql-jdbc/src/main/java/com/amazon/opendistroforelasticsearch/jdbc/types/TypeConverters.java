@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.jdbc.types;
 
 import java.sql.Date;
 import java.sql.JDBCType;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +45,6 @@ public class TypeConverters {
         // TODO - JDBCType.VARBINARY - byte[] -> Try ES data type
         tcMap.put(JDBCType.TIMESTAMP, new TimestampTypeConverter());
         tcMap.put(JDBCType.DATE, new DateTypeConverter());
-        tcMap.put(JDBCType.TIME, new TimeTypeConverter());
 
         tcMap.put(JDBCType.FLOAT, new FloatTypeConverter());
         tcMap.put(JDBCType.REAL, new RealTypeConverter());
@@ -70,7 +68,7 @@ public class TypeConverters {
 
         private static final Set<Class> supportedJavaClasses = Collections.unmodifiableSet(
                 new HashSet<>(Arrays.asList(
-                        String.class, Timestamp.class
+                        String.class, Timestamp.class, java.sql.Date.class
                 )));
 
         private TimestampTypeConverter() {
@@ -93,7 +91,7 @@ public class TypeConverters {
 
         private static final Set<Class> supportedJavaClasses = Collections.unmodifiableSet(
                 new HashSet<>(Arrays.asList(
-                        String.class, Date.class
+                        String.class, Timestamp.class, java.sql.Date.class
                 )));
 
         private DateTypeConverter() {
@@ -110,28 +108,6 @@ public class TypeConverters {
             return supportedJavaClasses;
         }
 
-    }
-
-    public static class TimeTypeConverter extends BaseTypeConverter {
-
-        private static final Set<Class> supportedJavaClasses = Collections.unmodifiableSet(
-            new HashSet<>(Arrays.asList(
-                String.class, Time.class
-            )));
-
-        private TimeTypeConverter() {
-
-        }
-
-        @Override
-        public Class getDefaultJavaClass() {
-            return Time.class;
-        }
-
-        @Override
-        public Set<Class> getSupportedJavaClasses() {
-            return supportedJavaClasses;
-        }
     }
 
     public static class VarcharTypeConverter extends BaseTypeConverter {

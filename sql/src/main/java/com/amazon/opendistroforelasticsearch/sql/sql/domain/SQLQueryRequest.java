@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.domain;
 
 import com.google.common.base.Strings;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -54,23 +55,21 @@ public class SQLQueryRequest {
 
   /**
    * Pre-check if the request can be supported by meeting the following criteria:
-   *  1.Only "query" field in payload. In other word, it's not a cursor request
-   *   (with either non-zero "fetch_size" or "cursor" field) or request with extra field
+   *  1.Not explain request
+   *  2.Only "query" field in payload. In other word, it's not a cursor request
+   *   (with either "fetch_size" or "cursor" field) or request with extra field
    *   such as "filter".
-   *  2.Response format expected is default JDBC format.
+   *  3.Response format expected is default JDBC format.
    *
    * @return  true if supported.
    */
   public boolean isSupported() {
-    return isOnlyQueryFieldInPayload()
+    return !isExplainRequest()
+        && isOnlyQueryFieldInPayload()
         && isDefaultFormat();
   }
 
-  /**
-   * Check if request is to explain rather than execute the query.
-   * @return  true if it is a explain request
-   */
-  public boolean isExplainRequest() {
+  private boolean isExplainRequest() {
     return path.endsWith("/_explain");
   }
 

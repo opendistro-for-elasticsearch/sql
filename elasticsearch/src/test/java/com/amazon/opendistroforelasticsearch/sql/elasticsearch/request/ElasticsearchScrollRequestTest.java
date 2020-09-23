@@ -20,24 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
 class ElasticsearchScrollRequestTest {
 
-  @Mock
-  private ElasticsearchExprValueFactory factory;
-
-  private final ElasticsearchScrollRequest request =
-      new ElasticsearchScrollRequest("test", factory);
+  private final ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test");
 
   @Test
   void searchRequest() {
