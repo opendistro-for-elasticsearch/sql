@@ -88,6 +88,22 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(new ExprDatetimeValue("2020-08-26 01:00:00"), expr.valueOf(env));
     assertEquals("adddate(date(\"2020-08-26\"), interval(1, \"hour\"))", expr.toString());
 
+    expr = dsl.adddate(DSL.literal("2020-08-26"), DSL.literal(7));
+    assertEquals(DATETIME, expr.type());
+    assertEquals(new ExprDateValue("2020-09-02"), expr.valueOf(env));
+    assertEquals("adddate(\"2020-08-26\", 7)", expr.toString());
+
+    expr = dsl.adddate(DSL.literal("2020-08-26 12:05:00"), DSL.literal(7));
+    assertEquals(DATETIME, expr.type());
+    assertEquals(new ExprDatetimeValue("2020-09-02 12:05:00"), expr.valueOf(env));
+    assertEquals("adddate(\"2020-08-26 12:05:00\", 7)", expr.toString());
+
+    expr = dsl
+        .adddate(DSL.literal("2020-08-26"), dsl.interval(DSL.literal(1), DSL.literal("hour")));
+    assertEquals(DATETIME, expr.type());
+    assertEquals(new ExprDatetimeValue("2020-08-26 01:00:00"), expr.valueOf(env));
+    assertEquals("adddate(\"2020-08-26\", interval(1, \"hour\"))", expr.toString());
+
     when(nullRef.type()).thenReturn(DATE);
     assertEquals(nullValue(), eval(dsl.adddate(nullRef, DSL.literal(1L))));
     assertEquals(nullValue(),

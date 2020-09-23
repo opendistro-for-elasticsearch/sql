@@ -51,6 +51,16 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select adddate(date('2020-09-16'), 1)");
     verifySchema(result, schema("adddate(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result, rows("2020-09-17"));
+
+    result = executeQuery("select adddate('2020-09-16', 1)");
+    verifySchema(result, schema("adddate('2020-09-16', 1)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17"));
+
+    result =
+        executeQuery("select adddate('2020-09-16 17:30:00', interval 1 day)");
+    verifySchema(result,
+        schema("adddate('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17 17:30:00"));
   }
 
   @Test
@@ -183,7 +193,8 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testMicrosecond() throws IOException {
     JSONObject result = executeQuery("select microsecond(timestamp('2020-09-16 17:30:00.123456'))");
-    verifySchema(result, schema("microsecond(timestamp('2020-09-16 17:30:00.123456'))", null, "integer"));
+    verifySchema(result,
+        schema("microsecond(timestamp('2020-09-16 17:30:00.123456'))", null, "integer"));
     verifyDataRows(result, rows(123456));
 
     result = executeQuery("select microsecond(time('17:30:00.000010'))");

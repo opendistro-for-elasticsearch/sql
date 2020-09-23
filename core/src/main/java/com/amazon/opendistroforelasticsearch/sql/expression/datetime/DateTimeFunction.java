@@ -96,13 +96,14 @@ public class DateTimeFunction {
   /**
    * Specify a start date and add a temporal amount to the date.
    * The return type depends on the date type and the interval unit. Detailed supported signatures:
-   * (DATE, DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+   * (STRING/DATE/DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
    * (DATE, LONG) -> DATE
-   * (DATETIME/TIMESTAMP, LONG) -> DATETIME
+   * (STRING/DATETIME/TIMESTAMP, LONG) -> DATETIME
    */
   private FunctionResolver adddate() {
     return define(BuiltinFunctionName.ADDDATE.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATE, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
+            DATETIME, STRING, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATETIME, DATE, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
             DATETIME, DATETIME, INTERVAL),
@@ -110,7 +111,8 @@ public class DateTimeFunction {
             DATETIME, TIMESTAMP, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATE, DATE, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG)
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, STRING, LONG)
     );
   }
 

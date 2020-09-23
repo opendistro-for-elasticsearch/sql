@@ -33,6 +33,33 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testAddDate() throws IOException {
+    JSONObject result =
+        executeQuery(String.format(
+            "source=%s | eval f = adddate(timestamp('2020-09-16 17:30:00'), interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-17 17:30:00"));
+
+    result = executeQuery(String.format(
+        "source=%s | eval f = adddate(date('2020-09-16'), 1) | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "date"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-17"));
+
+    result = executeQuery(String.format(
+        "source=%s | eval f = adddate('2020-09-16', 1) | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-17"));
+
+    result =
+        executeQuery(String.format(
+            "source=%s | eval f = adddate('2020-09-16 17:30:00', interval 1 day) | fields f", TEST_INDEX_DATE));
+    verifySchema(result,
+        schema("f", null, "datetime"));
+    verifySome(result.getJSONArray("datarows"), rows("2020-09-17 17:30:00"));
+  }
+
+  @Test
   public void testDateAdd() throws IOException {
     JSONObject result =
         executeQuery(String.format(
