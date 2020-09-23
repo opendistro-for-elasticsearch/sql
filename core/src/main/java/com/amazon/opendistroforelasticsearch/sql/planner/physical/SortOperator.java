@@ -37,15 +37,18 @@ import lombok.ToString;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * Sort Operator. The input data is sorted by the sort fields in the {@link SortOperator#sortList}.
- * The sort field is specified by the {@link Expression} with {@link SortOption}. The count indicate
- * how many sorted result should been return.
+ * Sort Operator.The input data is sorted by the sort fields in the {@link SortOperator#sortList}.
+ * The sort field is specified by the {@link Expression} with {@link SortOption}.
+ * The count indicate how many sorted result should been return.
  */
 @ToString
 @EqualsAndHashCode
 public class SortOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
+  /**
+   * How many sorted result should been return. If count = 0, all the resulted will be returned.
+   */
   @Getter
   private final Integer count;
   @Getter
@@ -93,17 +96,9 @@ public class SortOperator extends PhysicalPlan {
     while (input.hasNext()) {
       sorted.add(input.next());
     }
-    iterator = Iterators.limit(new Iterator<ExprValue>() {
-      @Override
-      public boolean hasNext() {
-        return !sorted.isEmpty();
-      }
 
-      @Override
-      public ExprValue next() {
-        return sorted.poll();
-      }
-    }, count);
+    Iterator<ExprValue> sortedIterator = iterator(sorted);
+    iterator = count == 0 ? sortedIterator : Iterators.limit(sortedIterator, count);
   }
 
   @Override
@@ -141,5 +136,19 @@ public class SortOperator extends PhysicalPlan {
       }
       return 0;
     }
+  }
+
+  private Iterator<ExprValue> iterator(PriorityQueue<ExprValue> result) {
+    return new Iterator<ExprValue>() {
+      @Override
+      public boolean hasNext() {
+        return !result.isEmpty();
+      }
+
+      @Override
+      public ExprValue next() {
+        return result.poll();
+      }
+    };
   }
 }
