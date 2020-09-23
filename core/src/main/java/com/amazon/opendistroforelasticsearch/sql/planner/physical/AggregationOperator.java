@@ -18,8 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregationState;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -47,9 +49,9 @@ public class AggregationOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
   @Getter
-  private final List<Aggregator> aggregatorList;
+  private final List<NamedAggregator> aggregatorList;
   @Getter
-  private final List<Expression> groupByExprList;
+  private final List<NamedExpression> groupByExprList;
   @EqualsAndHashCode.Exclude
   private final Group group;
   @EqualsAndHashCode.Exclude
@@ -57,12 +59,13 @@ public class AggregationOperator extends PhysicalPlan {
 
   /**
    * AggregationOperator Constructor.
-   * @param input Input {@link PhysicalPlan}
-   * @param aggregatorList List of {@link Aggregator}
+   *
+   * @param input           Input {@link PhysicalPlan}
+   * @param aggregatorList  List of {@link Aggregator}
    * @param groupByExprList List of group by {@link Expression}
    */
-  public AggregationOperator(PhysicalPlan input, List<Aggregator> aggregatorList,
-                             List<Expression> groupByExprList) {
+  public AggregationOperator(PhysicalPlan input, List<NamedAggregator> aggregatorList,
+                             List<NamedExpression> groupByExprList) {
     this.input = input;
     this.aggregatorList = aggregatorList;
     this.groupByExprList = groupByExprList;
@@ -103,7 +106,7 @@ public class AggregationOperator extends PhysicalPlan {
   @RequiredArgsConstructor
   public class Group {
 
-    private final Map<GroupKey, List<Map.Entry<Aggregator, AggregationState>>> groupListMap =
+    private final Map<GroupKey, List<Map.Entry<NamedAggregator, AggregationState>>> groupListMap =
         new HashMap<>();
 
     /**
@@ -131,12 +134,12 @@ public class AggregationOperator extends PhysicalPlan {
      */
     public List<ExprValue> result() {
       ImmutableList.Builder<ExprValue> resultBuilder = new ImmutableList.Builder<>();
-      for (Map.Entry<GroupKey, List<Map.Entry<Aggregator, AggregationState>>> entry : groupListMap
-          .entrySet()) {
+      for (Map.Entry<GroupKey, List<Map.Entry<NamedAggregator, AggregationState>>>
+          entry : groupListMap.entrySet()) {
         LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
         map.putAll(entry.getKey().groupKeyMap());
-        for (Map.Entry<Aggregator, AggregationState> stateEntry : entry.getValue()) {
-          map.put(stateEntry.getKey().toString(), stateEntry.getValue().result());
+        for (Map.Entry<NamedAggregator, AggregationState> stateEntry : entry.getValue()) {
+          map.put(stateEntry.getKey().getName(), stateEntry.getValue().result());
         }
         resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
       }
@@ -169,7 +172,7 @@ public class AggregationOperator extends PhysicalPlan {
     public LinkedHashMap<String, ExprValue> groupKeyMap() {
       LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
       for (int i = 0; i < groupByExprList.size(); i++) {
-        map.put(groupByExprList.get(i).toString(), groupByValueList.get(i));
+        map.put(groupByExprList.get(i).getName(), groupByValueList.get(i));
       }
       return map;
     }

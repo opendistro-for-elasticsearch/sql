@@ -16,27 +16,59 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
+import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregations;
 
-/** Elasticsearch search response. */
+/**
+ * Elasticsearch search response.
+ */
 @EqualsAndHashCode
 @ToString
-public class ElasticsearchResponse implements Iterable<SearchHit> {
+public class ElasticsearchResponse implements Iterable<ExprValue> {
 
-  /** Search query result (non-aggregation). */
+  /**
+   * Search query result (non-aggregation).
+   */
   private final SearchHits hits;
 
-  public ElasticsearchResponse(SearchResponse esResponse) {
-    this.hits = esResponse.getHits(); // TODO: aggregation result is separate and not in SearchHit[]
+  /**
+   * Search aggregation result.
+   */
+  private final Aggregations aggregations;
+
+  /**
+   * ElasticsearchExprValueFactory used to build ExprValue from search result.
+   */
+  @EqualsAndHashCode.Exclude
+  private final ElasticsearchExprValueFactory exprValueFactory;
+
+  /**
+   * Constructor of ElasticsearchResponse.
+   */
+  public ElasticsearchResponse(SearchResponse esResponse,
+                               ElasticsearchExprValueFactory exprValueFactory) {
+    this.hits = esResponse.getHits();
+    this.aggregations = esResponse.getAggregations();
+    this.exprValueFactory = exprValueFactory;
   }
 
-  public ElasticsearchResponse(SearchHits hits) {
+  /**
+   * Constructor of ElasticsearchResponse with SearchHits.
+   */
+  public ElasticsearchResponse(SearchHits hits, ElasticsearchExprValueFactory exprValueFactory) {
     this.hits = hits;
+    this.aggregations = null;
+    this.exprValueFactory = exprValueFactory;
   }
 
   /**
@@ -46,7 +78,11 @@ public class ElasticsearchResponse implements Iterable<SearchHit> {
    * @return true for empty
    */
   public boolean isEmpty() {
-    return (hits.getHits() == null) || (hits.getHits().length == 0);
+    return (hits.getHits() == null) || (hits.getHits().length == 0) && aggregations == null;
+  }
+
+  public boolean isAggregationResponse() {
+    return aggregations != null;
   }
 
   /**
@@ -54,8 +90,18 @@ public class ElasticsearchResponse implements Iterable<SearchHit> {
    *
    * @return search hit iterator
    */
-  @Override
-  public Iterator<SearchHit> iterator() {
-    return hits.iterator();
+  public Iterator<ExprValue> iterator() {
+    if (isAggregationResponse()) {
+      return ElasticsearchAggregationResponseParser.parse(aggregations).stream().map(entry -> {
+        ImmutableMap.Builder<String, ExprValue> builder = new ImmutableMap.Builder<>();
+        for (Map.Entry<String, Object> value : entry.entrySet()) {
+          builder.put(value.getKey(), exprValueFactory.construct(value.getKey(), value.getValue()));
+        }
+        return (ExprValue) ExprTupleValue.fromExprValueMap(builder.build());
+      }).iterator();
+    } else {
+      return Arrays.stream(hits.getHits())
+          .map(hit -> (ExprValue) exprValueFactory.construct(hit.getSourceAsString())).iterator();
+    }
   }
 }

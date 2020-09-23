@@ -29,7 +29,6 @@ import lombok.ToString;
  * literal data type (@type) which can be selected from {@link DataType}.
  */
 @Getter
-@ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Literal extends UnresolvedExpression {
@@ -45,5 +44,10 @@ public class Literal extends UnresolvedExpression {
   @Override
   public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
     return nodeVisitor.visitLiteral(this, context);
+  }
+
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }

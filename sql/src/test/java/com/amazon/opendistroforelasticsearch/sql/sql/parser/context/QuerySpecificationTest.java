@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -68,8 +69,8 @@ class QuerySpecificationTest {
 
     assertEquals(
         ImmutableSet.of(
-            aggregate("AVG", qualifiedName("age")),
-            aggregate("SUM", qualifiedName("balance"))),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age"))),
+            alias("SUM(balance)", aggregate("SUM", qualifiedName("balance")))),
         querySpec.getAggregators());
   }
 
@@ -80,7 +81,7 @@ class QuerySpecificationTest {
 
     assertEquals(
         ImmutableSet.of(
-            aggregate("AVG", qualifiedName("age"))),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
         querySpec.getAggregators());
   }
 
@@ -101,14 +102,14 @@ class QuerySpecificationTest {
 
     assertEquals(
         ImmutableSet.of(
-            aggregate("AVG", qualifiedName("age")),
-            aggregate("AVG", qualifiedName("balance"))),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age"))),
+            alias("AVG(balance)", aggregate("AVG", qualifiedName("balance")))),
         querySpec.getAggregators());
   }
 
   private QuerySpecification collect(String query) {
     QuerySpecification querySpec = new QuerySpecification();
-    querySpec.collect(parse(query));
+    querySpec.collect(parse(query), query);
     return querySpec;
   }
 
