@@ -80,7 +80,7 @@ class ElasticsearchExecutionProtectorTest {
   }
 
   @Test
-  public void testProtectIndexScan() {
+  public void testProtectSortAndIndexScan() {
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
 
     String indexName = "test";
@@ -109,6 +109,7 @@ class ElasticsearchExecutionProtectorTest {
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
                 PhysicalPlanDSL.rareTopN(
+                    resourceMonitor(
                     PhysicalPlanDSL.sort(
                         PhysicalPlanDSL.eval(
                             PhysicalPlanDSL.remove(
@@ -129,7 +130,7 @@ class ElasticsearchExecutionProtectorTest {
                                 exclude),
                             newEvalField),
                         sortCount,
-                        sortField),
+                        sortField)),
                     CommandType.TOP,
                     topExprs,
                     topField),

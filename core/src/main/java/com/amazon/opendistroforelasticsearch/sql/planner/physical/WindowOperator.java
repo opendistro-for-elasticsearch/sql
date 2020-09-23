@@ -34,6 +34,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 public class WindowOperator extends PhysicalPlan {
+  @Getter
   private final PhysicalPlan input;
 
   @Getter
