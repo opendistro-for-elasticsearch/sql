@@ -336,13 +336,14 @@ export class Main extends React.Component<MainProps, MainState> {
 
   onTranslate = (queriesString: string): void => {
     const queries: string[] = getQueries(queriesString);
+    const language = this.state.language;
 
     if (queries.length > 0) {
-
+      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "translatesql" : "translateppl");
       const translationPromise = Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/translate", { query })
+            .post(endpoint, { query })
             .catch((error: any) => {
               this.setState({
                 messages: [

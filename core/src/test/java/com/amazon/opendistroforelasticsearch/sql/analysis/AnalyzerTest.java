@@ -312,4 +312,102 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.alias("AVG(integer_value)", aggregate("AVG", qualifiedName("integer_value"))))
     );
   }
+
+  /**
+   * SELECT abs(name), AVG(age) FROM test GROUP BY ABS(name).
+   */
+  @Test
+  public void sql_group_by_function_in_uppercase() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.aggregation(
+                LogicalPlanDSL.relation("schema"),
+                ImmutableList
+                    .of(DSL
+                        .named("AVG(integer_value)", dsl.avg(DSL.ref("integer_value", INTEGER)))),
+                ImmutableList.of(DSL.named("ABS(long_value)",
+                    dsl.abs(DSL.ref("long_value", LONG))))),
+            DSL.named("abs(long_value)", DSL.ref("ABS(long_value)", LONG)),
+            DSL.named("AVG(integer_value)", DSL.ref("AVG(integer_value)", DOUBLE))),
+        AstDSL.project(
+            AstDSL.agg(
+                AstDSL.relation("schema"),
+                ImmutableList.of(alias("AVG(integer_value)",
+                    aggregate("AVG", qualifiedName("integer_value")))),
+                emptyList(),
+                ImmutableList
+                    .of(alias("ABS(long_value)", function("ABS", qualifiedName("long_value")))),
+                emptyList()),
+            AstDSL.alias("abs(long_value)", function("abs", qualifiedName("long_value"))),
+            AstDSL.alias("AVG(integer_value)", aggregate("AVG", qualifiedName("integer_value"))))
+    );
+  }
+
+  /**
+   * SELECT abs(name), abs(avg(age) FROM test GROUP BY abs(name).
+   */
+  @Test
+  public void sql_expression_over_one_aggregation() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.aggregation(
+                LogicalPlanDSL.relation("schema"),
+                ImmutableList
+                    .of(DSL.named("avg(integer_value)",
+                        dsl.avg(DSL.ref("integer_value", INTEGER)))),
+                ImmutableList.of(DSL.named("abs(long_value)",
+                    dsl.abs(DSL.ref("long_value", LONG))))),
+            DSL.named("abs(long_value)", DSL.ref("abs(long_value)", LONG)),
+            DSL.named("abs(avg(integer_value)", dsl.abs(DSL.ref("avg(integer_value)", DOUBLE)))),
+        AstDSL.project(
+            AstDSL.agg(
+                AstDSL.relation("schema"),
+                ImmutableList.of(
+                    alias("avg(integer_value)", aggregate("avg", qualifiedName("integer_value")))),
+                emptyList(),
+                ImmutableList
+                    .of(alias("abs(long_value)", function("abs", qualifiedName("long_value")))),
+                emptyList()),
+            AstDSL.alias("abs(long_value)", function("abs", qualifiedName("long_value"))),
+            AstDSL.alias("abs(avg(integer_value)",
+                function("abs", aggregate("avg", qualifiedName("integer_value")))))
+    );
+  }
+
+  /**
+   * SELECT abs(name), sum(age)-avg(age) FROM test GROUP BY abs(name).
+   */
+  @Test
+  public void sql_expression_over_two_aggregation() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.aggregation(
+                LogicalPlanDSL.relation("schema"),
+                ImmutableList
+                    .of(DSL.named("sum(integer_value)",
+                        dsl.sum(DSL.ref("integer_value", INTEGER))),
+                        DSL.named("avg(integer_value)",
+                            dsl.avg(DSL.ref("integer_value", INTEGER)))),
+                ImmutableList.of(DSL.named("abs(long_value)",
+                    dsl.abs(DSL.ref("long_value", LONG))))),
+            DSL.named("abs(long_value)", DSL.ref("abs(long_value)", LONG)),
+            DSL.named("sum(integer_value)-avg(integer_value)",
+                dsl.subtract(DSL.ref("sum(integer_value)", INTEGER),
+                    DSL.ref("avg(integer_value)", DOUBLE)))),
+        AstDSL.project(
+            AstDSL.agg(
+                AstDSL.relation("schema"),
+                ImmutableList.of(
+                    alias("sum(integer_value)", aggregate("sum", qualifiedName("integer_value"))),
+                    alias("avg(integer_value)", aggregate("avg", qualifiedName("integer_value")))),
+                emptyList(),
+                ImmutableList
+                    .of(alias("abs(long_value)", function("abs", qualifiedName("long_value")))),
+                emptyList()),
+            AstDSL.alias("abs(long_value)", function("abs", qualifiedName("long_value"))),
+            AstDSL.alias("sum(integer_value)-avg(integer_value)",
+                function("-", aggregate("sum", qualifiedName("integer_value")),
+                    aggregate("avg", qualifiedName("integer_value")))))
+    );
+  }
 }

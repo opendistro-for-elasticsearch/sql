@@ -261,6 +261,10 @@ public class DSL {
     return function(BuiltinFunctionName.TIMESTAMP, expressions);
   }
 
+  public FunctionExpression adddate(Expression... expressions) {
+    return function(BuiltinFunctionName.ADDDATE, expressions);
+  }
+
   public FunctionExpression divide(Expression... expressions) {
     return function(BuiltinFunctionName.DIVIDE, expressions);
   }
