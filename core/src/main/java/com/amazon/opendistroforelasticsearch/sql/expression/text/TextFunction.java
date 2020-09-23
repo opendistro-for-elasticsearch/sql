@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 
 import lombok.experimental.UtilityClass;
@@ -67,20 +68,20 @@ public class TextFunction {
    * Supports following signatures:
    * (STRING, INTEGER)/(STRING, INTEGER, INTEGER) -> STRING
    */
-  private FunctionResolver substring() {
-    return define(BuiltinFunctionName.SUBSTRING.getName(),
+  private FunctionResolver substringSubstr(FunctionName functionName) {
+    return define(functionName,
             impl(nullMissingHandling(TextFunction::exprSubstrStart),
                     STRING, STRING, INTEGER),
             impl(nullMissingHandling(TextFunction::exprSubstrStartLength),
                     STRING, STRING, INTEGER, INTEGER));
   }
 
+  private FunctionResolver substring() {
+    return substringSubstr(BuiltinFunctionName.SUBSTRING.getName());
+  }
+
   private FunctionResolver substr() {
-    return define(BuiltinFunctionName.SUBSTR.getName(),
-      impl(nullMissingHandling(TextFunction::exprSubstrStart),
-        STRING, STRING, INTEGER),
-      impl(nullMissingHandling(TextFunction::exprSubstrStartLength),
-        STRING, STRING, INTEGER, INTEGER));
+    return substringSubstr(BuiltinFunctionName.SUBSTR.getName());
   }
 
   /**
@@ -90,8 +91,8 @@ public class TextFunction {
    */
   private FunctionResolver ltrim() {
     return define(BuiltinFunctionName.LTRIM.getName(),
-            impl(nullMissingHandling((v) -> new ExprStringValue(v.stringValue().stripLeading())),
-                    STRING, STRING));
+        impl(nullMissingHandling((v) -> new ExprStringValue(v.stringValue().stripLeading())),
+            STRING, STRING));
   }
 
   /**
@@ -199,7 +200,7 @@ public class TextFunction {
       return new ExprStringValue(EMPTY_STRING);
     }
     String str = exprValue.stringValue();
-    return exprSubStr(str, startIdx, 0);
+    return exprSubStr(str, startIdx, str.length());
   }
 
   private static ExprValue exprSubstrStartLength(
