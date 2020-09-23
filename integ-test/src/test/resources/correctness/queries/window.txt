@@ -1,1 +1,6 @@
-SELECT FlightNum, ROW_NUMBER() OVER(ORDER BY DistanceMiles) AS num FROM kibana_sample_data_flights
+SELECT DistanceMiles, ROW_NUMBER() OVER (ORDER BY DistanceMiles) AS num FROM kibana_sample_data_flights
+SELECT DistanceMiles, RANK() OVER (ORDER BY DistanceMiles) AS rnk FROM kibana_sample_data_flights
+SELECT DistanceMiles, DENSE_RANK() OVER (ORDER BY DistanceMiles) AS rnk FROM kibana_sample_data_flights
+SELECT FlightDelayMin, DistanceMiles, ROW_NUMBER() OVER (PARTITION BY FlightDelayMin ORDER BY DistanceMiles) AS num FROM kibana_sample_data_flights
+SELECT FlightDelayMin, DistanceMiles, RANK() OVER (PARTITION BY FlightDelayMin ORDER BY DistanceMiles) AS rnk FROM kibana_sample_data_flights
+SELECT FlightDelayMin, DistanceMiles, DENSE_RANK() OVER (PARTITION BY FlightDelayMin ORDER BY DistanceMiles) AS rnk FROM kibana_sample_data_flights
