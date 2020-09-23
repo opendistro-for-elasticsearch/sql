@@ -296,6 +296,7 @@ qualifiedName
 
 wcQualifiedName
     : wildcard (DOT wildcard)*
+    | keywordsCanBeId
     ;
 
 ident

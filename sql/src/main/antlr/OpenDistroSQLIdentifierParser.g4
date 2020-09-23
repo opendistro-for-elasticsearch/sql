@@ -32,21 +32,19 @@ options { tokenVocab=OpenDistroSQLLexer; }
 
 tableName
     : qualifiedName
-    | keywordsCanBeId
     ;
 
 columnName
     : qualifiedName
-    | keywordsCanBeId
     ;
 
 alias
     : ident
-    | keywordsCanBeId
     ;
 
 qualifiedName
     : ident (DOT ident)*
+    | keywordsCanBeId
     ;
 
 ident

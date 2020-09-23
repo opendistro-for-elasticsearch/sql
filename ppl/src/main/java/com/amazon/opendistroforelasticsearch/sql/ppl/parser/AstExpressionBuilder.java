@@ -191,6 +191,9 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
    */
   @Override
   public UnresolvedExpression visitQualifiedName(QualifiedNameContext ctx) {
+    if (ctx.keywordsCanBeId() != null) {
+      return new QualifiedName(ctx.keywordsCanBeId().getText());
+    }
     return new QualifiedName(
         ctx.ident()
             .stream()
@@ -202,6 +205,9 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitWcQualifiedName(WcQualifiedNameContext ctx) {
+    if (ctx.keywordsCanBeId() != null) {
+      return new QualifiedName(ctx.keywordsCanBeId().getText());
+    }
     return new QualifiedName(
         ctx.wildcard()
             .stream()
