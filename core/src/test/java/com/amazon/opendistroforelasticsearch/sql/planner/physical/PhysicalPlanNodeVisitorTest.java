@@ -42,7 +42,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
  */
 @ExtendWith(MockitoExtension.class)
 class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
-
   @Mock
   PhysicalPlan plan;
   @Mock
@@ -55,14 +54,19 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
             PhysicalPlanDSL.project(
                 PhysicalPlanDSL.rename(
                     PhysicalPlanDSL.agg(
-                        PhysicalPlanDSL.rareTopN(
-                            PhysicalPlanDSL.filter(
-                                new TestScan(),
-                                dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))),
-                            CommandType.TOP,
-                            ImmutableList.of(),
-                            DSL.ref("response", INTEGER)),
-                        ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
+                        PhysicalPlanDSL.head(
+                            PhysicalPlanDSL.rareTopN(
+                                PhysicalPlanDSL.filter(
+                                    new TestScan(),
+                                    dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))),
+                                CommandType.TOP,
+                                ImmutableList.of(),
+                                DSL.ref("response", INTEGER)),
+                            false,
+                            DSL.literal(false),
+                            10),
+                        ImmutableList
+                            .of(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
                         ImmutableList.of()),
                     ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))),
                 named("ref", ref)),
@@ -74,8 +78,9 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
             + "\tProject->\n"
             + "\t\tRename->\n"
             + "\t\t\tAggregation->\n"
-            + "\t\t\t\tRareTopN->\n"
-            + "\t\t\t\t\tFilter->",
+            + "\t\t\t\tHead->\n"
+            + "\t\t\t\t\tRareTopN->\n"
+            + "\t\t\t\t\t\tFilter->",
         printer.print(plan));
   }
 
@@ -87,9 +92,15 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
+    PhysicalPlan head = PhysicalPlanDSL.head(
+        new TestScan(), false, dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10)), 10);
+    assertNull(head.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
     PhysicalPlan aggregation =
         PhysicalPlanDSL.agg(
-            filter, ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))), ImmutableList.of());
+            filter, ImmutableList.of(DSL.named("avg(response)",
+                dsl.avg(DSL.ref("response", INTEGER)))), ImmutableList.of());
     assertNull(aggregation.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
@@ -139,6 +150,11 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     @Override
     public String visitFilter(FilterOperator node, Integer tabs) {
       return name(node, "Filter->", tabs);
+    }
+
+    @Override
+    public String visitHead(HeadOperator node, Integer tabs) {
+      return name(node, "Head->", tabs);
     }
 
     @Override

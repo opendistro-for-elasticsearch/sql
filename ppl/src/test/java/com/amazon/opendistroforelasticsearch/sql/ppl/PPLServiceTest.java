@@ -22,6 +22,8 @@ import static org.mockito.Mockito.when;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponseNode;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
@@ -83,7 +85,7 @@ public class PPLServiceTest {
       return null;
     }).when(executionEngine).execute(any(), any());
 
-    pplService.execute(new PPLQueryRequest("search source=t a=1", null),
+    pplService.execute(new PPLQueryRequest("search source=t a=1", null, null),
         new ResponseListener<QueryResponse>() {
           @Override
           public void onResponse(QueryResponse pplQueryResponse) {
@@ -98,32 +100,71 @@ public class PPLServiceTest {
   }
 
   @Test
+  public void testExplainShouldPass() {
+    doAnswer(invocation -> {
+      ResponseListener<ExplainResponse> listener = invocation.getArgument(1);
+      listener.onResponse(new ExplainResponse(new ExplainResponseNode("test")));
+      return null;
+    }).when(executionEngine).explain(any(), any());
+
+    pplService.explain(new PPLQueryRequest("search source=t a=1", null, null),
+        new ResponseListener<ExplainResponse>() {
+          @Override
+          public void onResponse(ExplainResponse pplQueryResponse) {
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            Assert.fail();
+          }
+        });
+  }
+
+  @Test
   public void testExecuteWithIllegalQueryShouldBeCaughtByHandler() {
-    pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<QueryResponse>() {
-      @Override
-      public void onResponse(QueryResponse pplQueryResponse) {
-        Assert.fail();
-      }
+    pplService.execute(new PPLQueryRequest("search", null, null),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse pplQueryResponse) {
+            Assert.fail();
+          }
 
-      @Override
-      public void onFailure(Exception e) {
+          @Override
+          public void onFailure(Exception e) {
 
-      }
-    });
+          }
+        });
+  }
+
+  @Test
+  public void testExplainWithIllegalQueryShouldBeCaughtByHandler() {
+    pplService.explain(new PPLQueryRequest("search", null, null),
+        new ResponseListener<ExplainResponse>() {
+          @Override
+          public void onResponse(ExplainResponse pplQueryResponse) {
+            Assert.fail();
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+
+          }
+        });
   }
 
   @Test
   public void test() {
-    pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<QueryResponse>() {
-      @Override
-      public void onResponse(QueryResponse pplQueryResponse) {
-        Assert.fail();
-      }
+    pplService.execute(new PPLQueryRequest("search", null, null),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse pplQueryResponse) {
+            Assert.fail();
+          }
 
-      @Override
-      public void onFailure(Exception e) {
+          @Override
+          public void onFailure(Exception e) {
 
-      }
-    });
+          }
+        });
   }
 }
