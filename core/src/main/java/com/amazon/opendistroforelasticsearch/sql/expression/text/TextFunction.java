@@ -218,12 +218,9 @@ public class TextFunction {
     // Correct negative start
     start = (start > 0) ? (start - 1) : (str.length() + start);
 
-    // Length 0 is only given by exprSubstrStart, exprSubstrStartLength handles this explicitly.
-    if ((start + len > str.length()) || (len == 0)) {
-      // Start is after string, return empty.
-      if (start > str.length()) {
-        return new ExprStringValue(EMPTY_STRING);
-      }
+    if (start > str.length()) {
+      return new ExprStringValue(EMPTY_STRING);
+    } else if ((start + len) > str.length()) {
       return new ExprStringValue(str.substring(start));
     }
     return new ExprStringValue(str.substring(start, start + len));
