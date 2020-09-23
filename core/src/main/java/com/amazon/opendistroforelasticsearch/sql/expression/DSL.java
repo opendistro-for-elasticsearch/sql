@@ -244,6 +244,10 @@ public class DSL {
   public FunctionExpression multiply(Expression... expressions) {
     return function(BuiltinFunctionName.MULTIPLY, expressions);
   }
+  
+  public FunctionExpression adddate(Expression... expressions) {
+    return function(BuiltinFunctionName.ADDDATE, expressions);
+  }
 
   public FunctionExpression date(Expression... expressions) {
     return function(BuiltinFunctionName.DATE, expressions);

@@ -68,6 +68,7 @@ public class DateTimeFunction {
    * @param repository {@link BuiltinFunctionRepository}.
    */
   public void register(BuiltinFunctionRepository repository) {
+    repository.register(adddate());
     repository.register(date());
     repository.register(date_add());
     repository.register(date_sub());
@@ -90,6 +91,27 @@ public class DateTimeFunction {
     repository.register(timestamp());
     repository.register(to_days());
     repository.register(year());
+  }
+
+  /**
+   * Specify a start date and add a temporal amount to the date.
+   * The return type depends on the date type and the interval unit. Detailed supported signatures:
+   * (DATE, DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+   * (DATE, LONG) -> DATE
+   * (DATETIME/TIMESTAMP, LONG) -> DATETIME
+   */
+  private FunctionResolver adddate() {
+    return define(BuiltinFunctionName.ADDDATE.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATE, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATETIME, DATE, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
+            DATETIME, DATETIME, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
+            DATETIME, TIMESTAMP, INTERVAL),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATE, DATE, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, DATETIME, LONG),
+        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG)
+    );
   }
 
   /**
@@ -739,5 +761,4 @@ public class DateTimeFunction {
       return false;
     }
   }
-
 }

@@ -19,6 +19,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FromClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.HeadCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.PplStatementContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RareCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RenameCommandContext;
@@ -42,6 +43,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
@@ -183,6 +185,16 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
         ArgumentFactory.getArgumentList(ctx),
         getFieldList(ctx.fieldList())
     );
+  }
+
+  /**
+   * Head command visitor.
+   */
+  @Override
+  public UnresolvedPlan visitHeadCommand(HeadCommandContext ctx) {
+    UnresolvedExpression unresolvedExpr =
+        ctx.whileExpr != null ? visitExpression(ctx.logicalExpression()) : null;
+    return new Head(ArgumentFactory.getArgumentList(ctx, unresolvedExpr));
   }
 
   /**

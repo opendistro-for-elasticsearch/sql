@@ -16,14 +16,8 @@
 @import '../node_modules/@elastic/eui/src/global_styling/variables/colors';
 @import '../node_modules/@elastic/eui/src/global_styling/variables/size';
 
-.sql-console-page-header {
-  padding: $euiSizeS $euiSizeL;
-  font-weight: 600;
-}
-
 .sql-console-query-container {
   padding: $euiSizeL;
-  height: 1142px;
 }
 
 .sql-console-query-editor {
@@ -40,16 +34,6 @@
     box-shadow: none;
   }
   .sql-query-panel-header {
-    padding: $euiSizeS;
-    background-color: $euiColorLightestShade;
-  }
-  .translated-query-panel {
-    border-radius: 0px;
-    border-width: 1px;
-    border-left-width: 0.5px;
-    box-shadow: none;
-  }
-  .translated-query-panel-header {
     padding: $euiSizeS;
     background-color: $euiColorLightestShade;
   }

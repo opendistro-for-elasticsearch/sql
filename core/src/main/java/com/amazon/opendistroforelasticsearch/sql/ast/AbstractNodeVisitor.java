@@ -33,12 +33,14 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -179,6 +181,10 @@ public abstract class AbstractNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
+  public T visitHead(Head node, C context) {
+    return visitChildren(node, context);
+  }
+
   public T visitRareTopN(RareTopN node, C context) {
     return visitChildren(node, context);
   }
@@ -196,6 +202,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitInterval(Interval node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitUnresolvedArgument(UnresolvedArgument node, C context) {
     return visitChildren(node, context);
   }
 }

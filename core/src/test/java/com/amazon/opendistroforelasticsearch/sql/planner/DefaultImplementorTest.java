@@ -24,6 +24,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.head;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
@@ -81,27 +82,34 @@ class DefaultImplementorTest {
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
         ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
+    Boolean keeplast = true;
+    Expression whileExpr = literal(ExprBooleanValue.of(true));
+    Integer number = 5;
 
     LogicalPlan plan =
         project(
             LogicalPlanDSL.dedupe(
-                rareTopN(
-                    sort(
-                        eval(
-                            remove(
-                                rename(
-                                    aggregation(
-                                        filter(values(emptyList()), filterExpr),
-                                        aggregators,
-                                        groupByExprs),
-                                    mappings),
-                                exclude),
-                            newEvalField),
-                        sortCount,
-                        sortField),
-                    CommandType.TOP,
-                    topByExprs,
-                    rareTopNField),
+                head(
+                    rareTopN(
+                        sort(
+                            eval(
+                                remove(
+                                    rename(
+                                        aggregation(
+                                            filter(values(emptyList()), filterExpr),
+                                            aggregators,
+                                            groupByExprs),
+                                        mappings),
+                                    exclude),
+                                newEvalField),
+                            sortCount,
+                            sortField),
+                        CommandType.TOP,
+                        topByExprs,
+                        rareTopNField),
+                    keeplast,
+                    whileExpr,
+                    number),
                 dedupeField),
             include);
 
@@ -110,29 +118,32 @@ class DefaultImplementorTest {
     assertEquals(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
-                PhysicalPlanDSL.rareTopN(
-                    PhysicalPlanDSL.sort(
-                        PhysicalPlanDSL.eval(
-                            PhysicalPlanDSL.remove(
-                                PhysicalPlanDSL.rename(
-                                    PhysicalPlanDSL.agg(
-                                        PhysicalPlanDSL.filter(
-                                            PhysicalPlanDSL.values(emptyList()),
-                                            filterExpr),
-                                        aggregators,
-                                        groupByExprs),
-                                    mappings),
-                                exclude),
-                            newEvalField),
-                        sortCount,
-                        sortField),
-                    CommandType.TOP,
-                    topByExprs,
-                    rareTopNField),
+                PhysicalPlanDSL.head(
+                    PhysicalPlanDSL.rareTopN(
+                        PhysicalPlanDSL.sort(
+                            PhysicalPlanDSL.eval(
+                                PhysicalPlanDSL.remove(
+                                    PhysicalPlanDSL.rename(
+                                        PhysicalPlanDSL.agg(
+                                            PhysicalPlanDSL.filter(
+                                                PhysicalPlanDSL.values(emptyList()),
+                                                filterExpr),
+                                            aggregators,
+                                            groupByExprs),
+                                        mappings),
+                                    exclude),
+                                newEvalField),
+                            sortCount,
+                            sortField),
+                        CommandType.TOP,
+                        topByExprs,
+                        rareTopNField),
+                    keeplast,
+                    whileExpr,
+                    number),
                 dedupeField),
             include),
         actual);
-
   }
 
   @Test

@@ -23,13 +23,27 @@ export default class TranslateService {
     this.client = client;
   }
 
-  translateQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  translateSQL = async (request: Request, h: ResponseToolkit, err?: Error) => {
     try {
       const params = {
         body: JSON.stringify(request.payload),
       };
       const { callWithRequest } = await this.client.getCluster(CLUSTER.SQL);
-      const createResponse = await callWithRequest(request, 'sql.getTranslation', params);
+      const createResponse = await callWithRequest(request, 'sql.translateSQL', params);
+      return h.response({ ok: true, resp: createResponse });
+
+    } catch (err) {
+      return h.response({ ok: false, resp: err.message });
+    }
+  };
+
+  translatePPL = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    try {
+      const params = {
+        body: JSON.stringify(request.payload),
+      };
+      const { callWithRequest } = await this.client.getCluster(CLUSTER.SQL);
+      const createResponse = await callWithRequest(request, 'sql.translatePPL', params);
       return h.response({ ok: true, resp: createResponse });
 
     } catch (err) {
