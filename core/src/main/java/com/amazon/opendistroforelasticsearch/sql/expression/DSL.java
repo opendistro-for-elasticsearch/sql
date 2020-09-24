@@ -15,10 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import java.util.Arrays;
@@ -27,6 +29,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DSL {
   private final BuiltinFunctionRepository repository;
+
+  public static LiteralExpression literal(Short value) {
+    return new LiteralExpression(new ExprShortValue(value));
+  }
 
   public static LiteralExpression literal(Integer value) {
     return new LiteralExpression(ExprValueUtils.integerValue(value));
@@ -97,6 +103,10 @@ public class DSL {
 
   public static NamedExpression named(String name, Expression expression, String alias) {
     return new NamedExpression(name, expression, alias);
+  }
+
+  public static NamedAggregator named(String name, Aggregator aggregator) {
+    return new NamedAggregator(name, aggregator);
   }
 
   public FunctionExpression abs(Expression... expressions) {
@@ -249,6 +259,10 @@ public class DSL {
 
   public FunctionExpression timestamp(Expression... expressions) {
     return function(BuiltinFunctionName.TIMESTAMP, expressions);
+  }
+
+  public FunctionExpression adddate(Expression... expressions) {
+    return function(BuiltinFunctionName.ADDDATE, expressions);
   }
 
   public FunctionExpression divide(Expression... expressions) {

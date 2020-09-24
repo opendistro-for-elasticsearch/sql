@@ -43,7 +43,32 @@ public class PhysicalPlanTestBase {
   @Autowired
   protected DSL dsl;
 
-  private static final List<ExprValue> inputs = new ImmutableList.Builder<ExprValue>()
+  protected static final List<ExprValue> countTestInputs = new ImmutableList.Builder<ExprValue>()
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 1, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 2, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 3, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 4, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 5, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 6, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 7, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 8, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 9, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 10, "testString", "asdf")))
+          .add(ExprValueUtils.tupleValue(ImmutableMap
+                  .of("id", 11, "testString", "asdf")))
+          .build();
+
+  protected static final List<ExprValue> inputs = new ImmutableList.Builder<ExprValue>()
       .add(ExprValueUtils.tupleValue(ImmutableMap
           .of("ip", "209.160.24.63", "action", "GET", "response", 200, "referer",
               "www.amazon.com")))
@@ -96,6 +121,34 @@ public class PhysicalPlanTestBase {
 
     public TestScan() {
       iterator = inputs.iterator();
+    }
+
+    @Override
+    public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
+      return null;
+    }
+
+    @Override
+    public List<PhysicalPlan> getChild() {
+      return ImmutableList.of();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return iterator.hasNext();
+    }
+
+    @Override
+    public ExprValue next() {
+      return iterator.next();
+    }
+  }
+
+  protected static class CountTestScan extends PhysicalPlan {
+    private final Iterator<ExprValue> iterator;
+
+    public CountTestScan() {
+      iterator = countTestInputs.iterator();
     }
 
     @Override

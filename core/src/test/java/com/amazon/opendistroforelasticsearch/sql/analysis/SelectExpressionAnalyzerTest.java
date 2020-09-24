@@ -17,9 +17,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
@@ -30,16 +34,23 @@ import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Configuration
 @ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 @ContextConfiguration(classes = {ExpressionConfig.class, SelectExpressionAnalyzerTest.class})
 public class SelectExpressionAnalyzerTest extends AnalyzerTestBase {
+
+  @Mock
+  private ExpressionReferenceOptimizer optimizer;
 
   @Test
   public void named_expression() {
@@ -54,6 +65,19 @@ public class SelectExpressionAnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         DSL.named("integer_value", DSL.ref("integer_value", INTEGER), "int"),
         AstDSL.alias("integer_value", AstDSL.qualifiedName("integer_value"), "int")
+    );
+  }
+
+  @Disabled("we didn't define the aggregator symbol any more")
+  @Test
+  public void named_expression_with_delegated_expression_defined_in_symbol_table() {
+    analysisContext.push();
+    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "AVG(integer_value)"), FLOAT);
+
+    assertAnalyzeEqual(
+        DSL.named("AVG(integer_value)", DSL.ref("AVG(integer_value)", FLOAT)),
+        AstDSL.alias("AVG(integer_value)",
+            AstDSL.aggregate("AVG", AstDSL.qualifiedName("integer_value")))
     );
   }
 
@@ -88,10 +112,10 @@ public class SelectExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   protected List<NamedExpression> analyze(UnresolvedExpression unresolvedExpression) {
-
+    doAnswer(returnsFirstArg()).when(optimizer).optimize(any(), any());
     return new SelectExpressionAnalyzer(expressionAnalyzer)
         .analyze(Arrays.asList(unresolvedExpression),
-            analysisContext);
+            analysisContext, optimizer);
   }
 
   protected void assertAnalyzeEqual(NamedExpression expected,

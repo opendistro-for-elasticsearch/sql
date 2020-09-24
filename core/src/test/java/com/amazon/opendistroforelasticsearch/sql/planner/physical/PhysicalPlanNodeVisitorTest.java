@@ -21,6 +21,9 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -51,10 +54,19 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
             PhysicalPlanDSL.project(
                 PhysicalPlanDSL.rename(
                     PhysicalPlanDSL.agg(
-                        PhysicalPlanDSL.filter(
-                            new TestScan(),
-                            dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))),
-                        ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
+                        PhysicalPlanDSL.head(
+                            PhysicalPlanDSL.rareTopN(
+                                PhysicalPlanDSL.filter(
+                                    new TestScan(),
+                                    dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))),
+                                CommandType.TOP,
+                                ImmutableList.of(),
+                                DSL.ref("response", INTEGER)),
+                            false,
+                            DSL.literal(false),
+                            10),
+                        ImmutableList
+                            .of(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
                         ImmutableList.of()),
                     ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))),
                 named("ref", ref)),
@@ -66,7 +78,9 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
             + "\tProject->\n"
             + "\t\tRename->\n"
             + "\t\t\tAggregation->\n"
-            + "\t\t\t\tFilter->",
+            + "\t\t\t\tHead->\n"
+            + "\t\t\t\t\tRareTopN->\n"
+            + "\t\t\t\t\t\tFilter->",
         printer.print(plan));
   }
 
@@ -78,9 +92,15 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
+    PhysicalPlan head = PhysicalPlanDSL.head(
+        new TestScan(), false, dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10)), 10);
+    assertNull(head.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
     PhysicalPlan aggregation =
         PhysicalPlanDSL.agg(
-            filter, ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))), ImmutableList.of());
+            filter, ImmutableList.of(DSL.named("avg(response)",
+                dsl.avg(DSL.ref("response", INTEGER)))), ImmutableList.of());
     assertNull(aggregation.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
@@ -114,6 +134,11 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     PhysicalPlan values = PhysicalPlanDSL.values(Collections.emptyList());
     assertNull(values.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
+
+    PhysicalPlan rareTopN =
+        PhysicalPlanDSL.rareTopN(plan, CommandType.TOP, 5, ImmutableList.of(), ref);
+    assertNull(rareTopN.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
   }
 
   public static class PhysicalPlanPrinter extends PhysicalPlanNodeVisitor<String, Integer> {
@@ -125,6 +150,11 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     @Override
     public String visitFilter(FilterOperator node, Integer tabs) {
       return name(node, "Filter->", tabs);
+    }
+
+    @Override
+    public String visitHead(HeadOperator node, Integer tabs) {
+      return name(node, "Head->", tabs);
     }
 
     @Override
@@ -145,6 +175,11 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     @Override
     public String visitRemove(RemoveOperator node, Integer tabs) {
       return name(node, "Remove->", tabs);
+    }
+
+    @Override
+    public String visitRareTopN(RareTopNOperator node, Integer tabs) {
+      return name(node, "RareTopN->", tabs);
     }
 
     private String name(PhysicalPlan node, String current, int tabs) {

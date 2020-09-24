@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -33,9 +33,9 @@ import lombok.ToString;
 public class LogicalAggregation extends LogicalPlan {
   private final LogicalPlan child;
   @Getter
-  private final List<Aggregator> aggregatorList;
+  private final List<NamedAggregator> aggregatorList;
   @Getter
-  private final List<Expression> groupByList;
+  private final List<NamedExpression> groupByList;
 
   @Override
   public List<LogicalPlan> getChild() {

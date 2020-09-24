@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.type;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,10 +93,14 @@ public enum ExprCoreType implements ExprType {
   }
 
   /**
-   * Retrun all the valid ExprCoreType.
+   * Return all the valid ExprCoreType.
    */
   public static List<ExprType> coreTypes() {
     return Arrays.stream(ExprCoreType.values()).filter(type -> type != UNKNOWN)
         .collect(Collectors.toList());
+  }
+
+  public static List<ExprType> numberTypes() {
+    return ImmutableList.of(INTEGER, LONG, FLOAT, DOUBLE);
   }
 }

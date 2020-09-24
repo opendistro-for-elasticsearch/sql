@@ -139,7 +139,7 @@ public class MinAggregatorTest extends AggregationTest {
   public void test_nested_to_string() {
     Aggregator minAggregator = dsl.min(dsl.add(DSL.ref("integer_value", INTEGER),
         DSL.literal(ExprValueUtils.integerValue(10))));
-    assertEquals(String.format("min(%s + %d)", DSL.ref("integer_value", INTEGER), 10),
+    assertEquals(String.format("min(+(%s, %d))", DSL.ref("integer_value", INTEGER), 10),
         minAggregator.toString());
   }
 }

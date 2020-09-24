@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
@@ -35,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
+import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
@@ -187,6 +190,95 @@ class AstBuilderTest {
         ),
         buildAST("SELECT name FROM test WHERE name = 'John'")
     );
+  }
+
+  @Test
+  public void can_build_group_by_clause() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("name", qualifiedName("name"))),
+                emptyList()),
+            alias("name", qualifiedName("name")),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT name, AVG(age) FROM test GROUP BY name"));
+  }
+
+  @Test
+  public void can_build_group_by_with_function() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("abs(name)", function("abs", qualifiedName("name")))),
+                emptyList()),
+            alias("abs(name)", function("abs", qualifiedName("name"))),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT abs(name), AVG(age) FROM test GROUP BY abs(name)"));
+  }
+
+  @Test
+  public void can_build_group_by_with_uppercase_function() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("ABS(name)", function("ABS", qualifiedName("name")))),
+                emptyList()),
+            alias("ABS(name)", function("ABS", qualifiedName("name"))),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT ABS(name), AVG(age) FROM test GROUP BY 1"));
+  }
+
+  @Test
+  public void can_build_group_by_with_alias() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("abs(name)", function("abs", qualifiedName("name")))),
+                emptyList()),
+            alias("abs(name)", function("abs", qualifiedName("name")), "n"),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT abs(name) as n, AVG(age) FROM test GROUP BY n"));
+  }
+
+  @Test
+  public void can_build_group_by_with_ordinal() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                ImmutableList.of(alias("abs(name)", function("abs", qualifiedName("name")))),
+                emptyList()),
+            alias("abs(name)", function("abs", qualifiedName("name")), "n"),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT abs(name) as n, AVG(age) FROM test GROUP BY 1"));
+  }
+
+  @Test
+  public void can_build_implicit_group_by_clause() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                emptyList(),
+                emptyList(),
+                emptyList()),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT AVG(age) FROM test"));
   }
 
   private UnresolvedPlan buildAST(String query) {

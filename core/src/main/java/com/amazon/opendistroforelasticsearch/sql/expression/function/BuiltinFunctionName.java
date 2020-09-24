@@ -55,6 +55,7 @@ public enum BuiltinFunctionName {
   DAYOFMONTH(FunctionName.of("dayofmonth")),
   TIME(FunctionName.of("time")),
   TIMESTAMP(FunctionName.of("timestamp")),
+  ADDDATE(FunctionName.of("adddate")),
 
   /**
    * Text Functions.

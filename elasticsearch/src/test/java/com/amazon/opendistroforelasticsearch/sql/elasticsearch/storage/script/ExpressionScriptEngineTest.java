@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.fi
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import org.elasticsearch.script.AggregationScript;
 import org.elasticsearch.script.FilterScript;
 import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.script.ScriptEngine;
@@ -65,7 +66,7 @@ class ExpressionScriptEngineTest {
     when(serializer.deserialize("test code")).thenReturn(expression);
 
     assertThat(scriptEngine.getSupportedContexts(),
-        contains(FilterScript.CONTEXT));
+        contains(FilterScript.CONTEXT, AggregationScript.CONTEXT));
 
     Object actualFactory = scriptEngine.compile(
         "test", "test code", FilterScript.CONTEXT, emptyMap());

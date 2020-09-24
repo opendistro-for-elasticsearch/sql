@@ -15,12 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class PhysicalPlanDSL {
 
   public static AggregationOperator agg(
-      PhysicalPlan input, List<Aggregator> aggregators, List<Expression> groups) {
+      PhysicalPlan input, List<NamedAggregator> aggregators, List<NamedExpression> groups) {
     return new AggregationOperator(input, aggregators, groups);
   }
 
@@ -78,6 +80,23 @@ public class PhysicalPlanDSL {
       Expression... expressions) {
     return new DedupeOperator(
         input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
+  }
+
+  public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr,
+      int number) {
+    return new HeadOperator(input, keepLast, whileExpr, number);
+  }
+
+  public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,
+      List<Expression> groups, Expression... expressions) {
+    return new RareTopNOperator(input, commandType, Arrays.asList(expressions), groups);
+  }
+
+  public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,
+      int noOfResults,
+      List<Expression> groups, Expression... expressions) {
+    return new RareTopNOperator(input, commandType, noOfResults, Arrays.asList(expressions),
+        groups);
   }
 
   @SafeVarargs

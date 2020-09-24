@@ -20,8 +20,12 @@ import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListene
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.executor.Explain;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -56,4 +60,27 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
           }
         });
   }
+
+  @Override
+  public void explain(PhysicalPlan plan, ResponseListener<ExplainResponse> listener) {
+    client.schedule(() -> {
+      try {
+        Explain esExplain = new Explain() {
+          @Override
+          public ExplainResponseNode visitTableScan(TableScanOperator node, Object context) {
+            return explain(node, context, explainNode -> {
+              ElasticsearchIndexScan indexScan = (ElasticsearchIndexScan) node;
+              explainNode.setDescription(ImmutableMap.of(
+                  "request", indexScan.getRequest().toString()));
+            });
+          }
+        };
+
+        listener.onResponse(esExplain.apply(plan));
+      } catch (Exception e) {
+        listener.onFailure(e);
+      }
+    });
+  }
+
 }

@@ -17,12 +17,14 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dedupe;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDedupArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultHeadArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
@@ -31,20 +33,25 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.head;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -52,7 +59,6 @@ import org.junit.Test;
 public class AstBuilderTest {
 
   private PPLSyntaxParser parser = new PPLSyntaxParser();
-  private AstBuilder astBuilder = new AstBuilder(new AstExpressionBuilder());
 
   @Test
   public void testSearchCommand() {
@@ -159,7 +165,10 @@ public class AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate("count", field("a"))
+                alias(
+                    "count(a)",
+                    aggregate("count", field("a"))
+                )
             ),
             emptyList(),
             emptyList(),
@@ -173,10 +182,17 @@ public class AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate("count", field("a"))
+                alias(
+                    "count(a)",
+                    aggregate("count", field("a"))
+                )
             ),
             emptyList(),
-            exprList(field("b")),
+            exprList(
+                alias(
+                    "b",
+                    field("b")
+                )),
             defaultStatsArgs()
         ));
   }
@@ -184,17 +200,17 @@ public class AstBuilderTest {
   @Test
   public void testStatsCommandWithAlias() {
     assertEqual("source=t | stats count(a) as alias",
-        rename(
-            agg(
-                relation("t"),
-                exprList(
+        agg(
+            relation("t"),
+            exprList(
+                alias(
+                    "alias",
                     aggregate("count", field("a"))
-                ),
-                emptyList(),
-                emptyList(),
-                defaultStatsArgs()
+                )
             ),
-            map(aggregate("count", field("a")), field("alias"))
+            emptyList(),
+            emptyList(),
+            defaultStatsArgs()
         )
     );
   }
@@ -205,10 +221,13 @@ public class AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate(
-                    "sum",
-                    function("+", field("a"), field("b"))
-                )),
+                alias(
+                    "sum(a+b)",
+                    aggregate(
+                        "sum",
+                        function("+", field("a"), field("b"))
+                    ))
+            ),
             emptyList(),
             emptyList(),
             defaultStatsArgs()
@@ -217,12 +236,15 @@ public class AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate(
-                    "sum",
-                    function(
-                        "/",
-                        function("abs", field("a")),
-                        intLiteral(2)
+                alias(
+                    "sum(abs(a)/2)",
+                    aggregate(
+                        "sum",
+                        function(
+                            "/",
+                            function("abs", field("a")),
+                            intLiteral(2)
+                        )
                     )
                 )
             ),
@@ -254,6 +276,53 @@ public class AstBuilderTest {
             exprList(field("f3", defaultSortFieldArgs())),
             null,
             defaultDedupArgs()
+        ));
+  }
+
+  @Test
+  public void testHeadCommand() {
+    assertEqual("source=t | head",
+        head(
+            relation("t"),
+            defaultHeadArgs()
+        ));
+  }
+
+  @Test
+  public void testHeadCommandWithNumber() {
+    assertEqual("source=t | head 3",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(true)),
+                unresolvedArg("whileExpr", booleanLiteral(true)),
+                unresolvedArg("number", intLiteral(3)))
+        ));
+  }
+
+  @Test
+  public void testHeadCommandWithWhileExpr() {
+
+    assertEqual("source=t | head while(a < 5) 5",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(true)),
+                unresolvedArg("whileExpr", compare("<", field("a"), intLiteral(5))),
+                unresolvedArg("number", intLiteral(5)))
+        ));
+  }
+
+  @Test
+  public void testHeadCommandWithKeepLast() {
+
+    assertEqual("source=t | head keeplast=false while(a < 5) 5",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(false)),
+                unresolvedArg("whileExpr", compare("<", field("a"), intLiteral(5))),
+                unresolvedArg("number", intLiteral(5)))
         ));
   }
 
@@ -301,6 +370,92 @@ public class AstBuilderTest {
         ));
   }
 
+  @Test
+  public void testRareCommand() {
+    assertEqual("source=t | rare a",
+        rareTopN(
+            relation("t"),
+            CommandType.RARE,
+            exprList(argument("noOfResults", intLiteral(10))),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testRareCommandWithGroupBy() {
+    assertEqual("source=t | rare a by b",
+        rareTopN(
+            relation("t"),
+            CommandType.RARE,
+            exprList(argument("noOfResults", intLiteral(10))),
+            exprList(field("b")),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testRareCommandWithMultipleFields() {
+    assertEqual("source=t | rare `a`, `b` by `c`",
+        rareTopN(
+            relation("t"),
+            CommandType.RARE,
+            exprList(argument("noOfResults", intLiteral(10))),
+            exprList(field("c")),
+            field("a"),
+            field("b")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithN() {
+    assertEqual("source=t | top 1 a",
+        rareTopN(
+            relation("t"),
+            CommandType.TOP,
+            exprList(argument("noOfResults", intLiteral(1))),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithoutNAndGroupBy() {
+    assertEqual("source=t | top a",
+        rareTopN(
+            relation("t"),
+            CommandType.TOP,
+            exprList(argument("noOfResults", intLiteral(10))),
+            emptyList(),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithNAndGroupBy() {
+    assertEqual("source=t | top 1 a by b",
+        rareTopN(
+            relation("t"),
+            CommandType.TOP,
+            exprList(argument("noOfResults", intLiteral(1))),
+            exprList(field("b")),
+            field("a")
+        ));
+  }
+
+  @Test
+  public void testTopCommandWithMultipleFields() {
+    assertEqual("source=t | top 1 `a`, `b` by `c`",
+        rareTopN(
+            relation("t"),
+            CommandType.TOP,
+            exprList(argument("noOfResults", intLiteral(1))),
+            exprList(field("c")),
+            field("a"),
+            field("b")
+        ));
+  }
+
   protected void assertEqual(String query, Node expectedPlan) {
     Node actualPlan = plan(query);
     assertEquals(expectedPlan, actualPlan);
@@ -312,6 +467,7 @@ public class AstBuilderTest {
   }
 
   private Node plan(String query) {
+    AstBuilder astBuilder = new AstBuilder(new AstExpressionBuilder(), query);
     return astBuilder.visit(parser.analyzeSyntax(query));
   }
 }

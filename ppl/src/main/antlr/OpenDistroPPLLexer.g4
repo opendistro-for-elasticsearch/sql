@@ -28,6 +28,9 @@ STATS:                              'STATS';
 DEDUP:                              'DEDUP';
 SORT:                               'SORT';
 EVAL:                               'EVAL';
+HEAD:                               'HEAD';
+TOP:                                'TOP';
+RARE:                               'RARE';
 
 // COMMAND ASSIST KEYWORDS
 AS:                                 'AS';
@@ -48,11 +51,13 @@ NUM:                                'NUM';
 
 // ARGUMENT KEYWORDS
 KEEPEMPTY:                          'KEEPEMPTY';
+KEEPLAST:                           'KEEPLAST';
 CONSECUTIVE:                        'CONSECUTIVE';
 DEDUP_SPLITVALUES:                  'DEDUP_SPLITVALUES';
 PARTITIONS:                         'PARTITIONS';
 ALLNUM:                             'ALLNUM';
 DELIM:                              'DELIM';
+WHILE:                              'WHILE';
 
 // COMPARISON FUNCTION KEYWORDS
 CASE:                               'CASE';
@@ -196,6 +201,7 @@ TAN:                                'TAN';
 DATE:                               'DATE';
 TIME:                               'TIME';
 TIMESTAMP:                          'TIMESTAMP';
+ADDDATE:                            'ADDDATE';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;

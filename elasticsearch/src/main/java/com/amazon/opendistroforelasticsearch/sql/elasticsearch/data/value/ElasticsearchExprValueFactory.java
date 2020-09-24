@@ -27,6 +27,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_GEO_POINT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_IP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
@@ -54,14 +56,17 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
 import org.elasticsearch.common.time.DateFormatters;
 
 /** Construct ExprValue from Elasticsearch response. */
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ElasticsearchExprValueFactory {
   /** The Mapping of Field and ExprType. */
-  private final Map<String, ExprType> typeMapping;
+  @Setter
+  private Map<String, ExprType> typeMapping;
 
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
@@ -120,6 +125,11 @@ public class ElasticsearchExprValueFactory {
       return new ElasticsearchExprTextValue(value.asText());
     } else if (type.equals(ES_TEXT_KEYWORD)) {
       return new ElasticsearchExprTextKeywordValue(value.asText());
+    } else if (type.equals(ES_IP)) {
+      return new ElasticsearchExprIpValue(value.asText());
+    } else if (type.equals(ES_GEO_POINT)) {
+      return new ElasticsearchExprGeoPointValue(value.get("lat").doubleValue(),
+          value.get("lon").doubleValue());
     } else {
       throw new IllegalStateException(
           String.format(
@@ -130,6 +140,7 @@ public class ElasticsearchExprValueFactory {
   /**
    * Construct ExprValue from field and its value object. Throw exception if trying
    * to construct from field of unsupported type.
+   * Todo, add IP, GeoPoint support after we have function implementation around it.
    *
    * @param field   field name
    * @param value   value object
@@ -142,13 +153,13 @@ public class ElasticsearchExprValueFactory {
 
     ExprType type = type(field);
     if (type.equals(INTEGER)) {
-      return constructInteger((Integer) value);
+      return constructInteger(parseNumberValue(value, Integer::valueOf, Number::intValue));
     } else if (type.equals(LONG)) {
-      return constructLong((Long) value);
+      return constructLong(parseNumberValue(value, Long::valueOf, Number::longValue));
     } else if (type.equals(FLOAT)) {
-      return constructFloat((Float) value);
+      return constructFloat(parseNumberValue(value, Float::valueOf, Number::floatValue));
     } else if (type.equals(DOUBLE)) {
-      return constructDouble((Double) value);
+      return constructDouble(parseNumberValue(value, Double::valueOf, Number::doubleValue));
     } else if (type.equals(STRING)) {
       return constructString((String) value);
     } else if (type.equals(BOOLEAN)) {
@@ -167,8 +178,20 @@ public class ElasticsearchExprValueFactory {
       return new ElasticsearchExprTextKeywordValue((String) value);
     } else {
       throw new IllegalStateException(String.format(
-              "Unsupported type %s to construct expression value from object for "
-                  + "field: %s, value: %s.", type.typeName(), field, value));
+          "Unsupported type %s to construct expression value from object for "
+              + "field: %s, value: %s.", type.typeName(), field, value));
+    }
+  }
+
+  /**
+   * Elastisearch could return value String value even the type is Number.
+   */
+  private <T> T parseNumberValue(Object value, Function<String, T> stringTFunction,
+                                 Function<Number, T> numberTFunction) {
+    if (value instanceof String) {
+      return stringTFunction.apply((String) value);
+    } else {
+      return numberTFunction.apply((Number) value);
     }
   }
 

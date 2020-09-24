@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
@@ -295,11 +296,17 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate("avg", field("a"))
-
+                alias(
+                    "avg(a)",
+                    aggregate("avg", field("a"))
+                )
             ),
             emptyList(),
-            exprList(field("b")),
+            exprList(
+                alias(
+                    "b",
+                    field("b")
+                )),
             defaultStatsArgs()
         ));
   }
@@ -310,10 +317,12 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
         agg(
             relation("t"),
             exprList(
-                aggregate(
-                    "percentile",
-                    field("a"),
-                    argument("rank", intLiteral(1))
+                alias("percentile<1>(a)",
+                    aggregate(
+                        "percentile",
+                        field("a"),
+                        argument("rank", intLiteral(1))
+                    )
                 )
             ),
             emptyList(),

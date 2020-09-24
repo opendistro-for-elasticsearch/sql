@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.google.common.collect.ImmutableList;
@@ -45,11 +46,15 @@ public class SelectExpressionAnalyzer
     AbstractNodeVisitor<List<NamedExpression>, AnalysisContext> {
   private final ExpressionAnalyzer expressionAnalyzer;
 
+  private ExpressionReferenceOptimizer optimizer;
+
   /**
    * Analyze Select fields.
    */
   public List<NamedExpression> analyze(List<UnresolvedExpression> selectList,
-                                       AnalysisContext analysisContext) {
+                                       AnalysisContext analysisContext,
+                                       ExpressionReferenceOptimizer optimizer) {
+    this.optimizer = optimizer;
     ImmutableList.Builder<NamedExpression> builder = new ImmutableList.Builder<>();
     for (UnresolvedExpression unresolvedExpression : selectList) {
       builder.addAll(unresolvedExpression.accept(this, analysisContext));
@@ -64,10 +69,29 @@ public class SelectExpressionAnalyzer
 
   @Override
   public List<NamedExpression> visitAlias(Alias node, AnalysisContext context) {
+    Expression expr = referenceIfSymbolDefined(node, context);
     return Collections.singletonList(DSL.named(
         unqualifiedNameIfFieldOnly(node, context),
-        node.getDelegated().accept(expressionAnalyzer, context),
+        expr,
         node.getAlias()));
+  }
+
+  /**
+   * The Alias could be
+   * 1. SELECT name, AVG(age) FROM s BY name ->
+   * Project(Alias("name", expr), Alias("AVG(age)", aggExpr))
+   * Agg(Alias("AVG(age)", aggExpr))
+   * 2. SELECT length(name), AVG(age) FROM s BY length(name)
+   * Project(Alias("name", expr), Alias("AVG(age)", aggExpr))
+   * Agg(Alias("AVG(age)", aggExpr))
+   * 3. SELECT length(name) as l, AVG(age) FROM s BY l
+   * Project(Alias("name", expr, l), Alias("AVG(age)", aggExpr))
+   * Agg(Alias("AVG(age)", aggExpr), Alias("length(name)", groupExpr))
+   */
+  private Expression referenceIfSymbolDefined(Alias expr,
+                                              AnalysisContext context) {
+    UnresolvedExpression delegatedExpr = expr.getDelegated();
+    return optimizer.optimize(delegatedExpr.accept(expressionAnalyzer, context), context);
   }
 
   @Override

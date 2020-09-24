@@ -18,9 +18,12 @@ package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
 
 /**
  * Abstract class for all JSON formatter.
@@ -42,6 +45,11 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
    */
   private final Style style;
 
+  private static final Gson PRETTY_PRINT_GSON =
+      AccessController.doPrivileged(
+          (PrivilegedAction<Gson>) () -> new GsonBuilder().setPrettyPrinting().create());
+  private static final Gson GSON = AccessController.doPrivileged(
+      (PrivilegedAction<Gson>) () -> new GsonBuilder().create());
 
   @Override
   public String format(R response) {
@@ -63,10 +71,9 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
    */
   protected abstract Object buildJsonObject(R response);
 
-
   private String jsonify(Object jsonObject) {
-    JSONObject json = new JSONObject(jsonObject);
-    return (style == PRETTY) ? json.toString(2) : json.toString();
+    return AccessController.doPrivileged((PrivilegedAction<String>) () ->
+        (style == PRETTY) ? PRETTY_PRINT_GSON.toJson(jsonObject) : GSON.toJson(jsonObject));
   }
 
   @RequiredArgsConstructor

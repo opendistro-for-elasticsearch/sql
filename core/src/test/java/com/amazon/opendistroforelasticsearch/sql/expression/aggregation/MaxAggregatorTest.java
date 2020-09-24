@@ -139,7 +139,7 @@ public class MaxAggregatorTest extends AggregationTest {
   public void test_nested_to_string() {
     Aggregator maxAggregator = dsl.max(dsl.add(DSL.ref("integer_value", INTEGER),
         DSL.literal(ExprValueUtils.integerValue(10))));
-    assertEquals(String.format("max(%s + %d)", DSL.ref("integer_value", INTEGER), 10),
+    assertEquals(String.format("max(+(%s, %d))", DSL.ref("integer_value", INTEGER), 10),
         maxAggregator.toString());
   }
 }
