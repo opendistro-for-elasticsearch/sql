@@ -208,6 +208,11 @@ public class TestUtils {
     return getMappingFile(mappingFile);
   }
 
+  public static String getStringIndexMapping() {
+    String mappingFile = "string_index_mapping.json";
+    return getMappingFile(mappingFile);
+  }
+
   public static String getOrderIndexMapping() {
     String mappingFile = "order_index_mapping.json";
     return getMappingFile(mappingFile);

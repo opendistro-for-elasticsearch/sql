@@ -237,12 +237,12 @@ dateAndTimeFunctionBase
     ;
 
 textFunctionBase
-    :
+    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER | CONCAT | CONCAT_WS | LENGTH | STRCMP
     ;
 
 /** operators */
 comparisonOperator
-    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | LIKE
+    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | LIKE | REGEXP
     ;
 
 binaryOperator

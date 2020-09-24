@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
@@ -61,6 +62,7 @@ public class BinaryPredicateOperator {
     repository.register(gte());
     repository.register(like());
     repository.register(notLike());
+    repository.register(regexp());
   }
 
   /**
@@ -243,6 +245,12 @@ public class BinaryPredicateOperator {
     return FunctionDSL.define(BuiltinFunctionName.LIKE.getName(), FunctionDSL
         .impl(FunctionDSL.nullMissingHandling(OperatorUtils::matches), BOOLEAN, STRING,
             STRING));
+  }
+
+  private static FunctionResolver regexp() {
+    return FunctionDSL.define(BuiltinFunctionName.REGEXP.getName(), FunctionDSL
+        .impl(FunctionDSL.nullMissingHandling(OperatorUtils::matchesRegexp),
+            INTEGER, STRING, STRING));
   }
 
   private static FunctionResolver notLike() {

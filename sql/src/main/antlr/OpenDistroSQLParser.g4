@@ -181,6 +181,7 @@ predicate
     | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate NOT? LIKE right=predicate                      #likePredicate
+    | left=predicate REGEXP right=predicate                         #regexpPredicate
     ;
 
 expressionAtom
@@ -212,6 +213,7 @@ functionCall
 scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
+    | textFunctionName
     ;
 
 aggregateFunction
@@ -231,6 +233,11 @@ trigonometricFunctionName
 
 dateTimeFunctionName
     : DAYOFMONTH | DATE | TIME | TIMESTAMP | ADDDATE
+    ;
+
+textFunctionName
+    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
+    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP
     ;
 
 functionArgs
