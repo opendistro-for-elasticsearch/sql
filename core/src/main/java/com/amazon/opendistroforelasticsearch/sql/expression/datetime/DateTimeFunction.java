@@ -37,11 +37,9 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-import java.util.Calendar;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -206,7 +204,7 @@ public class DateTimeFunction {
 
   /**
    * Week for date implementation for ExprValue.
-   * @param date ExprValue of Date type.
+   * @param date ExprValue of Date/Datetime/Timestamp type.
    * @return ExprValue.
    */
   private ExprValue exprWeekWithoutMode(ExprValue date) {
@@ -214,50 +212,8 @@ public class DateTimeFunction {
   }
 
   private ExprValue exprWeek(ExprValue date, ExprValue mode) {
-    Calendar calendar = Calendar.getInstance();
-    int m = mode.integerValue();
-    switch (m) {
-      case 0:
-      case 2:
-        calendar.setFirstDayOfWeek(Calendar.SUNDAY);
-        calendar.setMinimalDaysInFirstWeek(7);
-        break;
-      case 1:
-      case 3:
-        calendar.setFirstDayOfWeek(Calendar.MONDAY);
-        calendar.setMinimalDaysInFirstWeek(5);
-        break;
-      case 4:
-      case 6:
-        calendar.setFirstDayOfWeek(Calendar.SUNDAY);
-        calendar.setMinimalDaysInFirstWeek(4);
-        break;
-      case 5:
-      case 7:
-        calendar.setFirstDayOfWeek(Calendar.MONDAY);
-        calendar.setMinimalDaysInFirstWeek(6);
-        break;
-      default:
-        throw new SemanticCheckException(
-            String.format("mode:%s is invalid, please use mode value between 0-7", m));
-    }
-
-    calendar.set(date.dateValue().getYear(), date.dateValue().getMonthValue() - 1,
-        date.dateValue().getDayOfMonth());
-    int weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
-
-    /*if (weekNumber == 0) {
-      calendar.set(date.dateValue().getYear() - 1, 12, 31);
-      weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
-    }*/
-    if ((weekNumber == 52/* || weekNumber == 53*/)
-        && (m == 0 || m == 1 || m == 4 || m == 5)) {
-      if (calendar.get(Calendar.DAY_OF_MONTH) <= 7) {
-        weekNumber = 0;
-      }
-    }
-
-    return new ExprIntegerValue(weekNumber);
+    CalenderInfo calenderInfo = new CalenderInfo(date);
+    return new ExprIntegerValue(calenderInfo.getWeekNumber(mode.integerValue()));
   }
 
   /**
