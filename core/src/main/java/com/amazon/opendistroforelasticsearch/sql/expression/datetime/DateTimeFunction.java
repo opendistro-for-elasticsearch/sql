@@ -37,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
@@ -142,7 +143,11 @@ public class DateTimeFunction {
   private FunctionResolver week() {
     return define(BuiltinFunctionName.WEEK.getName(),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
-        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER)
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIMESTAMP, INTEGER)
     );
   }
 
@@ -210,7 +215,8 @@ public class DateTimeFunction {
 
   private ExprValue exprWeek(ExprValue date, ExprValue mode) {
     Calendar calendar = Calendar.getInstance();
-    switch (mode.integerValue()) {
+    int m = mode.integerValue();
+    switch (m) {
       case 0:
       case 2:
         calendar.setFirstDayOfWeek(Calendar.SUNDAY);
@@ -232,16 +238,23 @@ public class DateTimeFunction {
         calendar.setMinimalDaysInFirstWeek(6);
         break;
       default:
-        break;
+        throw new SemanticCheckException(
+            String.format("mode:%s is invalid, please use mode value between 0-7", m));
     }
 
     calendar.set(date.dateValue().getYear(), date.dateValue().getMonthValue() - 1,
         date.dateValue().getDayOfMonth());
     int weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
 
-    if (weekNumber == 0) {
+    /*if (weekNumber == 0) {
       calendar.set(date.dateValue().getYear() - 1, 12, 31);
       weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
+    }*/
+    if ((weekNumber == 52/* || weekNumber == 53*/)
+        && (m == 0 || m == 1 || m == 4 || m == 5)) {
+      if (calendar.get(Calendar.DAY_OF_MONTH) <= 7) {
+        weekNumber = 0;
+      }
     }
 
     return new ExprIntegerValue(weekNumber);

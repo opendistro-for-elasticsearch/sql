@@ -28,6 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
@@ -35,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
@@ -147,6 +149,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("week(DATE '2008-02-20')", expression.toString());
     assertEquals(integerValue(7), eval(expression));
 
+    expression = dsl.week(DSL.literal(new ExprDateValue("2008-02-20")), DSL.literal(0));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(DATE '2008-02-20', 0)", expression.toString());
+    assertEquals(integerValue(7), eval(expression));
+
     expression = dsl.week(DSL.literal(new ExprDateValue("2008-02-20")), DSL.literal(1));
     assertEquals(INTEGER, expression.type());
     assertEquals("week(DATE '2008-02-20', 1)", expression.toString());
@@ -162,10 +169,35 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("week(DATE '2000-01-01', 2)", expression.toString());
     assertEquals(integerValue(52), eval(expression));
 
+    expression = dsl.week(DSL.literal(new ExprDateValue("2000-01-01")), DSL.literal(7));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(DATE '2000-01-01', 7)", expression.toString());
+    assertEquals(integerValue(52), eval(expression));
+
     expression = dsl.week(DSL.literal(new ExprDateValue("2000-01-01")), DSL.literal(0));
     assertEquals(INTEGER, expression.type());
     assertEquals("week(DATE '2000-01-01', 0)", expression.toString());
     assertEquals(integerValue(0), eval(expression));
+
+    expression = dsl.week(DSL.literal(new ExprDateValue("2000-01-01")), DSL.literal(4));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(DATE '2000-01-01', 4)", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+  }
+
+  @Test
+  public void modeInUnsupportedFormat() {
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.week(nullRef)));
+    assertEquals(missingValue(), eval(dsl.week(missingRef)));
+
+    FunctionExpression expression = dsl
+        .week(DSL.literal(new ExprDateValue("2000-01-01")), DSL.literal(8));
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class, () -> eval(expression));
+    assertEquals("mode:8 is invalid, please use mode value between 0-7",
+        exception.getMessage());
   }
 
   @Test
