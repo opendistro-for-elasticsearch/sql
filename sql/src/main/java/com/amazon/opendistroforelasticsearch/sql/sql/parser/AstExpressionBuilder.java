@@ -85,11 +85,6 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitKeywordsCanBeId(KeywordsCanBeIdContext ctx) {
-    return new QualifiedName(ctx.getText());
-  }
-
-  @Override
   public UnresolvedExpression visitIdentsAsQualifiedName(IdentsAsQualifiedNameContext ctx) {
     return visitIdentifiers(ctx.ident());
   }
