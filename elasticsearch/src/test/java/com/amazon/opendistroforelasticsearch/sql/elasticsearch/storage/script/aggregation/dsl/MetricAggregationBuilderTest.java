@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.CountAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.MaxAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.MinAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.SumAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
@@ -105,6 +107,38 @@ class MetricAggregationBuilderTest {
             Arrays.asList(
                 named("count(age)",
                     new CountAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)))));
+  }
+
+  @Test
+  void should_build_min_aggregation() {
+    assertEquals(
+        "{\n"
+            + "  \"min(age)\" : {\n"
+            + "    \"min\" : {\n"
+            + "      \"field\" : \"age\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("min(age)",
+                    new MinAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)))));
+  }
+
+  @Test
+  void should_build_max_aggregation() {
+    assertEquals(
+        "{\n"
+            + "  \"max(age)\" : {\n"
+            + "    \"max\" : {\n"
+            + "      \"field\" : \"age\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("max(age)",
+                    new MaxAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)))));
   }
 
   @Test
