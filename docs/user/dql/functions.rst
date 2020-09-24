@@ -754,15 +754,15 @@ Description
 
 Usage: adddate(date, INTERVAL expr unit)/ adddate(date, expr) adds the time interval of second argument to date; adddate(date, days) adds the second argument as integer number of days to date.
 
-Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
 
 Return type map:
 
-(DATE/DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
+(DATE/DATETIME/TIMESTAMP/STRING, INTERVAL) -> DATETIME
 
 (DATE, LONG) -> DATE
 
-(DATETIME/TIMESTAMP, LONG) -> DATETIME
+(DATETIME/TIMESTAMP/STRING, LONG) -> DATETIME
 
 Synonyms: `DATE_ADD`_
 
@@ -830,15 +830,15 @@ Description
 
 Usage: date_add(date, INTERVAL expr unit)/ date_add(date, expr) adds the time interval expr to date
 
-Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
 
 Return type map:
 
-DATE/DATETIME/TIMESTAMP, INTERVAL -> DATETIME
+DATE/DATETIME/TIMESTAMP/STRING, INTERVAL -> DATETIME
 
 DATE, LONG -> DATE
 
-DATETIME/TIMESTAMP, LONG -> DATETIME
+DATETIME/TIMESTAMP/STRING, LONG -> DATETIME
 
 Synonyms: `ADDDATE`_
 
@@ -861,15 +861,15 @@ Description
 
 Usage: date_sub(date, INTERVAL expr unit)/ date_sub(date, expr) subtracts the time interval expr from date
 
-Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
 
 Return type map:
 
-DATE/DATETIME/TIMESTAMP, INTERVAL -> DATETIME
+DATE/DATETIME/TIMESTAMP/STRING, INTERVAL -> DATETIME
 
 DATE, LONG -> DATE
 
-DATETIME/TIMESTAMP, LONG -> DATETIME
+DATETIME/TIMESTAMP/STRING, LONG -> DATETIME
 
 Synonyms: `SUBDATE`_
 
@@ -892,7 +892,7 @@ Description
 
 Usage: day(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -917,7 +917,7 @@ Description
 
 Usage: dayname(date) returns the name of the weekday for date, including Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: STRING
 
@@ -940,7 +940,7 @@ Description
 
 Usage: dayofmonth(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -965,7 +965,7 @@ Description
 
 Usage: dayofweek(date) returns the weekday index for date (1 = Sunday, 2 = Monday, …, 7 = Saturday).
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -989,7 +989,7 @@ Description
 
 Usage:  dayofyear(date) returns the day of the year for date, in the range 1 to 366.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -1035,7 +1035,7 @@ Description
 
 Usage: hour(time) extracts the hour value for time. Different from the time of day value, the time value has a large range and can be greater than 23, so the return value of hour(time) can be also greater than 23.
 
-Argument type: TIME
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -1069,7 +1069,7 @@ Description
 
 Usage: microsecond(expr) returns the microseconds from the time or datetime expression expr as a number in the range from 0 to 999999.
 
-Argument type: TIME
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -1092,7 +1092,7 @@ Description
 
 Usage: minute(time) returns the minute for time, in the range 0 to 59.
 
-Argument type: TIME
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -1115,7 +1115,7 @@ Description
 
 Usage: month(date) returns the month for date, in the range 1 to 12 for January to December. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -1138,7 +1138,7 @@ Description
 
 Usage: monthname(date) returns the full name of the month for date.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: STRING
 
@@ -1172,7 +1172,7 @@ Description
 
 Usage: quarter(date) returns the quarter of the year for date, in the range 1 to 4.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -1195,7 +1195,7 @@ Description
 
 Usage: second(time) returns the second for time, in the range 0 to 59.
 
-Argument type: TIME
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
@@ -1218,15 +1218,15 @@ Description
 
 Usage: subdate(date, INTERVAL expr unit)/ subdate(date, expr) subtracts the time interval expr from date
 
-Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
 
 Return type map:
 
-DATE/DATETIME/TIMESTAMP, INTERVAL -> DATETIME
+DATE/DATETIME/TIMESTAMP/STRING, INTERVAL -> DATETIME
 
 DATE, LONG -> DATE
 
-DATETIME/TIMESTAMP, LONG -> DATETIME
+DATETIME/TIMESTAMP/STRING, LONG -> DATETIME
 
 Synonyms: `DATE_SUB`_
 
@@ -1272,7 +1272,7 @@ Description
 
 Usage: time_to_sec(time) returns the time argument, converted to seconds.
 
-Argument type: TIME
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
 
 Return type: LONG
 
@@ -1318,7 +1318,7 @@ Description
 
 Usage: to_days(date) returns the day number (the number of days since year 0) of the given date. Returns NULL if date is invalid.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: LONG
 
@@ -1342,7 +1342,7 @@ Description
 
 Usage: year(date) returns the year for date, in the range 1000 to 9999, or 0 for the “zero” date.
 
-Argument type: DATE
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
 Return type: INTEGER
 
