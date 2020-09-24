@@ -40,7 +40,7 @@ public abstract class RankingWindowFunction extends FunctionExpression {
 
   @Override
   public ExprType type() {
-    return ExprCoreType.INTEGER; // long is not necessary
+    return ExprCoreType.INTEGER;
   }
 
   @Override

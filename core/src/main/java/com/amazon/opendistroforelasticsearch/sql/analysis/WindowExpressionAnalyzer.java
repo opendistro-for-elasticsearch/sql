@@ -19,8 +19,6 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_DESC;
 
-import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
-import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -38,7 +36,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * Windowed expression analyzer that analyzes window function expression.
+ * Window expression analyzer that analyzes window function expression in expression list
+ * in project operator.
  */
 @RequiredArgsConstructor
 public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
@@ -49,12 +48,13 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
   private final ExpressionAnalyzer expressionAnalyzer;
 
   /**
-   * Child node.
+   * Child node to be wrapped by a new window operator.
    */
   private final LogicalPlan child;
 
   /**
-   * Analyze the given project item and return window operator if window function found.
+   * Analyze the given project item and return window operator (with child node inside)
+   * if the given project item is a window function.
    * @param projectItem   project item
    * @param context       analysis context
    * @return              window operator or original child if not windowed
@@ -78,16 +78,13 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
     List<Pair<Sort.SortOption, Expression>> sortList = analyzeSortList(node, context);
     WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
 
-    context.peek().define(
-        new Symbol(Namespace.FIELD_NAME, windowFunction.toString()), windowFunction.type());
-
     return new LogicalWindow(
         new LogicalSort(child, 1000, windowDefinition.getAllSortItems()),
         windowFunction,
         windowDefinition);
   }
 
-  private boolean isWindowed(UnresolvedExpression projectItem) {
+  private boolean isWindowed(UnresolvedExpression projectItem) { //TODO: hide this logic in visit
     return (projectItem instanceof Alias)
         && (((Alias) projectItem).getDelegated() instanceof WindowFunction);
   }

@@ -25,6 +25,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Logical operator for window function generated from project list. Logically, each window operator
+ * has to work with a Sort operator to ensure input data is sorted as required by window definition.
+ * However, the Sort operator may be removed after logical optimization.
+ */
 @EqualsAndHashCode(callSuper = false)
 @Getter
 @RequiredArgsConstructor
