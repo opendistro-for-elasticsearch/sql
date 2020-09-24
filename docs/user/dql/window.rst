@@ -39,10 +39,14 @@ The syntax of a window function is as follows in which both ``PARTITION BY`` and
 Ranking Functions
 =================
 
+Ranking functions are window functions that assign an incremental rank to each row in the window. How the rank number gets increased is up to ranking function implementation, though the rank is mostly determined by field values in ``ORDER BY`` list. If ``PARTITION BY`` clause present, the state of ranking functions (incremental rank number maintained) will be reset.
+
+Note that normally ranking functions are supposed to be used with window definition that defines the order of data rows in the window. Otherwise the result is undetermined.
+
 ROW_NUMBER
 ----------
 
-Here is an example for ``ROW_NUMBER`` function::
+``ROW_NUMBER`` function assigns a row number to each row. As a special case, the row number is always increased by one regardless of the fields specified in ``ORDER BY`` list. Here is an example for ``ROW_NUMBER`` function::
 
     od> SELECT gender, balance, ROW_NUMBER() OVER(PARTITION BY gender ORDER BY balance) AS num FROM accounts;
     fetched rows / total rows = 4/4
@@ -59,7 +63,7 @@ Here is an example for ``ROW_NUMBER`` function::
 RANK
 ----
 
-Here is an example for ``RANK`` function::
+``RANK`` function assigns a rank to each row. For rows that have same values for fields specified in ``ORDER BY`` list, same rank is assigned. If this is the case, the next few ranks will be skipped depending on how many ties. Here is an example for ``RANK`` function::
 
     od> SELECT gender, RANK() OVER(ORDER BY gender DESC) AS rnk FROM accounts;
     fetched rows / total rows = 4/4
@@ -76,7 +80,7 @@ Here is an example for ``RANK`` function::
 DENSE_RANK
 ----------
 
-Here is an example for ``DENSE_RANK`` function::
+Similarly as ``RANK``, ``DENSE_RANK`` function also assigns a rank to each row. The difference is there is no gap between ranks. Here is an example for ``DENSE_RANK`` function::
 
     od> SELECT gender, DENSE_RANK() OVER(ORDER BY gender DESC) AS rnk FROM accounts;
     fetched rows / total rows = 4/4
