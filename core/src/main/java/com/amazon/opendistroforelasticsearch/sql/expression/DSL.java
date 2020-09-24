@@ -273,6 +273,54 @@ public class DSL {
     return function(BuiltinFunctionName.MODULES, expressions);
   }
 
+  public FunctionExpression substr(Expression... expressions) {
+    return function(BuiltinFunctionName.SUBSTR, expressions);
+  }
+  
+  public FunctionExpression substring(Expression... expressions) {
+    return function(BuiltinFunctionName.SUBSTR, expressions);
+  }
+
+  public FunctionExpression ltrim(Expression... expressions) {
+    return function(BuiltinFunctionName.LTRIM, expressions);
+  }
+
+  public FunctionExpression rtrim(Expression... expressions) {
+    return function(BuiltinFunctionName.RTRIM, expressions);
+  }
+
+  public FunctionExpression trim(Expression... expressions) {
+    return function(BuiltinFunctionName.TRIM, expressions);
+  }
+
+  public FunctionExpression upper(Expression... expressions) {
+    return function(BuiltinFunctionName.UPPER, expressions);
+  }
+
+  public FunctionExpression lower(Expression... expressions) {
+    return function(BuiltinFunctionName.LOWER, expressions);
+  }
+
+  public FunctionExpression regexp(Expression... expressions) {
+    return function(BuiltinFunctionName.REGEXP, expressions);
+  }
+
+  public FunctionExpression concat(Expression... expressions) {
+    return function(BuiltinFunctionName.CONCAT, expressions);
+  }
+
+  public FunctionExpression concat_ws(Expression... expressions) {
+    return function(BuiltinFunctionName.CONCAT_WS, expressions);
+  }
+
+  public FunctionExpression length(Expression... expressions) {
+    return function(BuiltinFunctionName.LENGTH, expressions);
+  }
+
+  public FunctionExpression strcmp(Expression... expressions) {
+    return function(BuiltinFunctionName.STRCMP, expressions);
+  }
+
   public FunctionExpression and(Expression... expressions) {
     return function(BuiltinFunctionName.AND, expressions);
   }

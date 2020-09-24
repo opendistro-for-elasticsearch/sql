@@ -71,6 +71,7 @@ XOR:                                'XOR';
 TRUE:                               'TRUE';
 FALSE:                              'FALSE';
 LIKE:                               'LIKE';
+REGEXP:                             'REGEXP';
 
 // DATETIME, INTERVAL AND UNIT KEYWORDS
 DATETIME:                           'DATETIME';
@@ -202,6 +203,20 @@ DATE:                               'DATE';
 TIME:                               'TIME';
 TIMESTAMP:                          'TIMESTAMP';
 ADDDATE:                            'ADDDATE';
+
+// TEXT FUNCTIONS
+SUBSTR:                             'SUBSTR';
+SUBSTRING:                          'SUBSTRING';
+LTRIM:                              'LTRIM';
+RTRIM:                              'RTRIM';
+TRIM:                               'TRIM';
+TO:                                 'TO';
+LOWER:                              'LOWER';
+UPPER:                              'UPPER';
+CONCAT:                             'CONCAT';
+CONCAT_WS:                          'CONCAT_WS';
+LENGTH:                             'LENGTH';
+STRCMP:                             'STRCMP';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;

@@ -267,9 +267,12 @@ WEEK_OF_YEAR:                       'WEEK_OF_YEAR';
 WILDCARDQUERY:                      'WILDCARDQUERY';
 WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
+// TEXT FUNCTIONS
+SUBSTR:                             'SUBSTR';
+STRCMP:                             'STRCMP';
+
 // DATE AND TIME FUNCTIONS
 ADDDATE:                            'ADDDATE';
-
 
 // Operators
 

@@ -95,6 +95,22 @@ public enum BuiltinFunctionName {
   COUNT(FunctionName.of("count")),
 
   /**
+   * Text Functions.
+   */
+  SUBSTR(FunctionName.of("substr")),
+  SUBSTRING(FunctionName.of("substring")),
+  RTRIM(FunctionName.of("rtrim")),
+  LTRIM(FunctionName.of("ltrim")),
+  TRIM(FunctionName.of("trim")),
+  UPPER(FunctionName.of("upper")),
+  LOWER(FunctionName.of("lower")),
+  REGEXP(FunctionName.of("regexp")),
+  CONCAT(FunctionName.of("concat")),
+  CONCAT_WS(FunctionName.of("concat_ws")),
+  LENGTH(FunctionName.of("length")),
+  STRCMP(FunctionName.of("strcmp")),
+
+  /**
    * NULL Test.
    */
   IS_NULL(FunctionName.of("is null")),
