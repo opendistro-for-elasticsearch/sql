@@ -68,6 +68,22 @@ class SortOperatorTest extends PhysicalPlanTestBase {
   }
 
   @Test
+  public void sort_one_field_with_count_equal_to_zero_should_return_all() {
+    when(inputPlan.hasNext()).thenReturn(true, true, true, false);
+    when(inputPlan.next())
+        .thenReturn(tupleValue(ImmutableMap.of("size", 499, "response", 404)))
+        .thenReturn(tupleValue(ImmutableMap.of("size", 320, "response", 200)))
+        .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
+
+    assertThat(
+        execute(sort(inputPlan, 0, Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
+        contains(
+            tupleValue(ImmutableMap.of("size", 320, "response", 200)),
+            tupleValue(ImmutableMap.of("size", 499, "response", 404)),
+            tupleValue(ImmutableMap.of("size", 399, "response", 503))));
+  }
+
+  @Test
   public void sort_one_field_with_duplication() {
     when(inputPlan.hasNext()).thenReturn(true, true, true, false);
     when(inputPlan.next())
