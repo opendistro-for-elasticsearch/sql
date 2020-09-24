@@ -17,6 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +46,40 @@ public class ExprStringValue extends AbstractExprValue {
   @Override
   public String stringValue() {
     return value;
+  }
+
+  @Override
+  public LocalDateTime datetimeValue() {
+    ExprValue date;
+    try {
+      date = new ExprDatetimeValue(value);
+    } catch (SemanticCheckException e) {
+      date = new ExprDateValue(value);
+      date = new ExprDatetimeValue(LocalDateTime.of(date.dateValue(), LocalTime.of(0, 0, 0)));
+    }
+    return date.datetimeValue();
+  }
+
+  @Override
+  public LocalDate dateValue() {
+    ExprValue date;
+    try {
+      date = new ExprDatetimeValue(value);
+    } catch (SemanticCheckException e) {
+      date = new ExprDateValue(value);
+    }
+    return date.dateValue();
+  }
+
+  @Override
+  public LocalTime timeValue() {
+    ExprValue date;
+    try {
+      date = new ExprDatetimeValue(value);
+    } catch (SemanticCheckException e) {
+      date = new ExprTimeValue(value);
+    }
+    return date.timeValue();
   }
 
   @Override

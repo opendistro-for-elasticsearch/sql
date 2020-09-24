@@ -56,11 +56,15 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("adddate('2020-09-16', 1)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17"));
 
-    result =
-        executeQuery("select adddate('2020-09-16 17:30:00', interval 1 day)");
+    result = executeQuery("select adddate('2020-09-16 17:30:00', interval 1 day)");
     verifySchema(result,
         schema("adddate('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17 17:30:00"));
+
+    result = executeQuery("select adddate('2020-09-16', interval 1 day)");
+    verifySchema(result,
+        schema("adddate('2020-09-16', interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17"));
   }
 
   @Test
@@ -79,11 +83,15 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("date_add('2020-09-16', 1)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17"));
 
-    result =
-        executeQuery("select date_add('2020-09-16 17:30:00', interval 1 day)");
+    result = executeQuery("select date_add('2020-09-16 17:30:00', interval 1 day)");
     verifySchema(result,
         schema("date_add('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17 17:30:00"));
+
+    result = executeQuery("select date_add('2020-09-16', interval 1 day)");
+    verifySchema(result,
+        schema("date_add('2020-09-16', interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-17"));
   }
 
   @Test
@@ -102,11 +110,15 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("date_sub('2020-09-16', 1)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15"));
 
-    result =
-        executeQuery("select date_sub('2020-09-16 17:30:00', interval 1 day)");
+    result = executeQuery("select date_sub('2020-09-16 17:30:00', interval 1 day)");
     verifySchema(result,
         schema("date_sub('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15 17:30:00"));
+
+    result = executeQuery("select date_sub('2020-09-16', interval 1 day)");
+    verifySchema(result,
+        schema("date_sub('2020-09-16', interval 1 day)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-15"));
   }
 
   @Test
@@ -293,14 +305,18 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result, schema("subdate(date('2020-09-16'), 1)", null, "date"));
     verifyDataRows(result, rows("2020-09-15"));
 
-    result =
-        executeQuery("select subdate('2020-09-16 17:30:00', interval 1 day)");
+    result = executeQuery("select subdate('2020-09-16 17:30:00', interval 1 day)");
     verifySchema(result,
         schema("subdate('2020-09-16 17:30:00', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15 17:30:00"));
 
     result = executeQuery("select subdate('2020-09-16', 1)");
     verifySchema(result, schema("subdate('2020-09-16', 1)", null, "datetime"));
+    verifyDataRows(result, rows("2020-09-15"));
+
+    result = executeQuery("select subdate('2020-09-16', interval 1 day)");
+    verifySchema(result,
+        schema("subdate('2020-09-16', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-15"));
   }
 

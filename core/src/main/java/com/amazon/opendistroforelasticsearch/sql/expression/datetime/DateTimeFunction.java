@@ -37,15 +37,11 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -100,8 +96,9 @@ public class DateTimeFunction {
    * (DATE, LONG) -> DATE
    * (STRING/DATETIME/TIMESTAMP, LONG) -> DATETIME
    */
-  private FunctionResolver adddate() {
-    return define(BuiltinFunctionName.ADDDATE.getName(),
+
+  private FunctionResolver add_date(FunctionName functionName) {
+    return define(functionName,
         impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
             DATETIME, STRING, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATETIME, DATE, INTERVAL),
@@ -114,6 +111,10 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, STRING, LONG)
     );
+  }
+
+  private FunctionResolver adddate() {
+    return add_date(BuiltinFunctionName.ADDDATE.getName());
   }
 
   /**
@@ -129,27 +130,8 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprDate), DATE, TIMESTAMP));
   }
 
-  /**
-   * Specify a start date and add a temporal amount to the date.
-   * The return type depends on the date type and the interval unit. Detailed supported signatures:
-   * (STRING/DATE/DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
-   * (DATE, LONG) -> DATE
-   * (STRING/DATETIME/TIMESTAMP, LONG) -> DATETIME
-   */
   private FunctionResolver date_add() {
-    return define(BuiltinFunctionName.DATE_ADD.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, STRING, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval), DATETIME, DATE, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, DATETIME, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateInterval),
-            DATETIME, TIMESTAMP, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATE, DATE, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, TIMESTAMP, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprAddDateDays), DATETIME, STRING, LONG)
-    );
+    return add_date(BuiltinFunctionName.DATE_ADD.getName());
   }
 
   /**
@@ -159,8 +141,8 @@ public class DateTimeFunction {
    * (DATE, LONG) -> DATE
    * (STRING/DATETIME/TIMESTAMP, LONG) -> DATETIME
    */
-  private FunctionResolver date_sub() {
-    return define(BuiltinFunctionName.DATE_SUB.getName(),
+  private FunctionResolver sub_date(FunctionName functionName) {
+    return define(functionName,
         impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
             DATETIME, STRING, INTERVAL),
         impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATETIME, DATE, INTERVAL),
@@ -173,6 +155,10 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIMESTAMP, LONG),
         impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, STRING, LONG)
     );
+  }
+
+  private FunctionResolver date_sub() {
+    return sub_date(BuiltinFunctionName.DATE_SUB.getName());
   }
 
   /**
@@ -331,27 +317,8 @@ public class DateTimeFunction {
     );
   }
 
-  /**
-   * Specify a start date and subtract a temporal amount to the date.
-   * The return type depends on the date type and the interval unit. Detailed supported signatures:
-   * (STRING/DATE/DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
-   * (DATE, LONG) -> DATE
-   * (STRING/DATETIME/TIMESTAMP, LONG) -> DATETIME
-   */
   private FunctionResolver subdate() {
-    return define(BuiltinFunctionName.SUBDATE.getName(),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-            DATETIME, STRING, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval), DATETIME, DATE, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-            DATETIME, DATETIME, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateInterval),
-            DATETIME, TIMESTAMP, INTERVAL),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATE, DATE, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, DATETIME, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, TIMESTAMP, LONG),
-        impl(nullMissingHandling(DateTimeFunction::exprSubDateDays), DATETIME, STRING, LONG)
-    );
+    return sub_date(BuiltinFunctionName.SUBDATE.getName());
   }
 
   /**
@@ -424,9 +391,9 @@ public class DateTimeFunction {
    * @return Datetime resulted from expr added to date.
    */
   private ExprValue exprAddDateInterval(ExprValue date, ExprValue expr) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    return new ExprDatetimeValue(exprValue.datetimeValue().plus(expr.intervalValue()));
+    ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().plus(expr.intervalValue()));
+    return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
+        : exprValue);
   }
 
   /**
@@ -437,12 +404,9 @@ public class DateTimeFunction {
    * @return Date/Datetime resulted from days added to date.
    */
   private ExprValue exprAddDateDays(ExprValue date, ExprValue days) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    if (exprValue instanceof ExprDateValue) {
-      return new ExprDateValue(exprValue.dateValue().plusDays(days.longValue()));
-    }
-    return new ExprDatetimeValue(exprValue.datetimeValue().plusDays(days.longValue()));
+    ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().plusDays(days.longValue()));
+    return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
+        : exprValue);
   }
 
   /**
@@ -466,10 +430,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayName(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
     return new ExprStringValue(
-        exprValue.dateValue().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
+        date.dateValue().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault()));
   }
 
   /**
@@ -479,9 +441,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfMonth(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    return new ExprIntegerValue(exprValue.dateValue().getDayOfMonth());
+    return new ExprIntegerValue(date.dateValue().getDayOfMonth());
   }
 
   /**
@@ -491,9 +451,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfWeek(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    return new ExprIntegerValue((exprValue.dateValue().getDayOfWeek().getValue() % 7) + 1);
+    return new ExprIntegerValue((date.dateValue().getDayOfWeek().getValue() % 7) + 1);
   }
 
   /**
@@ -503,9 +461,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprDayOfYear(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    return new ExprIntegerValue(exprValue.dateValue().getDayOfYear());
+    return new ExprIntegerValue(date.dateValue().getDayOfYear());
   }
 
   /**
@@ -525,9 +481,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprHour(ExprValue time) {
-    ExprValue exprValue =
-        time instanceof ExprStringValue ? getStringValue(time.stringValue()) : time;
-    return new ExprIntegerValue(exprValue.timeValue().getHour());
+    return new ExprIntegerValue(time.timeValue().getHour());
   }
 
   /**
@@ -537,10 +491,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMicrosecond(ExprValue time) {
-    ExprValue exprValue =
-        time instanceof ExprStringValue ? getStringValue(time.stringValue()) : time;
     return new ExprIntegerValue(
-        TimeUnit.MICROSECONDS.convert(exprValue.timeValue().getNano(), TimeUnit.NANOSECONDS));
+        TimeUnit.MICROSECONDS.convert(time.timeValue().getNano(), TimeUnit.NANOSECONDS));
   }
 
   /**
@@ -550,9 +502,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMinute(ExprValue time) {
-    ExprValue exprValue =
-        time instanceof ExprStringValue ? getStringValue(time.stringValue()) : time;
-    return new ExprIntegerValue(exprValue.timeValue().getMinute());
+    return new ExprIntegerValue(time.timeValue().getMinute());
   }
 
   /**
@@ -562,9 +512,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMonth(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    return new ExprIntegerValue(exprValue.dateValue().getMonthValue());
+    return new ExprIntegerValue(date.dateValue().getMonthValue());
   }
 
   /**
@@ -574,10 +522,8 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprMonthName(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
     return new ExprStringValue(
-        exprValue.dateValue().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
+        date.dateValue().getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
   }
 
   /**
@@ -587,9 +533,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprQuarter(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    int month = exprValue.dateValue().getMonthValue();
+    int month = date.dateValue().getMonthValue();
     return new ExprIntegerValue((month / 3) + ((month % 3) == 0 ? 0 : 1));
   }
 
@@ -600,9 +544,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprSecond(ExprValue time) {
-    ExprValue exprValue =
-        time instanceof ExprStringValue ? getStringValue(time.stringValue()) : time;
-    return new ExprIntegerValue(exprValue.timeValue().getSecond());
+    return new ExprIntegerValue(time.timeValue().getSecond());
   }
 
   /**
@@ -613,13 +555,9 @@ public class DateTimeFunction {
    * @return Date/Datetime resulted from days subtracted to date.
    */
   private ExprValue exprSubDateDays(ExprValue date, ExprValue days) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    if (exprValue instanceof ExprDateValue) {
-      return new ExprDateValue(exprValue.dateValue().minusDays(days.longValue()));
-    } else {
-      return new ExprDatetimeValue(exprValue.datetimeValue().minusDays(days.longValue()));
-    }
+    ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().minusDays(days.longValue()));
+    return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
+        : exprValue);
   }
 
   /**
@@ -630,9 +568,9 @@ public class DateTimeFunction {
    * @return Datetime resulted from expr subtracted to date.
    */
   private ExprValue exprSubDateInterval(ExprValue date, ExprValue expr) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    return new ExprDatetimeValue(exprValue.datetimeValue().minus(expr.intervalValue()));
+    ExprValue exprValue = new ExprDatetimeValue(date.datetimeValue().minus(expr.intervalValue()));
+    return (exprValue.timeValue().toSecondOfDay() == 0 ? new ExprDateValue(exprValue.dateValue())
+        : exprValue);
   }
 
   /**
@@ -670,9 +608,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprTimeToSec(ExprValue time) {
-    ExprValue exprValue =
-        time instanceof ExprStringValue ? getStringValue(time.stringValue()) : time;
-    return new ExprLongValue(exprValue.timeValue().toSecondOfDay());
+    return new ExprLongValue(time.timeValue().toSecondOfDay());
   }
 
   /**
@@ -682,9 +618,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprToDays(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    return new ExprLongValue(exprValue.dateValue().toEpochDay() + DAYS_0000_TO_1970);
+    return new ExprLongValue(date.dateValue().toEpochDay() + DAYS_0000_TO_1970);
   }
 
   /**
@@ -694,73 +628,7 @@ public class DateTimeFunction {
    * @return ExprValue.
    */
   private ExprValue exprYear(ExprValue date) {
-    ExprValue exprValue =
-        date instanceof ExprStringValue ? getStringValue(date.stringValue()) : date;
-    return new ExprIntegerValue(exprValue.dateValue().getYear());
+    return new ExprIntegerValue(date.dateValue().getYear());
   }
 
-  /**
-   * Returns date, time or datetime for string value.
-   *
-   * @param string ExprValue of String type.
-   * @return ExprValue.
-   */
-  private ExprValue getStringValue(String string) {
-    if (isValidDateTime(string)) {
-      return new ExprDatetimeValue(string);
-    } else if (isValidDate(string)) {
-      return new ExprDateValue(string);
-    } else if (isValidTime(string)) {
-      return new ExprTimeValue(string);
-    }
-    throw new SemanticCheckException(String.format("%s in unsupported format, please "
-        + "use yyyy-MM-dd HH:mm:ss[.SSSSSS]", string));
-  }
-
-  /**
-   * Returns true if string is in datetime format.
-   *
-   * @param datetime ExprValue of String type.
-   * @return ExprValue.
-   */
-  private boolean isValidDateTime(String datetime) {
-    final DateTimeFormatter formatter = DateTimeFormatter
-        .ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS]");
-    try {
-      LocalDateTime.parse(datetime, formatter);
-      return true;
-    } catch (DateTimeParseException e) {
-      return false;
-    }
-  }
-
-  /**
-   * Returns true if string is in date format.
-   *
-   * @param date ExprValue of String type.
-   * @return ExprValue.
-   */
-  private boolean isValidDate(String date) {
-    try {
-      LocalDate.parse(date);
-      return true;
-    } catch (DateTimeParseException e) {
-      return false;
-    }
-  }
-
-  /**
-   * Returns true if string is in time format.
-   *
-   * @param time ExprValue of String type.
-   * @return ExprValue.
-   */
-  private boolean isValidTime(String time) {
-    try {
-      LocalTime.parse(time);
-      return true;
-    } catch (DateTimeParseException e) {
-      return false;
-    }
-  }
 }

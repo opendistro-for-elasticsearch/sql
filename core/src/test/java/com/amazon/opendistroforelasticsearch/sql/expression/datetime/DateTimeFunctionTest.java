@@ -31,7 +31,6 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
@@ -40,7 +39,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
@@ -103,6 +101,12 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(DATETIME, expr.type());
     assertEquals(new ExprDatetimeValue("2020-08-26 01:00:00"), expr.valueOf(env));
     assertEquals("adddate(\"2020-08-26\", interval(1, \"hour\"))", expr.toString());
+
+    expr = dsl
+        .adddate(DSL.literal("2020-08-26"), dsl.interval(DSL.literal(1), DSL.literal("day")));
+    assertEquals(DATETIME, expr.type());
+    assertEquals(new ExprDateValue("2020-08-27"), expr.valueOf(env));
+    assertEquals("adddate(\"2020-08-26\", interval(1, \"day\"))", expr.toString());
 
     when(nullRef.type()).thenReturn(DATE);
     assertEquals(nullValue(), eval(dsl.adddate(nullRef, DSL.literal(1L))));
@@ -596,11 +600,6 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals(integerValue(3), expression.valueOf(env));
     assertEquals("second(DATETIME '2020-08-17 01:02:03')", expression.toString());
-
-    SemanticCheckException exception =
-        assertThrows(SemanticCheckException.class, () -> eval(dsl.second(DSL.literal("01:01:0C"))));
-    assertEquals("01:01:0C in unsupported format, please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
-        exception.getMessage());
   }
 
   @Test
@@ -610,16 +609,40 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(new ExprDateValue("2020-08-19"), expr.valueOf(env));
     assertEquals("subdate(date(\"2020-08-26\"), 7)", expr.toString());
 
+    expr = dsl.subdate(DSL.literal("2020-08-26"), DSL.literal(7));
+    assertEquals(DATETIME, expr.type());
+    assertEquals(new ExprDateValue("2020-08-19"), expr.valueOf(env));
+    assertEquals("subdate(\"2020-08-26\", 7)", expr.toString());
+
     expr = dsl.subdate(dsl.timestamp(DSL.literal("2020-08-26 12:05:00")), DSL.literal(7));
     assertEquals(DATETIME, expr.type());
     assertEquals(new ExprDatetimeValue("2020-08-19 12:05:00"), expr.valueOf(env));
     assertEquals("subdate(timestamp(\"2020-08-26 12:05:00\"), 7)", expr.toString());
+
+    expr = dsl.subdate(DSL.literal("2020-08-26 12:05:00"), DSL.literal(7));
+    assertEquals(DATETIME, expr.type());
+    assertEquals(new ExprDatetimeValue("2020-08-19 12:05:00"), expr.valueOf(env));
+    assertEquals("subdate(\"2020-08-26 12:05:00\", 7)", expr.toString());
 
     expr = dsl.subdate(dsl.timestamp(DSL.literal("2020-08-26 12:05:00")),
         dsl.interval(DSL.literal(1), DSL.literal("hour")));
     assertEquals(DATETIME, expr.type());
     assertEquals(new ExprDatetimeValue("2020-08-26 11:05:00"), expr.valueOf(env));
     assertEquals("subdate(timestamp(\"2020-08-26 12:05:00\"), interval(1, \"hour\"))",
+        expr.toString());
+
+    expr = dsl.subdate(DSL.literal("2020-08-26 12:05:00"),
+        dsl.interval(DSL.literal(1), DSL.literal("hour")));
+    assertEquals(DATETIME, expr.type());
+    assertEquals(new ExprDatetimeValue("2020-08-26 11:05:00"), expr.valueOf(env));
+    assertEquals("subdate(\"2020-08-26 12:05:00\", interval(1, \"hour\"))",
+        expr.toString());
+
+    expr = dsl.subdate(DSL.literal("2020-08-26"),
+        dsl.interval(DSL.literal(1), DSL.literal("day")));
+    assertEquals(DATETIME, expr.type());
+    assertEquals(new ExprDateValue("2020-08-25"), expr.valueOf(env));
+    assertEquals("subdate(\"2020-08-26\", interval(1, \"day\"))",
         expr.toString());
 
     when(nullRef.type()).thenReturn(DATE);
