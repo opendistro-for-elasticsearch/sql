@@ -23,7 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -60,10 +60,8 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
    * @return              window operator or original child if not windowed
    */
   public LogicalPlan analyze(UnresolvedExpression projectItem, AnalysisContext context) {
-    if (isWindowed(projectItem)) {
-      return projectItem.accept(this, context);
-    }
-    return child;
+    LogicalPlan window = projectItem.accept(this, context);
+    return (window == null) ? child : window;
   }
 
   @Override
@@ -75,18 +73,13 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
   public LogicalPlan visitWindowFunction(WindowFunction node, AnalysisContext context) {
     Expression windowFunction = expressionAnalyzer.analyze(node, context);
     List<Expression> partitionByList = analyzePartitionList(node, context);
-    List<Pair<Sort.SortOption, Expression>> sortList = analyzeSortList(node, context);
+    List<Pair<SortOption, Expression>> sortList = analyzeSortList(node, context);
     WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
 
     return new LogicalWindow(
-        new LogicalSort(child, 1000, windowDefinition.getAllSortItems()),
+        new LogicalSort(child, 0, windowDefinition.getAllSortItems()),
         windowFunction,
         windowDefinition);
-  }
-
-  private boolean isWindowed(UnresolvedExpression projectItem) { //TODO: hide this logic in visit
-    return (projectItem instanceof Alias)
-        && (((Alias) projectItem).getDelegated() instanceof WindowFunction);
   }
 
   private List<Expression> analyzePartitionList(WindowFunction node, AnalysisContext context) {
@@ -96,8 +89,8 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
                .collect(Collectors.toList());
   }
 
-  private List<Pair<Sort.SortOption, Expression>> analyzeSortList(WindowFunction node,
-                                                                  AnalysisContext context) {
+  private List<Pair<SortOption, Expression>> analyzeSortList(WindowFunction node,
+                                                             AnalysisContext context) {
     return node.getSortList()
                .stream()
                .map(pair -> ImmutablePair
@@ -106,7 +99,7 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
                .collect(Collectors.toList());
   }
 
-  private Sort.SortOption getSortOption(String option) {
+  private SortOption getSortOption(String option) {
     return "ASC".equalsIgnoreCase(option) ? DEFAULT_ASC : DEFAULT_DESC;
   }
 
