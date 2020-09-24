@@ -64,7 +64,9 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
     }
 
     public void min(ExprValue value) {
-      minResult = minResult.isNull() ? value : minResult.compareTo(value) < 0 ? minResult : value;
+      minResult = minResult.isNull() ? value
+          : (minResult.compareTo(value) < 0)
+          ? minResult : value;
     }
 
     @Override

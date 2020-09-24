@@ -59,7 +59,9 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
     }
 
     public void max(ExprValue value) {
-      maxResult = maxResult.isNull() ? value : maxResult.compareTo(value) > 0 ? maxResult : value;
+      maxResult = maxResult.isNull() ? value
+          : (maxResult.compareTo(value) > 0)
+          ? maxResult : value;
     }
 
     @Override
