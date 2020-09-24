@@ -247,7 +247,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     }
 
     List<NamedExpression> namedExpressions =
-        selectExpressionAnalyzer.analyze(node.getProjectList(), context);
+        selectExpressionAnalyzer.analyze(node.getProjectList(), context,
+            new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child));
     // new context
     context.push();
     TypeEnvironment newEnv = context.peek();

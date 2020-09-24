@@ -18,8 +18,14 @@ import TranslateService from '../services/TranslateService';
 
 export default function translate(server: Server, service: TranslateService) {
   server.route({
-    path: '/api/sql_console/translate',
+    path: '/api/sql_console/translatesql',
     method: 'POST',
-    handler: service.translateQuery
+    handler: service.translateSQL
+  });
+
+  server.route({
+    path: '/api/sql_console/translateppl',
+    method: 'POST',
+    handler: service.translatePPL
   });
 }

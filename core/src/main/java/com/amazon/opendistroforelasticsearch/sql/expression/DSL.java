@@ -265,6 +265,9 @@ public class DSL {
     return function(BuiltinFunctionName.WEEK, expressions);
   }
 
+  public FunctionExpression adddate(Expression... expressions) {
+    return function(BuiltinFunctionName.ADDDATE, expressions);
+  }
 
   public FunctionExpression divide(Expression... expressions) {
     return function(BuiltinFunctionName.DIVIDE, expressions);

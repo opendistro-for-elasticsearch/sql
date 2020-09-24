@@ -89,6 +89,9 @@ public class AnalyzerTestBase {
   }
 
   @Autowired
+  protected BuiltinFunctionRepository functionRepository;
+
+  @Autowired
   protected DSL dsl;
 
   @Autowired
