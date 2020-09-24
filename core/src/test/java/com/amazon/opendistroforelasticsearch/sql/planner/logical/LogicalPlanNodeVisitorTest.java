@@ -105,7 +105,8 @@ class LogicalPlanNodeVisitorTest {
     assertNull(eval.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    LogicalPlan sort = LogicalPlanDSL.sort(relation, 100, Pair.of(SortOption.PPL_ASC, expression));
+    LogicalPlan sort = LogicalPlanDSL.sort(relation, 100,
+        Pair.of(SortOption.DEFAULT_ASC, expression));
     assertNull(sort.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
@@ -114,7 +115,7 @@ class LogicalPlanNodeVisitorTest {
     }, null));
 
     LogicalPlan window = LogicalPlanDSL.window(relation, expression, new WindowDefinition(
-        ImmutableList.of(ref), ImmutableList.of(Pair.of(SortOption.PPL_ASC, expression))));
+        ImmutableList.of(ref), ImmutableList.of(Pair.of(SortOption.DEFAULT_ASC, expression))));
     assertNull(window.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

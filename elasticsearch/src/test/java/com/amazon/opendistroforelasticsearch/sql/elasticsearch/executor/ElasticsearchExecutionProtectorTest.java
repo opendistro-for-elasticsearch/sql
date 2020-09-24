@@ -17,7 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
@@ -113,7 +113,7 @@ class ElasticsearchExecutionProtectorTest {
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(PPL_ASC, ref("name1", STRING));
+        ImmutablePair.of(DEFAULT_ASC, ref("name1", STRING));
 
     assertEquals(
         PhysicalPlanDSL.project(
@@ -183,7 +183,7 @@ class ElasticsearchExecutionProtectorTest {
   public void testProtectSort() {
     Expression rank = mock(RankFunction.class);
     Pair<Sort.SortOption, Expression> sortItem =
-        ImmutablePair.of(PPL_ASC, DSL.ref("age", INTEGER));
+        ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER));
     WindowDefinition windowDefinition =
         new WindowDefinition(emptyList(), ImmutableList.of(sortItem));
 

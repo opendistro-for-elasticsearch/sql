@@ -22,8 +22,6 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -129,7 +127,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(eval.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.PPL_ASC, ref));
+    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.DEFAULT_ASC, ref));
     assertNull(sort.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

@@ -85,7 +85,7 @@ class DefaultImplementorTest {
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
+        ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("name1", STRING));
     Boolean keeplast = true;
     Expression whileExpr = literal(ExprBooleanValue.of(true));
     Integer number = 5;
@@ -163,15 +163,15 @@ class DefaultImplementorTest {
     WindowDefinition windowDefinition = new WindowDefinition(
         Collections.singletonList(ref("state", STRING)),
         Collections.singletonList(
-            ImmutablePair.of(Sort.SortOption.PPL_DESC, ref("age", INTEGER))));
+            ImmutablePair.of(Sort.SortOption.DEFAULT_DESC, ref("age", INTEGER))));
 
     NamedExpression[] projectList = {
         named("state", ref("state", STRING)),
         named("row_number", ref("row_number", INTEGER))
     };
     Pair[] sortList = {
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("state", STRING)),
-        ImmutablePair.of(Sort.SortOption.PPL_DESC, ref("age", STRING))
+        ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("state", STRING)),
+        ImmutablePair.of(Sort.SortOption.DEFAULT_DESC, ref("age", STRING))
     };
 
     LogicalPlan logicalPlan =

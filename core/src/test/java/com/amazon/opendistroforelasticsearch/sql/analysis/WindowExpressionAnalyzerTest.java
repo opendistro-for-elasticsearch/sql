@@ -16,8 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_DESC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_DESC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,12 +63,13 @@ class WindowExpressionAnalyzerTest extends AnalyzerTestBase {
             LogicalPlanDSL.sort(
                 LogicalPlanDSL.relation("test"),
                 1000,
-                ImmutablePair.of(PPL_ASC, DSL.ref("string_value", STRING)),
-                ImmutablePair.of(PPL_DESC, DSL.ref("integer_value", INTEGER))),
+                ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
+                ImmutablePair.of(DEFAULT_DESC, DSL.ref("integer_value", INTEGER))),
             dsl.rowNumber(),
             new WindowDefinition(
                 ImmutableList.of(DSL.ref("string_value", STRING)),
-                ImmutableList.of(ImmutablePair.of(PPL_DESC, DSL.ref("integer_value", INTEGER))))),
+                ImmutableList.of(
+                    ImmutablePair.of(DEFAULT_DESC, DSL.ref("integer_value", INTEGER))))),
         analyzer.analyze(
             AstDSL.alias(
                 "row_number",

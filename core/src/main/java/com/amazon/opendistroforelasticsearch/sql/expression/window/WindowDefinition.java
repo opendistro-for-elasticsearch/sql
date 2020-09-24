@@ -17,7 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.window;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class WindowDefinition {
    */
   public List<Pair<SortOption, Expression>> getAllSortItems() {
     List<Pair<SortOption, Expression>> allSorts = new ArrayList<>();
-    partitionByList.forEach(expr -> allSorts.add(ImmutablePair.of(PPL_ASC, expr)));
+    partitionByList.forEach(expr -> allSorts.add(ImmutablePair.of(DEFAULT_ASC, expr)));
     allSorts.addAll(sortList);
     return allSorts;
   }

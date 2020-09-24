@@ -16,8 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_DESC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_DESC;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
@@ -107,7 +107,7 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
   }
 
   private Sort.SortOption getSortOption(String option) {
-    return "ASC".equalsIgnoreCase(option) ? PPL_ASC : PPL_DESC;
+    return "ASC".equalsIgnoreCase(option) ? DEFAULT_ASC : DEFAULT_DESC;
   }
 
 }

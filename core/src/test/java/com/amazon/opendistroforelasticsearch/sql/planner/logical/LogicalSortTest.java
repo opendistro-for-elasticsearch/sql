@@ -49,8 +49,8 @@ class LogicalSortTest extends AnalyzerTestBase {
         LogicalPlanDSL.sort(
             LogicalPlanDSL.relation("schema"),
             1000,
-            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("integer_value", INTEGER)),
-            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("double_value", DOUBLE))),
+            ImmutablePair.of(SortOption.DEFAULT_ASC, DSL.ref("integer_value", INTEGER)),
+            ImmutablePair.of(SortOption.DEFAULT_ASC, DSL.ref("double_value", DOUBLE))),
         sort(
             relation("schema"),
             defaultSortOptions(),
@@ -64,8 +64,8 @@ class LogicalSortTest extends AnalyzerTestBase {
         LogicalPlanDSL.sort(
             LogicalPlanDSL.relation("schema"),
             100,
-            ImmutablePair.of(SortOption.PPL_DESC, DSL.ref("integer_value", INTEGER)),
-            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("double_value", DOUBLE))),
+            ImmutablePair.of(SortOption.DEFAULT_DESC, DSL.ref("integer_value", INTEGER)),
+            ImmutablePair.of(SortOption.DEFAULT_ASC, DSL.ref("double_value", DOUBLE))),
         sort(
             relation("schema"),
             sortOptions(100),

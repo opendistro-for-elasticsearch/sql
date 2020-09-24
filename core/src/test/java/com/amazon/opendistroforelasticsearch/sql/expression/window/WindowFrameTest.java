@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +36,7 @@ class WindowFrameTest {
 
   private final WindowDefinition windowDefinition = new WindowDefinition(
       ImmutableList.of(DSL.ref("state", STRING)),
-      ImmutableList.of(ImmutablePair.of(PPL_ASC, DSL.ref("age", INTEGER))));
+      ImmutableList.of(ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER))));
 
   private final WindowFrame windowFrame = new WindowFrame(windowDefinition);
 

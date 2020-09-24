@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
@@ -50,7 +50,7 @@ class WindowOperatorTest extends PhysicalPlanTestBase {
   void test() {
     window(dsl.rank())
         .partitionBy(ref("action", STRING))
-        .sortBy(PPL_ASC, ref("response", INTEGER))
+        .sortBy(DEFAULT_ASC, ref("response", INTEGER))
         .expectNext(ImmutableMap.of(
             "ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com",
             "rank()", 1))

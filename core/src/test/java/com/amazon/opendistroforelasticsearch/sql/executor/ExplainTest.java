@@ -17,7 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType.TOP;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
@@ -165,7 +165,7 @@ class ExplainTest extends ExpressionTestBase {
   void can_explain_window() {
     List<Expression> partitionByList = ImmutableList.of(DSL.ref("state", STRING));
     List<Pair<Sort.SortOption, Expression>> sortList = ImmutableList.of(
-        ImmutablePair.of(PPL_ASC, ref("age", INTEGER)));
+        ImmutablePair.of(DEFAULT_ASC, ref("age", INTEGER)));
 
     PhysicalPlan plan = window(tableScan, dsl.rank(),
         new WindowDefinition(partitionByList, sortList));
@@ -195,7 +195,7 @@ class ExplainTest extends ExpressionTestBase {
         ref("age", INTEGER), dsl.add(ref("age", INTEGER), literal(2)));
     Expression[] dedupeList = {ref("age", INTEGER)};
     Pair<Sort.SortOption, Expression> sortList = ImmutablePair.of(
-        PPL_ASC, ref("age", INTEGER));
+        DEFAULT_ASC, ref("age", INTEGER));
     List<LiteralExpression> values = ImmutableList.of(literal("WA"), literal(30));
 
     PhysicalPlan plan =

@@ -28,7 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.PPL_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -264,13 +264,13 @@ class AnalyzerTest extends AnalyzerTestBase {
                 LogicalPlanDSL.sort(
                     LogicalPlanDSL.relation("test"),
                     1000,
-                    ImmutablePair.of(PPL_ASC, DSL.ref("string_value", STRING)),
-                    ImmutablePair.of(PPL_ASC, DSL.ref("integer_value", INTEGER))),
+                    ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
+                    ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))),
                 dsl.rowNumber(),
                 new WindowDefinition(
                     ImmutableList.of(DSL.ref("string_value", STRING)),
                     ImmutableList.of(
-                        ImmutablePair.of(PPL_ASC, DSL.ref("integer_value", INTEGER))))),
+                        ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))))),
             DSL.named("string_value", DSL.ref("string_value", STRING)),
             DSL.named("window_function", DSL.ref("row_number", INTEGER))),
         AstDSL.project(
