@@ -20,6 +20,7 @@
     "user/general/values.rst",
     "user/dql/functions.rst",
     "user/dql/window.rst",
-    "user/beyond/partiql.rst"
+    "user/beyond/partiql.rst",
+    "user/dql/aggregations.rst"
   ]
 }
