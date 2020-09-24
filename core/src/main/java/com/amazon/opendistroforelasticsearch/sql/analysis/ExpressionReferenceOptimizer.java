@@ -116,7 +116,7 @@ public class ExpressionReferenceOptimizer
       Expression windowFunc = plan.getWindowFunction();
       expressionMap.put(windowFunc,
           new ReferenceExpression(windowFunc.toString(), windowFunc.type()));
-      return null;
+      return visitNode(plan, context);
     }
   }
 }

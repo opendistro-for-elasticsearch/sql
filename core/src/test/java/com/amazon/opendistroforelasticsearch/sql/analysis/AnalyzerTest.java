@@ -263,7 +263,7 @@ class AnalyzerTest extends AnalyzerTestBase {
             LogicalPlanDSL.window(
                 LogicalPlanDSL.sort(
                     LogicalPlanDSL.relation("test"),
-                    1000,
+                    0,
                     ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
                     ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))),
                 dsl.rowNumber(),

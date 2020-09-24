@@ -76,14 +76,19 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
   void window_expression_should_be_replaced() {
     LogicalPlan logicalPlan =
         LogicalPlanDSL.window(
-            LogicalPlanDSL.relation("test"),
-            dsl.rank(),
+            LogicalPlanDSL.window(
+                LogicalPlanDSL.relation("test"),
+                dsl.rank(),
+                new WindowDefinition(emptyList(), emptyList())),
+            dsl.denseRank(),
             new WindowDefinition(emptyList(), emptyList()));
 
     assertEquals(
         DSL.ref("rank()", INTEGER),
-        optimize(dsl.rank(), logicalPlan)
-    );
+        optimize(dsl.rank(), logicalPlan));
+    assertEquals(
+        DSL.ref("dense_rank()", INTEGER),
+        optimize(dsl.denseRank(), logicalPlan));
   }
 
   Expression optimize(Expression expression) {
