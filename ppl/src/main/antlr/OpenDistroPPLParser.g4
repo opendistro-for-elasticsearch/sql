@@ -290,13 +290,13 @@ valueList
     ;
 
 qualifiedName
-    : ident (DOT ident)*
-    | keywordsCanBeId
+    : ident (DOT ident)*                                            #identsAsQualifiedName
+    | keywordsCanBeId                                               #keywordsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard (DOT wildcard)*
-    | keywordsCanBeId
+    : wildcard (DOT wildcard)*                                      #identsAsWildcardQualifiedName
+    | keywordsCanBeId                                               #keywordsAsWildcardQualifiedName
     ;
 
 ident

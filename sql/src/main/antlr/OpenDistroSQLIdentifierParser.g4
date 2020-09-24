@@ -43,8 +43,8 @@ alias
     ;
 
 qualifiedName
-    : ident (DOT ident)*
-    | keywordsCanBeId
+    : ident (DOT ident)*                                #identsAsQualifiedName
+    | keywordsCanBeId                                   #keywordsAsQualifiedName
     ;
 
 ident
