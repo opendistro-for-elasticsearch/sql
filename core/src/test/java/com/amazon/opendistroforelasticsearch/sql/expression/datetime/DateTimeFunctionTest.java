@@ -183,6 +183,10 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     testWeek("2019-01-07", 5, 1);
     testWeek("2019-01-07", 6, 2);
     testWeek("2019-01-07", 7, 1);
+
+    testWeek("2000-01-01", 0, 0);
+    testWeek("2000-01-01", 2, 52);
+    testWeek("1999-12-31", 0, 52);
   }
 
   @Test

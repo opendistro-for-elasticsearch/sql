@@ -233,7 +233,7 @@ trigonometricFunctionName
     ;
 
 dateAndTimeFunctionBase
-    : DATE | TIME | TIMESTAMP | ADDDATE
+    : DATE | TIME | TIMESTAMP | ADDDATE | WEEK
     ;
 
 textFunctionBase

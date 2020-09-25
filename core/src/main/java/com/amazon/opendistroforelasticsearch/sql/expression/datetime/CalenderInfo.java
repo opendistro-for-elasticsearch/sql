@@ -28,7 +28,6 @@ public class CalenderInfo {
 
   /**
    * Set Calender in map for all modes.
-   *
    * @param date ExprValue of Date/Datetime/Timestamp type.
    */
   public CalenderInfo(ExprValue date) {
@@ -42,6 +41,12 @@ public class CalenderInfo {
     map.put(7, getCalender(Calendar.MONDAY, 7, date));
   }
 
+  /**
+   * Set first day of week, minimal days in first week and date in calendar.
+   * @param firstDayOfWeek the given first day of the week.
+   * @param minimalDaysInWeek the given minimal days required in the first week of the year.
+   * @param date the ExprValue of Date/Datetime/Timestamp type.
+   */
   private Calendar getCalender(int firstDayOfWeek, int minimalDaysInWeek, ExprValue date) {
     Calendar calendar = Calendar.getInstance();
     calendar.setFirstDayOfWeek(firstDayOfWeek);
@@ -53,15 +58,14 @@ public class CalenderInfo {
 
   /**
    * Returns week number for date according to mode.
-   *
    * @param mode Integer for mode. Valid mode values are 0 to 7.
-   * @return
    */
   public int getWeekNumber(int mode) {
     if (map.containsKey(mode)) {
       int weekNumber = map.get(mode).get(Calendar.WEEK_OF_YEAR);
-      if (Arrays.asList(0, 1, 4, 5).stream().anyMatch(n -> mode == n)
-          && (weekNumber == 52 || weekNumber == 53)) {
+      if ((weekNumber == 52 || weekNumber == 53)
+          && map.get(mode).get(Calendar.DAY_OF_MONTH) < 7
+          && Arrays.asList(0, 1, 4, 5).stream().anyMatch(n -> mode == n)) {
         weekNumber = 0;
       }
       return weekNumber;
