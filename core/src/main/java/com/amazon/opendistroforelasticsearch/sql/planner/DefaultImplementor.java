@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregat
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
@@ -33,6 +34,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOpe
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
@@ -72,6 +74,15 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
         node.getAllowedDuplication(),
         node.getKeepEmpty(),
         node.getConsecutive());
+  }
+
+  @Override
+  public PhysicalPlan visitHead(LogicalHead node, C context) {
+    return new HeadOperator(
+            visitChild(node, context),
+            node.getKeeplast(),
+            node.getWhileExpr(),
+            node.getNumber());
   }
 
   @Override

@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
+import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
@@ -28,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.Security
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
@@ -35,11 +37,13 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
+import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
@@ -57,6 +61,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class RestPPLQueryAction extends BaseRestHandler {
   public static final String QUERY_API_ENDPOINT = "/_opendistro/_ppl";
+  public static final String EXPLAIN_API_ENDPOINT = "/_opendistro/_ppl/_explain";
 
   private static final Logger LOG = LogManager.getLogger();
 
@@ -88,8 +93,9 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
   @Override
   public List<Route> routes() {
-    return Collections.singletonList(
-        new Route(RestRequest.Method.POST, QUERY_API_ENDPOINT)
+    return Arrays.asList(
+        new Route(RestRequest.Method.POST, QUERY_API_ENDPOINT),
+        new Route(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT)
     );
   }
 
@@ -110,9 +116,13 @@ public class RestPPLQueryAction extends BaseRestHandler {
           "Either opendistro.ppl.enabled or rest.action.multi.allow_explicit_index setting is false"
       ), BAD_REQUEST);
     }
+
     PPLService pplService = createPPLService(nodeClient);
-    return channel -> pplService.execute(
-        PPLQueryRequestFactory.getPPLRequest(request), createListener(channel));
+    PPLQueryRequest pplRequest = PPLQueryRequestFactory.getPPLRequest(request);
+    if (pplRequest.isExplainRequest()) {
+      return channel -> pplService.explain(pplRequest, createExplainResponseListener(channel));
+    }
+    return channel -> pplService.execute(pplRequest, createListener(channel));
   }
 
   /**
@@ -140,13 +150,40 @@ public class RestPPLQueryAction extends BaseRestHandler {
     });
   }
 
+  /**
+   * TODO: need to extract an interface for both SQL and PPL action handler and move these
+   * common methods to the interface. This is not easy to do now because SQL action handler
+   * is still in legacy module.
+   */
+  private ResponseListener<ExplainResponse> createExplainResponseListener(
+      RestChannel channel) {
+    return new ResponseListener<ExplainResponse>() {
+      @Override
+      public void onResponse(ExplainResponse response) {
+        sendResponse(channel, OK, new JsonResponseFormatter<ExplainResponse>(PRETTY) {
+          @Override
+          protected Object buildJsonObject(ExplainResponse response) {
+            return response;
+          }
+        }.format(response));
+      }
+
+      @Override
+      public void onFailure(Exception e) {
+        LOG.error("Error happened during explain", e);
+        sendResponse(channel, INTERNAL_SERVER_ERROR,
+            "Failed to explain the query due to error: " + e.getMessage());
+      }
+    };
+  }
+
   private ResponseListener<QueryResponse> createListener(RestChannel channel) {
     SimpleJsonResponseFormatter formatter =
         new SimpleJsonResponseFormatter(PRETTY); // TODO: decide format and pretty from URL param
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {
-        sendResponse(OK, formatter.format(new QueryResult(response.getSchema(),
+        sendResponse(channel, OK, formatter.format(new QueryResult(response.getSchema(),
             response.getResults())));
       }
 
@@ -161,11 +198,6 @@ public class RestPPLQueryAction extends BaseRestHandler {
           reportError(channel, e, SERVICE_UNAVAILABLE);
         }
       }
-
-      private void sendResponse(RestStatus status, String content) {
-        channel.sendResponse(
-            new BytesRestResponse(status, "application/json; charset=UTF-8", content));
-      }
     };
   }
 
@@ -175,6 +207,11 @@ public class RestPPLQueryAction extends BaseRestHandler {
     } catch (IOException e) {
       throw new IllegalStateException("Failed to perform privileged action", e);
     }
+  }
+
+  private void sendResponse(RestChannel channel, RestStatus status, String content) {
+    channel.sendResponse(
+        new BytesRestResponse(status, "application/json; charset=UTF-8", content));
   }
 
   private void reportError(final RestChannel channel, final Exception e, final RestStatus status) {

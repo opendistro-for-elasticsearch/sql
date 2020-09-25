@@ -16,6 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.legacy.util;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.elasticsearch.common.ParseField;
 import org.elasticsearch.common.xcontent.ContextParser;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
@@ -46,10 +49,6 @@ import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
 import org.elasticsearch.search.aggregations.pipeline.ParsedPercentilesBucket;
 import org.elasticsearch.search.aggregations.pipeline.PercentilesBucketPipelineAggregationBuilder;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class AggregationUtils {
     private final static List<NamedXContentRegistry.Entry> entryList =

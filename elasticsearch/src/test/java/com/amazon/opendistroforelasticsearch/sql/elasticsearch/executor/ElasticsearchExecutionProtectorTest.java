@@ -40,8 +40,8 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.Elasticse
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
@@ -88,9 +88,15 @@ class ElasticsearchExecutionProtectorTest {
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
     ReferenceExpression topField = ref("name", STRING);
+    List<Expression> topExprs = Arrays.asList(ref("age", INTEGER));
     Expression filterExpr = literal(ExprBooleanValue.of(true));
-    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
-    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
+    Expression whileExpr = literal(ExprBooleanValue.of(true));
+    Boolean keepLast = false;
+    Integer headNumber = 5;
+    List<NamedExpression> groupByExprs = Arrays.asList(named("age", ref("age", INTEGER)));
+    List<NamedAggregator> aggregators =
+        Arrays.asList(named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)),
+            DOUBLE)));
     Map<ReferenceExpression, ReferenceExpression> mappings =
         ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
@@ -108,11 +114,15 @@ class ElasticsearchExecutionProtectorTest {
                             PhysicalPlanDSL.remove(
                                 PhysicalPlanDSL.rename(
                                     PhysicalPlanDSL.agg(
-                                        filter(
-                                            resourceMonitor(
+                                        PhysicalPlanDSL.head(
+                                            filter(
+                                                resourceMonitor(
                                                 new ElasticsearchIndexScan(
                                                     client, settings, indexName, exprValueFactory)),
-                                            filterExpr),
+                                                filterExpr),
+                                            keepLast,
+                                            whileExpr,
+                                            headNumber),
                                         aggregators,
                                         groupByExprs),
                                     mappings),
@@ -121,7 +131,7 @@ class ElasticsearchExecutionProtectorTest {
                         sortCount,
                         sortField),
                     CommandType.TOP,
-                    groupByExprs,
+                    topExprs,
                     topField),
                 dedupeField),
             include),
@@ -134,10 +144,15 @@ class ElasticsearchExecutionProtectorTest {
                                 PhysicalPlanDSL.remove(
                                     PhysicalPlanDSL.rename(
                                         PhysicalPlanDSL.agg(
-                                            filter(
-                                                new ElasticsearchIndexScan(
-                                                    client, settings, indexName, exprValueFactory),
-                                                filterExpr),
+                                            PhysicalPlanDSL.head(
+                                                filter(
+                                                        new ElasticsearchIndexScan(
+                                                            client, settings, indexName,
+                                                            exprValueFactory),
+                                                    filterExpr),
+                                                keepLast,
+                                                whileExpr,
+                                                headNumber),
                                             aggregators,
                                             groupByExprs),
                                         mappings),
@@ -146,7 +161,7 @@ class ElasticsearchExecutionProtectorTest {
                             sortCount,
                             sortField),
                         CommandType.TOP,
-                        groupByExprs,
+                        topExprs,
                         topField),
                     dedupeField),
                 include)));

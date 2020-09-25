@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
 
 /**
@@ -74,4 +75,7 @@ public abstract class ExpressionNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
+  public T visitNamedAggregator(NamedAggregator node, C context) {
+    return visitChildren(node, context);
+  }
 }

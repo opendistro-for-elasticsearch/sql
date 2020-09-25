@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
@@ -40,6 +41,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
@@ -214,6 +216,10 @@ public class AstDSL {
     return new Argument(argName, argValue);
   }
 
+  public static UnresolvedArgument unresolvedArg(String argName, UnresolvedExpression argValue) {
+    return new UnresolvedArgument(argName, argValue);
+  }
+
   public static UnresolvedExpression field(UnresolvedExpression field) {
     return new Field((QualifiedName) field);
   }
@@ -251,6 +257,10 @@ public class AstDSL {
   }
 
   public static List<Argument> exprList(Argument... exprList) {
+    return Arrays.asList(exprList);
+  }
+
+  public static List<UnresolvedArgument> unresolvedArgList(UnresolvedArgument... exprList) {
     return Arrays.asList(exprList);
   }
 
@@ -297,6 +307,20 @@ public class AstDSL {
 
   public static Dedupe dedupe(UnresolvedPlan input, List<Argument> options, Field... fields) {
     return new Dedupe(input, options, Arrays.asList(fields));
+  }
+
+  public static Head head(UnresolvedPlan input, List<UnresolvedArgument> options) {
+    return new Head(input, options);
+  }
+
+  /**
+   * Default Head Command Args.
+   */
+  public static List<UnresolvedArgument> defaultHeadArgs() {
+    return unresolvedArgList(
+            unresolvedArg("keeplast", booleanLiteral(true)),
+            unresolvedArg("whileExpr", booleanLiteral(true)),
+            unresolvedArg("number", intLiteral(10)));
   }
 
   public static List<Argument> defaultTopArgs() {

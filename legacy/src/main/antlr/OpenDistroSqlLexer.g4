@@ -113,6 +113,7 @@ SUM:                                'SUM';
 SUBSTRING:                          'SUBSTRING';
 TRIM:                               'TRIM';
 YEAR:                               'YEAR';
+STRCMP:                             'STRCMP';
 
 
 // Keywords, but can be ID
