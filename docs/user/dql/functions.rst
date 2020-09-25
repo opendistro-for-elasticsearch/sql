@@ -1002,7 +1002,7 @@ Usage: week(date[, mode]) returns the week number for date. If the mode argument
      - 1-53
      - with a Monday in this year
 
-Argument type: DATE/DATETIME/TIMESTAMP
+Argument type: DATE/DATETIME/TIMESTAMP/STRING
 
 Return type: INTEGER
 

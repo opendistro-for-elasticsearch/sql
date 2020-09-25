@@ -143,9 +143,11 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, STRING),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),
-        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIMESTAMP, INTEGER)
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIMESTAMP, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, STRING, INTEGER)
     );
   }
 
@@ -214,7 +216,7 @@ public class DateTimeFunction {
 
   /**
    * Week for date implementation for ExprValue.
-   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
    * @param mode ExprValue of Integer type.
    */
   private ExprValue exprWeek(ExprValue date, ExprValue mode) {
@@ -225,7 +227,7 @@ public class DateTimeFunction {
   /**
    * ADDDATE function implementation for ExprValue.
    *
-   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
    * @param expr ExprValue of Interval type, the temporal amount to add.
    * @return Date/Datetime resulted from expr added to date.
    */

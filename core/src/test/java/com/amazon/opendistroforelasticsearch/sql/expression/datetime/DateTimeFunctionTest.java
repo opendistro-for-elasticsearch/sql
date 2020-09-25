@@ -157,6 +157,16 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("week(DATE '2019-01-05')", expression.toString());
     assertEquals(integerValue(0), eval(expression));
 
+    expression = dsl.week(DSL.literal("2019-01-05"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(\"2019-01-05\")", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    expression = dsl.week(DSL.literal("2019-01-05 00:01:00"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(\"2019-01-05 00:01:00\")", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
     testWeek("2019-01-05", 0, 0);
     testWeek("2019-01-05", 1, 1);
     testWeek("2019-01-05", 2, 52);
