@@ -22,7 +22,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CalenderInfo {
+public class CalenderLookup {
 
   private Map<Integer, Calendar> map = new HashMap<>();
 
@@ -30,7 +30,7 @@ public class CalenderInfo {
    * Set Calender in map for all modes.
    * @param date ExprValue of Date/Datetime/Timestamp type.
    */
-  public CalenderInfo(ExprValue date) {
+  public CalenderLookup(ExprValue date) {
     map.put(0, getCalender(Calendar.SUNDAY, 7, date));
     map.put(1, getCalender(Calendar.MONDAY, 5, date));
     map.put(2, getCalender(Calendar.SUNDAY, 7, date));
