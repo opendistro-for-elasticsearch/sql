@@ -959,16 +959,16 @@ WEEK
 Description
 >>>>>>>>>>>
 
-Usage: week(date[, mode]) returns the week number for date. If the mode argument is omitted, the default value mode 0 is used.
+Usage: week(date[, mode]) returns the week number for date. If the mode argument is omitted, the default mode 0 is used.
 
 .. list-table:: The following table describes how the mode argument works.
    :widths: 25 50 25 75
    :header-rows: 1
 
-   * - Heading Mode
-     - Heading First day of week
-     - Heading Range
-     - Heading Week 1 is the first week …
+   * - Mode
+     - First day of week
+     - Range
+     - Week 1 is the first week …
    * - 0
      - Sunday
      - 0-53
