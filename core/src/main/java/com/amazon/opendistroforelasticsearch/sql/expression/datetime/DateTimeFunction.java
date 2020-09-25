@@ -207,7 +207,7 @@ public class DateTimeFunction {
   /**
    * Week for date implementation for ExprValue.
    * When mode is not specified default value mode 0 is used for default_week_format.
-   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
    * @return ExprValue.
    */
   private ExprValue exprWeekWithoutMode(ExprValue date) {
@@ -227,7 +227,7 @@ public class DateTimeFunction {
   /**
    * ADDDATE function implementation for ExprValue.
    *
-   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * @param date ExprValue of Date/Datetime/Timestamp type.
    * @param expr ExprValue of Interval type, the temporal amount to add.
    * @return Date/Datetime resulted from expr added to date.
    */
