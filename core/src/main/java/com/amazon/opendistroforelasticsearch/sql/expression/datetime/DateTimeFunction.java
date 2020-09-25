@@ -204,6 +204,7 @@ public class DateTimeFunction {
 
   /**
    * Week for date implementation for ExprValue.
+   * When mode is not specified default value mode 0 is used for default_week_format.
    * @param date ExprValue of Date/Datetime/Timestamp type.
    * @return ExprValue.
    */
@@ -211,6 +212,11 @@ public class DateTimeFunction {
     return exprWeek(date, new ExprIntegerValue(0));
   }
 
+  /**
+   * Week for date implementation for ExprValue.
+   * @param date ExprValue of Date/Datetime/Timestamp type.
+   * @param mode ExprValue of Integer type.
+   */
   private ExprValue exprWeek(ExprValue date, ExprValue mode) {
     CalenderInfo calenderInfo = new CalenderInfo(date);
     return new ExprIntegerValue(calenderInfo.getWeekNumber(mode.integerValue()));
