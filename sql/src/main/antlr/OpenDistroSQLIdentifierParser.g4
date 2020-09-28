@@ -43,7 +43,8 @@ alias
     ;
 
 qualifiedName
-    : ident (DOT ident)*
+    : ident (DOT ident)*                                #identsAsQualifiedName
+    | keywordsCanBeId                                   #keywordsAsQualifiedName
     ;
 
 ident
@@ -54,5 +55,10 @@ ident
     ;
 
 keywordsCanBeId
-    : DAYOFWEEK
+    : FULL
+    | FIELD | D | T | TS // OD SQL and ODBC special
+    | COUNT | SUM | AVG | MAX | MIN
+    | ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS 
+    | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
+    | TIMESTAMP | TO_DAYS | YEAR
     ;
