@@ -27,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.missingValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
@@ -62,12 +63,34 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Stream;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 
 class BinaryPredicateOperatorTest extends ExpressionTestBase {
+
+  private static List<StringPatternPair> STRING_PATTERN_PAIRS = ImmutableList.of(
+          new StringPatternPair("Michael!", ".*"),
+          new StringPatternPair("new*\\n*line", "new\\\\*.\\\\*line"),
+          new StringPatternPair("a", "^[a-d]"),
+          new StringPatternPair("helo", "world"),
+          new StringPatternPair("a", "A"));
+
+  @AllArgsConstructor
+  @Getter
+  static class StringPatternPair {
+    private final String str;
+    private final String patt;
+
+    int regExpTest() {
+      return str.matches(patt) ? 1 : 0;
+    }
+  }
 
   private static Stream<Arguments> binaryPredicateArguments() {
     List<Boolean> booleans = Arrays.asList(true, false);
@@ -756,6 +779,20 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     notLike = dsl.notLike(DSL.literal("bob"), DSL.literal("bo%"));
     assertFalse(notLike.valueOf(valueEnv()).booleanValue());
     assertEquals(String.format("not like(\"%s\", \"%s\")", "bob", "bo%"), notLike.toString());
+  }
+
+  @Test
+  void test_regexp() {
+    STRING_PATTERN_PAIRS.forEach(this::testRegexpString);
+  }
+
+  void testRegexpString(StringPatternPair stringPatternPair) {
+    FunctionExpression expression = dsl.regexp(
+            DSL.literal(new ExprStringValue(stringPatternPair.getStr())),
+            DSL.literal(new ExprStringValue(stringPatternPair.getPatt())));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(stringPatternPair.regExpTest(), expression
+        .valueOf(valueEnv()).integerValue());
   }
 
   /**

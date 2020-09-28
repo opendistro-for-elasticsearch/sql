@@ -237,12 +237,12 @@ dateAndTimeFunctionBase
     ;
 
 textFunctionBase
-    :
+    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER | CONCAT | CONCAT_WS | LENGTH | STRCMP
     ;
 
 /** operators */
 comparisonOperator
-    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | LIKE
+    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | LIKE | REGEXP
     ;
 
 binaryOperator
@@ -290,11 +290,13 @@ valueList
     ;
 
 qualifiedName
-    : ident (DOT ident)*
+    : ident (DOT ident)*                                            #identsAsQualifiedName
+    | keywordsCanBeId                                               #keywordsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard (DOT wildcard)*
+    : wildcard (DOT wildcard)*                                      #identsAsWildcardQualifiedName
+    | keywordsCanBeId                                               #keywordsAsWildcardQualifiedName
     ;
 
 ident
@@ -308,4 +310,10 @@ wildcard
     | SINGLE_QUOTE wildcard SINGLE_QUOTE
     | DOUBLE_QUOTE wildcard DOUBLE_QUOTE
     | BACKTICK wildcard BACKTICK
+    ;
+
+keywordsCanBeId
+    : D // OD SQL and ODBC special
+    | statsFunctionName
+    | TIMESTAMP | DATE | TIME
     ;
