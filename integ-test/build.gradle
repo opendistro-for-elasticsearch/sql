@@ -1,4 +1,5 @@
 import org.elasticsearch.gradle.test.RestIntegTestTask
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 apply plugin: 'elasticsearch.build'
 apply plugin: 'elasticsearch.rest-test'
@@ -201,6 +202,11 @@ testClusters.comparisonTest {
 task compileJdbc(type:Exec) {
     workingDir '../sql-jdbc/'
 
-    commandLine './gradlew', 'build'
-    commandLine './gradlew', 'shadowJar'
+    if (DefaultNativePlatform.getCurrentOperatingSystem().isWindows()) {
+        commandLine './gradlew.bat', 'build'
+        commandLine './gradlew.bat', 'shadowJar'
+    } else {
+        commandLine './gradlew', 'build'
+        commandLine './gradlew', 'shadowJar'
+    }
 }
