@@ -133,7 +133,7 @@ public abstract class RestIntegTestCase extends ODFERestTestCase {
    */
   @AfterClass
   public static void cleanUpIndices() throws IOException {
-    wipeAllIndices();
+    wipeAllODFEIndices();
     wipeAllClusterSettings();
   }
 
