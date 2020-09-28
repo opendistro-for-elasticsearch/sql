@@ -67,6 +67,10 @@ public abstract class CorrectnessTestBase extends RestIntegTestCase {
    */
   @AfterClass
   public static void cleanUp() {
+    if (runner == null) {
+      return;
+    }
+
     try {
       TestConfig config = new TestConfig(emptyMap());
       for (TestDataSet dataSet : config.getTestDataSets()) {
