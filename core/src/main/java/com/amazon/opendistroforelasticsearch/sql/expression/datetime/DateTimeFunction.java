@@ -220,8 +220,8 @@ public class DateTimeFunction {
    * @param mode ExprValue of Integer type.
    */
   private ExprValue exprWeek(ExprValue date, ExprValue mode) {
-    CalenderLookup calenderLookup = new CalenderLookup(date);
-    return new ExprIntegerValue(calenderLookup.getWeekNumber(mode.integerValue()));
+    CalendarLookup calendarLookup = new CalendarLookup(date);
+    return new ExprIntegerValue(calendarLookup.getWeekNumber(mode.integerValue()));
   }
 
   /**

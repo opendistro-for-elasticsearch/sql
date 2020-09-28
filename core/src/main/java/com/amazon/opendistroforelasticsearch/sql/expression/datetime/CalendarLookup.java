@@ -22,23 +22,23 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CalenderLookup {
+public class CalendarLookup {
 
   private Map<Integer, Calendar> map = new HashMap<>();
 
   /**
-   * Set Calender in map for all modes.
+   * Set Calendar in map for all modes.
    * @param date ExprValue of Date/Datetime/Timestamp/String type.
    */
-  public CalenderLookup(ExprValue date) {
-    map.put(0, getCalender(Calendar.SUNDAY, 7, date));
-    map.put(1, getCalender(Calendar.MONDAY, 5, date));
-    map.put(2, getCalender(Calendar.SUNDAY, 7, date));
-    map.put(3, getCalender(Calendar.MONDAY, 5, date));
-    map.put(4, getCalender(Calendar.SUNDAY, 4, date));
-    map.put(5, getCalender(Calendar.MONDAY, 7, date));
-    map.put(6, getCalender(Calendar.SUNDAY, 4, date));
-    map.put(7, getCalender(Calendar.MONDAY, 7, date));
+  public CalendarLookup(ExprValue date) {
+    map.put(0, getCalendar(Calendar.SUNDAY, 7, date));
+    map.put(1, getCalendar(Calendar.MONDAY, 5, date));
+    map.put(2, getCalendar(Calendar.SUNDAY, 7, date));
+    map.put(3, getCalendar(Calendar.MONDAY, 5, date));
+    map.put(4, getCalendar(Calendar.SUNDAY, 4, date));
+    map.put(5, getCalendar(Calendar.MONDAY, 7, date));
+    map.put(6, getCalendar(Calendar.SUNDAY, 4, date));
+    map.put(7, getCalendar(Calendar.MONDAY, 7, date));
   }
 
   /**
@@ -47,7 +47,7 @@ public class CalenderLookup {
    * @param minimalDaysInWeek the given minimal days required in the first week of the year.
    * @param date the ExprValue of Date/Datetime/Timestamp/String type.
    */
-  private Calendar getCalender(int firstDayOfWeek, int minimalDaysInWeek, ExprValue date) {
+  private Calendar getCalendar(int firstDayOfWeek, int minimalDaysInWeek, ExprValue date) {
     Calendar calendar = Calendar.getInstance();
     calendar.setFirstDayOfWeek(firstDayOfWeek);
     calendar.setMinimalDaysInFirstWeek(minimalDaysInWeek);
