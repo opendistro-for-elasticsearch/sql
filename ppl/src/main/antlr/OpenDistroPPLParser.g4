@@ -290,11 +290,13 @@ valueList
     ;
 
 qualifiedName
-    : ident (DOT ident)*
+    : ident (DOT ident)*                                            #identsAsQualifiedName
+    | keywordsCanBeId                                               #keywordsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard (DOT wildcard)*
+    : wildcard (DOT wildcard)*                                      #identsAsWildcardQualifiedName
+    | keywordsCanBeId                                               #keywordsAsWildcardQualifiedName
     ;
 
 ident
@@ -308,4 +310,10 @@ wildcard
     | SINGLE_QUOTE wildcard SINGLE_QUOTE
     | DOUBLE_QUOTE wildcard DOUBLE_QUOTE
     | BACKTICK wildcard BACKTICK
+    ;
+
+keywordsCanBeId
+    : D // OD SQL and ODBC special
+    | statsFunctionName
+    | TIMESTAMP | DATE | TIME
     ;
