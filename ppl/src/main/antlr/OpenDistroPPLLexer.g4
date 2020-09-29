@@ -199,10 +199,21 @@ SIN:                                'SIN';
 TAN:                                'TAN';
 
 // DATE AND TIME FUNCTIONS
-DATE:                               'DATE';
-TIME:                               'TIME';
-TIMESTAMP:                          'TIMESTAMP';
 ADDDATE:                            'ADDDATE';
+DATE:                               'DATE';
+DATE_ADD:                           'DATE_ADD';
+DATE_SUB:                           'DATE_SUB';
+DAYOFMONTH:                         'DAYOFMONTH';
+DAYOFWEEK:                          'DAYOFWEEK';
+DAYOFYEAR:                          'DAYOFYEAR';
+DAYNAME:                            'DAYNAME';
+FROM_DAYS:                          'FROM_DAYS';
+MONTHNAME:                          'MONTHNAME';
+SUBDATE:                            'SUBDATE';
+TIME:                               'TIME';
+TIME_TO_SEC:                        'TIME_TO_SEC';
+TIMESTAMP:                          'TIMESTAMP';
+TO_DAYS:                            'TO_DAYS';
 
 // TEXT FUNCTIONS
 SUBSTR:                             'SUBSTR';

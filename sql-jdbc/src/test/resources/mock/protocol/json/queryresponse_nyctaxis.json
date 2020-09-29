@@ -2,7 +2,7 @@
   "schema": [
     {
       "name": "pickup_datetime",
-      "type": "date"
+      "type": "timestamp"
     },
     {
       "name": "trip_type",

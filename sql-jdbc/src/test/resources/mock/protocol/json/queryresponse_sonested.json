@@ -14,7 +14,7 @@
     },
     {
       "name": "creationDate",
-      "type": "date"
+      "type": "timestamp"
     }
   ],
   "total": 20000,
