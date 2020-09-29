@@ -196,7 +196,7 @@ public class ResultSetTests implements WireMockServerHelpers {
                 .column("testLong", ElasticsearchType.LONG)
                 .column("testShort", ElasticsearchType.SHORT)
                 .column("testHalfFloat", ElasticsearchType.HALF_FLOAT)
-                .column("testTimeStamp", ElasticsearchType.DATE)
+                .column("testTimeStamp", ElasticsearchType.TIMESTAMP)
                 .column("testScaledFloat", ElasticsearchType.SCALED_FLOAT)
                 .column("testKeyword", ElasticsearchType.KEYWORD)
                 .column("testText", ElasticsearchType.TEXT)
