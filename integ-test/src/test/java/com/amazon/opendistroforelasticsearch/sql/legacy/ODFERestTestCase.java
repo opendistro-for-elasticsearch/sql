@@ -76,7 +76,9 @@ public abstract class ODFERestTestCase extends ESRestTestCase {
   }
 
   protected static void wipeAllODFEIndices() throws IOException {
-    Response response = client().performRequest(new Request("GET", "/_cat/indices?format=json"));
+    // include all the indices, included hidden indices.
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-indices.html#cat-indices-api-query-params
+    Response response = client().performRequest(new Request("GET", "/_cat/indices?format=json&expand_wildcards=all"));
     JSONArray jsonArray = new JSONArray(EntityUtils.toString(response.getEntity(), "UTF-8"));
     for (Object object : jsonArray) {
       JSONObject jsonObject = (JSONObject) object;

@@ -26,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intervalL
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
@@ -35,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLIdentifierParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -239,6 +241,14 @@ class AstExpressionBuilderTest {
     assertEquals(
         not(booleanLiteral(false)),
         buildExprAst("NOT false")
+    );
+  }
+
+  @Test
+  public void canBuildKeywordsAsIdentifiers() {
+    assertEquals(
+        qualifiedName("timestamp"),
+        buildExprAst("timestamp")
     );
   }
 
