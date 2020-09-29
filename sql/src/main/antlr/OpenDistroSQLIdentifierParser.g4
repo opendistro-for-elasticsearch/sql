@@ -51,14 +51,11 @@ ident
     : DOT? ID
     | DOUBLE_QUOTE_ID
     | BACKTICK_QUOTE_ID
-    | keywordsCanBeId
     ;
 
 keywordsCanBeId
     : FULL
     | FIELD | D | T | TS // OD SQL and ODBC special
     | COUNT | SUM | AVG | MAX | MIN
-    | ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS 
-    | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
-    | TIMESTAMP | TO_DAYS | YEAR
+    | TIMESTAMP | DATE | TIME
     ;
