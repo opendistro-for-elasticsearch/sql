@@ -21,7 +21,7 @@ import QueryResultsBody from "./QueryResultsBody";
 import { Pager } from "@elastic/eui/lib";
 // @ts-ignore
 import { SortableProperties } from "@elastic/eui/lib/services";
-import { mockQueryResults, mockQueryResultJSONResponse, mockErrorMessage, mockSuccessfulMessage, mockSortableColumns } from "../../../test/mocks/mockData";
+import { mockQueryResults, mockQueryResultJSONResponse, mockErrorMessage, mockSuccessfulMessage, mockSortableColumns, mockQueryResultJDBCResponse } from "../../../test/mocks/mockData";
 import userEvent from "@testing-library/user-event";
 import { QueryMessage, QueryResult } from "../Main/main";
 
@@ -274,7 +274,7 @@ describe("<QueryResultsBody /> spec", () => {
     (window as any).HTMLElement.prototype.scrollIntoView = function () { };
 
     const { getAllByText, getAllByTestId, getAllByLabelText, getByText, getByPlaceholderText } =
-      renderPPLQueryResultsBody(undefined, mockQueryResults[0].data, mockQueryResultJSONResponse.data.resp, mockSortableProperties,
+      renderPPLQueryResultsBody(undefined, mockQueryResults[0].data, mockQueryResultJDBCResponse.data.resp, mockSortableProperties,
         mockSuccessfulMessage, onSort, onQueryChange, updateExpandedMap, onChangeItemsPerPage, getJson, getJdbc,
         getCsv, getText);
     expect(document.body.children[0]).toMatchSnapshot();
@@ -309,10 +309,18 @@ describe("<QueryResultsBody /> spec", () => {
     expect(getByText("Download JDBC"));
     expect(getByText("Download CSV"));
     expect(getByText("Download Text"));
-    await fireEvent.click(getByText("Download JSON"));
+
     await fireEvent.click(getByText("Download JDBC"));
+    expect(document.body.children[0]).toMatchSnapshot();
+
+    await fireEvent.click(getByText("Download JSON"));
+    expect(document.body.children[0]).toMatchSnapshot();
+
     await fireEvent.click(getByText("Download CSV"));
+    expect(document.body.children[0]).toMatchSnapshot();
+
     await fireEvent.click(getByText("Download Text"));
+    expect(document.body.children[0]).toMatchSnapshot();
 
     // Test search field
     const searchField = getByPlaceholderText('Search');

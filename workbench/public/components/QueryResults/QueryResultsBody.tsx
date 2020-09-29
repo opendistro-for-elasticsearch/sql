@@ -17,7 +17,7 @@ import React, { Fragment } from "react";
 // @ts-ignore
 import { SortableProperties } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiCodeEditor, EuiSearchBar, EuiSideNav } from "@elastic/eui";
+import { EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiSearchBar, EuiSideNav } from "@elastic/eui";
 import {
   EuiButton,
   EuiButtonIcon,
@@ -98,6 +98,8 @@ interface QueryResultsBodyState {
   navView: boolean;
   isPopoverOpen: boolean;
   isDownloadPopoverOpen: boolean;
+  isModalVisible: boolean;
+  downloadErrorModal: any;
 }
 
 interface FieldValue {
@@ -128,7 +130,9 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       selectedItemData: {},
       navView: false,
       isPopoverOpen: false,
-      isDownloadPopoverOpen: false
+      isDownloadPopoverOpen: false,
+      isModalVisible: false,
+      downloadErrorModal: {}
     };
 
     this.expandedRowColSpan = 0;
@@ -170,14 +174,49 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     ];
   }
 
+  setIsModalVisible(visible: boolean): void {
+    this.setState({
+      isModalVisible: visible
+    })
+  }
+
+  getModal = (errorMessage: string): any => {
+    const closeModal = () => this.setIsModalVisible(false);
+    let modal = (
+      <EuiOverlayMask onClick={closeModal}>
+        <EuiModal onClose={closeModal}>
+          <EuiModalHeader>
+            <EuiModalHeaderTitle>Error</EuiModalHeaderTitle>
+          </EuiModalHeader>
+
+          <EuiModalBody>
+            <EuiText>
+              {errorMessage}
+            </EuiText>
+          </EuiModalBody>
+
+          <EuiModalFooter>
+            <EuiButton onClick={closeModal} fill>
+              Close
+            </EuiButton>
+          </EuiModalFooter>
+        </EuiModal>
+      </EuiOverlayMask>
+    );
+    return modal;
+  }
+
   // Actions for Download files
-  onDownloadJSON = (): void => {
+  onDownloadJSON() {
+    if (this.props.language == 'PPL') {
+      this.setState({
+        downloadErrorModal: this.getModal("PPL result in JSON format is not supported, please select JDBC format."),
+      })
+      this.setIsModalVisible(true);
+      return;
+    }
     if (!this.props.queryResultsJSON) {
       this.props.getJson(this.props.queries);
-    }
-    if (this.props.language == 'PPL') {
-      onDownloadFile("Error: PPL result in Json format is not supported, please select JDBC format", "json", this.props.selectedTabName + ".json");
-      return;
     }
     setTimeout(() => {
       const jsonObject = JSON.parse(this.props.queryResultsJSON);
@@ -198,12 +237,15 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   };
 
   onDownloadCSV = (): void => {
+    if (this.props.language == 'PPL') {
+      this.setState({
+        downloadErrorModal: this.getModal("PPL result in CSV format is not supported, please select JDBC format."),
+      })
+      this.setIsModalVisible(true);
+      return;
+    }
     if (!this.props.queryResultsCSV) {
       this.props.getCsv(this.props.queries);
-    }
-    if (this.props.language == 'PPL') {
-      onDownloadFile("Error: PPL result in CSV format is not supported, please select JDBC format", "csv", this.props.selectedTabName + ".csv");
-      return;
     }
     setTimeout(() => {
       const data = this.props.queryResultsCSV;
@@ -212,12 +254,15 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   };
 
   onDownloadText = (): void => {
+    if (this.props.language == 'PPL') {
+      this.setState({
+        downloadErrorModal: this.getModal("PPL result in Text format is not supported, please select JDBC format."),
+      })
+      this.setIsModalVisible(true);
+      return;
+    }
     if (!this.props.queryResultsTEXT) {
       this.props.getText(this.props.queries);
-    }
-    if (this.props.language == 'PPL') {
-      onDownloadFile("Error: PPL result in text format is not supported, please select JDBC format", "plain", this.props.selectedTabName + ".txt");
-      return;
     }
     setTimeout(() => {
       const data = this.props.queryResultsTEXT;
@@ -739,6 +784,12 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       </EuiButton>
     );
 
+    let modal;
+
+    if (this.state.isModalVisible) {
+      modal = this.state.downloadErrorModal;
+    }
+
     if (
       // this.props.selectedTabId === MESSAGE_TAB_LABEL ||
       this.props.queryResultSelected == undefined
@@ -781,6 +832,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiHorizontalRule margin="none" />
+          {modal}
 
           <div className="search-panel">
             {/*Search Bar*/}
