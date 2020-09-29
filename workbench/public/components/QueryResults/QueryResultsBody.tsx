@@ -138,7 +138,6 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     this.expandedRowColSpan = 0;
     this.items = [];
     this.columns = [];
-    this.panels = [];
 
     this.panels = [
       {
