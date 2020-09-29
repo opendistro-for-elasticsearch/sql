@@ -57,6 +57,7 @@ public enum BuiltinFunctionName {
   TIMESTAMP(FunctionName.of("timestamp")),
   WEEK(FunctionName.of("week")),
   ADDDATE(FunctionName.of("adddate")),
+  DATE_FORMAT(FunctionName.of("date_format")),
 
   /**
    * Text Functions.

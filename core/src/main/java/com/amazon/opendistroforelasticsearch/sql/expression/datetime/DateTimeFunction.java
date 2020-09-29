@@ -61,6 +61,7 @@ public class DateTimeFunction {
     repository.register(timestamp());
     repository.register(week());
     repository.register(adddate());
+    repository.register(date_format());
   }
 
   /**
@@ -148,6 +149,27 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIMESTAMP, INTEGER),
         impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, STRING, INTEGER)
+    );
+  }
+
+  /**
+   * Formats date according to format specifier. First argument is date, second is format.
+   * Detailed supported signatures:
+   * (STRING, STRING) -> STRING
+   * (DATE, STRING) -> STRING
+   * (DATETIME, STRING) -> STRING
+   * (TIMESTAMP, STRING) -> STRING
+   */
+  private FunctionResolver date_format() {
+    return define(BuiltinFunctionName.DATE_FORMAT.getName(),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, DATE, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, DATETIME, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, TIMESTAMP, STRING)
     );
   }
 

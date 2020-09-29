@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.D
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,6 +43,10 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,6 +68,52 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void setup() {
     when(nullRef.valueOf(env)).thenReturn(nullValue());
     when(missingRef.valueOf(env)).thenReturn(missingValue());
+  }
+
+  List<DateFormatTester> dateFormatTesters = ImmutableList.of(
+      new DateFormatTester("1998-01-31 13:14:15", true,
+          ImmutableList.of("%H","%I","%k","%l","%i","%p","%r","%S","%T",
+              " %M","%W","%D","%Y","%y","%a","%b","%j","%m","%d","%h","%s","%w"),
+          ImmutableList.of("13","01","13","1","14","PM","01:14:15 PM","15","13:14:15",
+              " January","Saturday","31st","1998","98","Sat","Jan","031","01","31","01","15","6")
+      ),
+      new DateFormatTester("1999-12-31", true,
+          ImmutableList.of("%x","%v"),
+          ImmutableList.of("1999", "52")
+      ),
+      new DateFormatTester("2000-01-01", true,
+          ImmutableList.of("%x","%v"),
+          ImmutableList.of("1999", "52")
+      ),
+      new DateFormatTester("1998-12-31", true,
+          ImmutableList.of("%x","%v"),
+          ImmutableList.of("1998", "53")
+      ),
+      new DateFormatTester("1999-01-01", true,
+          ImmutableList.of("%x","%v"),
+          ImmutableList.of("1998", "53")
+      )
+  );
+
+  @AllArgsConstructor
+  private class DateFormatTester {
+    private final String date;
+    @Getter private final boolean isValidDate;
+    private final List<String> formatterList;
+    private final List<String> formattedList;
+    private static final String DELIMITER = "|";
+
+    String getFormatter() {
+      return String.join(DELIMITER, formatterList);
+    }
+
+    String getFormatted() {
+      return String.join(DELIMITER, formattedList);
+    }
+
+    FunctionExpression getDateFormatExpression() {
+      return dsl.date_format(DSL.literal(date), DSL.literal(getFormatter()));
+    }
   }
 
   @Test
@@ -257,6 +308,24 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(INTERVAL);
     assertEquals(missingValue(), eval(dsl.adddate(nullRef, missingRef)));
+  }
+
+  @Test
+  public void date_format() {
+    dateFormatTesters.forEach(this::testDateFormat);
+
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.date_format(nullRef, DSL.literal(""))));
+    assertEquals(nullValue(), eval(dsl.date_format(DSL.literal(""), nullRef)));
+    assertEquals(missingValue(), eval(dsl.date_format(missingRef, DSL.literal(""))));
+    assertEquals(missingValue(), eval(dsl.date_format(DSL.literal(""), missingRef)));
+  }
+
+  void testDateFormat(DateFormatTester dft) {
+    FunctionExpression expr = dft.getDateFormatExpression();
+    assertEquals(STRING, expr.type());
+    assertEquals(dft.getFormatted(), eval(expr).stringValue());
   }
 
   private ExprValue eval(Expression expression) {

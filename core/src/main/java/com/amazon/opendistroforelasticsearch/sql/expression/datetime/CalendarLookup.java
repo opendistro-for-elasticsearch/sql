@@ -73,4 +73,23 @@ public class CalendarLookup {
     throw new SemanticCheckException(
         String.format("mode:%s is invalid, please use mode value between 0-7", mode));
   }
+
+  /**
+   * Returns year for date according to mode.
+   *
+   * @param mode Integer for mode. Valid mode values are 0 to 7.
+   */
+  public int getYearNumber(int mode) {
+    if (map.containsKey(mode)) {
+      int weekNumber = getWeekNumber(mode);
+      int yearNumber = map.get(mode).get(Calendar.YEAR);
+      if ((weekNumber > 51) && (map.get(mode).get(Calendar.DAY_OF_MONTH) < 7)
+          && (mode == 3)) {
+        yearNumber--;
+      }
+      return yearNumber;
+    }
+    throw new SemanticCheckException(
+        String.format("mode:%s is invalid, please use mode value between 0-7", mode));
+  }
 }

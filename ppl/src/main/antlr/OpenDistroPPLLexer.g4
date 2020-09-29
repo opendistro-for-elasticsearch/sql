@@ -203,6 +203,7 @@ DATE:                               'DATE';
 TIME:                               'TIME';
 TIMESTAMP:                          'TIMESTAMP';
 ADDDATE:                            'ADDDATE';
+DATE_FORMAT:                        'DATE_FORMAT';
 
 // TEXT FUNCTIONS
 SUBSTR:                             'SUBSTR';
