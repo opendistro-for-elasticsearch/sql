@@ -59,6 +59,7 @@ public class DateTimeFunction {
     repository.register(dayOfMonth());
     repository.register(time());
     repository.register(timestamp());
+    repository.register(week());
     repository.register(adddate());
   }
 
@@ -135,7 +136,24 @@ public class DateTimeFunction {
   }
 
   /**
+   * WEEK(DATE[,mode]). return the week number for date.
+   */
+  private FunctionResolver week() {
+    return define(BuiltinFunctionName.WEEK.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIMESTAMP, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, STRING, INTEGER)
+    );
+  }
+
+  /**
    * Date implementation for ExprValue.
+   *
    * @param exprValue ExprValue of Date type or String type.
    * @return ExprValue.
    */
@@ -184,6 +202,26 @@ public class DateTimeFunction {
     } else {
       return new ExprTimestampValue(exprValue.timestampValue());
     }
+  }
+
+  /**
+   * Week for date implementation for ExprValue.
+   * When mode is not specified default value mode 0 is used for default_week_format.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * @return ExprValue.
+   */
+  private ExprValue exprWeekWithoutMode(ExprValue date) {
+    return exprWeek(date, new ExprIntegerValue(0));
+  }
+
+  /**
+   * Week for date implementation for ExprValue.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * @param mode ExprValue of Integer type.
+   */
+  private ExprValue exprWeek(ExprValue date, ExprValue mode) {
+    CalendarLookup calendarLookup = new CalendarLookup(date);
+    return new ExprIntegerValue(calendarLookup.getWeekNumber(mode.integerValue()));
   }
 
   /**

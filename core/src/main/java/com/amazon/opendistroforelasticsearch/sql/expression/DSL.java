@@ -261,6 +261,10 @@ public class DSL {
     return function(BuiltinFunctionName.TIMESTAMP, expressions);
   }
 
+  public FunctionExpression week(Expression... expressions) {
+    return function(BuiltinFunctionName.WEEK, expressions);
+  }
+
   public FunctionExpression adddate(Expression... expressions) {
     return function(BuiltinFunctionName.ADDDATE, expressions);
   }

@@ -17,6 +17,8 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import java.time.LocalDate;
 import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,17 @@ public class ExprStringValue extends AbstractExprValue {
   @Override
   public String toString() {
     return String.format("\"%s\"", value);
+  }
+
+  @Override
+  public LocalDate dateValue() {
+    ExprValue date;
+    try {
+      date = new ExprDatetimeValue(value);
+    } catch (SemanticCheckException e) {
+      date = new ExprDateValue(value);
+    }
+    return date.dateValue();
   }
 
   @Override

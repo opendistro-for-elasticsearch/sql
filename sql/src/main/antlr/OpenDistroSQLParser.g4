@@ -232,7 +232,7 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : DAYOFMONTH | DATE | TIME | TIMESTAMP | ADDDATE
+    : DAYOFMONTH | DATE | TIME | TIMESTAMP | ADDDATE | WEEK
     ;
 
 textFunctionName
