@@ -28,18 +28,22 @@ import lombok.ToString;
  * Logical Aggregation.
  */
 @ToString
-@EqualsAndHashCode
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalAggregation extends LogicalPlan {
-  private final LogicalPlan child;
+
   @Getter
   private final List<NamedAggregator> aggregatorList;
+
   @Getter
   private final List<NamedExpression> groupByList;
 
-  @Override
-  public List<LogicalPlan> getChild() {
-    return Collections.singletonList(child);
+  public LogicalAggregation(
+      LogicalPlan child,
+      List<NamedAggregator> aggregatorList,
+      List<NamedExpression> groupByList) {
+    super(Collections.singletonList(child));
+    this.aggregatorList = aggregatorList;
+    this.groupByList = groupByList;
   }
 
   @Override

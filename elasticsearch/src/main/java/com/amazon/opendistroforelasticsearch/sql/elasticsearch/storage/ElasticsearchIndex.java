@@ -27,8 +27,8 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.ag
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScanAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -102,55 +102,45 @@ public class ElasticsearchIndex implements Table {
      * index scan.
      */
     return plan.accept(new DefaultImplementor<ElasticsearchIndexScan>() {
-          @Override
-          public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
-            // For now (without optimizer), only push down filter close to relation
-            if (!(node.getChild().get(0) instanceof LogicalRelation)) {
-              return super.visitFilter(node, context);
-            }
+      @Override
+      public PhysicalPlan visitIndexScan(LogicalIndexScan node,
+                                        ElasticsearchIndexScan context) {
+        FilterQueryBuilder queryBuilder = new FilterQueryBuilder(new DefaultExpressionSerializer());
+        QueryBuilder query = queryBuilder.build(node.getFilter());
+        context.pushDown(query);
+        return indexScan;
+      }
 
-            FilterQueryBuilder queryBuilder =
-                new FilterQueryBuilder(new DefaultExpressionSerializer());
+      @Override
+      public PhysicalPlan visitIndexScanAggregation(LogicalIndexScanAggregation node,
+                                                   ElasticsearchIndexScan context) {
 
-            QueryBuilder query = queryBuilder.build(node.getCondition());
+        if (node.getFilter() != null) {
+          FilterQueryBuilder queryBuilder = new FilterQueryBuilder(new DefaultExpressionSerializer());
+          QueryBuilder query = queryBuilder.build(node.getFilter());
+          context.pushDown(query);
+        }
 
-            context.pushDown(query);
-            return visitChild(node, context);
-          }
 
-          @Override
-          public PhysicalPlan visitAggregation(LogicalAggregation node,
-                                              ElasticsearchIndexScan context) {
-            // Todo, aggregation in the following pattern can be push down
-            // aggregation -> relation
-            // aggregation -> filter -> relation
-            if ((node.getChild().get(0) instanceof LogicalRelation)
-                || (node.getChild().get(0) instanceof LogicalFilter && node.getChild().get(0)
-                .getChild().get(0) instanceof LogicalRelation)) {
-              AggregationQueryBuilder builder =
-                  new AggregationQueryBuilder(new DefaultExpressionSerializer());
+        AggregationQueryBuilder builder =
+            new AggregationQueryBuilder(new DefaultExpressionSerializer());
 
-              List<AggregationBuilder> aggregationBuilder =
-                  builder.buildAggregationBuilder(node.getAggregatorList(),
-                      node.getGroupByList());
+        List<AggregationBuilder> aggregationBuilder =
+            builder.buildAggregationBuilder(node.getAggregatorList(),
+                node.getGroupByList());
 
-              context.pushDownAggregation(aggregationBuilder);
-              context.pushTypeMapping(
-                  builder.buildTypeMapping(node.getAggregatorList(),
-                      node.getGroupByList()));
+        context.pushDownAggregation(aggregationBuilder);
+        context.pushTypeMapping(
+            builder.buildTypeMapping(node.getAggregatorList(),
+                node.getGroupByList()));
 
-              return visitChild(node, context);
-            } else {
-              return super.visitAggregation(node, context);
-            }
-          }
+        return indexScan;
+      }
 
-          @Override
-          public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
-            return indexScan;
-          }
-        },
-        indexScan);
+      @Override
+      public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
+       return indexScan;
+      }}, indexScan);
   }
 
   private ExprType transformESTypeToExprType(String esType) {

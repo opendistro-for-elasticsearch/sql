@@ -41,20 +41,20 @@ import lombok.ToString;
  */
 @ToString
 @Getter
-@EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalValues extends LogicalPlan {
 
   private final List<List<LiteralExpression>> values;
 
-  @Override
-  public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-    return visitor.visitValues(this, context);
+  public LogicalValues(
+      List<List<LiteralExpression>> values) {
+    super(ImmutableList.of());
+    this.values = values;
   }
 
   @Override
-  public List<LogicalPlan> getChild() {
-    return ImmutableList.of();
+  public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
+    return visitor.visitValues(this, context);
   }
 
 }

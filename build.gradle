@@ -127,3 +127,9 @@ checkstyle {
 checkstyleMain.ignoreFailures = false
 checkstyleTest.ignoreFailures = true
 
+configurations.all {
+    exclude group: "commons-logging", module: "commons-logging"
+    // enforce 1.1.3, https://www.whitesourcesoftware.com/vulnerability-database/WS-2019-0379
+    resolutionStrategy.force 'commons-codec:commons-codec:1.13'
+    resolutionStrategy.force 'com.google.guava:guava:29.0-jre'
+}

@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.Planner;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
@@ -84,7 +85,7 @@ public class PPLService {
         new AnalysisContext());
 
     // 3.Generate optimal physical plan from logical plan
-    return new Planner(storageEngine).plan(logicalPlan);
+    return new Planner(storageEngine, LogicalPlanOptimizer.create()).plan(logicalPlan);
   }
 
 }

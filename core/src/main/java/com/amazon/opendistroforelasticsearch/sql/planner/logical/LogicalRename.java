@@ -29,16 +29,17 @@ import lombok.ToString;
  * renameList is list of mapping of source and target.
  */
 @ToString
-@EqualsAndHashCode
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalRename extends LogicalPlan {
-  private final LogicalPlan child;
+
   @Getter
   private final Map<ReferenceExpression, ReferenceExpression> renameMap;
 
-  @Override
-  public List<LogicalPlan> getChild() {
-    return Collections.singletonList(child);
+  public LogicalRename(
+      LogicalPlan child,
+      Map<ReferenceExpression, ReferenceExpression> renameMap) {
+    super(Collections.singletonList(child));
+    this.renameMap = renameMap;
   }
 
   @Override

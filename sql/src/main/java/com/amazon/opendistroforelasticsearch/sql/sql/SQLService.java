@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Explai
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.Planner;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
@@ -121,7 +122,7 @@ public class SQLService {
    * Generate optimal physical plan from logical plan.
    */
   public PhysicalPlan plan(LogicalPlan logicalPlan) {
-    return new Planner(storageEngine).plan(logicalPlan);
+    return new Planner(storageEngine, LogicalPlanOptimizer.create()).plan(logicalPlan);
   }
 
 }
