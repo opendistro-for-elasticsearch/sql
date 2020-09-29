@@ -760,7 +760,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     when(missingRef.type()).thenReturn(INTEGER);
     assertEquals(missingValue(), eval(dsl.week(nullRef, missingRef)));
 
-    FunctionExpression expression = dsl.week(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
+    FunctionExpression expression = dsl
+        .week(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
     assertEquals(INTEGER, expression.type());
     assertEquals("week(TIMESTAMP '2019-01-05 01:02:03')", expression.toString());
     assertEquals(integerValue(0), eval(expression));
