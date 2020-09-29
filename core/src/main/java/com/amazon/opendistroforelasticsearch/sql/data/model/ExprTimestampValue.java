@@ -44,6 +44,8 @@ public class ExprTimestampValue extends AbstractExprValue {
    * todo. only support timestamp in format yyyy-MM-dd HH:mm:ss.
    */
   private static final DateTimeFormatter FORMATTER = DateTimeFormatter
+      .ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS]");
+  private static final DateTimeFormatter FORMATTER_WITNOUT_NANO = DateTimeFormatter
       .ofPattern("yyyy-MM-dd HH:mm:ss");
   private final Instant timestamp;
 
@@ -55,14 +57,16 @@ public class ExprTimestampValue extends AbstractExprValue {
       this.timestamp = LocalDateTime.parse(timestamp, FORMATTER).atZone(ZONE).toInstant();
     } catch (DateTimeParseException e) {
       throw new SemanticCheckException(String.format("timestamp:%s in unsupported format, please "
-          + "use yyyy-MM-dd HH:mm:ss", timestamp));
+          + "use yyyy-MM-dd HH:mm:ss[.SSSSSS]", timestamp));
     }
 
   }
 
   @Override
   public String value() {
-    return FORMATTER.withZone(ZONE).format(timestamp.truncatedTo(ChronoUnit.SECONDS));
+    return timestamp.getNano() == 0 ? FORMATTER_WITNOUT_NANO.withZone(ZONE)
+        .format(timestamp.truncatedTo(ChronoUnit.SECONDS))
+        : FORMATTER.withZone(ZONE).format(timestamp);
   }
 
   @Override

@@ -3,7 +3,7 @@
     {
       "name": "pickup_datetime",
       "alias": "pdt",
-      "type": "date"
+      "type": "timestamp"
     },
     {
       "name": "trip_type",

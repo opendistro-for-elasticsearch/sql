@@ -175,12 +175,18 @@ CRC32:                              'CRC32';
 CURDATE:                            'CURDATE';
 DATE:                               'DATE';
 DATE_FORMAT:                        'DATE_FORMAT';
+DATE_ADD:                           'DATE_ADD';
+DATE_SUB:                           'DATE_SUB';
 DAYOFMONTH:                         'DAYOFMONTH';
+DAYOFWEEK:                          'DAYOFWEEK';
+DAYOFYEAR:                          'DAYOFYEAR';
+DAYNAME:                            'DAYNAME';
 DEGREES:                            'DEGREES';
 E:                                  'E';
 EXP:                                'EXP';
 EXPM1:                              'EXPM1';
 FLOOR:                              'FLOOR';
+FROM_DAYS:                          'FROM_DAYS';
 IF:                                 'IF';
 IFNULL:                             'IFNULL';
 ISNULL:                             'ISNULL';
@@ -211,11 +217,14 @@ SIGNUM:                             'SIGNUM';
 SIN:                                'SIN';
 SINH:                               'SINH';
 SQRT:                               'SQRT';
+SUBDATE:                            'SUBDATE';
 SUBTRACT:                           'SUBTRACT';
 TAN:                                'TAN';
 TIME:                               'TIME';
+TIME_TO_SEC:                        'TIME_TO_SEC';
 TIMESTAMP:                          'TIMESTAMP';
 TRUNCATE:                           'TRUNCATE';
+TO_DAYS:                            'TO_DAYS';
 UPPER:                              'UPPER';
 
 D:                                  'D';
@@ -274,9 +283,12 @@ WEEK_OF_YEAR:                       'WEEK_OF_YEAR';
 WILDCARDQUERY:                      'WILDCARDQUERY';
 WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
+// TEXT FUNCTIONS
+SUBSTR:                             'SUBSTR';
+STRCMP:                             'STRCMP';
+
 // DATE AND TIME FUNCTIONS
 ADDDATE:                            'ADDDATE';
-
 
 // Operators
 

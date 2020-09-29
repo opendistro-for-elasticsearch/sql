@@ -113,7 +113,8 @@ public class DateTimeValueTest {
         assertThrows(SemanticCheckException.class,
             () -> new ExprTimestampValue("2020-07-07T01:01:01Z"));
     assertEquals(
-        "timestamp:2020-07-07T01:01:01Z in unsupported format, please use yyyy-MM-dd HH:mm:ss",
+        "timestamp:2020-07-07T01:01:01Z in unsupported format, "
+            + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
 
@@ -123,7 +124,55 @@ public class DateTimeValueTest {
         assertThrows(SemanticCheckException.class,
             () -> new ExprDatetimeValue("2020-07-07T01:01:01Z"));
     assertEquals(
-        "datetime:2020-07-07T01:01:01Z in unsupported format, please use yyyy-MM-dd HH:mm:ss",
+        "datetime:2020-07-07T01:01:01Z in unsupported format, "
+            + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
+        exception.getMessage());
+  }
+
+  @Test
+  public void stringDateTimeValue() {
+    ExprValue stringValue = new ExprStringValue("2020-08-17 19:44:00");
+
+    assertEquals(LocalDateTime.parse("2020-08-17T19:44:00"), stringValue.datetimeValue());
+    assertEquals(LocalDate.parse("2020-08-17"), stringValue.dateValue());
+    assertEquals(LocalTime.parse("19:44:00"), stringValue.timeValue());
+    assertEquals("\"2020-08-17 19:44:00\"", stringValue.toString());
+
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class,
+            () -> new ExprStringValue("2020-07-07T01:01:01Z").datetimeValue());
+    assertEquals(
+        "datetime:2020-07-07T01:01:01Z in unsupported format, "
+            + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
+        exception.getMessage());
+  }
+
+  @Test
+  public void stringDateValue() {
+    ExprValue stringValue = new ExprStringValue("2020-08-17");
+
+    assertEquals(LocalDateTime.parse("2020-08-17T00:00:00"), stringValue.datetimeValue());
+    assertEquals(LocalDate.parse("2020-08-17"), stringValue.dateValue());
+    assertEquals("\"2020-08-17\"", stringValue.toString());
+
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class,
+            () -> new ExprStringValue("2020-07-07Z").dateValue());
+    assertEquals("date:2020-07-07Z in unsupported format, please use yyyy-MM-dd",
+        exception.getMessage());
+  }
+
+  @Test
+  public void stringTimeValue() {
+    ExprValue stringValue = new ExprStringValue("19:44:00");
+
+    assertEquals(LocalTime.parse("19:44:00"), stringValue.timeValue());
+    assertEquals("\"19:44:00\"", stringValue.toString());
+
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class,
+            () -> new ExprStringValue("01:01:0").timeValue());
+    assertEquals("time:01:01:0 in unsupported format, please use HH:mm:ss",
         exception.getMessage());
   }
 }

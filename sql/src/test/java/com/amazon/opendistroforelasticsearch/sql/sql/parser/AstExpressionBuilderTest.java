@@ -221,6 +221,14 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildRegexpExpression() {
+    assertEquals(
+        function("regexp", stringLiteral("str"), stringLiteral(".*")),
+        buildExprAst("'str' regexp '.*'")
+    );
+  }
+
+  @Test
   public void canBuildLogicalExpression() {
     assertEquals(
         and(booleanLiteral(true), booleanLiteral(false)),
@@ -253,6 +261,14 @@ class AstExpressionBuilderTest {
             ImmutableList.of(),
             ImmutableList.of(ImmutablePair.of("DESC", qualifiedName("age")))),
         buildExprAst("DENSE_RANK() OVER (ORDER BY age DESC)"));
+  }
+
+  @Test
+  public void canBuildKeywordsAsIdentifiers() {
+    assertEquals(
+        qualifiedName("timestamp"),
+        buildExprAst("timestamp")
+    );
   }
 
   private Node buildExprAst(String expr) {

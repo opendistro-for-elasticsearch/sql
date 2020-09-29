@@ -435,7 +435,6 @@ Specifications:
 
 1. MULTIPLY(NUMBER T, NUMBER) -> NUMBER
 
-
 PI
 --
 
@@ -684,6 +683,30 @@ Example::
     +-----------+--------------+
 
 
+STRCMP
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: strcmp(str1, str2) returns 0 if strings are same, -1 if first arg < second arg according to current sort order, and 1 otherwise.
+
+Argument type: STRING, STRING
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT STRCMP('hello', 'world'), STRCMP('hello', 'hello')
+    fetched rows / total rows = 1/1
+    +----------------------------+----------------------------+
+    | STRCMP('hello', 'world')   | STRCMP('hello', 'hello')   |
+    |----------------------------+----------------------------|
+    | -1                         | 0                          |
+    +----------------------------+----------------------------+
+
+
+
 SUBTRACT
 --------
 
@@ -747,6 +770,37 @@ Example::
 Date and Time Functions
 =======================
 
+ADDDATE
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: adddate(date, INTERVAL expr unit)/ adddate(date, expr) adds the time interval of second argument to date; adddate(date, days) adds the second argument as integer number of days to date.
+
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
+
+Return type map:
+
+(DATE/DATETIME/TIMESTAMP/STRING, INTERVAL) -> DATETIME
+
+(DATE, LONG) -> DATE
+
+(DATETIME/TIMESTAMP/STRING, LONG) -> DATETIME
+
+Synonyms: `DATE_ADD`_
+
+Example::
+
+    od> SELECT ADDDATE(DATE('2020-08-26'), INTERVAL 1 HOUR), ADDDATE(DATE('2020-08-26'), 1), ADDDATE(TIMESTAMP('2020-08-26 01:01:01'), 1)
+    fetched rows / total rows = 1/1
+    +------------------------------------------------+----------------------------------+------------------------------------------------+
+    | ADDDATE(DATE('2020-08-26'), INTERVAL 1 HOUR)   | ADDDATE(DATE('2020-08-26'), 1)   | ADDDATE(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
+    |------------------------------------------------+----------------------------------+------------------------------------------------|
+    | 2020-08-26 01:00:00                            | 2020-08-27                       | 2020-08-27 01:01:01                            |
+    +------------------------------------------------+----------------------------------+------------------------------------------------+
+
+
 CURDATE
 -------
 
@@ -781,51 +835,125 @@ Example::
     +----------------------+------------------------------------------+
 
 
-ADDDATE
--------
-
-Description
->>>>>>>>>>>
-
-Usage: adddate(date, INTERVAL expr unit) adds the time interval of second argument to date; adddate(date, days) adds the second argument as integer number of days to date.
-
-Argument type: DATE/DATETIME/TIMESTAMP, INTERVAL/LONG
-
-Return type map:
-
-(DATE/DATETIME/TIMESTAMP, INTERVAL) -> DATETIME
-(DATE, LONG) -> DATE
-(DATETIME/TIMESTAMP, LONG) -> DATETIME
-
-Synonyms: `DATE_ADD`_
-
-Example::
-
-    >od SELECT ADDDATE(DATE('2020-08-26'), INTERVAL 1 HOUR), ADDDATE(DATE('2020-08-26'), 1)
-    fetched rows / total rows = 1/1
-    +------------------------------------------------+----------------------------------+
-    | ADDDATE(DATE('2020-08-26'), INTERVAL 1 HOUR)   | ADDDATE(DATE('2020-08-26'), 1)   |
-    |------------------------------------------------+----------------------------------|
-    | DATETIME '2020-08-26 01:00:00'                 | DATE '2020-08-26'                |
-    +------------------------------------------------+----------------------------------+
-
-
-DATE_ADD
---------
-
-todo
-
-
 DATE_FORMAT
 -----------
 
 Description
 >>>>>>>>>>>
 
-Specifications:
+Specifications: 
 
 1. DATE_FORMAT(DATE, STRING) -> STRING
 2. DATE_FORMAT(DATE, STRING, STRING) -> STRING
+
+DATE_ADD
+--------
+
+Description
+>>>>>>>>>>>
+
+Usage: date_add(date, INTERVAL expr unit)/ date_add(date, expr) adds the time interval expr to date
+
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
+
+Return type map:
+
+DATE/DATETIME/TIMESTAMP/STRING, INTERVAL -> DATETIME
+
+DATE, LONG -> DATE
+
+DATETIME/TIMESTAMP/STRING, LONG -> DATETIME
+
+Synonyms: `ADDDATE`_
+
+Example::
+
+    od> SELECT DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR), DATE_ADD(DATE('2020-08-26'), 1), DATE_ADD(TIMESTAMP('2020-08-26 01:01:01'), 1)
+    fetched rows / total rows = 1/1
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+    | DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR)   | DATE_ADD(DATE('2020-08-26'), 1)   | DATE_ADD(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
+    |-------------------------------------------------+-----------------------------------+-------------------------------------------------|
+    | 2020-08-26 01:00:00                             | 2020-08-27                        | 2020-08-27 01:01:01                             |
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+
+
+DATE_SUB
+--------
+
+Description
+>>>>>>>>>>>
+
+Usage: date_sub(date, INTERVAL expr unit)/ date_sub(date, expr) subtracts the time interval expr from date
+
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
+
+Return type map:
+
+DATE/DATETIME/TIMESTAMP/STRING, INTERVAL -> DATETIME
+
+DATE, LONG -> DATE
+
+DATETIME/TIMESTAMP/STRING, LONG -> DATETIME
+
+Synonyms: `SUBDATE`_
+
+Example::
+
+    od> SELECT DATE_SUB(DATE('2008-01-02'), INTERVAL 31 DAY), DATE_SUB(DATE('2020-08-26'), 1), DATE_SUB(TIMESTAMP('2020-08-26 01:01:01'), 1)
+    fetched rows / total rows = 1/1
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+    | DATE_SUB(DATE('2008-01-02'), INTERVAL 31 DAY)   | DATE_SUB(DATE('2020-08-26'), 1)   | DATE_SUB(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
+    |-------------------------------------------------+-----------------------------------+-------------------------------------------------|
+    | 2007-12-02                                      | 2020-08-25                        | 2020-08-25 01:01:01                             |
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+
+
+DAY
+---
+
+Description
+>>>>>>>>>>>
+
+Usage: day(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
+
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Synonyms: DAYOFMONTH
+
+Example::
+
+    od> SELECT DAY(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +---------------------------+
+    | DAY(DATE('2020-08-26'))   |
+    |---------------------------|
+    | 26                        |
+    +---------------------------+
+
+
+DAYNAME
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: dayname(date) returns the name of the weekday for date, including Monday, Tuesday, Wednesday, Thursday, Friday, Saturday and Sunday.
+
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: STRING
+
+Example::
+
+    od> SELECT DAYNAME(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | DAYNAME(DATE('2020-08-26'))   |
+    |-------------------------------|
+    | Wednesday                     |
+    +-------------------------------+
 
 
 DAYOFMONTH
@@ -834,9 +962,116 @@ DAYOFMONTH
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: dayofmonth(date) extracts the day of the month for date, in the range 1 to 31. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 
-1. DAYOFMONTH(DATE) -> INTEGER
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Synonyms: DAY
+
+Example::
+
+    od> SELECT DAYOFMONTH(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +----------------------------------+
+    | DAYOFMONTH(DATE('2020-08-26'))   |
+    |----------------------------------|
+    | 26                               |
+    +----------------------------------+
+
+
+DAYOFWEEK
+---------
+
+Description
+>>>>>>>>>>>
+
+Usage: dayofweek(date) returns the weekday index for date (1 = Sunday, 2 = Monday, …, 7 = Saturday).
+
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT DAYOFWEEK(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +---------------------------------+
+    | DAYOFWEEK(DATE('2020-08-26'))   |
+    |---------------------------------|
+    | 4                               |
+    +---------------------------------+
+
+
+
+DAYOFYEAR
+---------
+
+Description
+>>>>>>>>>>>
+
+Usage:  dayofyear(date) returns the day of the year for date, in the range 1 to 366.
+
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT DAYOFYEAR(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +---------------------------------+
+    | DAYOFYEAR(DATE('2020-08-26'))   |
+    |---------------------------------|
+    | 239                             |
+    +---------------------------------+
+
+
+FROM_DAYS
+---------
+
+Description
+>>>>>>>>>>>
+
+Usage: from_days(N) returns the date value given the day number N.
+
+Argument type: INTEGER/LONG
+
+Return type: DATE
+
+Example::
+
+    od> SELECT FROM_DAYS(733687)
+    fetched rows / total rows = 1/1
+    +---------------------+
+    | FROM_DAYS(733687)   |
+    |---------------------|
+    | 2008-10-07          |
+    +---------------------+
+
+
+HOUR
+----
+
+Description
+>>>>>>>>>>>
+
+Usage: hour(time) extracts the hour value for time. Different from the time of day value, the time value has a large range and can be greater than 23, so the return value of hour(time) can be also greater than 23.
+
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT HOUR((TIME '01:02:03'))
+    fetched rows / total rows = 1/1
+    +---------------------------+
+    | HOUR((TIME '01:02:03'))   |
+    |---------------------------|
+    | 1                         |
+    +---------------------------+
 
 
 MAKETIME
@@ -850,15 +1085,73 @@ Specifications:
 1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
 
 
+MICROSECOND
+-----------
+
+Description
+>>>>>>>>>>>
+
+Usage: microsecond(expr) returns the microseconds from the time or datetime expression expr as a number in the range from 0 to 999999.
+
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT MICROSECOND((TIME '01:02:03.123456'))
+    fetched rows / total rows = 1/1
+    +-----------------------------------------+
+    | MICROSECOND((TIME '01:02:03.123456'))   |
+    |-----------------------------------------|
+    | 123456                                  |
+    +-----------------------------------------+
+
+
+MINUTE
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: minute(time) returns the minute for time, in the range 0 to 59.
+
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT MINUTE((TIME '01:02:03'))
+    fetched rows / total rows = 1/1
+    +-----------------------------+
+    | MINUTE((TIME '01:02:03'))   |
+    |-----------------------------|
+    | 2                           |
+    +-----------------------------+
+
+
 MONTH
 -----
 
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: month(date) returns the month for date, in the range 1 to 12 for January to December. The dates with value 0 such as '0000-00-00' or '2008-00-00' are invalid.
 
-1. MONTH(DATE) -> INTEGER
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT MONTH(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +-----------------------------+
+    | MONTH(DATE('2020-08-26'))   |
+    |-----------------------------|
+    | 8                           |
+    +-----------------------------+
 
 
 MONTHNAME
@@ -867,9 +1160,21 @@ MONTHNAME
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: monthname(date) returns the full name of the month for date.
 
-1. MONTHNAME(DATE) -> STRING
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: STRING
+
+Example::
+
+    od> SELECT MONTHNAME(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +---------------------------------+
+    | MONTHNAME(DATE('2020-08-26'))   |
+    |---------------------------------|
+    | August                          |
+    +---------------------------------+
 
 
 NOW
@@ -881,6 +1186,83 @@ Description
 Specifications:
 
 1. NOW() -> DATE
+
+
+QUARTER
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: quarter(date) returns the quarter of the year for date, in the range 1 to 4.
+
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT QUARTER(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | QUARTER(DATE('2020-08-26'))   |
+    |-------------------------------|
+    | 3                             |
+    +-------------------------------+
+
+
+SECOND
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: second(time) returns the second for time, in the range 0 to 59.
+
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT SECOND((TIME '01:02:03'))
+    fetched rows / total rows = 1/1
+    +-----------------------------+
+    | SECOND((TIME '01:02:03'))   |
+    |-----------------------------|
+    | 3                           |
+    +-----------------------------+
+
+
+SUBDATE
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: subdate(date, INTERVAL expr unit)/ subdate(date, expr) subtracts the time interval expr from date
+
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
+
+Return type map:
+
+DATE/DATETIME/TIMESTAMP/STRING, INTERVAL -> DATETIME
+
+DATE, LONG -> DATE
+
+DATETIME/TIMESTAMP/STRING, LONG -> DATETIME
+
+Synonyms: `DATE_SUB`_
+
+Example::
+
+    od> SELECT SUBDATE(DATE('2008-01-02'), INTERVAL 31 DAY), SUBDATE(DATE('2020-08-26'), 1), SUBDATE(TIMESTAMP('2020-08-26 01:01:01'), 1)
+    fetched rows / total rows = 1/1
+    +------------------------------------------------+----------------------------------+------------------------------------------------+
+    | SUBDATE(DATE('2008-01-02'), INTERVAL 31 DAY)   | SUBDATE(DATE('2020-08-26'), 1)   | SUBDATE(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
+    |------------------------------------------------+----------------------------------+------------------------------------------------|
+    | 2007-12-02                                     | 2020-08-25                       | 2020-08-25 01:01:01                            |
+    +------------------------------------------------+----------------------------------+------------------------------------------------+
 
 
 TIME
@@ -906,6 +1288,29 @@ Example::
     +--------------------+------------------------------------------+
 
 
+TIME_TO_SEC
+-----------
+
+Description
+>>>>>>>>>>>
+
+Usage: time_to_sec(time) returns the time argument, converted to seconds.
+
+Argument type: STRING/TIME/DATETIME/TIMESTAMP
+
+Return type: LONG
+
+Example::
+
+    od> SELECT TIME_TO_SEC(TIME '22:23:00')
+    fetched rows / total rows = 1/1
+    +--------------------------------+
+    | TIME_TO_SEC(TIME '22:23:00')   |
+    |--------------------------------|
+    | 80580                          |
+    +--------------------------------+
+
+
 TIMESTAMP
 ---------
 
@@ -929,16 +1334,51 @@ Example::
     +------------------------------------+
 
 
+TO_DAYS
+-------
+
+Description
+>>>>>>>>>>>
+
+Usage: to_days(date) returns the day number (the number of days since year 0) of the given date. Returns NULL if date is invalid.
+
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
+
+Return type: LONG
+
+Example::
+
+    od> SELECT TO_DAYS(DATE '2008-10-07')
+    fetched rows / total rows = 1/1
+    +------------------------------+
+    | TO_DAYS(DATE '2008-10-07')   |
+    |------------------------------|
+    | 733687                       |
+    +------------------------------+
+
+
+
 YEAR
 ----
 
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: year(date) returns the year for date, in the range 1000 to 9999, or 0 for the “zero” date.
 
-1. YEAR(DATE) -> INTEGER
+Argument type: STRING/DATE/DATETIME/TIMESTAMP
 
+Return type: INTEGER
+
+Example::
+
+    od> SELECT YEAR(DATE('2020-08-26'))
+    fetched rows / total rows = 1/1
+    +----------------------------+
+    | YEAR(DATE('2020-08-26'))   |
+    |----------------------------|
+    | 2020                       |
+    +----------------------------+
 
 
 String Functions
@@ -961,7 +1401,22 @@ CONCAT
 Description
 >>>>>>>>>>>
 
-Specification is undefined and type check is skipped for now
+Usage: CONCAT(str1, str2) returns str1 and str strings concatenated together.
+
+Argument type: STRING, STRING
+
+Return type: STRING
+
+Example::
+
+    od> SELECT CONCAT('hello', 'world')
+    fetched rows / total rows = 1/1
+    +----------------------------+
+    | CONCAT('hello', 'world')   |
+    |----------------------------|
+    | helloworld                 |
+    +----------------------------+
+
 
 CONCAT_WS
 ---------
@@ -969,7 +1424,21 @@ CONCAT_WS
 Description
 >>>>>>>>>>>
 
-Specification is undefined and type check is skipped for now
+Usage: CONCAT_WS(sep, str1, str2) returns str1 concatenated with str2 using sep as a separator between them.
+
+Argument type: STRING, STRING, STRING
+
+Return type: STRING
+
+Example::
+
+    od> SELECT CONCAT_WS(',', 'hello', 'world')
+    fetched rows / total rows = 1/1
+    +------------------------------------+
+    | CONCAT_WS(',', 'hello', 'world')   |
+    |------------------------------------|
+    | hello,world                        |
+    +------------------------------------+
 
 
 LEFT
@@ -993,6 +1462,22 @@ Specifications:
 
 1. LENGTH(STRING) -> INTEGER
 
+Usage: length(str) returns length of string measured in bytes.
+
+Argument type: STRING
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT LENGTH('helloworld')
+    fetched rows / total rows = 1/1
+    +------------------------+
+    | LENGTH('helloworld')   |
+    |------------------------|
+    | 10                     |
+    +------------------------+
+
 
 LOCATE
 ------
@@ -1012,10 +1497,21 @@ LOWER
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: lower(string) converts the string to lowercase.
 
-1. LOWER(STRING T) -> T
-2. LOWER(STRING T, STRING) -> T
+Argument type: STRING
+
+Return type: STRING
+
+Example::
+
+    od> SELECT LOWER('helloworld'), LOWER('HELLOWORLD')
+    fetched rows / total rows = 1/1
+    +-----------------------+-----------------------+
+    | LOWER('helloworld')   | LOWER('HELLOWORLD')   |
+    |-----------------------+-----------------------|
+    | helloworld            | helloworld            |
+    +-----------------------+-----------------------+
 
 
 LTRIM
@@ -1024,9 +1520,21 @@ LTRIM
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: ltrim(str) trims leading space characters from the string.
 
-1. LTRIM(STRING T) -> T
+Argument type: STRING
+
+Return type: STRING
+
+Example::
+
+    od> SELECT LTRIM('   hello'), LTRIM('hello   ')
+    fetched rows / total rows = 1/1
+    +---------------------+---------------------+
+    | LTRIM('   hello')   | LTRIM('hello   ')   |
+    |---------------------+---------------------|
+    | hello               | hello               |
+    +---------------------+---------------------+
 
 
 REPLACE
@@ -1057,9 +1565,21 @@ RTRIM
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: rtrim(str) trims trailing space characters from the string.
 
-1. RTRIM(STRING T) -> T
+Argument type: STRING
+
+Return type: STRING
+
+Example::
+
+    od> SELECT RTRIM('   hello'), RTRIM('hello   ')
+    fetched rows / total rows = 1/1
+    +---------------------+---------------------+
+    | RTRIM('   hello')   | RTRIM('hello   ')   |
+    |---------------------+---------------------|
+    |    hello            | hello               |
+    +---------------------+---------------------+
 
 
 SUBSTRING
@@ -1068,9 +1588,23 @@ SUBSTRING
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: substring(str, start) or substring(str, start, length) returns substring using start and length. With no length, entire string from start is returned.
 
-1. SUBSTRING(STRING T, INTEGER, INTEGER) -> T
+Argument type: STRING, INTEGER, INTEGER
+
+Return type: STRING
+
+Synonyms: SUBSTR
+
+Example::
+
+    od> SELECT SUBSTRING('helloworld', 5), SUBSTRING('helloworld', 5, 3)
+    fetched rows / total rows = 1/1
+    +------------------------------+---------------------------------+
+    | SUBSTRING('helloworld', 5)   | SUBSTRING('helloworld', 5, 3)   |
+    |------------------------------+---------------------------------|
+    | oworld                       | owo                             |
+    +------------------------------+---------------------------------+
 
 
 TRIM
@@ -1079,9 +1613,19 @@ TRIM
 Description
 >>>>>>>>>>>
 
-Specifications:
+Argument Type: STRING
 
-1. TRIM(STRING T) -> T
+Return type: STRING
+
+Example::
+
+    od> SELECT TRIM('   hello'), TRIM('hello   ')
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | TRIM('   hello')   | TRIM('hello   ')   |
+    |--------------------+--------------------|
+    | hello              | hello              |
+    +--------------------+--------------------+
 
 
 UPPER
@@ -1090,12 +1634,21 @@ UPPER
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: upper(string) converts the string to uppercase.
 
-1. UPPER(STRING T) -> T
-2. UPPER(STRING T, STRING) -> T
+Argument type: STRING
 
+Return type: STRING
 
+Example::
+
+    od> SELECT UPPER('helloworld'), UPPER('HELLOWORLD')
+    fetched rows / total rows = 1/1
+    +-----------------------+-----------------------+
+    | UPPER('helloworld')   | UPPER('HELLOWORLD')   |
+    |-----------------------+-----------------------|
+    | HELLOWORLD            | HELLOWORLD            |
+    +-----------------------+-----------------------+
 
 Conditional Functions
 =====================

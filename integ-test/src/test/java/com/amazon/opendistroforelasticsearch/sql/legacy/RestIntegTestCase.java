@@ -54,7 +54,6 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.test.rest.ESRestTestCase;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,7 +71,7 @@ import org.junit.Before;
  * <p>
  * TODO: this base class should extends ODFERestTestCase
  */
-public abstract class RestIntegTestCase extends ESRestTestCase {
+public abstract class RestIntegTestCase extends ODFERestTestCase {
 
   @Before
   public void setUpIndices() throws Exception {
@@ -134,7 +133,7 @@ public abstract class RestIntegTestCase extends ESRestTestCase {
    */
   @AfterClass
   public static void cleanUpIndices() throws IOException {
-    wipeAllIndices();
+    wipeAllODFEIndices();
     wipeAllClusterSettings();
   }
 
