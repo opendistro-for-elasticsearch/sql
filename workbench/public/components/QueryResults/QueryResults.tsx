@@ -15,15 +15,16 @@
 
 import React from "react";
 // @ts-ignore
-import {SortableProperties, SortableProperty} from "@elastic/eui/lib/services";
+import { SortableProperties, SortableProperty } from "@elastic/eui/lib/services";
 // @ts-ignore
-import {EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon} from "@elastic/eui";
-import {QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap} from "../Main/main";
+import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon } from "@elastic/eui";
+import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap } from "../Main/main";
 import QueryResultsBody from "./QueryResultsBody";
 import { getQueryIndex, needsScrolling, getSelectedResults } from "../../utils/utils";
-import {DEFAULT_NUM_RECORDS_PER_PAGE, MESSAGE_TAB_LABEL, TAB_CONTAINER_ID} from "../../utils/constants";
+import { DEFAULT_NUM_RECORDS_PER_PAGE, MESSAGE_TAB_LABEL, TAB_CONTAINER_ID } from "../../utils/constants";
 
 interface QueryResultsProps {
+  language: string;
   queries: string[];
   queryResults: ResponseDetail<QueryResult>[];
   queryResultsJSON: string;
@@ -36,7 +37,7 @@ interface QueryResultsProps {
   searchQuery: string;
   tabsOverflow: boolean;
   onSelectedTabIdChange: (tab: Tab) => void;
-  onQueryChange: (object:any) => void;
+  onQueryChange: (object: any) => void;
   updateExpandedMap: (map: ItemIdToExpandedRowMap) => void;
   itemIdToExpandedRowMap: ItemIdToExpandedRowMap;
   getJson: (queries: string[]) => void;
@@ -107,7 +108,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     if (document.getElementById(TAB_CONTAINER_ID)) {
       document.getElementById(TAB_CONTAINER_ID)!.scrollBy(-50, 0);
     }
-   };
+  };
 
   closePopover = (): void => {
     this.setState({
@@ -189,9 +190,9 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     if (queryResultSelected) {
       const matchingItems: object[] = this.props.searchQuery
         ? EuiSearchBar.Query.execute(
-            this.props.searchQuery,
-            queryResultSelected.records
-          )
+          this.props.searchQuery,
+          queryResultSelected.records
+        )
         : queryResultSelected.records;
       this.updatePagination(matchingItems.length);
       this.updateSortableColumns(queryResultSelected);
@@ -318,6 +319,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
 
         {/*RESULTS TABLE*/}
         <QueryResultsBody
+          language={this.props.language}
           queries={this.props.queries}
           selectedTabId={this.props.selectedTabId}
           selectedTabName={this.props.selectedTabName}

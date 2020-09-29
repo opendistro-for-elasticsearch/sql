@@ -18,9 +18,10 @@ import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from "@elastic/eui";
 import { IHttpResponse, IHttpService } from "angular";
 import _ from "lodash";
 import Header from "../Header/Header";
-import QueryEditor from "../QueryEditor/QueryEditor";
 import QueryResults from "../QueryResults/QueryResults";
 import Switch from "../QueryLanguageSwitch/Switch";
+import { SQLPage } from "../SQLPage/SQLPage";
+import { PPLPage } from "../PPLPage/PPLPage";
 import { getDefaultTabId, getDefaultTabLabel, getQueries, getSelectedResults, Tree } from "../../utils/utils";
 import { MESSAGE_TAB_LABEL } from "../../utils/constants";
 
@@ -64,12 +65,13 @@ export type ItemIdToExpandedRowMap = {
 
 interface MainProps {
   httpClient: IHttpService;
-  sqlQueriesString?: string;
   onChange: (id: string, value?: any) => void;
 }
 
 interface MainState {
   language: string;
+  sqlQueriesString: string;
+  pplQueriesString: string;
   queries: string[];
   queryTranslations: Array<ResponseDetail<TranslateResult>>;
   queryResultsTable: Array<ResponseDetail<QueryResult>>;
@@ -188,6 +190,8 @@ export class Main extends React.Component<MainProps, MainState> {
 
     this.state = {
       language: 'SQL',
+      sqlQueriesString: "SHOW tables LIKE %",
+      pplQueriesString: "",
       queries: [],
       queryTranslations: [],
       queryResultsTable: [],
@@ -203,6 +207,9 @@ export class Main extends React.Component<MainProps, MainState> {
     };
 
     this.httpClient = this.props.httpClient;
+    this.updateSQLQueries = _.debounce(this.updateSQLQueries, 250).bind(this);
+    this.updatePPLQueries = _.debounce(this.updatePPLQueries, 250).bind(this);
+
   }
 
   processTranslateResponse(response: IHttpResponse<ResponseData>): ResponseDetail<TranslateResult> {
@@ -409,11 +416,13 @@ export class Main extends React.Component<MainProps, MainState> {
   };
 
   getJdbc = (queries: string[]): void => {
+    const language = this.state.language
     if (queries.length > 0) {
+      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqlquery" : "pplquery");
       Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/queryjdbc", { query })
+            .post(endpoint, { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -439,11 +448,13 @@ export class Main extends React.Component<MainProps, MainState> {
   };
 
   getCsv = (queries: string[]): void => {
+    const language = this.state.language
     if (queries.length > 0) {
+      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqlcsv" : "pplcsv");
       Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/querycsv", { query })
+            .post(endpoint, { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -469,11 +480,13 @@ export class Main extends React.Component<MainProps, MainState> {
   };
 
   getText = (queries: string[]): void => {
+    const language = this.state.language
     if (queries.length > 0) {
+      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqltext" : "ppltext");
       Promise.all(
         queries.map((query: string) =>
           this.httpClient
-            .post("../api/sql_console/querytext", { query })
+            .post(endpoint, { query })
             .catch((error: any) => {
               this.setState({
                 messages: [
@@ -520,7 +533,52 @@ export class Main extends React.Component<MainProps, MainState> {
     }, () => console.log("Successfully updated language to ", this.state.language)); // added callback function to handle async issues
   }
 
+  updateSQLQueries(query: string) {
+    this.setState({
+      sqlQueriesString: query
+    });
+  }
+
+  updatePPLQueries(query: string) {
+    this.setState({
+      pplQueriesString: query
+    });
+  }
+
   render() {
+
+    let page;
+    let link;
+    let linkTitle;
+
+    if (this.state.language == 'SQL') {
+      page = (
+        <SQLPage
+          onRun={this.onRun}
+          onTranslate={this.onTranslate}
+          onClear={this.onClear}
+          sqlQuery={this.state.sqlQueriesString}
+          sqlTranslations={this.state.queryTranslations}
+          updateSQLQueries={this.updateSQLQueries}
+        />
+      );
+      link = "https://opendistro.github.io/for-elasticsearch-docs/docs/sql/";
+      linkTitle = "SQL Documentation";
+    } else {
+      page = (
+        <PPLPage
+          onRun={this.onRun}
+          onTranslate={this.onTranslate}
+          onClear={this.onClear}
+          pplQuery={this.state.pplQueriesString}
+          pplTranslations={this.state.queryTranslations}
+          updatePPLQueries={this.updatePPLQueries}
+        />
+      );
+      link = "https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/experiment/ppl/index.rst";
+      linkTitle = "PPL Documentation";
+    }
+
     return (
       <div>
         <Header />
@@ -535,29 +593,24 @@ export class Main extends React.Component<MainProps, MainState> {
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
                 <EuiButton
-                  href="https://opendistro.github.io/for-elasticsearch-docs/docs/sql/"
+                  href={link}
                   iconType="popout"
                   iconSide="right">
-                  SQL Documentation
+                  {linkTitle}
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
 
           </div>
           <EuiSpacer size="l" />
-          <div className="sql-console-query-editor">
-            <QueryEditor
-              onRun={this.onRun}
-              onTranslate={this.onTranslate}
-              onClear={this.onClear}
-              sqlQueriesString={this.props.sqlQueriesString ? this.props.sqlQueriesString : ''}
-              queryTranslations={this.state.queryTranslations}
-            />
+          <div>
+            {page}
           </div>
 
           <EuiSpacer size="l" />
           <div className="sql-console-query-result">
             <QueryResults
+              language={this.state.language}
               queries={this.state.queries}
               queryResults={this.state.queryResultsTable}
               queryResultsJDBC={getSelectedResults(this.state.queryResults, this.state.selectedTabId)}
