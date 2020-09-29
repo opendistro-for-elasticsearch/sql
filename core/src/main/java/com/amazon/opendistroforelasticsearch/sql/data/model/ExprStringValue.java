@@ -19,8 +19,9 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -46,19 +47,42 @@ public class ExprStringValue extends AbstractExprValue {
   }
 
   @Override
-  public String toString() {
-    return String.format("\"%s\"", value);
+  public LocalDateTime datetimeValue() {
+    try {
+      return new ExprDatetimeValue(value).datetimeValue();
+    } catch (SemanticCheckException e) {
+      try {
+        return new ExprDatetimeValue(
+            LocalDateTime.of(new ExprDateValue(value).dateValue(), LocalTime.of(0, 0, 0)))
+            .datetimeValue();
+      } catch (SemanticCheckException exception) {
+        throw new SemanticCheckException(String.format("datetime:%s in unsupported format, please "
+            + "use yyyy-MM-dd HH:mm:ss[.SSSSSS]", value));
+      }
+    }
   }
 
   @Override
   public LocalDate dateValue() {
-    ExprValue date;
     try {
-      date = new ExprDatetimeValue(value);
+      return new ExprDatetimeValue(value).dateValue();
     } catch (SemanticCheckException e) {
-      date = new ExprDateValue(value);
+      return new ExprDateValue(value).dateValue();
     }
-    return date.dateValue();
+  }
+
+  @Override
+  public LocalTime timeValue() {
+    try {
+      return new ExprDatetimeValue(value).timeValue();
+    } catch (SemanticCheckException e) {
+      return new ExprTimeValue(value).timeValue();
+    }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("\"%s\"", value);
   }
 
   @Override

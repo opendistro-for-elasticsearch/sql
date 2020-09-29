@@ -13,7 +13,7 @@ import java.util.Map;
  * This class converts a SQL style DATE_FORMAT format specifier and converts it to a
  * Java SimpleDateTime format.
  */
-public class DateTimeFormatterUtil {
+class DateTimeFormatterUtil {
   private static final int SUFFIX_SPECIAL_START_TH = 11;
   private static final int SUFFIX_SPECIAL_END_TH = 13;
   private static final String SUFFIX_SPECIAL_TH = "th";
@@ -22,12 +22,11 @@ public class DateTimeFormatterUtil {
       .put(1, "st").put(2, "nd").put(3, "rd").build();
   private static final Map<String, String> DATE_FORMAT_MAP =
       ImmutableMap.<String, String>builder()
-      .put("%a", "EEE") // %a => EE - Abbreviated weekday name (Sun..Sat) TODO: Fix .
+      .put("%a", "EEE") // %a => EE - Abbreviated weekday name (Sun..Sat)
       .put("%b", "LLL") // %b => LLL - Abbreviated month name (Jan..Dec)
       .put("%c", "MM") // %c => MM - Month, numeric (0..12)
       .put("%d", "dd") // %d => dd - Day of the month, numeric (00..31)
       .put("%e", "d") // %e => d - Day of the month, numeric (0..31)
-      .put("%f", "") // %f => ? - Microseconds (000000..999999) TODO
       .put("%H", "HH") // %H => HH - (00..23)
       .put("%h", "hh") // %h => kk - (01..12)
       .put("%I", "hh") // %I => kk - (01..12)
@@ -69,6 +68,9 @@ public class DateTimeFormatterUtil {
   private static final String MOD = "%";
   private static final String QUOTE_LITERAL = "'";
 
+  private DateTimeFormatterUtil() {
+  }
+
   /**
    * Format the date using the date format String.
    * @param dateExpr the date ExprValue of Date/Datetime/Timestamp/String type.
@@ -77,7 +79,6 @@ public class DateTimeFormatterUtil {
    */
   static ExprValue getFormattedDate(ExprValue dateExpr, ExprValue formatExpr) {
     String format = formatExpr.stringValue();
-    System.out.println("Format: " + format);
     final LocalDateTime date = dateExpr.datetimeValue();
     for (Map.Entry<String, String> dateFormatEntry: DATE_FORMAT_MAP.entrySet()) {
       format = format.replace(dateFormatEntry.getKey(), dateFormatEntry.getValue());
@@ -115,8 +116,6 @@ public class DateTimeFormatterUtil {
     }
 
     format = literalReplace(format);
-    System.out.println("Format: " + format);
-    System.out.println("Date: " + date);
     // English Locale matches SQL requirements. AM/PM instead of a.m./p.m., Sat instead of Sat. etc
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format, Locale.ENGLISH);
     String formattedDate = date.format(formatter);

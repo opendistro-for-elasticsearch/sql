@@ -51,13 +51,31 @@ public enum BuiltinFunctionName {
   /**
    * Date and Time Functions.
    */
+  ADDDATE(FunctionName.of("adddate")),
   DATE(FunctionName.of("date")),
+  DATE_ADD(FunctionName.of("date_add")),
+  DATE_SUB(FunctionName.of("date_sub")),
+  DAY(FunctionName.of("day")),
+  DAYNAME(FunctionName.of("dayname")),
   DAYOFMONTH(FunctionName.of("dayofmonth")),
+  DAYOFWEEK(FunctionName.of("dayofweek")),
+  DAYOFYEAR(FunctionName.of("dayofyear")),
+  FROM_DAYS(FunctionName.of("from_days")),
+  HOUR(FunctionName.of("hour")),
+  MICROSECOND(FunctionName.of("microsecond")),
+  MINUTE(FunctionName.of("minute")),
+  MONTH(FunctionName.of("month")),
+  MONTHNAME(FunctionName.of("monthname")),
+  QUARTER(FunctionName.of("quarter")),
+  SECOND(FunctionName.of("second")),
+  SUBDATE(FunctionName.of("subdate")),
   TIME(FunctionName.of("time")),
+  TIME_TO_SEC(FunctionName.of("time_to_sec")),
   TIMESTAMP(FunctionName.of("timestamp")),
   WEEK(FunctionName.of("week")),
-  ADDDATE(FunctionName.of("adddate")),
   DATE_FORMAT(FunctionName.of("date_format")),
+  TO_DAYS(FunctionName.of("to_days")),
+  YEAR(FunctionName.of("year")),
 
   /**
    * Text Functions.

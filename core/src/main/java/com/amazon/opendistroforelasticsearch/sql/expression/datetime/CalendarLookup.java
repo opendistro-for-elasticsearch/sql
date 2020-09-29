@@ -22,7 +22,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CalendarLookup {
+class CalendarLookup {
 
   private Map<Integer, Calendar> map = new HashMap<>();
 
@@ -30,11 +30,11 @@ public class CalendarLookup {
    * Set Calendar in map for all modes.
    * @param date ExprValue of Date/Datetime/Timestamp/String type.
    */
-  public CalendarLookup(ExprValue date) {
+  CalendarLookup(ExprValue date) {
     map.put(0, getCalendar(Calendar.SUNDAY, 7, date));
-    map.put(1, getCalendar(Calendar.MONDAY, 5, date));
+    map.put(1, getCalendar(Calendar.MONDAY, 4, date));
     map.put(2, getCalendar(Calendar.SUNDAY, 7, date));
-    map.put(3, getCalendar(Calendar.MONDAY, 5, date));
+    map.put(3, getCalendar(Calendar.MONDAY, 4, date));
     map.put(4, getCalendar(Calendar.SUNDAY, 4, date));
     map.put(5, getCalendar(Calendar.MONDAY, 7, date));
     map.put(6, getCalendar(Calendar.SUNDAY, 4, date));
@@ -60,7 +60,7 @@ public class CalendarLookup {
    * Returns week number for date according to mode.
    * @param mode Integer for mode. Valid mode values are 0 to 7.
    */
-  public int getWeekNumber(int mode) {
+  int getWeekNumber(int mode) {
     if (map.containsKey(mode)) {
       int weekNumber = map.get(mode).get(Calendar.WEEK_OF_YEAR);
       if ((weekNumber > 51)
@@ -79,17 +79,12 @@ public class CalendarLookup {
    *
    * @param mode Integer for mode. Valid mode values are 0 to 7.
    */
-  public int getYearNumber(int mode) {
-    if (map.containsKey(mode)) {
-      int weekNumber = getWeekNumber(mode);
-      int yearNumber = map.get(mode).get(Calendar.YEAR);
-      if ((weekNumber > 51) && (map.get(mode).get(Calendar.DAY_OF_MONTH) < 7)
-          && (mode == 3)) {
-        yearNumber--;
-      }
-      return yearNumber;
+  int getYearNumber(int mode) {
+    int weekNumber = getWeekNumber(mode);
+    int yearNumber = map.get(mode).get(Calendar.YEAR);
+    if ((weekNumber > 51) && (map.get(mode).get(Calendar.DAY_OF_MONTH) < 7)) {
+      yearNumber--;
     }
-    throw new SemanticCheckException(
-        String.format("mode:%s is invalid, please use mode value between 0-7", mode));
+    return yearNumber;
   }
 }
