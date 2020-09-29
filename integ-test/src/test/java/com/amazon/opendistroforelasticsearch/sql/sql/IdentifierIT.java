@@ -16,12 +16,17 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.createHiddenIndexByRestClient;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.performRequest;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import java.io.IOException;
 import org.elasticsearch.client.Request;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -54,30 +59,13 @@ public class IdentifierIT extends SQLIntegTestCase {
   public void testSpecialFieldName() throws IOException {
     new Index("test")
         .addDoc("{\"@timestamp\": 10, \"dimensions:major_version\": 30}");
+    final JSONObject result = new JSONObject(executeQuery("SELECT @timestamp, "
+        + "`dimensions:major_version` FROM test", "jdbc"));
 
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [\n"
-            + "    {\n"
-            + "      \"name\": \"@timestamp\",\n"
-            + "      \"type\": \"long\"\n"
-            + "    },\n"
-            + "    {\n"
-            + "      \"name\": \"dimensions:major_version\",\n"
-            + "      \"type\": \"long\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"datarows\": [\n"
-            + "    [\n"
-            + "      10,\n"
-            + "      30\n"
-            + "    ]\n"
-            + "  ],\n"
-            + "  \"total\": 1,\n"
-            + "  \"size\": 1\n"
-            + "}\n",
-        executeQuery("SELECT @timestamp, `dimensions:major_version` FROM test", "jdbc")
-    );
+    verifySchema(result,
+        schema("@timestamp", null, "long"),
+        schema("dimensions:major_version", null, "long"));
+    verifyDataRows(result, rows(10, 30));
   }
 
   private void createIndexWithOneDoc(String... indexNames) throws IOException {
@@ -87,24 +75,9 @@ public class IdentifierIT extends SQLIntegTestCase {
   }
 
   private void queryAndAssertTheDoc(String sql) {
-    assertEquals(
-        "{\n"
-            + "  \"schema\": [\n"
-            + "    {\n"
-            + "      \"name\": \"age\",\n"
-            + "      \"type\": \"long\"\n"
-            + "    }\n"
-            + "  ],\n"
-            + "  \"datarows\": [\n"
-            + "    [\n"
-            + "      30\n"
-            + "    ]\n"
-            + "  ],\n"
-            + "  \"total\": 1,\n"
-            + "  \"size\": 1\n"
-            + "}\n",
-        executeQuery(sql.replace("\"", "\\\""), "jdbc")
-    );
+    final JSONObject result = new JSONObject(executeQuery(sql.replace("\"", "\\\""), "jdbc"));
+    verifySchema(result, schema("age", null, "long"));
+    verifyDataRows(result, rows(30));
   }
 
   /**
