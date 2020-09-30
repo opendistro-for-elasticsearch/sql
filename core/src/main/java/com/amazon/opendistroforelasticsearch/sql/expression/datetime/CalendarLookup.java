@@ -24,13 +24,11 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 class CalendarLookup {
-  private LocalDate date;
-
   /**
    * Get a calendar for the specific mode.
    * @param mode Mode to get calendar for.
    */
-  private Calendar getCalendar(int mode) {
+  private static Calendar getCalendar(int mode, LocalDate date) {
     if ((mode < 0) || (mode > 7)) {
       throw new SemanticCheckException(
           String.format("mode:%s is invalid, please use mode value between 0-7", mode));
@@ -38,11 +36,11 @@ class CalendarLookup {
 
     int day = (mode % 2 == 0) ? Calendar.SUNDAY : Calendar.MONDAY;
     if (ImmutableList.of(1, 3).contains(mode)) {
-      return getCalendar(day, 5);
+      return getCalendar(day, 5, date);
     } else if (ImmutableList.of(4, 6).contains(mode)) {
-      return getCalendar(day, 4);
+      return getCalendar(day, 4, date);
     } else {
-      return getCalendar(day, 7);
+      return getCalendar(day, 7, date);
     }
   }
 
@@ -51,7 +49,7 @@ class CalendarLookup {
    * @param firstDayOfWeek the given first day of the week.
    * @param minimalDaysInWeek the given minimal days required in the first week of the year.
    */
-  private Calendar getCalendar(int firstDayOfWeek, int minimalDaysInWeek) {
+  private static Calendar getCalendar(int firstDayOfWeek, int minimalDaysInWeek, LocalDate date) {
     Calendar calendar = Calendar.getInstance();
     calendar.setFirstDayOfWeek(firstDayOfWeek);
     calendar.setMinimalDaysInFirstWeek(minimalDaysInWeek);
@@ -63,8 +61,8 @@ class CalendarLookup {
    * Returns week number for date according to mode.
    * @param mode Integer for mode. Valid mode values are 0 to 7.
    */
-  int getWeekNumber(int mode) {
-    Calendar calendar = getCalendar(mode);
+  static int getWeekNumber(int mode, LocalDate date) {
+    Calendar calendar = getCalendar(mode, date);
     int weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
     if ((weekNumber > 51)
         && (calendar.get(Calendar.DAY_OF_MONTH) < 7)
@@ -78,9 +76,9 @@ class CalendarLookup {
    * Returns year for date according to mode.
    * @param mode Integer for mode. Valid mode values are 0 to 7.
    */
-  int getYearNumber(int mode) {
-    Calendar calendar = getCalendar(mode);
-    int weekNumber = getWeekNumber(mode);
+  static int getYearNumber(int mode, LocalDate date) {
+    Calendar calendar = getCalendar(mode, date);
+    int weekNumber = getWeekNumber(mode, date);
     int yearNumber = calendar.get(Calendar.YEAR);
     if ((weekNumber > 51) && (calendar.get(Calendar.DAY_OF_MONTH) < 7)) {
       yearNumber--;
