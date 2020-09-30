@@ -74,8 +74,8 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     when(missingRef.valueOf(env)).thenReturn(missingValue());
   }
 
-  List<DateFormatTester> dateFormatTesters = ImmutableList.of(
-      new DateFormatTester("1998-01-31 13:14:15.012345", true,
+  final List<DateFormatTester> dateFormatTesters = ImmutableList.of(
+      new DateFormatTester("1998-01-31 13:14:15.012345",
           ImmutableList.of("%H","%I","%k","%l","%i","%p","%r","%S","%T"," %M",
               "%W","%D","%Y","%y","%a","%b","%j","%m","%d","%h","%s","%w","%f",
               "%q","%"),
@@ -83,60 +83,63 @@ class DateTimeFunctionTest extends ExpressionTestBase {
               "Saturday","31st","1998","98","Sat","Jan","031","01","31","01","15","6","12345",
               "q","%")
       ),
-      new DateFormatTester("1999-12-01", true,
+      new DateFormatTester("1999-12-01",
           ImmutableList.of("%D"),
           ImmutableList.of("1st")
       ),
-      new DateFormatTester("1999-12-02", true,
+      new DateFormatTester("1999-12-02",
           ImmutableList.of("%D"),
           ImmutableList.of("2nd")
       ),
-      new DateFormatTester("1999-12-03", true,
+      new DateFormatTester("1999-12-03",
           ImmutableList.of("%D"),
           ImmutableList.of("3rd")
       ),
-      new DateFormatTester("1999-12-04", true,
+      new DateFormatTester("1999-12-04",
           ImmutableList.of("%D"),
           ImmutableList.of("4th")
       ),
-      new DateFormatTester("1999-12-11", true,
+      new DateFormatTester("1999-12-11",
           ImmutableList.of("%D"),
           ImmutableList.of("11th")
       ),
-      new DateFormatTester("1999-12-12", true,
+      new DateFormatTester("1999-12-12",
           ImmutableList.of("%D"),
           ImmutableList.of("12th")
       ),
-      new DateFormatTester("1999-12-13", true,
+      new DateFormatTester("1999-12-13",
           ImmutableList.of("%D"),
           ImmutableList.of("13th")
       ),
-      new DateFormatTester("1999-12-31", true,
+      new DateFormatTester("1999-12-31",
           ImmutableList.of("%x","%v","%X","%V","%u","%U"),
           ImmutableList.of("1999", "52", "1999", "52", "52", "52")
       ),
-      new DateFormatTester("2000-01-01", true,
+      new DateFormatTester("2000-01-01",
           ImmutableList.of("%x","%v","%X","%V","%u","%U"),
           ImmutableList.of("1999", "52", "1999", "52", "0", "0")
       ),
-      new DateFormatTester("1998-12-31", true,
+      new DateFormatTester("1998-12-31",
           ImmutableList.of("%x","%v","%X","%V","%u","%U"),
           ImmutableList.of("1998", "53", "1998", "52", "53", "52")
       ),
-      new DateFormatTester("1999-01-01", true,
+      new DateFormatTester("1999-01-01",
           ImmutableList.of("%x","%v","%X","%V","%u","%U"),
           ImmutableList.of("1998", "53", "1998", "52", "0", "0")
       ),
-      new DateFormatTester("2020-01-04", true,
+      new DateFormatTester("2020-01-04",
           ImmutableList.of("%x","%X"),
           ImmutableList.of("2020", "2019")
+      ),
+      new DateFormatTester("2008-12-31",
+          ImmutableList.of("%v","%V","%u","%U"),
+          ImmutableList.of("1","52","1","52")
       )
   );
 
   @AllArgsConstructor
   private class DateFormatTester {
     private final String date;
-    @Getter private final boolean isValidDate;
     private final List<String> formatterList;
     private final List<String> formattedList;
     private static final String DELIMITER = "|";
@@ -938,9 +941,28 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   @Test
   public void date_format() {
     dateFormatTesters.forEach(this::testDateFormat);
+    String timestamp = "1998-01-31 13:14:15.012345";
+    String timestampFormat = "%a %b %c %D %d %e %f %H %h %I %i %j %k %l %M "
+        + "%m %p %r %S %s %T %% %P";
+    String timestampFormatted = "Sat Jan 01 31st 31 31 12345 13 01 01 14 031 13 1 "
+        + "January 01 PM 01:14:15 PM 15 15 13:14:15 % P";
+
+    FunctionExpression expr = dsl.date_format(DSL.literal(timestamp), DSL.literal(timestampFormat));
+    assertEquals(STRING, expr.type());
+    assertEquals(timestampFormatted, eval(expr).stringValue());
 
     when(nullRef.type()).thenReturn(DATE);
     when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.date_format(nullRef, DSL.literal(""))));
+    assertEquals(missingValue(), eval(dsl.date_format(missingRef, DSL.literal(""))));
+
+    when(nullRef.type()).thenReturn(DATETIME);
+    when(missingRef.type()).thenReturn(DATETIME);
+    assertEquals(nullValue(), eval(dsl.date_format(nullRef, DSL.literal(""))));
+    assertEquals(missingValue(), eval(dsl.date_format(missingRef, DSL.literal(""))));
+
+    when(nullRef.type()).thenReturn(TIMESTAMP);
+    when(missingRef.type()).thenReturn(TIMESTAMP);
     assertEquals(nullValue(), eval(dsl.date_format(nullRef, DSL.literal(""))));
     assertEquals(missingValue(), eval(dsl.date_format(missingRef, DSL.literal(""))));
 

@@ -66,6 +66,7 @@ class DateTimeFormatterUtil {
   // %D => Day of month with English suffix (0th, 1st ..)
   private static final String DATE_WITH_SUFFIX = "%D";
   private static final String MOD = "%";
+  private static final String DOUBLE_MOD = MOD + MOD;
   private static final String QUOTE_LITERAL = "'";
 
   private DateTimeFormatterUtil() {
@@ -150,12 +151,13 @@ class DateTimeFormatterUtil {
         break;
       }
       String substr = format.substring(index, index + 2);
-
-      format = format.replace(substr, substr.replaceFirst(MOD, QUOTE_LITERAL) + QUOTE_LITERAL);
-
-      // Update index
-      index = format.indexOf("%", index);
+      if (substr.equals(DOUBLE_MOD)) {
+        index = format.indexOf(MOD, index + 2);
+      } else {
+        format = format.replace(substr, substr.replaceFirst(MOD, QUOTE_LITERAL) + QUOTE_LITERAL);
+        index = format.indexOf(MOD, index + 1);
+      }
     }
-    return format;
+    return format.replace(DOUBLE_MOD, MOD);
   }
 }

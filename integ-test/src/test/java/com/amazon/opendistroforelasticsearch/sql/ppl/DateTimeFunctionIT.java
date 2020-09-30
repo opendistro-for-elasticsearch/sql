@@ -48,7 +48,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
     week("2008-02-20", 0, 7);
     week("2008-02-20", 1, 8);
-    week("2008-12-31", 1, 53);
+    week("2008-12-31", 1, 52);
     week("2000-01-01", 0, 0);
     week("2000-01-01", 2, 52);
   }
@@ -394,13 +394,42 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
   @Test
   public void testYear() throws IOException {
     JSONObject result = executeQuery(String.format(
-            "source=%s | eval f =  year(date('2020-09-16')) | fields f", TEST_INDEX_DATE));
+        "source=%s | eval f =  year(date('2020-09-16')) | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "integer"));
     verifySome(result.getJSONArray("datarows"), rows(2020));
 
     result = executeQuery(String.format(
-            "source=%s | eval f =  year('2020-09-16') | fields f", TEST_INDEX_DATE));
+        "source=%s | eval f =  year('2020-09-16') | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "integer"));
     verifySome(result.getJSONArray("datarows"), rows(2020));
+  }
+
+  void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
+    JSONObject result = executeQuery(String.format(
+        "source=%s | eval f =  date_format(%s('%s'), '%s') | fields f",
+        TEST_INDEX_DATE, type, date, format));
+    verifySchema(result, schema("f", null, "string"));
+    verifySome(result.getJSONArray("datarows"), rows(formatted));
+
+    result = executeQuery(String.format(
+        "source=%s | eval f =  date_format('%s', '%s') | fields f",
+        TEST_INDEX_DATE, date, format));
+    verifySchema(result, schema("f", null, "string"));
+    verifySome(result.getJSONArray("datarows"), rows(formatted));
+  }
+
+  @Test
+  public void testDateFormat() throws IOException {
+    String timestamp = "1998-01-31 13:14:15.012345";
+    String timestampFormat = "%a %b %c %D %d %e %f %H %h %I %i %j %k %l %M "
+        + "%m %p %r %S %s %T %% %P";
+    String timestampFormatted = "Sat Jan 01 31st 31 31 12345 13 01 01 14 031 13 1 "
+        + "January 01 PM 01:14:15 PM 15 15 13:14:15 % P";
+    verifyDateFormat(timestamp, "timestamp", timestampFormat, timestampFormatted);
+
+    String date = "1998-01-31";
+    String dateFormat = "%U %u %V %v %W %w %X %x %Y %y";
+    String dateFormatted = "4 5 4 5 Saturday 6 1998 1998 1998 98";
+    verifyDateFormat(date, "date", dateFormat, dateFormatted);
   }
 }
