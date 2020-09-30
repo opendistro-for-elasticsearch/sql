@@ -246,9 +246,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       }
     }
 
-    // For each window function, "insert" a window and sort operator between project and child.
-    // Note that another project operator with non-windowed expression may be required
-    // if window function accesses a scalar expression calculated in other project item.
+    // For each unresolved window function, analyze it by "insert" a window and sort operator
+    // between project and its child.
     for (UnresolvedExpression expr : node.getProjectList()) {
       WindowExpressionAnalyzer windowAnalyzer =
           new WindowExpressionAnalyzer(expressionAnalyzer, child);

@@ -16,10 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
-import java.util.List;
 
 /**
  * Rank window function that assigns a rank number to each row based on sort items
@@ -33,11 +31,6 @@ public class RankFunction extends RankingWindowFunction {
    */
   private int total;
 
-  /**
-   * Current rank number assigned.
-   */
-  private int rank;
-
   public RankFunction() {
     super(BuiltinFunctionName.RANK.getName());
   }
@@ -49,18 +42,11 @@ public class RankFunction extends RankingWindowFunction {
       rank = 1;
     } else {
       total++;
-
-      if (isSortByFieldValueDifferent(frame)) {
+      if (isSortFieldValueDifferent(frame)) {
         rank = total;
       }
     }
     return rank;
-  }
-
-  private boolean isSortByFieldValueDifferent(WindowFrame frame) {
-    List<ExprValue> previous = frame.resolveSortItemValues(-1);
-    List<ExprValue> current = frame.resolveSortItemValues(0);
-    return !current.equals(previous);
   }
 
 }

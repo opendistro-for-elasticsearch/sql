@@ -26,11 +26,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class RowNumberFunction extends RankingWindowFunction {
 
-  /**
-   * Current row number assigned.
-   */
-  private int rowNumber;
-
   public RowNumberFunction() {
     super(BuiltinFunctionName.ROW_NUMBER.getName());
   }
@@ -38,9 +33,9 @@ public class RowNumberFunction extends RankingWindowFunction {
   @Override
   protected int rank(WindowFrame frame) {
     if (frame.isNewPartition()) {
-      rowNumber = 1;
+      rank = 1;
     }
-    return rowNumber++;
+    return rank++;
   }
 
   @Override

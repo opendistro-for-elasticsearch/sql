@@ -16,21 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
-import java.util.List;
 
 /**
  * Dense rank window function that assigns a rank number to each row similarly as
  * rank function. The difference is there is no gap between rank number assigned.
  */
 public class DenseRankFunction extends RankingWindowFunction {
-
-  /**
-   * Current rank number assigned.
-   */
-  private int rank;
 
   public DenseRankFunction() {
     super(BuiltinFunctionName.DENSE_RANK.getName());
@@ -41,17 +34,11 @@ public class DenseRankFunction extends RankingWindowFunction {
     if (frame.isNewPartition()) {
       rank = 1;
     } else {
-      if (isSortByFieldValueDifferent(frame)) {
+      if (isSortFieldValueDifferent(frame)) {
         rank++;
       }
     }
     return rank;
-  }
-
-  private boolean isSortByFieldValueDifferent(WindowFrame frame) {
-    List<ExprValue> previous = frame.resolveSortItemValues(-1);
-    List<ExprValue> current = frame.resolveSortItemValues(0);
-    return !current.equals(previous);
   }
 
 }

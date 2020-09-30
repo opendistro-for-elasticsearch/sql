@@ -179,7 +179,7 @@ class DefaultImplementorTest {
             window(
                 sort(
                     values(),
-                    10000,
+                    0,
                     sortList),
                 windowFunction,
                 windowDefinition),
@@ -190,7 +190,7 @@ class DefaultImplementorTest {
             PhysicalPlanDSL.window(
                 PhysicalPlanDSL.sort(
                     PhysicalPlanDSL.values(),
-                    10000,
+                    0,
                     sortList),
                 windowFunction,
                 windowDefinition),

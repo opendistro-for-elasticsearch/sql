@@ -27,12 +27,18 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
+import java.util.List;
 
 /**
  * Ranking window function base class that captures same info across different ranking functions,
  * such as same return type (integer), same argument list (no arg).
  */
 public abstract class RankingWindowFunction extends FunctionExpression {
+
+  /**
+   * Current rank number assigned.
+   */
+  protected int rank;
 
   public RankingWindowFunction(FunctionName functionName) {
     super(functionName, emptyList());
@@ -54,6 +60,17 @@ public abstract class RankingWindowFunction extends FunctionExpression {
    * @return        rank number
    */
   protected abstract int rank(WindowFrame frame);
+
+  /**
+   * Check sort field to see if current value is different from previous.
+   * @param frame   window frame
+   * @return        true if different, otherwise false
+   */
+  protected boolean isSortFieldValueDifferent(WindowFrame frame) {
+    List<ExprValue> previous = frame.resolveSortItemValues(-1);
+    List<ExprValue> current = frame.resolveSortItemValues(0);
+    return !current.equals(previous);
+  }
 
   @Override
   public String toString() {

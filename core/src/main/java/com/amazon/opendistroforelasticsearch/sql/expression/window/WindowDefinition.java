@@ -33,7 +33,7 @@ public class WindowDefinition {
   private final List<Pair<SortOption, Expression>> sortList;
 
   /**
-   * Return all items in partition by and sort by list.
+   * Return all items in partition by and sort list.
    * @return  all sort items
    */
   public List<Pair<SortOption, Expression>> getAllSortItems() {

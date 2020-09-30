@@ -180,7 +180,7 @@ class ElasticsearchExecutionProtectorTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testProtectSort() {
+  public void testProtectSortForWindowOperator() {
     Expression rank = mock(RankFunction.class);
     Pair<Sort.SortOption, Expression> sortItem =
         ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER));
