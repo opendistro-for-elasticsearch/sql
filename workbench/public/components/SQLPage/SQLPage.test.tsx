@@ -16,37 +16,39 @@
 import React from "react";
 import "@testing-library/jest-dom/extend-expect";
 import { render, fireEvent } from "@testing-library/react";
-import QueryEditor from "./QueryEditor";
+import { SQLPage } from "./SQLPage";
 
 
-describe("<QueryEditor /> spec", () => {
+describe("<SQLPage /> spec", () => {
 
   it("renders the component", () => {
     render(
-      <QueryEditor
+      <SQLPage
         onRun={() => { }}
         onTranslate={() => { }}
         onClear={() => { }}
-        queryTranslations={[]}
-        sqlQueriesString={''}
+        updateSQLQueries={() => { }}
+        sqlTranslations={[]}
+        sqlQuery={''}
       />
     );
     expect(document.body.children[0]).toMatchSnapshot();
   });
 
-
   it('tests the action buttons', async () => {
     const onRun = jest.fn();
     const onTranslate = jest.fn();
     const onClean = jest.fn();
+    const updateSQLQueries = jest.fn();
 
     const { getByText } = render(
-      <QueryEditor
+      <SQLPage
         onRun={onRun}
         onTranslate={onTranslate}
         onClear={onClean}
-        queryTranslations={[]}
-        sqlQueriesString={''}
+        updateSQLQueries={updateSQLQueries}
+        sqlTranslations={[]}
+        sqlQuery={''}
       />
     );
 
@@ -55,11 +57,11 @@ describe("<QueryEditor /> spec", () => {
     fireEvent.click(getByText('Run'));
     expect(onRun).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(getByText('JSON Translation'));
-    expect(onTranslate).toHaveBeenCalledTimes(1);
-
     fireEvent.click(getByText('Clear'));
     expect(onClean).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(getByText('Explain'));
+    expect(onTranslate).toHaveBeenCalledTimes(1);
 
   });
 

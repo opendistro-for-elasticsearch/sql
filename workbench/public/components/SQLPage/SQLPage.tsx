@@ -13,59 +13,46 @@
  *   permissions and limitations under the License.
  */
 
-import React from 'react';
-import _ from "lodash";
-// @ts-ignore
+import React from "react";
 import {
   EuiPanel,
   EuiButton,
-  EuiText,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiCodeEditor,
   EuiOverlayMask,
   EuiModal,
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiModalBody,
   EuiModalFooter,
-  EuiCodeBlock
+  EuiCodeBlock, EuiText, EuiCodeEditor
 } from "@elastic/eui";
-// @ts-ignore
-import { htmlIdGenerator } from "@elastic/eui/lib/services";
-import "brace/mode/sql";
-import "brace/mode/json";
-import "../../ace-themes/sql_console";
-import { ResponseDetail, TranslateResult } from "../Main/main";
+import { ResponseDetail, TranslateResult } from '../Main/main';
+import _ from 'lodash';
 
-interface QueryEditorProps {
-  onRun: (queriesString: string) => void;
-  onTranslate: (queriesString: string) => void;
-  onClear: () => void;
-  queryTranslations: ResponseDetail<TranslateResult>[];
-  sqlQueriesString: string;
+interface SQLPageProps {
+  onRun: (query: string) => void,
+  onTranslate: (query: string) => void,
+  onClear: () => void,
+  updateSQLQueries: (query: string) => void
+  sqlQuery: string,
+  sqlTranslations: ResponseDetail<TranslateResult>[]
 }
 
-interface QueryEditorState {
-  sqlQueriesString: string;
-  translationResult: string;
+interface SQLPageState {
+  sqlQuery: string,
+  translation: string,
   isModalVisible: boolean
 }
 
-class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
-  constructor(props: QueryEditorProps) {
+export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
+  constructor(props: SQLPageProps) {
     super(props);
     this.state = {
-      sqlQueriesString: this.props.sqlQueriesString ? this.props.sqlQueriesString : "SHOW tables LIKE %;\n" + "DESCRIBE tables LIKE %;",
-      translationResult: "",
+      sqlQuery: this.props.sqlQuery,
+      translation: "",
       isModalVisible: false
     };
-
-    this.updateSQLQueries = _.debounce(this.updateSQLQueries, 250).bind(this);
-  }
-
-  updateSQLQueries(newQueriesString: string): void {
-    this.setState({ sqlQueriesString: newQueriesString });
   }
 
   setIsModalVisible(visible: boolean): void {
@@ -75,6 +62,7 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
   }
 
   render() {
+
     const closeModal = () => this.setIsModalVisible(false);
     const showModal = () => this.setIsModalVisible(true);
 
@@ -85,7 +73,7 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
         <EuiOverlayMask onClick={closeModal}>
           <EuiModal onClose={closeModal}>
             <EuiModalHeader>
-              <EuiModalHeaderTitle>JSON Translation</EuiModalHeaderTitle>
+              <EuiModalHeaderTitle>Explain</EuiModalHeaderTitle>
             </EuiModalHeader>
 
             <EuiModalBody>
@@ -94,7 +82,7 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
                 fontSize="m"
                 isCopyable
               >
-                {this.props.queryTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")}
+                {this.props.sqlTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")}
               </EuiCodeBlock>
             </EuiModalBody>
 
@@ -109,19 +97,21 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
     }
 
     return (
-      <EuiPanel className="sql-console-query-editor container-panel"
+      <EuiPanel className="sql-query-editor container-panel"
         paddingSize="none"
       >
-        <EuiFlexGroup gutterSize="s">
-          <EuiFlexItem grow={1} className="sql-query-panel">
+        <div className="sql-console-query-editor">
+          <EuiPanel className="sql-query-editor container-panel"
+            paddingSize="none"
+          >
             <EuiText className="sql-query-panel-header">Query Editor</EuiText>
             <EuiCodeEditor
               mode="sql"
               theme="sql_console"
               width="100%"
-              height="18.5rem"
-              value={this.state.sqlQueriesString}
-              onChange={this.updateSQLQueries}
+              height="15rem"
+              value={this.props.sqlQuery}
+              onChange={this.props.updateSQLQueries}
               showPrintMargin={false}
               setOptions={{
                 fontSize: "12px",
@@ -131,13 +121,13 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
               }}
               aria-label="Code Editor"
             />
-          </EuiFlexItem>
-        </EuiFlexGroup>
+          </EuiPanel>
+        </div>
         <div>
           <EuiFlexGroup className="action-container" gutterSize="m">
             <EuiFlexItem
               grow={false}
-              onClick={() => this.props.onRun(this.state.sqlQueriesString)}
+              onClick={() => this.props.onRun(this.props.sqlQuery)}
             >
               <EuiButton fill={true} className="sql-editor-button" >
                 Run
@@ -146,7 +136,7 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
             <EuiFlexItem
               grow={false}
               onClick={() => {
-                this.updateSQLQueries("");
+                this.props.updateSQLQueries("");
                 this.props.onClear();
               }}
             >
@@ -157,19 +147,17 @@ class QueryEditor extends React.Component<QueryEditorProps, QueryEditorState> {
             <EuiFlexItem
               grow={false}
               onClick={() =>
-                this.props.onTranslate(this.state.sqlQueriesString)
+                this.props.onTranslate(this.props.sqlQuery)
               }
             >
               <EuiButton className="sql-editor-button" onClick={showModal}>
-                JSON Translation
+                Explain
               </EuiButton>
               {modal}
             </EuiFlexItem>
           </EuiFlexGroup>
         </div>
       </EuiPanel>
-    );
+    )
   }
 }
-
-export default QueryEditor;

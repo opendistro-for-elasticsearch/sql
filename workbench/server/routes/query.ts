@@ -15,7 +15,7 @@
 
 import { Server } from 'hapi-latest';
 import QueryService from '../services/QueryService';
-import { ROUTE_PATH_SQL_QUERY, ROUTE_PATH_PPL_QUERY, ROUTE_PATH_QUERY_CSV, ROUTE_PATH_QUERY_JSON, ROUTE_PATH_QUERY_JDBC, ROUTE_PATH_QUERY_TEXT } from "../utils/constants";
+import { ROUTE_PATH_SQL_QUERY, ROUTE_PATH_PPL_QUERY, ROUTE_PATH_SQL_CSV, ROUTE_PATH_SQL_JSON, ROUTE_PATH_SQL_TEXT, ROUTE_PATH_PPL_CSV, ROUTE_PATH_PPL_JSON, ROUTE_PATH_PPL_TEXT } from "../utils/constants";
 
 export default function query(server: Server, service: QueryService) {
   server.route({
@@ -31,23 +31,38 @@ export default function query(server: Server, service: QueryService) {
   });
 
   server.route({
-    path: ROUTE_PATH_QUERY_CSV,
+    path: ROUTE_PATH_SQL_CSV,
     method: 'POST',
-    handler: service.describeQueryCsv
+    handler: service.describeSQLCsv
   });
+
   server.route({
-    path: ROUTE_PATH_QUERY_JSON,
+    path: ROUTE_PATH_PPL_CSV,
     method: 'POST',
-    handler: service.describeQueryJson
+    handler: service.describePPLCsv
   });
+
   server.route({
-    path: ROUTE_PATH_QUERY_JDBC,
+    path: ROUTE_PATH_SQL_JSON,
     method: 'POST',
-    handler: service.describeQueryJdbc
+    handler: service.describeSQLJson
   });
+
   server.route({
-    path: ROUTE_PATH_QUERY_TEXT,
+    path: ROUTE_PATH_PPL_JSON,
     method: 'POST',
-    handler: service.describeQueryText
+    handler: service.describePPLJson
+  });
+
+  server.route({
+    path: ROUTE_PATH_SQL_TEXT,
+    method: 'POST',
+    handler: service.describeSQLText
+  });
+
+  server.route({
+    path: ROUTE_PATH_PPL_TEXT,
+    method: 'POST',
+    handler: service.describePPLText
   });
 }
