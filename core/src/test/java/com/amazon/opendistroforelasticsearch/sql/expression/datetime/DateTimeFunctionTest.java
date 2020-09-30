@@ -896,10 +896,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
 
   @Test
   public void modeInUnsupportedFormat() {
-    when(nullRef.type()).thenReturn(DATE);
-    when(missingRef.type()).thenReturn(DATE);
-    assertEquals(nullValue(), eval(dsl.week(nullRef)));
-    assertEquals(missingValue(), eval(dsl.week(missingRef)));
+    testNullMissingWeek(DATE);
 
     FunctionExpression expression1 = dsl
         .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(8));

@@ -15,13 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DATE;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySome;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.getResponseBody;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
