@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 class CalendarLookup {
+
   /**
    * Get a calendar for the specific mode.
    * @param mode Mode to get calendar for.
@@ -34,7 +35,6 @@ class CalendarLookup {
       throw new SemanticCheckException(
           String.format("mode:%s is invalid, please use mode value between 0-7", mode));
     }
-
     int day = (mode % 2 == 0) ? Calendar.SUNDAY : Calendar.MONDAY;
     if (ImmutableList.of(1, 3).contains(mode)) {
       return getCalendar(day, 5, date);
