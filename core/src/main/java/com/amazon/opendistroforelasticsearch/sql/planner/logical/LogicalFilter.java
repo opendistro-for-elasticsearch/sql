@@ -34,6 +34,9 @@ public class LogicalFilter extends LogicalPlan {
   @Getter
   private final Expression condition;
 
+  /**
+   * Constructor of LogicalFilter.
+   */
   public LogicalFilter(LogicalPlan child, Expression condition) {
     super(Collections.singletonList(child));
     this.condition = condition;

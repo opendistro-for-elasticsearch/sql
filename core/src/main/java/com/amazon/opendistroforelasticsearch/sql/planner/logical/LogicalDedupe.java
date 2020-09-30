@@ -36,6 +36,9 @@ public class LogicalDedupe extends LogicalPlan {
   private final Boolean keepEmpty;
   private final Boolean consecutive;
 
+  /**
+   * Constructor of LogicalDedupe.
+   */
   public LogicalDedupe(
       LogicalPlan child,
       List<Expression> dedupeList, Integer allowedDuplication, Boolean keepEmpty,

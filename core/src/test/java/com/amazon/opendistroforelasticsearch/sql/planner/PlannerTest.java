@@ -66,11 +66,11 @@ public class PlannerTest extends PhysicalPlanTestBase {
   @BeforeEach
   public void setUp() {
     when(storageEngine.getTable(any())).thenReturn(new MockTable());
-    doAnswer(returnsFirstArg()).when(optimizer).optimize(any());
   }
 
   @Test
   public void planner_test() {
+    doAnswer(returnsFirstArg()).when(optimizer).optimize(any());
     assertPhysicalPlan(
         PhysicalPlanDSL.rename(
             PhysicalPlanDSL.agg(

@@ -31,6 +31,9 @@ public class LogicalRelation extends LogicalPlan {
   @Getter
   private final String relationName;
 
+  /**
+   * Constructor of LogicalRelation.
+   */
   public LogicalRelation(String relationName) {
     super(ImmutableList.of());
     this.relationName = relationName;

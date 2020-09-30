@@ -17,51 +17,29 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
-import java.util.Collections;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class LogicalIndexScanTest {
+class LogicalIndexScanAggregationTest {
 
   @Mock
-  private Expression filter;
+  private NamedAggregator aggregator;
 
   @Mock
-  private NamedExpression project;
-
-  @Test
-  public void has_filter() {
-    LogicalIndexScan indexScan = new LogicalIndexScan("index", filter);
-    assertTrue(indexScan.hasFilter());
-
-    indexScan = new LogicalIndexScan("index", Collections.singletonList(project));
-    assertFalse(indexScan.hasFilter());
-  }
-
-  @Test
-  public void has_project() {
-    LogicalIndexScan indexScan = new LogicalIndexScan("index", Collections.EMPTY_LIST);
-    assertFalse(indexScan.hasProjects());
-
-    indexScan = new LogicalIndexScan("index", filter);
-    assertFalse(indexScan.hasProjects());
-
-    indexScan = new LogicalIndexScan("index", filter, Collections.singletonList(project));
-    assertTrue(indexScan.hasProjects());
-  }
+  private NamedExpression groupBy;
 
   @Test
   public void visitor_return_null() {
-    LogicalPlan indexScan = new LogicalIndexScan("index", filter);
+    LogicalPlan indexScan = new LogicalIndexScanAggregation("index", Arrays.asList(aggregator),
+        Arrays.asList(groupBy));
     assertNull(indexScan.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
   }

@@ -65,11 +65,6 @@ public class LogicalIndexScanAggregation extends LogicalPlan {
   }
 
   @Override
-  public List<LogicalPlan> getChild() {
-    return ImmutableList.of();
-  }
-
-  @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
     return visitor.visitIndexScanAggregation(this, context);
   }

@@ -34,6 +34,9 @@ public class LogicalHead extends LogicalPlan {
   private final Expression whileExpr;
   private final Integer number;
 
+  /**
+   * Constructor of LogicalHead.
+   */
   public LogicalHead(
       LogicalPlan child, Boolean keeplast,
       Expression whileExpr, Integer number) {

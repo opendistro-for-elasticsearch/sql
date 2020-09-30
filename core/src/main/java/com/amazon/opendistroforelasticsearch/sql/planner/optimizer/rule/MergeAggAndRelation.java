@@ -32,7 +32,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 /**
- * Merge Aggregation and Relation to IndexScanAggregation.
+ * Merge Aggregation -- Relation to IndexScanAggregation.
  */
 public class MergeAggAndRelation implements Rule<LogicalAggregation> {
 
@@ -42,6 +42,9 @@ public class MergeAggAndRelation implements Rule<LogicalAggregation> {
   @Getter
   private final Pattern<LogicalAggregation> pattern;
 
+  /**
+   * Constructor of MergeAggAndRelation.
+   */
   public MergeAggAndRelation() {
     this.relationCapture = Capture.newCapture();
     this.pattern = typeOf(LogicalAggregation.class)

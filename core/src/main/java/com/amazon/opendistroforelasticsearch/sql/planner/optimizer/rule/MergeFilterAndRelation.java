@@ -29,11 +29,17 @@ import com.facebook.presto.matching.Capture;
 import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
 
+/**
+ * Merge Filter -- Relation to LogicalIndexScan.
+ */
 public class MergeFilterAndRelation implements Rule<LogicalFilter> {
 
   private final Capture<LogicalRelation> relationCapture;
   private final Pattern<LogicalFilter> pattern;
 
+  /**
+   * Constructor of MergeFilterAndRelation.
+   */
   public MergeFilterAndRelation() {
     this.relationCapture = Capture.newCapture();
     this.pattern = typeOf(LogicalFilter.class)

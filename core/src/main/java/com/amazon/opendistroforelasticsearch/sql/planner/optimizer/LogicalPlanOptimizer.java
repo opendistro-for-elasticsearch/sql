@@ -23,26 +23,39 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeAggAndIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeAggAndRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeFilterAndFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeFilterAndRelation;
-import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Match;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+/**
+ * {@link LogicalPlan} Optimizer.
+ */
 public class LogicalPlanOptimizer {
 
   private final List<Rule<?>> rules;
 
+  private LogicalPlanOptimizer(
+      List<Rule<?>> rules) {
+    this.rules = rules;
+  }
+
+  /**
+   * Create {@link LogicalPlanOptimizer} with pre-defined rules.
+   */
   public static LogicalPlanOptimizer create(DSL dsl) {
     return new LogicalPlanOptimizer(Arrays.asList(
         new MergeFilterAndRelation(),
         new MergeAggAndIndexScan(),
-        new MergeAggAndRelation()));
+        new MergeAggAndRelation(),
+        new MergeFilterAndFilter(dsl)));
   }
 
+  /**
+   * Optimize {@link LogicalPlan}.
+   */
   public LogicalPlan optimize(LogicalPlan plan) {
     LogicalPlan optimized = internalOptimize(plan);
     optimized.replaceChildPlans(
@@ -51,24 +64,16 @@ public class LogicalPlanOptimizer {
     return internalOptimize(plan);
   }
 
-  public LogicalPlan internalOptimize(LogicalPlan plan) {
-
+  private LogicalPlan internalOptimize(LogicalPlan plan) {
     LogicalPlan node = plan;
-
     boolean done = false;
     while (!done) {
       done = true;
-
       for (Rule rule : rules) {
         Match match = DEFAULT_MATCHER.match(rule.pattern(), node);
         if (match.isPresent()) {
-
-          @SuppressWarnings("unchecked")
-          LogicalPlan transformedPlan = rule.apply(match.value(), match.captures());
-          if (transformedPlan != null) {
-            node = transformedPlan;
-            done = false;
-          }
+          node = rule.apply(match.value(), match.captures());
+          done = false;
         }
       }
     }

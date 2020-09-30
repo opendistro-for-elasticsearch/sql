@@ -37,6 +37,9 @@ public class LogicalAggregation extends LogicalPlan {
   @Getter
   private final List<NamedExpression> groupByList;
 
+  /**
+   * Constructor of LogicalAggregation.
+   */
   public LogicalAggregation(
       LogicalPlan child,
       List<NamedAggregator> aggregatorList,

@@ -38,6 +38,9 @@ public class LogicalRareTopN extends LogicalPlan {
   private final List<Expression> fieldList;
   private final List<Expression> groupByList;
 
+  /**
+   * Constructor of LogicalRareTopN.
+   */
   public LogicalRareTopN(
       LogicalPlan child,
       CommandType commandType, Integer noOfResults,

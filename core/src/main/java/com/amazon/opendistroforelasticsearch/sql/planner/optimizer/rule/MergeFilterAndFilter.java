@@ -43,7 +43,9 @@ public class MergeFilterAndFilter implements Rule<LogicalFilter> {
   @Getter
   private final Pattern<LogicalFilter> pattern;
 
-
+  /**
+   * Constructor of MergeFilterAndFilter.
+   */
   public MergeFilterAndFilter(DSL dsl) {
     this.dsl = dsl;
     this.capture = Capture.newCapture();

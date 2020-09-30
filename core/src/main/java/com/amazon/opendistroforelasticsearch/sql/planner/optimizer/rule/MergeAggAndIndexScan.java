@@ -32,7 +32,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 /**
- * Merge Aggregation and Relation to IndexScanAggregation.
+ * Merge Aggregation -- Relation to IndexScanAggregation.
  */
 public class MergeAggAndIndexScan implements Rule<LogicalAggregation> {
 

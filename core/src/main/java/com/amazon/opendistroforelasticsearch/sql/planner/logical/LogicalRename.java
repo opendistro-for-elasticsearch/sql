@@ -35,6 +35,9 @@ public class LogicalRename extends LogicalPlan {
   @Getter
   private final Map<ReferenceExpression, ReferenceExpression> renameMap;
 
+  /**
+   * Constructor of LogicalRename.
+   */
   public LogicalRename(
       LogicalPlan child,
       Map<ReferenceExpression, ReferenceExpression> renameMap) {

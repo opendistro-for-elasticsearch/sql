@@ -46,6 +46,9 @@ public class LogicalValues extends LogicalPlan {
 
   private final List<List<LiteralExpression>> values;
 
+  /**
+   * Constructor of LogicalValues.
+   */
   public LogicalValues(
       List<List<LiteralExpression>> values) {
     super(ImmutableList.of());

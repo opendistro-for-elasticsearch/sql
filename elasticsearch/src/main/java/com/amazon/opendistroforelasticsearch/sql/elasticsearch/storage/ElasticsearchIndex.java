@@ -101,49 +101,51 @@ public class ElasticsearchIndex implements Table {
      * aggregation, filter, will accumulate (push down) Elasticsearch query and aggregation DSL on
      * index scan.
      */
-    return plan.accept(new DefaultImplementor<ElasticsearchIndexScan>() {
-      @Override
-      public PhysicalPlan visitIndexScan(LogicalIndexScan node,
-                                        ElasticsearchIndexScan context) {
-        FilterQueryBuilder queryBuilder = new FilterQueryBuilder(new DefaultExpressionSerializer());
-        QueryBuilder query = queryBuilder.build(node.getFilter());
-        context.pushDown(query);
-        return indexScan;
-      }
-
-      @Override
-      public PhysicalPlan visitIndexScanAggregation(LogicalIndexScanAggregation node,
-                                                   ElasticsearchIndexScan context) {
-
-        if (node.getFilter() != null) {
-          FilterQueryBuilder queryBuilder = new FilterQueryBuilder(new DefaultExpressionSerializer());
-          QueryBuilder query = queryBuilder.build(node.getFilter());
-          context.pushDown(query);
-        }
-
-
-        AggregationQueryBuilder builder =
-            new AggregationQueryBuilder(new DefaultExpressionSerializer());
-
-        List<AggregationBuilder> aggregationBuilder =
-            builder.buildAggregationBuilder(node.getAggregatorList(),
-                node.getGroupByList());
-
-        context.pushDownAggregation(aggregationBuilder);
-        context.pushTypeMapping(
-            builder.buildTypeMapping(node.getAggregatorList(),
-                node.getGroupByList()));
-
-        return indexScan;
-      }
-
-      @Override
-      public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
-       return indexScan;
-      }}, indexScan);
+    return plan.accept(new ElasticsearchDefaultImplementor(indexScan), indexScan);
   }
 
   private ExprType transformESTypeToExprType(String esType) {
     return ES_TYPE_TO_EXPR_TYPE_MAPPING.getOrDefault(esType, ExprCoreType.UNKNOWN);
+  }
+
+  @RequiredArgsConstructor
+  private static class ElasticsearchDefaultImplementor
+      extends DefaultImplementor<ElasticsearchIndexScan> {
+    private final ElasticsearchIndexScan indexScan;
+
+    @Override
+    public PhysicalPlan visitIndexScan(LogicalIndexScan node,
+                                       ElasticsearchIndexScan context) {
+      FilterQueryBuilder queryBuilder = new FilterQueryBuilder(new DefaultExpressionSerializer());
+      QueryBuilder query = queryBuilder.build(node.getFilter());
+      context.pushDown(query);
+      return indexScan;
+    }
+
+    @Override
+    public PhysicalPlan visitIndexScanAggregation(LogicalIndexScanAggregation node,
+                                                  ElasticsearchIndexScan context) {
+      if (node.getFilter() != null) {
+        FilterQueryBuilder queryBuilder = new FilterQueryBuilder(
+            new DefaultExpressionSerializer());
+        QueryBuilder query = queryBuilder.build(node.getFilter());
+        context.pushDown(query);
+      }
+      AggregationQueryBuilder builder =
+          new AggregationQueryBuilder(new DefaultExpressionSerializer());
+      List<AggregationBuilder> aggregationBuilder =
+          builder.buildAggregationBuilder(node.getAggregatorList(),
+              node.getGroupByList());
+      context.pushDownAggregation(aggregationBuilder);
+      context.pushTypeMapping(
+          builder.buildTypeMapping(node.getAggregatorList(),
+              node.getGroupByList()));
+      return indexScan;
+    }
+
+    @Override
+    public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
+      return indexScan;
+    }
   }
 }

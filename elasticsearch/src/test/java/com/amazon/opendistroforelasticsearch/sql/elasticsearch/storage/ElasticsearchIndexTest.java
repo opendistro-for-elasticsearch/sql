@@ -25,6 +25,8 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScan;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScanAgg;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
@@ -195,7 +197,7 @@ class ElasticsearchIndexTest {
   }
 
   @Test
-  void shouldDiscardPhysicalFilterIfConditionPushedDown() {
+  void shouldImplLogicalIndexScan() {
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
 
     ReferenceExpression field = ref("name", STRING);
@@ -206,8 +208,8 @@ class ElasticsearchIndexTest {
     ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
     PhysicalPlan plan = index.implement(
         project(
-            filter(
-                relation(indexName),
+            indexScan(
+                indexName,
                 filterExpr
             ),
             named));
@@ -242,7 +244,7 @@ class ElasticsearchIndexTest {
   }
 
   @Test
-  void shouldPushDownAggregation() {
+  void shouldImplLogicalIndexScanAgg() {
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
 
     ReferenceExpression field = ref("name", STRING);
@@ -254,10 +256,12 @@ class ElasticsearchIndexTest {
 
     String indexName = "test";
     ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+
+    // IndexScanAgg without Filter
     PhysicalPlan plan = index.implement(
         filter(
-            aggregation(
-                relation(indexName),
+            indexScanAgg(
+                indexName,
                 aggregators,
                 groupByExprs
             ),
@@ -265,11 +269,11 @@ class ElasticsearchIndexTest {
 
     assertTrue(plan.getChild().get(0) instanceof ElasticsearchIndexScan);
 
+    // IndexScanAgg with Filter
     plan = index.implement(
-        aggregation(
-            filter(
-                relation(indexName),
-                filterExpr),
+        indexScanAgg(
+            indexName,
+            filterExpr,
             aggregators,
             groupByExprs));
     assertTrue(plan instanceof ElasticsearchIndexScan);

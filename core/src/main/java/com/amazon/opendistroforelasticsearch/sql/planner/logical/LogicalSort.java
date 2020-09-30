@@ -37,6 +37,9 @@ public class LogicalSort extends LogicalPlan {
   private final Integer count;
   private final List<Pair<SortOption, Expression>> sortList;
 
+  /**
+   * Constructor of LogicalSort.
+   */
   public LogicalSort(
       LogicalPlan child, Integer count,
       List<Pair<SortOption, Expression>> sortList) {

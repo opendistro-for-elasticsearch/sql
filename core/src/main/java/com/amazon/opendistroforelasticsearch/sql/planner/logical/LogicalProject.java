@@ -32,6 +32,9 @@ public class LogicalProject extends LogicalPlan {
   @Getter
   private final List<NamedExpression> projectList;
 
+  /**
+   * Constructor of LogicalProject.
+   */
   public LogicalProject(
       LogicalPlan child,
       List<NamedExpression> projectList) {

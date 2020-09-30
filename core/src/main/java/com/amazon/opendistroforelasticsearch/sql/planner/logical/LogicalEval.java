@@ -37,6 +37,9 @@ public class LogicalEval extends LogicalPlan {
   @Getter
   private final List<Pair<ReferenceExpression, Expression>> expressions;
 
+  /**
+   * Constructor of LogicalEval.
+   */
   public LogicalEval(
       LogicalPlan child,
       List<Pair<ReferenceExpression, Expression>> expressions) {

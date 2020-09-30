@@ -35,6 +35,9 @@ public class LogicalRemove extends LogicalPlan {
   @Getter
   private final Set<ReferenceExpression> removeList;
 
+  /**
+   * Constructor of LogicalRemove.
+   */
   public LogicalRemove(
       LogicalPlan child,
       Set<ReferenceExpression> removeList) {
