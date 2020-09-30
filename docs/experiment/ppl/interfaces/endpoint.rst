@@ -65,3 +65,37 @@ PPL query::
       "size": 4
     }
 
+Explain
+=======
+
+Description
+-----------
+
+You can send HTTP POST request to endpoint **/_opendistro/_ppl/_explain** with your query in request body to understand the execution plan for the PPL query.
+
+Example
+-------
+
+The explain endpoint is useful when user want to get insight view how the query is executed in the engine. The following PPL query demonstrated that where and stats command were pushed down to Elasticsearch DSL aggregation query::
+
+    sh$ curl -sS -H 'Content-Type: application/json' \
+    ... -X POST localhost:9200/_opendistro/_ppl/_explain \
+    ... -d '{"query" : "source=accounts | where age > 10 | stats avg(age)"}'
+    {
+      "root": {
+        "name": "ProjectOperator",
+        "description": {
+          "fields": "[avg(age)]"
+        },
+        "children": [
+          {
+            "name": "ElasticsearchIndexScan",
+            "description": {
+              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":0,\"timeout\":\"1m\",\"query\":{\"range\":{\"age\":{\"from\":10,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}},\"sort\":[{\"_doc\":{\"order\":\"asc\"}}],\"aggregations\":{\"avg(age)\":{\"avg\":{\"field\":\"age\"}}}}, searchDone=false)"
+            },
+            "children": []
+          }
+        ]
+      }
+    }
+

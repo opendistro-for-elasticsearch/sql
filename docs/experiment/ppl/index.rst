@@ -49,4 +49,6 @@ OpenDistro PPL Reference Manual
 
   - `top command <cmd/top.rst>`_
 
+* **Commands**
 
+  - `Functions <../user/dql/functions.rst>`_
