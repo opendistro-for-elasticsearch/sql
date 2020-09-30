@@ -843,7 +843,7 @@ Description
 
 Usage: date_format(date, format) formats the date argument using the specifiers in the format argument.
 
-.. list-table:: The following table describes how the specifier argument works.
+.. list-table:: The following table describes the available specifier arguments.
    :widths: 20 80
    :header-rows: 1
 
@@ -1420,7 +1420,7 @@ Example::
 
 
 WEEK
----------
+----
 
 Usage: week(date[, mode]) returns the week number for date. If the mode argument is omitted, the default mode 0 is used.
 
@@ -1478,7 +1478,8 @@ Example::
     |----------------------------|-------------------------------|
     | 7                          | 8                             |
     +----------------------------+-------------------------------+
-=======
+
+
 TO_DAYS
 -------
 
