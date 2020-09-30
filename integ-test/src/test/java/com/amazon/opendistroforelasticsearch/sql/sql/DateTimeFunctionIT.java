@@ -376,14 +376,14 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
-    String query = String.format("select date_format(%s('%s'), '%s')", type, date, format);
-    JSONObject result = executeQuery(query);
-    // verifySchema(result, schema(query, null, "string"));
+    String query = String.format("date_format(%s('%s'), '%s')", type, date, format);
+    JSONObject result = executeQuery("select " + query);
+    verifySchema(result, schema(query, null, "string"));
     verifyDataRows(result, rows(formatted));
 
-    query = String.format("select date_format('%s', '%s')", date, format);
-    result = executeQuery(query);
-    // verifySchema(result, schema(query, null, "string"));
+    query = String.format("date_format('%s', '%s')", date, format);
+    result = executeQuery("select " + query);
+    verifySchema(result, schema(query, null, "string"));
     verifyDataRows(result, rows(formatted));
   }
 
