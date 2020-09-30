@@ -86,7 +86,6 @@ public class DateTimeFunction {
     repository.register(time_to_sec());
     repository.register(timestamp());
     repository.register(week());
-    repository.register(adddate());
     repository.register(date_format());
     repository.register(to_days());
     repository.register(year());

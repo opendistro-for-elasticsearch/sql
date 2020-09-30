@@ -73,7 +73,6 @@ class DateTimeFormatterUtil {
       .build();
 
   private static final String MOD = "%";
-  private static final String DOUBLE_MOD = MOD + MOD;
   private static final String QUOTE_LITERAL = "'";
 
   private DateTimeFormatterUtil() {
