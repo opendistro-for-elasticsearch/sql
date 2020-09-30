@@ -71,12 +71,12 @@ Explain
 Description
 -----------
 
-You can send HTTP POST request to endpoint **/_opendistro/_ppl/_explain** with your query in request body to understand the execution plan for the PPL query.
+You can send HTTP explain request to endpoint **/_opendistro/_ppl/_explain** with your query in request body to understand the execution plan for the PPL query. The explain endpoint is useful when user want to get insight how the query is executed in the engine.
 
 Example
 -------
 
-The explain endpoint is useful when user want to get insight view how the query is executed in the engine. The following PPL query demonstrated that where and stats command were pushed down to Elasticsearch DSL aggregation query::
+The following PPL query demonstrated that where and stats command were pushed down to Elasticsearch DSL aggregation query::
 
     sh$ curl -sS -H 'Content-Type: application/json' \
     ... -X POST localhost:9200/_opendistro/_ppl/_explain \
