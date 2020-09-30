@@ -1357,6 +1357,69 @@ Example::
     +------------------------------+
 
 
+WEEK
+----
+
+Description
+>>>>>>>>>>>
+
+Usage: week(date[, mode]) returns the week number for date. If the mode argument is omitted, the default mode 0 is used.
+
+.. list-table:: The following table describes how the mode argument works.
+   :widths: 25 50 25 75
+   :header-rows: 1
+
+   * - Mode
+     - First day of week
+     - Range
+     - Week 1 is the first week …
+   * - 0
+     - Sunday
+     - 0-53
+     - with a Sunday in this year
+   * - 1
+     - Monday
+     - 0-53
+     - with 4 or more days this year
+   * - 2
+     - Sunday
+     - 1-53
+     - with a Sunday in this year
+   * - 3
+     - Monday
+     - 1-53
+     - with 4 or more days this year
+   * - 4
+     - Sunday
+     - 0-53
+     - with 4 or more days this year
+   * - 5
+     - Monday
+     - 0-53
+     - with a Monday in this year
+   * - 6
+     - Sunday
+     - 1-53
+     - with 4 or more days this year
+   * - 7
+     - Monday
+     - 1-53
+     - with a Monday in this year
+
+Argument type: DATE/DATETIME/TIMESTAMP/STRING
+
+Return type: INTEGER
+
+Example::
+
+    >od SELECT WEEK(DATE('2008-02-20')), WEEK(DATE('2008-02-20'), 1)
+    fetched rows / total rows = 1/1
+    +----------------------------+-------------------------------+
+    | WEEK(DATE('2008-02-20'))   | WEEK(DATE('2008-02-20'), 1)   |
+    |----------------------------|-------------------------------|
+    | 7                          | 8                             |
+    +----------------------------+-------------------------------+
+
 
 YEAR
 ----

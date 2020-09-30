@@ -31,6 +31,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
@@ -39,6 +40,8 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
@@ -724,6 +727,103 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(TIMESTAMP, expr.type());
     assertEquals(new ExprTimestampValue("2020-08-17 01:01:01"), expr.valueOf(env));
     assertEquals("timestamp(TIMESTAMP '2020-08-17 01:01:01')", expr.toString());
+  }
+
+  private void testWeek(String date, int mode, int expectedResult) {
+    FunctionExpression expression = dsl
+        .week(DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(String.format("week(DATE '%s', %d)", date, mode), expression.toString());
+    assertEquals(integerValue(expectedResult), eval(expression));
+  }
+
+  private void testNullMissingWeek(ExprCoreType date) {
+    when(nullRef.type()).thenReturn(date);
+    when(missingRef.type()).thenReturn(date);
+    assertEquals(nullValue(), eval(dsl.week(nullRef)));
+    assertEquals(missingValue(), eval(dsl.week(missingRef)));
+  }
+
+  @Test
+  public void week() {
+    testNullMissingWeek(DATE);
+    testNullMissingWeek(DATETIME);
+    testNullMissingWeek(TIMESTAMP);
+    testNullMissingWeek(STRING);
+
+    when(nullRef.type()).thenReturn(INTEGER);
+    when(missingRef.type()).thenReturn(INTEGER);
+    assertEquals(nullValue(), eval(dsl.week(DSL.literal("2019-01-05"), nullRef)));
+    assertEquals(missingValue(), eval(dsl.week(DSL.literal("2019-01-05"), missingRef)));
+
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(INTEGER);
+    assertEquals(missingValue(), eval(dsl.week(nullRef, missingRef)));
+
+    FunctionExpression expression = dsl
+        .week(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(TIMESTAMP '2019-01-05 01:02:03')", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    expression = dsl.week(DSL.literal("2019-01-05"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(\"2019-01-05\")", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    expression = dsl.week(DSL.literal("2019-01-05 00:01:00"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(\"2019-01-05 00:01:00\")", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    testWeek("2019-01-05", 0, 0);
+    testWeek("2019-01-05", 1, 1);
+    testWeek("2019-01-05", 2, 52);
+    testWeek("2019-01-05", 3, 1);
+    testWeek("2019-01-05", 4, 1);
+    testWeek("2019-01-05", 5, 0);
+    testWeek("2019-01-05", 6, 1);
+    testWeek("2019-01-05", 7, 53);
+
+    testWeek("2019-01-06", 0, 1);
+    testWeek("2019-01-06", 1, 1);
+    testWeek("2019-01-06", 2, 1);
+    testWeek("2019-01-06", 3, 1);
+    testWeek("2019-01-06", 4, 2);
+    testWeek("2019-01-06", 5, 0);
+    testWeek("2019-01-06", 6, 2);
+    testWeek("2019-01-06", 7, 53);
+
+    testWeek("2019-01-07", 0, 1);
+    testWeek("2019-01-07", 1, 2);
+    testWeek("2019-01-07", 2, 1);
+    testWeek("2019-01-07", 3, 2);
+    testWeek("2019-01-07", 4, 2);
+    testWeek("2019-01-07", 5, 1);
+    testWeek("2019-01-07", 6, 2);
+    testWeek("2019-01-07", 7, 1);
+
+    testWeek("2000-01-01", 0, 0);
+    testWeek("2000-01-01", 2, 52);
+    testWeek("1999-12-31", 0, 52);
+  }
+
+  @Test
+  public void modeInUnsupportedFormat() {
+    testNullMissingWeek(DATE);
+
+    FunctionExpression expression1 = dsl
+        .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(8));
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class, () -> eval(expression1));
+    assertEquals("mode:8 is invalid, please use mode value between 0-7",
+        exception.getMessage());
+
+    FunctionExpression expression2 = dsl
+        .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(-1));
+    exception = assertThrows(SemanticCheckException.class, () -> eval(expression2));
+    assertEquals("mode:-1 is invalid, please use mode value between 0-7",
+        exception.getMessage());
   }
 
   @Test

@@ -370,6 +370,27 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
     verifySome(result.getJSONArray("datarows"), rows(738049));
   }
 
+  private void week(String date, int mode, int expectedResult) throws IOException {
+    JSONObject result = executeQuery(String.format(
+        "source=%s | eval f = week(date('%s'), %d) | fields f", TEST_INDEX_DATE, date, mode));
+    verifySchema(result, schema("f", null, "integer"));
+    verifySome(result.getJSONArray("datarows"), rows(expectedResult));
+  }
+
+  @Test
+  public void testWeek() throws IOException {
+    JSONObject result = executeQuery(String.format(
+        "source=%s | eval f = week(date('2008-02-20')) | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "integer"));
+    verifySome(result.getJSONArray("datarows"), rows(7));
+
+    week("2008-02-20", 0, 7);
+    week("2008-02-20", 1, 8);
+    week("2008-12-31", 1, 53);
+    week("2000-01-01", 0, 0);
+    week("2000-01-01", 2, 52);
+  }
+
   @Test
   public void testYear() throws IOException {
     JSONObject result = executeQuery(String.format(

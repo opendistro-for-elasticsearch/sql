@@ -333,6 +333,10 @@ public class DSL {
     return function(BuiltinFunctionName.TO_DAYS, expressions);
   }
 
+  public FunctionExpression week(Expression... expressions) {
+    return function(BuiltinFunctionName.WEEK, expressions);
+  }
+
   public FunctionExpression year(Expression... expressions) {
     return function(BuiltinFunctionName.YEAR, expressions);
   }

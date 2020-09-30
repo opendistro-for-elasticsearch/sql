@@ -73,6 +73,7 @@ public enum BuiltinFunctionName {
   TIME_TO_SEC(FunctionName.of("time_to_sec")),
   TIMESTAMP(FunctionName.of("timestamp")),
   TO_DAYS(FunctionName.of("to_days")),
+  WEEK(FunctionName.of("week")),
   YEAR(FunctionName.of("year")),
 
   /**

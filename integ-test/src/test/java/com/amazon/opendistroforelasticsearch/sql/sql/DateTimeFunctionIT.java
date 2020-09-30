@@ -353,6 +353,26 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(2020));
   }
 
+  private void week(String date, int mode, int expectedResult) throws IOException {
+    JSONObject result = executeQuery(String.format("select week(date('%s'), %d)", date, mode));
+    verifySchema(result,
+        schema(String.format("week(date('%s'), %d)", date, mode), null, "integer"));
+    verifyDataRows(result, rows(expectedResult));
+  }
+
+  @Test
+  public void testWeek() throws IOException {
+    JSONObject result = executeQuery("select week(date('2008-02-20'))");
+    verifySchema(result, schema("week(date('2008-02-20'))", null, "integer"));
+    verifyDataRows(result, rows(7));
+
+    week("2008-02-20", 0, 7);
+    week("2008-02-20", 1, 8);
+    week("2008-12-31", 1, 53);
+    week("2000-01-01", 0, 0);
+    week("2000-01-01", 2, 52);
+  }
+
   protected JSONObject executeQuery(String query) throws IOException {
     Request request = new Request("POST", QUERY_API_ENDPOINT);
     request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
