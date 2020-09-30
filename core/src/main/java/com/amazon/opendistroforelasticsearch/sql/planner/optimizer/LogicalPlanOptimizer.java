@@ -32,6 +32,10 @@ import java.util.stream.Collectors;
 
 /**
  * {@link LogicalPlan} Optimizer.
+ * The Optimizer will run in the TopDown manner.
+ * 1> Optimize the current node with all the rules.
+ * 2> Optimize the all the child nodes with all the rules.
+ * 3) In case the child node could change, Optimize the current node again.
  */
 public class LogicalPlanOptimizer {
 
