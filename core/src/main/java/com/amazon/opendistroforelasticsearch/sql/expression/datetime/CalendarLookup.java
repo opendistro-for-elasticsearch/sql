@@ -15,44 +15,47 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import com.google.common.collect.ImmutableList;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 class CalendarLookup {
-
-  private Map<Integer, Calendar> map = new HashMap<>();
+  private LocalDate date;
 
   /**
-   * Set Calendar in map for all modes.
-   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * Get a calendar for the specific mode.
+   * @param mode Mode to get calendar for.
    */
-  CalendarLookup(ExprValue date) {
-    map.put(0, getCalendar(Calendar.SUNDAY, 7, date));
-    map.put(1, getCalendar(Calendar.MONDAY, 5, date));
-    map.put(2, getCalendar(Calendar.SUNDAY, 7, date));
-    map.put(3, getCalendar(Calendar.MONDAY, 5, date));
-    map.put(4, getCalendar(Calendar.SUNDAY, 4, date));
-    map.put(5, getCalendar(Calendar.MONDAY, 7, date));
-    map.put(6, getCalendar(Calendar.SUNDAY, 4, date));
-    map.put(7, getCalendar(Calendar.MONDAY, 7, date));
+  private Calendar getCalendar(int mode) {
+    if ((mode < 0) || (mode > 7)) {
+      throw new SemanticCheckException(
+          String.format("mode:%s is invalid, please use mode value between 0-7", mode));
+    }
+
+    int day = (mode % 2 == 0) ? Calendar.SUNDAY : Calendar.MONDAY;
+    if (ImmutableList.of(1, 3).contains(mode)) {
+      return getCalendar(day, 5);
+    } else if (ImmutableList.of(4, 6).contains(mode)) {
+      return getCalendar(day, 4);
+    } else {
+      return getCalendar(day, 7);
+    }
   }
 
   /**
    * Set first day of week, minimal days in first week and date in calendar.
    * @param firstDayOfWeek the given first day of the week.
    * @param minimalDaysInWeek the given minimal days required in the first week of the year.
-   * @param date the ExprValue of Date/Datetime/Timestamp/String type.
    */
-  private Calendar getCalendar(int firstDayOfWeek, int minimalDaysInWeek, ExprValue date) {
+  private Calendar getCalendar(int firstDayOfWeek, int minimalDaysInWeek) {
     Calendar calendar = Calendar.getInstance();
     calendar.setFirstDayOfWeek(firstDayOfWeek);
     calendar.setMinimalDaysInFirstWeek(minimalDaysInWeek);
-    calendar.set(date.dateValue().getYear(), date.dateValue().getMonthValue() - 1,
-        date.dateValue().getDayOfMonth());
+    calendar.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth());
     return calendar;
   }
 
@@ -61,28 +64,25 @@ class CalendarLookup {
    * @param mode Integer for mode. Valid mode values are 0 to 7.
    */
   int getWeekNumber(int mode) {
-    if (map.containsKey(mode)) {
-      int weekNumber = map.get(mode).get(Calendar.WEEK_OF_YEAR);
-      if ((weekNumber > 51)
-          && (map.get(mode).get(Calendar.DAY_OF_MONTH) < 7)
-          && Arrays.asList(0, 1, 4, 5).contains(mode)) {
-        weekNumber = 0;
-      }
-      return weekNumber;
+    Calendar calendar = getCalendar(mode);
+    int weekNumber = calendar.get(Calendar.WEEK_OF_YEAR);
+    if ((weekNumber > 51)
+        && (calendar.get(Calendar.DAY_OF_MONTH) < 7)
+        && Arrays.asList(0, 1, 4, 5).contains(mode)) {
+      weekNumber = 0;
     }
-    throw new SemanticCheckException(
-        String.format("mode:%s is invalid, please use mode value between 0-7", mode));
+    return weekNumber;
   }
 
   /**
    * Returns year for date according to mode.
-   *
    * @param mode Integer for mode. Valid mode values are 0 to 7.
    */
   int getYearNumber(int mode) {
+    Calendar calendar = getCalendar(mode);
     int weekNumber = getWeekNumber(mode);
-    int yearNumber = map.get(mode).get(Calendar.YEAR);
-    if ((weekNumber > 51) && (map.get(mode).get(Calendar.DAY_OF_MONTH) < 7)) {
+    int yearNumber = calendar.get(Calendar.YEAR);
+    if ((weekNumber > 51) && (calendar.get(Calendar.DAY_OF_MONTH) < 7)) {
       yearNumber--;
     }
     return yearNumber;

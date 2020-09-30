@@ -20,51 +20,58 @@ class DateTimeFormatterUtil {
   private static final Map<Integer, String> SUFFIX_CONVERTER =
       ImmutableMap.<Integer, String>builder()
       .put(1, "st").put(2, "nd").put(3, "rd").build();
-  private static final Map<String, String> DATE_FORMAT_MAP =
-      ImmutableMap.<String, String>builder()
-      .put("%a", "EEE") // %a => EE - Abbreviated weekday name (Sun..Sat)
-      .put("%b", "LLL") // %b => LLL - Abbreviated month name (Jan..Dec)
-      .put("%c", "MM") // %c => MM - Month, numeric (0..12)
-      .put("%d", "dd") // %d => dd - Day of the month, numeric (00..31)
-      .put("%e", "d") // %e => d - Day of the month, numeric (0..31)
-      .put("%H", "HH") // %H => HH - (00..23)
-      .put("%h", "hh") // %h => kk - (01..12)
-      .put("%I", "hh") // %I => kk - (01..12)
-      .put("%i", "mm") // %i => mm - Minutes, numeric (00..59)
-      .put("%j", "DDD") // %j => DDD - (001..366)
-      .put("%k", "H") // %k => H - (0..23)
-      .put("%l", "h") // %l => h - (1..12)
-      .put("%p", "a") // %p => a - AM or PM
-      .put("%M", "LLLL") // %M => LLLL - Month name (January..December)
-      .put("%m", "MM") // %m => MM - Month, numeric (00..12)
-      .put("%r", "hh:mm:ss a") // %r => hh:mm:ss a - hh:mm:ss followed by AM or PM
-      .put("%S", "ss") // %S => ss - Seconds (00..59)
-      .put("%s", "ss") // %s => ss - Seconds (00..59)
-      .put("%T", "HH:mm:ss") // %T => HH:mm:ss -
-      .put("%W", "EEEE") // %W => EEEE - Weekday name (Sunday..Saturday)
-      .put("%Y", "yyyy") // %Y => yyyy - Year, numeric, 4 digits
-      .put("%y", "yy") // %y => yy - Year, numeric, 2 digits
+
+  // The following have special cases that need handling outside of the format options provided
+  // by the DateTimeFormatter class.
+  interface DateTimeFormatHandler {
+    String getFormat(LocalDateTime date);
+  }
+
+  private static final Map<String, DateTimeFormatHandler> HANDLERS =
+      ImmutableMap.<String, DateTimeFormatHandler>builder()
+      .put("%a", (date) -> "EEE") // %a => EEE - Abbreviated weekday name (Sun..Sat)
+      .put("%b", (date) -> "LLL") // %b => LLL - Abbreviated month name (Jan..Dec)
+      .put("%c", (date) -> "MM") // %c => MM - Month, numeric (0..12)
+      .put("%d", (date) -> "dd") // %d => dd - Day of the month, numeric (00..31)
+      .put("%e", (date) -> "d") // %e => d - Day of the month, numeric (0..31)
+      .put("%H", (date) -> "HH") // %H => HH - (00..23)
+      .put("%h", (date) -> "hh") // %h => hh - (01..12)
+      .put("%I", (date) -> "hh") // %I => hh - (01..12)
+      .put("%i", (date) -> "mm") // %i => mm - Minutes, numeric (00..59)
+      .put("%j", (date) -> "DDD") // %j => DDD - (001..366)
+      .put("%k", (date) -> "H") // %k => H - (0..23)
+      .put("%l", (date) -> "h") // %l => h - (1..12)
+      .put("%p", (date) -> "a") // %p => a - AM or PM
+      .put("%M", (date) -> "LLLL") // %M => LLLL - Month name (January..December)
+      .put("%m", (date) -> "MM") // %m => MM - Month, numeric (00..12)
+      .put("%r", (date) -> "hh:mm:ss a") // %r => hh:mm:ss a - hh:mm:ss followed by AM or PM
+      .put("%S", (date) -> "ss") // %S => ss - Seconds (00..59)
+      .put("%s", (date) -> "ss") // %s => ss - Seconds (00..59)
+      .put("%T", (date) -> "HH:mm:ss") // %T => HH:mm:ss
+      .put("%W", (date) -> "EEEE") // %W => EEEE - Weekday name (Sunday..Saturday)
+      .put("%Y", (date) -> "yyyy") // %Y => yyyy - Year, numeric, 4 digits
+      .put("%y", (date) -> "yy") // %y => yy - Year, numeric, 2 digits
+      // The following are not directly supported by DateTimeFormatter.
+      .put("%D", (date) -> // %w - Day of month with English suffix
+          String.format("'%d%s'", date.getDayOfMonth(), getSuffix(date.getDayOfMonth())))
+      .put("%f", (date) -> // %f - Microseconds
+          String.format("'%d'", (date.getNano() / 1000)))
+      .put("%w", (date) -> // %w - Day of week (0 indexed)
+          String.format("'%d'", date.getDayOfWeek().getValue()))
+      .put("%U", (date) -> // %U Week where Sunday is the first day - WEEK() mode 0
+          String.format("'%d'", new CalendarLookup(date.toLocalDate()).getWeekNumber(0)))
+      .put("%u", (date) -> // %u Week where Monday is the first day - WEEK() mode 1
+          String.format("'%d'", new CalendarLookup(date.toLocalDate()).getWeekNumber(1)))
+      .put("%V", (date) -> // %V Week where Sunday is the first day - WEEK() mode 2 used with %X
+          String.format("'%d'", new CalendarLookup(date.toLocalDate()).getWeekNumber(2)))
+      .put("%v", (date) -> // %v Week where Monday is the first day - WEEK() mode 3 used with %x
+          String.format("'%d'", new CalendarLookup(date.toLocalDate()).getWeekNumber(3)))
+      .put("%X", (date) -> // %X Year for week where Sunday is the first day, 4 digits used with %V
+          String.format("'%d'", new CalendarLookup(date.toLocalDate()).getYearNumber(2)))
+      .put("%x", (date) -> // %x Year for week where Monday is the first day, 4 digits used with %v
+          String.format("'%d'", new CalendarLookup(date.toLocalDate()).getYearNumber(3)))
       .build();
 
-  private static final Map<String, Integer> WEEK_FORMAT_MAP = ImmutableMap.<String, Integer>
-      builder()
-      .put("%U", 0) // %U Week where Sunday is the first day - WEEK() mode 0
-      .put("%u", 1) // %u Week where Monday is the first day - WEEK() mode 1
-      .put("%V", 2) // %V Week where Sunday is the first day - WEEK() mode 2 used with %X
-      .put("%v", 3) // %v Week where Monday is the first day - WEEK() mode 3 used with %x
-      .build();
-  private static final Map<String, Integer> YEAR_FORMAT_MAP = ImmutableMap.<String, Integer>
-      builder()
-      .put("%X", 2) // %X Year for week where Sunday is the first day, four digits used with %V
-      .put("%x", 3) // %x Year for week where Monday is the first day, four digits used with %v
-      .build();
-
-  // %w => Day of week (0=Sunday..6=Saturday)
-  private static final String DAY_OF_WEEK = "%w";
-  // %f => Microseconds
-  private static final String MICROSECONDS = "%f";
-  // %D => Day of month with English suffix (0th, 1st ..)
-  private static final String DATE_WITH_SUFFIX = "%D";
   private static final String MOD = "%";
   private static final String DOUBLE_MOD = MOD + MOD;
   private static final String QUOTE_LITERAL = "'";
@@ -81,83 +88,45 @@ class DateTimeFormatterUtil {
   static ExprValue getFormattedDate(ExprValue dateExpr, ExprValue formatExpr) {
     String format = formatExpr.stringValue();
     final LocalDateTime date = dateExpr.datetimeValue();
-    for (Map.Entry<String, String> dateFormatEntry: DATE_FORMAT_MAP.entrySet()) {
-      format = format.replace(dateFormatEntry.getKey(), dateFormatEntry.getValue());
-    }
-
-    for (Map.Entry<String, Integer> weekFormatEntry: WEEK_FORMAT_MAP.entrySet()) {
-      if (format.contains(weekFormatEntry.getKey())) {
-        CalendarLookup calendarLookup = new CalendarLookup(dateExpr);
-        format = format.replace(
-            weekFormatEntry.getKey(),
-            String.format("'%d'", calendarLookup.getWeekNumber(weekFormatEntry.getValue())));
+    for (Map.Entry<String, DateTimeFormatHandler> handler: HANDLERS.entrySet()) {
+      if (format.contains(handler.getKey())) {
+        format = format.replace(handler.getKey(), handler.getValue().getFormat(date));
       }
     }
-    for (Map.Entry<String, Integer> yearFormatEntry: YEAR_FORMAT_MAP.entrySet()) {
-      if (format.contains(yearFormatEntry.getKey())) {
-        CalendarLookup calendarLookup = new CalendarLookup(dateExpr);
-        format = format.replace(
-            yearFormatEntry.getKey(),
-            String.format("'%d'", calendarLookup.getYearNumber(yearFormatEntry.getValue())));
-      }
-    }
-    if (format.contains(DATE_WITH_SUFFIX)) {
-      int dayOfMonth = date.getDayOfMonth();
-      format = format.replace(DATE_WITH_SUFFIX,
-          String.format("'%d%s'", dayOfMonth, getSuffix(dayOfMonth)));
-    }
-    if (format.contains(MICROSECONDS)) {
-      format = format.replace(MICROSECONDS,
-          String.format("'%d'", (date.getNano() / 1000)));
-    }
-    if (format.contains(DAY_OF_WEEK)) {
-      // Day of week returns 0 indexed, but formatter returns 1 indexed, we need 0.
-      format = format.replace(DAY_OF_WEEK,
-          String.format("'%d'", date.getDayOfWeek().getValue()));
-    }
-
     format = literalReplace(format);
-    // English Locale matches SQL requirements. AM/PM instead of a.m./p.m., Sat instead of Sat. etc
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format, Locale.ENGLISH);
-    String formattedDate = date.format(formatter);
 
-    // SQL expects PM/AM, but formatter outputs p.m and a.m.
-    return new ExprStringValue(formattedDate);
+    // English Locale matches SQL requirements.
+    // 'AM'/'PM' instead of 'a.m.'/'p.m.'
+    // 'Sat' instead of 'Sat.' etc
+    return new ExprStringValue(date.format(DateTimeFormatter.ofPattern(format, Locale.ENGLISH)));
   }
 
+  /**
+   * Returns English suffix of incoming value.
+   * @param val Incoming value.
+   * @return English suffix as String (st, nd, rd, th)
+   */
   private static String getSuffix(int val) {
-    // Handle special cases.
+    // The numbers 11, 12, and 13 do not follow general suffix rules.
     if ((SUFFIX_SPECIAL_START_TH <= val) && (val <= SUFFIX_SPECIAL_END_TH)) {
       return SUFFIX_SPECIAL_TH;
     }
-
-    // Check last digit to see if it is special.
-    final int lastDigit = val % 10;
-    for (Map.Entry<Integer, String> entry: SUFFIX_CONVERTER.entrySet()) {
-      if (entry.getKey().equals(lastDigit)) {
-        return entry.getValue();
-      }
-    }
-
-    // Return general case if no specials match.
-    return SUFFIX_SPECIAL_TH;
+    return SUFFIX_CONVERTER.getOrDefault(val % 10, SUFFIX_SPECIAL_TH);
   }
 
+  /**
+   * Goes through format String and replaces any %x with 'x' where x is unmapped.
+   * @param format Incoming format String without mapping completed.
+   * @return Outgoing format String with mapping completed.
+   */
   private static String literalReplace(String format) {
     // Need to do %x=>'x' for any % not listed
     int index = format.indexOf(MOD);
-    while (index != -1) {
-      if ((index + 2) > format.length()) {
-        break;
-      }
+    while ((index != -1) && ((index + 2) <= format.length())) {
       String substr = format.substring(index, index + 2);
-      if (substr.equals(DOUBLE_MOD)) {
-        index = format.indexOf(MOD, index + 2);
-      } else {
-        format = format.replace(substr, substr.replaceFirst(MOD, QUOTE_LITERAL) + QUOTE_LITERAL);
-        index = format.indexOf(MOD, index + 1);
-      }
+      format = format.replace(substr, substr.replaceFirst(MOD, QUOTE_LITERAL) + QUOTE_LITERAL);
+      index = format.indexOf(MOD, index + 2);
     }
-    return format.replace(DOUBLE_MOD, MOD);
+    return format;
   }
 }

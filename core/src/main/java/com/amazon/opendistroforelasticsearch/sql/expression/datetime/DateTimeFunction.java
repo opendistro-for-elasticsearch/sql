@@ -657,7 +657,7 @@ public class DateTimeFunction {
    * @param mode ExprValue of Integer type.
    */
   private ExprValue exprWeek(ExprValue date, ExprValue mode) {
-    CalendarLookup calendarLookup = new CalendarLookup(date);
+    CalendarLookup calendarLookup = new CalendarLookup(date.dateValue());
     return new ExprIntegerValue(calendarLookup.getWeekNumber(mode.integerValue()));
   }
 

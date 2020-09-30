@@ -883,11 +883,17 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(nullValue(), eval(dsl.week(nullRef)));
     assertEquals(missingValue(), eval(dsl.week(missingRef)));
 
-    FunctionExpression expression = dsl
+    FunctionExpression expression1 = dsl
         .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(8));
     SemanticCheckException exception =
-        assertThrows(SemanticCheckException.class, () -> eval(expression));
+        assertThrows(SemanticCheckException.class, () -> eval(expression1));
     assertEquals("mode:8 is invalid, please use mode value between 0-7",
+        exception.getMessage());
+
+    FunctionExpression expression2 = dsl
+        .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(-1));
+    exception = assertThrows(SemanticCheckException.class, () -> eval(expression2));
+    assertEquals("mode:-1 is invalid, please use mode value between 0-7",
         exception.getMessage());
   }
 
