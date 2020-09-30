@@ -48,7 +48,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
     week("2008-02-20", 0, 7);
     week("2008-02-20", 1, 8);
-    week("2008-12-31", 1, 52);
+    week("2008-12-31", 1, 53);
     week("2000-01-01", 0, 0);
     week("2000-01-01", 2, 52);
   }
@@ -429,7 +429,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
 
     String date = "1998-01-31";
     String dateFormat = "%U %u %V %v %W %w %X %x %Y %y";
-    String dateFormatted = "4 5 4 5 Saturday 6 1998 1998 1998 98";
+    String dateFormatted = "4 4 4 4 Saturday 6 1998 1998 1998 98";
     verifyDateFormat(date, "date", dateFormat, dateFormatted);
   }
 }

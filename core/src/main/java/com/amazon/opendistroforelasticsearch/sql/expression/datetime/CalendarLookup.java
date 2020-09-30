@@ -32,9 +32,9 @@ class CalendarLookup {
    */
   CalendarLookup(ExprValue date) {
     map.put(0, getCalendar(Calendar.SUNDAY, 7, date));
-    map.put(1, getCalendar(Calendar.MONDAY, 4, date));
+    map.put(1, getCalendar(Calendar.MONDAY, 5, date));
     map.put(2, getCalendar(Calendar.SUNDAY, 7, date));
-    map.put(3, getCalendar(Calendar.MONDAY, 4, date));
+    map.put(3, getCalendar(Calendar.MONDAY, 5, date));
     map.put(4, getCalendar(Calendar.SUNDAY, 4, date));
     map.put(5, getCalendar(Calendar.MONDAY, 7, date));
     map.put(6, getCalendar(Calendar.SUNDAY, 4, date));

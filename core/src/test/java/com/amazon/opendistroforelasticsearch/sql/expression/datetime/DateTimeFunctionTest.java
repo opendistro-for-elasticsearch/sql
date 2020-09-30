@@ -49,7 +49,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -121,11 +120,11 @@ class DateTimeFunctionTest extends ExpressionTestBase {
       ),
       new DateFormatTester("1998-12-31",
           ImmutableList.of("%x","%v","%X","%V","%u","%U"),
-          ImmutableList.of("1998", "53", "1998", "52", "53", "52")
+          ImmutableList.of("1998", "52", "1998", "52", "52", "52")
       ),
       new DateFormatTester("1999-01-01",
           ImmutableList.of("%x","%v","%X","%V","%u","%U"),
-          ImmutableList.of("1998", "53", "1998", "52", "0", "0")
+          ImmutableList.of("1998", "52", "1998", "52", "0", "0")
       ),
       new DateFormatTester("2020-01-04",
           ImmutableList.of("%x","%X"),
@@ -133,7 +132,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
       ),
       new DateFormatTester("2008-12-31",
           ImmutableList.of("%v","%V","%u","%U"),
-          ImmutableList.of("1","52","1","52")
+          ImmutableList.of("53","52","53","52")
       )
   );
 
