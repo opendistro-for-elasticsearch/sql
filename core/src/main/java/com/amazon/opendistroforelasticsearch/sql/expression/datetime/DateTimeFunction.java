@@ -661,7 +661,6 @@ public class DateTimeFunction {
   }
 
   /**
-   * ADDDATE function implementation for ExprValue.
    * Time To Sec implementation for ExprValue.
    *
    * @param time ExprValue of Time/String type.
