@@ -453,6 +453,14 @@ public class DSL {
     return aggregate(BuiltinFunctionName.COUNT, expressions);
   }
 
+  public Aggregator min(Expression... expressions) {
+    return aggregate(BuiltinFunctionName.MIN, expressions);
+  }
+
+  public Aggregator max(Expression... expressions) {
+    return aggregate(BuiltinFunctionName.MAX, expressions);
+  }
+
   private FunctionExpression function(BuiltinFunctionName functionName, Expression... expressions) {
     return (FunctionExpression) repository.compile(
         functionName.getName(), Arrays.asList(expressions));

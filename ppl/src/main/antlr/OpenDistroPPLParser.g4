@@ -129,7 +129,7 @@ statsFunction
     ;
 
 statsFunctionName
-    : AVG | COUNT | SUM
+    : AVG | COUNT | SUM | MIN | MAX
     ;
 
 percentileAggFunction

@@ -24,6 +24,10 @@ The following table catalogs the aggregation functions and also indicates how ea
 +----------+-------------+-------------+
 | AVG      | Ignore      | Ignore      |
 +----------+-------------+-------------+
+| MAX      | Ignore      | Ignore      |
++----------+-------------+-------------+
+| MIN      | Ignore      | Ignore      |
++----------+-------------+-------------+
 
 
 Syntax
@@ -83,4 +87,35 @@ PPL query::
     | F        | 28.0               | 28         |
     | M        | 33.666666666666664 | 101        |
     +----------+--------------------+------------+
+
+Example 4: Calculate the maximum of a field
+===========================================
+
+The example calculates the max age of all the accounts.
+
+PPL query::
+
+    od> source=accounts | stats max(age);
+    fetched rows / total rows = 1/1
+    +------------+
+    | max(age)   |
+    |------------|
+    | 36         |
+    +------------+
+
+Example 5: Calculate the maximum and minimum of a field by group
+================================================================
+
+The example calculates the max and min age values of all the accounts group by gender.
+
+PPL query::
+
+    od> source=accounts | stats max(age), min(age) by gender;
+    fetched rows / total rows = 2/2
+    +----------+------------+------------+
+    | gender   | min(age)   | max(age)   |
+    |----------+------------+------------|
+    | F        | 28         | 28         |
+    | M        | 32         | 36         |
+    +----------+------------+------------+
 
