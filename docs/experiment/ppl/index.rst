@@ -51,4 +51,4 @@ OpenDistro PPL Reference Manual
 
 * **Functions**
 
-  - `Functions <../../user/dql/functions.rst>`_
+  - `PPL Functions <../../user/dql/functions.rst>`_
