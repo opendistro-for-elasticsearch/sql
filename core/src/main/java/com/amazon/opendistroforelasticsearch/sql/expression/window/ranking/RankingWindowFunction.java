@@ -64,9 +64,13 @@ public abstract class RankingWindowFunction extends FunctionExpression {
   /**
    * Check sort field to see if current value is different from previous.
    * @param frame   window frame
-   * @return        true if different, otherwise false
+   * @return        true if different or no sort list defined, otherwise false
    */
   protected boolean isSortFieldValueDifferent(WindowFrame frame) {
+    if (frame.isSortItemsNotDefined()) {
+      return true;
+    }
+
     List<ExprValue> previous = frame.resolveSortItemValues(-1);
     List<ExprValue> current = frame.resolveSortItemValues(0);
     return !current.equals(previous);

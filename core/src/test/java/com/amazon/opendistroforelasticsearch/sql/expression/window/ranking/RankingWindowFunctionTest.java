@@ -115,4 +115,18 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
     assertEquals(1, denseRank.rank(windowFrame));
   }
 
+  @Test
+  void test_empty_sort_field_values() {
+    RankingWindowFunction rank = dsl.rank();
+    when(windowFrame.isSortItemsNotDefined()).thenReturn(true);
+    assertEquals(1, rank.rank(windowFrame));
+
+    when(windowFrame.isNewPartition()).thenReturn(false);
+    assertEquals(2, rank.rank(windowFrame));
+    assertEquals(3, rank.rank(windowFrame));
+
+    when(windowFrame.isNewPartition()).thenReturn(true);
+    assertEquals(1, rank.rank(windowFrame));
+  }
+
 }

@@ -76,6 +76,14 @@ public class WindowFrame implements Environment<Expression, ExprValue> {
   }
 
   /**
+   * Is there any sort item defined in window definition.
+   * @return  true if any sort item
+   */
+  public boolean isSortItemsNotDefined() {
+    return windowDefinition.getSortList().isEmpty();
+  }
+
+  /**
    * Update frame with a new row.
    * @param row   data row
    */

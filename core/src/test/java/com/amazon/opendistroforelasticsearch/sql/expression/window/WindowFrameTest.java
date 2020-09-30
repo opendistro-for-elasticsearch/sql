@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression.window;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -89,6 +90,13 @@ class WindowFrameTest {
     assertEquals(
         ImmutableList.of(new ExprIntegerValue(30)),
         windowFrame.resolveSortItemValues(0));
+  }
+
+  @Test
+  void can_check_if_no_sort_item_defined_in_window_definition() {
+    WindowFrame windowFrame = new WindowFrame(new WindowDefinition(
+        ImmutableList.of(DSL.ref("state", STRING)), emptyList()));
+    assertTrue(windowFrame.isSortItemsNotDefined());
   }
 
 }
