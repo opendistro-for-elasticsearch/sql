@@ -101,12 +101,12 @@ public class ExprTimestampValue extends AbstractExprValue {
 
   @Override
   public int compare(ExprValue other) {
-    return timestamp.compareTo(other.timestampValue());
+    return timestamp.compareTo(other.timestampValue().atZone(ZONE).toInstant());
   }
 
   @Override
   public boolean equal(ExprValue other) {
-    return timestamp.equals(other.timestampValue());
+    return timestamp.equals(other.timestampValue().atZone(ZONE).toInstant());
   }
 
   @Override

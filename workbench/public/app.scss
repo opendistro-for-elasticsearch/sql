@@ -21,8 +21,8 @@
 }
 
 .sql-console-query-editor {
-  height: 430px;
-  max-height: 430px;
+  height: 280px;
+  max-height: 280px;
   .container-panel {
     border-radius: 0px;
     box-shadow: none;
@@ -30,15 +30,11 @@
   .sql-query-panel {
     border-radius: 0px;
     border-width: 1px;
-    border-right-width: 0.5px;
     box-shadow: none;
   }
   .sql-query-panel-header {
     padding: $euiSizeS;
     background-color: $euiColorLightestShade;
-  }
-  .action-container {
-    padding: $euiSizeM;
   }
   .resize-panel {
     resize: vertical;
@@ -48,10 +44,12 @@
   .sql-editor-link:visited {
     background-color: rgb(255,255,255);
   }
-  .sql-editor-button {
-    margin:10px;
-  }
 }
+
+.action-container {
+  padding: $euiSizeL;
+}
+
 .sql-console-query-result{
   height: 577px;
   scroll-behavior: smooth;

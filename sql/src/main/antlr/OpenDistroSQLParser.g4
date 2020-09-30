@@ -217,8 +217,12 @@ scalarFunctionName
     ;
 
 aggregateFunction
-    : functionName=(AVG | SUM) LR_BRACKET functionArg RR_BRACKET
+    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET
     /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
+    ;
+
+aggregationFunctionName
+    : AVG | COUNT | SUM | MIN | MAX
     ;
 
 mathematicalFunctionName

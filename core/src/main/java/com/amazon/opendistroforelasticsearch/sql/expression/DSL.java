@@ -329,16 +329,16 @@ public class DSL {
     return function(BuiltinFunctionName.TIMESTAMP, expressions);
   }
 
-  public FunctionExpression week(Expression... expressions) {
-    return function(BuiltinFunctionName.WEEK, expressions);
-  }
-
   public FunctionExpression date_format(Expression... expressions) {
     return function(BuiltinFunctionName.DATE_FORMAT, expressions);
   }
 
   public FunctionExpression to_days(Expression... expressions) {
     return function(BuiltinFunctionName.TO_DAYS, expressions);
+  }
+
+  public FunctionExpression week(Expression... expressions) {
+    return function(BuiltinFunctionName.WEEK, expressions);
   }
 
   public FunctionExpression year(Expression... expressions) {
@@ -459,6 +459,14 @@ public class DSL {
 
   public Aggregator count(Expression... expressions) {
     return aggregate(BuiltinFunctionName.COUNT, expressions);
+  }
+
+  public Aggregator min(Expression... expressions) {
+    return aggregate(BuiltinFunctionName.MIN, expressions);
+  }
+
+  public Aggregator max(Expression... expressions) {
+    return aggregate(BuiltinFunctionName.MAX, expressions);
   }
 
   private FunctionExpression function(BuiltinFunctionName functionName, Expression... expressions) {

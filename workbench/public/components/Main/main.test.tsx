@@ -84,7 +84,7 @@ describe("<Main /> spec", () => {
     const { getByText } = render(
       <Main httpClient={client} sqlQueriesString={'test'} />
     );
-    const onTranslateButton = getByText('JSON Translation');
+    const onTranslateButton = getByText('Explain');
     const asyncTest = () => {
       fireEvent.click(onTranslateButton);
     };

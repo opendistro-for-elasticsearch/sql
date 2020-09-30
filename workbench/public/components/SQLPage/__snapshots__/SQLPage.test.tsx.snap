@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<QueryEditor /> spec renders the component 1`] = `
+exports[`<SQLPage /> spec renders the component 1`] = `
 <div>
   <div
-    class="euiPanel sql-console-query-editor container-panel"
+    class="euiPanel sql-query-editor container-panel"
   >
     <div
-      class="euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
+      class="sql-console-query-editor"
     >
       <div
-        class="euiFlexItem euiFlexItem--flexGrow1 sql-query-panel"
+        class="euiPanel sql-query-editor container-panel"
       >
         <div
           class="euiText euiText--medium sql-query-panel-header"
@@ -19,7 +19,7 @@ exports[`<QueryEditor /> spec renders the component 1`] = `
         <div
           class="euiCodeEditorWrapper"
           data-test-subj="codeEditorContainer"
-          style="width: 100%; height: 18.5rem;"
+          style="width: 100%; height: 15rem;"
         >
           <div
             class="euiCodeEditorKeyboardHint"
@@ -40,9 +40,9 @@ exports[`<QueryEditor /> spec renders the component 1`] = `
             </p>
           </div>
           <div
-            class=" ace_editor ace-sql-console"
+            class=" ace_editor ace-tm"
             id="some_html_id"
-            style="width: 100%; height: 18.5rem; font-size: 12px;"
+            style="width: 100%; height: 15rem; font-size: 12px;"
           >
             <textarea
               aria-label="Code Editor"
@@ -185,7 +185,7 @@ exports[`<QueryEditor /> spec renders the component 1`] = `
               <span
                 class="euiButton__text"
               >
-                JSON Translation
+                Explain
               </span>
             </span>
           </button>
@@ -196,16 +196,16 @@ exports[`<QueryEditor /> spec renders the component 1`] = `
 </div>
 `;
 
-exports[`<QueryEditor /> spec tests the action buttons 1`] = `
+exports[`<SQLPage /> spec tests the action buttons 1`] = `
 <div>
   <div
-    class="euiPanel sql-console-query-editor container-panel"
+    class="euiPanel sql-query-editor container-panel"
   >
     <div
-      class="euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
+      class="sql-console-query-editor"
     >
       <div
-        class="euiFlexItem euiFlexItem--flexGrow1 sql-query-panel"
+        class="euiPanel sql-query-editor container-panel"
       >
         <div
           class="euiText euiText--medium sql-query-panel-header"
@@ -215,7 +215,7 @@ exports[`<QueryEditor /> spec tests the action buttons 1`] = `
         <div
           class="euiCodeEditorWrapper"
           data-test-subj="codeEditorContainer"
-          style="width: 100%; height: 18.5rem;"
+          style="width: 100%; height: 15rem;"
         >
           <div
             class="euiCodeEditorKeyboardHint"
@@ -236,9 +236,9 @@ exports[`<QueryEditor /> spec tests the action buttons 1`] = `
             </p>
           </div>
           <div
-            class=" ace_editor ace-sql-console"
+            class=" ace_editor ace-tm"
             id="some_html_id"
-            style="width: 100%; height: 18.5rem; font-size: 12px;"
+            style="width: 100%; height: 15rem; font-size: 12px;"
           >
             <textarea
               aria-label="Code Editor"
@@ -381,7 +381,7 @@ exports[`<QueryEditor /> spec tests the action buttons 1`] = `
               <span
                 class="euiButton__text"
               >
-                JSON Translation
+                Explain
               </span>
             </span>
           </button>

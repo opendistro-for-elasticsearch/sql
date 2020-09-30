@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-import { SQL_TRANSLATE_ROUTE, SQL_QUERY_ROUTE, PPL_QUERY_ROUTE, PPL_TRANSLATE_ROUTE, FORMAT_CSV, FORMAT_JSON, FORMAT_TEXT } from '../../services/utils/constants';
+import { SQL_TRANSLATE_ROUTE, SQL_QUERY_ROUTE, PPL_QUERY_ROUTE, PPL_TRANSLATE_ROUTE, FORMAT_CSV, FROMAT_JDBC, FORMAT_JSON, FORMAT_TEXT } from '../../services/utils/constants';
 
 export default function sqlPlugin(Client, config, components) {
   const ca = components.clientAction.factory;
@@ -53,15 +53,7 @@ export default function sqlPlugin(Client, config, components) {
     method: 'POST',
   }); //default: jdbc
 
-  sql.getJdbc = ca({
-    url: {
-      fmt: `${SQL_QUERY_ROUTE}`,
-    },
-    needBody: true,
-    method: 'POST',
-  });
-
-  sql.getJson = ca({
+  sql.sqlJson = ca({
     url: {
       fmt: `${SQL_QUERY_ROUTE}?${FORMAT_JSON}`,
     },
@@ -69,7 +61,15 @@ export default function sqlPlugin(Client, config, components) {
     method: 'POST',
   });
 
-  sql.getCsv = ca({
+  sql.pplJson = ca({
+    url: {
+      fmt: `${PPL_QUERY_ROUTE}?${FORMAT_JSON}`,
+    },
+    needBody: true,
+    method: 'POST',
+  });
+
+  sql.sqlCsv = ca({
     url: {
       fmt: `${SQL_QUERY_ROUTE}?${FORMAT_CSV}`,
     },
@@ -77,11 +77,27 @@ export default function sqlPlugin(Client, config, components) {
     method: 'POST',
   });
 
-  sql.getText = ca({
+  sql.pplCsv = ca({
+    url: {
+      fmt: `${PPL_QUERY_ROUTE}?${FORMAT_CSV}`,
+    },
+    needBody: true,
+    method: 'POST',
+  });
+
+  sql.sqlText = ca({
     url: {
       fmt: `${SQL_QUERY_ROUTE}?${FORMAT_TEXT}`,
     },
     needBody: true,
     method: 'POST',
-  })
+  });
+
+  sql.pplText = ca({
+    url: {
+      fmt: `${PPL_QUERY_ROUTE}?${FORMAT_TEXT}`,
+    },
+    needBody: true,
+    method: 'POST',
+  });
 }

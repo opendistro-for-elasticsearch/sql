@@ -40,6 +40,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -822,16 +823,33 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(integerValue(expectedResult), eval(expression));
   }
 
-  @Test
-  public void week() {
-    when(nullRef.type()).thenReturn(DATE);
-    when(missingRef.type()).thenReturn(DATE);
+  private void testNullMissingWeek(ExprCoreType date) {
+    when(nullRef.type()).thenReturn(date);
+    when(missingRef.type()).thenReturn(date);
     assertEquals(nullValue(), eval(dsl.week(nullRef)));
     assertEquals(missingValue(), eval(dsl.week(missingRef)));
+  }
 
-    FunctionExpression expression = dsl.week(DSL.literal(new ExprDateValue("2019-01-05")));
+  @Test
+  public void week() {
+    testNullMissingWeek(DATE);
+    testNullMissingWeek(DATETIME);
+    testNullMissingWeek(TIMESTAMP);
+    testNullMissingWeek(STRING);
+
+    when(nullRef.type()).thenReturn(INTEGER);
+    when(missingRef.type()).thenReturn(INTEGER);
+    assertEquals(nullValue(), eval(dsl.week(DSL.literal("2019-01-05"), nullRef)));
+    assertEquals(missingValue(), eval(dsl.week(DSL.literal("2019-01-05"), missingRef)));
+
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(INTEGER);
+    assertEquals(missingValue(), eval(dsl.week(nullRef, missingRef)));
+
+    FunctionExpression expression = dsl
+        .week(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
     assertEquals(INTEGER, expression.type());
-    assertEquals("week(DATE '2019-01-05')", expression.toString());
+    assertEquals("week(TIMESTAMP '2019-01-05 01:02:03')", expression.toString());
     assertEquals(integerValue(0), eval(expression));
 
     expression = dsl.week(DSL.literal("2019-01-05"));
