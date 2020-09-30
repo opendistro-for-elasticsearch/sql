@@ -398,7 +398,7 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
 
     String date = "1998-01-31";
     String dateFormat = "%U %u %V %v %W %w %X %x %Y %y";
-    String dateFormatted = "4 5 4 5 Saturday 6 1998 1998 1998 98";
+    String dateFormatted = "4 4 4 4 Saturday 6 1998 1998 1998 98";
     verifyDateFormat(date, "date", dateFormat, dateFormatted);
   }
 
