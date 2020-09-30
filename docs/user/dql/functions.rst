@@ -835,6 +835,37 @@ Example::
     +----------------------+------------------------------------------+
 
 
+DATE_ADD
+--------
+
+Description
+>>>>>>>>>>>
+
+Usage: date_add(date, INTERVAL expr unit)/ date_add(date, expr) adds the time interval expr to date
+
+Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
+
+Return type map:
+
+DATE/DATETIME/TIMESTAMP/STRING, INTERVAL -> DATETIME
+
+DATE, LONG -> DATE
+
+DATETIME/TIMESTAMP/STRING, LONG -> DATETIME
+
+Synonyms: `ADDDATE`_
+
+Example::
+
+    od> SELECT DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR), DATE_ADD(DATE('2020-08-26'), 1), DATE_ADD(TIMESTAMP('2020-08-26 01:01:01'), 1)
+    fetched rows / total rows = 1/1
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+    | DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR)   | DATE_ADD(DATE('2020-08-26'), 1)   | DATE_ADD(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
+    |-------------------------------------------------+-----------------------------------+-------------------------------------------------|
+    | 2020-08-26 01:00:00                             | 2020-08-27                        | 2020-08-27 01:01:01                             |
+    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
+
+
 DATE_FORMAT
 -----------
 
@@ -929,37 +960,6 @@ Example::
     |-----------------------------------------------+----------------------------------------------------------------|
     | '13:14:15.012345'                             | '1998-Jan-31st 01:14:15 PM'                                    |
     +-----------------------------------------------+----------------------------------------------------------------+
-
-
-DATE_ADD
---------
-
-Description
->>>>>>>>>>>
-
-Usage: date_add(date, INTERVAL expr unit)/ date_add(date, expr) adds the time interval expr to date
-
-Argument type: DATE/DATETIME/TIMESTAMP/STRING, INTERVAL/LONG
-
-Return type map:
-
-DATE/DATETIME/TIMESTAMP/STRING, INTERVAL -> DATETIME
-
-DATE, LONG -> DATE
-
-DATETIME/TIMESTAMP/STRING, LONG -> DATETIME
-
-Synonyms: `ADDDATE`_
-
-Example::
-
-    od> SELECT DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR), DATE_ADD(DATE('2020-08-26'), 1), DATE_ADD(TIMESTAMP('2020-08-26 01:01:01'), 1)
-    fetched rows / total rows = 1/1
-    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
-    | DATE_ADD(DATE('2020-08-26'), INTERVAL 1 HOUR)   | DATE_ADD(DATE('2020-08-26'), 1)   | DATE_ADD(TIMESTAMP('2020-08-26 01:01:01'), 1)   |
-    |-------------------------------------------------+-----------------------------------+-------------------------------------------------|
-    | 2020-08-26 01:00:00                             | 2020-08-27                        | 2020-08-27 01:01:01                             |
-    +-------------------------------------------------+-----------------------------------+-------------------------------------------------+
 
 
 DATE_SUB
@@ -1422,6 +1422,9 @@ Example::
 WEEK
 ----
 
+Description
+>>>>>>>>>>>
+
 Usage: week(date[, mode]) returns the week number for date. If the mode argument is omitted, the default mode 0 is used.
 
 .. list-table:: The following table describes how the mode argument works.
@@ -1482,6 +1485,9 @@ Example::
 
 TO_DAYS
 -------
+
+Description
+>>>>>>>>>>>
 
 Usage: to_days(date) returns the day number (the number of days since year 0) of the given date. Returns NULL if date is invalid.
 
