@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class converts a SQL style DATE_FORMAT format specifier and converts it to a
@@ -72,8 +74,8 @@ class DateTimeFormatterUtil {
           String.format("'%d'", CalendarLookup.getYearNumber(3, date.toLocalDate())))
       .build();
 
-  private static final String MOD = "%";
-  private static final String QUOTE_LITERAL = "'";
+  private static final Pattern pattern = Pattern.compile("%.");
+  private static final String MOD_LITERAL = "%";
 
   private DateTimeFormatterUtil() {
   }
@@ -85,19 +87,22 @@ class DateTimeFormatterUtil {
    * @return Date formatted using format and returned as a String.
    */
   static ExprValue getFormattedDate(ExprValue dateExpr, ExprValue formatExpr) {
-    String format = formatExpr.stringValue();
     final LocalDateTime date = dateExpr.datetimeValue();
-    for (Map.Entry<String, DateTimeFormatHandler> handler: HANDLERS.entrySet()) {
-      if (format.contains(handler.getKey())) {
-        format = format.replace(handler.getKey(), handler.getValue().getFormat(date));
-      }
+    final Matcher matcher = pattern.matcher(formatExpr.stringValue());
+    final StringBuffer format = new StringBuffer();
+    while (matcher.find()) {
+      matcher.appendReplacement(format,
+          HANDLERS.getOrDefault(matcher.group(), (d) ->
+              String.format("'%s'", matcher.group().replaceFirst(MOD_LITERAL, "")))
+              .getFormat(date));
     }
-    format = literalReplace(format);
+    matcher.appendTail(format);
 
     // English Locale matches SQL requirements.
     // 'AM'/'PM' instead of 'a.m.'/'p.m.'
     // 'Sat' instead of 'Sat.' etc
-    return new ExprStringValue(date.format(DateTimeFormatter.ofPattern(format, Locale.ENGLISH)));
+    return new ExprStringValue(date.format(
+        DateTimeFormatter.ofPattern(format.toString(), Locale.ENGLISH)));
   }
 
   /**
@@ -111,21 +116,5 @@ class DateTimeFormatterUtil {
       return SUFFIX_SPECIAL_TH;
     }
     return SUFFIX_CONVERTER.getOrDefault(val % 10, SUFFIX_SPECIAL_TH);
-  }
-
-  /**
-   * Goes through format String and replaces any %x with 'x' where x is unmapped.
-   * @param format Incoming format String without mapping completed.
-   * @return Outgoing format String with mapping completed.
-   */
-  private static String literalReplace(String format) {
-    // Need to do %x=>'x' for any % not listed
-    int index = format.indexOf(MOD);
-    while ((index != -1) && ((index + 2) <= format.length())) {
-      String substr = format.substring(index, index + 2);
-      format = format.replace(substr, substr.replaceFirst(MOD, QUOTE_LITERAL) + QUOTE_LITERAL);
-      index = format.indexOf(MOD, index + 2);
-    }
-    return format;
   }
 }
