@@ -14,8 +14,8 @@
  */
 
 .ace-sql-console .ace_gutter {
-  background: rgb(245, 247, 250); /* $euiColorLightestShade */
-  color: rgb(105, 112, 125); /* $$euiColorDarkShade */
+  background: rgb(237, 239, 243);
+  color: rgb(0, 0, 0);
 }
 
 .ace-sql-console .ace_print-margin {
@@ -46,7 +46,7 @@
 
 .ace-sql-console .ace_storage,
 .ace-sql-console .ace_keyword {
-  color: blue;
+  color: rgb(157, 106, 242);
 }
 
 .ace-sql-console .ace_constant {

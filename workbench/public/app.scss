@@ -21,20 +21,12 @@
 }
 
 .sql-console-query-editor {
-  height: 280px;
-  max-height: 280px;
   .container-panel {
     border-radius: 0px;
     box-shadow: none;
   }
-  .sql-query-panel {
-    border-radius: 0px;
-    border-width: 1px;
-    box-shadow: none;
-  }
   .sql-query-panel-header {
-    padding: $euiSizeS;
-    background-color: $euiColorLightestShade;
+    margin-top: -10px;
   }
   .resize-panel {
     resize: vertical;
@@ -46,12 +38,7 @@
   }
 }
 
-.action-container {
-  padding: $euiSizeL;
-}
-
 .sql-console-query-result{
-  height: 577px;
   scroll-behavior: smooth;
   .sql-console-results-container {
     overflow: auto;

@@ -25,10 +25,15 @@ import {
   EuiModalHeaderTitle,
   EuiModalBody,
   EuiModalFooter,
-  EuiCodeBlock, EuiText, EuiCodeEditor
+  EuiCodeBlock,
+  EuiText,
+  EuiCodeEditor,
+  EuiSpacer,
 } from "@elastic/eui";
 import { ResponseDetail, TranslateResult } from '../Main/main';
 import _ from 'lodash';
+import "brace/mode/sql";
+import "../../ace-themes/sql_console";
 
 interface SQLPageProps {
   onRun: (query: string) => void,
@@ -73,7 +78,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
         <EuiOverlayMask onClick={closeModal}>
           <EuiModal onClose={closeModal}>
             <EuiModalHeader>
-              <EuiModalHeaderTitle>Explain</EuiModalHeaderTitle>
+              <EuiModalHeaderTitle>JSON translation</EuiModalHeaderTitle>
             </EuiModalHeader>
 
             <EuiModalBody>
@@ -97,66 +102,58 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
     }
 
     return (
-      <EuiPanel className="sql-query-editor container-panel"
-        paddingSize="none"
-      >
-        <div className="sql-console-query-editor">
-          <EuiPanel className="sql-query-editor container-panel"
-            paddingSize="none"
+      <EuiPanel className="sql-console-query-editor container-panel" paddingSize="l">
+        <EuiText className="sql-query-panel-header"><h3>Query Editor</h3></EuiText>
+        <EuiSpacer size="s" />
+        <EuiCodeEditor
+          mode="sql"
+          theme="sql_console"
+          width="100%"
+          height="15rem"
+          value={this.props.sqlQuery}
+          onChange={this.props.updateSQLQueries}
+          showPrintMargin={false}
+          setOptions={{
+            fontSize: "14px",
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+          }}
+          aria-label="Code Editor"
+        />
+        <EuiSpacer />
+        <EuiFlexGroup className="action-container" gutterSize="m">
+          <EuiFlexItem
+            grow={false}
+            onClick={() => this.props.onRun(this.props.sqlQuery)}
           >
-            <EuiText className="sql-query-panel-header">Query Editor</EuiText>
-            <EuiCodeEditor
-              mode="sql"
-              theme="sql_console"
-              width="100%"
-              height="15rem"
-              value={this.props.sqlQuery}
-              onChange={this.props.updateSQLQueries}
-              showPrintMargin={false}
-              setOptions={{
-                fontSize: "12px",
-                enableBasicAutocompletion: true,
-                enableSnippets: true,
-                enableLiveAutocompletion: true
-              }}
-              aria-label="Code Editor"
-            />
-          </EuiPanel>
-        </div>
-        <div>
-          <EuiFlexGroup className="action-container" gutterSize="m">
-            <EuiFlexItem
-              grow={false}
-              onClick={() => this.props.onRun(this.props.sqlQuery)}
-            >
-              <EuiButton fill={true} className="sql-editor-button" >
-                Run
-              </EuiButton>
-            </EuiFlexItem>
-            <EuiFlexItem
-              grow={false}
-              onClick={() => {
-                this.props.updateSQLQueries("");
-                this.props.onClear();
-              }}
-            >
-              <EuiButton className="sql-editor-button">
-                Clear
-              </EuiButton>
-            </EuiFlexItem>
-            <EuiFlexItem
-              grow={false}
-              onClick={() =>
-                this.props.onTranslate(this.props.sqlQuery)
-              }
-            >
-              <EuiButton className="sql-editor-button" onClick={showModal}>
-                Explain
-              </EuiButton>
-              {modal}
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </div>
+            <EuiButton fill={true} className="sql-editor-button" >
+              Run
+            </EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem
+            grow={false}
+            onClick={() => {
+              this.props.updateSQLQueries("");
+              this.props.onClear();
+            }}
+          >
+            <EuiButton className="sql-editor-button">
+              Clear
+            </EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem
+            grow={false}
+            onClick={() =>
+              this.props.onTranslate(this.props.sqlQuery)
+            }
+          >
+            <EuiButton className="sql-editor-button" onClick={showModal}>
+              JSON translation
+            </EuiButton>
+            {modal}
+          </EuiFlexItem>
+        </EuiFlexGroup>
       </EuiPanel>
     )
   }

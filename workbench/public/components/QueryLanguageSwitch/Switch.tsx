@@ -55,7 +55,7 @@ class Switch extends React.Component<SwitchProps, SwitchState> {
                 options={toggleButtons}
                 onChange={(id) => this.props.onChange(id)}
                 idSelected={this.props.language}
-                color={"primary"}
+                buttonSize="m"
             />
         )
     }

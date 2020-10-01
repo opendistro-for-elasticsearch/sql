@@ -14,7 +14,7 @@
  */
 
 import React from "react";
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from "@elastic/eui";
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton, EuiTitle } from "@elastic/eui";
 import { IHttpResponse, IHttpService } from "angular";
 import _ from "lodash";
 import Header from "../Header/Header";
@@ -584,8 +584,13 @@ export class Main extends React.Component<MainProps, MainState> {
         <Header />
         <div className="sql-console-query-container">
           <div className="query-language-switch">
-            <EuiFlexGroup>
+            <EuiFlexGroup alignItems="center">
               <EuiFlexItem>
+                <EuiTitle size="l">
+                  <h1>Query Workbench</h1>
+                </EuiTitle>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
                 <Switch
                   onChange={this.onChange}
                   language={this.state.language}
@@ -594,6 +599,7 @@ export class Main extends React.Component<MainProps, MainState> {
               <EuiFlexItem grow={false}>
                 <EuiButton
                   href={link}
+                  target="_blank"
                   iconType="popout"
                   iconSide="right">
                   {linkTitle}
