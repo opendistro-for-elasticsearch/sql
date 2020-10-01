@@ -92,7 +92,7 @@ public abstract class QueryMock {
         @Override
         public MockResultSet getMockResultSet() {
             MockResultSetMetaData mockResultSetMetaData = MockResultSetMetaData.builder()
-                    .column("pickup_datetime", ElasticsearchType.DATE)
+                    .column("pickup_datetime", ElasticsearchType.TIMESTAMP)
                     .column("trip_type", ElasticsearchType.KEYWORD)
                     .column("passenger_count", ElasticsearchType.INTEGER)
                     .column("fare_amount", ElasticsearchType.SCALED_FLOAT)
@@ -157,7 +157,7 @@ public abstract class QueryMock {
         @Override
         public MockResultSet getMockResultSet() {
             MockResultSetMetaData mockResultSetMetaData = MockResultSetMetaData.builder()
-                    .column("pickup_datetime", ElasticsearchType.DATE)
+                    .column("pickup_datetime", ElasticsearchType.TIMESTAMP)
                     .setColumnLabel("pdt")
                     .column("trip_type", ElasticsearchType.KEYWORD)
                     .column("passenger_count", ElasticsearchType.INTEGER)

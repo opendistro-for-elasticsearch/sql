@@ -56,9 +56,8 @@ public class SumAggregator extends Aggregator<SumState> {
   public SumState iterate(BindingTuple tuple, SumState state) {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
-    if (value.isNull() || value.isMissing()) {
-      state.isNullResult = true;
-    } else {
+    if (!(value.isNull() || value.isMissing())) {
+      state.isEmptyCollection = false;
       state.add(value);
     }
     return state;
@@ -72,15 +71,16 @@ public class SumAggregator extends Aggregator<SumState> {
   /**
    * Sum State.
    */
-  protected class SumState implements AggregationState {
+  protected static class SumState implements AggregationState {
 
     private final ExprCoreType type;
     private ExprValue sumResult;
-    private boolean isNullResult = false;
+    private boolean isEmptyCollection;
 
-    public SumState(ExprCoreType type) {
+    SumState(ExprCoreType type) {
       this.type = type;
       sumResult = ExprValueUtils.integerValue(0);
+      isEmptyCollection = true;
     }
 
     /**
@@ -108,7 +108,7 @@ public class SumAggregator extends Aggregator<SumState> {
 
     @Override
     public ExprValue result() {
-      return isNullResult ? ExprNullValue.of() : sumResult;
+      return isEmptyCollection ? ExprNullValue.of() : sumResult;
     }
   }
 }

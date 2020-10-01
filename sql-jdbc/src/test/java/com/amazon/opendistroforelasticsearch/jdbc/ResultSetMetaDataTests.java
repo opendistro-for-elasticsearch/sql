@@ -43,7 +43,7 @@ public class ResultSetMetaDataTests {
             new ColumnMetaData(new ResultSetColumnDescriptor("age", "long", null)),
             new ColumnMetaData(new ResultSetColumnDescriptor("balance", "float", null)),
             new ColumnMetaData(new ResultSetColumnDescriptor("employer", "nested", null)),
-            new ColumnMetaData(new ResultSetColumnDescriptor("birthday", "date", null))
+            new ColumnMetaData(new ResultSetColumnDescriptor("birthday", "timestamp", null))
         ));
         metaData = new ResultSetMetaDataImpl(resultSet, schema);
     }

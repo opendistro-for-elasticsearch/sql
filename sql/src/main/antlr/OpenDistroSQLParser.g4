@@ -181,6 +181,7 @@ predicate
     | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate NOT? LIKE right=predicate                      #likePredicate
+    | left=predicate REGEXP right=predicate                         #regexpPredicate
     ;
 
 expressionAtom
@@ -212,11 +213,16 @@ functionCall
 scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
+    | textFunctionName
     ;
 
 aggregateFunction
-    : functionName=(AVG | SUM) LR_BRACKET functionArg RR_BRACKET
+    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET
     /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
+    ;
+
+aggregationFunctionName
+    : AVG | COUNT | SUM | MIN | MAX
     ;
 
 mathematicalFunctionName
@@ -230,7 +236,14 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : DAYOFMONTH | DATE | TIME | TIMESTAMP | ADDDATE
+    : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS 
+    | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
+    | TIMESTAMP | TO_DAYS | WEEK | YEAR
+    ;
+
+textFunctionName
+    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
+    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP
     ;
 
 functionArgs

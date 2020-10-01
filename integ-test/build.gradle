@@ -1,4 +1,5 @@
 import org.elasticsearch.gradle.test.RestIntegTestTask
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 apply plugin: 'elasticsearch.build'
 apply plugin: 'elasticsearch.rest-test'
@@ -124,6 +125,9 @@ task integTestWithNewEngine(type: RestIntegTestTask) {
 
         // Skip old semantic analyzer IT because analyzer in new engine has different behavior
         exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/QueryAnalysisIT.class'
+
+        // Skip this IT to avoid breaking tests due to inconsistency in JDBC schema
+        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/AggregationExpressionIT.class'
     }
 }
 
@@ -199,6 +203,11 @@ testClusters.comparisonTest {
 task compileJdbc(type:Exec) {
     workingDir '../sql-jdbc/'
 
-    commandLine './gradlew', 'build'
-    commandLine './gradlew', 'shadowJar'
+    if (DefaultNativePlatform.getCurrentOperatingSystem().isWindows()) {
+        commandLine './gradlew.bat', 'build'
+        commandLine './gradlew.bat', 'shadowJar'
+    } else {
+        commandLine './gradlew', 'build'
+        commandLine './gradlew', 'shadowJar'
+    }
 }
