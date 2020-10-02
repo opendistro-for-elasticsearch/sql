@@ -85,6 +85,7 @@ public class DateTimeFunction {
     repository.register(time());
     repository.register(time_to_sec());
     repository.register(timestamp());
+    repository.register(date_format());
     repository.register(to_days());
     repository.register(week());
     repository.register(year());
@@ -397,6 +398,27 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, STRING)
+    );
+  }
+
+  /**
+   * Formats date according to format specifier. First argument is date, second is format.
+   * Detailed supported signatures:
+   * (STRING, STRING) -> STRING
+   * (DATE, STRING) -> STRING
+   * (DATETIME, STRING) -> STRING
+   * (TIMESTAMP, STRING) -> STRING
+   */
+  private FunctionResolver date_format() {
+    return define(BuiltinFunctionName.DATE_FORMAT.getName(),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, DATE, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, DATETIME, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, TIMESTAMP, STRING)
     );
   }
 

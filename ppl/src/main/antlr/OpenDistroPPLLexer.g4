@@ -213,6 +213,7 @@ SUBDATE:                            'SUBDATE';
 TIME:                               'TIME';
 TIME_TO_SEC:                        'TIME_TO_SEC';
 TIMESTAMP:                          'TIMESTAMP';
+DATE_FORMAT:                        'DATE_FORMAT';
 TO_DAYS:                            'TO_DAYS';
 
 // TEXT FUNCTIONS

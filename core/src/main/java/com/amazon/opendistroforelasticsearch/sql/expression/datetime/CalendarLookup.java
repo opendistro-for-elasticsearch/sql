@@ -47,9 +47,9 @@ class CalendarLookup {
 
   /**
    * Set first day of week, minimal days in first week and date in calendar.
-   * @param firstDayOfWeek    the given first day of the week.
+   * @param firstDayOfWeek the given first day of the week.
    * @param minimalDaysInWeek the given minimal days required in the first week of the year.
-   * @param date              the given date.
+   * @param date the given date.
    */
   private static Calendar getCalendar(int firstDayOfWeek, int minimalDaysInWeek, LocalDate date) {
     Calendar calendar = Calendar.getInstance();
@@ -73,5 +73,20 @@ class CalendarLookup {
       weekNumber = 0;
     }
     return weekNumber;
+  }
+
+  /**
+   * Returns year for date according to mode.
+   * @param mode Integer for mode. Valid mode values are 0 to 7.
+   * @param date LocalDate for date.
+   */
+  static int getYearNumber(int mode, LocalDate date) {
+    Calendar calendar = getCalendar(mode, date);
+    int weekNumber = getWeekNumber(mode, date);
+    int yearNumber = calendar.get(Calendar.YEAR);
+    if ((weekNumber > 51) && (calendar.get(Calendar.DAY_OF_MONTH) < 7)) {
+      yearNumber--;
+    }
+    return yearNumber;
   }
 }

@@ -329,6 +329,10 @@ public class DSL {
     return function(BuiltinFunctionName.TIMESTAMP, expressions);
   }
 
+  public FunctionExpression date_format(Expression... expressions) {
+    return function(BuiltinFunctionName.DATE_FORMAT, expressions);
+  }
+
   public FunctionExpression to_days(Expression... expressions) {
     return function(BuiltinFunctionName.TO_DAYS, expressions);
   }
