@@ -805,39 +805,43 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
 
       return (
         <div>
-          <EuiFlexGroup alignItems="flexStart" style={{ padding: 20, paddingBottom: 0 }}>
-            {/*Table name*/}
-            <EuiFlexItem>
-              <EuiText className="table-name">
-                <h4>
-                  {this.props.selectedTabName}
-                  <span className="table-item-count">{` (${this.items.length})`}</span>
-                </h4>
-              </EuiText>
-              <div className="search-panel">
-                {/*Search Bar*/}
-                {this.renderSearchBar()}
-              </div>
-            </EuiFlexItem>
+          {this.props.language === 'SQL' && (
+            <>
+              <EuiFlexGroup alignItems="flexEnd" style={{ padding: 20, paddingBottom: 0 }}>
+                {/*Table name*/}
+                <EuiFlexItem>
+                  <EuiText className="table-name">
+                    <h4>
+                      {this.props.selectedTabName}
+                      <span className="table-item-count">{` (${this.items.length})`}</span>
+                    </h4>
+                  </EuiText>
+                  <div className="search-panel">
+                    {/*Search Bar*/}
+                    {this.renderSearchBar()}
+                  </div>
+                </EuiFlexItem>
 
-            {/*Download button*/}
-            <EuiFlexItem grow={false}>
-              <div className="download-container">
-                <EuiPopover
-                  className="download-button-container"
-                  id="singlePanel"
-                  button={downloadsButton}
-                  isOpen={this.state.isDownloadPopoverOpen}
-                  closePopover={this.closeDownloadPopover}
-                  panelPaddingSize="none"
-                  anchorPosition="downLeft"
-                >
-                  <EuiContextMenu initialPanelId={0} panels={this.panels} />
-                </EuiPopover>
-              </div>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          { modal}
+                {/*Download button*/}
+                <EuiFlexItem grow={false}>
+                  <div className="download-container">
+                    <EuiPopover
+                      className="download-button-container"
+                      id="singlePanel"
+                      button={downloadsButton}
+                      isOpen={this.state.isDownloadPopoverOpen}
+                      closePopover={this.closeDownloadPopover}
+                      panelPaddingSize="none"
+                      anchorPosition="downLeft"
+                    >
+                      <EuiContextMenu initialPanelId={0} panels={this.panels} />
+                    </EuiPopover>
+                  </div>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+              {modal}
+            </>
+          )}
 
           {/*Table*/}
           <div className="sql-console-results-container">

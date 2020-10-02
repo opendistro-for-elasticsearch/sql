@@ -189,8 +189,8 @@ export class Main extends React.Component<MainProps, MainState> {
     this.onChange = this.onChange.bind(this)
 
     this.state = {
-      language: 'SQL',
-      sqlQueriesString: "SHOW tables LIKE %",
+      language: 'PPL',
+      sqlQueriesString: "select * from accounts",
       pplQueriesString: "",
       queries: [],
       queryTranslations: [],
@@ -259,7 +259,7 @@ export class Main extends React.Component<MainProps, MainState> {
     this.setState({
       selectedTabId: tab.id,
       selectedTabName: tab.name,
-      searchQuery: " ",
+      searchQuery: "",
       itemIdToExpandedRowMap: {}
     });
   };
@@ -529,7 +529,8 @@ export class Main extends React.Component<MainProps, MainState> {
 
   onChange = (id: string) => {
     this.setState({
-      language: id
+      language: id,
+      queryResultsTable: [],
     }, () => console.log("Successfully updated language to ", this.state.language)); // added callback function to handle async issues
   }
 

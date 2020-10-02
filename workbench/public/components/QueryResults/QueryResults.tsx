@@ -170,7 +170,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     this.tabNames = [];
     if (this.props.queryResults) {
       for (let i = 0; i < this.props.queryResults.length; i += 1) {
-        const tabName = getQueryIndex(this.props.queries[i]);
+        const tabName = this.props.language === "SQL" ? getQueryIndex(this.props.queries[i]) : "Events";
         this.tabNames.push(tabName);
         if (this.props.queryResults[i].fulfilled) {
           tabs.push({

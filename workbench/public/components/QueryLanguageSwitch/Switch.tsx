@@ -30,13 +30,13 @@ interface SwitchState {
 
 const toggleButtons = [
     {
+        id: 'PPL',
+        label: 'PPL',
+    },
+    {
         id: 'SQL',
         label: 'SQL',
     },
-    {
-        id: 'PPL',
-        label: 'PPL',
-    }
 ];
 
 class Switch extends React.Component<SwitchProps, SwitchState> {
