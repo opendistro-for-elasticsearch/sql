@@ -21,10 +21,6 @@
 }
 
 .sql-console-query-editor {
-  .container-panel {
-    border-radius: 0px;
-    box-shadow: none;
-  }
   .sql-query-panel-header {
     margin-top: -10px;
   }
@@ -39,15 +35,10 @@
 }
 
 .sql-console-query-result{
+  .query-result-panel-header {
+    margin-top: -10px;
+  }
   scroll-behavior: smooth;
-  .sql-console-results-container {
-    overflow: auto;
-  }
-  .query-result-container {
-    border: solid 1.5px #d9d9d9;
-    border-radius: 0px;
-    border-bottom-width: 0;
-  }
   .tabs-container {
     overflow: hidden;
     margin: 3px;

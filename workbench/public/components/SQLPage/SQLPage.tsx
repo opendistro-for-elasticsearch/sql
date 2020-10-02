@@ -34,6 +34,7 @@ import { ResponseDetail, TranslateResult } from '../Main/main';
 import _ from 'lodash';
 import "brace/mode/sql";
 import "../../ace-themes/sql_console";
+import 'brace/ext/language_tools';
 
 interface SQLPageProps {
   onRun: (query: string) => void,
@@ -109,7 +110,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
           mode="sql"
           theme="sql_console"
           width="100%"
-          height="15rem"
+          height="7rem"
           value={this.props.sqlQuery}
           onChange={this.props.updateSQLQueries}
           showPrintMargin={false}

@@ -21,4 +21,4 @@ export const SMALL_COLUMN_WIDTH = '60px';
 
 // Tabs constants
 export const TAB_CONTAINER_ID = 'tabsContainer';
-export const MESSAGE_TAB_LABEL = 'Messages';
+export const MESSAGE_TAB_LABEL = 'Output';

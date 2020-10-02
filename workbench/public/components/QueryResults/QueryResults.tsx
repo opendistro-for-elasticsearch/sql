@@ -17,7 +17,7 @@ import React from "react";
 // @ts-ignore
 import { SortableProperties, SortableProperty } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon } from "@elastic/eui";
+import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer } from "@elastic/eui";
 import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap } from "../Main/main";
 import QueryResultsBody from "./QueryResultsBody";
 import { getQueryIndex, needsScrolling, getSelectedResults } from "../../utils/utils";
@@ -250,12 +250,10 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     ));
 
     return (
-      <EuiPanel className="query-result-container" paddingSize="none">
-        <EuiFlexGroup
-          style={{
-            padding: "10px"
-          }}
-        >
+      <EuiPanel className="query-result-container" paddingSize="l">
+        <EuiText className="query-result-panel-header"><h3>Results</h3></EuiText>
+        <EuiSpacer size="s" />
+        <EuiFlexGroup>
           {/*ARROW LEFT*/}
           {this.state.tabsOverflow && (
             <div className="tab-arrow-down-container">
@@ -314,8 +312,6 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
             </div>
           )}
         </EuiFlexGroup>
-
-        <EuiHorizontalRule margin="none" />
 
         {/*RESULTS TABLE*/}
         <QueryResultsBody
