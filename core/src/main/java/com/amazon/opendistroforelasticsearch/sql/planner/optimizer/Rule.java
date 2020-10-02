@@ -21,9 +21,22 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
 
+/**
+ * Optimization Rule.
+ * @param <T> LogicalPlan.
+ */
 public interface Rule<T> {
 
+  /**
+   * Get the {@link Pattern}.
+   */
   Pattern<T> pattern();
 
+  /**
+   * Apply the Rule to the LogicalPlan.
+   * @param plan LogicalPlan which match the Pattern.
+   * @param captures A list of LogicalPlan which are captured by the Pattern.
+   * @return the transfromed LogicalPlan.
+   */
   LogicalPlan apply(T plan, Captures captures);
 }
