@@ -1,0 +1,17 @@
+{
+  "root": {
+    "name": "ProjectOperator",
+    "description": {
+      "fields": "[avg_age, city, state]"
+    },
+    "children": [
+      {
+        "name": "ElasticsearchIndexScan",
+        "description": {
+          "request": "ElasticsearchQueryRequest(indexName\u003delasticsearch-sql_test_index_account, sourceBuilder\u003d{\"from\":0,\"size\":0,\"timeout\":\"1m\",\"query\":{\"range\":{\"age\":{\"from\":30,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}},\"sort\":[{\"_doc\":{\"order\":\"asc\"}}],\"aggregations\":{\"composite_buckets\":{\"composite\":{\"size\":1000,\"sources\":[{\"state\":{\"terms\":{\"field\":\"state.keyword\",\"missing_bucket\":true,\"order\":\"asc\"}}},{\"city\":{\"terms\":{\"field\":\"city.keyword\",\"missing_bucket\":true,\"order\":\"asc\"}}}]},\"aggregations\":{\"avg_age\":{\"avg\":{\"field\":\"age\"}}}}}}, searchDone\u003dfalse)"
+        },
+        "children": []
+      }
+    ]
+  }
+}

@@ -21,6 +21,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
@@ -38,6 +39,8 @@ public class Planner {
    */
   private final StorageEngine storageEngine;
 
+  private final LogicalPlanOptimizer logicalOptimizer;
+
   /**
    * Generate optimal physical plan for logical plan. If no table involved,
    * translate logical plan to physical by default implementor.
@@ -53,7 +56,7 @@ public class Planner {
     }
 
     Table table = storageEngine.getTable(tableName);
-    return table.implement(plan);
+    return table.implement(optimize(plan));
   }
 
   private String findTableName(LogicalPlan plan) {
@@ -75,4 +78,7 @@ public class Planner {
     }, null);
   }
 
+  private LogicalPlan optimize(LogicalPlan plan) {
+    return logicalOptimizer.optimize(plan);
+  }
 }

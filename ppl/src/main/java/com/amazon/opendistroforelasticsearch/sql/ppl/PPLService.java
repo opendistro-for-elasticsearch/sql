@@ -23,8 +23,11 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.planner.Planner;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
@@ -45,9 +48,12 @@ public class PPLService {
 
   private final ExecutionEngine executionEngine;
 
+  private final BuiltinFunctionRepository repository;
+
   /**
    * Execute the {@link PPLQueryRequest}, using {@link ResponseListener} to get response.
-   * @param request {@link PPLQueryRequest}
+   *
+   * @param request  {@link PPLQueryRequest}
    * @param listener {@link ResponseListener}
    */
   public void execute(PPLQueryRequest request, ResponseListener<QueryResponse> listener) {
@@ -84,7 +90,8 @@ public class PPLService {
         new AnalysisContext());
 
     // 3.Generate optimal physical plan from logical plan
-    return new Planner(storageEngine).plan(logicalPlan);
+    return new Planner(storageEngine, LogicalPlanOptimizer.create(new DSL(repository)))
+        .plan(logicalPlan);
   }
 
 }

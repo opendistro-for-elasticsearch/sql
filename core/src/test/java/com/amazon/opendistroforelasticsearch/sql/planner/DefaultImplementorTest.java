@@ -45,6 +45,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScanAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
@@ -57,8 +59,21 @@ import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class DefaultImplementorTest {
+
+  @Mock
+  private Expression filter;
+
+  @Mock
+  private NamedAggregator aggregator;
+
+  @Mock
+  private NamedExpression groupBy;
 
   private final DefaultImplementor<Object> implementor = new DefaultImplementor<>();
 
@@ -152,4 +167,17 @@ class DefaultImplementorTest {
         () -> new LogicalRelation("test").accept(implementor, null));
   }
 
+  @Test
+  public void visitIndexScanShouldThrowException() {
+    assertThrows(UnsupportedOperationException.class,
+        () -> new LogicalIndexScan("test", filter).accept(implementor, null));
+  }
+
+  @Test
+  public void visitIndexScanAggShouldThrowException() {
+    assertThrows(UnsupportedOperationException.class,
+        () -> new LogicalIndexScanAggregation("test", Arrays.asList(aggregator),
+            Arrays.asList(groupBy)).accept(implementor,
+            null));
+  }
 }

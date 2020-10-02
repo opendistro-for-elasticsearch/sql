@@ -28,18 +28,26 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalDedupe extends LogicalPlan {
-  private final LogicalPlan child;
+
   private final List<Expression> dedupeList;
   private final Integer allowedDuplication;
   private final Boolean keepEmpty;
   private final Boolean consecutive;
 
-  @Override
-  public List<LogicalPlan> getChild() {
-    return Arrays.asList(child);
+  /**
+   * Constructor of LogicalDedupe.
+   */
+  public LogicalDedupe(
+      LogicalPlan child,
+      List<Expression> dedupeList, Integer allowedDuplication, Boolean keepEmpty,
+      Boolean consecutive) {
+    super(Arrays.asList(child));
+    this.dedupeList = dedupeList;
+    this.allowedDuplication = allowedDuplication;
+    this.keepEmpty = keepEmpty;
+    this.consecutive = consecutive;
   }
 
   @Override

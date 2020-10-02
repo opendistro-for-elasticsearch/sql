@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.assertJsonEquals;
+
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URI;
@@ -32,9 +34,8 @@ public class ExplainIT extends PPLIntegTestCase {
 
   @Test
   public void testExplain() throws Exception {
-    URI uri = Resources.getResource("expectedOutput/ppl/explain_output.json").toURI();
-    String expected = new String(Files.readAllBytes(Paths.get(uri)));
-    assertEquals(
+    String expected = loadFromFile("expectedOutput/ppl/explain_output.json");
+    assertJsonEquals(
         expected,
         explainQueryToString(
             "source=elasticsearch-sql_test_index_account"
@@ -48,4 +49,35 @@ public class ExplainIT extends PPLIntegTestCase {
     );
   }
 
+  @Test
+  public void testFilterPushDownExplain() throws Exception {
+    String expected = loadFromFile("expectedOutput/ppl/explain_filter_push.json");
+
+    assertJsonEquals(
+        expected,
+        explainQueryToString(
+            "source=elasticsearch-sql_test_index_account"
+                + "| where age > 30 "
+                + "| where age < 40 "
+                + "| where balance > 10000 ")
+    );
+  }
+
+  @Test
+  public void testFilterAndAggPushDownExplain() throws Exception {
+    String expected = loadFromFile("expectedOutput/ppl/explain_filter_agg_push.json");
+
+    assertJsonEquals(
+        expected,
+        explainQueryToString(
+            "source=elasticsearch-sql_test_index_account"
+                + "| where age > 30 "
+                + "| stats avg(age) AS avg_age by state, city")
+    );
+  }
+
+  String loadFromFile(String filename) throws Exception {
+    URI uri = Resources.getResource(filename).toURI();
+    return new String(Files.readAllBytes(Paths.get(uri)));
+  }
 }

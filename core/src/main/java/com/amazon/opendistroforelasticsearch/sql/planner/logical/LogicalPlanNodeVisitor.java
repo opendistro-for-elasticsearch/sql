@@ -75,4 +75,11 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
     return visitNode(plan, context);
   }
 
+  public R visitIndexScan(LogicalIndexScan plan, C context) {
+    return visitNode(plan, context);
+  }
+
+  public R visitIndexScanAggregation(LogicalIndexScanAggregation plan, C context) {
+    return visitNode(plan, context);
+  }
 }

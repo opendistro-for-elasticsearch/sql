@@ -100,6 +100,22 @@ public class LogicalPlanDSL {
     return new LogicalRareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupByList);
   }
 
+  public static LogicalPlan indexScan(String tableName, Expression filter) {
+    return new LogicalIndexScan(tableName, filter);
+  }
+
+  public static LogicalPlan indexScanAgg(String tableName, List<NamedAggregator> aggregators,
+                                         List<NamedExpression> groupByList) {
+    return new LogicalIndexScanAggregation(tableName, aggregators, groupByList);
+  }
+
+  public static LogicalPlan indexScanAgg(String tableName,
+                                         Expression filter,
+                                         List<NamedAggregator> aggregators,
+                                         List<NamedExpression> groupByList) {
+    return new LogicalIndexScanAggregation(tableName, filter, aggregators, groupByList);
+  }
+
   @SafeVarargs
   public LogicalPlan values(List<LiteralExpression>... values) {
     return new LogicalValues(Arrays.asList(values));
