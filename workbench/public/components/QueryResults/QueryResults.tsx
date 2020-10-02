@@ -17,11 +17,12 @@ import React from "react";
 // @ts-ignore
 import { SortableProperties, SortableProperty } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer } from "@elastic/eui";
+import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer, EuiTextAlign } from "@elastic/eui";
 import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap } from "../Main/main";
 import QueryResultsBody from "./QueryResultsBody";
 import { getQueryIndex, needsScrolling, getSelectedResults } from "../../utils/utils";
 import { DEFAULT_NUM_RECORDS_PER_PAGE, MESSAGE_TAB_LABEL, TAB_CONTAINER_ID } from "../../utils/constants";
+import { PanelWrapper } from '../../utils/PanelWrapper';
 
 interface QueryResultsProps {
   language: string;
@@ -250,100 +251,128 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     ));
 
     return (
-      <EuiPanel className="query-result-container" paddingSize="l">
-        <EuiText className="query-result-panel-header"><h3>Results</h3></EuiText>
-        <EuiSpacer size="s" />
-        <EuiFlexGroup>
-          {/*ARROW LEFT*/}
-          {this.state.tabsOverflow && (
-            <div className="tab-arrow-down-container">
-              <EuiFlexItem grow={false}>
-                <EuiPopover
-                  button={tabArrowLeft}
-                  data-test-subj="slide-left"
+      <EuiPanel className="query-result-container" paddingSize="none">
+        <EuiText className="query-result-panel-header">
+          <h3>Results</h3>
+        </EuiText>
+        {this.props.queryResults.length === 0 ? (
+          // show no results message instead of the results table when there are no results
+          <>
+            <EuiSpacer size="xxl" />
+            <EuiSpacer size="xl" />
+            <EuiText style={{ color: "#3f3f3f" }}>
+              <EuiTextAlign textAlign="center">
+                <h4>No result</h4>
+              </EuiTextAlign>
+              <EuiTextAlign textAlign="center">
+                <p>Enter a query in the Query editor above to see results</p>
+              </EuiTextAlign>
+            </EuiText>
+            <EuiSpacer size="xxl" />
+            <EuiSpacer size="xl" />
+          </>
+        ) : (
+            <>
+              <EuiFlexGroup
+                style={{
+                  padding: 5
+                }}
+              >
+                {/*ARROW LEFT*/}
+                {this.state.tabsOverflow && (
+                  <div className="tab-arrow-down-container">
+                    <EuiFlexItem grow={false}>
+                      <EuiPopover
+                        button={tabArrowLeft}
+                        data-test-subj="slide-left"
+                      >
+                        <EuiContextMenuPanel items={tabsItems} />
+                      </EuiPopover>
+                    </EuiFlexItem>
+                  </div>
+                )}
+
+                {/*TABS*/}
+                <EuiFlexGroup
+                  className="tabs-container"
+                  alignItems="center"
+                  gutterSize="s"
+                  id="tabsContainer"
                 >
-                  <EuiContextMenuPanel items={tabsItems} />
-                </EuiPopover>
-              </EuiFlexItem>
-            </div>
-          )}
-
-          {/*TABS*/}
-          <EuiFlexGroup
-            className="tabs-container"
-            alignItems="center"
-            gutterSize="s"
-            id="tabsContainer"
-          >
-            <EuiFlexItem
-              style={{ marginTop: "8px", marginBottom: "18px" }}
-              grow={false}
-            >
-              <EuiTabs>{tabsButtons}</EuiTabs>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-
-          {/*ARROW RIGHT and DOWN*/}
-          {this.state.tabsOverflow && (
-            <div className="tab-arrow-down-container">
-              <EuiFlexGroup>
-                <EuiFlexItem grow={false}>
-                  <EuiPopover
-                    button={tabArrowRight}
-                    data-test-subj="slide-right"
+                  <EuiFlexItem
+                    style={{ marginTop: "8px" }}
+                    grow={false}
                   >
-                    <EuiContextMenuPanel items={tabsItems} />
-                  </EuiPopover>
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                  <EuiPopover
-                    id="singlePanel"
-                    button={tabArrowDown}
-                    data-test-subj="slide-down"
-                    isOpen={this.state.isPopoverOpen}
-                    closePopover={this.closePopover}
-                    panelPaddingSize="none"
-                    anchorPosition="downLeft"
-                  >
-                    <EuiContextMenuPanel items={tabsItems} />
-                  </EuiPopover>
-                </EuiFlexItem>
+                    <EuiTabs>{tabsButtons}</EuiTabs>
+                  </EuiFlexItem>
+                </EuiFlexGroup>
+
+                {/*ARROW RIGHT and DOWN*/}
+                {this.state.tabsOverflow && (
+                  <div className="tab-arrow-down-container">
+                    <EuiFlexGroup>
+                      <EuiFlexItem grow={false}>
+                        <EuiPopover
+                          button={tabArrowRight}
+                          data-test-subj="slide-right"
+                        >
+                          <EuiContextMenuPanel items={tabsItems} />
+                        </EuiPopover>
+                      </EuiFlexItem>
+                      <EuiFlexItem grow={false}>
+                        <EuiPopover
+                          id="singlePanel"
+                          button={tabArrowDown}
+                          data-test-subj="slide-down"
+                          isOpen={this.state.isPopoverOpen}
+                          closePopover={this.closePopover}
+                          panelPaddingSize="none"
+                          anchorPosition="downLeft"
+                        >
+                          <EuiContextMenuPanel items={tabsItems} />
+                        </EuiPopover>
+                      </EuiFlexItem>
+                    </EuiFlexGroup>
+                  </div>
+                )}
               </EuiFlexGroup>
-            </div>
-          )}
-        </EuiFlexGroup>
+              <EuiHorizontalRule margin="none" />
 
-        {/*RESULTS TABLE*/}
-        <QueryResultsBody
-          language={this.props.language}
-          queries={this.props.queries}
-          selectedTabId={this.props.selectedTabId}
-          selectedTabName={this.props.selectedTabName}
-          tabNames={this.tabNames}
-          queryResultSelected={queryResultSelected}
-          queryResultsJSON={this.props.queryResultsJSON}
-          queryResultsJDBC={this.props.queryResultsJDBC}
-          queryResultsCSV={this.props.queryResultsCSV}
-          queryResultsTEXT={this.props.queryResultsTEXT}
-          messages={this.props.messages}
-          searchQuery={this.props.searchQuery}
-          onQueryChange={this.props.onQueryChange}
-          pager={this.pager}
-          itemsPerPage={this.state.itemsPerPage}
-          firstItemIndex={this.pager.getFirstItemIndex()}
-          lastItemIndex={this.pager.getLastItemIndex()}
-          onChangeItemsPerPage={this.onChangeItemsPerPage}
-          onChangePage={this.onChangePage}
-          onSort={this.onSort}
-          sortedColumn={this.sortedColumn}
-          sortableProperties={this.sortableProperties}
-          itemIdToExpandedRowMap={this.props.itemIdToExpandedRowMap}
-          updateExpandedMap={this.props.updateExpandedMap}
-          getJson={this.props.getJson}
-          getJdbc={this.props.getJdbc}
-          getCsv={this.props.getCsv}
-          getText={this.props.getText}
-        />
+              {/*RESULTS TABLE*/}
+              <PanelWrapper shouldWrap={this.props.language === 'SQL' && this.props.selectedTabName !== MESSAGE_TAB_LABEL}>
+                <QueryResultsBody
+                  language={this.props.language}
+                  queries={this.props.queries}
+                  selectedTabId={this.props.selectedTabId}
+                  selectedTabName={this.props.selectedTabName}
+                  tabNames={this.tabNames}
+                  queryResultSelected={queryResultSelected}
+                  queryResultsJSON={this.props.queryResultsJSON}
+                  queryResultsJDBC={this.props.queryResultsJDBC}
+                  queryResultsCSV={this.props.queryResultsCSV}
+                  queryResultsTEXT={this.props.queryResultsTEXT}
+                  messages={this.props.messages}
+                  searchQuery={this.props.searchQuery}
+                  onQueryChange={this.props.onQueryChange}
+                  pager={this.pager}
+                  itemsPerPage={this.state.itemsPerPage}
+                  firstItemIndex={this.pager.getFirstItemIndex()}
+                  lastItemIndex={this.pager.getLastItemIndex()}
+                  onChangeItemsPerPage={this.onChangeItemsPerPage}
+                  onChangePage={this.onChangePage}
+                  onSort={this.onSort}
+                  sortedColumn={this.sortedColumn}
+                  sortableProperties={this.sortableProperties}
+                  itemIdToExpandedRowMap={this.props.itemIdToExpandedRowMap}
+                  updateExpandedMap={this.props.updateExpandedMap}
+                  getJson={this.props.getJson}
+                  getJdbc={this.props.getJdbc}
+                  getCsv={this.props.getCsv}
+                  getText={this.props.getText}
+                />
+              </PanelWrapper>
+            </>
+          )}
       </EuiPanel>
     );
   }

@@ -17,7 +17,7 @@ import React, { Fragment } from "react";
 // @ts-ignore
 import { SortableProperties } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiSearchBar, EuiSideNav } from "@elastic/eui";
+import { EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiPanel, EuiSearchBar, EuiSideNav } from "@elastic/eui";
 import {
   EuiButton,
   EuiButtonIcon,
@@ -705,7 +705,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     const search = {
       box: {
         incremental: this.state.incremental,
-        placeholder: "Search",
+        placeholder: "Search keyword",
         schema: true
       }
     };
@@ -777,6 +777,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       <EuiButton
         iconType="arrowDown"
         iconSide="right"
+        size="s"
         onClick={this.onDownloadButtonClick}
       >
         Download
@@ -804,17 +805,23 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
 
       return (
         <div>
-          <EuiSpacer size="m" />
-          <EuiFlexGroup justifyContent="spaceBetween">
+          <EuiFlexGroup alignItems="flexStart" style={{ padding: 20, paddingBottom: 0 }}>
             {/*Table name*/}
-            <EuiFlexItem grow={7}>
+            <EuiFlexItem>
               <EuiText className="table-name">
-                {capitalizeFirstLetter(this.props.selectedTabName)}
+                <h4>
+                  {this.props.selectedTabName}
+                  <span className="table-item-count">{` (${this.items.length})`}</span>
+                </h4>
               </EuiText>
+              <div className="search-panel">
+                {/*Search Bar*/}
+                {this.renderSearchBar()}
+              </div>
             </EuiFlexItem>
 
             {/*Download button*/}
-            <EuiFlexItem grow={1}>
+            <EuiFlexItem grow={false}>
               <div className="download-container">
                 <EuiPopover
                   className="download-button-container"
@@ -830,26 +837,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
               </div>
             </EuiFlexItem>
           </EuiFlexGroup>
-          <EuiHorizontalRule margin="none" />
-          {modal}
-
-          <div className="search-panel">
-            {/*Search Bar*/}
-            {this.renderSearchBar()}
-
-            {/*Pagination*/}
-            <EuiTablePagination
-              activePage={this.props.pager.getCurrentPageIndex()}
-              itemsPerPage={this.props.itemsPerPage}
-              itemsPerPageOptions={PAGE_OPTIONS}
-              pageCount={this.props.pager.getTotalPages()}
-              onChangeItemsPerPage={this.props.onChangeItemsPerPage}
-              onChangePage={this.props.onChangePage}
-              data-test-subj={"Pagination-button"}
-            />
-          </div>
-
-          <EuiSpacer size="m" />
+          { modal}
 
           {/*Table*/}
           <div className="sql-console-results-container">
