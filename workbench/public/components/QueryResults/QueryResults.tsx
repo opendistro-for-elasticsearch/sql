@@ -17,7 +17,7 @@ import React from "react";
 // @ts-ignore
 import { SortableProperties, SortableProperty } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer, EuiTextAlign } from "@elastic/eui";
+import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer, EuiTextAlign, EuiButton, EuiButtonIcon } from "@elastic/eui";
 import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap } from "../Main/main";
 import QueryResultsBody from "./QueryResultsBody";
 import { getQueryIndex, needsScrolling, getSelectedResults } from "../../utils/utils";
@@ -45,6 +45,8 @@ interface QueryResultsProps {
   getJdbc: (queries: string[]) => void;
   getCsv: (queries: string[]) => void;
   getText: (queries: string[]) => void;
+  isResultFullScreen: boolean;
+  setIsResultFullScreen: (isFullScreen: boolean) => void;
 }
 
 interface QueryResultsState {
@@ -252,9 +254,33 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
 
     return (
       <EuiPanel className="query-result-container" paddingSize="none">
-        <EuiText className="query-result-panel-header">
-          <h3>Results</h3>
-        </EuiText>
+        <div style={{ padding: 20, paddingBottom: 0 }}>
+          <EuiFlexGroup>
+            <EuiFlexItem>
+              <EuiText className="query-result-panel-header">
+                <h3>Results</h3>
+              </EuiText>
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+              {this.props.queryResults.length > 0 && (
+                this.props.isResultFullScreen ?
+                  <EuiButtonIcon
+                    iconType="cross"
+                    color="text"
+                    onClick={() => this.props.setIsResultFullScreen(false)}
+                  />
+                  :
+                  <EuiButton
+                    size="s"
+                    iconType="fullScreen"
+                    onClick={() => this.props.setIsResultFullScreen(true)}
+                  >
+                    Full screen view
+                </EuiButton>
+              )}
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        </div>
         {this.props.queryResults.length === 0 ? (
           // show no results message instead of the results table when there are no results
           <>

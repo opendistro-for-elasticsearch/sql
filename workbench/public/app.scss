@@ -37,8 +37,6 @@
 .sql-console-query-result{
   .query-result-panel-header {
     color: #3f3f3f;
-    padding-left: 20px;
-    padding-top: 10px;
   }
   scroll-behavior: smooth;
   .tabs-container {
@@ -52,10 +50,6 @@
   .table-item-count {
     color: #8a9596;
     font-weight: 370;
-  }
-  .table-header {
-    /*border-top: solid 1px #d9d9d9;*/
-    // background-color: #d9d9d9;
   }
   .sideNav-table {
     border: solid 1px rgb(217, 217, 217);
@@ -79,18 +73,6 @@
     height: 56px;
     vertical-align: middle;
     color: rgb(0, 121, 165);
-  }
-
-  .download-container {
-    padding: $euiSizeM;
-    height: 56px;
-    vertical-align: middle;
-    border-width: 1px;
-    margin-bottom: 20px;
-  }
-
-  .download-button-container {
-    float:right;
   }
 
   .toggleContainer {

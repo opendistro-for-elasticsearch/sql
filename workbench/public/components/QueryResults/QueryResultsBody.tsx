@@ -807,7 +807,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
         <div>
           {this.props.language === 'SQL' && (
             <>
-              <EuiFlexGroup alignItems="flexEnd" style={{ padding: 20, paddingBottom: 0 }}>
+              <EuiFlexGroup alignItems="flexStart" style={{ padding: 20, paddingBottom: 0 }}>
                 {/*Table name*/}
                 <EuiFlexItem>
                   <EuiText className="table-name">

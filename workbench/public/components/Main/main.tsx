@@ -84,6 +84,7 @@ interface MainState {
   searchQuery: string;
   itemIdToExpandedRowMap: ItemIdToExpandedRowMap;
   messages: Array<QueryMessage>;
+  isResultFullScreen: boolean;
 }
 
 const SUCCESS_MESSAGE = "Success";
@@ -203,12 +204,14 @@ export class Main extends React.Component<MainProps, MainState> {
       selectedTabId: MESSAGE_TAB_LABEL,
       searchQuery: "",
       itemIdToExpandedRowMap: {},
-      messages: []
+      messages: [],
+      isResultFullScreen: false,
     };
 
     this.httpClient = this.props.httpClient;
     this.updateSQLQueries = _.debounce(this.updateSQLQueries, 250).bind(this);
     this.updatePPLQueries = _.debounce(this.updatePPLQueries, 250).bind(this);
+    this.setIsResultFullScreen = this.setIsResultFullScreen.bind(this);
 
   }
 
@@ -546,6 +549,13 @@ export class Main extends React.Component<MainProps, MainState> {
     });
   }
 
+  setIsResultFullScreen(isFullScreen: boolean) {
+    console.log('isFullScreen', isFullScreen);
+    this.setState({
+      isResultFullScreen: isFullScreen
+    });
+  }
+
   render() {
 
     let page;
@@ -578,6 +588,37 @@ export class Main extends React.Component<MainProps, MainState> {
       );
       link = "https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/experiment/ppl/index.rst";
       linkTitle = "PPL Documentation";
+    }
+
+    if (this.state.isResultFullScreen) {
+      return (
+        <div className="sql-console-query-result">
+          <QueryResults
+            language={this.state.language}
+            queries={this.state.queries}
+            queryResults={this.state.queryResultsTable}
+            queryResultsJDBC={getSelectedResults(this.state.queryResults, this.state.selectedTabId)}
+            queryResultsJSON={getSelectedResults(this.state.queryResultsJSON, this.state.selectedTabId)}
+            queryResultsCSV={getSelectedResults(this.state.queryResultsCSV, this.state.selectedTabId)}
+            queryResultsTEXT={getSelectedResults(this.state.queryResultsTEXT, this.state.selectedTabId)}
+            messages={this.state.messages}
+            selectedTabId={this.state.selectedTabId}
+            selectedTabName={this.state.selectedTabName}
+            onSelectedTabIdChange={this.onSelectedTabIdChange}
+            itemIdToExpandedRowMap={this.state.itemIdToExpandedRowMap}
+            onQueryChange={this.onQueryChange}
+            updateExpandedMap={this.updateExpandedMap}
+            searchQuery={this.state.searchQuery}
+            tabsOverflow={false}
+            getJson={this.getJson}
+            getJdbc={this.getJdbc}
+            getCsv={this.getCsv}
+            getText={this.getText}
+            isResultFullScreen={this.state.isResultFullScreen}
+            setIsResultFullScreen={this.setIsResultFullScreen}
+          />
+        </div>
+      );
     }
 
     return (
@@ -637,6 +678,8 @@ export class Main extends React.Component<MainProps, MainState> {
               getJdbc={this.getJdbc}
               getCsv={this.getCsv}
               getText={this.getText}
+              isResultFullScreen={this.state.isResultFullScreen}
+              setIsResultFullScreen={this.setIsResultFullScreen}
             />
           </div>
         </div>
