@@ -191,7 +191,7 @@ export class Main extends React.Component<MainProps, MainState> {
 
     this.state = {
       language: 'PPL',
-      sqlQueriesString: "select * from accounts",
+      sqlQueriesString: "SHOW tables LIKE %",
       pplQueriesString: "",
       queries: [],
       queryTranslations: [],
