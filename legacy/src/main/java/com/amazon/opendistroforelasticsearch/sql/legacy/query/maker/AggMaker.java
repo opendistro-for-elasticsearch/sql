@@ -74,6 +74,9 @@ import java.util.stream.Collectors;
 
 public class AggMaker {
 
+    /**
+     * The mapping bettwen group fieldName or Alias to the KVValue.
+     */
     private Map<String, KVValue> groupMap = new HashMap<>();
     private Where where;
 
@@ -108,7 +111,11 @@ public class AggMaker {
         } else {
             String termName = (Strings.isNullOrEmpty(field.getAlias())) ? field.getName() : field.getAlias();
             TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(termName).field(field.getName());
-            groupMap.put(termName, new KVValue("KEY", termsBuilder));
+            final KVValue kvValue = new KVValue("KEY", termsBuilder);
+            groupMap.put(termName, kvValue);
+            // map the field name with KVValue if it is not yet. The use case is when alias exist,
+            // the termName is different with fieldName, both of them should be included in the map.
+            groupMap.putIfAbsent(field.getName(), kvValue);
             return termsBuilder;
         }
     }
