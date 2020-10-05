@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.common.utils;
 
 import com.google.common.base.Strings;
+import java.util.IllegalFormatException;
 import java.util.Locale;
 
 public class StringUtils {
@@ -68,10 +69,10 @@ public class StringUtils {
    * @param format format string
    * @param args   arguments referenced by the format specifiers in the format string
    * @return A formatted string
-   * @throws java.util.IllegalFormatException If a format string contains an illegal syntax, a format
-   *                                          specifier that is incompatible with the given arguments,
-   *                                          insufficient arguments given the format string, or other
-   *                                          illegal conditions.
+   * @throws IllegalFormatException If a format string contains an illegal syntax, a format
+   *                                specifier that is incompatible with the given arguments,
+   *                                insufficient arguments given the format string, or other
+   *                                illegal conditions.
    * @see java.lang.String#format(Locale, String, Object...)
    */
   public static String format(final String format, Object... args) {
