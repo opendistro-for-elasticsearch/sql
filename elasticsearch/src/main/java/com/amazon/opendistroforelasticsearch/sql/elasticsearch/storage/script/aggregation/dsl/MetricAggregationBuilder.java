@@ -67,6 +67,10 @@ public class MetricAggregationBuilder
         return make(AggregationBuilders.sum(name), expression);
       case "count":
         return make(AggregationBuilders.count(name), expression);
+      case "min":
+        return make(AggregationBuilders.min(name), expression);
+      case "max":
+        return make(AggregationBuilders.max(name), expression);
       default:
         throw new IllegalStateException(
             String.format("unsupported aggregator %s", node.getFunctionName().getFunctionName()));

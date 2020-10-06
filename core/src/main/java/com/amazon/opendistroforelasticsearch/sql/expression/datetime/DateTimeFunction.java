@@ -85,7 +85,9 @@ public class DateTimeFunction {
     repository.register(time());
     repository.register(time_to_sec());
     repository.register(timestamp());
+    repository.register(date_format());
     repository.register(to_days());
+    repository.register(week());
     repository.register(year());
   }
 
@@ -372,6 +374,22 @@ public class DateTimeFunction {
   }
 
   /**
+   * WEEK(DATE[,mode]). return the week number for date.
+   */
+  private FunctionResolver week() {
+    return define(BuiltinFunctionName.WEEK.getName(),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATE),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, DATETIME),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, TIMESTAMP),
+        impl(nullMissingHandling(DateTimeFunction::exprWeekWithoutMode), INTEGER, STRING),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATE, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, DATETIME, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, TIMESTAMP, INTEGER),
+        impl(nullMissingHandling(DateTimeFunction::exprWeek), INTEGER, STRING, INTEGER)
+    );
+  }
+
+  /**
    * YEAR(STRING/DATE/DATETIME/TIMESTAMP). return the year for date (1000-9999).
    */
   private FunctionResolver year() {
@@ -380,6 +398,27 @@ public class DateTimeFunction {
         impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, DATETIME),
         impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, TIMESTAMP),
         impl(nullMissingHandling(DateTimeFunction::exprYear), INTEGER, STRING)
+    );
+  }
+
+  /**
+   * Formats date according to format specifier. First argument is date, second is format.
+   * Detailed supported signatures:
+   * (STRING, STRING) -> STRING
+   * (DATE, STRING) -> STRING
+   * (DATETIME, STRING) -> STRING
+   * (TIMESTAMP, STRING) -> STRING
+   */
+  private FunctionResolver date_format() {
+    return define(BuiltinFunctionName.DATE_FORMAT.getName(),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, STRING, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, DATE, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, DATETIME, STRING),
+        impl(nullMissingHandling(DateTimeFormatterUtil::getFormattedDate),
+            STRING, TIMESTAMP, STRING)
     );
   }
 
@@ -619,6 +658,26 @@ public class DateTimeFunction {
    */
   private ExprValue exprToDays(ExprValue date) {
     return new ExprLongValue(date.dateValue().toEpochDay() + DAYS_0000_TO_1970);
+  }
+
+  /**
+   * Week for date implementation for ExprValue.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * @param mode ExprValue of Integer type.
+   */
+  private ExprValue exprWeek(ExprValue date, ExprValue mode) {
+    return new ExprIntegerValue(
+        CalendarLookup.getWeekNumber(mode.integerValue(), date.dateValue()));
+  }
+
+  /**
+   * Week for date implementation for ExprValue.
+   * When mode is not specified default value mode 0 is used for default_week_format.
+   * @param date ExprValue of Date/Datetime/Timestamp/String type.
+   * @return ExprValue.
+   */
+  private ExprValue exprWeekWithoutMode(ExprValue date) {
+    return exprWeek(date, new ExprIntegerValue(0));
   }
 
   /**

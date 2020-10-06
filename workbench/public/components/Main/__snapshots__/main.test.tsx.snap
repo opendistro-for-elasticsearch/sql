@@ -114,17 +114,15 @@ exports[`<Main /> spec click clear button 1`] = `
       <div
         class="euiSpacer euiSpacer--l"
       />
-      <div
-        class="sql-console-query-editor"
-      >
+      <div>
         <div
-          class="euiPanel sql-console-query-editor container-panel"
+          class="euiPanel sql-query-editor container-panel"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="sql-console-query-editor"
           >
             <div
-              class="euiFlexItem euiFlexItem--flexGrow1 sql-query-panel"
+              class="euiPanel sql-query-editor container-panel"
             >
               <div
                 class="euiText euiText--medium sql-query-panel-header"
@@ -134,7 +132,7 @@ exports[`<Main /> spec click clear button 1`] = `
               <div
                 class="euiCodeEditorWrapper"
                 data-test-subj="codeEditorContainer"
-                style="width: 100%; height: 18.5rem;"
+                style="width: 100%; height: 15rem;"
               >
                 <div
                   class="euiCodeEditorKeyboardHint"
@@ -157,7 +155,7 @@ exports[`<Main /> spec click clear button 1`] = `
                 <div
                   class=" ace_editor ace-sql-console"
                   id="some_html_id"
-                  style="width: 100%; height: 18.5rem; font-size: 12px;"
+                  style="width: 100%; height: 15rem; font-size: 12px;"
                 >
                   <textarea
                     aria-label="Code Editor"
@@ -300,7 +298,7 @@ exports[`<Main /> spec click clear button 1`] = `
                     <span
                       class="euiButton__text"
                     >
-                      JSON Translation
+                      Explain
                     </span>
                   </span>
                 </button>
@@ -589,17 +587,15 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
       <div
         class="euiSpacer euiSpacer--l"
       />
-      <div
-        class="sql-console-query-editor"
-      >
+      <div>
         <div
-          class="euiPanel sql-console-query-editor container-panel"
+          class="euiPanel sql-query-editor container-panel"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="sql-console-query-editor"
           >
             <div
-              class="euiFlexItem euiFlexItem--flexGrow1 sql-query-panel"
+              class="euiPanel sql-query-editor container-panel"
             >
               <div
                 class="euiText euiText--medium sql-query-panel-header"
@@ -609,7 +605,7 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
               <div
                 class="euiCodeEditorWrapper"
                 data-test-subj="codeEditorContainer"
-                style="width: 100%; height: 18.5rem;"
+                style="width: 100%; height: 15rem;"
               >
                 <div
                   class="euiCodeEditorKeyboardHint"
@@ -632,7 +628,7 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
                 <div
                   class=" ace_editor ace-sql-console"
                   id="some_html_id"
-                  style="width: 100%; height: 18.5rem; font-size: 12px;"
+                  style="width: 100%; height: 15rem; font-size: 12px;"
                 >
                   <textarea
                     aria-label="Code Editor"
@@ -775,7 +771,7 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
                     <span
                       class="euiButton__text"
                     >
-                      JSON Translation
+                      Explain
                     </span>
                   </span>
                 </button>
@@ -1064,17 +1060,15 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
       <div
         class="euiSpacer euiSpacer--l"
       />
-      <div
-        class="sql-console-query-editor"
-      >
+      <div>
         <div
-          class="euiPanel sql-console-query-editor container-panel"
+          class="euiPanel sql-query-editor container-panel"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="sql-console-query-editor"
           >
             <div
-              class="euiFlexItem euiFlexItem--flexGrow1 sql-query-panel"
+              class="euiPanel sql-query-editor container-panel"
             >
               <div
                 class="euiText euiText--medium sql-query-panel-header"
@@ -1084,7 +1078,7 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
               <div
                 class="euiCodeEditorWrapper"
                 data-test-subj="codeEditorContainer"
-                style="width: 100%; height: 18.5rem;"
+                style="width: 100%; height: 15rem;"
               >
                 <div
                   class="euiCodeEditorKeyboardHint"
@@ -1107,7 +1101,7 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
                 <div
                   class=" ace_editor ace-sql-console"
                   id="some_html_id"
-                  style="width: 100%; height: 18.5rem; font-size: 12px;"
+                  style="width: 100%; height: 15rem; font-size: 12px;"
                 >
                   <textarea
                     aria-label="Code Editor"
@@ -1250,7 +1244,7 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
                     <span
                       class="euiButton__text"
                     >
-                      JSON Translation
+                      Explain
                     </span>
                   </span>
                 </button>
@@ -1539,17 +1533,15 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
       <div
         class="euiSpacer euiSpacer--l"
       />
-      <div
-        class="sql-console-query-editor"
-      >
+      <div>
         <div
-          class="euiPanel sql-console-query-editor container-panel"
+          class="euiPanel sql-query-editor container-panel"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="sql-console-query-editor"
           >
             <div
-              class="euiFlexItem euiFlexItem--flexGrow1 sql-query-panel"
+              class="euiPanel sql-query-editor container-panel"
             >
               <div
                 class="euiText euiText--medium sql-query-panel-header"
@@ -1559,7 +1551,7 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
               <div
                 class="euiCodeEditorWrapper"
                 data-test-subj="codeEditorContainer"
-                style="width: 100%; height: 18.5rem;"
+                style="width: 100%; height: 15rem;"
               >
                 <div
                   class="euiCodeEditorKeyboardHint"
@@ -1582,7 +1574,7 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
                 <div
                   class=" ace_editor ace-sql-console"
                   id="some_html_id"
-                  style="width: 100%; height: 18.5rem; font-size: 12px;"
+                  style="width: 100%; height: 15rem; font-size: 12px;"
                 >
                   <textarea
                     aria-label="Code Editor"
@@ -1725,7 +1717,7 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
                     <span
                       class="euiButton__text"
                     >
-                      JSON Translation
+                      Explain
                     </span>
                   </span>
                 </button>
@@ -2017,17 +2009,15 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
       <div
         class="euiSpacer euiSpacer--l"
       />
-      <div
-        class="sql-console-query-editor"
-      >
+      <div>
         <div
-          class="euiPanel sql-console-query-editor container-panel"
+          class="euiPanel sql-query-editor container-panel"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="sql-console-query-editor"
           >
             <div
-              class="euiFlexItem euiFlexItem--flexGrow1 sql-query-panel"
+              class="euiPanel sql-query-editor container-panel"
             >
               <div
                 class="euiText euiText--medium sql-query-panel-header"
@@ -2037,7 +2027,7 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
               <div
                 class="euiCodeEditorWrapper"
                 data-test-subj="codeEditorContainer"
-                style="width: 100%; height: 18.5rem;"
+                style="width: 100%; height: 15rem;"
               >
                 <div
                   class="euiCodeEditorKeyboardHint"
@@ -2060,7 +2050,7 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
                 <div
                   class=" ace_editor ace-sql-console"
                   id="some_html_id"
-                  style="width: 100%; height: 18.5rem; font-size: 12px;"
+                  style="width: 100%; height: 15rem; font-size: 12px;"
                 >
                   <textarea
                     aria-label="Code Editor"
@@ -2203,7 +2193,7 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
                     <span
                       class="euiButton__text"
                     >
-                      JSON Translation
+                      Explain
                     </span>
                   </span>
                 </button>
@@ -2492,17 +2482,15 @@ exports[`<Main /> spec renders the component 1`] = `
       <div
         class="euiSpacer euiSpacer--l"
       />
-      <div
-        class="sql-console-query-editor"
-      >
+      <div>
         <div
-          class="euiPanel sql-console-query-editor container-panel"
+          class="euiPanel sql-query-editor container-panel"
         >
           <div
-            class="euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--responsive"
+            class="sql-console-query-editor"
           >
             <div
-              class="euiFlexItem euiFlexItem--flexGrow1 sql-query-panel"
+              class="euiPanel sql-query-editor container-panel"
             >
               <div
                 class="euiText euiText--medium sql-query-panel-header"
@@ -2512,7 +2500,7 @@ exports[`<Main /> spec renders the component 1`] = `
               <div
                 class="euiCodeEditorWrapper"
                 data-test-subj="codeEditorContainer"
-                style="width: 100%; height: 18.5rem;"
+                style="width: 100%; height: 15rem;"
               >
                 <div
                   class="euiCodeEditorKeyboardHint"
@@ -2535,7 +2523,7 @@ exports[`<Main /> spec renders the component 1`] = `
                 <div
                   class=" ace_editor ace-sql-console"
                   id="some_html_id"
-                  style="width: 100%; height: 18.5rem; font-size: 12px;"
+                  style="width: 100%; height: 15rem; font-size: 12px;"
                 >
                   <textarea
                     aria-label="Code Editor"
@@ -2678,7 +2666,7 @@ exports[`<Main /> spec renders the component 1`] = `
                     <span
                       class="euiButton__text"
                     >
-                      JSON Translation
+                      Explain
                     </span>
                   </span>
                 </button>

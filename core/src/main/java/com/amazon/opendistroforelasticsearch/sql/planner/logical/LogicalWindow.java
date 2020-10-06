@@ -19,10 +19,8 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import java.util.Collections;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -30,23 +28,28 @@ import lombok.ToString;
  * has to work with a Sort operator to ensure input data is sorted as required by window definition.
  * However, the Sort operator may be removed after logical optimization.
  */
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @Getter
-@RequiredArgsConstructor
 @ToString
 public class LogicalWindow extends LogicalPlan {
-  private final LogicalPlan child;
   private final Expression windowFunction;
   private final WindowDefinition windowDefinition;
+
+  /**
+   * Constructor of logical window.
+   */
+  public LogicalWindow(
+      LogicalPlan child,
+      Expression windowFunction,
+      WindowDefinition windowDefinition) {
+    super(Collections.singletonList(child));
+    this.windowFunction = windowFunction;
+    this.windowDefinition = windowDefinition;
+  }
 
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
     return visitor.visitWindow(this, context);
-  }
-
-  @Override
-  public List<LogicalPlan> getChild() {
-    return Collections.singletonList(child);
   }
 
 }

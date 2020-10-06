@@ -1,0 +1,1 @@
+SELECT Carrier AS c, COUNT(*) AS count FROM kibana_sample_data_flights GROUP BY Carrier ORDER BY Carrier

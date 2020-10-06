@@ -72,7 +72,9 @@ public enum BuiltinFunctionName {
   TIME(FunctionName.of("time")),
   TIME_TO_SEC(FunctionName.of("time_to_sec")),
   TIMESTAMP(FunctionName.of("timestamp")),
+  DATE_FORMAT(FunctionName.of("date_format")),
   TO_DAYS(FunctionName.of("to_days")),
+  WEEK(FunctionName.of("week")),
   YEAR(FunctionName.of("year")),
 
   /**
@@ -111,6 +113,8 @@ public enum BuiltinFunctionName {
   AVG(FunctionName.of("avg")),
   SUM(FunctionName.of("sum")),
   COUNT(FunctionName.of("count")),
+  MIN(FunctionName.of("min")),
+  MAX(FunctionName.of("max")),
 
   /**
    * Text Functions.

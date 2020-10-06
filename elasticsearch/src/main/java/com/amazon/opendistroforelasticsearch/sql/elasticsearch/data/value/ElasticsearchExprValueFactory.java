@@ -166,7 +166,7 @@ public class ElasticsearchExprValueFactory {
       return constructBoolean((Boolean) value);
     } else if (type.equals(TIMESTAMP)) {
       if (value instanceof Number) {
-        return constructTimestamp((Long) value);
+        return constructTimestamp(((Number) value).longValue());
       } else if (value instanceof Instant) {
         return constructTimestamp((Instant) value);
       } else {

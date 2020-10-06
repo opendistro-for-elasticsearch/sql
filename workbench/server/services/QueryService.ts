@@ -50,19 +50,27 @@ export default class QueryService {
     return this.describeQueryInternal(request, h, "sql.pplQuery", "json", err)
   };
 
-  describeQueryCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.getCsv", null, err)
+  describeSQLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    return this.describeQueryInternal(request, h, "sql.sqlCsv", null, err)
   };
 
-  describeQueryJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.getJson", "json", err)
+  describePPLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    return this.describeQueryInternal(request, h, "sql.pplCsv", null, err)
   };
 
-  describeQueryJdbc = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.getJdbc", "json", err)
+  describeSQLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    return this.describeQueryInternal(request, h, "sql.sqlJson", "json", err)
   };
 
-  describeQueryText = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.getText", null, err)
+  describePPLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    return this.describeQueryInternal(request, h, "sql.pplJson", "json", err)
+  };
+
+  describeSQLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    return this.describeQueryInternal(request, h, "sql.sqlText", null, err)
+  };
+
+  describePPLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
+    return this.describeQueryInternal(request, h, "sql.pplText", null, err)
   };
 }

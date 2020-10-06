@@ -129,7 +129,7 @@ statsFunction
     ;
 
 statsFunctionName
-    : AVG | COUNT | SUM
+    : AVG | COUNT | SUM | MIN | MAX
     ;
 
 percentileAggFunction
@@ -233,9 +233,9 @@ trigonometricFunctionName
     ;
 
 dateAndTimeFunctionBase
-    : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS 
+    : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS
     | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
-    | TIMESTAMP | TO_DAYS | YEAR
+    | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT
     ;
 
 textFunctionBase

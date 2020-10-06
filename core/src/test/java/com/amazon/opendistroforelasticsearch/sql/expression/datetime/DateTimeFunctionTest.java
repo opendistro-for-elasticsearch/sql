@@ -31,6 +31,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
@@ -39,11 +40,16 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,6 +72,89 @@ class DateTimeFunctionTest extends ExpressionTestBase {
   public void setup() {
     when(nullRef.valueOf(env)).thenReturn(nullValue());
     when(missingRef.valueOf(env)).thenReturn(missingValue());
+  }
+
+  final List<DateFormatTester> dateFormatTesters = ImmutableList.of(
+      new DateFormatTester("1998-01-31 13:14:15.012345",
+          ImmutableList.of("%H","%I","%k","%l","%i","%p","%r","%S","%T"," %M",
+              "%W","%D","%Y","%y","%a","%b","%j","%m","%d","%h","%s","%w","%f",
+              "%q","%"),
+          ImmutableList.of("13","01","13","1","14","PM","01:14:15 PM","15","13:14:15"," January",
+              "Saturday","31st","1998","98","Sat","Jan","031","01","31","01","15","6","12345",
+              "q","%")
+      ),
+      new DateFormatTester("1999-12-01",
+          ImmutableList.of("%D"),
+          ImmutableList.of("1st")
+      ),
+      new DateFormatTester("1999-12-02",
+          ImmutableList.of("%D"),
+          ImmutableList.of("2nd")
+      ),
+      new DateFormatTester("1999-12-03",
+          ImmutableList.of("%D"),
+          ImmutableList.of("3rd")
+      ),
+      new DateFormatTester("1999-12-04",
+          ImmutableList.of("%D"),
+          ImmutableList.of("4th")
+      ),
+      new DateFormatTester("1999-12-11",
+          ImmutableList.of("%D"),
+          ImmutableList.of("11th")
+      ),
+      new DateFormatTester("1999-12-12",
+          ImmutableList.of("%D"),
+          ImmutableList.of("12th")
+      ),
+      new DateFormatTester("1999-12-13",
+          ImmutableList.of("%D"),
+          ImmutableList.of("13th")
+      ),
+      new DateFormatTester("1999-12-31",
+          ImmutableList.of("%x","%v","%X","%V","%u","%U"),
+          ImmutableList.of("1999", "52", "1999", "52", "52", "52")
+      ),
+      new DateFormatTester("2000-01-01",
+          ImmutableList.of("%x","%v","%X","%V","%u","%U"),
+          ImmutableList.of("1999", "52", "1999", "52", "0", "0")
+      ),
+      new DateFormatTester("1998-12-31",
+          ImmutableList.of("%x","%v","%X","%V","%u","%U"),
+          ImmutableList.of("1998", "52", "1998", "52", "52", "52")
+      ),
+      new DateFormatTester("1999-01-01",
+          ImmutableList.of("%x","%v","%X","%V","%u","%U"),
+          ImmutableList.of("1998", "52", "1998", "52", "0", "0")
+      ),
+      new DateFormatTester("2020-01-04",
+          ImmutableList.of("%x","%X"),
+          ImmutableList.of("2020", "2019")
+      ),
+      new DateFormatTester("2008-12-31",
+          ImmutableList.of("%v","%V","%u","%U"),
+          ImmutableList.of("53","52","53","52")
+      )
+  );
+
+  @AllArgsConstructor
+  private class DateFormatTester {
+    private final String date;
+    private final List<String> formatterList;
+    private final List<String> formattedList;
+    private static final String DELIMITER = "|";
+
+    String getFormatter() {
+      return String.join(DELIMITER, formatterList);
+    }
+
+    String getFormatted() {
+      return String.join(DELIMITER, formattedList);
+    }
+
+    FunctionExpression getDateFormatExpression() {
+      return dsl.date_format(DSL.literal(date), DSL.literal(getFormatter()));
+    }
   }
 
   @Test
@@ -726,6 +815,103 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals("timestamp(TIMESTAMP '2020-08-17 01:01:01')", expr.toString());
   }
 
+  private void testWeek(String date, int mode, int expectedResult) {
+    FunctionExpression expression = dsl
+        .week(DSL.literal(new ExprDateValue(date)), DSL.literal(mode));
+    assertEquals(INTEGER, expression.type());
+    assertEquals(String.format("week(DATE '%s', %d)", date, mode), expression.toString());
+    assertEquals(integerValue(expectedResult), eval(expression));
+  }
+
+  private void testNullMissingWeek(ExprCoreType date) {
+    when(nullRef.type()).thenReturn(date);
+    when(missingRef.type()).thenReturn(date);
+    assertEquals(nullValue(), eval(dsl.week(nullRef)));
+    assertEquals(missingValue(), eval(dsl.week(missingRef)));
+  }
+
+  @Test
+  public void week() {
+    testNullMissingWeek(DATE);
+    testNullMissingWeek(DATETIME);
+    testNullMissingWeek(TIMESTAMP);
+    testNullMissingWeek(STRING);
+
+    when(nullRef.type()).thenReturn(INTEGER);
+    when(missingRef.type()).thenReturn(INTEGER);
+    assertEquals(nullValue(), eval(dsl.week(DSL.literal("2019-01-05"), nullRef)));
+    assertEquals(missingValue(), eval(dsl.week(DSL.literal("2019-01-05"), missingRef)));
+
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(INTEGER);
+    assertEquals(missingValue(), eval(dsl.week(nullRef, missingRef)));
+
+    FunctionExpression expression = dsl
+        .week(DSL.literal(new ExprTimestampValue("2019-01-05 01:02:03")));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(TIMESTAMP '2019-01-05 01:02:03')", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    expression = dsl.week(DSL.literal("2019-01-05"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(\"2019-01-05\")", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    expression = dsl.week(DSL.literal("2019-01-05 00:01:00"));
+    assertEquals(INTEGER, expression.type());
+    assertEquals("week(\"2019-01-05 00:01:00\")", expression.toString());
+    assertEquals(integerValue(0), eval(expression));
+
+    testWeek("2019-01-05", 0, 0);
+    testWeek("2019-01-05", 1, 1);
+    testWeek("2019-01-05", 2, 52);
+    testWeek("2019-01-05", 3, 1);
+    testWeek("2019-01-05", 4, 1);
+    testWeek("2019-01-05", 5, 0);
+    testWeek("2019-01-05", 6, 1);
+    testWeek("2019-01-05", 7, 53);
+
+    testWeek("2019-01-06", 0, 1);
+    testWeek("2019-01-06", 1, 1);
+    testWeek("2019-01-06", 2, 1);
+    testWeek("2019-01-06", 3, 1);
+    testWeek("2019-01-06", 4, 2);
+    testWeek("2019-01-06", 5, 0);
+    testWeek("2019-01-06", 6, 2);
+    testWeek("2019-01-06", 7, 53);
+
+    testWeek("2019-01-07", 0, 1);
+    testWeek("2019-01-07", 1, 2);
+    testWeek("2019-01-07", 2, 1);
+    testWeek("2019-01-07", 3, 2);
+    testWeek("2019-01-07", 4, 2);
+    testWeek("2019-01-07", 5, 1);
+    testWeek("2019-01-07", 6, 2);
+    testWeek("2019-01-07", 7, 1);
+
+    testWeek("2000-01-01", 0, 0);
+    testWeek("2000-01-01", 2, 52);
+    testWeek("1999-12-31", 0, 52);
+  }
+
+  @Test
+  public void modeInUnsupportedFormat() {
+    testNullMissingWeek(DATE);
+
+    FunctionExpression expression1 = dsl
+        .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(8));
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class, () -> eval(expression1));
+    assertEquals("mode:8 is invalid, please use mode value between 0-7",
+        exception.getMessage());
+
+    FunctionExpression expression2 = dsl
+        .week(DSL.literal(new ExprDateValue("2019-01-05")), DSL.literal(-1));
+    exception = assertThrows(SemanticCheckException.class, () -> eval(expression2));
+    assertEquals("mode:-1 is invalid, please use mode value between 0-7",
+        exception.getMessage());
+  }
+
   @Test
   public void to_days() {
     when(nullRef.type()).thenReturn(DATE);
@@ -770,6 +956,48 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     assertEquals(INTEGER, expression.type());
     assertEquals("year(\"2020-08-07 01:01:01\")", expression.toString());
     assertEquals(integerValue(2020), eval(expression));
+  }
+
+  @Test
+  public void date_format() {
+    dateFormatTesters.forEach(this::testDateFormat);
+    String timestamp = "1998-01-31 13:14:15.012345";
+    String timestampFormat = "%a %b %c %D %d %e %f %H %h %I %i %j %k %l %M "
+        + "%m %p %r %S %s %T %% %P";
+    String timestampFormatted = "Sat Jan 01 31st 31 31 12345 13 01 01 14 031 13 1 "
+        + "January 01 PM 01:14:15 PM 15 15 13:14:15 % P";
+
+    FunctionExpression expr = dsl.date_format(DSL.literal(timestamp), DSL.literal(timestampFormat));
+    assertEquals(STRING, expr.type());
+    assertEquals(timestampFormatted, eval(expr).stringValue());
+
+    when(nullRef.type()).thenReturn(DATE);
+    when(missingRef.type()).thenReturn(DATE);
+    assertEquals(nullValue(), eval(dsl.date_format(nullRef, DSL.literal(""))));
+    assertEquals(missingValue(), eval(dsl.date_format(missingRef, DSL.literal(""))));
+
+    when(nullRef.type()).thenReturn(DATETIME);
+    when(missingRef.type()).thenReturn(DATETIME);
+    assertEquals(nullValue(), eval(dsl.date_format(nullRef, DSL.literal(""))));
+    assertEquals(missingValue(), eval(dsl.date_format(missingRef, DSL.literal(""))));
+
+    when(nullRef.type()).thenReturn(TIMESTAMP);
+    when(missingRef.type()).thenReturn(TIMESTAMP);
+    assertEquals(nullValue(), eval(dsl.date_format(nullRef, DSL.literal(""))));
+    assertEquals(missingValue(), eval(dsl.date_format(missingRef, DSL.literal(""))));
+
+    when(nullRef.type()).thenReturn(STRING);
+    when(missingRef.type()).thenReturn(STRING);
+    assertEquals(nullValue(), eval(dsl.date_format(nullRef, DSL.literal(""))));
+    assertEquals(missingValue(), eval(dsl.date_format(missingRef, DSL.literal(""))));
+    assertEquals(nullValue(), eval(dsl.date_format(DSL.literal(""), nullRef)));
+    assertEquals(missingValue(), eval(dsl.date_format(DSL.literal(""), missingRef)));
+  }
+
+  void testDateFormat(DateFormatTester dft) {
+    FunctionExpression expr = dft.getDateFormatExpression();
+    assertEquals(STRING, expr.type());
+    assertEquals(dft.getFormatted(), eval(expr).stringValue());
   }
 
   private ExprValue eval(Expression expression) {

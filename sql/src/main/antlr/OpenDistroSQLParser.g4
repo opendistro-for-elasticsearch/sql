@@ -245,8 +245,12 @@ scalarFunctionName
     ;
 
 aggregateFunction
-    : functionName=(AVG | SUM) LR_BRACKET functionArg RR_BRACKET
+    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET
     /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
+    ;
+
+aggregationFunctionName
+    : AVG | COUNT | SUM | MIN | MAX
     ;
 
 mathematicalFunctionName
@@ -260,9 +264,9 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS 
+    : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS
     | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
-    | TIMESTAMP | TO_DAYS | YEAR
+    | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT
     ;
 
 textFunctionName

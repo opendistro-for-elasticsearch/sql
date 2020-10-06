@@ -47,13 +47,20 @@ class AvgAggregatorTest extends AggregationTest {
   public void avg_with_missing() {
     ExprValue result =
         aggregation(dsl.avg(DSL.ref("integer_value", INTEGER)), tuples_with_null_and_missing);
-    assertTrue(result.isNull());
+    assertEquals(1.5, result.value());
   }
 
   @Test
   public void avg_with_null() {
     ExprValue result =
         aggregation(dsl.avg(DSL.ref("double_value", DOUBLE)), tuples_with_null_and_missing);
+    assertEquals(3.5, result.value());
+  }
+
+  @Test
+  public void avg_with_all_missing_or_null() {
+    ExprValue result =
+        aggregation(dsl.avg(DSL.ref("integer_value", INTEGER)), tuples_with_all_null_or_missing);
     assertTrue(result.isNull());
   }
 
