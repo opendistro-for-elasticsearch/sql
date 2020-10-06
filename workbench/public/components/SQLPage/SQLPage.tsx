@@ -77,7 +77,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
     if (this.state.isModalVisible) {
       modal = (
         <EuiOverlayMask onClick={closeModal}>
-          <EuiModal onClose={closeModal}>
+          <EuiModal onClose={closeModal} style={{ width: 800 }}>
             <EuiModalHeader>
               <EuiModalHeaderTitle>JSON translation</EuiModalHeaderTitle>
             </EuiModalHeader>
@@ -104,7 +104,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
 
     return (
       <EuiPanel className="sql-console-query-editor container-panel" paddingSize="l">
-        <EuiText className="sql-query-panel-header"><h3>Query Editor</h3></EuiText>
+        <EuiText className="sql-query-panel-header"><h3>Query editor</h3></EuiText>
         <EuiSpacer size="s" />
         <EuiCodeEditor
           mode="sql"

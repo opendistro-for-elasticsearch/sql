@@ -29,7 +29,6 @@ import {
   EuiText,
   EuiCodeEditor,
   EuiSpacer,
-  EuiTextArea,
 } from "@elastic/eui";
 import { ResponseDetail, TranslateResult } from '../Main/main';
 import _ from 'lodash';
@@ -102,7 +101,7 @@ export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
 
     return (
       <EuiPanel className="sql-console-query-editor container-panel" paddingSize="l">
-        <EuiText className="sql-query-panel-header"><h3>Query Editor</h3></EuiText>
+        <EuiText className="sql-query-panel-header"><h3>Query editor</h3></EuiText>
         <EuiSpacer size="s" />
         <EuiCodeEditor
           theme="sql_console"

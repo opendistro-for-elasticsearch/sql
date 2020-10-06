@@ -574,7 +574,7 @@ export class Main extends React.Component<MainProps, MainState> {
         />
       );
       link = "https://opendistro.github.io/for-elasticsearch-docs/docs/sql/";
-      linkTitle = "SQL Documentation";
+      linkTitle = "SQL documentation";
     } else {
       page = (
         <PPLPage
@@ -587,7 +587,7 @@ export class Main extends React.Component<MainProps, MainState> {
         />
       );
       link = "https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/experiment/ppl/index.rst";
-      linkTitle = "PPL Documentation";
+      linkTitle = "PPL documentation";
     }
 
     if (this.state.isResultFullScreen) {

@@ -142,7 +142,6 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     this.panels = [
       {
         id: 0,
-        title: "Download",
         items: [
           {
             name: "Download JSON",

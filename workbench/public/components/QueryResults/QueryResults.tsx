@@ -23,6 +23,7 @@ import QueryResultsBody from "./QueryResultsBody";
 import { getQueryIndex, needsScrolling, getSelectedResults } from "../../utils/utils";
 import { DEFAULT_NUM_RECORDS_PER_PAGE, MESSAGE_TAB_LABEL, TAB_CONTAINER_ID } from "../../utils/constants";
 import { PanelWrapper } from '../../utils/PanelWrapper';
+import _ from 'lodash';
 
 interface QueryResultsProps {
   language: string;
@@ -164,7 +165,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     const tabs = [
       {
         id: MESSAGE_TAB_LABEL,
-        name: MESSAGE_TAB_LABEL,
+        name: _.truncate(MESSAGE_TAB_LABEL, { length: 17 }),
         disabled: false
       }
     ];
@@ -208,24 +209,12 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
         type={"arrowDown"}
       />
     );
-    const tabArrowRight = (
-      <EuiIcon
-        onClick={this.slideTabsRight}
-        type={"arrowRight"}
-      />
-    );
-    const tabArrowLeft = (
-      <EuiIcon
-        onClick={this.slideTabsLeft}
-        data-test-subj="slide-left"
-        type={"arrowLeft"}
-      />
-    );
     const tabs: Tab[] = this.renderTabs();
     const tabsItems = tabs.map((tab, index) => (
       <EuiContextMenuItem
         key="10 rows"
         icon="empty"
+        style={{ marginRight: 27 }}
         onClick={() => {
           this.closePopover();
           this.pager.goToPageIndex(0);
@@ -291,7 +280,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                 <h4>No result</h4>
               </EuiTextAlign>
               <EuiTextAlign textAlign="center">
-                <p>Enter a query in the Query editor above to see results</p>
+                <p>Enter a query in the query editor above to see results.</p>
               </EuiTextAlign>
             </EuiText>
             <EuiSpacer size="xxl" />
@@ -304,20 +293,6 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   padding: 5
                 }}
               >
-                {/*ARROW LEFT*/}
-                {this.state.tabsOverflow && (
-                  <div className="tab-arrow-down-container">
-                    <EuiFlexItem grow={false}>
-                      <EuiPopover
-                        button={tabArrowLeft}
-                        data-test-subj="slide-left"
-                      >
-                        <EuiContextMenuPanel items={tabsItems} />
-                      </EuiPopover>
-                    </EuiFlexItem>
-                  </div>
-                )}
-
                 {/*TABS*/}
                 <EuiFlexGroup
                   className="tabs-container"
@@ -333,18 +308,10 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   </EuiFlexItem>
                 </EuiFlexGroup>
 
-                {/*ARROW RIGHT and DOWN*/}
+                {/*ARROW DOWN*/}
                 {this.state.tabsOverflow && (
                   <div className="tab-arrow-down-container">
                     <EuiFlexGroup>
-                      <EuiFlexItem grow={false}>
-                        <EuiPopover
-                          button={tabArrowRight}
-                          data-test-subj="slide-right"
-                        >
-                          <EuiContextMenuPanel items={tabsItems} />
-                        </EuiPopover>
-                      </EuiFlexItem>
                       <EuiFlexItem grow={false}>
                         <EuiPopover
                           id="singlePanel"
