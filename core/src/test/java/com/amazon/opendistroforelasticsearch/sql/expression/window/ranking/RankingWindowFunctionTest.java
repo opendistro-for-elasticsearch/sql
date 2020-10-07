@@ -16,19 +16,25 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue.fromExprValueMap;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.ImmutableList;
-import org.junit.jupiter.api.BeforeEach;
+import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
@@ -38,95 +44,165 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RankingWindowFunctionTest extends ExpressionTestBase {
 
-  @Mock
-  private WindowFrame windowFrame;
+  private final CumulativeWindowFrame windowFrame1 = new CumulativeWindowFrame(
+      new WindowDefinition(
+          ImmutableList.of(DSL.ref("state", STRING)),
+          ImmutableList.of(Pair.of(DEFAULT_ASC, DSL.ref("age", INTEGER)))));
 
-  @BeforeEach
-  void setUp() {
-    when(windowFrame.isNewPartition()).thenReturn(true);
-  }
+  private final CumulativeWindowFrame windowFrame2 = new CumulativeWindowFrame(
+      new WindowDefinition(
+          ImmutableList.of(DSL.ref("state", STRING)),
+          ImmutableList.of())); // No sort items defined
 
   @Test
   void test_value_of() {
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+
     RankingWindowFunction rowNumber = dsl.rowNumber();
-    assertEquals(new ExprIntegerValue(1), rowNumber.valueOf(windowFrame));
+    assertEquals(new ExprIntegerValue(1), rowNumber.valueOf(windowFrame1));
   }
 
   @Test
   void test_row_number() {
     RankingWindowFunction rowNumber = dsl.rowNumber();
-    assertEquals(1, rowNumber.rank(windowFrame));
 
-    when(windowFrame.isNewPartition()).thenReturn(false);
-    assertEquals(2, rowNumber.rank(windowFrame));
-    assertEquals(3, rowNumber.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, rowNumber.rank(windowFrame1));
 
-    when(windowFrame.isNewPartition()).thenReturn(true);
-    assertEquals(1, rowNumber.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(2, rowNumber.rank(windowFrame1));
+
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(40))));
+    assertEquals(3, rowNumber.rank(windowFrame1));
+
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(20))));
+    assertEquals(1, rowNumber.rank(windowFrame1));
   }
 
   @Test
   void test_rank() {
     RankingWindowFunction rank = dsl.rank();
-    assertEquals(1, rank.rank(windowFrame));
 
-    when(windowFrame.isNewPartition()).thenReturn(false);
-    when(windowFrame.resolveSortItemValues(0)).thenReturn(
-        ImmutableList.of(new ExprIntegerValue(30)));
-    when(windowFrame.resolveSortItemValues(-1)).thenReturn(
-        ImmutableList.of(new ExprIntegerValue(30)));
-    assertEquals(1, rank.rank(windowFrame));
-    assertEquals(1, rank.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, rank.rank(windowFrame1));
 
-    when(windowFrame.resolveSortItemValues(0)).thenReturn(
-        ImmutableList.of(new ExprIntegerValue(50)));
-    assertEquals(4, rank.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, rank.rank(windowFrame1));
 
-    when(windowFrame.resolveSortItemValues(0)).thenReturn(
-        ImmutableList.of(new ExprIntegerValue(55)));
-    assertEquals(5, rank.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))));
+    assertEquals(3, rank.rank(windowFrame1));
 
-    when(windowFrame.isNewPartition()).thenReturn(true);
-    assertEquals(1, rank.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))));
+    assertEquals(4, rank.rank(windowFrame1));
+
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    assertEquals(1, rank.rank(windowFrame1));
   }
 
   @Test
   void test_dense_rank() {
     RankingWindowFunction denseRank = dsl.denseRank();
-    assertEquals(1, denseRank.rank(windowFrame));
 
-    when(windowFrame.isNewPartition()).thenReturn(false);
-    when(windowFrame.resolveSortItemValues(0)).thenReturn(
-        ImmutableList.of(new ExprIntegerValue(30)));
-    when(windowFrame.resolveSortItemValues(-1)).thenReturn(
-        ImmutableList.of(new ExprIntegerValue(30)));
-    assertEquals(1, denseRank.rank(windowFrame));
-    assertEquals(1, denseRank.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, denseRank.rank(windowFrame1));
 
-    when(windowFrame.resolveSortItemValues(0)).thenReturn(
-        ImmutableList.of(new ExprIntegerValue(50)));
-    assertEquals(2, denseRank.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, denseRank.rank(windowFrame1));
 
-    when(windowFrame.resolveSortItemValues(0)).thenReturn(
-        ImmutableList.of(new ExprIntegerValue(55)));
-    assertEquals(3, denseRank.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))));
+    assertEquals(2, denseRank.rank(windowFrame1));
 
-    when(windowFrame.isNewPartition()).thenReturn(true);
-    assertEquals(1, denseRank.rank(windowFrame));
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))));
+    assertEquals(3, denseRank.rank(windowFrame1));
+
+    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    assertEquals(1, denseRank.rank(windowFrame1));
   }
 
   @Test
-  void test_empty_sort_field_values() {
+  void row_number_should_work_if_no_sort_items_defined() {
+    RankingWindowFunction rowNumber = dsl.rowNumber();
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, rowNumber.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(2, rowNumber.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(40))));
+    assertEquals(3, rowNumber.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(20))));
+    assertEquals(1, rowNumber.rank(windowFrame2));
+  }
+
+  @Test
+  void rank_should_always_return_1_if_no_sort_items_defined() {
     RankingWindowFunction rank = dsl.rank();
-    when(windowFrame.isSortItemsNotDefined()).thenReturn(true);
-    assertEquals(1, rank.rank(windowFrame));
 
-    when(windowFrame.isNewPartition()).thenReturn(false);
-    assertEquals(2, rank.rank(windowFrame));
-    assertEquals(3, rank.rank(windowFrame));
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, rank.rank(windowFrame2));
 
-    when(windowFrame.isNewPartition()).thenReturn(true);
-    assertEquals(1, rank.rank(windowFrame));
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, rank.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))));
+    assertEquals(1, rank.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))));
+    assertEquals(1, rank.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    assertEquals(1, rank.rank(windowFrame2));
+  }
+
+  @Test
+  void dense_rank_should_always_return_1_if_no_sort_items_defined() {
+    RankingWindowFunction denseRank = dsl.denseRank();
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, denseRank.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    assertEquals(1, denseRank.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))));
+    assertEquals(1, denseRank.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))));
+    assertEquals(1, denseRank.rank(windowFrame2));
+
+    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    assertEquals(1, denseRank.rank(windowFrame2));
   }
 
 }

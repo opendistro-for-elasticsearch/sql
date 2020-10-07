@@ -26,8 +26,12 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Ranking window function base class that captures same info across different ranking functions,
@@ -51,7 +55,7 @@ public abstract class RankingWindowFunction extends FunctionExpression {
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    return new ExprIntegerValue(rank((WindowFrame) valueEnv));
+    return new ExprIntegerValue(rank((CumulativeWindowFrame) valueEnv));
   }
 
   /**
@@ -59,21 +63,38 @@ public abstract class RankingWindowFunction extends FunctionExpression {
    * @param frame   window frame
    * @return        rank number
    */
-  protected abstract int rank(WindowFrame frame);
+  protected abstract int rank(CumulativeWindowFrame frame);
 
   /**
    * Check sort field to see if current value is different from previous.
    * @param frame   window frame
    * @return        true if different or no sort list defined, otherwise false
    */
-  protected boolean isSortFieldValueDifferent(WindowFrame frame) {
-    if (frame.isSortItemsNotDefined()) {
-      return true;
+  protected boolean isSortFieldValueDifferent(CumulativeWindowFrame frame) {
+    if (isSortItemsNotDefined(frame)) {
+      return false;
     }
 
-    List<ExprValue> previous = frame.resolveSortItemValues(-1);
-    List<ExprValue> current = frame.resolveSortItemValues(0);
+    List<Expression> sortItems = frame.getWindowDefinition()
+                                      .getSortList()
+                                      .stream()
+                                      .map(Pair::getRight)
+                                      .collect(Collectors.toList());
+
+    List<ExprValue> previous = resolve(frame, sortItems, frame.currentIndex() - 1);
+    List<ExprValue> current = resolve(frame, sortItems, frame.currentIndex());
     return !current.equals(previous);
+  }
+
+  private boolean isSortItemsNotDefined(CumulativeWindowFrame frame) {
+    return frame.getWindowDefinition().getSortList().isEmpty();
+  }
+
+  private List<ExprValue> resolve(WindowFrame frame, List<Expression> expressions, int index) {
+    BindingTuple valueEnv = frame.get(index).bindingTuples();
+    return expressions.stream()
+                      .map(expr -> expr.valueOf(valueEnv))
+                      .collect(Collectors.toList());
   }
 
   @Override

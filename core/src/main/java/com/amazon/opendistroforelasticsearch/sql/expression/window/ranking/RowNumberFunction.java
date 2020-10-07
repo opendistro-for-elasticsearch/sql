@@ -17,7 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
 import lombok.EqualsAndHashCode;
 
 /**
@@ -31,7 +31,7 @@ public class RowNumberFunction extends RankingWindowFunction {
   }
 
   @Override
-  protected int rank(WindowFrame frame) {
+  protected int rank(CumulativeWindowFrame frame) {
     if (frame.isNewPartition()) {
       rank = 1;
     }

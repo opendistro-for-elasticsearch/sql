@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,7 +28,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Conceptually, window function has access to all the data in the frame defined by
@@ -40,7 +40,7 @@ import org.apache.commons.lang3.tuple.Pair;
 @Getter
 @RequiredArgsConstructor
 @ToString
-public class WindowFrame implements Environment<Expression, ExprValue> {
+public class CumulativeWindowFrame implements WindowFrame {
 
   private final WindowDefinition windowDefinition;
 
@@ -48,21 +48,6 @@ public class WindowFrame implements Environment<Expression, ExprValue> {
   private ExprTupleValue current;
 
   @Override
-  public ExprValue resolve(Expression var) {
-    return var.valueOf(current.bindingTuples());
-  }
-
-  private List<ExprValue> resolve(List<Expression> expressions, ExprTupleValue row) {
-    Environment<Expression, ExprValue> valueEnv = row.bindingTuples();
-    return expressions.stream()
-                      .map(expr -> expr.valueOf(valueEnv))
-                      .collect(Collectors.toList());
-  }
-
-  /**
-   * Check is current row the beginning of a new partition according to window definition.
-   * @return  true if a new partition begins here, otherwise false.
-   */
   public boolean isNewPartition() {
     Objects.requireNonNull(current);
 
@@ -75,33 +60,34 @@ public class WindowFrame implements Environment<Expression, ExprValue> {
     return !preValues.equals(curValues);
   }
 
-  /**
-   * Is there any sort item defined in window definition.
-   * @return  true if any sort item
-   */
-  public boolean isSortItemsNotDefined() {
-    return windowDefinition.getSortList().isEmpty();
+  @Override
+  public int currentIndex() {
+    return 1;
   }
 
   /**
    * Update frame with a new row.
    * @param row   data row
    */
+  @Override
   public void add(ExprTupleValue row) {
     previous = current;
     current = row;
   }
 
-  /**
-   * Resolve sort item values on certain position.
-   * @param offset offset
-   * @return       value list
-   */
-  public List<ExprValue> resolveSortItemValues(int offset) {
-    List<Expression> sortItems =
-        windowDefinition.getSortList().stream().map(Pair::getRight).collect(Collectors.toList());
+  @Override
+  public ExprTupleValue get(int index) {
+    if (index != 0 && index != 1) {
+      throw new IndexOutOfBoundsException("Index is out of boundary of window frame: " + index);
+    }
+    return (index == 0) ? previous : current;
+  }
 
-    return (offset == 0) ? resolve(sortItems, current) : resolve(sortItems, previous);
+  private List<ExprValue> resolve(List<Expression> expressions, ExprTupleValue row) {
+    Environment<Expression, ExprValue> valueEnv = row.bindingTuples();
+    return expressions.stream()
+                      .map(expr -> expr.valueOf(valueEnv))
+                      .collect(Collectors.toList());
   }
 
 }

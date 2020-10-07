@@ -19,27 +19,28 @@ package com.amazon.opendistroforelasticsearch.sql.expression.window;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
-import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 
-class WindowFrameTest {
+class CumulativeWindowFrameTest {
 
   private final WindowDefinition windowDefinition = new WindowDefinition(
       ImmutableList.of(DSL.ref("state", STRING)),
       ImmutableList.of(ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER))));
 
-  private final WindowFrame windowFrame = new WindowFrame(windowDefinition);
+  private final WindowFrame windowFrame = new CumulativeWindowFrame(windowDefinition);
 
   @Test
   void should_return_new_partition_if_partition_by_field_value_changed() {
@@ -73,30 +74,8 @@ class WindowFrameTest {
   }
 
   @Test
-  void can_resolve_sort_item_value_on_position() {
-    windowFrame.add(ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"),
-        "age", new ExprIntegerValue(20))));
-    assertEquals(
-        ImmutableList.of(new ExprIntegerValue(20)),
-        windowFrame.resolveSortItemValues(0));
-
-    windowFrame.add(ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"),
-        "age", new ExprIntegerValue(30))));
-    assertEquals(
-        ImmutableList.of(new ExprIntegerValue(20)),
-        windowFrame.resolveSortItemValues(-1));
-    assertEquals(
-        ImmutableList.of(new ExprIntegerValue(30)),
-        windowFrame.resolveSortItemValues(0));
-  }
-
-  @Test
-  void can_check_if_no_sort_item_defined_in_window_definition() {
-    WindowFrame windowFrame = new WindowFrame(new WindowDefinition(
-        ImmutableList.of(DSL.ref("state", STRING)), emptyList()));
-    assertTrue(windowFrame.isSortItemsNotDefined());
+  void should_throw_exception_if_access_row_out_of_boundary() {
+    assertThrows(IndexOutOfBoundsException.class, () -> windowFrame.get(2));
   }
 
 }
