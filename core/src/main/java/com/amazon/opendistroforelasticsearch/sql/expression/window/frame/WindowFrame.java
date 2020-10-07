@@ -21,6 +21,15 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 
+/**
+ * Window frame that represents a subset of a window which is all data accessible to
+ * the window function when calculation. Basically there are 3 types of window frame:
+ *  1) Entire window frame that holds all data of the window
+ *  2) Cumulative window frame that accumulates one row by another
+ *  3) Sliding window frame that maintains a sliding window of fixed size
+ * Note that which type of window frame is used is determined by both window function itself
+ * and frame definition in a window definition.
+ */
 public interface WindowFrame extends Environment<Expression, ExprValue> {
 
   @Override

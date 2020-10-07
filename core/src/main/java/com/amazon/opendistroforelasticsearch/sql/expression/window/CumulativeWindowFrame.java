@@ -30,11 +30,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Conceptually, window function has access to all the data in the frame defined by
- * window definition. However, this needs to hold all preceding and following rows.
- * So here we only hold current row and assume window function maintains the previous
- * state. This workaround may not work for window functions that needs access to following
- * rows such as LAG.
+ * Cumulative window frame that accumulates data row incrementally as window operator iterates
+ * input rows. Conceptually, cumulative window frame should hold all seen rows till next partition.
+ * This class is actually an optimized version that only hold previous and current row. This is
+ * efficient and sufficient for ranking and aggregate window function support for now, though need
+ * to add "real" cumulative frame implementation in future as needed.
  */
 @EqualsAndHashCode
 @Getter
@@ -62,13 +62,10 @@ public class CumulativeWindowFrame implements WindowFrame {
 
   @Override
   public int currentIndex() {
+    // Current row index is always 1 since only 2 rows maintained
     return 1;
   }
 
-  /**
-   * Update frame with a new row.
-   * @param row   data row
-   */
   @Override
   public void add(ExprTupleValue row) {
     previous = current;

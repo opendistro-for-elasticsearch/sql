@@ -68,7 +68,7 @@ public abstract class RankingWindowFunction extends FunctionExpression {
   /**
    * Check sort field to see if current value is different from previous.
    * @param frame   window frame
-   * @return        true if different or no sort list defined, otherwise false
+   * @return        true if different, false if same or no sort list defined
    */
   protected boolean isSortFieldValueDifferent(CumulativeWindowFrame frame) {
     if (isSortItemsNotDefined(frame)) {
