@@ -272,7 +272,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                     ImmutableList.of(
                         ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))))),
             DSL.named("string_value", DSL.ref("string_value", STRING)),
-            DSL.named("window_function", DSL.ref("row_number", INTEGER))),
+            DSL.named("window_function", DSL.ref("row_number()", INTEGER))),
         AstDSL.project(
             AstDSL.relation("test"),
             AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),

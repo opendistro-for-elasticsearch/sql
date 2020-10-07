@@ -41,7 +41,10 @@ Ranking Functions
 
 Ranking functions are window functions that assign an incremental rank to each row in the window. How the rank number gets increased is up to ranking function implementation, though the rank is mostly determined by field values in ``ORDER BY`` list. If ``PARTITION BY`` clause present, the state of ranking functions (incremental rank number maintained) will be reset.
 
-Note that normally ranking functions are supposed to be used with window definition that defines the order of data rows in the window. Otherwise the result is undetermined.
+Determinism
+-----------
+
+Note that normally ranking functions are supposed to be used with window definition that defines the order of data rows in the window. Otherwise the result is undetermined. In this case, ``ROW_NUMBER`` assigns row number to data rows in random order. ``RANK`` and ``DENSE_RANK`` always assigns rank 1 to each row.
 
 ROW_NUMBER
 ----------

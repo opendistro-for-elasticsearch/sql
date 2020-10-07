@@ -26,6 +26,9 @@ import lombok.Data;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+/**
+ * Window definition that consists of partition and sort by information for a window.
+ */
 @Data
 public class WindowDefinition {
 
