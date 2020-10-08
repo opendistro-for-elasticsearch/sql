@@ -332,7 +332,7 @@ public class FieldMaker {
                     paramers.add(new KVValue("children", childrenType));
                 } else if (SQLFunctions.isFunctionTranslatedToScript(methodName)) {
                     //throw new SqlParseException("only support script/nested as inner functions");
-                    MethodField abc = makeMethodField(methodName, mExpr.getParameters(), null, null, tableAlias, false);
+                    MethodField abc = makeMethodField(methodName, mExpr.getParameters(), null, null, tableAlias, first);
                     paramers.add(new KVValue(abc.getParams().get(0).toString(),
                             new SQLCharExpr(abc.getParams().get(1).toString())));
                 } else {
@@ -350,8 +350,8 @@ public class FieldMaker {
 
                 // Parameter "first" indicates if return statement is required. Take CAST statement nested in
                 // aggregate function SUM(CAST...) for example, return statement is required in this case.
-                // Otherwise DSL with metric aggregation always returns 0 as result. And also the caller
-                // makeFieldImpl(SQLExpr("SUM...")) does pass first=true to here.
+                // Otherwise DSL with metric aggregation always returns 0 as result. And this works also because
+                // the caller makeFieldImpl(SQLExpr("SUM...")) does pass first=true to here.
                 if (first) {
                     scriptCode += "; return " + castName;
                 }
