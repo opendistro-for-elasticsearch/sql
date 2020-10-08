@@ -191,7 +191,7 @@ export class Main extends React.Component<MainProps, MainState> {
 
     this.state = {
       language: 'PPL',
-      sqlQueriesString: "SHOW tables LIKE %",
+      sqlQueriesString: "SHOW tables LIKE %;",
       pplQueriesString: "",
       queries: [],
       queryTranslations: [],
@@ -586,7 +586,7 @@ export class Main extends React.Component<MainProps, MainState> {
           updatePPLQueries={this.updatePPLQueries}
         />
       );
-      link = "https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/experiment/ppl/index.rst";
+      link = "https://opendistro.github.io/for-elasticsearch-docs/docs/ppl/";
       linkTitle = "PPL documentation";
     }
 

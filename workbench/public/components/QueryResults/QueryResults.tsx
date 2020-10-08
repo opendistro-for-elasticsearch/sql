@@ -256,6 +256,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   <EuiButtonIcon
                     iconType="cross"
                     color="text"
+                    id="exit-fullscreen-button"
                     onClick={() => this.props.setIsResultFullScreen(false)}
                   />
                   :

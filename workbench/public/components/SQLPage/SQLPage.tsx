@@ -117,7 +117,6 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
           setOptions={{
             fontSize: "14px",
             enableBasicAutocompletion: true,
-            enableSnippets: true,
             enableLiveAutocompletion: true
           }}
           aria-label="Code Editor"
