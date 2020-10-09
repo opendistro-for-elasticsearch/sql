@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -297,6 +298,17 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
     assertThat(row.get(2), equalTo(TestsConstants.TEST_INDEX_ACCOUNT));
     assertThat(row.get(3), not(equalTo(JSONObject.NULL)));
     assertThat(row.get(5), not(equalTo(JSONObject.NULL)));
+  }
+
+  @Test
+  public void describeSingleIndexAlias() throws IOException {
+    client().performRequest(new Request("PUT",
+        TestsConstants.TEST_INDEX_ACCOUNT + "/_alias/accounts"));
+
+    JSONObject expected = executeQuery("DESCRIBE TABLES LIKE " + TestsConstants.TEST_INDEX_ACCOUNT);
+    JSONObject actual = executeQuery("DESCRIBE TABLES LIKE accounts");
+    assertTrue(StringUtils.format("Expected: %s, actual: %s", expected, actual),
+        expected.similar(actual));
   }
 
   @Test
