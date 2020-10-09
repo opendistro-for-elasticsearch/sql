@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySome;
 
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import java.io.IOException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -371,7 +372,7 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
   }
 
   private void week(String date, int mode, int expectedResult) throws IOException {
-    JSONObject result = executeQuery(String.format(
+    JSONObject result = executeQuery(StringUtils.format(
         "source=%s | eval f = week(date('%s'), %d) | fields f", TEST_INDEX_DATE, date, mode));
     verifySchema(result, schema("f", null, "integer"));
     verifySome(result.getJSONArray("datarows"), rows(expectedResult));
