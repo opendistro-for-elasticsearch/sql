@@ -82,6 +82,8 @@ ON:                                 'ON';
 OR:                                 'OR';
 ORDER:                              'ORDER';
 OUTER:                              'OUTER';
+OVER:                               'OVER';
+PARTITION:                          'PARTITION';
 REGEXP:                             'REGEXP';
 RIGHT:                              'RIGHT';
 SELECT:                             'SELECT';
@@ -231,6 +233,11 @@ TS:                                 'TS';
 LEFT_BRACE:                         '{';
 RIGHT_BRACE:                        '}';
 
+
+// Window function names
+DENSE_RANK:                         'DENSE_RANK';
+RANK:                               'RANK';
+ROW_NUMBER:                         'ROW_NUMBER';
 
 // OD SQL special functions
 DATE_HISTOGRAM:                     'DATE_HISTOGRAM';

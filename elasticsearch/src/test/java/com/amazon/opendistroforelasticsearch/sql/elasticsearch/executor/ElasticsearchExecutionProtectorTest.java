@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
@@ -24,7 +25,12 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.sort;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.values;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.window;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
@@ -37,14 +43,18 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protecto
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ResourceMonitorPlan;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankFunction;
 import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
@@ -103,12 +113,13 @@ class ElasticsearchExecutionProtectorTest {
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
+        ImmutablePair.of(DEFAULT_ASC, ref("name1", STRING));
 
     assertEquals(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
                 PhysicalPlanDSL.rareTopN(
+                    resourceMonitor(
                     PhysicalPlanDSL.sort(
                         PhysicalPlanDSL.eval(
                             PhysicalPlanDSL.remove(
@@ -129,7 +140,7 @@ class ElasticsearchExecutionProtectorTest {
                                 exclude),
                             newEvalField),
                         sortCount,
-                        sortField),
+                        sortField)),
                     CommandType.TOP,
                     topExprs,
                     topField),
@@ -165,6 +176,35 @@ class ElasticsearchExecutionProtectorTest {
                         topField),
                     dedupeField),
                 include)));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testProtectSortForWindowOperator() {
+    Expression rank = mock(RankFunction.class);
+    Pair<Sort.SortOption, Expression> sortItem =
+        ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER));
+    WindowDefinition windowDefinition =
+        new WindowDefinition(emptyList(), ImmutableList.of(sortItem));
+
+    assertEquals(
+        window(
+            resourceMonitor(
+                sort(
+                    values(emptyList()),
+                    0,
+                    sortItem)),
+            rank,
+            windowDefinition),
+        executionProtector.protect(
+            window(
+                sort(
+                    values(emptyList()),
+                    0,
+                    sortItem
+                ),
+                rank,
+                windowDefinition)));
   }
 
   @Test

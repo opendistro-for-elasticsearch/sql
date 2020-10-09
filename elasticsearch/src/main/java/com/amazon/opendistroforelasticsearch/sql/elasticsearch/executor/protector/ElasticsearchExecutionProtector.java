@@ -29,6 +29,8 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperat
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.WindowOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import lombok.RequiredArgsConstructor;
 
@@ -109,9 +111,33 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
   }
 
   @Override
+  public PhysicalPlan visitWindow(WindowOperator node, Object context) {
+    return new WindowOperator(
+        visitInput(node.getInput(), context),
+        node.getWindowFunction(),
+        node.getWindowDefinition());
+  }
+
+  /**
+   * Decorate with {@link ResourceMonitorPlan}.
+   */
+  @Override
   public PhysicalPlan visitSort(SortOperator node, Object context) {
-    return new SortOperator(visitInput(node.getInput(), context), node.getCount(),
-        node.getSortList());
+    return new ResourceMonitorPlan(
+        new SortOperator(
+            visitInput(node.getInput(), context),
+            node.getCount(),
+            node.getSortList()),
+        resourceMonitor);
+  }
+
+  /**
+   * Values are a sequence of rows of literal value in memory
+   * which doesn't need memory protection.
+   */
+  @Override
+  public PhysicalPlan visitValues(ValuesOperator node, Object context) {
+    return node;
   }
 
   PhysicalPlan visitInput(PhysicalPlan node, Object context) {

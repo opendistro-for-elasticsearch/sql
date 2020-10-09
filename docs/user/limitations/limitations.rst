@@ -54,6 +54,17 @@ For example, e.g. `SELECT depo.name, avg(empo.age) FROM empo JOIN depo WHERE emp
 Here's a link to the Github issue - [Issue 110](https://github.com/opendistro-for-elasticsearch/sql/issues/110).
 
 
+Limitations on Window Functions
+===============================
+
+For now, only the field defined in index is allowed, all the other calculated fields (calculated by scalar or aggregated functions) is not allowed. For example, ``avg_flight_time`` is not accessible to the rank window definition as follows::
+
+    SELECT OriginCountry, AVG(FlightTimeMin) AS avg_flight_time,
+           RANK() OVER (ORDER BY avg_flight_time) AS rnk
+    FROM kibana_sample_data_flights
+    GROUP BY OriginCountry
+
+
 Limitations on Pagination
 =========================
 
@@ -100,3 +111,7 @@ Multi-fields in WHERE Conditions
 
 The filter expressions in ``WHERE`` clause may be pushed down to Elasticsearch DSL queries to avoid large amounts of data retrieved. In this case, for Elasticsearch multi-field (a text field with another keyword field inside), assumption is made that the keyword field name is always "keyword" which is true by default.
 
+Multiple Window Functions
+-------------------------
+
+At the moment there is no optimization to merge similar sort operators to avoid unnecessary sort. In this case, only one sort operator associated with window function will be pushed down to Elasticsearch DSL queries. Others will sort the intermediate results in memory and return to its window operator in the upstream. This cost can be avoided by optimization aforementioned though in-memory sorting operation can still happen. Therefore a custom circuit breaker is in use to monitor sort operator and protect memory usage.

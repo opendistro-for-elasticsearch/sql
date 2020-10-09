@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
@@ -55,6 +56,12 @@ public class LogicalPlanDSL {
 
   public static LogicalPlan project(LogicalPlan input, NamedExpression... fields) {
     return new LogicalProject(input, Arrays.asList(fields));
+  }
+
+  public LogicalPlan window(LogicalPlan input,
+                            Expression windowFunction,
+                            WindowDefinition windowDefinition) {
+    return new LogicalWindow(input, windowFunction, windowDefinition);
   }
 
   public static LogicalPlan remove(LogicalPlan input, ReferenceExpression... fields) {

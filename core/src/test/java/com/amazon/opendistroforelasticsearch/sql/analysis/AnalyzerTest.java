@@ -28,7 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -40,15 +40,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -253,6 +253,35 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.alias("false", AstDSL.booleanLiteral(false))
         )
     );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void window_function() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.window(
+                LogicalPlanDSL.sort(
+                    LogicalPlanDSL.relation("test"),
+                    0,
+                    ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
+                    ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))),
+                dsl.rowNumber(),
+                new WindowDefinition(
+                    ImmutableList.of(DSL.ref("string_value", STRING)),
+                    ImmutableList.of(
+                        ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))))),
+            DSL.named("string_value", DSL.ref("string_value", STRING)),
+            DSL.named("window_function", DSL.ref("row_number()", INTEGER))),
+        AstDSL.project(
+            AstDSL.relation("test"),
+            AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),
+            AstDSL.alias("window_function",
+                AstDSL.window(
+                    AstDSL.function("row_number"),
+                    Collections.singletonList(AstDSL.qualifiedName("string_value")),
+                    Collections.singletonList(
+                        ImmutablePair.of("ASC", AstDSL.qualifiedName("integer_value")))))));
   }
 
   /**

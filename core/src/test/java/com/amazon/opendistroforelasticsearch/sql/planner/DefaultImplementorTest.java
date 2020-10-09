@@ -31,6 +31,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalP
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.values;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.window;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,6 +46,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RowNumberFunction;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScanAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -54,6 +57,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -96,7 +100,7 @@ class DefaultImplementorTest {
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
+        ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("name1", STRING));
     Boolean keeplast = true;
     Expression whileExpr = literal(ExprBooleanValue.of(true));
     Integer number = 5;
@@ -165,6 +169,49 @@ class DefaultImplementorTest {
   public void visitRelationShouldThrowException() {
     assertThrows(UnsupportedOperationException.class,
         () -> new LogicalRelation("test").accept(implementor, null));
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  @Test
+  public void visitWindowOperatorShouldReturnPhysicalWindowOperator() {
+    Expression windowFunction = new RowNumberFunction();
+    WindowDefinition windowDefinition = new WindowDefinition(
+        Collections.singletonList(ref("state", STRING)),
+        Collections.singletonList(
+            ImmutablePair.of(Sort.SortOption.DEFAULT_DESC, ref("age", INTEGER))));
+
+    NamedExpression[] projectList = {
+        named("state", ref("state", STRING)),
+        named("row_number", ref("row_number", INTEGER))
+    };
+    Pair[] sortList = {
+        ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("state", STRING)),
+        ImmutablePair.of(Sort.SortOption.DEFAULT_DESC, ref("age", STRING))
+    };
+
+    LogicalPlan logicalPlan =
+        project(
+            window(
+                sort(
+                    values(),
+                    0,
+                    sortList),
+                windowFunction,
+                windowDefinition),
+            projectList);
+
+    PhysicalPlan physicalPlan =
+        PhysicalPlanDSL.project(
+            PhysicalPlanDSL.window(
+                PhysicalPlanDSL.sort(
+                    PhysicalPlanDSL.values(),
+                    0,
+                    sortList),
+                windowFunction,
+                windowDefinition),
+            projectList);
+
+    assertEquals(physicalPlan, logicalPlan.accept(implementor, null));
   }
 
   @Test

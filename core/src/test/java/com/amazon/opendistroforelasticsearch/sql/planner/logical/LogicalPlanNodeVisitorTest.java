@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.stream.Collectors;
@@ -104,12 +105,18 @@ class LogicalPlanNodeVisitorTest {
     assertNull(eval.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    LogicalPlan sort = LogicalPlanDSL.sort(relation, 100, Pair.of(SortOption.PPL_ASC, expression));
+    LogicalPlan sort = LogicalPlanDSL.sort(relation, 100,
+        Pair.of(SortOption.DEFAULT_ASC, expression));
     assertNull(sort.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     LogicalPlan dedup = LogicalPlanDSL.dedupe(relation, 1, false, false, expression);
     assertNull(dedup.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    LogicalPlan window = LogicalPlanDSL.window(relation, expression, new WindowDefinition(
+        ImmutableList.of(ref), ImmutableList.of(Pair.of(SortOption.DEFAULT_ASC, expression))));
+    assertNull(window.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     LogicalPlan rareTopN = LogicalPlanDSL.rareTopN(
