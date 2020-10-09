@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -75,17 +76,20 @@ class ElasticsearchResponseTest {
                 new TotalHits(2L, TotalHits.Relation.EQUAL_TO),
                 1.0F));
 
-    ElasticsearchResponse response1 = new ElasticsearchResponse(esResponse, factory);
-    assertFalse(response1.isEmpty());
+    assertFalse(new ElasticsearchResponse(esResponse, factory).isEmpty());
 
     when(esResponse.getHits()).thenReturn(SearchHits.empty());
-    ElasticsearchResponse response2 = new ElasticsearchResponse(esResponse, factory);
-    assertTrue(response2.isEmpty());
+    when(esResponse.getAggregations()).thenReturn(null);
+    assertTrue(new ElasticsearchResponse(esResponse, factory).isEmpty());
 
     when(esResponse.getHits())
         .thenReturn(new SearchHits(null, new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0));
     ElasticsearchResponse response3 = new ElasticsearchResponse(esResponse, factory);
     assertTrue(response3.isEmpty());
+
+    when(esResponse.getHits()).thenReturn(SearchHits.empty());
+    when(esResponse.getAggregations()).thenReturn(new Aggregations(emptyList()));
+    assertFalse(new ElasticsearchResponse(esResponse, factory).isEmpty());
   }
 
   @Test
