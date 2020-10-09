@@ -142,8 +142,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   }
 
   private boolean isBoolFilterQuery(QueryBuilder current) {
-    return (current instanceof BoolQueryBuilder)
-        && !((BoolQueryBuilder) current).filter().isEmpty();
+    return (current instanceof BoolQueryBuilder);
   }
 
 }
