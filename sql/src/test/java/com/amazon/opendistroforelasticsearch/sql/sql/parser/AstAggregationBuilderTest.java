@@ -134,6 +134,15 @@ class AstAggregationBuilderTest {
             alias("ABS(age)", function("ABS", qualifiedName("age")))));
   }
 
+  @Test
+  void should_report_error_for_non_integer_ordinal_in_group_by() {
+    SemanticCheckException error = assertThrows(SemanticCheckException.class, () ->
+        buildAggregation("SELECT state AS s FROM test GROUP BY 1.5"));
+    assertEquals(
+        "Non-integer constant [1.5] found in GROUP BY clause",
+        error.getMessage());
+  }
+
   @Disabled("This validation is supposed to be in analyzing phase")
   @Test
   void should_report_error_for_mismatch_between_select_and_group_by_items() {
