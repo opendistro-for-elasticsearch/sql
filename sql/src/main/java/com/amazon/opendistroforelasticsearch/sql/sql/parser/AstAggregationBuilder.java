@@ -139,12 +139,12 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private boolean isNonAggregatedExpression(UnresolvedExpression expr) {
-    List<? extends Node> children = expr.getChild();
-    if (children.isEmpty()) {
-      return true;
+    if (expr instanceof AggregateFunction) {
+      return false;
     }
-    return !(expr instanceof AggregateFunction)
-        && children.stream()
+
+    List<? extends Node> children = expr.getChild();
+    return children.stream()
                    .allMatch(child -> isNonAggregatedExpression((UnresolvedExpression) child));
   }
 
