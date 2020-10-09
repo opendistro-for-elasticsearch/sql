@@ -30,12 +30,12 @@ interface SwitchState {
 
 const toggleButtons = [
     {
-        id: 'PPL',
-        label: 'PPL',
-    },
-    {
         id: 'SQL',
         label: 'SQL',
+    },
+    {
+        id: 'PPL',
+        label: 'PPL',
     },
 ];
 
