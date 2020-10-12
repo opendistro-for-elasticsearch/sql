@@ -34,7 +34,6 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NullLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OverClauseContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.RankingWindowFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.RegexpPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedDecimalContext;
@@ -42,7 +41,6 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TimeLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TimestampLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
@@ -58,11 +56,14 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AndExpressionContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ColumnNameContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IntervalLiteralContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NestedExpressionAtomContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrExpressionContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ScalarWindowFunctionContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TableNameContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionClauseContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import java.util.Arrays;
 import java.util.Collections;
@@ -117,21 +118,11 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
-    if (ctx.functionArgs() == null) {
-      return new Function(ctx.scalarFunctionName().getText(), Collections.emptyList());
-    }
-    return new Function(
-        ctx.scalarFunctionName().getText(),
-        ctx.functionArgs()
-           .functionArg()
-           .stream()
-           .map(this::visitFunctionArg)
-           .collect(Collectors.toList())
-    );
+    return visitFunction(ctx.scalarFunctionName().getText(), ctx.functionArgs());
   }
 
   @Override
-  public UnresolvedExpression visitWindowFunction(WindowFunctionContext ctx) {
+  public UnresolvedExpression visitWindowFunctionClause(WindowFunctionClauseContext ctx) {
     OverClauseContext overClause = ctx.overClause();
 
     List<UnresolvedExpression> partitionByList = Collections.emptyList();
@@ -151,12 +142,12 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
                            .map(item -> ImmutablePair.of(getOrder(item), visit(item.expression())))
                            .collect(Collectors.toList());
     }
-    return new WindowFunction((Function) visit(ctx.function), partitionByList, sortList);
+    return new WindowFunction(visit(ctx.function), partitionByList, sortList);
   }
 
   @Override
-  public UnresolvedExpression visitRankingWindowFunction(RankingWindowFunctionContext ctx) {
-    return new Function(ctx.functionName.getText(), Collections.emptyList());
+  public UnresolvedExpression visitScalarWindowFunction(ScalarWindowFunctionContext ctx) {
+    return visitFunction(ctx.functionName.getText(), ctx.functionArgs());
   }
 
   @Override
@@ -257,6 +248,19 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
     return new Function(
         functionName.equals("<>") ? "!=" : functionName,
         Arrays.asList(visit(ctx.left), visit(ctx.right))
+    );
+  }
+
+  private Function visitFunction(String functionName, FunctionArgsContext args) {
+    if (args == null) {
+      return new Function(functionName, Collections.emptyList());
+    }
+    return new Function(
+        functionName,
+        args.functionArg()
+            .stream()
+            .map(this::visitFunctionArg)
+            .collect(Collectors.toList())
     );
   }
 

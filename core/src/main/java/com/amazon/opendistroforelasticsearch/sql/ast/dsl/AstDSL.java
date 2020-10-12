@@ -26,7 +26,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -188,7 +187,7 @@ public class AstDSL {
     return new Function(funcName, Arrays.asList(funcArgs));
   }
 
-  public UnresolvedExpression window(Function function,
+  public UnresolvedExpression window(UnresolvedExpression function,
                                      List<UnresolvedExpression> partitionByList,
                                      List<Pair<String, UnresolvedExpression>> sortList) {
     return new WindowFunction(function, partitionByList, sortList);

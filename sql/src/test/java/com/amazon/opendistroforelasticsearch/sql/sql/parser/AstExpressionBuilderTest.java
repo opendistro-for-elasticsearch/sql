@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
@@ -261,6 +262,16 @@ class AstExpressionBuilderTest {
             ImmutableList.of(),
             ImmutableList.of(ImmutablePair.of("DESC", qualifiedName("age")))),
         buildExprAst("DENSE_RANK() OVER (ORDER BY age DESC)"));
+  }
+
+  @Test
+  public void canBuildAggregateWindowFunction() {
+    assertEquals(
+        window(
+            aggregate("AVG", qualifiedName("age")),
+            ImmutableList.of(qualifiedName("state")),
+            ImmutableList.of(ImmutablePair.of("ASC", qualifiedName("age")))),
+        buildExprAst("AVG(age) OVER (PARTITION BY state ORDER BY age)"));
   }
 
   @Test

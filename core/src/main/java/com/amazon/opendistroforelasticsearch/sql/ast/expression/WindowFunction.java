@@ -32,7 +32,7 @@ import org.apache.commons.lang3.tuple.Pair;
 @RequiredArgsConstructor
 public class WindowFunction extends UnresolvedExpression {
 
-  private final Function function;
+  private final UnresolvedExpression function;
   private List<UnresolvedExpression> partitionByList;
   private List<Pair<String, UnresolvedExpression>> sortList;
 

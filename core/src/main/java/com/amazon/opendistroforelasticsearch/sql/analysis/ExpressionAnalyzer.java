@@ -40,10 +40,12 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregationState;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -148,9 +150,13 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return (Expression) repository.compile(functionName, arguments);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Expression visitWindowFunction(WindowFunction node, AnalysisContext context) {
-    return visitFunction(node.getFunction(), context);
+    Expression expr = node.getFunction().accept(this, context);
+    // Wrap regular aggregator by aggregate window function to adapt window operator use
+    return expr instanceof Aggregator ? new AggregateWindowFunction(
+        (Aggregator<AggregationState>) expr) : expr;
   }
 
   @Override
