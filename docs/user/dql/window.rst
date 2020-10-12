@@ -46,7 +46,12 @@ COUNT
 
 Here is an example for ``COUNT`` function::
 
-    od> SELECT gender, balance, COUNT(balance) OVER(PARTITION BY gender ORDER BY balance) AS cnt FROM accounts;
+    od> SELECT
+    ...   gender, balance,
+    ...   COUNT(balance) OVER(
+    ...     PARTITION BY gender ORDER BY balance
+    ... ) AS cnt
+    ... FROM accounts;
     fetched rows / total rows = 4/4
     +----------+-----------+-------+
     | gender   | balance   | cnt   |
@@ -60,14 +65,87 @@ Here is an example for ``COUNT`` function::
 MIN
 ---
 
+Here is an example for ``MIN`` function::
+
+    od> SELECT
+    ...   gender, balance,
+    ...   MIN(balance) OVER(
+    ...     PARTITION BY gender ORDER BY balance
+    ... ) AS cnt
+    ... FROM accounts;
+    fetched rows / total rows = 4/4
+    +----------+-----------+-------+
+    | gender   | balance   | cnt   |
+    |----------+-----------+-------|
+    | F        | 32838     | 32838 |
+    | M        | 4180      | 4180  |
+    | M        | 5686      | 4180  |
+    | M        | 39225     | 4180  |
+    +----------+-----------+-------+
+
 MAX
 ---
+
+Here is an example for ``MAX`` function::
+
+    od> SELECT
+    ...   gender, balance,
+    ...   MAX(balance) OVER(
+    ...     PARTITION BY gender ORDER BY balance
+    ... ) AS cnt
+    ... FROM accounts;
+    fetched rows / total rows = 4/4
+    +----------+-----------+-------+
+    | gender   | balance   | cnt   |
+    |----------+-----------+-------|
+    | F        | 32838     | 32838 |
+    | M        | 4180      | 4180  |
+    | M        | 5686      | 5686  |
+    | M        | 39225     | 39225 |
+    +----------+-----------+-------+
 
 AVG
 ---
 
+Here is an example for ``AVG`` function::
+
+    od> SELECT
+    ...   gender, balance,
+    ...   AVG(balance) OVER(
+    ...     PARTITION BY gender ORDER BY balance
+    ... ) AS cnt
+    ... FROM accounts;
+    fetched rows / total rows = 4/4
+    +----------+-----------+--------------------+
+    | gender   | balance   | cnt                |
+    |----------+-----------+--------------------|
+    | F        | 32838     | 32838.0            |
+    | M        | 4180      | 4180.0             |
+    | M        | 5686      | 4933.0             |
+    | M        | 39225     | 16363.666666666666 |
+    +----------+-----------+--------------------+
+
 SUM
 ---
+
+Here is an example for ``SUM`` function::
+
+    od> SELECT
+    ...   gender, balance,
+    ...   SUM(balance) OVER(
+    ...     PARTITION BY gender ORDER BY balance
+    ... ) AS cnt
+    ... FROM accounts;
+    fetched rows / total rows = 4/4
+    +----------+-----------+-------+
+    | gender   | balance   | cnt   |
+    |----------+-----------+-------|
+    | F        | 32838     | 32838 |
+    | M        | 4180      | 4180  |
+    | M        | 5686      | 9866  |
+    | M        | 39225     | 49091 |
+    +----------+-----------+-------+
+
 
 Ranking Functions
 =================
@@ -84,7 +162,12 @@ ROW_NUMBER
 
 ``ROW_NUMBER`` function assigns a row number to each row. As a special case, the row number is always increased by one regardless of the fields specified in ``ORDER BY`` list. Here is an example for ``ROW_NUMBER`` function::
 
-    od> SELECT gender, balance, ROW_NUMBER() OVER(PARTITION BY gender ORDER BY balance) AS num FROM accounts;
+    od> SELECT
+    ...   gender, balance,
+    ...   ROW_NUMBER() OVER(
+    ...     PARTITION BY gender ORDER BY balance
+    ... ) AS num
+    ... FROM accounts;
     fetched rows / total rows = 4/4
     +----------+-----------+-------+
     | gender   | balance   | num   |
@@ -101,7 +184,12 @@ RANK
 
 ``RANK`` function assigns a rank to each row. For rows that have same values for fields specified in ``ORDER BY`` list, same rank is assigned. If this is the case, the next few ranks will be skipped depending on how many ties. Here is an example for ``RANK`` function::
 
-    od> SELECT gender, RANK() OVER(ORDER BY gender DESC) AS rnk FROM accounts;
+    od> SELECT
+    ...   gender,
+    ...   RANK() OVER(
+    ...     ORDER BY gender DESC
+    ... ) AS rnk
+    ... FROM accounts;
     fetched rows / total rows = 4/4
     +----------+-------+
     | gender   | rnk   |
@@ -118,7 +206,12 @@ DENSE_RANK
 
 Similarly as ``RANK``, ``DENSE_RANK`` function also assigns a rank to each row. The difference is there is no gap between ranks. Here is an example for ``DENSE_RANK`` function::
 
-    od> SELECT gender, DENSE_RANK() OVER(ORDER BY gender DESC) AS rnk FROM accounts;
+    od> SELECT
+    ...   gender,
+    ...   DENSE_RANK() OVER(
+    ...     ORDER BY gender DESC
+    ... ) AS rnk
+    ... FROM accounts;
     fetched rows / total rows = 4/4
     +----------+-------+
     | gender   | rnk   |
