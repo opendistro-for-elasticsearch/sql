@@ -48,11 +48,20 @@ jobs:
           max_attempts: 3
           command: cd kibana/plugins/sql-workbench; yarn kbn bootstrap
 
-      - name: Build Artifact
+      - name: Build
         run: |
           cd kibana/plugins/sql-workbench
           yarn build
-          artifact=`ls ./build/*.zip`
 
-          aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/kibana-plugins/opendistro-sql-workbench/
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/downloads/*"
+      - name: Upload to S3
+        shell: bash
+        run: |
+          zip=`ls ./build/*.zip`
+
+          # Inject the build number before the suffix
+          zip_outfile=`basename ${zip%.zip}-build-${GITHUB_RUN_NUMBER}.zip`
+
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshot/kibana-plugins/sql-workbench/"
+
+          echo "Copying ${zip} to ${s3_prefix}${zip_outfile}"
+          aws s3 cp --quiet $zip ${s3_prefix}${zip_outfile}
