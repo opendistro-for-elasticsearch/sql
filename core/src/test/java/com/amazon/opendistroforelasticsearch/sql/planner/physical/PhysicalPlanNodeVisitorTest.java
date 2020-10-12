@@ -114,7 +114,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(project.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan window = PhysicalPlanDSL.window(plan, dsl.rowNumber(),
+    PhysicalPlan window = PhysicalPlanDSL.window(plan, named(dsl.rowNumber()),
         new WindowDefinition(emptyList(), emptyList()));
     assertNull(window.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));

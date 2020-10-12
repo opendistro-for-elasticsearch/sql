@@ -114,7 +114,7 @@ class LogicalPlanNodeVisitorTest {
     assertNull(dedup.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    LogicalPlan window = LogicalPlanDSL.window(relation, expression, new WindowDefinition(
+    LogicalPlan window = LogicalPlanDSL.window(relation, named(expression), new WindowDefinition(
         ImmutableList.of(ref), ImmutableList.of(Pair.of(SortOption.DEFAULT_ASC, expression))));
     assertNull(window.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));

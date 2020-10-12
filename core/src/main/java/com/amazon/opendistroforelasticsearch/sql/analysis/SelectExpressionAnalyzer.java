@@ -91,7 +91,12 @@ public class SelectExpressionAnalyzer
   private Expression referenceIfSymbolDefined(Alias expr,
                                               AnalysisContext context) {
     UnresolvedExpression delegatedExpr = expr.getDelegated();
-    return optimizer.optimize(delegatedExpr.accept(expressionAnalyzer, context), context);
+    return optimizer.optimize(
+        DSL.named(
+            expr.getName(),
+            delegatedExpr.accept(expressionAnalyzer, context),
+            expr.getAlias()),
+        context);
   }
 
   @Override

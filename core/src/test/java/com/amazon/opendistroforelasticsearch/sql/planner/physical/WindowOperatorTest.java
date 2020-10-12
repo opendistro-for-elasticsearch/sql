@@ -26,15 +26,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -73,13 +74,16 @@ class WindowOperatorTest extends PhysicalPlanTestBase {
     return new WindowOperatorAssertion(windowFunction);
   }
 
-  @RequiredArgsConstructor
   private static class WindowOperatorAssertion {
-    private final Expression windowFunction;
+    private final NamedExpression windowFunction;
     private final List<Expression> partitionByList = new ArrayList<>();
     private final List<Pair<SortOption, Expression>> sortList = new ArrayList<>();
 
     private WindowOperator windowOperator;
+
+    private WindowOperatorAssertion(Expression windowFunction) {
+      this.windowFunction = DSL.named(windowFunction);
+    }
 
     WindowOperatorAssertion partitionBy(Expression expr) {
       partitionByList.add(expr);

@@ -65,7 +65,7 @@ class WindowExpressionAnalyzerTest extends AnalyzerTestBase {
                 0,
                 ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
                 ImmutablePair.of(DEFAULT_DESC, DSL.ref("integer_value", INTEGER))),
-            dsl.rowNumber(),
+            DSL.named("row_number", dsl.rowNumber()),
             new WindowDefinition(
                 ImmutableList.of(DSL.ref("string_value", STRING)),
                 ImmutableList.of(

@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpres
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
@@ -66,19 +67,19 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
 
   @Override
   public LogicalPlan visitAlias(Alias node, AnalysisContext context) {
-    return node.getDelegated().accept(this, context);
-  }
+    if (!(node.getDelegated() instanceof WindowFunction)) {
+      return null;
+    }
 
-  @Override
-  public LogicalPlan visitWindowFunction(WindowFunction node, AnalysisContext context) {
-    Expression windowFunction = expressionAnalyzer.analyze(node, context);
-    List<Expression> partitionByList = analyzePartitionList(node, context);
-    List<Pair<SortOption, Expression>> sortList = analyzeSortList(node, context);
+    WindowFunction unresolved = (WindowFunction) node.getDelegated();
+    Expression windowFunction = expressionAnalyzer.analyze(unresolved, context);
+    List<Expression> partitionByList = analyzePartitionList(unresolved, context);
+    List<Pair<SortOption, Expression>> sortList = analyzeSortList(unresolved, context);
     WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
 
     return new LogicalWindow(
         new LogicalSort(child, 0, windowDefinition.getAllSortItems()),
-        windowFunction,
+        new NamedExpression(node.getName(), windowFunction, node.getAlias()),
         windowDefinition);
   }
 

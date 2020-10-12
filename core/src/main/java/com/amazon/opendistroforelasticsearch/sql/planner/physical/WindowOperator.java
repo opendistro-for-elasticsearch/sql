@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
@@ -39,7 +39,7 @@ public class WindowOperator extends PhysicalPlan {
   private final PhysicalPlan input;
 
   @Getter
-  private final Expression windowFunction;
+  private final NamedExpression windowFunction;
 
   @Getter
   private final WindowDefinition windowDefinition;
@@ -55,7 +55,7 @@ public class WindowOperator extends PhysicalPlan {
    * @param windowDefinition  window definition
    */
   public WindowOperator(PhysicalPlan input,
-                        Expression windowFunction,
+                        NamedExpression windowFunction,
                         WindowDefinition windowDefinition) {
     this.input = input;
     this.windowFunction = windowFunction;
@@ -115,7 +115,7 @@ public class WindowOperator extends PhysicalPlan {
 
   private void addWindowFunctionResultColumn(ImmutableMap.Builder<String, ExprValue> mapBuilder) {
     ExprValue exprValue = windowFunction.valueOf(windowFrame);
-    mapBuilder.put(windowFunction.toString(), exprValue);
+    mapBuilder.put(windowFunction.getName(), exprValue);
   }
 
 }

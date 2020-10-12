@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -74,21 +75,24 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
 
   @Test
   void window_expression_should_be_replaced() {
+    NamedExpression rank = DSL.named("rank()", dsl.rank());
+    NamedExpression denseRank = DSL.named("denseRank()", dsl.denseRank());
+
     LogicalPlan logicalPlan =
         LogicalPlanDSL.window(
             LogicalPlanDSL.window(
                 LogicalPlanDSL.relation("test"),
-                dsl.rank(),
+                rank,
                 new WindowDefinition(emptyList(), emptyList())),
-            dsl.denseRank(),
+            denseRank,
             new WindowDefinition(emptyList(), emptyList()));
 
     assertEquals(
         DSL.ref("rank()", INTEGER),
-        optimize(dsl.rank(), logicalPlan));
+        optimize(rank, logicalPlan));
     assertEquals(
-        DSL.ref("dense_rank()", INTEGER),
-        optimize(dsl.denseRank(), logicalPlan));
+        DSL.ref("denseRank()", INTEGER),
+        optimize(denseRank, logicalPlan));
   }
 
   Expression optimize(Expression expression) {

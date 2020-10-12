@@ -90,7 +90,7 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   @Override
   public ExplainResponseNode visitWindow(WindowOperator node, Object context) {
     return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
-        "function", node.getWindowFunction().toString(),
+        "function", node.getWindowFunction().getDelegated().toString(),
         "definition", ImmutableMap.of(
             "partitionBy", node.getWindowDefinition().getPartitionByList().toString(),
             "sortList", describeSortList(node.getWindowDefinition().getSortList())))));

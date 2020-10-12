@@ -20,6 +20,7 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
@@ -71,6 +72,14 @@ public class ExpressionReferenceOptimizer
   }
 
   @Override
+  public Expression visitNamed(NamedExpression node, AnalysisContext context) {
+    if (expressionMap.containsKey(node)) {
+      return expressionMap.get(node);
+    }
+    return node.getDelegated().accept(this, context);
+  }
+
+  @Override
   public Expression visitFunction(FunctionExpression node, AnalysisContext context) {
     if (expressionMap.containsKey(node)) {
       return expressionMap.get(node);
@@ -113,9 +122,9 @@ public class ExpressionReferenceOptimizer
 
     @Override
     public Void visitWindow(LogicalWindow plan, Void context) {
-      Expression windowFunc = plan.getWindowFunction();
+      NamedExpression windowFunc = plan.getWindowFunction();
       expressionMap.put(windowFunc,
-          new ReferenceExpression(windowFunc.toString(), windowFunc.type()));
+          new ReferenceExpression(windowFunc.getName(), windowFunc.type()));
       return visitNode(plan, context);
     }
   }

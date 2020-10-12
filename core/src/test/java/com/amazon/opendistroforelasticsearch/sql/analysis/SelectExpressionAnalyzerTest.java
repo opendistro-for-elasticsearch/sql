@@ -21,7 +21,6 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.F
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
@@ -112,7 +111,8 @@ public class SelectExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   protected List<NamedExpression> analyze(UnresolvedExpression unresolvedExpression) {
-    doAnswer(returnsFirstArg()).when(optimizer).optimize(any(), any());
+    doAnswer(invocation -> ((NamedExpression) invocation.getArgument(0))
+        .getDelegated()).when(optimizer).optimize(any(), any());
     return new SelectExpressionAnalyzer(expressionAnalyzer)
         .analyze(Arrays.asList(unresolvedExpression),
             analysisContext, optimizer);

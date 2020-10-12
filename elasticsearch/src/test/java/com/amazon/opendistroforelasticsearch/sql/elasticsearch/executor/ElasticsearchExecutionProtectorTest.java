@@ -181,7 +181,7 @@ class ElasticsearchExecutionProtectorTest {
   @SuppressWarnings("unchecked")
   @Test
   public void testProtectSortForWindowOperator() {
-    Expression rank = mock(RankFunction.class);
+    NamedExpression rank = named(mock(RankFunction.class));
     Pair<Sort.SortOption, Expression> sortItem =
         ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER));
     WindowDefinition windowDefinition =
