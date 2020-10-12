@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -75,24 +74,21 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
 
   @Test
   void window_expression_should_be_replaced() {
-    NamedExpression rank = DSL.named("rank()", dsl.rank());
-    NamedExpression denseRank = DSL.named("denseRank()", dsl.denseRank());
-
     LogicalPlan logicalPlan =
         LogicalPlanDSL.window(
             LogicalPlanDSL.window(
                 LogicalPlanDSL.relation("test"),
-                rank,
+                DSL.named(dsl.rank()),
                 new WindowDefinition(emptyList(), emptyList())),
-            denseRank,
+            DSL.named(dsl.denseRank()),
             new WindowDefinition(emptyList(), emptyList()));
 
     assertEquals(
         DSL.ref("rank()", INTEGER),
-        optimize(rank, logicalPlan));
+        optimize(dsl.rank(), logicalPlan));
     assertEquals(
-        DSL.ref("denseRank()", INTEGER),
-        optimize(denseRank, logicalPlan));
+        DSL.ref("dense_rank()", INTEGER),
+        optimize(dsl.denseRank(), logicalPlan));
   }
 
   Expression optimize(Expression expression) {
@@ -102,7 +98,7 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
   Expression optimize(Expression expression, LogicalPlan logicalPlan) {
     final ExpressionReferenceOptimizer optimizer =
         new ExpressionReferenceOptimizer(functionRepository, logicalPlan);
-    return optimizer.optimize(expression, new AnalysisContext());
+    return optimizer.optimize(DSL.named(expression), new AnalysisContext());
   }
 
   LogicalPlan logicalPlan() {
