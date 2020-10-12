@@ -19,11 +19,13 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.google.common.collect.ImmutableList;
@@ -70,9 +72,32 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
     );
   }
 
+  @Test
+  void window_expression_should_be_replaced() {
+    LogicalPlan logicalPlan =
+        LogicalPlanDSL.window(
+            LogicalPlanDSL.window(
+                LogicalPlanDSL.relation("test"),
+                dsl.rank(),
+                new WindowDefinition(emptyList(), emptyList())),
+            dsl.denseRank(),
+            new WindowDefinition(emptyList(), emptyList()));
+
+    assertEquals(
+        DSL.ref("rank()", INTEGER),
+        optimize(dsl.rank(), logicalPlan));
+    assertEquals(
+        DSL.ref("dense_rank()", INTEGER),
+        optimize(dsl.denseRank(), logicalPlan));
+  }
+
   Expression optimize(Expression expression) {
+    return optimize(expression, logicalPlan());
+  }
+
+  Expression optimize(Expression expression, LogicalPlan logicalPlan) {
     final ExpressionReferenceOptimizer optimizer =
-        new ExpressionReferenceOptimizer(functionRepository, logicalPlan());
+        new ExpressionReferenceOptimizer(functionRepository, logicalPlan);
     return optimizer.optimize(expression, new AnalysisContext());
   }
 

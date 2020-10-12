@@ -23,7 +23,9 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregat
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
 import java.util.Arrays;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -459,6 +461,21 @@ public class DSL {
 
   public Aggregator count(Expression... expressions) {
     return aggregate(BuiltinFunctionName.COUNT, expressions);
+  }
+
+  public RankingWindowFunction rowNumber() {
+    return (RankingWindowFunction) repository.compile(
+        BuiltinFunctionName.ROW_NUMBER.getName(), Collections.emptyList());
+  }
+
+  public RankingWindowFunction rank() {
+    return (RankingWindowFunction) repository.compile(
+        BuiltinFunctionName.RANK.getName(), Collections.emptyList());
+  }
+
+  public RankingWindowFunction denseRank() {
+    return (RankingWindowFunction) repository.compile(
+        BuiltinFunctionName.DENSE_RANK.getName(), Collections.emptyList());
   }
 
   public Aggregator min(Expression... expressions) {

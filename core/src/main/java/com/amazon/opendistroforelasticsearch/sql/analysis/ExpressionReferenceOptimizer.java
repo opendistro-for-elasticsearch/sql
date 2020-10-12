@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunc
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalWindow;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,14 @@ public class ExpressionReferenceOptimizer
       plan.getGroupByList().forEach(groupBy -> expressionMap
           .put(groupBy.getDelegated(), new ReferenceExpression(groupBy.getName(), groupBy.type())));
       return null;
+    }
+
+    @Override
+    public Void visitWindow(LogicalWindow plan, Void context) {
+      Expression windowFunc = plan.getWindowFunction();
+      expressionMap.put(windowFunc,
+          new ReferenceExpression(windowFunc.toString(), windowFunc.type()));
+      return visitNode(plan, context);
     }
   }
 }

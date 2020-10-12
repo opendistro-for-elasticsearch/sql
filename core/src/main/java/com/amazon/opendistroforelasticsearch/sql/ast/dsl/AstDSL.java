@@ -36,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
@@ -53,6 +54,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import java.util.Arrays;
 import java.util.List;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Class of static methods to create specific node instances.
@@ -182,8 +184,14 @@ public class AstDSL {
     return new AggregateFunction(func, field, Arrays.asList(args));
   }
 
-  public static UnresolvedExpression function(String funcName, UnresolvedExpression... funcArgs) {
+  public static Function function(String funcName, UnresolvedExpression... funcArgs) {
     return new Function(funcName, Arrays.asList(funcArgs));
+  }
+
+  public UnresolvedExpression window(Function function,
+                                     List<UnresolvedExpression> partitionByList,
+                                     List<Pair<String, UnresolvedExpression>> sortList) {
+    return new WindowFunction(function, partitionByList, sortList);
   }
 
   public static UnresolvedExpression not(UnresolvedExpression expression) {

@@ -158,7 +158,7 @@ class ElasticsearchIndexTest {
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
+        ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("name1", STRING));
 
     LogicalPlan plan =
         project(
