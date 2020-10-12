@@ -36,6 +36,39 @@ The syntax of a window function is as follows in which both ``PARTITION BY`` and
   )
 
 
+Aggregate Functions
+===================
+
+Aggregate functions are window functions that operates on a cumulative window frame to calculate an aggregated result. How cumulative data in the window frame being aggregated is exactly same as how regular aggregate functions work. So aggregate window functions can be used to perform running calculation easily, for example running average or running sum. Note that if ``PARTITION BY`` clause present and specified column value(s) changed, the state of aggregate function will be reset.
+
+COUNT
+-----
+
+Here is an example for ``COUNT`` function::
+
+    od> SELECT gender, balance, COUNT(balance) OVER(PARTITION BY gender ORDER BY balance) AS cnt FROM accounts;
+    fetched rows / total rows = 4/4
+    +----------+-----------+-------+
+    | gender   | balance   | cnt   |
+    |----------+-----------+-------|
+    | F        | 32838     | 1     |
+    | M        | 4180      | 1     |
+    | M        | 5686      | 2     |
+    | M        | 39225     | 3     |
+    +----------+-----------+-------+
+
+MIN
+---
+
+MAX
+---
+
+AVG
+---
+
+SUM
+---
+
 Ranking Functions
 =================
 
