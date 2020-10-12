@@ -16,11 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -34,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -130,6 +133,24 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         "Identifier [struct_value] of type [STRUCT] is not supported yet",
         exception.getMessage()
     );
+  }
+
+  @Test
+  public void scalar_window_function() {
+    assertAnalyzeEqual(
+        dsl.rank(),
+        AstDSL.window(AstDSL.function("rank"), emptyList(), emptyList()));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void aggregate_window_function() {
+    assertAnalyzeEqual(
+        new AggregateWindowFunction(dsl.avg(DSL.ref("integer_value", INTEGER))),
+        AstDSL.window(
+            AstDSL.aggregate("avg", qualifiedName("integer_value")),
+            emptyList(),
+            emptyList()));
   }
 
   @Test

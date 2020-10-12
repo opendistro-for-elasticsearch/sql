@@ -28,9 +28,9 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class WindowOperatorTest extends PhysicalPlanTestBase {
 
   @Test
-  void test() {
+  void test_ranking_window_function() {
     window(dsl.rank())
         .partitionBy(ref("action", STRING))
         .sortBy(DEFAULT_ASC, ref("response", INTEGER))
@@ -70,7 +70,31 @@ class WindowOperatorTest extends PhysicalPlanTestBase {
         .done();
   }
 
-  private WindowOperatorAssertion window(FunctionExpression windowFunction) {
+  @SuppressWarnings("unchecked")
+  @Test
+  void test_aggregate_window_function() {
+    window(new AggregateWindowFunction(dsl.max(ref("response", INTEGER))))
+        .partitionBy(ref("action", STRING))
+        .sortBy(DEFAULT_ASC, ref("response", INTEGER))
+        .expectNext(ImmutableMap.of(
+            "ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com",
+            "max(response)", 200))
+        .expectNext(ImmutableMap.of(
+            "ip", "112.111.162.4", "action", "GET", "response", 200, "referer", "www.amazon.com",
+            "max(response)", 200))
+        .expectNext(ImmutableMap.of(
+            "ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com",
+            "max(response)", 404))
+        .expectNext(ImmutableMap.of(
+            "ip", "74.125.19.106", "action", "POST", "response", 200, "referer", "www.google.com",
+            "max(response)", 200))
+        .expectNext(ImmutableMap.of(
+            "ip", "74.125.19.106", "action", "POST", "response", 500,
+            "max(response)", 500))
+        .done();
+  }
+
+  private WindowOperatorAssertion window(Expression windowFunction) {
     return new WindowOperatorAssertion(windowFunction);
   }
 
