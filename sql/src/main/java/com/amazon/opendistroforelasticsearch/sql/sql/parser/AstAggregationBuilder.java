@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
@@ -139,7 +140,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
 
   private boolean isNonAggregatedExpression(UnresolvedExpression expr) {
     List<? extends Node> children = expr.getChild();
-    if (children.isEmpty()) {
+    if (children.isEmpty() || expr instanceof WindowFunction) {
       return true;
     }
     return !(expr instanceof AggregateFunction)

@@ -190,6 +190,11 @@ class AstAggregationBuilderTest {
         error.getMessage());
   }
 
+  @Test
+  void should_not_report_error_for_aggregate_window_function() {
+    buildAggregation("SELECT state, age, AVG(age) OVER () FROM tests");
+  }
+
   private Matcher<UnresolvedPlan> hasGroupByItems(UnresolvedExpression... exprs) {
     return featureValueOf("groupByItems", Aggregation::getGroupExprList, exprs);
   }
