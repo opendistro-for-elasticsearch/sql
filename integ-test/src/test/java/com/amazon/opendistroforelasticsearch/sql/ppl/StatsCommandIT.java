@@ -113,6 +113,17 @@ public class StatsCommandIT extends PPLIntegTestCase {
     );
   }
 
+  //Todo. The column of agg function is in random order. This is because we create the project
+  // all operator from the symbol table which can't maintain the original column order.
+  @Test
+  public void testMultipleAggregationFunction() throws IOException {
+    JSONObject response = executeQuery(String.format(
+        "source=%s | stats min(age), max(age)",
+        TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("min(age)", null, "long"),
+        schema("max(age)", null, "long"));
+    verifyDataRows(response, rows(20, 40));
+  }
 
   @Test
   public void testStatsWithNull() throws IOException {
