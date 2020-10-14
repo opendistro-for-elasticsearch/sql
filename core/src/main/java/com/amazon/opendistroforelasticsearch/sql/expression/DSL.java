@@ -32,6 +32,10 @@ import lombok.RequiredArgsConstructor;
 public class DSL {
   private final BuiltinFunctionRepository repository;
 
+  public static LiteralExpression literal(Byte value) {
+    return new LiteralExpression(ExprValueUtils.byteValue(value));
+  }
+
   public static LiteralExpression literal(Short value) {
     return new LiteralExpression(new ExprShortValue(value));
   }

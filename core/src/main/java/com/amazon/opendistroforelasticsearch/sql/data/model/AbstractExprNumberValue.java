@@ -33,6 +33,11 @@ public abstract class AbstractExprNumberValue extends AbstractExprValue {
   }
 
   @Override
+  public Byte byteValue() {
+    return value.byteValue();
+  }
+
+  @Override
   public Short shortValue() {
     return value.shortValue();
   }

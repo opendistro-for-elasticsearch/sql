@@ -107,6 +107,9 @@ class ElasticsearchIndexTest {
                         .put("family", "nested")
                         .put("employer", "object")
                         .put("birthday", "date")
+                        .put("id1", "byte")
+                        .put("id2", "short")
+                        .put("blob", "binary")
                         .build())));
 
     Table index = new ElasticsearchIndex(client, settings, "test");
@@ -114,17 +117,21 @@ class ElasticsearchIndexTest {
     assertThat(
         fieldTypes,
         allOf(
-            aMapWithSize(10),
-            hasEntry("name", (ExprType) ExprCoreType.STRING),
+            aMapWithSize(13),
+            hasEntry("name", ExprCoreType.STRING),
             hasEntry("address", (ExprType) ElasticsearchDataType.ES_TEXT),
-            hasEntry("age", (ExprType) ExprCoreType.INTEGER),
+            hasEntry("age", ExprCoreType.INTEGER),
             hasEntry("account_number", ExprCoreType.LONG),
-            hasEntry("balance1", (ExprType) ExprCoreType.FLOAT),
-            hasEntry("balance2", (ExprType) ExprCoreType.DOUBLE),
-            hasEntry("gender", (ExprType) ExprCoreType.BOOLEAN),
-            hasEntry("family", (ExprType) ExprCoreType.ARRAY),
-            hasEntry("employer", (ExprType) ExprCoreType.STRUCT),
-            hasEntry("birthday", (ExprType) ExprCoreType.TIMESTAMP)));
+            hasEntry("balance1", ExprCoreType.FLOAT),
+            hasEntry("balance2", ExprCoreType.DOUBLE),
+            hasEntry("gender", ExprCoreType.BOOLEAN),
+            hasEntry("family", ExprCoreType.ARRAY),
+            hasEntry("employer", ExprCoreType.STRUCT),
+            hasEntry("birthday", ExprCoreType.TIMESTAMP),
+            hasEntry("id1", ExprCoreType.BYTE),
+            hasEntry("id2", ExprCoreType.SHORT),
+            hasEntry("blob", (ExprType) ElasticsearchDataType.ES_BINARY)
+        ));
   }
 
   @Test
