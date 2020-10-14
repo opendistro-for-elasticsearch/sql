@@ -79,6 +79,7 @@ fromClause
     : FROM tableName (AS? alias)?
       (whereClause)?
       (groupByClause)?
+      (orderByClause)? // Place it under FROM for now but actually not necessary ex. A UNION B ORDER BY
     ;
 
 whereClause

@@ -19,14 +19,17 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
 import static java.util.Collections.emptyList;
@@ -279,6 +282,42 @@ class AstBuilderTest {
                 emptyList()),
             alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
         buildAST("SELECT AVG(age) FROM test"));
+  }
+
+  @Test
+  public void can_build_order_by_with_field_name() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                ImmutableList.of(argument("count", intLiteral(0))),
+                field("name", argument("asc", booleanLiteral(true)))),
+            alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY name"));
+  }
+
+  @Test
+  public void can_build_order_by_with_alias() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                ImmutableList.of(argument("count", intLiteral(0))),
+                field("name", argument("asc", booleanLiteral(true)))),
+            alias("name", qualifiedName("name"), "n")),
+        buildAST("SELECT name AS n FROM test ORDER BY n ASC"));
+  }
+
+  @Test
+  public void can_build_order_by_with_ordinal() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                ImmutableList.of(argument("count", intLiteral(0))),
+                field("name", argument("asc", booleanLiteral(false)))),
+            alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY 1 DESC"));
   }
 
   private UnresolvedPlan buildAST(String query) {

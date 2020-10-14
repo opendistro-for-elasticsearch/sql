@@ -19,11 +19,8 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static java.util.Collections.emptyList;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
-import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
@@ -35,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecifi
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -114,17 +112,11 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private List<UnresolvedExpression> replaceGroupByItemIfAliasOrOrdinal() {
-    List<UnresolvedExpression> groupByItems = new ArrayList<>();
-    for (UnresolvedExpression expr : querySpec.getGroupByItems()) {
-      if (isIntegerLiteral(expr)) {
-        groupByItems.add(getSelectItemByOrdinal(expr));
-      } else if (isSelectAlias(expr)) {
-        groupByItems.add(getSelectItemByAlias(expr));
-      } else {
-        groupByItems.add(AstDSL.alias(expr.toString(), expr));
-      }
-    }
-    return groupByItems;
+    return querySpec.getGroupByItems()
+                    .stream()
+                    .map(querySpec::replaceIfAliasOrOrdinal)
+                    .map(expr -> new Alias(expr.toString(), expr))
+                    .collect(Collectors.toList());
   }
 
   private Optional<UnresolvedExpression> findNonAggregatedItemInSelect() {
@@ -148,35 +140,4 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
                    .allMatch(child -> isNonAggregatedExpression((UnresolvedExpression) child));
   }
 
-  private boolean isIntegerLiteral(UnresolvedExpression expr) {
-    if (!(expr instanceof Literal)) {
-      return false;
-    }
-
-    if (((Literal) expr).getType() != DataType.INTEGER) {
-      throw new SemanticCheckException(StringUtils.format(
-          "Non-integer constant [%s] found in GROUP BY clause", expr));
-    }
-    return true;
-  }
-
-  private UnresolvedExpression getSelectItemByOrdinal(UnresolvedExpression expr) {
-    int ordinal = (Integer) ((Literal) expr).getValue();
-    if (ordinal <= 0 || ordinal > querySpec.getSelectItems().size()) {
-      throw new SemanticCheckException(StringUtils.format(
-          "Group by ordinal [%d] is out of bound of select item list", ordinal));
-    }
-    final UnresolvedExpression groupExpr = querySpec.getSelectItems().get(ordinal - 1);
-    return AstDSL.alias(groupExpr.toString(), groupExpr);
-  }
-
-  private boolean isSelectAlias(UnresolvedExpression expr) {
-    return (expr instanceof QualifiedName)
-        && (querySpec.getSelectItemsByAlias().containsKey(expr.toString()));
-  }
-
-  private UnresolvedExpression getSelectItemByAlias(UnresolvedExpression expr) {
-    final UnresolvedExpression groupExpr = querySpec.getSelectItemsByAlias().get(expr.toString());
-    return AstDSL.alias(groupExpr.toString(), groupExpr);
-  }
 }
