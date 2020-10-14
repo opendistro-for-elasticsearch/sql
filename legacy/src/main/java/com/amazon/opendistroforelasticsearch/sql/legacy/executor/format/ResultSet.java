@@ -44,10 +44,10 @@ public abstract class ResultSet {
     }
 
     /**
-     * Check if given string matches pattern, if the pattern is a regex.
+     * Check if given string matches the pattern. Do this check only if the pattern is a regex.
      * Otherwise skip the matching process and consider it's a match.
-     * This is a temp fix to support SHOW/DESCRIBE alias by skip mismatch
-     * between actual index name and pattern (alias).
+     * This is a quick fix to support SHOW/DESCRIBE alias by skip mismatch between actual index name
+     * and pattern (alias).
      * @param string   string to match
      * @param pattern  pattern
      * @return true if match or pattern is not regular expression. otherwise false.
