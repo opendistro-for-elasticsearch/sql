@@ -21,10 +21,10 @@
       },
       "object_value": {
         "properties": {
-          "firstname": {
+          "first": {
             "type": "text"
           },
-          "lastname": {
+          "last": {
             "type": "text"
           }
         }
