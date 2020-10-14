@@ -134,6 +134,15 @@ class AstAggregationBuilderTest {
             alias("ABS(age)", function("ABS", qualifiedName("age")))));
   }
 
+  @Test
+  void should_report_error_for_non_integer_ordinal_in_group_by() {
+    SemanticCheckException error = assertThrows(SemanticCheckException.class, () ->
+        buildAggregation("SELECT state AS s FROM test GROUP BY 1.5"));
+    assertEquals(
+        "Non-integer constant [1.5] found in GROUP BY clause",
+        error.getMessage());
+  }
+
   @Disabled("This validation is supposed to be in analyzing phase")
   @Test
   void should_report_error_for_mismatch_between_select_and_group_by_items() {
@@ -178,16 +187,6 @@ class AstAggregationBuilderTest {
     SemanticCheckException error2 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT age, AVG(balance) FROM tests GROUP BY 3"));
     assertEquals("Group by ordinal [3] is out of bound of select item list", error2.getMessage());
-  }
-
-  @Disabled
-  @Test
-  void should_report_error_for_non_integer_ordinal_in_group_by_clause() {
-    SemanticCheckException error = assertThrows(SemanticCheckException.class, () ->
-        buildAggregation("SELECT age, AVG(balance) FROM tests GROUP BY 0.0"));
-    assertEquals(
-        "Expression [age] that contains non-aggregated column is not present in group by clause",
-        error.getMessage());
   }
 
   private Matcher<UnresolvedPlan> hasGroupByItems(UnresolvedExpression... exprs) {

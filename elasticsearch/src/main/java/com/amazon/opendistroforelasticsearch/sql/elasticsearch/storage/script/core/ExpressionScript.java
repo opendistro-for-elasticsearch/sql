@@ -137,7 +137,7 @@ public class ExpressionScript {
     String fieldName = getDocValueName(field);
     ScriptDocValues<?> docValue = docProvider.get().get(fieldName);
     if (docValue == null || docValue.isEmpty()) {
-      return null;
+      return null; // No way to differentiate null and missing from doc value
     }
 
     Object value = docValue.get(0);

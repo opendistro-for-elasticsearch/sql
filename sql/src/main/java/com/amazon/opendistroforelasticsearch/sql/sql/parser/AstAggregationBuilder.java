@@ -27,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByClauseContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
@@ -101,7 +102,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
 
     if (invalidSelectItem.isPresent()) {
       // Report semantic error to avoid fall back to old engine again
-      throw new SemanticCheckException(String.format(
+      throw new SemanticCheckException(StringUtils.format(
           "Explicit GROUP BY clause is required because expression [%s] "
               + "contains non-aggregated column", invalidSelectItem.get()));
     }
@@ -138,24 +139,31 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private boolean isNonAggregatedExpression(UnresolvedExpression expr) {
-    List<? extends Node> children = expr.getChild();
-    if (children.isEmpty()) {
-      return true;
+    if (expr instanceof AggregateFunction) {
+      return false;
     }
-    return !(expr instanceof AggregateFunction)
-        && children.stream()
+
+    List<? extends Node> children = expr.getChild();
+    return children.stream()
                    .allMatch(child -> isNonAggregatedExpression((UnresolvedExpression) child));
   }
 
   private boolean isIntegerLiteral(UnresolvedExpression expr) {
-    return (expr instanceof Literal)
-        && (((Literal) expr).getType() == DataType.INTEGER);
+    if (!(expr instanceof Literal)) {
+      return false;
+    }
+
+    if (((Literal) expr).getType() != DataType.INTEGER) {
+      throw new SemanticCheckException(StringUtils.format(
+          "Non-integer constant [%s] found in GROUP BY clause", expr));
+    }
+    return true;
   }
 
   private UnresolvedExpression getSelectItemByOrdinal(UnresolvedExpression expr) {
     int ordinal = (Integer) ((Literal) expr).getValue();
     if (ordinal <= 0 || ordinal > querySpec.getSelectItems().size()) {
-      throw new SemanticCheckException(String.format(
+      throw new SemanticCheckException(StringUtils.format(
           "Group by ordinal [%d] is out of bound of select item list", ordinal));
     }
     final UnresolvedExpression groupExpr = querySpec.getSelectItems().get(ordinal - 1);

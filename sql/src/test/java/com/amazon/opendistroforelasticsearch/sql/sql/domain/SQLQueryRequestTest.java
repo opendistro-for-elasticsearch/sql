@@ -39,6 +39,15 @@ public class SQLQueryRequestTest {
   }
 
   @Test
+  public void shouldSupportQueryWithQueryFieldOnly() {
+    SQLQueryRequest request =
+        SQLQueryRequestBuilder.request("SELECT 1")
+                              .jsonContent("{\"query\": \"SELECT 1\"}")
+                              .build();
+    assertTrue(request.isSupported());
+  }
+
+  @Test
   public void shouldSupportQueryWithZeroFetchSize() {
     SQLQueryRequest request =
         SQLQueryRequestBuilder.request("SELECT 1")

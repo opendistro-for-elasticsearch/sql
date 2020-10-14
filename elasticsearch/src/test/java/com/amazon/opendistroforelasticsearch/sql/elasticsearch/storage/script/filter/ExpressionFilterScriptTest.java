@@ -23,7 +23,9 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.T
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +40,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.google.common.collect.ImmutableMap;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.lucene.index.LeafReaderContext;
@@ -133,6 +136,14 @@ class ExpressionFilterScriptTest {
   }
 
   @Test
+  void can_execute_expression_with_empty_doc_value() {
+    assertThat()
+        .docValues("name", emptyList())
+        .filterBy(ref("name", STRING))
+        .shouldNotMatch();
+  }
+
+  @Test
   void cannot_execute_non_predicate_expression() {
     assertThrow(IllegalStateException.class,
                 "Expression has wrong result type instead of boolean: expression [10], result [10]")
@@ -210,9 +221,13 @@ class ExpressionFilterScriptTest {
     }
   }
 
-  @RequiredArgsConstructor
   private static class FakeScriptDocValues<T> extends ScriptDocValues<T> {
-    private final T value;
+    private final List<T> values;
+
+    @SuppressWarnings("unchecked")
+    public FakeScriptDocValues(T value) {
+      this.values = (value instanceof List) ? (List<T>) value : singletonList(value);
+    }
 
     @Override
     public void setNextDocId(int docId) {
@@ -221,12 +236,12 @@ class ExpressionFilterScriptTest {
 
     @Override
     public T get(int index) {
-      return value;
+      return values.get(index);
     }
 
     @Override
     public int size() {
-      return 1;
+      return values.size();
     }
   }
 

@@ -254,13 +254,26 @@ class AstExpressionBuilderTest {
             ImmutableList.of(qualifiedName("state")),
             ImmutableList.of(ImmutablePair.of("ASC", qualifiedName("age")))),
         buildExprAst("RANK() OVER (PARTITION BY state ORDER BY age)"));
+  }
 
+  @Test
+  public void canBuildWindowFunctionWithoutPartitionBy() {
     assertEquals(
         window(
             function("DENSE_RANK"),
             ImmutableList.of(),
             ImmutableList.of(ImmutablePair.of("DESC", qualifiedName("age")))),
         buildExprAst("DENSE_RANK() OVER (ORDER BY age DESC)"));
+  }
+
+  @Test
+  public void canBuildWindowFunctionWithoutOrderBy() {
+    assertEquals(
+        window(
+            function("RANK"),
+            ImmutableList.of(qualifiedName("state")),
+            ImmutableList.of()),
+        buildExprAst("RANK() OVER (PARTITION BY state)"));
   }
 
   @Test
