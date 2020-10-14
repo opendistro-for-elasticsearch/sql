@@ -4,7 +4,6 @@
 sudo add-apt-repository ppa:openjdk-r/ppa
 sudo apt update
 sudo apt install openjdk-14-jdk
-sudo apt install unzip
 sudo apt install curl
 sudo apt-get -y install cmake
 
@@ -35,8 +34,7 @@ echo "MongoDB is installed successfully."
 echo "----------------------------------------------------------------------------------------------------------"
 
 # Build dbgen
-unzip dbgen.zip
-cd dbgen
+cd tpch-dbgen
 make
 cd ..
 echo "dbgen is built successfully."
