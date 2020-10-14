@@ -252,6 +252,16 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         rows("2018-06-23 00:00:00.000", 1));
   }
 
+  @Test
+  public void aggregateCastStatementShouldNotReturnZero() {
+    JSONObject response = executeJdbcRequest(String.format(
+        "SELECT SUM(CAST(male AS INT)) AS male_sum FROM %s",
+        Index.BANK.getName()));
+
+    verifySchema(response, schema("male_sum", "male_sum", "double"));
+    verifyDataRows(response, rows(4));
+  }
+
   private JSONObject executeJdbcRequest(String query) {
     return new JSONObject(executeQuery(query, "jdbc"));
   }
