@@ -17,7 +17,7 @@ import React, { Fragment } from "react";
 // @ts-ignore
 import { SortableProperties } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiPanel, EuiSearchBar, EuiSideNav } from "@elastic/eui";
+import { EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiPanel, EuiPortal, EuiSearchBar, EuiSideNav } from "@elastic/eui";
 import {
   EuiButton,
   EuiButtonIcon,
@@ -49,7 +49,7 @@ import {
   scrollToNode
 } from "../../utils/utils";
 import "../../ace-themes/sql_console";
-import { COLUMN_WIDTH, PAGE_OPTIONS, SMALL_COLUMN_WIDTH } from "../../utils/constants";
+import { COLUMN_WIDTH, MEDIUM_COLUMN_WIDTH, PAGE_OPTIONS, SMALL_COLUMN_WIDTH } from "../../utils/constants";
 import { ItemIdToExpandedRowMap, QueryMessage, QueryResult } from "../Main/main";
 
 const DoubleScrollbar = require('react-double-scrollbar');
@@ -340,6 +340,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   addExpandingNodeIcon(node: Node, expandedRowMap: ItemIdToExpandedRowMap) {
     return (
       <EuiButtonIcon
+        style={{ marginLeft: -4 }}
         onClick={() => this.toggleNodeData(node, expandedRowMap)}
         aria-label={
           expandedRowMap[node.nodeId] && expandedRowMap[node.nodeId].expandedRow
@@ -536,7 +537,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   renderHeaderCells(columns: any[]) {
     return columns.map((field: any) => {
       const label = field.id === "expandIcon" ? field.label : field;
-      const colwidth = field.id === "expandIcon" || field === "id" ? SMALL_COLUMN_WIDTH : COLUMN_WIDTH;
+      const colwidth = field.id === "expandIcon" ? SMALL_COLUMN_WIDTH : field === "id" ? MEDIUM_COLUMN_WIDTH : COLUMN_WIDTH;
       return (
         <EuiTableHeaderCell
           key={label}
