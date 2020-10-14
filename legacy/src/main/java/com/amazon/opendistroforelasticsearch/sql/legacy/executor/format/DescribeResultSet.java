@@ -99,7 +99,7 @@ public class DescribeResultSet extends ResultSet {
             // between actual index name and pattern (alias), the temp fix is to skip match logic if
             // no regex character found in the pattern given.
             String indexPattern = statement.getIndexPattern();
-            if (isNotRegexPattern(indexPattern) || matchesPattern(index, indexPattern)) {
+            if (matchesPatternIfRegex(index, indexPattern)) {
                 ImmutableOpenMap<String, MappingMetadata> typeMapping = indexCursor.value;
                 // Assuming ES 6.x, iterate through the only type of the index to get mapping data
                 for (ObjectObjectCursor<String, MappingMetadata> typeCursor : typeMapping) {
@@ -183,9 +183,5 @@ public class DescribeResultSet extends ResultSet {
         }
 
         return currPath + "." + field;
-    }
-
-    private boolean isNotRegexPattern(String pattern) {
-        return !pattern.contains(".") && !pattern.contains("*");
     }
 }

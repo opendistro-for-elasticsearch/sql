@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.json.JSONArray;
@@ -301,14 +302,47 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void describeSingleIndexAlias() throws IOException {
+  public void showSingleIndexAlias() throws IOException {
     client().performRequest(new Request("PUT",
-        TestsConstants.TEST_INDEX_ACCOUNT + "/_alias/accounts"));
+        TestsConstants.TEST_INDEX_ACCOUNT + "/_alias/acc"));
 
-    JSONObject expected = executeQuery("DESCRIBE TABLES LIKE " + TestsConstants.TEST_INDEX_ACCOUNT);
-    JSONObject actual = executeQuery("DESCRIBE TABLES LIKE accounts");
+    JSONObject expected = executeQuery("SHOW TABLES LIKE " + TestsConstants.TEST_INDEX_ACCOUNT);
+    JSONObject actual = executeQuery("SHOW TABLES LIKE acc");
     assertTrue(StringUtils.format("Expected: %s, actual: %s", expected, actual),
         expected.similar(actual));
+  }
+
+  @Test
+  public void describeSingleIndexAlias() throws IOException {
+    client().performRequest(new Request("PUT",
+        TestsConstants.TEST_INDEX_ACCOUNT + "/_alias/acc"));
+
+    JSONObject expected = executeQuery("DESCRIBE TABLES LIKE " + TestsConstants.TEST_INDEX_ACCOUNT);
+    JSONObject actual = executeQuery("DESCRIBE TABLES LIKE acc");
+    assertTrue(StringUtils.format("Expected: %s, actual: %s", expected, actual),
+        expected.similar(actual));
+  }
+
+  @Test
+  public void showSingleIndexNameWithDot() throws IOException {
+    Request request = new Request("POST", "/index.date/_doc");
+    request.setJsonEntity("{ \"test\": 123 }");
+    client().performRequest(request);
+
+    JSONObject response = executeQuery("SHOW TABLES LIKE index.date");
+    JSONArray dataRows = getDataRows(response);
+    assertThat(dataRows.length(), equalTo(1));
+  }
+
+  @Test
+  public void describeSingleIndexNameWithDot() throws IOException {
+    Request request = new Request("POST", "/index.date/_doc");
+    request.setJsonEntity("{ \"test\": 123 }");
+    client().performRequest(request);
+
+    JSONObject response = executeQuery("DESCRIBE TABLES LIKE index.date");
+    JSONArray dataRows = getDataRows(response);
+    assertThat(dataRows.length(), equalTo(1));
   }
 
   @Test
