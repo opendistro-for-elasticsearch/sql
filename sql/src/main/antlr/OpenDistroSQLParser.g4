@@ -97,6 +97,33 @@ groupByElement
     : expression
     ;
 
+orderByClause
+    : ORDER BY orderByElement (COMMA orderByElement)*
+    ;
+
+orderByElement
+    : expression order=(ASC | DESC)?
+    ;
+
+
+//  Window Function's Details
+windowFunction
+    : function=rankingWindowFunction overClause
+    ;
+
+rankingWindowFunction
+    : functionName=(ROW_NUMBER | RANK | DENSE_RANK) LR_BRACKET RR_BRACKET
+    ;
+
+overClause
+    : OVER LR_BRACKET partitionByClause? orderByClause? RR_BRACKET
+    ;
+
+partitionByClause
+    : PARTITION BY expression (COMMA expression)*
+    ;
+
+
 //    Literals
 
 constant
@@ -207,6 +234,7 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    | windowFunction                                                #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
     ;
 

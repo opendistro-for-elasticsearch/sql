@@ -246,6 +246,14 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       }
     }
 
+    // For each unresolved window function, analyze it by "insert" a window and sort operator
+    // between project and its child.
+    for (UnresolvedExpression expr : node.getProjectList()) {
+      WindowExpressionAnalyzer windowAnalyzer =
+          new WindowExpressionAnalyzer(expressionAnalyzer, child);
+      child = windowAnalyzer.analyze(expr, context);
+    }
+
     List<NamedExpression> namedExpressions =
         selectExpressionAnalyzer.analyze(node.getProjectList(), context,
             new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child));
@@ -292,7 +300,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
                   Boolean asc = (Boolean) sortField.getFieldArgs().get(0).getValue().getValue();
                   Expression expression = expressionAnalyzer.analyze(sortField, context);
                   return ImmutablePair.of(
-                      asc ? SortOption.PPL_ASC : SortOption.PPL_DESC, expression);
+                      asc ? SortOption.DEFAULT_ASC : SortOption.DEFAULT_DESC, expression);
                 })
             .collect(Collectors.toList());
 

@@ -18,19 +18,18 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -115,6 +114,11 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(project.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
+    PhysicalPlan window = PhysicalPlanDSL.window(plan, dsl.rowNumber(),
+        new WindowDefinition(emptyList(), emptyList()));
+    assertNull(window.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
     PhysicalPlan remove = PhysicalPlanDSL.remove(plan, ref);
     assertNull(remove.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
@@ -123,7 +127,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(eval.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.PPL_ASC, ref));
+    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.DEFAULT_ASC, ref));
     assertNull(sort.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
@@ -131,7 +135,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(dedupe.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan values = PhysicalPlanDSL.values(Collections.emptyList());
+    PhysicalPlan values = PhysicalPlanDSL.values(emptyList());
     assertNull(values.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

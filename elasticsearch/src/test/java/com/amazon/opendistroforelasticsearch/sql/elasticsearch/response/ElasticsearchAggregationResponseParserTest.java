@@ -61,7 +61,7 @@ class ElasticsearchAggregationResponseParserTest {
         + "  }\n"
         + "}";
     assertThat(parse(response),
-        containsInAnyOrder(entry("max", 40d), entry("min", 20d)));
+        contains(entry("max", 40d,"min", 20d)));
   }
 
   @Test
@@ -156,5 +156,9 @@ class ElasticsearchAggregationResponseParserTest {
 
   public Map<String, Object> entry(String name, Object value) {
     return ImmutableMap.of(name, value);
+  }
+
+  public Map<String, Object> entry(String name, Object value, String name2, Object value2) {
+    return ImmutableMap.of(name, value, name2, value2);
   }
 }

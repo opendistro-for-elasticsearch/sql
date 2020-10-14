@@ -30,16 +30,18 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.window;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
-import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLIdentifierParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
+import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 
 class AstExpressionBuilderTest {
@@ -242,6 +244,23 @@ class AstExpressionBuilderTest {
         not(booleanLiteral(false)),
         buildExprAst("NOT false")
     );
+  }
+
+  @Test
+  public void canBuildWindowFunction() {
+    assertEquals(
+        window(
+            function("RANK"),
+            ImmutableList.of(qualifiedName("state")),
+            ImmutableList.of(ImmutablePair.of("ASC", qualifiedName("age")))),
+        buildExprAst("RANK() OVER (PARTITION BY state ORDER BY age)"));
+
+    assertEquals(
+        window(
+            function("DENSE_RANK"),
+            ImmutableList.of(),
+            ImmutableList.of(ImmutablePair.of("DESC", qualifiedName("age")))),
+        buildExprAst("DENSE_RANK() OVER (ORDER BY age DESC)"));
   }
 
   @Test

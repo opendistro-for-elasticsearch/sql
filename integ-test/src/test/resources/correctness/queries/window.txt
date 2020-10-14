@@ -1,0 +1,22 @@
+SELECT DistanceMiles, ROW_NUMBER() OVER (ORDER BY DistanceMiles) AS num FROM kibana_sample_data_flights
+SELECT DistanceMiles, RANK() OVER (ORDER BY DistanceMiles) AS rnk FROM kibana_sample_data_flights
+SELECT DistanceMiles, DENSE_RANK() OVER (ORDER BY DistanceMiles) AS rnk FROM kibana_sample_data_flights
+SELECT DistanceMiles, ROW_NUMBER() OVER (ORDER BY DistanceMiles DESC) AS num FROM kibana_sample_data_flights
+SELECT DistanceMiles, RANK() OVER (ORDER BY DistanceMiles DESC) AS rnk FROM kibana_sample_data_flights
+SELECT DistanceMiles, DENSE_RANK() OVER (ORDER BY DistanceMiles DESC) AS rnk FROM kibana_sample_data_flights
+SELECT user, RANK() OVER (ORDER BY user) AS rnk FROM kibana_sample_data_ecommerce
+SELECT user, DENSE_RANK() OVER (ORDER BY user) AS rnk FROM kibana_sample_data_ecommerce
+SELECT user, RANK() OVER (ORDER BY user DESC) AS rnk FROM kibana_sample_data_ecommerce
+SELECT user, DENSE_RANK() OVER (ORDER BY user DESC) AS rnk FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, ROW_NUMBER() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, RANK() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, DENSE_RANK() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, customer_id, ROW_NUMBER() OVER (PARTITION BY customer_gender, user ORDER BY customer_id) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, customer_id, RANK() OVER (PARTITION BY customer_gender, user ORDER BY customer_id) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, customer_id, DENSE_RANK() OVER (PARTITION BY customer_gender, user ORDER BY customer_id) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, ROW_NUMBER() OVER (ORDER BY customer_gender, user) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, RANK() OVER (ORDER BY customer_gender, user) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, DENSE_RANK() OVER (ORDER BY customer_gender, user) AS num FROM kibana_sample_data_ecommerce
+SELECT customer_gender, user, SUM(total_quantity), ROW_NUMBER() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce GROUP BY customer_gender, user
+SELECT customer_gender, user, AVG(total_quantity), RANK() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce GROUP BY customer_gender, user
+SELECT customer_gender, user, DENSE_RANK() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce GROUP BY customer_gender, user
