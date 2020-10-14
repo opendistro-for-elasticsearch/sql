@@ -99,6 +99,12 @@ public class QuerySpecification {
     query.accept(new QuerySpecificationCollector(queryString));
   }
 
+  /**
+   * Replace unresolved expression if it's an alias or ordinal that represents
+   * an actual expression in SELECT list.
+   * @param expr item to be replaced
+   * @return select item that the given expr represents
+   */
   public UnresolvedExpression replaceIfAliasOrOrdinal(UnresolvedExpression expr) {
     if (isIntegerLiteral(expr)) {
       return getSelectItemByOrdinal(expr);

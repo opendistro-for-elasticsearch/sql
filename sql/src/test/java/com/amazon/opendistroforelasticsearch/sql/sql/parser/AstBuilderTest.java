@@ -196,7 +196,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_clause() {
+  public void can_build_group_by_field_name() {
     assertEquals(
         project(
             agg(
@@ -211,7 +211,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_with_function() {
+  public void can_build_group_by_function() {
     assertEquals(
         project(
             agg(
@@ -226,7 +226,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_with_uppercase_function() {
+  public void can_build_group_by_uppercase_function() {
     assertEquals(
         project(
             agg(
@@ -241,7 +241,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_with_alias() {
+  public void can_build_group_by_alias() {
     assertEquals(
         project(
             agg(
@@ -256,7 +256,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_with_ordinal() {
+  public void can_build_group_by_ordinal() {
     assertEquals(
         project(
             agg(
@@ -285,7 +285,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_order_by_with_field_name() {
+  public void can_build_order_by_field_name() {
     assertEquals(
         project(
             sort(
@@ -297,7 +297,21 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_order_by_with_alias() {
+  public void can_build_order_by_function() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                ImmutableList.of(argument("count", intLiteral(0))),
+                field(
+                    function("ABS", qualifiedName("name")),
+                    argument("asc", booleanLiteral(true)))),
+            alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY ABS(name)"));
+  }
+
+  @Test
+  public void can_build_order_by_alias() {
     assertEquals(
         project(
             sort(
@@ -309,7 +323,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_order_by_with_ordinal() {
+  public void can_build_order_by_ordinal() {
     assertEquals(
         project(
             sort(
