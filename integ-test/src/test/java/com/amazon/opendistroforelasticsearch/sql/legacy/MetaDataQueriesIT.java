@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.json.JSONArray;
@@ -308,6 +307,8 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
 
     JSONObject expected = executeQuery("SHOW TABLES LIKE " + TestsConstants.TEST_INDEX_ACCOUNT);
     JSONObject actual = executeQuery("SHOW TABLES LIKE acc");
+
+    assertThat(getDataRows(actual).length(), equalTo(1));
     assertTrue(StringUtils.format("Expected: %s, actual: %s", expected, actual),
         expected.similar(actual));
   }
@@ -319,6 +320,8 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
 
     JSONObject expected = executeQuery("DESCRIBE TABLES LIKE " + TestsConstants.TEST_INDEX_ACCOUNT);
     JSONObject actual = executeQuery("DESCRIBE TABLES LIKE acc");
+
+    assertThat(getDataRows(actual).length(), greaterThan(0));
     assertTrue(StringUtils.format("Expected: %s, actual: %s", expected, actual),
         expected.similar(actual));
   }
