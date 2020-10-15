@@ -1,0 +1,6 @@
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum ASC
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum DESC
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum, AvgTicketPrice
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum DESC, AvgTicketPrice
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum, AvgTicketPrice DESC
