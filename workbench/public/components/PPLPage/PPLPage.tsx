@@ -19,13 +19,6 @@ import {
   EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiOverlayMask,
-  EuiModal,
-  EuiModalHeader,
-  EuiModalHeaderTitle,
-  EuiModalBody,
-  EuiModalFooter,
-  EuiCodeBlock,
   EuiText,
   EuiCodeEditor,
   EuiSpacer,
@@ -45,7 +38,6 @@ interface PPLPageProps {
 interface PPLPageState {
   pplQuery: string,
   translation: string,
-  isModalVisible: boolean
 }
 
 export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
@@ -54,50 +46,10 @@ export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
     this.state = {
       pplQuery: this.props.pplQuery,
       translation: "",
-      isModalVisible: false
     };
   }
 
-  setIsModalVisible(visible: boolean): void {
-    this.setState({
-      isModalVisible: visible
-    })
-  }
-
   render() {
-
-    const closeModal = () => this.setIsModalVisible(false);
-    const showModal = () => this.setIsModalVisible(true);
-
-    let modal;
-
-    if (this.state.isModalVisible) {
-      modal = (
-        <EuiOverlayMask onClick={closeModal}>
-          <EuiModal onClose={closeModal}>
-            <EuiModalHeader>
-              <EuiModalHeaderTitle>Explain</EuiModalHeaderTitle>
-            </EuiModalHeader>
-
-            <EuiModalBody>
-              <EuiCodeBlock
-                language="json"
-                fontSize="m"
-                isCopyable
-              >
-                {this.props.pplTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")}
-              </EuiCodeBlock>
-            </EuiModalBody>
-
-            <EuiModalFooter>
-              <EuiButton onClick={closeModal} fill>
-                Close
-            </EuiButton>
-            </EuiModalFooter>
-          </EuiModal>
-        </EuiOverlayMask>
-      );
-    }
 
     return (
       <EuiPanel className="sql-console-query-editor container-panel" paddingSize="l">

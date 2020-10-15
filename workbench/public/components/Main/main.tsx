@@ -550,7 +550,6 @@ export class Main extends React.Component<MainProps, MainState> {
   }
 
   setIsResultFullScreen(isFullScreen: boolean) {
-    console.log('isFullScreen', isFullScreen);
     this.setState({
       isResultFullScreen: isFullScreen
     });
