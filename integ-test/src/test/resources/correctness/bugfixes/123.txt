@@ -1,0 +1,5 @@
+SELECT Origin FROM kibana_sample_data_flights ORDER BY LOWER(Origin)
+SELECT Origin FROM kibana_sample_data_flights ORDER BY LOWER(Origin) DESC
+SELECT Origin FROM kibana_sample_data_flights ORDER BY SUBSTRING(Origin, 3, 3)
+SELECT Origin FROM kibana_sample_data_flights ORDER BY SUBSTRING(Origin, 3, 3) DESC
+SELECT Origin, FlightNum FROM kibana_sample_data_flights ORDER BY SUBSTRING(Origin, 3, 3), LOWER(FlightNum)
