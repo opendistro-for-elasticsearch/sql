@@ -334,6 +334,20 @@ class AstBuilderTest {
         buildAST("SELECT name FROM test ORDER BY 1 DESC"));
   }
 
+  @Test
+  public void can_build_order_by_multiple_field_names() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                ImmutableList.of(argument("count", intLiteral(0))),
+                field("name", argument("asc", booleanLiteral(true))),
+                field("age", argument("asc", booleanLiteral(false)))),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT name, age FROM test ORDER BY name, age DESC"));
+  }
+
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
     return parseTree.accept(new AstBuilder(query));

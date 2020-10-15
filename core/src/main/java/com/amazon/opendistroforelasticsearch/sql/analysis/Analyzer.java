@@ -298,7 +298,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
                 sortField -> {
                   // the first options is {"asc": "true/false"}
                   Boolean asc = (Boolean) sortField.getFieldArgs().get(0).getValue().getValue();
-                  Expression expression = expressionAnalyzer.analyze(sortField, context);
+                  Expression expression = expressionAnalyzer.analyze(sortField.getField(), context);
                   return ImmutablePair.of(
                       asc ? SortOption.DEFAULT_ASC : SortOption.DEFAULT_DESC, expression);
                 })
