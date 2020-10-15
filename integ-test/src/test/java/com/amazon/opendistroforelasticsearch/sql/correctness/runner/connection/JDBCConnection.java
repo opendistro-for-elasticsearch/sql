@@ -202,7 +202,7 @@ public class JDBCConnection implements DBConnection {
   }
 
   private boolean isOrderByQuery(String query) {
-    return query.trim().toUpperCase().endsWith("ORDER BY");
+    return query.trim().toUpperCase().contains("ORDER BY");
   }
 
   /**

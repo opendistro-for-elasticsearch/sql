@@ -107,7 +107,7 @@ public class DBResult {
    * Flatten for simplifying json generated.
    */
   public Collection<Collection<Object>> getDataRows() {
-    Collection<Collection<Object>> values = (dataRows instanceof List)
+    Collection<Collection<Object>> values = isDataRowOrdered()
         ? new ArrayList<>() : HashMultiset.create();
     dataRows.stream().map(Row::getValues).forEach(values::add);
     return values;
@@ -134,6 +134,9 @@ public class DBResult {
   }
 
   private String diffDataRows(DBResult other) {
+    if (isDataRowOrdered()) {
+      return diff("Data row", (List<?>) dataRows, (List<?>) other.dataRows);
+    }
     List<Row> thisRows = sort(dataRows);
     List<Row> otherRows = sort(other.dataRows);
     return diff("Data row", thisRows, otherRows);
@@ -168,6 +171,14 @@ public class DBResult {
       }
     }
     return -1;
+  }
+
+  /**
+   * Is data row a list that represent original order of data set
+   * which doesn't/shouldn't sort again.
+   */
+  private boolean isDataRowOrdered() {
+    return (dataRows instanceof List);
   }
 
   /**

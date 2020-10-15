@@ -120,4 +120,22 @@ public class DBResultTest {
     );
   }
 
+  @Test
+  public void shouldExplainDataRowsOrderDifference() {
+    DBResult result1 = DBResult.resultInOrder("DB 1");
+    result1.addColumn("name", "VARCHAR");
+    result1.addRow(new Row(ImmutableList.of("hello")));
+    result1.addRow(new Row(ImmutableList.of("world")));
+
+    DBResult result2 = DBResult.resultInOrder("DB 2");
+    result2.addColumn("name", "VARCHAR");
+    result2.addRow(new Row(ImmutableList.of("world")));
+    result2.addRow(new Row(ImmutableList.of("hello")));
+
+    assertEquals(
+        "Data row at [0] is different: this=[Row(values=[hello])], other=[Row(values=[world])]",
+        result1.diff(result2)
+    );
+  }
+
 }
