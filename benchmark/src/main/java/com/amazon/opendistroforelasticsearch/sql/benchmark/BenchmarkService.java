@@ -1,0 +1,179 @@
+/*
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+package com.amazon.opendistroforelasticsearch.sql.benchmark;
+
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.DatabaseLauncher;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.DatabaseLauncherFactory;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataGenerator;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataLoader;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataTransformer;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataUtilHolderFactory;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.ResultGrabber;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Class to run benchmarking, includes entry-point for benchmarking.
+ */
+public class BenchmarkService {
+  private List<String> types;
+  private List<String> queries;
+  private String outputFile;
+  private String tempFile;
+
+  private static final String TYPES = "types";
+  private static final String QUERIES = "queries";
+  private static final String OUTPUT_FILE = "outputFile";
+  private static final String TEMP_FILE = "tempFile";
+  private static final Set<String> EXPECTED_KEYS = ImmutableSet.of(
+      TYPES, QUERIES, OUTPUT_FILE, TEMP_FILE);
+
+  /**
+   * Constructor for BenchmarkingService.
+   * @param filePath Path to configuration file.
+   * @throws Exception Thrown if file parsing fails.
+   */
+  private BenchmarkService(final String filePath) throws Exception {
+    parseFile(filePath);
+  }
+
+  /**
+   * Function to run all procedures related to benchmarking.
+   * @throws Exception Thrown if benchmarking fails.
+   */
+  private void runBenchmarks() throws Exception {
+    DataGenerator.generateData(tempFile);
+    final List<BenchmarkResults> results = new ArrayList<>();
+    for (final String type: types) {
+      DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
+      launcher.launchDatabase();
+      performDataLoad(type);
+      results.add(performBenchmark(type));
+      launcher.shutdownDatabase();
+    }
+    interpretResults(results);
+    DataGenerator.cleanupData(tempFile);
+  }
+
+  /**
+   * Function to load data into a specified database.
+   * @param type Type of database to load data into.
+   * @throws Exception Thrown if data load fails.
+   */
+  private void performDataLoad(final String type) throws Exception {
+    // Grab utility classes
+    final DataUtilHolderFactory.DataUtilHolder dataUtilHolder =
+        DataUtilHolderFactory.getDataUtilHolder(type);
+    final DataLoader dataLoader = dataUtilHolder.getDataLoader();
+    final DataTransformer dataTransformer = dataUtilHolder.getDataTransformer();
+
+    // Generate data, transform, and load data.
+    final DataFormat dataFormat = dataTransformer.transformData(tempFile);
+    dataLoader.loadData(dataFormat);
+  }
+
+  /**
+   * Function to run benchmarking and get a result for a specified database.
+   * @param type Database type to run benchmarking against.
+   * @return BenchmarkResults for the query execution.
+   * @throws Exception Thrown if benchmarking fails.
+   */
+  private BenchmarkResults performBenchmark(final String type) throws Exception {
+    final ResultGrabber resultGrabber = new ResultGrabber(type);
+    return resultGrabber.runQueries(queries);
+  }
+
+  /**
+   * Function to run result interpreter.
+   * @param results List of benchmarking results to use.
+   */
+  private void interpretResults(final List<BenchmarkResults> results) {
+    final BenchmarkResultsInterpreter interpreter = new BenchmarkResultsInterpreter();
+    interpreter.interpretResults(results, outputFile);
+  }
+
+  /**
+   * Function to parse the config file and get parameters needed for running benchmarking.
+   * @param filePath Path to config file.
+   * @throws Exception Thrown if config file parsing fails.
+   */
+  private void parseFile(final String filePath) throws Exception {
+    final String jsonString = new String(Files.readAllBytes(Paths.get(filePath)));
+    final ObjectMapper mapper = new ObjectMapper();
+    final Map map = mapper.readValue(jsonString, Map.class);
+    if (!map.keySet().equals(EXPECTED_KEYS)) {
+      throw new Exception(
+          String.format("Expected JSON config file to contain the following keys: '%s'. "
+              + "Instead it contained the following keys: '%s'.",
+              EXPECTED_KEYS.toString(), map.keySet().toString()));
+    }
+    types = getValueCheckType(map, TYPES, types.getClass());
+    queries = getValueCheckType(map, QUERIES, queries.getClass());
+    outputFile = getValueCheckType(map, OUTPUT_FILE, queries.getClass());
+    tempFile = getValueCheckType(map, TEMP_FILE, tempFile.getClass());
+  }
+
+  /**
+   * Function to get value from map and check the type before returning it.
+   * @param map Map to get result from.
+   * @param key Key that Object exists in map under.
+   * @param expectedClass Expected type of Object from map.
+   * @param <T> Template type to cast Object to.
+   * @return Object casted for specific type.
+   * @throws Exception Throws an exception if the type does not match.
+   */
+  @SuppressWarnings("unchecked")
+  private <T> T getValueCheckType(final Map map, final String key, final Class<?> expectedClass)
+      throws Exception {
+    final Object obj = map.get(key);
+    if (!(obj.getClass().equals(expectedClass))) {
+      throw new Exception(String.format("Expected %s key to have a value of type '%s'. "
+          + "Instead it contained a value of type '%s'.",
+          key, expectedClass.toString(), obj.getClass().toString()));
+    }
+    return (T)obj;
+  }
+
+  /**
+   * Entry point to run benchmarking service.
+   * @param args Should only specify a single configuration file.
+   */
+  public static void main(final String[] args) {
+    if (args.length != 1) {
+      System.out.println(
+          String.format("Expected a single argument (path to config file), "
+              + "but received %d arguments.", args.length));
+      return;
+    }
+
+    try {
+      final BenchmarkService benchmarkService = new BenchmarkService(args[0]);
+      benchmarkService.runBenchmarks();
+    } catch (Exception e) {
+      System.out.println("Received exception when benchmarking: " + e);
+    }
+  }
+}
