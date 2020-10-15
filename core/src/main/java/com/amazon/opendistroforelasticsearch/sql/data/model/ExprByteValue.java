@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 
 /**
- * Expression Short Value.
+ * Expression Byte Value.
  */
 public class ExprByteValue extends AbstractExprNumberValue {
 

@@ -21,6 +21,10 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Elasticsearch BinaryValue.
+ * Todo, add this to avoid the unknown value type exception, the implementation will be changed.
+ */
 @EqualsAndHashCode(callSuper = false)
 public class ElasticsearchExprBinaryValue extends AbstractExprValue {
   private final String encodedString;
