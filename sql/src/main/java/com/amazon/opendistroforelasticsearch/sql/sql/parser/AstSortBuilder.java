@@ -34,7 +34,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Just replace ordinal or alias.
+ * AST sort builder that builds Sort AST node from ORDER BY clause. During this process, the item
+ * in order by may be replaced by item in project list if it's an alias or ordinal. This is same as
+ * GROUP BY building process.
  */
 @RequiredArgsConstructor
 public class AstSortBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
