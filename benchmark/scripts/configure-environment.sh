@@ -32,6 +32,7 @@ sudo apt-get install cassandra
 nodetool status
 
 # Build dbgen
+unzip tpch-dbgen
 cd tpch-dbgen
 make
 cd ..
