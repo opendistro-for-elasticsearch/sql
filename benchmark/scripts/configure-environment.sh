@@ -2,11 +2,11 @@
 
 # Install Prerequisites
 sudo add-apt-repository ppa:openjdk-r/ppa
-sudo apt update
-sudo apt install openjdk-11-jdk
-sudo apt install unzip
-sudo apt install curl
-sudo apt install apt-transport-https
+sudo apt-get update
+sudo apt-get install openjdk-11-jdk
+sudo apt-get install unzip
+sudo apt-get install curl
+sudo apt-get install apt-transport-https
 sudo apt-get -y install cmake
 
 # Setup Elasticsearch
@@ -15,7 +15,7 @@ echo "deb https://d3g5vo6xdbdb9a.cloudfront.net/apt stable main" | sudo tee -a  
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.9.1-amd64.deb
 sudo dpkg -i elasticsearch-oss-7.9.1-amd64.deb
 sudo apt-get update
-sudo apt install opendistroforelasticsearch
+sudo apt-get install opendistroforelasticsearch
 echo "Opendistroforelasticsearch is installed successfully."
 echo "----------------------------------------------------------------------------------------------------------"
 
@@ -27,6 +27,8 @@ echo "Mysql is installed successfully."
 echo "----------------------------------------------------------------------------------------------------------"
 
 # Setup Cassandra
+sudo apt-get install openjdk-8-jdk
+update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 echo "deb http://downloads.apache.org/cassandra/debian 40x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list deb http://downloads.apache.org/cassandra/debian 40x main
 curl https://downloads.apache.org/cassandra/KEYS | sudo apt-key add -
 sudo apt-get update
