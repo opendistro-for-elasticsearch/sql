@@ -27,8 +27,6 @@ echo "Mysql is installed successfully."
 echo "----------------------------------------------------------------------------------------------------------"
 
 # Setup Cassandra
-sudo apt install openjdk-8-jdk
-update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 echo "deb http://downloads.apache.org/cassandra/debian 40x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list deb http://downloads.apache.org/cassandra/debian 40x main
 curl https://downloads.apache.org/cassandra/KEYS | sudo apt-key add -
 sudo apt-get update
@@ -38,7 +36,7 @@ echo "Cassandra is installed successfully."
 echo "----------------------------------------------------------------------------------------------------------"
 
 # Build dbgen
-cd ../tpch-dbgen
+cd tpch-dbgen
 make
 cd ..
 echo "dbgen is built successfully."
