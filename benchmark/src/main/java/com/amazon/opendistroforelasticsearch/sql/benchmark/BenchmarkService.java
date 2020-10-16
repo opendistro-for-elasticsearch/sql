@@ -42,14 +42,16 @@ public class BenchmarkService {
   private List<String> types;
   private List<String> queries;
   private String outputFile;
-  private String tempFile;
+  private String tempFolder;
+  private List<Integer> scaleFactors;
 
   private static final String TYPES = "types";
   private static final String QUERIES = "queries";
   private static final String OUTPUT_FILE = "outputFile";
-  private static final String TEMP_FILE = "tempFile";
+  private static final String TEMP_FOLDER = "tempFolder";
+  private static final String SCALE_FACTORS = "scaleFactors";
   private static final Set<String> EXPECTED_KEYS = ImmutableSet.of(
-      TYPES, QUERIES, OUTPUT_FILE, TEMP_FILE);
+      TYPES, QUERIES, OUTPUT_FILE, TEMP_FOLDER, SCALE_FACTORS);
 
   /**
    * Constructor for BenchmarkingService.
@@ -65,17 +67,19 @@ public class BenchmarkService {
    * @throws Exception Thrown if benchmarking fails.
    */
   private void runBenchmarks() throws Exception {
-    DataGenerator.generateData(tempFile);
-    final List<BenchmarkResults> results = new ArrayList<>();
-    for (final String type: types) {
-      DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
-      launcher.launchDatabase();
-      performDataLoad(type);
-      results.add(performBenchmark(type));
-      launcher.shutdownDatabase();
+    for (Integer sf: scaleFactors) {
+      DataGenerator.generateData(tempFolder, sf);
+      final List<BenchmarkResults> results = new ArrayList<>();
+      for (final String type: types) {
+        DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
+        launcher.launchDatabase();
+        performDataLoad(type);
+        results.add(performBenchmark(type, sf));
+        launcher.shutdownDatabase();
+      }
+      interpretResults(results);
+      DataGenerator.cleanupData(tempFolder);
     }
-    interpretResults(results);
-    DataGenerator.cleanupData(tempFile);
   }
 
   /**
@@ -91,18 +95,20 @@ public class BenchmarkService {
     final DataTransformer dataTransformer = dataUtilHolder.getDataTransformer();
 
     // Generate data, transform, and load data.
-    final DataFormat dataFormat = dataTransformer.transformData(tempFile);
+    final DataFormat dataFormat = dataTransformer.transformData(tempFolder);
     dataLoader.loadData(dataFormat);
   }
 
   /**
    * Function to run benchmarking and get a result for a specified database.
    * @param type Database type to run benchmarking against.
+   * @param scaleFactor Scale factor for data set.
    * @return BenchmarkResults for the query execution.
    * @throws Exception Thrown if benchmarking fails.
    */
-  private BenchmarkResults performBenchmark(final String type) throws Exception {
-    final ResultGrabber resultGrabber = new ResultGrabber(type);
+  private BenchmarkResults performBenchmark(final String type, final Integer scaleFactor)
+      throws Exception {
+    final ResultGrabber resultGrabber = new ResultGrabber(type, scaleFactor);
     return resultGrabber.runQueries(queries);
   }
 
@@ -133,7 +139,8 @@ public class BenchmarkService {
     types = getValueCheckType(map, TYPES, types.getClass());
     queries = getValueCheckType(map, QUERIES, queries.getClass());
     outputFile = getValueCheckType(map, OUTPUT_FILE, queries.getClass());
-    tempFile = getValueCheckType(map, TEMP_FILE, tempFile.getClass());
+    tempFolder = getValueCheckType(map, TEMP_FOLDER, tempFolder.getClass());
+    scaleFactors = getValueCheckType(map, SCALE_FACTORS, scaleFactors.getClass());
   }
 
   /**

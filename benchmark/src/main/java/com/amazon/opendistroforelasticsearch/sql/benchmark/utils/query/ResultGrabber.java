@@ -27,14 +27,17 @@ import java.util.stream.Collectors;
 public class ResultGrabber {
   private final String type;
   private final QueryRunner queryRunner;
+  private final Integer scaleFactor;
 
   /**
    * Constructor for ResultGrabber, assigns QueryRunner.
    * @param type Type of database to get results for.
+   * @param scaleFactor Scale factor for data set.
    * @throws Exception Thrown if QueryRunner cannot be found for type.
    */
-  public ResultGrabber(final String type) throws Exception {
+  public ResultGrabber(final String type, Integer scaleFactor) throws Exception {
     this.type = type;
+    this.scaleFactor = scaleFactor;
     this.queryRunner = QueryRunnerFactory.getRunner(type);
   }
 
@@ -45,7 +48,7 @@ public class ResultGrabber {
    */
   public BenchmarkResults runQueries(final List<String> queries) {
     return new BenchmarkResults(queries.stream()
-        .map(this::runQuery).collect(Collectors.toList()), type);
+        .map(this::runQuery).collect(Collectors.toList()), type, scaleFactor);
   }
 
   /**

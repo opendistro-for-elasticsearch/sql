@@ -28,15 +28,16 @@ public class DataGenerator {
 
   /**
    * Function to generate data for benchmarking.
-   * @param fileName File to write benchmarking data to.
+   * @param outputFolder Folder to write benchmarking data to.
+   * @param scaleFactor Scale factor to use.
    */
-  public static void generateData(final String fileName) {
+  public static void generateData(final String outputFolder, final int scaleFactor) {
   }
 
   /**
    * Function to delete benchmarking data.
-   * @param fileName File to delete benchmarking data from.
+   * @param outputFolder Folder to delete benchmarking data from.
    */
-  public static void cleanupData(final String fileName) {
+  public static void cleanupData(final String outputFolder) {
   }
 }
