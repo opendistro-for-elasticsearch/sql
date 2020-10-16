@@ -17,7 +17,7 @@ import React, { Fragment } from "react";
 // @ts-ignore
 import { SortableProperties } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiSearchBar, EuiSideNav } from "@elastic/eui";
+import { EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiPanel, EuiPortal, EuiSearchBar, EuiSideNav } from "@elastic/eui";
 import {
   EuiButton,
   EuiButtonIcon,
@@ -49,7 +49,7 @@ import {
   scrollToNode
 } from "../../utils/utils";
 import "../../ace-themes/sql_console";
-import { COLUMN_WIDTH, PAGE_OPTIONS, SMALL_COLUMN_WIDTH } from "../../utils/constants";
+import { COLUMN_WIDTH, MEDIUM_COLUMN_WIDTH, PAGE_OPTIONS, SMALL_COLUMN_WIDTH } from "../../utils/constants";
 import { ItemIdToExpandedRowMap, QueryMessage, QueryResult } from "../Main/main";
 
 const DoubleScrollbar = require('react-double-scrollbar');
@@ -142,7 +142,6 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     this.panels = [
       {
         id: 0,
-        title: "Download",
         items: [
           {
             name: "Download JSON",
@@ -341,6 +340,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   addExpandingNodeIcon(node: Node, expandedRowMap: ItemIdToExpandedRowMap) {
     return (
       <EuiButtonIcon
+        style={{ marginLeft: -4 }}
         onClick={() => this.toggleNodeData(node, expandedRowMap)}
         aria-label={
           expandedRowMap[node.nodeId] && expandedRowMap[node.nodeId].expandedRow
@@ -537,7 +537,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   renderHeaderCells(columns: any[]) {
     return columns.map((field: any) => {
       const label = field.id === "expandIcon" ? field.label : field;
-      const colwidth = field.id === "expandIcon" || field === "id" ? SMALL_COLUMN_WIDTH : COLUMN_WIDTH;
+      const colwidth = field.id === "expandIcon" ? SMALL_COLUMN_WIDTH : field === "id" ? MEDIUM_COLUMN_WIDTH : COLUMN_WIDTH;
       return (
         <EuiTableHeaderCell
           key={label}
@@ -705,7 +705,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     const search = {
       box: {
         incremental: this.state.incremental,
-        placeholder: "Search",
+        placeholder: "Search keyword",
         schema: true
       }
     };
@@ -777,6 +777,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       <EuiButton
         iconType="arrowDown"
         iconSide="right"
+        size="s"
         onClick={this.onDownloadButtonClick}
       >
         Download
@@ -804,52 +805,43 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
 
       return (
         <div>
-          <EuiSpacer size="m" />
-          <EuiFlexGroup justifyContent="spaceBetween">
-            {/*Table name*/}
-            <EuiFlexItem grow={7}>
-              <EuiText className="table-name">
-                {capitalizeFirstLetter(this.props.selectedTabName)}
-              </EuiText>
-            </EuiFlexItem>
+          {this.props.language === 'SQL' && (
+            <>
+              <EuiFlexGroup alignItems="flexStart" style={{ padding: 20, paddingBottom: 0 }}>
+                {/*Table name*/}
+                <EuiFlexItem>
+                  <EuiText className="table-name">
+                    <h4>
+                      {this.props.selectedTabName}
+                      <span className="table-item-count">{` (${this.items.length})`}</span>
+                    </h4>
+                  </EuiText>
+                  <div className="search-panel">
+                    {/*Search Bar*/}
+                    {this.renderSearchBar()}
+                  </div>
+                </EuiFlexItem>
 
-            {/*Download button*/}
-            <EuiFlexItem grow={1}>
-              <div className="download-container">
-                <EuiPopover
-                  className="download-button-container"
-                  id="singlePanel"
-                  button={downloadsButton}
-                  isOpen={this.state.isDownloadPopoverOpen}
-                  closePopover={this.closeDownloadPopover}
-                  panelPaddingSize="none"
-                  anchorPosition="downLeft"
-                >
-                  <EuiContextMenu initialPanelId={0} panels={this.panels} />
-                </EuiPopover>
-              </div>
-            </EuiFlexItem>
-          </EuiFlexGroup>
-          <EuiHorizontalRule margin="none" />
-          {modal}
-
-          <div className="search-panel">
-            {/*Search Bar*/}
-            {this.renderSearchBar()}
-
-            {/*Pagination*/}
-            <EuiTablePagination
-              activePage={this.props.pager.getCurrentPageIndex()}
-              itemsPerPage={this.props.itemsPerPage}
-              itemsPerPageOptions={PAGE_OPTIONS}
-              pageCount={this.props.pager.getTotalPages()}
-              onChangeItemsPerPage={this.props.onChangeItemsPerPage}
-              onChangePage={this.props.onChangePage}
-              data-test-subj={"Pagination-button"}
-            />
-          </div>
-
-          <EuiSpacer size="m" />
+                {/*Download button*/}
+                <EuiFlexItem grow={false}>
+                  <div className="download-container">
+                    <EuiPopover
+                      className="download-button-container"
+                      id="singlePanel"
+                      button={downloadsButton}
+                      isOpen={this.state.isDownloadPopoverOpen}
+                      closePopover={this.closeDownloadPopover}
+                      panelPaddingSize="none"
+                      anchorPosition="downLeft"
+                    >
+                      <EuiContextMenu initialPanelId={0} panels={this.panels} />
+                    </EuiPopover>
+                  </div>
+                </EuiFlexItem>
+              </EuiFlexGroup>
+              {modal}
+            </>
+          )}
 
           {/*Table*/}
           <div className="sql-console-results-container">

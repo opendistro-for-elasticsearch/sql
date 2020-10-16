@@ -14,7 +14,7 @@
  */
 
 import React from "react";
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton } from "@elastic/eui";
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton, EuiTitle } from "@elastic/eui";
 import { IHttpResponse, IHttpService } from "angular";
 import _ from "lodash";
 import Header from "../Header/Header";
@@ -84,6 +84,7 @@ interface MainState {
   searchQuery: string;
   itemIdToExpandedRowMap: ItemIdToExpandedRowMap;
   messages: Array<QueryMessage>;
+  isResultFullScreen: boolean;
 }
 
 const SUCCESS_MESSAGE = "Success";
@@ -190,7 +191,7 @@ export class Main extends React.Component<MainProps, MainState> {
 
     this.state = {
       language: 'SQL',
-      sqlQueriesString: "SHOW tables LIKE %",
+      sqlQueriesString: "SHOW tables LIKE %;",
       pplQueriesString: "",
       queries: [],
       queryTranslations: [],
@@ -203,12 +204,14 @@ export class Main extends React.Component<MainProps, MainState> {
       selectedTabId: MESSAGE_TAB_LABEL,
       searchQuery: "",
       itemIdToExpandedRowMap: {},
-      messages: []
+      messages: [],
+      isResultFullScreen: false,
     };
 
     this.httpClient = this.props.httpClient;
     this.updateSQLQueries = _.debounce(this.updateSQLQueries, 250).bind(this);
     this.updatePPLQueries = _.debounce(this.updatePPLQueries, 250).bind(this);
+    this.setIsResultFullScreen = this.setIsResultFullScreen.bind(this);
 
   }
 
@@ -259,7 +262,7 @@ export class Main extends React.Component<MainProps, MainState> {
     this.setState({
       selectedTabId: tab.id,
       selectedTabName: tab.name,
-      searchQuery: " ",
+      searchQuery: "",
       itemIdToExpandedRowMap: {}
     });
   };
@@ -529,7 +532,8 @@ export class Main extends React.Component<MainProps, MainState> {
 
   onChange = (id: string) => {
     this.setState({
-      language: id
+      language: id,
+      queryResultsTable: [],
     }, () => console.log("Successfully updated language to ", this.state.language)); // added callback function to handle async issues
   }
 
@@ -542,6 +546,12 @@ export class Main extends React.Component<MainProps, MainState> {
   updatePPLQueries(query: string) {
     this.setState({
       pplQueriesString: query
+    });
+  }
+
+  setIsResultFullScreen(isFullScreen: boolean) {
+    this.setState({
+      isResultFullScreen: isFullScreen
     });
   }
 
@@ -563,7 +573,7 @@ export class Main extends React.Component<MainProps, MainState> {
         />
       );
       link = "https://opendistro.github.io/for-elasticsearch-docs/docs/sql/";
-      linkTitle = "SQL Documentation";
+      linkTitle = "SQL documentation";
     } else {
       page = (
         <PPLPage
@@ -575,8 +585,39 @@ export class Main extends React.Component<MainProps, MainState> {
           updatePPLQueries={this.updatePPLQueries}
         />
       );
-      link = "https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/experiment/ppl/index.rst";
-      linkTitle = "PPL Documentation";
+      link = "https://opendistro.github.io/for-elasticsearch-docs/docs/ppl/";
+      linkTitle = "PPL documentation";
+    }
+
+    if (this.state.isResultFullScreen) {
+      return (
+        <div className="sql-console-query-result">
+          <QueryResults
+            language={this.state.language}
+            queries={this.state.queries}
+            queryResults={this.state.queryResultsTable}
+            queryResultsJDBC={getSelectedResults(this.state.queryResults, this.state.selectedTabId)}
+            queryResultsJSON={getSelectedResults(this.state.queryResultsJSON, this.state.selectedTabId)}
+            queryResultsCSV={getSelectedResults(this.state.queryResultsCSV, this.state.selectedTabId)}
+            queryResultsTEXT={getSelectedResults(this.state.queryResultsTEXT, this.state.selectedTabId)}
+            messages={this.state.messages}
+            selectedTabId={this.state.selectedTabId}
+            selectedTabName={this.state.selectedTabName}
+            onSelectedTabIdChange={this.onSelectedTabIdChange}
+            itemIdToExpandedRowMap={this.state.itemIdToExpandedRowMap}
+            onQueryChange={this.onQueryChange}
+            updateExpandedMap={this.updateExpandedMap}
+            searchQuery={this.state.searchQuery}
+            tabsOverflow={false}
+            getJson={this.getJson}
+            getJdbc={this.getJdbc}
+            getCsv={this.getCsv}
+            getText={this.getText}
+            isResultFullScreen={this.state.isResultFullScreen}
+            setIsResultFullScreen={this.setIsResultFullScreen}
+          />
+        </div>
+      );
     }
 
     return (
@@ -584,8 +625,13 @@ export class Main extends React.Component<MainProps, MainState> {
         <Header />
         <div className="sql-console-query-container">
           <div className="query-language-switch">
-            <EuiFlexGroup>
+            <EuiFlexGroup alignItems="center">
               <EuiFlexItem>
+                <EuiTitle size="l">
+                  <h1>Query Workbench</h1>
+                </EuiTitle>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>
                 <Switch
                   onChange={this.onChange}
                   language={this.state.language}
@@ -594,6 +640,7 @@ export class Main extends React.Component<MainProps, MainState> {
               <EuiFlexItem grow={false}>
                 <EuiButton
                   href={link}
+                  target="_blank"
                   iconType="popout"
                   iconSide="right">
                   {linkTitle}
@@ -630,6 +677,8 @@ export class Main extends React.Component<MainProps, MainState> {
               getJdbc={this.getJdbc}
               getCsv={this.getCsv}
               getText={this.getText}
+              isResultFullScreen={this.state.isResultFullScreen}
+              setIsResultFullScreen={this.setIsResultFullScreen}
             />
           </div>
         </div>

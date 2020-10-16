@@ -18,22 +18,22 @@ export const delay = 300;
 export const verifyDownloadData = [
   {
     title: 'Download and verify JSON',
-    url: 'api/sql_console/queryjson',
+    url: 'api/sql_console/sqljson',
     file: 'JSONFile'
   },
   {
     title: 'Download and verify JDBC',
-    url: 'api/sql_console/queryjdbc',
+    url: 'api/sql_console/sqlquery',
     file: 'JDBCFile'
   },
   {
     title: 'Download and verify CSV',
-    url: 'api/sql_console/querycsv',
+    url: 'api/sql_console/sqlcsv',
     file: 'CSVFile'
   },
   {
     title: 'Download and verify Text',
-    url: 'api/sql_console/querytext',
+    url: 'api/sql_console/sqltext',
     file: 'TextFile'
   },
 ];
