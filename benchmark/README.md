@@ -10,6 +10,8 @@ The script will install Open Distro for Elasticsearch, MySQL, Cassandra, and all
 
 * Open the benchmark folder in the terminal and run the configuration script.
 
-> bash scripts/configure-environment.sh
+```
+bash scripts/configure-environment.sh
+```
 
 * Follow the guidelines until installation is complete. 
