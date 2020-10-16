@@ -67,9 +67,9 @@ public class BenchmarkService {
    * @throws Exception Thrown if benchmarking fails.
    */
   private void runBenchmarks() throws Exception {
+    final List<BenchmarkResults> results = new ArrayList<>();
     for (Integer sf: scaleFactors) {
       DataGenerator.generateData(tempFolder, sf);
-      final List<BenchmarkResults> results = new ArrayList<>();
       for (final String type: types) {
         DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
         launcher.launchDatabase();
@@ -77,9 +77,9 @@ public class BenchmarkService {
         results.add(performBenchmark(type, sf));
         launcher.shutdownDatabase();
       }
-      interpretResults(results);
       DataGenerator.cleanupData(tempFolder);
     }
+    interpretResults(results);
   }
 
   /**
