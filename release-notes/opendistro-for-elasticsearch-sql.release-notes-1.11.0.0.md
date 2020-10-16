@@ -11,6 +11,8 @@
 
 ### Enhancements
 * Support describe index alias ([#775](https://github.com/opendistro-for-elasticsearch/sql/pull/775))
+* Restyle workbench SQL/PPL UI ([#781](https://github.com/opendistro-for-elasticsearch/sql/pull/781))
+* UI Separate SQL and PPL pages ([#761](https://github.com/opendistro-for-elasticsearch/sql/pull/761))
 
 ### Bug Fixes
 * Fix bug, support multiple aggregation ([#771](https://github.com/opendistro-for-elasticsearch/sql/pull/771))
@@ -19,11 +21,6 @@
 * Bug fix, order by doesn't work when group by field has alias ([#766](https://github.com/opendistro-for-elasticsearch/sql/pull/766))
 * Bug fix, using matcher to compare the Json result ([#762](https://github.com/opendistro-for-elasticsearch/sql/pull/762))
 
-
 ### Infrastructure
 * Enforce 100% branch coverage for sql and es module ([#774](https://github.com/opendistro-for-elasticsearch/sql/pull/774))
-
-### Workbench
-* Restyle workbench SQL/PPL UI ([#781](https://github.com/opendistro-for-elasticsearch/sql/pull/781))
-* UI Separate SQL and PPL pages ([#761](https://github.com/opendistro-for-elasticsearch/sql/pull/761))
 
