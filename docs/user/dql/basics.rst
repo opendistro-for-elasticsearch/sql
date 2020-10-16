@@ -943,7 +943,7 @@ Aggregate functions are allowed to be used in ``ORDER BY`` clause. You can refer
     | F        | 28         |
     +----------+------------+
 
-Even if it's not present in ``SELECT`` clause, it can be also used as follows:
+Even if it's not present in ``SELECT`` clause, it can be also used as follows::
 
     od> SELECT gender, MIN(age) FROM accounts GROUP BY gender ORDER BY MAX(age) DESC;
     fetched rows / total rows = 2/2
