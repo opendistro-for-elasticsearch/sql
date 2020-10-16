@@ -107,7 +107,7 @@ describe('Test SQL UI', () => {
     cy.wait(delay);
     cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}select log(balance) from accounts where abs(age) > 20;', { force: true });
     cy.wait(delay);
-    cy.get('.euiButton__text').contains('JSON translation').click();
+    cy.get('.euiButton__text').contains('Explain').click();
     cy.wait(delay);
 
     // hard to get euiCodeBlock content, check length instead

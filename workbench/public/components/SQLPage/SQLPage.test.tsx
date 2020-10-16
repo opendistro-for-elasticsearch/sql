@@ -60,7 +60,7 @@ describe("<SQLPage /> spec", () => {
     fireEvent.click(getByText('Clear'));
     expect(onClean).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(getByText('JSON translation'));
+    fireEvent.click(getByText('Explain'));
     expect(onTranslate).toHaveBeenCalledTimes(1);
 
   });

@@ -172,6 +172,24 @@ exports[`<PPLPage /> spec renders the component 1`] = `
           </span>
         </button>
       </div>
+      <div
+        class="euiFlexItem euiFlexItem--flexGrowZero"
+      >
+        <button
+          class="euiButton euiButton--primary sql-editor-button"
+          type="button"
+        >
+          <span
+            class="euiButtonContent euiButton__content"
+          >
+            <span
+              class="euiButton__text"
+            >
+              Explain
+            </span>
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -345,6 +363,24 @@ exports[`<PPLPage /> spec tests the action buttons 1`] = `
               class="euiButton__text"
             >
               Clear
+            </span>
+          </span>
+        </button>
+      </div>
+      <div
+        class="euiFlexItem euiFlexItem--flexGrowZero"
+      >
+        <button
+          class="euiButton euiButton--primary sql-editor-button"
+          type="button"
+        >
+          <span
+            class="euiButtonContent euiButton__content"
+          >
+            <span
+              class="euiButton__text"
+            >
+              Explain
             </span>
           </span>
         </button>

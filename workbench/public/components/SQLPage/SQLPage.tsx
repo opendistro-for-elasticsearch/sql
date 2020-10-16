@@ -79,7 +79,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
         <EuiOverlayMask onClick={closeModal}>
           <EuiModal onClose={closeModal} style={{ width: 800 }}>
             <EuiModalHeader>
-              <EuiModalHeaderTitle>JSON translation</EuiModalHeaderTitle>
+              <EuiModalHeaderTitle>Explain</EuiModalHeaderTitle>
             </EuiModalHeader>
 
             <EuiModalBody>
@@ -149,7 +149,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
             }
           >
             <EuiButton className="sql-editor-button" onClick={showModal}>
-              JSON translation
+              Explain
             </EuiButton>
             {modal}
           </EuiFlexItem>

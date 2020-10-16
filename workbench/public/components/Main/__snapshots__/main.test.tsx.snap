@@ -307,7 +307,7 @@ exports[`<Main /> spec click clear button 1`] = `
                   <span
                     class="euiButton__text"
                   >
-                    JSON translation
+                    Explain
                   </span>
                 </span>
               </button>
@@ -691,7 +691,7 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
                   <span
                     class="euiButton__text"
                   >
-                    JSON translation
+                    Explain
                   </span>
                 </span>
               </button>
@@ -1075,7 +1075,7 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
                   <span
                     class="euiButton__text"
                   >
-                    JSON translation
+                    Explain
                   </span>
                 </span>
               </button>
@@ -1459,7 +1459,7 @@ exports[`<Main /> spec click run button, and response is ok 1`] = `
                   <span
                     class="euiButton__text"
                   >
-                    JSON translation
+                    Explain
                   </span>
                 </span>
               </button>
@@ -1846,7 +1846,7 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
                   <span
                     class="euiButton__text"
                   >
-                    JSON translation
+                    Explain
                   </span>
                 </span>
               </button>
@@ -2230,7 +2230,7 @@ exports[`<Main /> spec renders the component 1`] = `
                   <span
                     class="euiButton__text"
                   >
-                    JSON translation
+                    Explain
                   </span>
                 </span>
               </button>

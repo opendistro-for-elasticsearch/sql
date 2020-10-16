@@ -184,7 +184,7 @@ exports[`<SQLPage /> spec renders the component 1`] = `
             <span
               class="euiButton__text"
             >
-              JSON translation
+              Explain
             </span>
           </span>
         </button>
@@ -378,7 +378,7 @@ exports[`<SQLPage /> spec tests the action buttons 1`] = `
             <span
               class="euiButton__text"
             >
-              JSON translation
+              Explain
             </span>
           </span>
         </button>
