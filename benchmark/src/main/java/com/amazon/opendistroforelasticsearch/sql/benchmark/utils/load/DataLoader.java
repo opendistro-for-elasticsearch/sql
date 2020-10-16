@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  *   permissions and limitations under the License.
  */
 
-rootProject.name = 'opendistro-sql'
+package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load;
 
-include 'plugin'
-include 'ppl'
-include 'integ-test'
-include 'common'
-include 'elasticsearch'
-include 'core'
-include 'protocol'
-include 'doctest'
-include 'legacy'
-include 'sql'
-include 'benchmark'
+/**
+ * Data loading interface, to be implemented by each database.
+ */
+public interface DataLoader {
 
+  /**
+   * Load data function interface.
+   * @param data Data of specified format.
+   * @throws Exception Throws an exception if data load fails.
+   */
+  void loadData(DataFormat data) throws Exception;
+}

@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -13,17 +13,19 @@
  *   permissions and limitations under the License.
  */
 
-rootProject.name = 'opendistro-sql'
+package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results;
 
-include 'plugin'
-include 'ppl'
-include 'integ-test'
-include 'common'
-include 'elasticsearch'
-include 'core'
-include 'protocol'
-include 'doctest'
-include 'legacy'
-include 'sql'
-include 'benchmark'
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+/**
+ * Class to hold a list of benchmark results and the associated database type.
+ */
+@Getter
+@AllArgsConstructor
+public class BenchmarkResults {
+  final List<BenchmarkResult> benchmarkResults;
+  final String benchmarkType;
+  final Integer scaleFactor;
+}
