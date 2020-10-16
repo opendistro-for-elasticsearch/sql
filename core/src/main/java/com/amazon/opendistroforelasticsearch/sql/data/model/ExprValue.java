@@ -78,6 +78,14 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
   }
 
   /**
+   * Get byte value.
+   */
+  default Byte byteValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get byteValue from value of type " + type());
+  }
+
+  /**
    * Get short value.
    */
   default Short shortValue() {

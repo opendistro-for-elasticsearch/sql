@@ -18,21 +18,26 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.byteValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.floatValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.shortValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_BINARY;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_GEO_POINT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_IP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
@@ -58,6 +63,8 @@ class ElasticsearchExprValueFactoryTest {
 
   private static final Map<String, ExprType> MAPPING =
       new ImmutableMap.Builder<String, ExprType>()
+          .put("byteV", BYTE)
+          .put("shortV", SHORT)
           .put("intV", INTEGER)
           .put("longV", LONG)
           .put("floatV", FLOAT)
@@ -75,6 +82,7 @@ class ElasticsearchExprValueFactoryTest {
           .put("textKeywordV", ES_TEXT_KEYWORD)
           .put("ipV", ES_IP)
           .put("geoV", ES_GEO_POINT)
+          .put("binaryV", ES_BINARY)
           .build();
   private ElasticsearchExprValueFactory exprValueFactory =
       new ElasticsearchExprValueFactory(MAPPING);
@@ -83,6 +91,16 @@ class ElasticsearchExprValueFactoryTest {
   public void constructNullValue() {
     assertEquals(nullValue(), tupleValue("{\"intV\":null}").get("intV"));
     assertEquals(nullValue(), constructFromObject("intV",  null));
+  }
+
+  @Test
+  public void constructByte() {
+    assertEquals(byteValue((byte) 1), tupleValue("{\"byteV\":1}").get("byteV"));
+  }
+
+  @Test
+  public void constructShort() {
+    assertEquals(shortValue((short) 1), tupleValue("{\"shortV\":1}").get("shortV"));
   }
 
   @Test
@@ -215,6 +233,12 @@ class ElasticsearchExprValueFactoryTest {
   public void constructGeoPoint() {
     assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
         tupleValue("{\"geoV\":{\"lat\":42.60355556,\"lon\":-97.25263889}}").get("geoV"));
+  }
+
+  @Test
+  public void constructBinary() {
+    assertEquals(new ElasticsearchExprBinaryValue("U29tZSBiaW5hcnkgYmxvYg=="),
+        tupleValue("{\"binaryV\":\"U29tZSBiaW5hcnkgYmxvYg==\"}").get("binaryV"));
   }
 
   @Test

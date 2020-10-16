@@ -19,6 +19,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.byteValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.collectionValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.floatValue;
@@ -141,6 +142,14 @@ class ExprValueOrderingTest {
     assertEquals(1, ordering.compare(longValue(5L), longValue(4L)));
     assertEquals(0, ordering.compare(longValue(5L), longValue(5L)));
     assertEquals(-1, ordering.compare(longValue(4L), longValue(5L)));
+  }
+
+  @Test
+  public void natural_order_byte_value() {
+    ExprValueOrdering ordering = ExprValueOrdering.natural();
+    assertEquals(1, ordering.compare(byteValue((byte) 5), byteValue((byte) 4)));
+    assertEquals(0, ordering.compare(byteValue((byte) 5), byteValue((byte) 5)));
+    assertEquals(-1, ordering.compare(byteValue((byte) 4), byteValue((byte) 5)));
   }
 
   @Test
