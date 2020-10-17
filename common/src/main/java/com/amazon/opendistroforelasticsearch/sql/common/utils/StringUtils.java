@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.common.utils;
 
 import com.google.common.base.Strings;
+import java.util.IllegalFormatException;
+import java.util.Locale;
 
 public class StringUtils {
   /**
@@ -58,6 +60,23 @@ public class StringUtils {
     } else {
       return identifier;
     }
+  }
+
+  /**
+   * Returns a formatted string using the specified format string and
+   * arguments, as well as the {@link Locale#ROOT} locale.
+   *
+   * @param format format string
+   * @param args   arguments referenced by the format specifiers in the format string
+   * @return A formatted string
+   * @throws IllegalFormatException If a format string contains an illegal syntax, a format
+   *                                specifier that is incompatible with the given arguments,
+   *                                insufficient arguments given the format string, or other
+   *                                illegal conditions.
+   * @see java.lang.String#format(Locale, String, Object...)
+   */
+  public static String format(final String format, Object... args) {
+    return String.format(Locale.ROOT, format, args);
   }
 
   private static boolean isQuoted(String text, String mark) {

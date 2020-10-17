@@ -167,7 +167,7 @@ public class JsonHttpProtocolTests {
         Assertions.assertEquals(
                 buildJsonQueryResponse(
                         toSchema(
-                                schemaEntry("pickup_datetime", "date"),
+                                schemaEntry("pickup_datetime", "timestamp"),
                                 schemaEntry("trip_type", "keyword"),
                                 schemaEntry("passenger_count", "integer"),
                                 schemaEntry("fare_amount", "scaled_float"),
@@ -206,7 +206,7 @@ public class JsonHttpProtocolTests {
         Assertions.assertEquals(
                 buildJsonQueryResponse(
                         toSchema(
-                                schemaEntry("pickup_datetime", "date", "pdt"),
+                                schemaEntry("pickup_datetime", "timestamp", "pdt"),
                                 schemaEntry("trip_type", "keyword"),
                                 schemaEntry("passenger_count", "integer", "pc"),
                                 schemaEntry("fare_amount", "scaled_float"),
@@ -248,7 +248,7 @@ public class JsonHttpProtocolTests {
                                 schemaEntry("user", "keyword"),
                                 schemaEntry("title", "text"),
                                 schemaEntry("qid", "keyword"),
-                                schemaEntry("creationDate", "date")
+                                schemaEntry("creationDate", "timestamp")
                         ),
                         toDatarows(
                                 toDatarow("Jash",

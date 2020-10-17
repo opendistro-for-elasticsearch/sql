@@ -15,12 +15,19 @@
 
 package com.amazon.opendistroforelasticsearch.sql.legacy.unittest;
 
+import static java.util.Collections.emptyList;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+
+import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.legacy.request.PreparedStatementRequest;
 import com.amazon.opendistroforelasticsearch.sql.legacy.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.legacy.request.SqlRequestFactory;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.rest.RestRequest;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +40,15 @@ public class SqlRequestFactoryTest {
 
     @Mock
     private RestRequest restRequest;
+
+    @Before
+    public void setup() {
+        SqlSettings settings = spy(new SqlSettings());
+        // Force return empty list to avoid ClusterSettings be invoked which is a final class and hard to mock.
+        // In this case, default value in Setting will be returned all the time.
+        doReturn(emptyList()).when(settings).getSettings();
+        LocalClusterState.state().setSqlSettings(settings);
+    }
 
     @Ignore("RestRequest is a final method, and Mockito 1.x cannot mock it." +
             "Ignore this test case till we can upgrade to Mockito 2.x")

@@ -10,8 +10,10 @@ SELECT COUNT(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCoun
 SELECT AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT OriginCountry, COUNT(*) FROM kibana_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, ABS(COUNT(*)) FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT OriginCountry, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT OriginCountry, SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry
+SELECT OriginCountry, AVG(FlightDelayMin) + SUM(FlightDelayMin) as Total FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT OriginCountry, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
 SELECT OriginCountry, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
@@ -19,6 +21,7 @@ SELECT OriginCountry, OriginCityName, COUNT(*) FROM kibana_sample_data_flights G
 SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
 SELECT OriginCountry, OriginCityName, SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName
 SELECT AvgTicketPrice, COUNT(*), AVG(AvgTicketPrice), SUM(AvgTicketPrice) FROM kibana_sample_data_flights GROUP BY AvgTicketPrice
+SELECT ABS(AvgTicketPrice), COUNT(*), AVG(AvgTicketPrice), SUM(AvgTicketPrice) FROM kibana_sample_data_flights GROUP BY AvgTicketPrice
 SELECT FlightDelayMin, COUNT(*), AVG(FlightDelayMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY FlightDelayMin
 SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY 1, 2
 SELECT OriginCountry, OriginCityName, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginCountry, 2

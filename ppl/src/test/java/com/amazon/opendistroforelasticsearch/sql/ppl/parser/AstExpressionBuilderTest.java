@@ -40,6 +40,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
@@ -431,6 +432,23 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
                 intervalLiteral(1, DataType.INTEGER, "day")
             )
         ));
+  }
+
+  @Test
+  public void testKeywordsAsIdentifiers() {
+    assertEqual(
+        "source=timestamp",
+        relation("timestamp")
+    );
+
+    assertEqual(
+        "source=t | fields timestamp",
+        projectWithArg(
+            relation("t"),
+            defaultFieldsArgs(),
+            field("timestamp")
+        )
+    );
   }
 
 }

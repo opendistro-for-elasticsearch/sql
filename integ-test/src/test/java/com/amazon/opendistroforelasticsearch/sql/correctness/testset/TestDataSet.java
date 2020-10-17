@@ -118,6 +118,8 @@ public class TestDataSet {
       case "text":
       case "keyword":
       case "date":
+      case "time":
+      case "timestamp":
         return str;
       case "integer":
         return Integer.valueOf(str);

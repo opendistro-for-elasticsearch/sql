@@ -24,6 +24,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dedupe;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDedupArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultHeadArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
@@ -32,6 +33,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.head;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
@@ -43,6 +45,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
@@ -272,6 +276,53 @@ public class AstBuilderTest {
             exprList(field("f3", defaultSortFieldArgs())),
             null,
             defaultDedupArgs()
+        ));
+  }
+
+  @Test
+  public void testHeadCommand() {
+    assertEqual("source=t | head",
+        head(
+            relation("t"),
+            defaultHeadArgs()
+        ));
+  }
+
+  @Test
+  public void testHeadCommandWithNumber() {
+    assertEqual("source=t | head 3",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(true)),
+                unresolvedArg("whileExpr", booleanLiteral(true)),
+                unresolvedArg("number", intLiteral(3)))
+        ));
+  }
+
+  @Test
+  public void testHeadCommandWithWhileExpr() {
+
+    assertEqual("source=t | head while(a < 5) 5",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(true)),
+                unresolvedArg("whileExpr", compare("<", field("a"), intLiteral(5))),
+                unresolvedArg("number", intLiteral(5)))
+        ));
+  }
+
+  @Test
+  public void testHeadCommandWithKeepLast() {
+
+    assertEqual("source=t | head keeplast=false while(a < 5) 5",
+        head(
+            relation("t"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(false)),
+                unresolvedArg("whileExpr", compare("<", field("a"), intLiteral(5))),
+                unresolvedArg("number", intLiteral(5)))
         ));
   }
 

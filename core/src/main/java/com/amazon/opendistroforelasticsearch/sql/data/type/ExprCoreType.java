@@ -34,7 +34,8 @@ public enum ExprCoreType implements ExprType {
   /**
    * Numbers.
    */
-  SHORT,
+  BYTE,
+  SHORT(BYTE),
   INTEGER(SHORT),
   LONG(INTEGER),
   FLOAT(LONG),

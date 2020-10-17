@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -30,19 +30,27 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalRareTopN extends LogicalPlan {
 
-  private final LogicalPlan child;
   private final CommandType commandType;
   private final Integer noOfResults;
   private final List<Expression> fieldList;
   private final List<Expression> groupByList;
 
-  @Override
-  public List<LogicalPlan> getChild() {
-    return Collections.singletonList(child);
+  /**
+   * Constructor of LogicalRareTopN.
+   */
+  public LogicalRareTopN(
+      LogicalPlan child,
+      CommandType commandType, Integer noOfResults,
+      List<Expression> fieldList,
+      List<Expression> groupByList) {
+    super(Collections.singletonList(child));
+    this.commandType = commandType;
+    this.noOfResults = noOfResults;
+    this.fieldList = fieldList;
+    this.groupByList = groupByList;
   }
 
   @Override

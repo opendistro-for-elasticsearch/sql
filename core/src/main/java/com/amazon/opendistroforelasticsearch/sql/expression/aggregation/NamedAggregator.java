@@ -29,8 +29,7 @@ import lombok.ToString;
  * Please see more details in associated unresolved expression operator
  * {@link com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias}.
  */
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(callSuper = false)
 public class NamedAggregator extends Aggregator<AggregationState> {
 
   /**
@@ -41,6 +40,7 @@ public class NamedAggregator extends Aggregator<AggregationState> {
   /**
    * Aggregator that being named.
    */
+  @Getter
   private final Aggregator<AggregationState> delegated;
 
   /**
@@ -79,4 +79,10 @@ public class NamedAggregator extends Aggregator<AggregationState> {
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
     return visitor.visitNamedAggregator(this, context);
   }
+
+  @Override
+  public String toString() {
+    return getName();
+  }
+
 }

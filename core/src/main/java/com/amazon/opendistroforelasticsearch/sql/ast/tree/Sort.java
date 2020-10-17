@@ -68,13 +68,13 @@ public class Sort extends UnresolvedPlan {
   public static class SortOption {
 
     /**
-     * PPL ascending sort option, null first.
+     * Default ascending sort option, null first.
      */
-    public static SortOption PPL_ASC = new SortOption(ASC, NULL_FIRST);
+    public static SortOption DEFAULT_ASC = new SortOption(ASC, NULL_FIRST);
     /**
-     * PPL descending sort option, null last.
+     * Default descending sort option, null last.
      */
-    public static SortOption PPL_DESC = new SortOption(DESC, NULL_LAST);
+    public static SortOption DEFAULT_DESC = new SortOption(DESC, NULL_LAST);
 
     private final SortOrder sortOrder;
     private final NullOrder nullOrder;

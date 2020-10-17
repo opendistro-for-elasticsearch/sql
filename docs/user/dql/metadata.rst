@@ -55,7 +55,7 @@ Result set:
 Example 2: Show Specific Index Information
 ------------------------------------------
 
-Here is an example that searches metadata for index name prefixed by 'acc'
+Here is an example that searches metadata for index name prefixed by 'acc'. Besides index name and pattern with wildcard characters, searching by index alias is also supported. So you can ``SHOW`` or ``DESCRIBE`` an index alias which gives you same result as doing this with an index name.
 
 SQL query::
 

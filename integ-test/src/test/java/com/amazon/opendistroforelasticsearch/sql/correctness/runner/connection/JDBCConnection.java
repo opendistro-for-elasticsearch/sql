@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import org.json.JSONObject;
 
 /**
@@ -50,19 +51,35 @@ public class JDBCConnection implements DBConnection {
   private final String connectionUrl;
 
   /**
+   * JDBC driver config properties.
+   */
+  private final Properties properties;
+
+  /**
    * Current live connection
    */
   private Connection connection;
 
   public JDBCConnection(String databaseName, String connectionUrl) {
+    this(databaseName, connectionUrl, new Properties());
+  }
+
+  /**
+   * Create a JDBC connection with parameters given (but not connect to database at the moment).
+   * @param databaseName    database name
+   * @param connectionUrl   connection URL
+   * @param properties      config properties
+   */
+  public JDBCConnection(String databaseName, String connectionUrl, Properties properties) {
     this.databaseName = databaseName;
     this.connectionUrl = connectionUrl;
+    this.properties = properties;
   }
 
   @Override
   public void connect() {
     try {
-      connection = DriverManager.getConnection(connectionUrl);
+      connection = DriverManager.getConnection(connectionUrl, properties);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to open connection", e);
     }
@@ -135,8 +152,7 @@ public class JDBCConnection implements DBConnection {
     JSONObject json = (JSONObject) new JSONObject(schema).query("/mappings/properties");
     return json.keySet().stream().
         map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type")))
-        .
-            collect(joining(","));
+        .collect(joining(","));
   }
 
   private String getValueList(Object[] fieldValues) {

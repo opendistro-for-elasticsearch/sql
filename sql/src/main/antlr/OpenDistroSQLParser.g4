@@ -97,6 +97,33 @@ groupByElement
     : expression
     ;
 
+orderByClause
+    : ORDER BY orderByElement (COMMA orderByElement)*
+    ;
+
+orderByElement
+    : expression order=(ASC | DESC)?
+    ;
+
+
+//  Window Function's Details
+windowFunction
+    : function=rankingWindowFunction overClause
+    ;
+
+rankingWindowFunction
+    : functionName=(ROW_NUMBER | RANK | DENSE_RANK) LR_BRACKET RR_BRACKET
+    ;
+
+overClause
+    : OVER LR_BRACKET partitionByClause? orderByClause? RR_BRACKET
+    ;
+
+partitionByClause
+    : PARTITION BY expression (COMMA expression)*
+    ;
+
+
 //    Literals
 
 constant
@@ -181,6 +208,7 @@ predicate
     | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate NOT? LIKE right=predicate                      #likePredicate
+    | left=predicate REGEXP right=predicate                         #regexpPredicate
     ;
 
 expressionAtom
@@ -206,17 +234,23 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    | windowFunction                                                #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
     ;
 
 scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
+    | textFunctionName
     ;
 
 aggregateFunction
-    : functionName=(AVG | SUM) LR_BRACKET functionArg RR_BRACKET
+    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET
     /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
+    ;
+
+aggregationFunctionName
+    : AVG | COUNT | SUM | MIN | MAX
     ;
 
 mathematicalFunctionName
@@ -230,7 +264,14 @@ trigonometricFunctionName
     ;
 
 dateTimeFunctionName
-    : DAYOFMONTH | DATE | TIME | TIMESTAMP
+    : ADDDATE | DATE | DATE_ADD | DATE_SUB | DAY | DAYNAME | DAYOFMONTH | DAYOFWEEK | DAYOFYEAR | FROM_DAYS
+    | HOUR | MICROSECOND | MINUTE | MONTH | MONTHNAME | QUARTER | SECOND | SUBDATE | TIME | TIME_TO_SEC
+    | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT
+    ;
+
+textFunctionName
+    : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
+    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP
     ;
 
 functionArgs

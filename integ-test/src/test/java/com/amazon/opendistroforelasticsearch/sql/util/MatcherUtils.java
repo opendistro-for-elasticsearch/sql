@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import com.google.common.base.Strings;
+import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -352,5 +353,17 @@ public class MatcherUtils {
     public static Matcher<String> equalToIgnoreCaseAndWhiteSpace(String expectedString) {
       return new IsEqualIgnoreCaseAndWhiteSpace(expectedString);
     }
+  }
+
+  /**
+   * Compare two JSON string are equals.
+   * @param expected expected JSON string.
+   * @param actual actual JSON string.
+   */
+  public static void assertJsonEquals(String expected, String actual) {
+    assertEquals(
+        JsonParser.parseString(expected),
+        JsonParser.parseString(actual)
+    );
   }
 }

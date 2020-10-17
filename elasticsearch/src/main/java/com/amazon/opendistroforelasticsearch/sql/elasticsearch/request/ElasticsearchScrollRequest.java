@@ -51,6 +51,8 @@ public class ElasticsearchScrollRequest implements ElasticsearchRequest {
   private final String indexName;
 
   /** Index name. */
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private final ElasticsearchExprValueFactory exprValueFactory;
 
   /**

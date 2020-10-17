@@ -7,6 +7,12 @@ plugins {
 repositories {
     mavenCentral()
 }
+//
+//configurations.all {
+//    resolutionStrategy.dependencySubstitution {
+//        substitute module('com.google.guava:guava:26.0-jre') with module('com.google.guava:guava:29.0-jre')
+//    }
+//}
 
 dependencies {
     // https://github.com/google/guava/wiki/CVE-2018-10237
@@ -14,6 +20,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+    compile group: 'com.facebook.presto', name: 'presto-matching', version: '0.240'
     compile project(':common')
 
     testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')

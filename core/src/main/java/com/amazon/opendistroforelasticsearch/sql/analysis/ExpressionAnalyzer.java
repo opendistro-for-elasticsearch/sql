@@ -31,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
@@ -48,12 +49,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 /**
  * Analyze the {@link UnresolvedExpression} in the {@link AnalysisContext} to construct the {@link
  * Expression}.
  */
 public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, AnalysisContext> {
+  @Getter
   private final BuiltinFunctionRepository repository;
   private final DSL dsl;
 
@@ -143,6 +146,11 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
             .map(unresolvedExpression -> analyze(unresolvedExpression, context))
             .collect(Collectors.toList());
     return (Expression) repository.compile(functionName, arguments);
+  }
+
+  @Override
+  public Expression visitWindowFunction(WindowFunction node, AnalysisContext context) {
+    return visitFunction(node.getFunction(), context);
   }
 
   @Override

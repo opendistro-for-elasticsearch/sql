@@ -56,10 +56,10 @@ public class CountAggregator extends Aggregator<CountState> {
   /**
    * Count State.
    */
-  protected class CountState implements AggregationState {
+  protected static class CountState implements AggregationState {
     private int count;
 
-    public CountState() {
+    CountState() {
       this.count = 0;
     }
 

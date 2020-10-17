@@ -53,11 +53,10 @@ class ExpressionFilterScript extends FilterScript {
     return (Boolean) expressionScript.execute(this::getDoc, this::evaluateExpression);
   }
 
-
   private ExprValue evaluateExpression(Expression expression,
                                        Environment<Expression, ExprValue> valueEnv) {
     ExprValue result = expression.valueOf(valueEnv);
-    if (result.isNull() || result.isMissing()) {
+    if (result.isNull()) {
       return ExprBooleanValue.of(false);
     }
 

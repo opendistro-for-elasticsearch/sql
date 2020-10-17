@@ -26,6 +26,9 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -37,15 +40,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,6 +70,20 @@ class AnalyzerTest extends AnalyzerTestBase {
         AstDSL.filter(
             AstDSL.relation("schema"),
             AstDSL.equalTo(AstDSL.field("integer_value"), AstDSL.intLiteral(1))));
+  }
+
+  @Test
+  public void head_relation() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.head(
+            LogicalPlanDSL.relation("schema"),
+            false, dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))), 10),
+        AstDSL.head(
+            AstDSL.relation("schema"),
+            unresolvedArgList(
+                unresolvedArg("keeplast", booleanLiteral(false)),
+                unresolvedArg("whileExpr", compare("=", field("integer_value"), intLiteral(1))),
+                unresolvedArg("number", intLiteral(10)))));
   }
 
   @Test
@@ -238,6 +255,35 @@ class AnalyzerTest extends AnalyzerTestBase {
     );
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void window_function() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.window(
+                LogicalPlanDSL.sort(
+                    LogicalPlanDSL.relation("test"),
+                    0,
+                    ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
+                    ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))),
+                dsl.rowNumber(),
+                new WindowDefinition(
+                    ImmutableList.of(DSL.ref("string_value", STRING)),
+                    ImmutableList.of(
+                        ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))))),
+            DSL.named("string_value", DSL.ref("string_value", STRING)),
+            DSL.named("window_function", DSL.ref("row_number()", INTEGER))),
+        AstDSL.project(
+            AstDSL.relation("test"),
+            AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),
+            AstDSL.alias("window_function",
+                AstDSL.window(
+                    AstDSL.function("row_number"),
+                    Collections.singletonList(AstDSL.qualifiedName("string_value")),
+                    Collections.singletonList(
+                        ImmutablePair.of("ASC", AstDSL.qualifiedName("integer_value")))))));
+  }
+
   /**
    * SELECT name, AVG(age) FROM test GROUP BY name.
    */
@@ -293,6 +339,104 @@ class AnalyzerTest extends AnalyzerTestBase {
                 emptyList()),
             AstDSL.alias("abs(long_value)", function("abs", qualifiedName("long_value"))),
             AstDSL.alias("AVG(integer_value)", aggregate("AVG", qualifiedName("integer_value"))))
+    );
+  }
+
+  /**
+   * SELECT abs(name), AVG(age) FROM test GROUP BY ABS(name).
+   */
+  @Test
+  public void sql_group_by_function_in_uppercase() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.aggregation(
+                LogicalPlanDSL.relation("schema"),
+                ImmutableList
+                    .of(DSL
+                        .named("AVG(integer_value)", dsl.avg(DSL.ref("integer_value", INTEGER)))),
+                ImmutableList.of(DSL.named("ABS(long_value)",
+                    dsl.abs(DSL.ref("long_value", LONG))))),
+            DSL.named("abs(long_value)", DSL.ref("ABS(long_value)", LONG)),
+            DSL.named("AVG(integer_value)", DSL.ref("AVG(integer_value)", DOUBLE))),
+        AstDSL.project(
+            AstDSL.agg(
+                AstDSL.relation("schema"),
+                ImmutableList.of(alias("AVG(integer_value)",
+                    aggregate("AVG", qualifiedName("integer_value")))),
+                emptyList(),
+                ImmutableList
+                    .of(alias("ABS(long_value)", function("ABS", qualifiedName("long_value")))),
+                emptyList()),
+            AstDSL.alias("abs(long_value)", function("abs", qualifiedName("long_value"))),
+            AstDSL.alias("AVG(integer_value)", aggregate("AVG", qualifiedName("integer_value"))))
+    );
+  }
+
+  /**
+   * SELECT abs(name), abs(avg(age) FROM test GROUP BY abs(name).
+   */
+  @Test
+  public void sql_expression_over_one_aggregation() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.aggregation(
+                LogicalPlanDSL.relation("schema"),
+                ImmutableList
+                    .of(DSL.named("avg(integer_value)",
+                        dsl.avg(DSL.ref("integer_value", INTEGER)))),
+                ImmutableList.of(DSL.named("abs(long_value)",
+                    dsl.abs(DSL.ref("long_value", LONG))))),
+            DSL.named("abs(long_value)", DSL.ref("abs(long_value)", LONG)),
+            DSL.named("abs(avg(integer_value)", dsl.abs(DSL.ref("avg(integer_value)", DOUBLE)))),
+        AstDSL.project(
+            AstDSL.agg(
+                AstDSL.relation("schema"),
+                ImmutableList.of(
+                    alias("avg(integer_value)", aggregate("avg", qualifiedName("integer_value")))),
+                emptyList(),
+                ImmutableList
+                    .of(alias("abs(long_value)", function("abs", qualifiedName("long_value")))),
+                emptyList()),
+            AstDSL.alias("abs(long_value)", function("abs", qualifiedName("long_value"))),
+            AstDSL.alias("abs(avg(integer_value)",
+                function("abs", aggregate("avg", qualifiedName("integer_value")))))
+    );
+  }
+
+  /**
+   * SELECT abs(name), sum(age)-avg(age) FROM test GROUP BY abs(name).
+   */
+  @Test
+  public void sql_expression_over_two_aggregation() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.aggregation(
+                LogicalPlanDSL.relation("schema"),
+                ImmutableList
+                    .of(DSL.named("sum(integer_value)",
+                        dsl.sum(DSL.ref("integer_value", INTEGER))),
+                        DSL.named("avg(integer_value)",
+                            dsl.avg(DSL.ref("integer_value", INTEGER)))),
+                ImmutableList.of(DSL.named("abs(long_value)",
+                    dsl.abs(DSL.ref("long_value", LONG))))),
+            DSL.named("abs(long_value)", DSL.ref("abs(long_value)", LONG)),
+            DSL.named("sum(integer_value)-avg(integer_value)",
+                dsl.subtract(DSL.ref("sum(integer_value)", INTEGER),
+                    DSL.ref("avg(integer_value)", DOUBLE)))),
+        AstDSL.project(
+            AstDSL.agg(
+                AstDSL.relation("schema"),
+                ImmutableList.of(
+                    alias("sum(integer_value)", aggregate("sum", qualifiedName("integer_value"))),
+                    alias("avg(integer_value)", aggregate("avg", qualifiedName("integer_value")))),
+                emptyList(),
+                ImmutableList
+                    .of(alias("abs(long_value)", function("abs", qualifiedName("long_value")))),
+                emptyList()),
+            AstDSL.alias("abs(long_value)", function("abs", qualifiedName("long_value"))),
+            AstDSL.alias("sum(integer_value)-avg(integer_value)",
+                function("-", aggregate("sum", qualifiedName("integer_value")),
+                    aggregate("avg", qualifiedName("integer_value")))))
     );
   }
 }

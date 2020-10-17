@@ -46,7 +46,9 @@ public enum ElasticsearchDataType implements ExprType {
 
   ES_IP(Arrays.asList(UNKNOWN), "ip"),
 
-  ES_GEO_POINT(Arrays.asList(UNKNOWN), "geo_point");
+  ES_GEO_POINT(Arrays.asList(UNKNOWN), "geo_point"),
+
+  ES_BINARY(Arrays.asList(UNKNOWN), "binary");
 
   /**
    * Parent of current type.

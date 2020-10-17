@@ -26,15 +26,17 @@ import lombok.ToString;
  * Logical Relation represent the data source.
  */
 @ToString
-@EqualsAndHashCode
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalRelation extends LogicalPlan {
   @Getter
   private final String relationName;
 
-  @Override
-  public List<LogicalPlan> getChild() {
-    return ImmutableList.of();
+  /**
+   * Constructor of LogicalRelation.
+   */
+  public LogicalRelation(String relationName) {
+    super(ImmutableList.of());
+    this.relationName = relationName;
   }
 
   @Override

@@ -1,0 +1,2 @@
+{"index":{"_id":"1"}}
+{"boolean_value": true, "keyword_value": "keyword", "text_value": "text", "binary_value": "U29tZSBiaW5hcnkgYmxvYg==", "date_value": "2020-10-13 13:00:00", "ip_value": "127.0.0.0.1", "object_value": {"first": "Dale", "last": "Dale"}, "nested_value": [{"first" : "John", "last" :  "Smith"}, {"first" : "Alice", "last" :  "White"}}

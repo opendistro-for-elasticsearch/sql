@@ -18,6 +18,9 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import java.util.Collections;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -34,6 +37,11 @@ public class AllFields extends UnresolvedExpression {
 
   public static AllFields of() {
     return INSTANCE;
+  }
+
+  @Override
+  public List<? extends Node> getChild() {
+    return Collections.emptyList();
   }
 
   @Override

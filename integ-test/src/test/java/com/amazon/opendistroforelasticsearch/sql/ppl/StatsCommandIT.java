@@ -58,7 +58,23 @@ public class StatsCommandIT extends PPLIntegTestCase {
     verifyDataRows(response, rows(1000));
   }
 
-  // TODO: each stats aggregate function should be tested here when implemented
+  @Test
+  public void testStatsMin() throws IOException {
+    JSONObject response = executeQuery(String.format(
+        "source=%s | stats min(age)",
+        TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("min(age)", null, "long"));
+    verifyDataRows(response, rows(20));
+  }
+
+  @Test
+  public void testStatsMax() throws IOException {
+    JSONObject response = executeQuery(String.format(
+        "source=%s | stats max(age)",
+        TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("max(age)", null, "long"));
+    verifyDataRows(response, rows(40));
+  }
 
   @Test
   public void testStatsNested() throws IOException {
@@ -95,5 +111,36 @@ public class StatsCommandIT extends PPLIntegTestCase {
         rows(48086D, 34),
         rows(null, 36)
     );
+  }
+
+  //Todo. The column of agg function is in random order. This is because we create the project
+  // all operator from the symbol table which can't maintain the original column order.
+  @Test
+  public void testMultipleAggregationFunction() throws IOException {
+    JSONObject response = executeQuery(String.format(
+        "source=%s | stats min(age), max(age)",
+        TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("min(age)", null, "long"),
+        schema("max(age)", null, "long"));
+    verifyDataRows(response, rows(20, 40));
+  }
+
+  @Test
+  public void testStatsWithNull() throws IOException {
+    JSONObject response =
+        executeQuery(String.format(
+            "source=%s | stats avg(age)",
+            TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifySchema(response, schema("avg(age)", null, "double"));
+    verifyDataRows(response, rows(33.166666666666664));
+  }
+
+  @Test
+  public void testStatsWithMissing() throws IOException {
+    JSONObject response = executeQuery(String.format(
+        "source=%s | stats avg(balance)",
+        TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifySchema(response, schema("avg(balance)", null, "double"));
+    verifyDataRows(response, rows(31082.25));
   }
 }

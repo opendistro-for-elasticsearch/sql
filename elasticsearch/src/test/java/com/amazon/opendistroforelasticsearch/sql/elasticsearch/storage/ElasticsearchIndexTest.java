@@ -25,6 +25,8 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScan;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScanAgg;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
@@ -105,6 +107,9 @@ class ElasticsearchIndexTest {
                         .put("family", "nested")
                         .put("employer", "object")
                         .put("birthday", "date")
+                        .put("id1", "byte")
+                        .put("id2", "short")
+                        .put("blob", "binary")
                         .build())));
 
     Table index = new ElasticsearchIndex(client, settings, "test");
@@ -112,17 +117,21 @@ class ElasticsearchIndexTest {
     assertThat(
         fieldTypes,
         allOf(
-            aMapWithSize(10),
-            hasEntry("name", (ExprType) ExprCoreType.STRING),
+            aMapWithSize(13),
+            hasEntry("name", ExprCoreType.STRING),
             hasEntry("address", (ExprType) ElasticsearchDataType.ES_TEXT),
-            hasEntry("age", (ExprType) ExprCoreType.INTEGER),
+            hasEntry("age", ExprCoreType.INTEGER),
             hasEntry("account_number", ExprCoreType.LONG),
-            hasEntry("balance1", (ExprType) ExprCoreType.FLOAT),
-            hasEntry("balance2", (ExprType) ExprCoreType.DOUBLE),
-            hasEntry("gender", (ExprType) ExprCoreType.BOOLEAN),
-            hasEntry("family", (ExprType) ExprCoreType.ARRAY),
-            hasEntry("employer", (ExprType) ExprCoreType.STRUCT),
-            hasEntry("birthday", (ExprType) ExprCoreType.TIMESTAMP)));
+            hasEntry("balance1", ExprCoreType.FLOAT),
+            hasEntry("balance2", ExprCoreType.DOUBLE),
+            hasEntry("gender", ExprCoreType.BOOLEAN),
+            hasEntry("family", ExprCoreType.ARRAY),
+            hasEntry("employer", ExprCoreType.STRUCT),
+            hasEntry("birthday", ExprCoreType.TIMESTAMP),
+            hasEntry("id1", ExprCoreType.BYTE),
+            hasEntry("id2", ExprCoreType.SHORT),
+            hasEntry("blob", (ExprType) ElasticsearchDataType.ES_BINARY)
+        ));
   }
 
   @Test
@@ -156,7 +165,7 @@ class ElasticsearchIndexTest {
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
+        ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("name1", STRING));
 
     LogicalPlan plan =
         project(
@@ -195,7 +204,7 @@ class ElasticsearchIndexTest {
   }
 
   @Test
-  void shouldDiscardPhysicalFilterIfConditionPushedDown() {
+  void shouldImplLogicalIndexScan() {
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
 
     ReferenceExpression field = ref("name", STRING);
@@ -206,8 +215,8 @@ class ElasticsearchIndexTest {
     ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
     PhysicalPlan plan = index.implement(
         project(
-            filter(
-                relation(indexName),
+            indexScan(
+                indexName,
                 filterExpr
             ),
             named));
@@ -242,7 +251,7 @@ class ElasticsearchIndexTest {
   }
 
   @Test
-  void shouldPushDownAggregation() {
+  void shouldImplLogicalIndexScanAgg() {
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
 
     ReferenceExpression field = ref("name", STRING);
@@ -254,10 +263,12 @@ class ElasticsearchIndexTest {
 
     String indexName = "test";
     ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+
+    // IndexScanAgg without Filter
     PhysicalPlan plan = index.implement(
         filter(
-            aggregation(
-                relation(indexName),
+            indexScanAgg(
+                indexName,
                 aggregators,
                 groupByExprs
             ),
@@ -265,11 +276,11 @@ class ElasticsearchIndexTest {
 
     assertTrue(plan.getChild().get(0) instanceof ElasticsearchIndexScan);
 
+    // IndexScanAgg with Filter
     plan = index.implement(
-        aggregation(
-            filter(
-                relation(indexName),
-                filterExpr),
+        indexScanAgg(
+            indexName,
+            filterExpr,
             aggregators,
             groupByExprs));
     assertTrue(plan instanceof ElasticsearchIndexScan);
