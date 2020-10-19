@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 /**
  * Class to generate and cleanup benchmarking data.
  */
@@ -28,16 +32,55 @@ public class DataGenerator {
 
   /**
    * Function to generate data for benchmarking.
-   * @param outputFolder Folder to write benchmarking data to.
-   * @param scaleFactor Scale factor to use.
+   *
+   * @param benchmarkPath Path to benchmark.
+   * @param scaleFactor   Scale factor to use.
    */
-  public static void generateData(final String outputFolder, final int scaleFactor) {
+  public static void generateData(final String benchmarkPath, final double scaleFactor)
+      throws IndexOutOfBoundsException, IOException, InterruptedException {
+    File benchmarkRootDirectory = new File(benchmarkPath);
+    if (benchmarkRootDirectory.exists() && benchmarkRootDirectory.isDirectory()) {
+      String commands = "cd " + benchmarkPath
+          + " && mkdir data "
+          + " && cd ./tpch-dbgen/"
+          + " && ./dbgen -s " + scaleFactor
+          + " && mv ./*.tbl ../data";
+      executeCommand(commands);
+    } else {
+      throw new FileNotFoundException("Invalid Directory");
+    }
   }
 
   /**
    * Function to delete benchmarking data.
-   * @param outputFolder Folder to delete benchmarking data from.
+   *
+   * @param benchmarkPath Path to benchmark.
    */
-  public static void cleanupData(final String outputFolder) {
+  public static void cleanupData(final String benchmarkPath)
+      throws IndexOutOfBoundsException, IOException, InterruptedException {
+    File benchmarkRootDirectory = new File(benchmarkPath);
+    if (benchmarkRootDirectory.exists() && benchmarkRootDirectory.isDirectory()) {
+      String commands = "cd " + benchmarkPath
+          + "&& rm -r ./data ";
+      executeCommand(commands);
+    } else {
+      throw new FileNotFoundException("Invalid Directory");
+    }
+  }
+
+  /**
+   * Function to execute commands.
+   *
+   * @param commands Commands separated by &&.
+   */
+  private static void executeCommand(final String commands)
+      throws IOException, InterruptedException {
+    String[] executeCommands = {"/bin/bash", "-c", commands};
+    ProcessBuilder processBuilder = new ProcessBuilder(executeCommands);
+    Process process = processBuilder.start();
+    if (process != null) {
+      process.waitFor();
+    }
   }
 }
+
