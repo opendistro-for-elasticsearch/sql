@@ -36,21 +36,18 @@ public class DataGenerator {
    * @param benchmarkPath Path to benchmark.
    * @param scaleFactor   Scale factor to use.
    */
-  public static void generateData(final String benchmarkPath, final double scaleFactor) {
-    try {
-      File benchmarkRootDirectory = new File(benchmarkPath);
-      if (benchmarkRootDirectory.exists() && benchmarkRootDirectory.isDirectory()) {
-        String commands = "cd " + benchmarkPath
-            + " && mkdir data "
-            + " && cd ./tpch-dbgen/"
-            + " && ./dbgen -s " + scaleFactor
-            + " && mv ./*.tbl ../data";
-        executeCommand(commands);
-      } else {
-        throw new FileNotFoundException("Invalid Directory");
-      }
-    } catch (IndexOutOfBoundsException | NullPointerException | FileNotFoundException e) {
-      e.printStackTrace();
+  public static void generateData(final String benchmarkPath, final double scaleFactor)
+      throws IndexOutOfBoundsException, IOException, InterruptedException {
+    File benchmarkRootDirectory = new File(benchmarkPath);
+    if (benchmarkRootDirectory.exists() && benchmarkRootDirectory.isDirectory()) {
+      String commands = "cd " + benchmarkPath
+          + " && mkdir data "
+          + " && cd ./tpch-dbgen/"
+          + " && ./dbgen -s " + scaleFactor
+          + " && mv ./*.tbl ../data";
+      executeCommand(commands);
+    } else {
+      throw new FileNotFoundException("Invalid Directory");
     }
   }
 
@@ -59,18 +56,15 @@ public class DataGenerator {
    *
    * @param benchmarkPath Path to benchmark.
    */
-  public static void cleanupData(final String benchmarkPath) {
-    try {
-      File benchmarkRootDirectory = new File(benchmarkPath);
-      if (benchmarkRootDirectory.exists() && benchmarkRootDirectory.isDirectory()) {
-        String commands = "cd " + benchmarkPath
-            + "&& rm -r ./data ";
-        executeCommand(commands);
-      } else {
-        throw new FileNotFoundException("Invalid Directory");
-      }
-    } catch (IndexOutOfBoundsException | NullPointerException | FileNotFoundException e) {
-      e.printStackTrace();
+  public static void cleanupData(final String benchmarkPath)
+      throws IndexOutOfBoundsException, IOException, InterruptedException {
+    File benchmarkRootDirectory = new File(benchmarkPath);
+    if (benchmarkRootDirectory.exists() && benchmarkRootDirectory.isDirectory()) {
+      String commands = "cd " + benchmarkPath
+          + "&& rm -r ./data ";
+      executeCommand(commands);
+    } else {
+      throw new FileNotFoundException("Invalid Directory");
     }
   }
 
@@ -79,16 +73,13 @@ public class DataGenerator {
    *
    * @param commands Commands separated by &&.
    */
-  private static void executeCommand(final String commands) {
-    try {
-      String[] executeCommands = {"/bin/bash", "-c", commands};
-      ProcessBuilder processBuilder = new ProcessBuilder(executeCommands);
-      Process process = processBuilder.start();
-      if (process != null) {
-        process.waitFor();
-      }
-    } catch (IOException | InterruptedException exception) {
-      exception.printStackTrace();
+  private static void executeCommand(final String commands)
+      throws IOException, InterruptedException {
+    String[] executeCommands = {"/bin/bash", "-c", commands};
+    ProcessBuilder processBuilder = new ProcessBuilder(executeCommands);
+    Process process = processBuilder.start();
+    if (process != null) {
+      process.waitFor();
     }
   }
 }
