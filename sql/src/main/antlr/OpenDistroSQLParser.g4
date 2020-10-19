@@ -79,6 +79,7 @@ fromClause
     : FROM tableName (AS? alias)?
       (whereClause)?
       (groupByClause)?
+      (havingClause)?
     ;
 
 whereClause
@@ -95,6 +96,10 @@ groupByElements
 
 groupByElement
     : expression
+    ;
+
+havingClause
+    : HAVING expression
     ;
 
 orderByClause

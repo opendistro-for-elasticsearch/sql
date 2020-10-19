@@ -281,6 +281,27 @@ class AstBuilderTest {
         buildAST("SELECT AVG(age) FROM test"));
   }
 
+  @Test
+  public void can_build_having_clause() {
+    assertEquals(
+        project(
+            filter(
+                agg(
+                    relation("test"),
+                    ImmutableList.of(
+                        alias("AVG(age)", aggregate("AVG", qualifiedName("age"))),
+                        alias("MIN(balance)", aggregate("MIN", qualifiedName("balance")))),
+                    emptyList(),
+                    ImmutableList.of(alias("name", qualifiedName("name"))),
+                    emptyList()),
+                function(">",
+                    aggregate("MIN", qualifiedName("balance")),
+                    intLiteral(1000))),
+            alias("name", qualifiedName("name")),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT name, AVG(age) FROM test GROUP BY name HAVING MIN(balance) > 1000"));
+  }
+
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
     return parseTree.accept(new AstBuilder(query));

@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.HavingClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WhereClauseContext;
@@ -115,11 +116,19 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       result = aggregation.attach(result);
     }
 
+    if (ctx.havingClause() != null) {
+      result = visit(ctx.havingClause()).attach(result);
+    }
     return result;
   }
 
   @Override
   public UnresolvedPlan visitWhereClause(WhereClauseContext ctx) {
+    return new Filter(visitAstExpression(ctx.expression()));
+  }
+
+  @Override
+  public UnresolvedPlan visitHavingClause(HavingClauseContext ctx) {
     return new Filter(visitAstExpression(ctx.expression()));
   }
 
