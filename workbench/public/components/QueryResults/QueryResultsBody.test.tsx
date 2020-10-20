@@ -163,7 +163,7 @@ describe("<QueryResultsBody /> spec", () => {
     await fireEvent.click(getByText("Download Text"));
 
     // Test search field
-    const searchField = getByPlaceholderText('Search');
+    const searchField = getByPlaceholderText('Search keyword');
     expect(searchField).not.toBe(null);
     await userEvent.type(searchField, 'Test')
     expect(onQueryChange).toHaveBeenCalled();
@@ -299,39 +299,6 @@ describe("<QueryResultsBody /> spec", () => {
 
     // Test nested tables - click on cell link
     await fireEvent.click(getAllByText('manufacturer: [2]', { exact: false })[0]);
-    expect(updateExpandedMap).toHaveBeenCalled();
-
-    // Tests download button
-    const downloadButton = getAllByText('Download')[0];
-    expect(downloadButton).not.toBe(null);
-    await fireEvent.click(downloadButton);
-    expect(getByText("Download JSON"));
-    expect(getByText("Download JDBC"));
-    expect(getByText("Download CSV"));
-    expect(getByText("Download Text"));
-
-    await fireEvent.click(getByText("Download JDBC"));
-    expect(document.body.children[0]).toMatchSnapshot();
-
-    await fireEvent.click(getByText("Download JSON"));
-    expect(document.body.children[0]).toMatchSnapshot();
-
-    await fireEvent.click(getByText("Download CSV"));
-    expect(document.body.children[0]).toMatchSnapshot();
-
-    await fireEvent.click(getByText("Download Text"));
-    expect(document.body.children[0]).toMatchSnapshot();
-
-    // Test search field
-    const searchField = getByPlaceholderText('Search');
-    expect(searchField).not.toBe(null);
-    await userEvent.type(searchField, 'Test')
-    expect(onQueryChange).toHaveBeenCalled();
-
-    // Test collapse button
-    expect(document.body.children[0]).toMatchSnapshot();
-    expect(getAllByLabelText('Collapse').length).toBeGreaterThan(0);
-    await fireEvent.click(getAllByLabelText('Collapse')[0]);
     expect(updateExpandedMap).toHaveBeenCalled();
 
   });

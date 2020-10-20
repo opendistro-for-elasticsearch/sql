@@ -13,13 +13,17 @@
  *   permissions and limitations under the License.
  */
 
-// Table constants
-export const DEFAULT_NUM_RECORDS_PER_PAGE = 10;
-export const PAGE_OPTIONS = [10, 20, 50, 100];
-export const COLUMN_WIDTH = '155px';
-export const MEDIUM_COLUMN_WIDTH = '80px';
-export const SMALL_COLUMN_WIDTH = '27px';
+import React from "react";
+import "@testing-library/jest-dom/extend-expect";
+import { render } from "@testing-library/react";
+import Switch from "./Switch";
 
-// Tabs constants
-export const TAB_CONTAINER_ID = 'tabsContainer';
-export const MESSAGE_TAB_LABEL = 'Output';
+
+const onChange = jest.fn();
+
+describe("<Switch /> spec", () => {
+  it("renders the component", () => {
+    render(<Switch onChange={onChange} language="SQL" />);
+    expect(document.body.children[0]).toMatchSnapshot();
+  });
+});

@@ -60,9 +60,6 @@ describe("<PPLPage /> spec", () => {
     fireEvent.click(getByText('Clear'));
     expect(onClean).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(getByText('Explain'));
-    expect(onTranslate).toHaveBeenCalledTimes(1);
-
   });
 
 });

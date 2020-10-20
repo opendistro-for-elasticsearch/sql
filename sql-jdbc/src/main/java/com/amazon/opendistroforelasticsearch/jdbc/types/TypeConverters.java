@@ -21,6 +21,7 @@ import java.sql.JDBCType;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,6 +61,8 @@ public class TypeConverters {
         tcMap.put(JDBCType.SMALLINT, new SmallIntTypeConverter());
         tcMap.put(JDBCType.INTEGER, new IntegerTypeConverter());
         tcMap.put(JDBCType.BIGINT, new BigIntTypeConverter());
+
+        tcMap.put(JDBCType.BINARY, new BinaryTypeConverter());
     }
 
     public static TypeConverter getInstance(JDBCType jdbcType) {
@@ -214,6 +217,24 @@ public class TypeConverters {
         @Override
         public Class getDefaultJavaClass() {
             return Boolean.class;
+        }
+
+        @Override
+        public Set<Class> getSupportedJavaClasses() {
+            return supportedJavaClasses;
+        }
+    }
+
+    public static class BinaryTypeConverter extends BaseTypeConverter {
+
+        private static final Set<Class> supportedJavaClasses = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList(
+                String.class
+            )));
+
+        @Override
+        public Class getDefaultJavaClass() {
+            return String.class;
         }
 
         @Override

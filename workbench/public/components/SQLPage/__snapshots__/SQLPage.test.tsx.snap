@@ -3,193 +3,191 @@
 exports[`<SQLPage /> spec renders the component 1`] = `
 <div>
   <div
-    class="euiPanel sql-query-editor container-panel"
+    class="euiPanel euiPanel--paddingLarge sql-console-query-editor container-panel"
   >
     <div
-      class="sql-console-query-editor"
+      class="euiText euiText--medium sql-query-panel-header"
+    >
+      <h3>
+        Query editor
+      </h3>
+    </div>
+    <div
+      class="euiSpacer euiSpacer--s"
+    />
+    <div
+      class="euiCodeEditorWrapper"
+      data-test-subj="codeEditorContainer"
+      style="width: 100%; height: 7rem;"
     >
       <div
-        class="euiPanel sql-query-editor container-panel"
+        class="euiCodeEditorKeyboardHint"
+        data-test-subj="codeEditorHint"
+        id="some_html_id"
+        role="button"
+        tabindex="0"
       >
-        <div
-          class="euiText euiText--medium sql-query-panel-header"
+        <p
+          class="euiText"
         >
-          Query Editor
+          Press Enter to start editing.
+        </p>
+        <p
+          class="euiText"
+        >
+          When you're done, press Escape to stop editing.
+        </p>
+      </div>
+      <div
+        class=" ace_editor ace-sql-console"
+        id="some_html_id"
+        style="width: 100%; height: 7rem; font-size: 14px;"
+      >
+        <textarea
+          aria-label="Code Editor"
+          autocapitalize="off"
+          autocorrect="off"
+          class="ace_text-input"
+          spellcheck="false"
+          style="opacity: 0;"
+          tabindex="-1"
+          wrap="off"
+        />
+        <div
+          aria-hidden="true"
+          class="ace_gutter"
+        >
+          <div
+            class="ace_layer ace_gutter-layer ace_folding-enabled"
+          />
+          <div
+            class="ace_gutter-active-line"
+          />
         </div>
         <div
-          class="euiCodeEditorWrapper"
-          data-test-subj="codeEditorContainer"
-          style="width: 100%; height: 15rem;"
+          class="ace_scroller"
         >
           <div
-            class="euiCodeEditorKeyboardHint"
-            data-test-subj="codeEditorHint"
-            id="some_html_id"
-            role="button"
-            tabindex="0"
+            class="ace_content"
           >
-            <p
-              class="euiText"
+            <div
+              class="ace_layer ace_print-margin-layer"
             >
-              Press Enter to start editing.
-            </p>
-            <p
-              class="euiText"
-            >
-              When you're done, press Escape to stop editing.
-            </p>
-          </div>
-          <div
-            class=" ace_editor ace-tm"
-            id="some_html_id"
-            style="width: 100%; height: 15rem; font-size: 12px;"
-          >
-            <textarea
-              aria-label="Code Editor"
-              autocapitalize="off"
-              autocorrect="off"
-              class="ace_text-input"
-              spellcheck="false"
-              style="opacity: 0;"
-              tabindex="-1"
-              wrap="off"
+              <div
+                class="ace_print-margin"
+                style="left: 4px; visibility: hidden;"
+              />
+            </div>
+            <div
+              class="ace_layer ace_marker-layer"
             />
             <div
-              aria-hidden="true"
-              class="ace_gutter"
-            >
-              <div
-                class="ace_layer ace_gutter-layer ace_folding-enabled"
-              />
-              <div
-                class="ace_gutter-active-line"
-              />
-            </div>
+              class="ace_layer ace_text-layer"
+              style="padding: 0px 4px;"
+            />
             <div
-              class="ace_scroller"
-            >
-              <div
-                class="ace_content"
-              >
-                <div
-                  class="ace_layer ace_print-margin-layer"
-                >
-                  <div
-                    class="ace_print-margin"
-                    style="left: 4px; visibility: hidden;"
-                  />
-                </div>
-                <div
-                  class="ace_layer ace_marker-layer"
-                />
-                <div
-                  class="ace_layer ace_text-layer"
-                  style="padding: 0px 4px;"
-                />
-                <div
-                  class="ace_layer ace_marker-layer"
-                />
-                <div
-                  class="ace_layer ace_cursor-layer ace_hidden-cursors"
-                >
-                  <div
-                    class="ace_cursor"
-                  />
-                </div>
-              </div>
-            </div>
+              class="ace_layer ace_marker-layer"
+            />
             <div
-              class="ace_scrollbar ace_scrollbar-v"
-              style="display: none; width: 20px;"
+              class="ace_layer ace_cursor-layer ace_hidden-cursors"
             >
               <div
-                class="ace_scrollbar-inner"
-                style="width: 20px;"
+                class="ace_cursor"
               />
             </div>
-            <div
-              class="ace_scrollbar ace_scrollbar-h"
-              style="display: none; height: 20px;"
-            >
-              <div
-                class="ace_scrollbar-inner"
-                style="height: 20px;"
-              />
-            </div>
-            <div
-              style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: hidden;"
-            >
-              <div
-                style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: visible;"
-              />
-              <div
-                style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: visible;"
-              >
-                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-              </div>
-            </div>
+          </div>
+        </div>
+        <div
+          class="ace_scrollbar ace_scrollbar-v"
+          style="display: none; width: 20px;"
+        >
+          <div
+            class="ace_scrollbar-inner"
+            style="width: 20px;"
+          />
+        </div>
+        <div
+          class="ace_scrollbar ace_scrollbar-h"
+          style="display: none; height: 20px;"
+        >
+          <div
+            class="ace_scrollbar-inner"
+            style="height: 20px;"
+          />
+        </div>
+        <div
+          style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: hidden;"
+        >
+          <div
+            style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: visible;"
+          />
+          <div
+            style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: visible;"
+          >
+            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
           </div>
         </div>
       </div>
     </div>
-    <div>
+    <div
+      class="euiSpacer euiSpacer--l"
+    />
+    <div
+      class="euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--directionRow euiFlexGroup--responsive action-container"
+    >
       <div
-        class="euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--directionRow euiFlexGroup--responsive action-container"
+        class="euiFlexItem euiFlexItem--flexGrowZero"
       >
-        <div
-          class="euiFlexItem euiFlexItem--flexGrowZero"
+        <button
+          class="euiButton euiButton--primary sql-editor-button euiButton--fill"
+          type="button"
         >
-          <button
-            class="euiButton euiButton--primary sql-editor-button euiButton--fill"
-            type="button"
+          <span
+            class="euiButtonContent euiButton__content"
           >
             <span
-              class="euiButtonContent euiButton__content"
+              class="euiButton__text"
             >
-              <span
-                class="euiButton__text"
-              >
-                Run
-              </span>
+              Run
             </span>
-          </button>
-        </div>
-        <div
-          class="euiFlexItem euiFlexItem--flexGrowZero"
+          </span>
+        </button>
+      </div>
+      <div
+        class="euiFlexItem euiFlexItem--flexGrowZero"
+      >
+        <button
+          class="euiButton euiButton--primary sql-editor-button"
+          type="button"
         >
-          <button
-            class="euiButton euiButton--primary sql-editor-button"
-            type="button"
+          <span
+            class="euiButtonContent euiButton__content"
           >
             <span
-              class="euiButtonContent euiButton__content"
+              class="euiButton__text"
             >
-              <span
-                class="euiButton__text"
-              >
-                Clear
-              </span>
+              Clear
             </span>
-          </button>
-        </div>
-        <div
-          class="euiFlexItem euiFlexItem--flexGrowZero"
+          </span>
+        </button>
+      </div>
+      <div
+        class="euiFlexItem euiFlexItem--flexGrowZero"
+      >
+        <button
+          class="euiButton euiButton--primary sql-editor-button"
+          type="button"
         >
-          <button
-            class="euiButton euiButton--primary sql-editor-button"
-            type="button"
+          <span
+            class="euiButtonContent euiButton__content"
           >
             <span
-              class="euiButtonContent euiButton__content"
+              class="euiButton__text"
             >
-              <span
-                class="euiButton__text"
-              >
-                Explain
-              </span>
+              Explain
             </span>
-          </button>
-        </div>
+          </span>
+        </button>
       </div>
     </div>
   </div>
@@ -199,193 +197,191 @@ exports[`<SQLPage /> spec renders the component 1`] = `
 exports[`<SQLPage /> spec tests the action buttons 1`] = `
 <div>
   <div
-    class="euiPanel sql-query-editor container-panel"
+    class="euiPanel euiPanel--paddingLarge sql-console-query-editor container-panel"
   >
     <div
-      class="sql-console-query-editor"
+      class="euiText euiText--medium sql-query-panel-header"
+    >
+      <h3>
+        Query editor
+      </h3>
+    </div>
+    <div
+      class="euiSpacer euiSpacer--s"
+    />
+    <div
+      class="euiCodeEditorWrapper"
+      data-test-subj="codeEditorContainer"
+      style="width: 100%; height: 7rem;"
     >
       <div
-        class="euiPanel sql-query-editor container-panel"
+        class="euiCodeEditorKeyboardHint"
+        data-test-subj="codeEditorHint"
+        id="some_html_id"
+        role="button"
+        tabindex="0"
       >
-        <div
-          class="euiText euiText--medium sql-query-panel-header"
+        <p
+          class="euiText"
         >
-          Query Editor
+          Press Enter to start editing.
+        </p>
+        <p
+          class="euiText"
+        >
+          When you're done, press Escape to stop editing.
+        </p>
+      </div>
+      <div
+        class=" ace_editor ace-sql-console"
+        id="some_html_id"
+        style="width: 100%; height: 7rem; font-size: 14px;"
+      >
+        <textarea
+          aria-label="Code Editor"
+          autocapitalize="off"
+          autocorrect="off"
+          class="ace_text-input"
+          spellcheck="false"
+          style="opacity: 0;"
+          tabindex="-1"
+          wrap="off"
+        />
+        <div
+          aria-hidden="true"
+          class="ace_gutter"
+        >
+          <div
+            class="ace_layer ace_gutter-layer ace_folding-enabled"
+          />
+          <div
+            class="ace_gutter-active-line"
+          />
         </div>
         <div
-          class="euiCodeEditorWrapper"
-          data-test-subj="codeEditorContainer"
-          style="width: 100%; height: 15rem;"
+          class="ace_scroller"
         >
           <div
-            class="euiCodeEditorKeyboardHint"
-            data-test-subj="codeEditorHint"
-            id="some_html_id"
-            role="button"
-            tabindex="0"
+            class="ace_content"
           >
-            <p
-              class="euiText"
+            <div
+              class="ace_layer ace_print-margin-layer"
             >
-              Press Enter to start editing.
-            </p>
-            <p
-              class="euiText"
-            >
-              When you're done, press Escape to stop editing.
-            </p>
-          </div>
-          <div
-            class=" ace_editor ace-tm"
-            id="some_html_id"
-            style="width: 100%; height: 15rem; font-size: 12px;"
-          >
-            <textarea
-              aria-label="Code Editor"
-              autocapitalize="off"
-              autocorrect="off"
-              class="ace_text-input"
-              spellcheck="false"
-              style="opacity: 0;"
-              tabindex="-1"
-              wrap="off"
+              <div
+                class="ace_print-margin"
+                style="left: 4px; visibility: hidden;"
+              />
+            </div>
+            <div
+              class="ace_layer ace_marker-layer"
             />
             <div
-              aria-hidden="true"
-              class="ace_gutter"
-            >
-              <div
-                class="ace_layer ace_gutter-layer ace_folding-enabled"
-              />
-              <div
-                class="ace_gutter-active-line"
-              />
-            </div>
+              class="ace_layer ace_text-layer"
+              style="padding: 0px 4px;"
+            />
             <div
-              class="ace_scroller"
-            >
-              <div
-                class="ace_content"
-              >
-                <div
-                  class="ace_layer ace_print-margin-layer"
-                >
-                  <div
-                    class="ace_print-margin"
-                    style="left: 4px; visibility: hidden;"
-                  />
-                </div>
-                <div
-                  class="ace_layer ace_marker-layer"
-                />
-                <div
-                  class="ace_layer ace_text-layer"
-                  style="padding: 0px 4px;"
-                />
-                <div
-                  class="ace_layer ace_marker-layer"
-                />
-                <div
-                  class="ace_layer ace_cursor-layer ace_hidden-cursors"
-                >
-                  <div
-                    class="ace_cursor"
-                  />
-                </div>
-              </div>
-            </div>
+              class="ace_layer ace_marker-layer"
+            />
             <div
-              class="ace_scrollbar ace_scrollbar-v"
-              style="display: none; width: 20px;"
+              class="ace_layer ace_cursor-layer ace_hidden-cursors"
             >
               <div
-                class="ace_scrollbar-inner"
-                style="width: 20px;"
+                class="ace_cursor"
               />
             </div>
-            <div
-              class="ace_scrollbar ace_scrollbar-h"
-              style="display: none; height: 20px;"
-            >
-              <div
-                class="ace_scrollbar-inner"
-                style="height: 20px;"
-              />
-            </div>
-            <div
-              style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: hidden;"
-            >
-              <div
-                style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: visible;"
-              />
-              <div
-                style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: visible;"
-              >
-                XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-              </div>
-            </div>
+          </div>
+        </div>
+        <div
+          class="ace_scrollbar ace_scrollbar-v"
+          style="display: none; width: 20px;"
+        >
+          <div
+            class="ace_scrollbar-inner"
+            style="width: 20px;"
+          />
+        </div>
+        <div
+          class="ace_scrollbar ace_scrollbar-h"
+          style="display: none; height: 20px;"
+        >
+          <div
+            class="ace_scrollbar-inner"
+            style="height: 20px;"
+          />
+        </div>
+        <div
+          style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: hidden;"
+        >
+          <div
+            style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: visible;"
+          />
+          <div
+            style="height: auto; width: auto; top: 0px; left: 0px; visibility: hidden; position: absolute; white-space: pre; overflow: visible;"
+          >
+            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
           </div>
         </div>
       </div>
     </div>
-    <div>
+    <div
+      class="euiSpacer euiSpacer--l"
+    />
+    <div
+      class="euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--directionRow euiFlexGroup--responsive action-container"
+    >
       <div
-        class="euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--directionRow euiFlexGroup--responsive action-container"
+        class="euiFlexItem euiFlexItem--flexGrowZero"
       >
-        <div
-          class="euiFlexItem euiFlexItem--flexGrowZero"
+        <button
+          class="euiButton euiButton--primary sql-editor-button euiButton--fill"
+          type="button"
         >
-          <button
-            class="euiButton euiButton--primary sql-editor-button euiButton--fill"
-            type="button"
+          <span
+            class="euiButtonContent euiButton__content"
           >
             <span
-              class="euiButtonContent euiButton__content"
+              class="euiButton__text"
             >
-              <span
-                class="euiButton__text"
-              >
-                Run
-              </span>
+              Run
             </span>
-          </button>
-        </div>
-        <div
-          class="euiFlexItem euiFlexItem--flexGrowZero"
+          </span>
+        </button>
+      </div>
+      <div
+        class="euiFlexItem euiFlexItem--flexGrowZero"
+      >
+        <button
+          class="euiButton euiButton--primary sql-editor-button"
+          type="button"
         >
-          <button
-            class="euiButton euiButton--primary sql-editor-button"
-            type="button"
+          <span
+            class="euiButtonContent euiButton__content"
           >
             <span
-              class="euiButtonContent euiButton__content"
+              class="euiButton__text"
             >
-              <span
-                class="euiButton__text"
-              >
-                Clear
-              </span>
+              Clear
             </span>
-          </button>
-        </div>
-        <div
-          class="euiFlexItem euiFlexItem--flexGrowZero"
+          </span>
+        </button>
+      </div>
+      <div
+        class="euiFlexItem euiFlexItem--flexGrowZero"
+      >
+        <button
+          class="euiButton euiButton--primary sql-editor-button"
+          type="button"
         >
-          <button
-            class="euiButton euiButton--primary sql-editor-button"
-            type="button"
+          <span
+            class="euiButtonContent euiButton__content"
           >
             <span
-              class="euiButtonContent euiButton__content"
+              class="euiButton__text"
             >
-              <span
-                class="euiButton__text"
-              >
-                Explain
-              </span>
+              Explain
             </span>
-          </button>
-        </div>
+          </span>
+        </button>
       </div>
     </div>
   </div>

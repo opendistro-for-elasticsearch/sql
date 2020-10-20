@@ -13,13 +13,29 @@
  *   permissions and limitations under the License.
  */
 
-// Table constants
-export const DEFAULT_NUM_RECORDS_PER_PAGE = 10;
-export const PAGE_OPTIONS = [10, 20, 50, 100];
-export const COLUMN_WIDTH = '155px';
-export const MEDIUM_COLUMN_WIDTH = '80px';
-export const SMALL_COLUMN_WIDTH = '27px';
+package com.amazon.opendistroforelasticsearch.jdbc.types;
 
-// Tabs constants
-export const TAB_CONTAINER_ID = 'tabsContainer';
-export const MESSAGE_TAB_LABEL = 'Output';
+import java.sql.SQLException;
+import java.util.Map;
+
+public class BinaryType implements TypeHelper<String> {
+
+  public static final BinaryType INSTANCE = new BinaryType();
+
+  private BinaryType() {
+
+  }
+
+  @Override
+  public String fromValue(Object value, Map<String, Object> conversionParams) throws SQLException {
+    if (value == null)
+      return null;
+    else
+      return String.valueOf(value);
+  }
+
+  @Override
+  public String getTypeName() {
+    return "Binary";
+  }
+}

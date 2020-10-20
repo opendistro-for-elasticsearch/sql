@@ -15,12 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
@@ -60,6 +62,10 @@ public class ArithmeticFunction {
     return FunctionDSL.define(BuiltinFunctionName.ADD.getName(),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprByteValue(v1.byteValue() + v2.byteValue())),
+            BYTE, BYTE, BYTE),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprShortValue(v1.shortValue() + v2.shortValue())),
             SHORT, SHORT, SHORT),
         FunctionDSL.impl(
@@ -84,6 +90,10 @@ public class ArithmeticFunction {
 
   private static FunctionResolver subtract() {
     return FunctionDSL.define(BuiltinFunctionName.SUBTRACT.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprByteValue(v1.byteValue() - v2.byteValue())),
+            BYTE, BYTE, BYTE),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprShortValue(v1.shortValue() - v2.shortValue())),
@@ -112,6 +122,10 @@ public class ArithmeticFunction {
     return FunctionDSL.define(BuiltinFunctionName.MULTIPLY.getName(),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprByteValue(v1.byteValue() * v2.byteValue())),
+            BYTE, BYTE, BYTE),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
                 (v1, v2) -> new ExprShortValue(v1.shortValue() * v2.shortValue())),
             SHORT, SHORT, SHORT),
         FunctionDSL.impl(
@@ -136,6 +150,10 @@ public class ArithmeticFunction {
 
   private static FunctionResolver divide() {
     return FunctionDSL.define(BuiltinFunctionName.DIVIDE.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprByteValue(v1.byteValue() / v2.byteValue())),
+            BYTE, BYTE, BYTE),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :
@@ -167,6 +185,10 @@ public class ArithmeticFunction {
 
   private static FunctionResolver modules() {
     return FunctionDSL.define(BuiltinFunctionName.MODULES.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> new ExprByteValue(v1.byteValue() % v2.byteValue())),
+            BYTE, BYTE, BYTE),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :

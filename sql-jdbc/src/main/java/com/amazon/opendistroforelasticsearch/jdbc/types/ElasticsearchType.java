@@ -75,6 +75,7 @@ public enum ElasticsearchType {
     DATE(JDBCType.DATE, Date.class, 24, 24, false),
     TIME(JDBCType.TIME, Time.class, 24, 24, false),
     TIMESTAMP(JDBCType.TIMESTAMP, Timestamp.class, 24, 24, false),
+    BINARY(JDBCType.VARBINARY, String.class, Integer.MAX_VALUE, 0, false),
     NULL(JDBCType.NULL, null, 0, 0, false),
     UNSUPPORTED(JDBCType.OTHER, null, 0, 0, false);
 
@@ -96,6 +97,7 @@ public enum ElasticsearchType {
         jdbcTypeToESTypeMap.put(JDBCType.TIMESTAMP, TIMESTAMP);
         jdbcTypeToESTypeMap.put(JDBCType.TIME, TIME);
         jdbcTypeToESTypeMap.put(JDBCType.DATE, DATE);
+        jdbcTypeToESTypeMap.put(JDBCType.VARBINARY, BINARY);
     }
 
     /**

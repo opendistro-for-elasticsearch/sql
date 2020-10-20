@@ -23,6 +23,7 @@ import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_NULL_VALUE_FILED;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDoubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getFloatValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -38,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
@@ -57,6 +59,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class MathematicalFunctionTest extends ExpressionTestBase {
+
+  private static Stream<Arguments> testLogByteArguments() {
+    Stream.Builder<Arguments> builder = Stream.builder();
+    return builder.add(Arguments.of((byte) 2, (byte) 2)).build();
+  }
 
   private static Stream<Arguments> testLogShortArguments() {
     Stream.Builder<Arguments> builder = Stream.builder();
@@ -95,6 +102,17 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     return builder
         .add(Arguments.of(1, 2)).add(Arguments.of(1L, 2L)).add(Arguments.of(1F, 2F))
         .add(Arguments.of(1D, 2D)).build();
+  }
+
+  /**
+   * Test abs with byte value.
+   */
+  @ParameterizedTest(name = "abs({0})")
+  @ValueSource(bytes = {-2, 2})
+  public void abs_byte_value(Byte value) {
+    FunctionExpression abs = dsl.abs(DSL.literal(value));
+    assertThat(abs.valueOf(valueEnv()), allOf(hasType(BYTE), hasValue(((byte) Math.abs(value)))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   /**
@@ -1046,20 +1064,38 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
+   * Test mod with byte value.
+   */
+  @ParameterizedTest(name = "mod({0}, {1})")
+  @MethodSource("testLogByteArguments")
+  public void mod_byte_value(Byte v1, Byte v2) {
+    FunctionExpression mod = dsl.mod(DSL.literal(v1), DSL.literal(v2));
+
+    assertThat(
+        mod.valueOf(valueEnv()),
+        allOf(hasType(BYTE), hasValue(Integer.valueOf(v1 % v2).byteValue())));
+    assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
+
+    mod = dsl.mod(DSL.literal(v1), DSL.literal(new ExprByteValue(0)));
+    assertEquals(BYTE, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
+  }
+
+  /**
    * Test mod with short value.
    */
   @ParameterizedTest(name = "mod({0}, {1})")
-  @MethodSource("testLogIntegerArguments")
-  public void mod_short_value(Integer v1, Integer v2) {
-    FunctionExpression mod = dsl.mod(DSL.literal(v1.shortValue()), DSL.literal(v2.shortValue()));
+  @MethodSource("testLogShortArguments")
+  public void mod_short_value(Short v1, Short v2) {
+    FunctionExpression mod = dsl.mod(DSL.literal(v1), DSL.literal(v2));
 
     assertThat(
         mod.valueOf(valueEnv()),
         allOf(hasType(SHORT),
-            hasValue(Integer.valueOf(v1.shortValue() % v2.shortValue()).shortValue())));
+            hasValue(Integer.valueOf(v1 % v2).shortValue())));
     assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
 
-    mod = dsl.mod(DSL.literal(v1.shortValue()), DSL.literal(new ExprShortValue(0)));
+    mod = dsl.mod(DSL.literal(v1), DSL.literal(new ExprShortValue(0)));
     assertEquals(SHORT, mod.type());
     assertTrue(mod.valueOf(valueEnv()).isNull());
   }

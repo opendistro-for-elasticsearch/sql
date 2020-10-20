@@ -38,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
@@ -55,6 +56,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.sun.org.apache.xpath.internal.Arg;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -100,6 +102,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
 
   private static Stream<Arguments> testEqualArguments() {
     Stream.Builder<Arguments> builder = Stream.builder();
+    builder.add(Arguments.of(new ExprByteValue(1), new ExprByteValue(1)));
     builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(1)));
     builder.add(Arguments.of(new ExprIntegerValue(1), new ExprIntegerValue(1)));
     builder.add(Arguments.of(new ExprLongValue(1L), new ExprLongValue(1L)));
@@ -117,7 +120,8 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
 
   private static Stream<Arguments> testNotEqualArguments() {
     List<List<Object>> arguments = Arrays.asList(
-        Arrays.asList(1, 2), Arrays.asList(1L, 2L), Arrays.asList(1F, 2F), Arrays.asList(1D, 2D),
+        Arrays.asList((byte) 1, (byte) 2), Arrays.asList(1, 2), Arrays.asList(1L, 2L),
+        Arrays.asList(1F, 2F), Arrays.asList(1D, 2D),
         Arrays.asList("str0", "str1"), Arrays.asList(true, false),
         Arrays.asList(ImmutableList.of(1), ImmutableList.of(2)),
         Arrays.asList(ImmutableMap.of("str", 1), ImmutableMap.of("str", 2))
