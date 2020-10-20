@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.elasticsearch;
 
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandExecution.executeCommand;
+
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.DatabaseLauncher;
+import java.io.IOException;
 
 /**
  * Class to handle launching and shutting down Elasticsearch databases.
@@ -26,15 +29,17 @@ public class ElasticsearchDatabaseLauncher implements DatabaseLauncher {
    * Function to launch an Elasticsearch database.
    */
   @Override
-  public void launchDatabase() {
-
+  public void launchDatabase() throws IOException, InterruptedException {
+    String commands = "update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java"
+        + " && sudo systemctl start elasticsearch.service";
+    executeCommand(commands);
   }
 
   /**
    * Function to shutdown an Elasticsearch database.
    */
   @Override
-  public void shutdownDatabase() {
-
+  public void shutdownDatabase() throws IOException, InterruptedException {
+    executeCommand("sudo systemctl stop elasticsearch.service");
   }
 }

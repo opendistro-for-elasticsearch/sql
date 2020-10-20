@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch;
 
+import java.io.IOException;
+
 /**
  * Interface for launching and shutting down databases.
  */
@@ -23,10 +25,10 @@ public interface DatabaseLauncher {
   /**
    * Function interface for launching databases.
    */
-  void launchDatabase();
+  void launchDatabase() throws IOException, InterruptedException;
 
   /**
    * Function interface for shutting down databases.
    */
-  void shutdownDatabase();
+  void shutdownDatabase() throws IOException, InterruptedException;
 }
