@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load;
 
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandExecution.executeCommand;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -65,21 +67,6 @@ public class DataGenerator {
       executeCommand(commands);
     } else {
       throw new FileNotFoundException("Invalid Directory");
-    }
-  }
-
-  /**
-   * Function to execute commands.
-   *
-   * @param commands Commands separated by &&.
-   */
-  private static void executeCommand(final String commands)
-      throws IOException, InterruptedException {
-    String[] executeCommands = {"/bin/bash", "-c", commands};
-    ProcessBuilder processBuilder = new ProcessBuilder(executeCommands);
-    Process process = processBuilder.start();
-    if (process != null) {
-      process.waitFor();
     }
   }
 }

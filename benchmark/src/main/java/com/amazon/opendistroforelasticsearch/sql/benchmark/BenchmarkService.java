@@ -44,14 +44,16 @@ public class BenchmarkService {
   private String outputFile;
   private String tempFolder;
   private List<Integer> scaleFactors;
+  private String systemPassword;
 
   private static final String TYPES = "types";
   private static final String QUERIES = "queries";
   private static final String OUTPUT_FILE = "outputFile";
   private static final String TEMP_FOLDER = "tempFolder";
   private static final String SCALE_FACTORS = "scaleFactors";
+  private static final String SYSTEM_PASSWORD = "systemPassword";
   private static final Set<String> EXPECTED_KEYS = ImmutableSet.of(
-      TYPES, QUERIES, OUTPUT_FILE, TEMP_FOLDER, SCALE_FACTORS);
+      TYPES, QUERIES, OUTPUT_FILE, TEMP_FOLDER, SCALE_FACTORS, SYSTEM_PASSWORD);
 
   /**
    * Constructor for BenchmarkingService.
@@ -72,10 +74,10 @@ public class BenchmarkService {
       DataGenerator.generateData(tempFolder, sf);
       for (final String type: types) {
         DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
-        launcher.launchDatabase();
+        launcher.launchDatabase(systemPassword);
         performDataLoad(type);
         results.add(performBenchmark(type, sf));
-        launcher.shutdownDatabase();
+        launcher.shutdownDatabase(systemPassword);
       }
       DataGenerator.cleanupData(tempFolder);
     }
@@ -141,6 +143,7 @@ public class BenchmarkService {
     outputFile = getValueCheckType(map, OUTPUT_FILE, queries.getClass());
     tempFolder = getValueCheckType(map, TEMP_FOLDER, tempFolder.getClass());
     scaleFactors = getValueCheckType(map, SCALE_FACTORS, scaleFactors.getClass());
+    systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, systemPassword.getClass());
   }
 
   /**

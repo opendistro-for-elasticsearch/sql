@@ -13,22 +13,26 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch;
+package com.amazon.opendistroforelasticsearch.sql.benchmark.utils;
 
 import java.io.IOException;
 
 /**
- * Interface for launching and shutting down databases.
+ * Class to handle command execution.
  */
-public interface DatabaseLauncher {
-
+public class CommandExecution {
   /**
-   * Function interface for launching databases.
+   * Function to execute commands.
+   *
+   * @param commands Commands separated by &&.
    */
-  void launchDatabase(String systemPassword) throws IOException, InterruptedException;
-
-  /**
-   * Function interface for shutting down databases.
-   */
-  void shutdownDatabase(String systemPassword) throws IOException, InterruptedException;
+  public static void executeCommand(final String commands)
+      throws IOException, InterruptedException {
+    String[] executeCommands = {"/bin/bash", "-c", commands};
+    ProcessBuilder processBuilder = new ProcessBuilder(executeCommands);
+    Process process = processBuilder.start();
+    if (process != null) {
+      process.waitFor();
+    }
+  }
 }
