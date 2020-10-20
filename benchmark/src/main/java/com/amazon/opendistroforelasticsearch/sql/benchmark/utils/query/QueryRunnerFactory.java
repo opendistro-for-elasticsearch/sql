@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.elasticsearch.ElasticsearchQueryRunner;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.mock.MockQueryRunner;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
@@ -26,7 +27,8 @@ import java.util.Map;
  */
 public class QueryRunnerFactory {
   private static Map<String, QueryRunner> QUERY_RUNNER_MAP = ImmutableMap.of(
-      BenchmarkConstants.ELASTICSEARCH, new ElasticsearchQueryRunner());
+      BenchmarkConstants.ELASTICSEARCH, new ElasticsearchQueryRunner(),
+      BenchmarkConstants.MOCK, new MockQueryRunner());
 
   /**
    * Empty private constructor since this is a factory.
