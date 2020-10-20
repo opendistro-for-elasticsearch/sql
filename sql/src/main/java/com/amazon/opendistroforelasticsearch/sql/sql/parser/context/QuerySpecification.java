@@ -122,7 +122,7 @@ public class QuerySpecification {
 
     if (((Literal) expr).getType() != DataType.INTEGER) {
       throw new SemanticCheckException(StringUtils.format(
-          "Non-integer constant [%s] found in GROUP BY clause", expr));
+          "Non-integer constant [%s] found in ordinal", expr));
     }
     return true;
   }
@@ -131,7 +131,7 @@ public class QuerySpecification {
     int ordinal = (Integer) ((Literal) expr).getValue();
     if (ordinal <= 0 || ordinal > selectItems.size()) {
       throw new SemanticCheckException(StringUtils.format(
-          "Group by ordinal [%d] is out of bound of select item list", ordinal));
+          "Ordinal [%d] is out of bound of select item list", ordinal));
     }
     return selectItems.get(ordinal - 1);
   }

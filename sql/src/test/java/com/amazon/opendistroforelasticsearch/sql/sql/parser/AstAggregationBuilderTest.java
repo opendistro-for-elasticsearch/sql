@@ -139,7 +139,7 @@ class AstAggregationBuilderTest {
     SemanticCheckException error = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT state AS s FROM test GROUP BY 1.5"));
     assertEquals(
-        "Non-integer constant [1.5] found in GROUP BY clause",
+        "Non-integer constant [1.5] found in ordinal",
         error.getMessage());
   }
 
@@ -182,11 +182,11 @@ class AstAggregationBuilderTest {
   void should_report_error_for_group_by_ordinal_out_of_bound_of_select_list() {
     SemanticCheckException error1 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT age, AVG(balance) FROM tests GROUP BY 0"));
-    assertEquals("Group by ordinal [0] is out of bound of select item list", error1.getMessage());
+    assertEquals("Ordinal [0] is out of bound of select item list", error1.getMessage());
 
     SemanticCheckException error2 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT age, AVG(balance) FROM tests GROUP BY 3"));
-    assertEquals("Group by ordinal [3] is out of bound of select item list", error2.getMessage());
+    assertEquals("Ordinal [3] is out of bound of select item list", error2.getMessage());
   }
 
   private Matcher<UnresolvedPlan> hasGroupByItems(UnresolvedExpression... exprs) {
