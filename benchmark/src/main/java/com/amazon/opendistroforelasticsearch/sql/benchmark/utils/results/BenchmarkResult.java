@@ -15,8 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+import java.util.List;
+
 /**
  * Class to hold benchmark results.
  */
+@AllArgsConstructor
+@Getter
 public class BenchmarkResult {
+  private List<Double> cpuUsage;
+  private List<Long> memoryUsage;
+  private Long executionTimeMilliseconds;
 }

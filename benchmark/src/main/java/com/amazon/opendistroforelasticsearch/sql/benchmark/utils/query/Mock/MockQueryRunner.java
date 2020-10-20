@@ -13,20 +13,28 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.elasticsearch;
+package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.Mock;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryRunner;
 
 /**
- * Query runner for Elasticsearch databases.
+ * Query runner for testing purposes.
  */
-public class ElasticsearchQueryRunner extends QueryRunner {
+public class MockQueryRunner extends QueryRunner {
+  private static final long WAIT_TIME_MILLISECONDS = 1000L;
 
   /**
-   * Function to run queries against Elasticsearch database.
-   * @param query Query to run against Elasticsearch database.
+   * Function mock running query.
+   * @param query Query to run.
    */
   @Override
   public void runQuery(final String query) {
+    try {
+      System.out.println("Starting mock query.");
+      Thread.sleep(WAIT_TIME_MILLISECONDS);
+      System.out.println("Finished mock query.");
+    }
+    catch (InterruptedException ignored) {
+    }
   }
 }

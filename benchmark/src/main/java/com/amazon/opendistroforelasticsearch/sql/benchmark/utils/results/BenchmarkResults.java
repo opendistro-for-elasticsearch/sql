@@ -28,4 +28,5 @@ public class BenchmarkResults {
   final List<BenchmarkResult> benchmarkResults;
   final String benchmarkType;
   final Integer scaleFactor;
+  final Long totalMemory;
 }
