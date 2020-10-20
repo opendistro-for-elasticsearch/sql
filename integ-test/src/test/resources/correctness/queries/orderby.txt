@@ -1,0 +1,13 @@
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum ASC
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum DESC
+SELECT FlightNum, AvgTicketPrice FROM kibana_sample_data_flights ORDER BY FlightNum, AvgTicketPrice
+SELECT FlightNum, AvgTicketPrice FROM kibana_sample_data_flights ORDER BY FlightNum DESC, AvgTicketPrice
+SELECT FlightNum, AvgTicketPrice FROM kibana_sample_data_flights ORDER BY FlightNum, AvgTicketPrice DESC
+SELECT FlightNum, AvgTicketPrice FROM kibana_sample_data_flights ORDER BY FlightNum DESC, AvgTicketPrice DESC
+SELECT OriginCountry FROM kibana_sample_data_flights GROUP BY OriginCountry ORDER BY OriginCountry
+SELECT OriginCountry FROM kibana_sample_data_flights GROUP BY OriginCountry ORDER BY OriginCountry DESC
+SELECT FlightDelay, OriginWeather FROM kibana_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay, OriginWeather
+SELECT FlightDelay, OriginWeather FROM kibana_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay DESC, OriginWeather
+SELECT FlightDelay, OriginWeather FROM kibana_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay, OriginWeather DESC
+SELECT FlightDelay, OriginWeather FROM kibana_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay DESC, OriginWeather DESC

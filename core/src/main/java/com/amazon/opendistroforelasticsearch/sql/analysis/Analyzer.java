@@ -290,6 +290,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitSort(Sort node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
+    ExpressionReferenceOptimizer optimizer =
+        new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child);
+
     // the first options is {"count": "integer"}
     Integer count = (Integer) node.getOptions().get(0).getValue().getValue();
     List<Pair<SortOption, Expression>> sortList =
@@ -298,7 +301,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
                 sortField -> {
                   // the first options is {"asc": "true/false"}
                   Boolean asc = (Boolean) sortField.getFieldArgs().get(0).getValue().getValue();
-                  Expression expression = expressionAnalyzer.analyze(sortField, context);
+                  Expression expression = optimizer.optimize(
+                      expressionAnalyzer.analyze(sortField.getField(), context), context);
                   return ImmutablePair.of(
                       asc ? SortOption.DEFAULT_ASC : SortOption.DEFAULT_DESC, expression);
                 })

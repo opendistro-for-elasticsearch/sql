@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
@@ -49,6 +50,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -253,6 +255,42 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.alias("false", AstDSL.booleanLiteral(false))
         )
     );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void sort_with_aggregator() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.sort(
+                LogicalPlanDSL.aggregation(
+                    LogicalPlanDSL.relation("test"),
+                    ImmutableList.of(
+                        DSL.named(
+                            "avg(integer_value)",
+                            dsl.avg(DSL.ref("integer_value", INTEGER)))),
+                    ImmutableList.of(DSL.named("string_value", DSL.ref("string_value", STRING)))),
+                0,
+                // Aggregator in Sort AST node is replaced with reference by expression optimizer
+                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("avg(integer_value)", DOUBLE))),
+            DSL.named("string_value", DSL.ref("string_value", STRING))),
+        AstDSL.project(
+            AstDSL.sort(
+                AstDSL.agg(
+                    AstDSL.relation("test"),
+                    ImmutableList.of(
+                        AstDSL.alias(
+                            "avg(integer_value)",
+                            function("avg", qualifiedName("integer_value")))),
+                    emptyList(),
+                    ImmutableList.of(AstDSL.alias("string_value", qualifiedName("string_value"))),
+                    emptyList()
+                ),
+                ImmutableList.of(argument("count", intLiteral(0))),
+                field(
+                    function("avg", qualifiedName("integer_value")),
+                    argument("asc", booleanLiteral(true)))),
+            AstDSL.alias("string_value", qualifiedName("string_value"))));
   }
 
   @SuppressWarnings("unchecked")

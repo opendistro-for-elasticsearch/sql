@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotEquals;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
@@ -46,6 +47,36 @@ public class DBResultTest {
     DBResult result1 =
         new DBResult("DB 1", Arrays.asList(new Type("name", "VARCHAR")), emptyList());
     DBResult result2 = new DBResult("DB 2", Arrays.asList(new Type("age", "INT")), emptyList());
+    assertNotEquals(result1, result2);
+  }
+
+  @Test
+  public void dbResultWithSameRowsInDifferentOrderShouldEqual() {
+    DBResult result1 = DBResult.result("DB 1");
+    result1.addColumn("name", "VARCHAR");
+    result1.addRow(new Row(ImmutableList.of("test-1")));
+    result1.addRow(new Row(ImmutableList.of("test-2")));
+
+    DBResult result2 = DBResult.result("DB 2");
+    result2.addColumn("name", "VARCHAR");
+    result2.addRow(new Row(ImmutableList.of("test-2")));
+    result2.addRow(new Row(ImmutableList.of("test-1")));
+
+    assertEquals(result1, result2);
+  }
+
+  @Test
+  public void dbResultInOrderWithSameRowsInDifferentOrderShouldNotEqual() {
+    DBResult result1 = DBResult.resultInOrder("DB 1");
+    result1.addColumn("name", "VARCHAR");
+    result1.addRow(new Row(ImmutableList.of("test-1")));
+    result1.addRow(new Row(ImmutableList.of("test-2")));
+
+    DBResult result2 = DBResult.resultInOrder("DB 2");
+    result2.addColumn("name", "VARCHAR");
+    result2.addRow(new Row(ImmutableList.of("test-2")));
+    result2.addRow(new Row(ImmutableList.of("test-1")));
+
     assertNotEquals(result1, result2);
   }
 
@@ -85,6 +116,24 @@ public class DBResultTest {
 
     assertEquals(
         "Data row at [1] is different: this=[Row(values=[world])], other=[Row(values=[world123])]",
+        result1.diff(result2)
+    );
+  }
+
+  @Test
+  public void shouldExplainDataRowsOrderDifference() {
+    DBResult result1 = DBResult.resultInOrder("DB 1");
+    result1.addColumn("name", "VARCHAR");
+    result1.addRow(new Row(ImmutableList.of("hello")));
+    result1.addRow(new Row(ImmutableList.of("world")));
+
+    DBResult result2 = DBResult.resultInOrder("DB 2");
+    result2.addColumn("name", "VARCHAR");
+    result2.addRow(new Row(ImmutableList.of("world")));
+    result2.addRow(new Row(ImmutableList.of("hello")));
+
+    assertEquals(
+        "Data row at [0] is different: this=[Row(values=[hello])], other=[Row(values=[world])]",
         result1.diff(result2)
     );
   }
