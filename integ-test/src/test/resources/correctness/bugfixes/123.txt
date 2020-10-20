@@ -1,0 +1,8 @@
+SELECT Origin FROM kibana_sample_data_flights ORDER BY LOWER(Origin)
+SELECT Origin FROM kibana_sample_data_flights ORDER BY LOWER(Origin) DESC
+SELECT Origin FROM kibana_sample_data_flights ORDER BY SUBSTRING(Origin, 3, 3)
+SELECT Origin FROM kibana_sample_data_flights ORDER BY SUBSTRING(Origin, 3, 3) DESC
+SELECT Origin, FlightNum FROM kibana_sample_data_flights ORDER BY SUBSTRING(Origin, 3, 3), LOWER(FlightNum)
+SELECT AVG(FlightTimeMin) FROM kibana_sample_data_flights ORDER BY SUM(FlightTimeMin)
+SELECT OriginWeather, AVG(FlightTimeMin) FROM kibana_sample_data_flights GROUP BY OriginWeather ORDER BY SUM(FlightTimeMin)
+SELECT FlightDelay, MIN(FlightTimeMin) FROM kibana_sample_data_flights GROUP BY FlightDelay ORDER BY MAX(FlightTimeMin)

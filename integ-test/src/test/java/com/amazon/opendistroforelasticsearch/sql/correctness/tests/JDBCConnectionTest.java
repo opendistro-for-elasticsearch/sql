@@ -26,6 +26,8 @@ import static org.mockito.Mockito.when;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import java.sql.Connection;
@@ -123,10 +125,10 @@ public class JDBCConnectionTest {
         result.getSchema()
     );
     assertEquals(
-        Sets.newHashSet(
+        HashMultiset.create(ImmutableList.of(
             Arrays.asList("John", 25),
             Arrays.asList("Hank", 30)
-        ),
+        )),
         result.getDataRows()
     );
   }
@@ -170,11 +172,11 @@ public class JDBCConnectionTest {
         result.getSchema()
     );
     assertEquals(
-        Sets.newHashSet(
+        HashMultiset.create(ImmutableList.of(
             Arrays.asList("John", 25.13),
             Arrays.asList("Hank", 30.46),
             Arrays.asList("Allen", 15.1)
-        ),
+        )),
         result.getDataRows()
     );
   }

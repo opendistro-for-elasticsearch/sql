@@ -26,7 +26,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
@@ -228,27 +227,27 @@ public class AstDSL {
     return new UnresolvedArgument(argName, argValue);
   }
 
-  public static UnresolvedExpression field(UnresolvedExpression field) {
+  public Field field(UnresolvedExpression field) {
     return new Field((QualifiedName) field);
   }
 
-  public static Field field(String field) {
+  public Field field(String field) {
     return new Field(field);
   }
 
-  public static UnresolvedExpression field(UnresolvedExpression field, Argument... fieldArgs) {
-    return new Field((QualifiedName) field, Arrays.asList(fieldArgs));
-  }
-
-  public static Field field(String field, Argument... fieldArgs) {
+  public Field field(UnresolvedExpression field, Argument... fieldArgs) {
     return new Field(field, Arrays.asList(fieldArgs));
   }
 
-  public static UnresolvedExpression field(UnresolvedExpression field, List<Argument> fieldArgs) {
-    return new Field((QualifiedName) field, fieldArgs);
+  public Field field(String field, Argument... fieldArgs) {
+    return new Field(field, Arrays.asList(fieldArgs));
   }
 
-  public static Field field(String field, List<Argument> fieldArgs) {
+  public Field field(UnresolvedExpression field, List<Argument> fieldArgs) {
+    return new Field(field, fieldArgs);
+  }
+
+  public Field field(String field, List<Argument> fieldArgs) {
     return new Field(field, fieldArgs);
   }
 

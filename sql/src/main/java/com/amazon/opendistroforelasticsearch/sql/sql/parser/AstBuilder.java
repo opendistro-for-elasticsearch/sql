@@ -119,6 +119,11 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
     if (ctx.havingClause() != null) {
       result = visit(ctx.havingClause()).attach(result);
     }
+
+    if (ctx.orderByClause() != null) {
+      AstSortBuilder sortBuilder = new AstSortBuilder(context.peek());
+      result = sortBuilder.visit(ctx.orderByClause()).attach(result);
+    }
     return result;
   }
 
