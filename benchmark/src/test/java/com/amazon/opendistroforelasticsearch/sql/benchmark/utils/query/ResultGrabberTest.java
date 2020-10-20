@@ -47,7 +47,7 @@ public class ResultGrabberTest {
       final List<Long> memoryUsage = result.getMemoryUsage();
       System.out.println("Memory usage: " + memoryUsage.toString());
       memoryUsage.forEach(mem -> {
-        Assertions.assertFalse(mem > 0);
+        Assertions.assertTrue(mem > 0);
       });
       Assertions.assertTrue(memoryUsage.size() > 0);
       final Long executionTime = result.getExecutionTimeMilliseconds();
