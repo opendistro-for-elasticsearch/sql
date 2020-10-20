@@ -148,7 +148,7 @@ public class ResultGrabber {
             String.format("Result-Grabbed-Thread-%d", RESULT_GRABBER_IDX++))
             .setDaemon(true).build());
     executorService.execute(() -> {
-      while(!shutdownFlag) {
+      while (!shutdownFlag) {
         memoryUsage.add(INFO_GRABBER.getFreePhysicalMemorySize());
         cpuUsage.add(INFO_GRABBER.getProcessCpuLoad());
         sleepForTime(INFO_SAMPLE_PERIOD_MILLISECONDS);
@@ -163,7 +163,8 @@ public class ResultGrabber {
     executorService.shutdown();
     try {
       executorService.awaitTermination(STOP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-    } catch (InterruptedException ignored) {
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
     if (!executorService.isTerminated()) {
       throw new Exception("Failed to stop system info grabber.");
@@ -177,7 +178,8 @@ public class ResultGrabber {
   private static void sleepForTime(final long time) {
     try {
       Thread.sleep(time);
-    } catch (InterruptedException ignored) {
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
   }
 
@@ -190,8 +192,8 @@ public class ResultGrabber {
     if ((executionTimeStart == -1L) || (executionTimeEnd == -1L)
         || cpuUsage.isEmpty() || memoryUsage.isEmpty()) {
       throw new Exception(
-          String.format("Failed to get performance metrics. " +
-                  "Start: %d, End: %d, Cpu usage count: %d, Memory usage count: %d",
+          String.format("Failed to get performance metrics. "
+                  + "Start: %d, End: %d, Cpu usage count: %d, Memory usage count: %d",
               executionTimeStart, executionTimeEnd,
               cpuUsage.size(), memoryUsage.size()));
     }

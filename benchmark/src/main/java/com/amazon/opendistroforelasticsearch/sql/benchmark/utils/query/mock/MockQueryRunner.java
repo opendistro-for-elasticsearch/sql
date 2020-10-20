@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.Mock;
+package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.mock;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryRunner;
 
@@ -33,8 +33,8 @@ public class MockQueryRunner extends QueryRunner {
       System.out.println("Starting mock query.");
       Thread.sleep(WAIT_TIME_MILLISECONDS);
       System.out.println("Finished mock query.");
-    }
-    catch (InterruptedException ignored) {
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
   }
 }
