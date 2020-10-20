@@ -29,9 +29,10 @@ public class ElasticsearchDatabaseLauncher implements DatabaseLauncher {
    * Function to launch an Elasticsearch database.
    */
   @Override
-  public void launchDatabase() throws IOException, InterruptedException {
-    String commands = "update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java"
-        + " && sudo systemctl start elasticsearch.service";
+  public void launchDatabase(String systemPassword) throws IOException, InterruptedException {
+    String commands = "echo " + systemPassword + " | sudo -S "
+        + "update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java"
+        + " && echo " + systemPassword + " | sudo -S systemctl start elasticsearch.service";
     executeCommand(commands);
   }
 
@@ -39,7 +40,7 @@ public class ElasticsearchDatabaseLauncher implements DatabaseLauncher {
    * Function to shutdown an Elasticsearch database.
    */
   @Override
-  public void shutdownDatabase() throws IOException, InterruptedException {
-    executeCommand("sudo systemctl stop elasticsearch.service");
+  public void shutdownDatabase(String systemPassword) throws IOException, InterruptedException {
+    executeCommand("echo " + systemPassword + " | sudo -S systemctl stop elasticsearch.service");
   }
 }
