@@ -20,8 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.Benchma
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Class to test ResultGrabber.
@@ -35,24 +35,24 @@ public class ResultGrabberTest {
     final BenchmarkResults results = resultGrabber.runQueries(QUERIES);
     final List<BenchmarkResult> resultList = results.getBenchmarkResults();
     final Long totalMemory = results.getTotalMemory();
-    Assert.assertTrue(totalMemory > 0);
+    Assertions.assertTrue(totalMemory > 0);
     System.out.println("Total Memory: " + totalMemory);
     for (BenchmarkResult result: resultList) {
       final List<Double> cpuUsage = result.getCpuUsage();
       System.out.println("Cpu Usage: " + cpuUsage.toString());
       cpuUsage.forEach(cpu -> {
-        Assert.assertTrue(cpu > 0.0);
+        Assertions.assertTrue(cpu > 0.0);
       });
-      Assert.assertTrue(cpuUsage.size() > 0);
+      Assertions.assertTrue(cpuUsage.size() > 0);
       final List<Long> memoryUsage = result.getMemoryUsage();
       System.out.println("Memory usage: " + memoryUsage.toString());
       memoryUsage.forEach(mem -> {
-        Assert.assertTrue(mem > 0);
+        Assertions.assertTrue(mem > 0);
       });
-      Assert.assertTrue(memoryUsage.size() > 0);
+      Assertions.assertTrue(memoryUsage.size() > 0);
       final Long executionTime = result.getExecutionTimeMilliseconds();
       System.out.println("Total time: " + executionTime.toString());
-      Assert.assertTrue(executionTime > 0);
+      Assertions.assertTrue(executionTime > 0);
     }
   }
 }
