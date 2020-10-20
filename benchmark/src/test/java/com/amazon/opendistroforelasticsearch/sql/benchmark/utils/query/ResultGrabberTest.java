@@ -39,20 +39,20 @@ public class ResultGrabberTest {
     System.out.println("Total Memory: " + totalMemory);
     for (BenchmarkResult result: resultList) {
       final List<Double> cpuUsage = result.getCpuUsage();
+      System.out.println("Cpu Usage: " + cpuUsage.toString());
       cpuUsage.forEach(cpu -> {
         Assert.assertTrue(cpu > 0.0);
       });
       Assert.assertTrue(cpuUsage.size() > 0);
       final List<Long> memoryUsage = result.getMemoryUsage();
+      System.out.println("Memory usage: " + memoryUsage.toString());
       memoryUsage.forEach(mem -> {
         Assert.assertTrue(mem > 0);
       });
       Assert.assertTrue(memoryUsage.size() > 0);
       final Long executionTime = result.getExecutionTimeMilliseconds();
-      Assert.assertTrue(executionTime > 0);
-      System.out.println("Cpu Usage: " + cpuUsage.toString());
-      System.out.println("Memory usage: " + memoryUsage.toString());
       System.out.println("Total time: " + executionTime.toString());
+      Assert.assertTrue(executionTime > 0);
     }
   }
 }
