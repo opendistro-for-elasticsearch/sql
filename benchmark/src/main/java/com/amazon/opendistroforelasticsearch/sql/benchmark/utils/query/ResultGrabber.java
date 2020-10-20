@@ -150,7 +150,7 @@ public class ResultGrabber {
     executorService.execute(() -> {
       while (!shutdownFlag) {
         memoryUsage.add(INFO_GRABBER.getFreePhysicalMemorySize());
-        cpuUsage.add(INFO_GRABBER.getProcessCpuLoad());
+        cpuUsage.add(INFO_GRABBER.getSystemCpuLoad());
         sleepForTime(INFO_SAMPLE_PERIOD_MILLISECONDS);
       }
     });
