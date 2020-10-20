@@ -19,10 +19,9 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConsta
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResult;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * Class to test ResultGrabber.
