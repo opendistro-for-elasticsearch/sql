@@ -17,6 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils;
 
 import java.io.IOException;
 
+/**
+ * Class to handle command execution.
+ */
 public class CommandExecution {
   /**
    * Function to execute commands.
