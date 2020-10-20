@@ -30,9 +30,7 @@ public class MockQueryRunner extends QueryRunner {
   @Override
   public void runQuery(final String query) {
     try {
-      System.out.println("Starting mock query.");
       Thread.sleep(WAIT_TIME_MILLISECONDS);
-      System.out.println("Finished mock query.");
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
