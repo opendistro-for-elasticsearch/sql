@@ -44,6 +44,7 @@ public class ResultGrabber {
   private static final long INFO_SAMPLE_PERIOD_MILLISECONDS = 100L;
   private static final long MAX_WAIT_TIME_MILLISECONDS = 5000L;
   private static final double INVALID_CPU = -1.0;
+  private static final double MAX_CPU = 1.0;
   private volatile boolean grabInProgress = false;
   private volatile boolean shutdownFlag = false;
   private List<Double> cpuUsage = new ArrayList<>();
@@ -96,13 +97,15 @@ public class ResultGrabber {
   private static void waitUntilReady() throws Exception {
     // Results are invalid for a little bit after the JVM boots, need to give it time to update.
     final long startTime = System.currentTimeMillis();
-    while (INFO_GRABBER.getProcessCpuLoad() == INVALID_CPU) {
+    double cpuLoad = -1.0;
+    while ((cpuLoad == INVALID_CPU) || (cpuLoad == MAX_CPU)) {
       if ((System.currentTimeMillis() - startTime) > MAX_WAIT_TIME_MILLISECONDS) {
         throw new Exception(
             String.format("Failed to get valid performance metrics within %d milliseconds.",
                 MAX_WAIT_TIME_MILLISECONDS));
       }
       sleepForTime(WAIT_TIME_MILLISECONDS);
+      cpuLoad = INFO_GRABBER.getSystemCpuLoad();
     }
 
   }

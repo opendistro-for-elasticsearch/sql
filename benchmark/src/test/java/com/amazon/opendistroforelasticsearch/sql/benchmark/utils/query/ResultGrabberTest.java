@@ -41,13 +41,13 @@ public class ResultGrabberTest {
       final List<Double> cpuUsage = result.getCpuUsage();
       System.out.println("Cpu Usage: " + cpuUsage.toString());
       cpuUsage.forEach(cpu -> {
-        Assertions.assertTrue(cpu > 0.0);
+        Assertions.assertFalse(cpu < 0.0);
       });
       Assertions.assertTrue(cpuUsage.size() > 0);
       final List<Long> memoryUsage = result.getMemoryUsage();
       System.out.println("Memory usage: " + memoryUsage.toString());
       memoryUsage.forEach(mem -> {
-        Assertions.assertTrue(mem > 0);
+        Assertions.assertFalse(mem > 0);
       });
       Assertions.assertTrue(memoryUsage.size() > 0);
       final Long executionTime = result.getExecutionTimeMilliseconds();
