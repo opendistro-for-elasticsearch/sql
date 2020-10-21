@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-export const delay = 300;
+export const delay = 1000;
 
 export const verifyDownloadData = [
   {
