@@ -136,12 +136,12 @@ public class QuerySpecification {
     return selectItems.get(ordinal - 1);
   }
 
-  private boolean isSelectAlias(UnresolvedExpression expr) {
+  public boolean isSelectAlias(UnresolvedExpression expr) {
     return (expr instanceof QualifiedName)
         && (selectItemsByAlias.containsKey(expr.toString()));
   }
 
-  private UnresolvedExpression getSelectItemByAlias(UnresolvedExpression expr) {
+  public UnresolvedExpression getSelectItemByAlias(UnresolvedExpression expr) {
     return selectItemsByAlias.get(expr.toString());
   }
 

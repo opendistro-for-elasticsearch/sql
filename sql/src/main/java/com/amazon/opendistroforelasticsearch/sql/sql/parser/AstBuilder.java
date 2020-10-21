@@ -134,7 +134,8 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitHavingClause(HavingClauseContext ctx) {
-    return new Filter(visitAstExpression(ctx.expression()));
+    AstHavingFilterBuilder builder = new AstHavingFilterBuilder(context.peek());
+    return new Filter(builder.visit(ctx.expression()));
   }
 
   @Override
