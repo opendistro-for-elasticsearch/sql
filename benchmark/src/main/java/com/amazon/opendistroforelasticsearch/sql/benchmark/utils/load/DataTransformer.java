@@ -22,9 +22,9 @@ public interface DataTransformer {
 
   /**
    * Function interface for data transformation.
-   * @param fileName Input file for data transformation.
+   * @param dataPath Input file for data transformation.
    * @return Transformed data in type specific format.
    * @throws Exception thrown if data transformation fails.
    */
-  DataFormat transformData(String fileName) throws Exception;
+  DataFormat transformData(String dataPath) throws Exception;
 }

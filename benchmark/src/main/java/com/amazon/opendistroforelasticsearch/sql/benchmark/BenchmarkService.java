@@ -42,18 +42,19 @@ public class BenchmarkService {
   private List<String> types;
   private List<String> queries;
   private String outputFile;
-  private String tempFolder;
+  private String benchmarkPath;
+  private String dataDirectoryPath;
   private List<Integer> scaleFactors;
   private String systemPassword;
 
   private static final String TYPES = "types";
   private static final String QUERIES = "queries";
   private static final String OUTPUT_FILE = "outputFile";
-  private static final String TEMP_FOLDER = "tempFolder";
+  private static final String BENCHMARK_PATH = "benchmarkPath";
   private static final String SCALE_FACTORS = "scaleFactors";
   private static final String SYSTEM_PASSWORD = "systemPassword";
   private static final Set<String> EXPECTED_KEYS = ImmutableSet.of(
-      TYPES, QUERIES, OUTPUT_FILE, TEMP_FOLDER, SCALE_FACTORS, SYSTEM_PASSWORD);
+      TYPES, QUERIES, OUTPUT_FILE, BENCHMARK_PATH, SCALE_FACTORS, SYSTEM_PASSWORD);
 
   /**
    * Constructor for BenchmarkingService.
@@ -71,7 +72,7 @@ public class BenchmarkService {
   private void runBenchmarks() throws Exception {
     final List<BenchmarkResults> results = new ArrayList<>();
     for (Integer sf: scaleFactors) {
-      DataGenerator.generateData(tempFolder, sf);
+      DataGenerator.generateData(benchmarkPath, sf);
       for (final String type: types) {
         DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
         launcher.launchDatabase(systemPassword);
@@ -79,7 +80,7 @@ public class BenchmarkService {
         results.add(performBenchmark(type, sf));
         launcher.shutdownDatabase(systemPassword);
       }
-      DataGenerator.cleanupData(tempFolder);
+      DataGenerator.cleanupData(benchmarkPath);
     }
     interpretResults(results);
   }
@@ -97,7 +98,7 @@ public class BenchmarkService {
     final DataTransformer dataTransformer = dataUtilHolder.getDataTransformer();
 
     // Generate data, transform, and load data.
-    final DataFormat dataFormat = dataTransformer.transformData(tempFolder);
+    final DataFormat dataFormat = dataTransformer.transformData(dataDirectoryPath);
     dataLoader.loadData(dataFormat);
   }
 
@@ -141,7 +142,8 @@ public class BenchmarkService {
     types = getValueCheckType(map, TYPES, types.getClass());
     queries = getValueCheckType(map, QUERIES, queries.getClass());
     outputFile = getValueCheckType(map, OUTPUT_FILE, queries.getClass());
-    tempFolder = getValueCheckType(map, TEMP_FOLDER, tempFolder.getClass());
+    benchmarkPath = getValueCheckType(map, BENCHMARK_PATH, benchmarkPath.getClass());
+    dataDirectoryPath = benchmarkPath + "data/";
     scaleFactors = getValueCheckType(map, SCALE_FACTORS, scaleFactors.getClass());
     systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, systemPassword.getClass());
   }

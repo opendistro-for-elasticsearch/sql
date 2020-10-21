@@ -21,4 +21,14 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat
  * Data format for Elasticsearch database.
  */
 public class ElasticsearchDataFormat extends DataFormat {
+
+  private String dataPath;
+
+  public void setDataPath(String path) {
+    dataPath = path;
+  }
+
+  public String getDataPath(){
+    return dataPath;
+  }
 }
