@@ -28,7 +28,7 @@ public class ElasticsearchDataFormat extends DataFormat {
     dataPath = path;
   }
 
-  public String getDataPath(){
+  public String getDataPath() {
     return dataPath;
   }
 }
