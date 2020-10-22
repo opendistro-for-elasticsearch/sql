@@ -43,27 +43,27 @@ public class PlotRenderer {
   }
 
   /**
-   * Function to render plots using BencharkResults List and QueryInfo List.
+   * Function to render plots using BencharkResults List and Query String List.
    * @param benchmarkResultsList BenchmarkResults List for rendering.
-   * @param queryInfoList QueryInfo List for rendering.
+   * @param queryInfoList Query String List for rendering.
    * @throws Exception Thrown if rendering plots fails.
    */
   public static void render(final List<BenchmarkResults> benchmarkResultsList,
-                            final List<BenchmarkResultsInterpreter.QueryInfo> queryInfoList)
+                            final List<String> queryInfoList)
       throws Exception {
     final List<PlotPlan> plotPlans = new ArrayList<>();
     final DefaultCategoryDataset barChartDataset = new DefaultCategoryDataset();
 
     // Get plan for all plots query by query
-    for (final BenchmarkResultsInterpreter.QueryInfo query: queryInfoList) {
+    for (final String query: queryInfoList) {
       final List<BenchmarkResult> results = new ArrayList<>();
       for (final BenchmarkResults result: benchmarkResultsList) {
-        final BenchmarkResult res = result.getByQuery(query.getQuery());
+        final BenchmarkResult res = result.getByQuery(query);
         results.add(res);
         barChartDataset.addValue(
-            res.getExecutionTimeMilliseconds(), res.getType(), query.getQuery());
+            res.getExecutionTimeMilliseconds(), res.getType(), query);
       }
-      plotPlans.add(getPlan(results, query.getQueryName()));
+      plotPlans.add(getPlan(results, query));
     }
     executePlans(plotPlans, barChartDataset);
   }

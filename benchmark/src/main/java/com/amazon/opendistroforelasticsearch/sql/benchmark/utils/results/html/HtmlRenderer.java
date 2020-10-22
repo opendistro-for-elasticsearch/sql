@@ -39,22 +39,22 @@ public class HtmlRenderer {
   }
 
   /**
-   * Function to render HTML using BenchmarkResults List and List of QueryInfo.
+   * Function to render HTML using BenchmarkResults List and List of query Strings.
    * @param benchmarkResultsList BenchmarkResults List.
-   * @param queryInfoList QueryInfo List.
+   * @param queryInfoList Query String List.
    * @throws Exception Thrown if HTML rendering fails for any reason.
    */
   public static void render(final List<BenchmarkResults> benchmarkResultsList,
-                            final List<BenchmarkResultsInterpreter.QueryInfo> queryInfoList)
+                            final List<String> queryInfoList)
       throws Exception {
     final ArrayList<HtmlPlan> htmlPlans = new ArrayList<>();
     // Get plan for all plots query by query
-    for (BenchmarkResultsInterpreter.QueryInfo query: queryInfoList) {
+    for (final String query: queryInfoList) {
       final List<BenchmarkResult> results = new ArrayList<>();
       for (BenchmarkResults result: benchmarkResultsList) {
-        results.add(result.getByQuery(query.getQuery()));
+        results.add(result.getByQuery(query));
       }
-      htmlPlans.add(getPlan(results, query.getQueryName()));
+      htmlPlans.add(getPlan(results, query));
     }
     executePlans(htmlPlans);
   }
