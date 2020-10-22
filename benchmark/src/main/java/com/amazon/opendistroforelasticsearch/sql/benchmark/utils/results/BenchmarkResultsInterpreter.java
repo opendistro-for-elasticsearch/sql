@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.html.HtmlRenderer;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.plot.PlotRenderer;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Class to interpret the benchmark results.
@@ -25,10 +28,29 @@ public class BenchmarkResultsInterpreter {
   /**
    * Function to interpret results and generate a report.
    * @param benchmarkResults Results to use for report.
-   * @param fileName File name to write report to.
    */
   public void interpretResults(
-      final List<BenchmarkResults> benchmarkResults, final String fileName) {
-    // TODO: Interpret Results and output file.
+      final List<BenchmarkResults> benchmarkResults) throws Exception {
+    final List<String> queryInfos = validateBenchmarkResultsGetQueries(benchmarkResults);
+    PlotRenderer.render(benchmarkResults, queryInfos);
+    HtmlRenderer.render(benchmarkResults, queryInfos);
+  }
+
+  private List<String> validateBenchmarkResultsGetQueries(
+      final List<BenchmarkResults> benchmarkResultsList) throws Exception {
+    if (benchmarkResultsList.isEmpty()) {
+      throw new Exception("BenchmarkResults list is empty, cannot generate any data.");
+    }
+    final int size = benchmarkResultsList.get(0).getBenchmarkResults().size();
+    if (size == 0) {
+      throw new Exception("Inner BenchmarkResult is empty.");
+    }
+    for (final BenchmarkResults benchmarkResults: benchmarkResultsList) {
+      if (benchmarkResults.getBenchmarkResults().size() != size) {
+        throw new Exception("Inner BenchmarkResult size mismatch.");
+      }
+    }
+    return benchmarkResultsList.get(0).getBenchmarkResults().stream()
+        .map(BenchmarkResult::getQuery).collect(Collectors.toList());
   }
 }

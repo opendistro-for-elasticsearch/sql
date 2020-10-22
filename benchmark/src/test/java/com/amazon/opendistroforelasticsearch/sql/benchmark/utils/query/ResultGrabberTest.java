@@ -31,7 +31,7 @@ public class ResultGrabberTest {
 
   @Test
   public void testResultGrab() throws Exception {
-    final ResultGrabber resultGrabber = new ResultGrabber(BenchmarkConstants.MOCK, 10);
+    final ResultGrabber resultGrabber = new ResultGrabber(BenchmarkConstants.MOCK1, 10);
     final BenchmarkResults results = resultGrabber.runQueries(QUERIES);
     final List<BenchmarkResult> resultList = results.getBenchmarkResults();
     final Long totalMemory = results.getTotalMemory();
@@ -44,10 +44,10 @@ public class ResultGrabberTest {
         Assertions.assertFalse(cpu < 0.0);
       });
       Assertions.assertTrue(cpuUsage.size() > 0);
-      final List<Long> memoryUsage = result.getMemoryUsage();
+      final List<Double> memoryUsage = result.getMemoryUsage();
       System.out.println("Memory usage: " + memoryUsage.toString());
       memoryUsage.forEach(mem -> {
-        Assertions.assertTrue(mem > 0);
+        Assertions.assertTrue(mem > 0.0);
       });
       Assertions.assertTrue(memoryUsage.size() > 0);
       final Long executionTime = result.getExecutionTimeMilliseconds();
