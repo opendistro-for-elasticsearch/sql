@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.json.simple.JSONObject;
@@ -33,6 +34,8 @@ import org.json.simple.JSONObject;
  * Data transformer for Elasticsearch database.
  */
 public class ElasticsearchDataTransformer implements DataTransformer {
+
+  private String transformedDataPath;
 
   /**
    * Data transforming function for Elasticsearch.
@@ -61,8 +64,10 @@ public class ElasticsearchDataTransformer implements DataTransformer {
       CommandExecution.executeCommand("mkdir " + dataPath + "elasticsearch/");
 
       // Create new json file for every  table / .tbl file
+      transformedDataPath = dataPath + "elasticsearch/";
       BufferedWriter bufferedWriter = new BufferedWriter(
-          new FileWriter(dataPath + "elasticsearch/" + tableName + ".json", true));
+          new FileWriter(transformedDataPath + tableName + ".json", true));
+      long tableLineIndex = 1;
       try {
         String line;
         while ((line = bufferedReader.readLine()) != null) {
@@ -70,7 +75,8 @@ public class ElasticsearchDataTransformer implements DataTransformer {
 
           // Add json object for index
           JSONObject id = new JSONObject();
-          id.put("_id", argsList.get(0));
+          id.put("_index", tableName);
+          id.put("_id", tableLineIndex++);
           JSONObject index = new JSONObject();
           index.put("index", id);
           String jsonString = index.toJSONString();
@@ -79,8 +85,9 @@ public class ElasticsearchDataTransformer implements DataTransformer {
 
           // Convert one line from .tbl to .json and append to json file.
           JSONObject jsonLine = new JSONObject();
-          for (int i = 0; i < argsList.size(); i++) {
-            jsonLine.put(TpchSchema.schemaMap.get(tableName).get(i), argsList.get(i));
+          int tableFieldIndex = 0;
+          for (String tableField : TpchSchema.schemaMap.get(tableName).keySet()) {
+            jsonLine.put(tableField, argsList.get(tableFieldIndex++));
           }
           bufferedWriter.write(jsonLine.toJSONString());
           bufferedWriter.newLine();
@@ -91,8 +98,32 @@ public class ElasticsearchDataTransformer implements DataTransformer {
       }
     }
 
+    createTableMappings();
     ElasticsearchDataFormat result = new ElasticsearchDataFormat();
-    result.setDataPath(dataPath + "elasticsearch/");
+    result.setDataPath(transformedDataPath);
     return result;
+  }
+
+  private void createTableMappings() throws IOException {
+    for (String tableName : TpchSchema.schemaMap.keySet()) {
+      BufferedWriter bufferedWriter = new BufferedWriter(
+          new FileWriter(transformedDataPath + tableName + "_mappings.json", true));
+      try {
+        JSONObject tableFields = new JSONObject();
+        for (String tableField : TpchSchema.schemaMap.get(tableName).keySet()) {
+          JSONObject tableFieldsType = new JSONObject();
+          tableFieldsType.put("type", TpchSchema.schemaMap.get(tableName).get(tableField));
+          tableFields.put(tableField, tableFieldsType);
+        }
+        JSONObject properties = new JSONObject();
+        properties.put("properties", tableFields);
+        JSONObject mappings = new JSONObject();
+        mappings.put("mappings", properties);
+
+        bufferedWriter.write(mappings.toJSONString());
+      } finally {
+        bufferedWriter.close();
+      }
+    }
   }
 }
