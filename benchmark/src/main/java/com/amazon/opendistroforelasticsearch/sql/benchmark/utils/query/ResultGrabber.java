@@ -41,14 +41,15 @@ public class ResultGrabber {
   private ExecutorService executorService;
   private static final long STOP_TIMEOUT_SECONDS = 5L;
   private static final long WAIT_TIME_MILLISECONDS = 100L;
-  private static final long INFO_SAMPLE_PERIOD_MILLISECONDS = 100L;
+  private static final long INFO_SAMPLE_PERIOD_MILLISECONDS = 500L;
   private static final long MAX_WAIT_TIME_MILLISECONDS = 5000L;
   private static final double INVALID_CPU = -1.0;
   private static final double MAX_CPU = 1.0;
   private volatile boolean grabInProgress = false;
   private volatile boolean shutdownFlag = false;
   private List<Double> cpuUsage = new ArrayList<>();
-  private List<Long> memoryUsage = new ArrayList<>();
+  private List<Double> memoryUsage = new ArrayList<>();
+  private List<Double> currentTime = new ArrayList<>();
   private Long executionTimeStart = -1L;
   private Long executionTimeEnd = -1L;
 
@@ -87,7 +88,7 @@ public class ResultGrabber {
   private BenchmarkResult grabResult(final String query) throws Exception {
     startGrab();
     queryRunner.runQuery(query);
-    return stopGrab();
+    return stopGrab(query);
   }
 
   /**
@@ -130,14 +131,14 @@ public class ResultGrabber {
    * @return A single BenchmarkResult Object using all the data grabbed during the query.
    * @throws Exception If the attempt to stop grabbing results fails.
    */
-  private BenchmarkResult stopGrab() throws Exception {
+  private BenchmarkResult stopGrab(String query) throws Exception {
     if (!grabInProgress) {
       throw new Exception("Cannot stop a grab when no grab is in progress.");
     }
     executionTimeEnd = System.currentTimeMillis();
     shutdownFlag = true;
     stopGrabDaemon();
-    BenchmarkResult result = generateNewBenchmarkResult();
+    BenchmarkResult result = generateNewBenchmarkResult(query);
     grabInProgress = false;
     return result;
   }
@@ -151,8 +152,11 @@ public class ResultGrabber {
             String.format("Result-Grabbed-Thread-%d", RESULT_GRABBER_IDX++))
             .setDaemon(true).build());
     executorService.execute(() -> {
+      final long startTime = System.currentTimeMillis();
       while (!shutdownFlag) {
-        memoryUsage.add(INFO_GRABBER.getFreePhysicalMemorySize());
+        currentTime.add((double)System.currentTimeMillis() - (double)startTime);
+        memoryUsage.add((double)(
+            INFO_GRABBER.getTotalPhysicalMemorySize() - INFO_GRABBER.getFreePhysicalMemorySize()));
         cpuUsage.add(INFO_GRABBER.getSystemCpuLoad());
         sleepForTime(INFO_SAMPLE_PERIOD_MILLISECONDS);
       }
@@ -191,19 +195,21 @@ public class ResultGrabber {
    * @return BenchmarkResult Object, generated with the results.
    * @throws Exception If the current results are invalid.
    */
-  private BenchmarkResult generateNewBenchmarkResult() throws Exception {
+  private BenchmarkResult generateNewBenchmarkResult(String query) throws Exception {
     if ((executionTimeStart == -1L) || (executionTimeEnd == -1L)
-        || cpuUsage.isEmpty() || memoryUsage.isEmpty()) {
+        || cpuUsage.isEmpty() || memoryUsage.isEmpty() || currentTime.isEmpty()) {
       throw new Exception(
           String.format("Failed to get performance metrics. "
-                  + "Start: %d, End: %d, Cpu usage count: %d, Memory usage count: %d",
+                  + "Start: %d, End: %d, Cpu usage count: %d, Memory usage count: %d"
+                  + "Current time count: %d",
               executionTimeStart, executionTimeEnd,
-              cpuUsage.size(), memoryUsage.size()));
+              cpuUsage.size(), memoryUsage.size(), currentTime.size()));
     }
     final BenchmarkResult result = new BenchmarkResult(
-        cpuUsage, memoryUsage, executionTimeEnd - executionTimeStart);
+        cpuUsage, memoryUsage, executionTimeEnd - executionTimeStart, query, type, currentTime);
     cpuUsage = new ArrayList<>();
     memoryUsage = new ArrayList<>();
+    currentTime = new ArrayList<>();
     executionTimeStart = -1L;
     executionTimeEnd = -1L;
     return result;

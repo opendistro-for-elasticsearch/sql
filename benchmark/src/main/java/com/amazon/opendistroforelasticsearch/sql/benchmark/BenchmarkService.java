@@ -119,9 +119,9 @@ public class BenchmarkService {
    * Function to run result interpreter.
    * @param results List of benchmarking results to use.
    */
-  private void interpretResults(final List<BenchmarkResults> results) {
+  private void interpretResults(final List<BenchmarkResults> results) throws Exception {
     final BenchmarkResultsInterpreter interpreter = new BenchmarkResultsInterpreter();
-    interpreter.interpretResults(results, outputFile);
+    interpreter.interpretResults(results);
   }
 
   /**

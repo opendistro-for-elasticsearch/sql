@@ -28,7 +28,9 @@ import java.util.Map;
 public class QueryRunnerFactory {
   private static Map<String, QueryRunner> QUERY_RUNNER_MAP = ImmutableMap.of(
       BenchmarkConstants.ELASTICSEARCH, new ElasticsearchQueryRunner(),
-      BenchmarkConstants.MOCK, new MockQueryRunner());
+      BenchmarkConstants.MOCK1, new MockQueryRunner(),
+      BenchmarkConstants.MOCK2, new MockQueryRunner(),
+      BenchmarkConstants.MOCK3, new MockQueryRunner());
 
   /**
    * Empty private constructor since this is a factory.

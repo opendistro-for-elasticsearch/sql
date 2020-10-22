@@ -25,8 +25,23 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class BenchmarkResults {
-  final List<BenchmarkResult> benchmarkResults;
-  final String benchmarkType;
-  final Integer scaleFactor;
-  final Long totalMemory;
+  private final List<BenchmarkResult> benchmarkResults;
+  private final String benchmarkType;
+  private final Integer scaleFactor;
+  private final Long totalMemory;
+
+  /**
+   * Function to get the BenchmarkResult belonging to a given query.
+   * @param query Query to search for.
+   * @return BenchmarkResult belonging to query.
+   * @throws Exception Thrown if BenchmarkResult could nto be found.
+   */
+  public BenchmarkResult getByQuery(final String query) throws Exception {
+    for (final BenchmarkResult benchmarkResult: benchmarkResults) {
+      if (benchmarkResult.getQuery().equals(query)) {
+        return benchmarkResult;
+      }
+    }
+    throw new Exception(String.format("Failed to find a BenchmarkResult with query '%s'", query));
+  }
 }
