@@ -41,7 +41,6 @@ public class LogUtils {
    * </p>
    */
   public static void addRequestId() {
-
     ThreadContext.put(REQUEST_ID_KEY, UUID.randomUUID().toString());
   }
 
@@ -50,12 +49,7 @@ public class LogUtils {
    * @return the current request id from {@link ThreadContext}.
    */
   public static String getRequestId() {
-
     final String requestId = ThreadContext.get(REQUEST_ID_KEY);
-    if (requestId == null) {
-      throw new IllegalStateException("Request id not present in current context");
-    }
-
     return requestId;
   }
 
@@ -67,7 +61,6 @@ public class LogUtils {
    * @return the new task
    */
   public static Runnable withCurrentContext(final Runnable task) {
-
     final Map<String, String> currentContext = ThreadContext.getImmutableContext();
     return () -> {
       ThreadContext.putAll(currentContext);
