@@ -15,7 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.html.HtmlRenderer;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.plot.PlotRenderer;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Class to interpret the benchmark results.
@@ -25,10 +30,42 @@ public class BenchmarkResultsInterpreter {
   /**
    * Function to interpret results and generate a report.
    * @param benchmarkResults Results to use for report.
-   * @param fileName File name to write report to.
    */
   public void interpretResults(
-      final List<BenchmarkResults> benchmarkResults, final String fileName) {
-    // TODO: Interpret Results and output file.
+      final List<BenchmarkResults> benchmarkResults) throws Exception {
+    final List<QueryInfo> queryInfos = validateBenchmarkResultsGetQueries(benchmarkResults);
+    PlotRenderer.render(benchmarkResults, queryInfos);
+    HtmlRenderer.render(benchmarkResults, queryInfos);
+  }
+
+  private List<QueryInfo> validateBenchmarkResultsGetQueries(
+      final List<BenchmarkResults> benchmarkResultsList) throws Exception {
+    if (benchmarkResultsList.isEmpty()) {
+      throw new Exception("BenchmarkResults list is empty, cannot generate any data.");
+    }
+    final int size = benchmarkResultsList.get(0).getBenchmarkResults().size();
+    if (size == 0) {
+      throw new Exception("Inner BenchmarkResult is empty.");
+    }
+    for (BenchmarkResults benchmarkResults: benchmarkResultsList) {
+      if (benchmarkResults.getBenchmarkResults().size() != size) {
+        throw new Exception("Inner BenchmarkResult size mismatch.");
+      }
+    }
+    final BenchmarkResults result = benchmarkResultsList.get(0);
+    final List<QueryInfo> queries = new ArrayList<>();
+    final List<BenchmarkResult> benchmarkResults = result.getBenchmarkResults();
+    for (int i = 0; i < benchmarkResults.size(); i++) {
+      queries.add(
+          new QueryInfo(benchmarkResults.get(i).getQuery(), String.format("Query %d", i)));
+    }
+    return queries;
+  }
+
+  @AllArgsConstructor
+  @Getter
+  public static class QueryInfo {
+    private final String query;
+    private final String queryName;
   }
 }
