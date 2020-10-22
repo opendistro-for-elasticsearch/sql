@@ -15,8 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticsearch;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandExecution;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataLoader;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.TpchSchema;
 
 /**
  * Data loader for Elasticsearch database.
@@ -25,13 +27,27 @@ public class ElasticsearchDataLoader implements DataLoader {
 
   /**
    * Load function for Elasticsearch databases.
+   *
    * @param data Data to load in ElasticsearchDataFormat.
    * @throws Exception Throws an Exception if data does not match expected type.
    */
   @Override
   public void loadData(final DataFormat data) throws Exception {
     if (!(data instanceof ElasticsearchDataFormat)) {
-      throw new Exception("TODO: Proper exceptions.");
+      throw new IllegalArgumentException("wrong data format for elasticsearch");
     }
+    String commands = "cd " + ((ElasticsearchDataFormat) data).getDataPath();
+
+    for (String tableName : TpchSchema.schemaMap.keySet()) {
+      commands += " && curl -H 'Content-Type: application/x-ndjson' -XPUT 'https://localhost:9200/"
+          + tableName + "?pretty' -u admin:admin --insecure --data-binary @" + tableName
+          + "_mappings.json"
+          + " && curl -H 'Content-Type: application/x-ndjson' -XPOST 'https://localhost:9200/"
+          + tableName + "/_bulk?pretty' -u admin:admin --insecure --data-binary @" + tableName
+          + "_data.json >> "
+          + tableName + "_upload.log";
+    }
+
+    CommandExecution.executeCommand(commands);
   }
 }

@@ -21,6 +21,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
     compile group: 'org.jfree', name: 'jfreechart', version: '1.0.19'
     compile group: 'org.jsoup', name: 'jsoup', version: '1.7.2'
 
