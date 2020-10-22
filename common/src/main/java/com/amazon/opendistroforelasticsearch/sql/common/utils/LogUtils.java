@@ -17,10 +17,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.common.utils;
 
-import org.apache.logging.log4j.ThreadContext;
-
 import java.util.Map;
 import java.util.UUID;
+import org.apache.logging.log4j.ThreadContext;
 
 /**
  * Utility class for generating/accessing the request id from logging context.
@@ -47,7 +46,8 @@ public class LogUtils {
   }
 
   /**
-   * @return the current request id from {@link ThreadContext}
+   * Get RequestID.
+   * @return the current request id from {@link ThreadContext}.
    */
   public static String getRequestId() {
 
@@ -76,7 +76,7 @@ public class LogUtils {
   }
 
   private LogUtils() {
-
-    throw new AssertionError(getClass().getCanonicalName() + " is a utility class and must not be initialized");
+    throw new AssertionError(
+        getClass().getCanonicalName() + " is a utility class and must not be initialized");
   }
 }
