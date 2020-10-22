@@ -66,7 +66,7 @@ public class ElasticsearchDataTransformer implements DataTransformer {
       // Create new json file for every  table / .tbl file
       transformedDataPath = dataPath + "elasticsearch/";
       BufferedWriter bufferedWriter = new BufferedWriter(
-          new FileWriter(transformedDataPath + tableName + ".json", true));
+          new FileWriter(transformedDataPath + tableName + "_data.json", true));
       long tableLineIndex = 1;
       try {
         String line;
