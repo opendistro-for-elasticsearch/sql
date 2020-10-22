@@ -31,6 +31,7 @@ dependencies {
     compile group: 'org.json', name: 'json', version: '20180813'
     compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.11.1'
     compile project(':common')
     compile project(':core')
     compile project(':protocol')

@@ -38,7 +38,7 @@ The query start with search command and then flowing a set of command delimited 
 
   - `eval command <cmd/eval.rst>`_
 
-  - `field command <cmd/fields.rst>`_
+  - `fields command <cmd/fields.rst>`_
 
   - `rename command <cmd/rename.rst>`_
 
