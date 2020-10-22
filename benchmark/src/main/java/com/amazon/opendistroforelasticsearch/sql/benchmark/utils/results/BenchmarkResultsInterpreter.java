@@ -17,12 +17,8 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.html.HtmlRenderer;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.plot.PlotRenderer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * Class to interpret the benchmark results.
@@ -49,13 +45,12 @@ public class BenchmarkResultsInterpreter {
     if (size == 0) {
       throw new Exception("Inner BenchmarkResult is empty.");
     }
-    for (BenchmarkResults benchmarkResults: benchmarkResultsList) {
+    for (final BenchmarkResults benchmarkResults: benchmarkResultsList) {
       if (benchmarkResults.getBenchmarkResults().size() != size) {
         throw new Exception("Inner BenchmarkResult size mismatch.");
       }
     }
-    final BenchmarkResults result = benchmarkResultsList.get(0);
-    return result.getBenchmarkResults().stream()
+    return benchmarkResultsList.get(0).getBenchmarkResults().stream()
         .map(BenchmarkResult::getQuery).collect(Collectors.toList());
   }
 }

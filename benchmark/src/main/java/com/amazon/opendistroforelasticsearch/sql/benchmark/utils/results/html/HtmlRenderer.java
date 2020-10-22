@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.html;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResult;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
-import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -100,9 +99,7 @@ public class HtmlRenderer {
   private static void writeSummary(final Document doc, final List<HtmlPlan> plans) {
     doc.body().appendElement("h2").appendText("Query Execution Time Summary (milliseconds)");
     final Element summaryTable = writeHeadersQuerySummary(doc, plans);
-    plans.forEach(p -> {
-      writeRowQuerySummary(summaryTable, p.getTableResults(), p.getQuery());
-    });
+    plans.forEach(p -> writeRowQuerySummary(summaryTable, p.getTableResults(), p.getQuery()));
     doc.body().appendElement("br");
     addImage(doc, BenchmarkConstants.SUMMARY_FILE_NAME);
   }
@@ -117,9 +114,7 @@ public class HtmlRenderer {
     plans.forEach(plan -> {
       doc.body().appendElement("h3").appendText(plan.getQuery());
       final Element reportTableHeader = writeHeadersQueryDetails(doc);
-      plan.getTableResults().forEach(r -> {
-        writeRowQueryDetails(reportTableHeader, r);
-      });
+      plan.getTableResults().forEach(r -> writeRowQueryDetails(reportTableHeader, r));
       doc.body().appendElement("br");
       addImage(doc, BenchmarkConstants.queryToFileName(plan.getQuery()));
     });
@@ -165,9 +160,8 @@ public class HtmlRenderer {
   private static Element writeHeadersQuerySummary(final Document doc, final List<HtmlPlan> plans) {
     final Element reportTableHeader = doc.body().appendElement("table");
     reportTableHeader.appendElement("th").appendText("Query");
-    plans.get(0).getTableResults().forEach(r -> {
-      reportTableHeader.appendElement("th").appendText(r.getDatabase());
-    });
+    plans.get(0).getTableResults().forEach(r ->
+        reportTableHeader.appendElement("th").appendText(r.getDatabase()));
     return reportTableHeader;
   }
 
@@ -181,9 +175,7 @@ public class HtmlRenderer {
       final Element reportTableHeader, final List<HtmlPlan.TableRow> row, final String query) {
     final Element tr = reportTableHeader.appendElement("tr");
     tr.appendElement("td").appendText(query);
-    row.forEach(r -> {
-      tr.appendElement("td").appendText(r.getExecutionTime());
-    });
+    row.forEach(r -> tr.appendElement("td").appendText(r.getExecutionTime()));
   }
 
   /**

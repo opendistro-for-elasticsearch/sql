@@ -23,7 +23,6 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryRunn
 public class MockQueryRunner extends QueryRunner {
   private static final long MIN_WAIT_TIME_MILLISECONDS = 1500L;
   private static final long MAX_WAIT_TIME_MILLISECONDS = 5000L;
-  private static final int MAX_ALLOCATION = 1024 * 1024 * 256;
 
   /**
    * Function mock running query.

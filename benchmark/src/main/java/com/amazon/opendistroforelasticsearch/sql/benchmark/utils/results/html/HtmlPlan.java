@@ -25,7 +25,7 @@ import lombok.Getter;
  * Class to contain plan to render HTML output file.
  */
 @AllArgsConstructor
-public class HtmlPlan {
+class HtmlPlan {
   @Getter
   private final String query;
   private List<BenchmarkResult> benchmarkResults;
@@ -34,7 +34,7 @@ public class HtmlPlan {
    * Function to convert BenchmarkResult List to TableRow List.
    * @return TableRow List.
    */
-  public List<TableRow> getTableResults() {
+  List<TableRow> getTableResults() {
     return benchmarkResults.stream().map(TableRow::new).collect(Collectors.toList());
   }
 
@@ -42,7 +42,7 @@ public class HtmlPlan {
    * Class to hold information required to render rows in HTML file tables.
    */
   @AllArgsConstructor
-  class TableRow {
+  static class TableRow {
     private final BenchmarkResult benchmarkResult;
 
     /**

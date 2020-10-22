@@ -3,7 +3,6 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.plot;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResult;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
-import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
 import com.google.common.collect.ImmutableList;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -77,11 +76,11 @@ public class PlotRenderer {
                                    final DefaultCategoryDataset defaultCategoryDataset)
       throws IOException {
     for (final PlotPlan plotPlan : plotPlans) {
-      save(plotPlan.getFileOutput(), generateChart(plotPlan),
-          PlotRenderer.WIDTH, PlotRenderer.HEIGHT);
+      save(plotPlan.getFileOutput(), generateChart(plotPlan)
+      );
     }
-    save(BenchmarkConstants.SUMMARY_FILE_NAME, generateBarChart(defaultCategoryDataset),
-        PlotRenderer.WIDTH, PlotRenderer.HEIGHT);
+    save(BenchmarkConstants.SUMMARY_FILE_NAME, generateBarChart(defaultCategoryDataset)
+    );
   }
 
   /**
@@ -190,14 +189,11 @@ public class PlotRenderer {
    * Function to save chart as a file.
    * @param fileName Name of file.
    * @param chart Chart to save.
-   * @param width Width of chart.
-   * @param height Height of Chart.
    * @throws IOException Thrown if saving the chart fails.
    */
-  private static void save(
-      final String fileName, final JFreeChart chart, final int width, final int height)
-      throws IOException {
-    ChartUtilities.saveChartAsJPEG(new File(fileName), chart, width, height);
+  private static void save(final String fileName, final JFreeChart chart) throws IOException {
+    ChartUtilities.saveChartAsJPEG(new File(fileName), chart,
+        PlotRenderer.WIDTH, PlotRenderer.HEIGHT);
   }
 
   /**

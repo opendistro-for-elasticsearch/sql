@@ -25,7 +25,7 @@ public class BenchmarkConstants {
   public static final String MOCK3 = "mock3";
   public static final String SUMMARY_FILE_NAME = "summary.jpg";
   public static final String OUTPUT_HTML_FILE_NAME = "index.html";
-  public static final String QUERY_FILE_NAME_FORMAT = "%s.jpg";
+  private static final String QUERY_FILE_NAME_FORMAT = "%s.jpg";
 
   public static String queryToFileName(String query) {
     return String.format(QUERY_FILE_NAME_FORMAT, query);

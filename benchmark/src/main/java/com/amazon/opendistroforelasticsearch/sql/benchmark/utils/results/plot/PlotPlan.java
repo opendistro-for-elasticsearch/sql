@@ -9,7 +9,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  */
 @AllArgsConstructor
 @Getter
-public class PlotPlan {
+class PlotPlan {
   private final String fileOutput;
   private final XYSeriesCollection cpuSeriesCollection;
   private final XYSeriesCollection memSeriesCollection;
