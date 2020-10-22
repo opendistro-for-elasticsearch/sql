@@ -225,8 +225,7 @@ public class PPLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
   }
 
   private String visitFieldList(List<Field> fieldList) {
-    return fieldList.isEmpty() ? "" :
-        fieldList.stream().map(this::visitExpression).collect(Collectors.joining(","));
+    return fieldList.stream().map(this::visitExpression).collect(Collectors.joining(","));
   }
 
   private String visitExpressionList(List<UnresolvedExpression> expressionList) {
