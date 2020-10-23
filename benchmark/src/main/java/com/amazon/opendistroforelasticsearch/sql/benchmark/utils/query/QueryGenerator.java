@@ -60,7 +60,7 @@ public class QueryGenerator {
   }
 
   /**
-   * Function to read queries from files and populate to variable
+   * Function to read queries from files and populate to variable.
    *
    * @param queriesPath Path to folder containing queries.
    */
