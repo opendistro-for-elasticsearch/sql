@@ -21,21 +21,40 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryRunn
  * Query runner for testing purposes.
  */
 public class MockQueryRunner extends QueryRunner {
+
   private static final long MIN_WAIT_TIME_MILLISECONDS = 1500L;
   private static final long MAX_WAIT_TIME_MILLISECONDS = 5000L;
+  private String query;
 
   /**
    * Function mock running query.
-   * @param query Query to run.
    */
   @Override
-  public void runQuery(final String query) {
+  public void runQuery() {
     try {
-      final long randomDelay = (long)(
+      final long randomDelay = (long) (
           (MAX_WAIT_TIME_MILLISECONDS - MIN_WAIT_TIME_MILLISECONDS) * Math.random());
       Thread.sleep(MIN_WAIT_TIME_MILLISECONDS + randomDelay);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
+  }
+
+  /**
+   * Funtion to set query runner.
+   *
+   * @param query Query to run against the specified database.
+   */
+  @Override
+  public void prepareQueryRunner(final String query) {
+    this.query = query;
+  }
+
+  /**
+   * Function to check query execution status.
+   */
+  @Override
+  public void checkQueryExecutionStatus(final String benchmarkPath) {
+
   }
 }

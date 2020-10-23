@@ -22,7 +22,19 @@ public abstract class QueryRunner {
 
   /**
    * Abstract function definition for query running.
+   */
+  public abstract void runQuery() throws Exception;
+
+  /**
+   * Abstract function definition to prepare query runner.
+   *
    * @param query Query to run against the specified database.
    */
-  public abstract void runQuery(String query) throws Exception;
+  public abstract void prepareQueryRunner(String query) throws Exception;
+
+  /**
+   * Abstract function definition to check query execution status.
+   */
+  public abstract void checkQueryExecutionStatus(final String benchmarkPath)
+      throws Exception;
 }

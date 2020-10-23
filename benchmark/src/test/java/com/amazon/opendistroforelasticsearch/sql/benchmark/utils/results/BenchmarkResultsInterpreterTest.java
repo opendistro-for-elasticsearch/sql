@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class BenchmarkResultsInterpreterTest {
+
   private static final List<String> QUERIES = ImmutableList.of("query 1", "query 2", "query 3");
 
   @Test
@@ -19,9 +20,9 @@ public class BenchmarkResultsInterpreterTest {
       final ResultGrabber resultGrabber1 = new ResultGrabber(BenchmarkConstants.MOCK1, 10);
       final ResultGrabber resultGrabber2 = new ResultGrabber(BenchmarkConstants.MOCK2, 10);
       final ResultGrabber resultGrabber3 = new ResultGrabber(BenchmarkConstants.MOCK3, 10);
-      benchmarkResultsList.add(resultGrabber1.runQueries(QUERIES));
-      benchmarkResultsList.add(resultGrabber2.runQueries(QUERIES));
-      benchmarkResultsList.add(resultGrabber3.runQueries(QUERIES));
+      benchmarkResultsList.add(resultGrabber1.runQueries(QUERIES, ""));
+      benchmarkResultsList.add(resultGrabber2.runQueries(QUERIES, ""));
+      benchmarkResultsList.add(resultGrabber3.runQueries(QUERIES, ""));
       final BenchmarkResultsInterpreter benchmarkResultsInterpreter =
           new BenchmarkResultsInterpreter();
       benchmarkResultsInterpreter.interpretResults(benchmarkResultsList);

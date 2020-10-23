@@ -114,7 +114,7 @@ public class BenchmarkService {
   private BenchmarkResults performBenchmark(final String type, final Integer scaleFactor)
       throws Exception {
     final ResultGrabber resultGrabber = new ResultGrabber(type, scaleFactor);
-    return resultGrabber.runQueries(TpchQueries.tpchQueries);
+    return resultGrabber.runQueries(TpchQueries.tpchQueries, benchmarkPath);
   }
 
   /**

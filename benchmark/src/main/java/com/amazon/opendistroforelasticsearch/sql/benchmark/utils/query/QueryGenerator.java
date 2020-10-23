@@ -62,7 +62,7 @@ public class QueryGenerator {
   private static void populateTpchQueries(final String queriesPath) throws IOException {
     File path = new File(queriesPath);
     if (path.exists() && path.isDirectory()) {
-      for (int i = 1; i <= TpchQueries.tpchQueriesCount; i++) {
+      for (int i = 1; i <= TpchQueries.tpchQueriesCountMax; i++) {
         String query = new String(
             Files.readAllBytes(Paths.get(queriesPath + "tpch-query-" + i + ".sql")));
         // Remove comment at the start of query file
