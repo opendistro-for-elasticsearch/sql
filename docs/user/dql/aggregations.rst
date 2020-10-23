@@ -126,3 +126,50 @@ The aggregation could has expression as arguments::
     | M        | 202    |
     +----------+--------+
 
+
+HAVING Clause
+=============
+
+Description
+-----------
+
+A ``HAVING`` clause can serve as aggregation filter that filters out aggregated values satisfy the condition expression given.
+
+HAVING with GROUP BY
+--------------------
+
+Identifier, aggregate expression, or its alias defined in ``SELECT`` clause can be used in the ``HAVING`` condition.
+
+1. Although it's valid, it's recommended to use non-aggregate in ``WHERE`` instead of ``HAVING``.
+2. The aggregation in ``HAVING`` clause is not necessarily same as that on select list.
+
+Here is an example::
+
+    od> SELECT
+    ...  gender, sum(age)
+    ... FROM accounts
+    ... GROUP BY gender
+    ... HAVING sum(age) > 100;
+    fetched rows / total rows = 1/1
+    +----------+------------+
+    | gender   | sum(age)   |
+    |----------+------------|
+    | M        | 101        |
+    +----------+------------+
+
+HAVING without GROUP BY
+-----------------------
+
+Additionally, a ``HAVING`` clause can work without ``GROUP BY`` clause. This is useful because aggregation is not allowed to be present in ``WHERE`` clause::
+
+    od> SELECT
+    ...  'Total of age > 100'
+    ... FROM accounts
+    ... HAVING sum(age) > 100;
+    fetched rows / total rows = 1/1
+    +------------------------+
+    | 'Total of age > 100'   |
+    |------------------------|
+    | Total of age > 100     |
+    +------------------------+
+
