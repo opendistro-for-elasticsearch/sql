@@ -21,6 +21,7 @@ import static java.util.Collections.emptyList;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
@@ -77,7 +78,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   @Override
   public UnresolvedPlan visit(ParseTree groupByClause) {
     if (groupByClause == null) {
-      if (isAllSelectItemNonAggregated()) {
+      if (isAllSelectItemNonAggregated() && isNoAggregator()) {
         // Simple select query without GROUP BY and aggregate function in SELECT
         return null;
       }
@@ -121,6 +122,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
 
   private Optional<UnresolvedExpression> findNonAggregatedItemInSelect() {
     return querySpec.getSelectItems().stream()
+                                     .filter(this::isNonLiteral)
                                      .filter(this::isNonAggregatedExpression)
                                      .findFirst();
   }
@@ -128,6 +130,14 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   private boolean isAllSelectItemNonAggregated() {
     return querySpec.getSelectItems().stream()
                                      .allMatch(this::isNonAggregatedExpression);
+  }
+
+  private boolean isNoAggregator() {
+    return querySpec.getAggregators().isEmpty();
+  }
+
+  private boolean isNonLiteral(UnresolvedExpression expr) {
+    return !(expr instanceof Literal);
   }
 
   private boolean isNonAggregatedExpression(UnresolvedExpression expr) {
