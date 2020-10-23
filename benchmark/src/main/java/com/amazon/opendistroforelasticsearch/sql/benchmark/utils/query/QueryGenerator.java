@@ -59,6 +59,11 @@ public class QueryGenerator {
     }
   }
 
+  /**
+   * Function to read queries from files and populate to variable
+   *
+   * @param queriesPath Path to folder containing queries.
+   */
   private static void populateTpchQueries(final String queriesPath) throws IOException {
     File path = new File(queriesPath);
     if (path.exists() && path.isDirectory()) {
