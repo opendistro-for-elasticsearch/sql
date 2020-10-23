@@ -95,16 +95,24 @@ public class SymbolTable {
   /**
    * Look up all top level symbols in the namespace.
    * this function is mainly used by SELECT * use case to get the top level fields
-   * Todo. currently, the top level fields is the field which doesn't include "." in the name.
+   * Todo. currently, the top level fields is the field which doesn't include "." in the name or
+   * the prefix doesn't exist in the symbol table.
+   * e.g. The symbol table includes person, person.name, person/2.0.
+   * person, is the top level field
+   * person.name, isn't the top level field, because the prefix (person) in symbol table
+   * person/2.0, is the top level field, because the prefix (person/2) isn't in symbol table
    *
    * @param namespace     a namespace
    * @return              all symbols in the namespace map
    */
   public Map<String, ExprType> lookupAllFields(Namespace namespace) {
-    return tableByNamespace.getOrDefault(namespace, emptyNavigableMap())
-        .entrySet().stream()
-        .filter(entry -> !entry.getKey().contains("."))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    final Map<String, ExprType> allSymbols =
+        tableByNamespace.getOrDefault(namespace, emptyNavigableMap());
+    return allSymbols.entrySet().stream().filter(entry -> {
+      String symbolName = entry.getKey();
+      int lastDot = symbolName.lastIndexOf(".");
+      return -1 == lastDot || !allSymbols.containsKey(symbolName.substring(0, lastDot));
+    }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   /**
