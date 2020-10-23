@@ -15,26 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query;
 
-/**
- * Abstract query runner class.
- */
-public abstract class QueryRunner {
+import java.util.LinkedList;
 
-  /**
-   * Abstract function definition for query running.
-   */
-  public abstract void runQuery() throws Exception;
+public class TpchQueries {
 
-  /**
-   * Abstract function definition to prepare query runner.
-   *
-   * @param query Query to run against the specified database.
-   */
-  public abstract void prepareQueryRunner(String query) throws Exception;
-
-  /**
-   * Abstract function definition to check query execution status.
-   */
-  public abstract void checkQueryExecutionStatus(final String benchmarkPath)
-      throws Exception;
+  public static int tpchQueriesCountMax = 22;
+  public static LinkedList<String> tpchQueries = new LinkedList<>();
 }

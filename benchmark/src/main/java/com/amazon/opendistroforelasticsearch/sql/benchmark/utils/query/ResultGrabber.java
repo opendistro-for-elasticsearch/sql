@@ -70,10 +70,11 @@ public class ResultGrabber {
    * @param queries Queries to run against the specified database.
    * @return BenchmarkResults Object as result of running queries.
    */
-  public BenchmarkResults runQueries(final List<String> queries) throws Exception {
+  public BenchmarkResults runQueries(final List<String> queries, final String benchmarkPath)
+      throws Exception {
     final List<BenchmarkResult> results = new ArrayList<>();
     for (String query: queries) {
-      results.add(grabResult(query));
+      results.add(grabResult(query, benchmarkPath));
     }
     return new BenchmarkResults(
         results, type, scaleFactor, INFO_GRABBER.getTotalPhysicalMemorySize());
@@ -85,10 +86,14 @@ public class ResultGrabber {
    * @return Single BenchmarkResult as a result of running the query.
    * @throws Exception If grabbing the result or running the query fails.
    */
-  private BenchmarkResult grabResult(final String query) throws Exception {
+  private BenchmarkResult grabResult(final String query, final String benchmarkPath)
+      throws Exception {
+    queryRunner.prepareQueryRunner(query);
     startGrab();
-    queryRunner.runQuery(query);
-    return stopGrab(query);
+    queryRunner.runQuery();
+    BenchmarkResult result = stopGrab(query);
+    queryRunner.checkQueryExecutionStatus(benchmarkPath);
+    return result;
   }
 
   /**

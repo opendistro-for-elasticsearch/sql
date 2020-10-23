@@ -27,17 +27,18 @@ import org.junit.jupiter.api.Test;
  * Class to test ResultGrabber.
  */
 public class ResultGrabberTest {
+
   private static final List<String> QUERIES = ImmutableList.of("1", "2", "3");
 
   @Test
   public void testResultGrab() throws Exception {
     final ResultGrabber resultGrabber = new ResultGrabber(BenchmarkConstants.MOCK1, 10);
-    final BenchmarkResults results = resultGrabber.runQueries(QUERIES);
+    final BenchmarkResults results = resultGrabber.runQueries(QUERIES, "");
     final List<BenchmarkResult> resultList = results.getBenchmarkResults();
     final Long totalMemory = results.getTotalMemory();
     Assertions.assertTrue(totalMemory > 0);
     System.out.println("Total Memory: " + totalMemory);
-    for (BenchmarkResult result: resultList) {
+    for (BenchmarkResult result : resultList) {
       final List<Double> cpuUsage = result.getCpuUsage();
       System.out.println("Cpu Usage: " + cpuUsage.toString());
       cpuUsage.forEach(cpu -> {
