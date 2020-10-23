@@ -24,5 +24,5 @@ public abstract class QueryRunner {
    * Abstract function definition for query running.
    * @param query Query to run against the specified database.
    */
-  public abstract void runQuery(String query);
+  public abstract void runQuery(String query) throws Exception;
 }

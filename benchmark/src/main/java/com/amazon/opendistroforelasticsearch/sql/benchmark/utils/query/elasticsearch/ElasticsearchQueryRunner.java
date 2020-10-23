@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.elasticsearch;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandExecution;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryRunner;
 
 /**
@@ -24,9 +25,13 @@ public class ElasticsearchQueryRunner extends QueryRunner {
 
   /**
    * Function to run queries against Elasticsearch database.
+   *
    * @param query Query to run against Elasticsearch database.
    */
   @Override
-  public void runQuery(final String query) {
+  public void runQuery(final String query) throws Exception {
+    CommandExecution.executeCommand(
+        "curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin --insecure "
+            + "-k -H 'Content-Type: application/json' -d '{\"query\": \"" + query + "\"}'");
   }
 }

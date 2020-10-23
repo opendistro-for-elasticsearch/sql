@@ -20,6 +20,8 @@ import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandE
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Class to generate and cleanup benchmarking queries.
@@ -51,8 +53,24 @@ public class QueryGenerator {
           + " done"
           + " && mv ./*.sql ../queries";
       executeCommand(commands);
+      populateTpchQueries(benchmarkPath + "/queries/");
     } else {
       throw new FileNotFoundException("Invalid Directory");
+    }
+  }
+
+  private static void populateTpchQueries(final String queriesPath) throws IOException {
+    File path = new File(queriesPath);
+    if (path.exists() && path.isDirectory()) {
+      for (int i = 1; i <= TpchQueries.tpchQueriesCount; i++) {
+        String query = new String(
+            Files.readAllBytes(Paths.get(queriesPath + "tpch-query-" + i + ".sql")));
+        // Remove comment at the start of query file
+        query = query.substring(40);
+        query = query.replace("\r\n","");
+        query.trim();
+        TpchQueries.tpchQueries.add(query);
+      }
     }
   }
 
