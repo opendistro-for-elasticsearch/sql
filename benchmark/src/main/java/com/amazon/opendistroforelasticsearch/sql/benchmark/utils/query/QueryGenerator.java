@@ -46,8 +46,10 @@ public class QueryGenerator {
           + " && mkdir queries "
           + " && cd ./tpch-dbgen/"
           + " && export DSS_QUERY=" + benchmarkPath + "tpch-dbgen/queries/"
-          + " && ./qgen -v -c -d -s " + scaleFactor + " > tpch-queries.sql"
-          + " && mv ./tpch-queries.sql ../queries";
+          + " && for ((i=1;i<=22;i++)); do"
+          + "  ./qgen -s " + scaleFactor + " ${i} > tpch-query-${i}.sql;"
+          + " done"
+          + " && mv ./*.sql ../queries";
       executeCommand(commands);
     } else {
       throw new FileNotFoundException("Invalid Directory");
