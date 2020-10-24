@@ -45,7 +45,7 @@ public class BenchmarkService {
   private String outputFile;
   private String benchmarkPath;
   private String dataDirectoryPath;
-  private List<Integer> scaleFactors;
+  private List<Double> scaleFactors;
   private String systemPassword;
 
   private static final String TYPES = "types";
@@ -71,7 +71,7 @@ public class BenchmarkService {
    */
   private void runBenchmarks() throws Exception {
     final List<BenchmarkResults> results = new ArrayList<>();
-    for (Integer sf: scaleFactors) {
+    for (Double sf: scaleFactors) {
       DataGenerator.generateData(benchmarkPath, sf);
       QueryGenerator.generateQueries(benchmarkPath, sf);
       for (final String type: types) {
@@ -111,7 +111,7 @@ public class BenchmarkService {
    * @return BenchmarkResults for the query execution.
    * @throws Exception Thrown if benchmarking fails.
    */
-  private BenchmarkResults performBenchmark(final String type, final Integer scaleFactor)
+  private BenchmarkResults performBenchmark(final String type, final Double scaleFactor)
       throws Exception {
     final ResultGrabber resultGrabber = new ResultGrabber(type, scaleFactor);
     return resultGrabber.runQueries(TpchQueries.tpchQueries, benchmarkPath);
@@ -141,12 +141,12 @@ public class BenchmarkService {
               + "Instead it contained the following keys: '%s'.",
               EXPECTED_KEYS.toString(), map.keySet().toString()));
     }
-    types = getValueCheckType(map, TYPES, types.getClass());
-    outputFile = getValueCheckType(map, OUTPUT_FILE, outputFile.getClass());
-    benchmarkPath = getValueCheckType(map, BENCHMARK_PATH, benchmarkPath.getClass());
+    types = getValueCheckType(map, TYPES, ArrayList.class);
+    outputFile = getValueCheckType(map, OUTPUT_FILE, String.class);
+    benchmarkPath = getValueCheckType(map, BENCHMARK_PATH, String.class);
     dataDirectoryPath = benchmarkPath + "data/";
-    scaleFactors = getValueCheckType(map, SCALE_FACTORS, scaleFactors.getClass());
-    systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, systemPassword.getClass());
+    scaleFactors = getValueCheckType(map, SCALE_FACTORS, ArrayList.class);
+    systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, String.class);
   }
 
   /**

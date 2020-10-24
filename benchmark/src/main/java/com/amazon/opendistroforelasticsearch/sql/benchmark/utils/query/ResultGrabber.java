@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class ResultGrabber {
   private final String type;
   private final QueryRunner queryRunner;
-  private final Integer scaleFactor;
+  private final Double scaleFactor;
 
   private static final OperatingSystemMXBean INFO_GRABBER =
       (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
@@ -59,7 +59,7 @@ public class ResultGrabber {
    * @param scaleFactor Scale factor for data set.
    * @throws Exception Thrown if QueryRunner cannot be found for type.
    */
-  public ResultGrabber(final String type, Integer scaleFactor) throws Exception {
+  public ResultGrabber(final String type, Double scaleFactor) throws Exception {
     this.type = type;
     this.scaleFactor = scaleFactor;
     this.queryRunner = QueryRunnerFactory.getRunner(type);
