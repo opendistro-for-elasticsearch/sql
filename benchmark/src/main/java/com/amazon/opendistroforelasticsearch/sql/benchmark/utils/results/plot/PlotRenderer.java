@@ -3,6 +3,7 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.plot;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResult;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
 import com.google.common.collect.ImmutableList;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -48,21 +49,21 @@ public class PlotRenderer {
    * @throws Exception Thrown if rendering plots fails.
    */
   public static void render(final List<BenchmarkResults> benchmarkResultsList,
-                            final List<String> queryInfoList)
+                            final List<BenchmarkResultsInterpreter.QueryInfo> queryInfoList)
       throws Exception {
     final List<PlotPlan> plotPlans = new ArrayList<>();
     final DefaultCategoryDataset barChartDataset = new DefaultCategoryDataset();
 
     // Get plan for all plots query by query
-    for (final String query: queryInfoList) {
+    for (final BenchmarkResultsInterpreter.QueryInfo query: queryInfoList) {
       final List<BenchmarkResult> results = new ArrayList<>();
       for (final BenchmarkResults result: benchmarkResultsList) {
-        final BenchmarkResult res = result.getByQuery(query);
+        final BenchmarkResult res = result.getByQuery(query.getQuery());
         results.add(res);
         barChartDataset.addValue(
-            res.getExecutionTimeMilliseconds(), res.getType(), query);
+            res.getExecutionTimeMilliseconds(), res.getType(), query.getQueryIdx());
       }
-      plotPlans.add(getPlan(results, query));
+      plotPlans.add(getPlan(results, query.getQueryIdx()));
     }
     executePlans(plotPlans, barChartDataset);
   }

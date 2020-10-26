@@ -17,6 +17,10 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.html.HtmlRenderer;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.plot.PlotRenderer;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,12 +35,12 @@ public class BenchmarkResultsInterpreter {
    */
   public void interpretResults(
       final List<BenchmarkResults> benchmarkResults) throws Exception {
-    final List<String> queryInfos = validateBenchmarkResultsGetQueries(benchmarkResults);
+    final List<QueryInfo> queryInfos = validateBenchmarkResultsGetQueries(benchmarkResults);
     PlotRenderer.render(benchmarkResults, queryInfos);
     HtmlRenderer.render(benchmarkResults, queryInfos);
   }
 
-  private List<String> validateBenchmarkResultsGetQueries(
+  private List<QueryInfo> validateBenchmarkResultsGetQueries(
       final List<BenchmarkResults> benchmarkResultsList) throws Exception {
     if (benchmarkResultsList.isEmpty()) {
       throw new Exception("BenchmarkResults list is empty, cannot generate any data.");
@@ -50,7 +54,20 @@ public class BenchmarkResultsInterpreter {
         throw new Exception("Inner BenchmarkResult size mismatch.");
       }
     }
-    return benchmarkResultsList.get(0).getBenchmarkResults().stream()
+
+    List<String> queries = benchmarkResultsList.get(0).getBenchmarkResults().stream()
         .map(BenchmarkResult::getQuery).collect(Collectors.toList());
+    List<QueryInfo> queryInfos = new ArrayList<>();
+    for (int i = 0; i < queries.size(); i++) {
+      queryInfos.add(new QueryInfo(queries.get(i), String.format("Query%d", i)));
+    }
+    return queryInfos;
+  }
+
+  @AllArgsConstructor
+  @Getter
+  public static class QueryInfo {
+    String query;
+    String queryIdx;
   }
 }

@@ -28,6 +28,8 @@ import lombok.Getter;
 class HtmlPlan {
   @Getter
   private final String query;
+  @Getter
+  private final String queryIdx;
   private List<BenchmarkResult> benchmarkResults;
 
   /**
