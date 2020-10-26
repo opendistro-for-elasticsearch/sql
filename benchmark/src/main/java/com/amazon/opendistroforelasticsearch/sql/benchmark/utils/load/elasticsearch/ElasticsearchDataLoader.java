@@ -54,11 +54,11 @@ public class ElasticsearchDataLoader implements DataLoader {
     for (String tableName : tableDataFilesList.keySet()) {
       for (String fileName : tableDataFilesList.get(tableName)) {
 
-        String data_command = "cd " + ((ElasticsearchDataFormat) data).getDataPath()
+        String dataCommand = "cd " + ((ElasticsearchDataFormat) data).getDataPath()
             + " && curl -H 'Content-Type: application/x-ndjson' -XPOST 'https://localhost:9200/"
             + tableName + "/_bulk?pretty' -u admin:admin --insecure --data-binary @" + fileName
             + " >> " + fileName.replace(".json", "") + "_upload.log";
-        CommandExecution.executeCommand(data_command);
+        CommandExecution.executeCommand(dataCommand);
       }
     }
   }

@@ -97,7 +97,7 @@ public class ElasticsearchDataTransformer implements DataTransformer {
           bufferedWriter.write(jsonLine.toJSONString());
           bufferedWriter.newLine();
 
-          if (tableLineIndex == 10000 * (tableDataFilesIndex -1)) {
+          if (tableLineIndex == 10000 * (tableDataFilesIndex - 1)) {
             bufferedWriter.close();
             filename = tableName + "_data_" + tableDataFilesIndex++ + ".json";
             bufferedWriter = new BufferedWriter(
