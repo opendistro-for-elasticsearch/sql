@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
  * AST Having filter builder that builds HAVING clause condition expressions
  * and replace alias by original expression in SELECT clause.
  * The reason for this is it's hard to replace afterwards since UnresolvedExpression
- * is mostly immutable.
+ * is immutable.
  */
 @RequiredArgsConstructor
 public class AstHavingFilterBuilder extends AstExpressionBuilder {

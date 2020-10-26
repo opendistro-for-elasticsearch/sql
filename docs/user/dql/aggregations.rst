@@ -138,18 +138,32 @@ A ``HAVING`` clause can serve as aggregation filter that filters out aggregated 
 HAVING with GROUP BY
 --------------------
 
-Identifier, aggregate expression, or its alias defined in ``SELECT`` clause can be used in the ``HAVING`` condition.
+Aggregate expressions or its alias defined in ``SELECT`` clause can be used in ``HAVING`` condition.
 
-1. Although it's valid, it's recommended to use non-aggregate in ``WHERE`` instead of ``HAVING``.
-2. The aggregation in ``HAVING`` clause is not necessarily same as that on select list.
+1. It's recommended to use non-aggregate expression in ``WHERE`` although it's allowed to do this in ``HAVING`` clause.
+2. The aggregation in ``HAVING`` clause is not necessarily same as that on select list. As extension to SQL standard, it's also not restricted to involve identifiers only on group by list.
 
-Here is an example::
+Here is an example for typical use of ``HAVING`` clause::
 
     od> SELECT
     ...  gender, sum(age)
     ... FROM accounts
     ... GROUP BY gender
     ... HAVING sum(age) > 100;
+    fetched rows / total rows = 1/1
+    +----------+------------+
+    | gender   | sum(age)   |
+    |----------+------------|
+    | M        | 101        |
+    +----------+------------+
+
+Here is another example for using alias in ``HAVING`` condition. Note that if an identifier is ambiguous, for example present both as a select alias and an index field, preference is alias. This means the identifier will be replaced by expression aliased in ``SELECT`` clause::
+
+    od> SELECT
+    ...  gender, sum(age) AS s
+    ... FROM accounts
+    ... GROUP BY gender
+    ... HAVING s > 100;
     fetched rows / total rows = 1/1
     +----------+------------+
     | gender   | sum(age)   |

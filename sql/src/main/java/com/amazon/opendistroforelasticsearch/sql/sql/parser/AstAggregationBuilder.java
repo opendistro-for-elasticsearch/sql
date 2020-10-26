@@ -78,7 +78,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   @Override
   public UnresolvedPlan visit(ParseTree groupByClause) {
     if (groupByClause == null) {
-      if (isAllSelectItemNonAggregated() && isNoAggregator()) {
+      if (isAggregatorNotFoundAnywhere()) {
         // Simple select query without GROUP BY and aggregate function in SELECT
         return null;
       }
@@ -120,6 +120,10 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
                     .collect(Collectors.toList());
   }
 
+  /**
+   * Find non-aggregate item in SELECT clause. Note that literal is special which is not required
+   * to be applied by aggregate function.
+   */
   private Optional<UnresolvedExpression> findNonAggregatedItemInSelect() {
     return querySpec.getSelectItems().stream()
                                      .filter(this::isNonLiteral)
@@ -127,12 +131,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
                                      .findFirst();
   }
 
-  private boolean isAllSelectItemNonAggregated() {
-    return querySpec.getSelectItems().stream()
-                                     .allMatch(this::isNonAggregatedExpression);
-  }
-
-  private boolean isNoAggregator() {
+  private boolean isAggregatorNotFoundAnywhere() {
     return querySpec.getAggregators().isEmpty();
   }
 
