@@ -117,11 +117,11 @@ public class HtmlRenderer {
   private static void writeDetails(final Document doc, final List<HtmlPlan> plans) {
     doc.body().appendElement("h2").appendText("Query Execution Details");
     plans.forEach(plan -> {
-      doc.body().appendElement("h3").appendText(plan.getQuery());
+      doc.body().appendElement("h3").appendText(plan.getQueryIdx());
       final Element reportTableHeader = writeHeadersQueryDetails(doc);
       plan.getTableResults().forEach(r -> writeRowQueryDetails(reportTableHeader, r));
       doc.body().appendElement("br");
-      addImage(doc, BenchmarkConstants.queryToFileName(plan.getQuery()));
+      addImage(doc, BenchmarkConstants.queryToFileName(plan.getQueryIdx()));
     });
   }
 
