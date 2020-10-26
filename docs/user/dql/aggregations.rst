@@ -165,11 +165,11 @@ Here is another example for using alias in ``HAVING`` condition. Note that if an
     ... GROUP BY gender
     ... HAVING s > 100;
     fetched rows / total rows = 1/1
-    +----------+------------+
-    | gender   | sum(age)   |
-    |----------+------------|
-    | M        | 101        |
-    +----------+------------+
+    +----------+-----+
+    | gender   | s   |
+    |----------+-----|
+    | M        | 101 |
+    +----------+-----+
 
 HAVING without GROUP BY
 -----------------------
