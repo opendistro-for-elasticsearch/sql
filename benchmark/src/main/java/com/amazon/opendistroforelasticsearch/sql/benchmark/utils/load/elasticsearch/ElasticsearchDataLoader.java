@@ -19,6 +19,8 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandExecutio
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataLoader;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.TpchSchema;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Data loader for Elasticsearch database.
@@ -38,16 +40,26 @@ public class ElasticsearchDataLoader implements DataLoader {
     }
     String commands = "cd " + ((ElasticsearchDataFormat) data).getDataPath();
 
+    // Add table mappings
     for (String tableName : TpchSchema.schemaMap.keySet()) {
       commands += " && curl -H 'Content-Type: application/x-ndjson' -XPUT 'https://localhost:9200/"
           + tableName + "?pretty' -u admin:admin --insecure --data-binary @" + tableName
-          + "_mappings.json"
-          + " && curl -H 'Content-Type: application/x-ndjson' -XPOST 'https://localhost:9200/"
-          + tableName + "/_bulk?pretty' -u admin:admin --insecure --data-binary @" + tableName
-          + "_data.json >> "
-          + tableName + "_upload.log";
+          + "_mappings.json";
     }
-
     CommandExecution.executeCommand(commands);
+
+    // Add table data
+    Map<String, LinkedList<String>> tableDataFilesList = ((ElasticsearchDataFormat) data)
+        .getTableDataFilesList();
+    for (String tableName : tableDataFilesList.keySet()) {
+      for (String fileName : tableDataFilesList.get(tableName)) {
+
+        String data_command = "cd " + ((ElasticsearchDataFormat) data).getDataPath()
+            + " && curl -H 'Content-Type: application/x-ndjson' -XPOST 'https://localhost:9200/"
+            + tableName + "/_bulk?pretty' -u admin:admin --insecure --data-binary @" + fileName
+            + " >> " + fileName.replace(".json", "") + "_upload.log";
+        CommandExecution.executeCommand(data_command);
+      }
+    }
   }
 }

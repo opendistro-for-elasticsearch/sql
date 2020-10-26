@@ -53,7 +53,7 @@ public class QueryGenerator {
           + " done"
           + " && mv ./*.sql ../queries";
       executeCommand(commands);
-      populateTpchQueries(benchmarkPath + "/queries/");
+      populateTpchQueries(benchmarkPath + "queries/");
     } else {
       throw new FileNotFoundException("Invalid Directory");
     }
@@ -67,14 +67,15 @@ public class QueryGenerator {
   private static void populateTpchQueries(final String queriesPath) throws IOException {
     File path = new File(queriesPath);
     if (path.exists() && path.isDirectory()) {
-      for (int i = 1; i <= TpchQueries.tpchQueriesCountMax; i++) {
+      for (int i = 1; i <= Queries.tpchQueriesCountMax; i++) {
         String query = new String(
             Files.readAllBytes(Paths.get(queriesPath + "tpch-query-" + i + ".sql")));
         // Remove comment at the start of query file
-        query = query.substring(40);
-        query = query.replace("\r\n","");
+        query = query.substring(41);
+        query = query.replace("\r\n"," ");
+        query = query.replace("\t"," ");
         query.trim();
-        TpchQueries.tpchQueries.add(query);
+        Queries.queries.add(query);
       }
     }
   }

@@ -22,9 +22,9 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataGenera
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataLoader;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataTransformer;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataUtilHolderFactory;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.Queries;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryGenerator;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.ResultGrabber;
-import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.TpchQueries;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,7 +73,7 @@ public class BenchmarkService {
     final List<BenchmarkResults> results = new ArrayList<>();
     for (Double sf: scaleFactors) {
       DataGenerator.generateData(benchmarkPath, sf);
-      QueryGenerator.generateQueries(benchmarkPath, sf);
+      //QueryGenerator.generateQueries(benchmarkPath, sf);
       for (final String type: types) {
         DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
         launcher.launchDatabase(systemPassword);
@@ -82,7 +82,7 @@ public class BenchmarkService {
         launcher.shutdownDatabase(systemPassword);
       }
       DataGenerator.cleanupData(benchmarkPath);
-      QueryGenerator.cleanupQueries(benchmarkPath);
+      //QueryGenerator.cleanupQueries(benchmarkPath);
     }
     interpretResults(results);
   }
@@ -114,7 +114,7 @@ public class BenchmarkService {
   private BenchmarkResults performBenchmark(final String type, final Double scaleFactor)
       throws Exception {
     final ResultGrabber resultGrabber = new ResultGrabber(type, scaleFactor);
-    return resultGrabber.runQueries(TpchQueries.tpchQueries, benchmarkPath);
+    return resultGrabber.runQueries(Queries.queries, benchmarkPath);
   }
 
   /**
