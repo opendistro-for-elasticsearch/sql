@@ -1,7 +1,7 @@
 {
   "types": ["elasticsearch"],
   "outputFile": "index.html",
-  "benchmarkPath": "/Users/rupalmahajan/Projects/GitHub/sql/benchmark/",
+  "benchmarkPath": "",
   "scaleFactors": [0.1],
   "systemPassword": "password"
 }

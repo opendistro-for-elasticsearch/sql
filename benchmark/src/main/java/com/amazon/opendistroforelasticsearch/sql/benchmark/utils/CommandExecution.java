@@ -16,6 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils;
 
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
 
 /**
  * Class to handle command execution.
@@ -33,6 +36,13 @@ public class CommandExecution {
     Process process = processBuilder.start();
     if (process != null) {
       process.waitFor();
+    }
+    System.out.println("Output of " + commands);
+    try(BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+       String line;
+       while ((line = input.readLine()) != null) {
+         System.out.println(line);
+       }
     }
   }
 }

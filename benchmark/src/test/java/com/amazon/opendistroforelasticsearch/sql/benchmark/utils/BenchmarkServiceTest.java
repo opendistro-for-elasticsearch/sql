@@ -5,10 +5,14 @@ import org.junit.jupiter.api.Test;
 
 public class BenchmarkServiceTest {
 
-  String configFilePath = "/Users/rupalmahajan/Projects/GitHub/sql/benchmark/config.json";
+  String configFilePath = "config.json";
 
   @Test
   public void runbenchmarkService() {
-    BenchmarkService.main(new String[]{configFilePath});
+    try {
+      BenchmarkService.main(new String[]{configFilePath});
+    } catch(Exception e) {
+      System.out.println("Exception: " + e);
+    }
   }
 }

@@ -132,7 +132,7 @@ public class BenchmarkService {
    * @throws Exception Thrown if config file parsing fails.
    */
   private void parseFile(final String filePath) throws Exception {
-    final String jsonString = new String(Files.readAllBytes(Paths.get(filePath)));
+    final String jsonString = new String(Files.readAllBytes(Paths.get(filePath).toAbsolutePath()));
     final ObjectMapper mapper = new ObjectMapper();
     final Map map = mapper.readValue(jsonString, Map.class);
     if (!map.keySet().equals(EXPECTED_KEYS)) {
@@ -143,8 +143,9 @@ public class BenchmarkService {
     }
     types = getValueCheckType(map, TYPES, ArrayList.class);
     outputFile = getValueCheckType(map, OUTPUT_FILE, String.class);
-    benchmarkPath = getValueCheckType(map, BENCHMARK_PATH, String.class);
-    dataDirectoryPath = benchmarkPath + "data/";
+    final String basePath = getValueCheckType(map, BENCHMARK_PATH, String.class);
+    benchmarkPath = Paths.get(basePath).toAbsolutePath().toString() + "/";
+    dataDirectoryPath = Paths.get(basePath, "data").toString() + "/";
     scaleFactors = getValueCheckType(map, SCALE_FACTORS, ArrayList.class);
     systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, String.class);
   }
