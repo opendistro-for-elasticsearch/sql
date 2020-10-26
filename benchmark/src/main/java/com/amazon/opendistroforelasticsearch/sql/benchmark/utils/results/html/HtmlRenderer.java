@@ -18,12 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.html;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResult;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

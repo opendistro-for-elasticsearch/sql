@@ -17,12 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.html.HtmlRenderer;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.plot.PlotRenderer;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Class to interpret the benchmark results.

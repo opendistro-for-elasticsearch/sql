@@ -11,7 +11,7 @@ public class BenchmarkServiceTest {
   public void runbenchmarkService() {
     try {
       BenchmarkService.main(new String[]{configFilePath});
-    } catch(Exception e) {
+    } catch (Exception e) {
       System.out.println("Exception: " + e);
     }
   }
