@@ -73,7 +73,7 @@ public class BenchmarkService {
     final List<BenchmarkResults> results = new ArrayList<>();
     for (Double sf: scaleFactors) {
       DataGenerator.generateData(benchmarkPath, sf);
-      //QueryGenerator.generateQueries(benchmarkPath, sf);
+      QueryGenerator.generateQueries(benchmarkPath, sf);
       for (final String type: types) {
         DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
         launcher.launchDatabase(systemPassword);
@@ -82,7 +82,7 @@ public class BenchmarkService {
         launcher.shutdownDatabase(systemPassword);
       }
       DataGenerator.cleanupData(benchmarkPath);
-      //QueryGenerator.cleanupQueries(benchmarkPath);
+      QueryGenerator.cleanupQueries(benchmarkPath);
     }
     interpretResults(results);
   }
