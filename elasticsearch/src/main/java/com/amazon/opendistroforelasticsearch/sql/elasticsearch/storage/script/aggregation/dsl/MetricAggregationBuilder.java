@@ -86,10 +86,18 @@ public class MetricAggregationBuilder
     return helper.build(expression, builder::field, builder::script);
   }
 
+  /**
+   * Replace literal with Elasticsearch metadata field "_index". Value count aggregation
+   * on _index will count all docs which has same semantics as COUNT(*) or COUNT(1) in
+   * SQL language.
+   * @param countArg count function argument
+   * @return Reference to _index if literal, otherwise return original argument expression
+   */
   private Expression replaceLiteral(Expression countArg) {
     if (countArg instanceof LiteralExpression) {
       return new ReferenceExpression("_index", INTEGER);
     }
     return countArg;
   }
+
 }
