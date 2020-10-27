@@ -122,7 +122,11 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   public LogicalPlan visitFilter(Filter node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
     Expression condition = expressionAnalyzer.analyze(node.getCondition(), context);
-    return new LogicalFilter(child, condition);
+
+    ExpressionReferenceOptimizer optimizer =
+        new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child);
+    Expression optimized = optimizer.optimize(condition, context);
+    return new LogicalFilter(child, optimized);
   }
 
   /**

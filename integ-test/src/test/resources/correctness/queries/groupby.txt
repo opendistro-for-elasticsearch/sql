@@ -38,3 +38,12 @@ SELECT flights.OriginCountry AS country, flights.OriginCityName AS city, SUM(Fli
 SELECT ABS(flights.FlightDelayMin) AS delay FROM kibana_sample_data_flights AS flights GROUP BY delay
 SELECT `flights`.OriginCountry, AVG(FlightDelayMin) FROM kibana_sample_data_flights AS `flights` GROUP BY `flights`.OriginCountry
 SELECT `flights`.OriginCountry, AVG(FlightDelayMin) FROM kibana_sample_data_flights AS `flights` GROUP BY 1
+SELECT 'This is not an empty index' FROM kibana_sample_data_flights HAVING COUNT(FlightNum) > 0
+SELECT 'This is an empty index' FROM kibana_sample_data_flights HAVING COUNT(FlightNum) = 0
+SELECT 'The average delay time > 10 min' FROM kibana_sample_data_flights HAVING AVG(FlightDelayMin) > 10
+SELECT OriginCountry, COUNT(FlightNum) FROM kibana_sample_data_flights GROUP BY OriginCountry HAVING COUNT(FlightNum) > 1
+SELECT OriginCountry, COUNT(FlightNum) AS cnt FROM kibana_sample_data_flights GROUP BY OriginCountry HAVING cnt = 1
+SELECT OriginCountry, COUNT(FlightNum) AS cnt FROM kibana_sample_data_flights GROUP BY OriginCountry HAVING 1 < cnt
+SELECT OriginCountry, COUNT(FlightNum) FROM kibana_sample_data_flights GROUP BY OriginCountry HAVING MIN(FlightDelayMin) > 100
+SELECT OriginCountry, COUNT(FlightNum) FROM kibana_sample_data_flights GROUP BY OriginCountry HAVING COUNT(FlightNum) > 1 OR MIN(FlightDelayMin) > 100
+SELECT OriginCountry, COUNT(FlightNum) FROM kibana_sample_data_flights GROUP BY OriginCountry HAVING COUNT(FlightNum) = 1 AND MIN(FlightDelayMin) <= 100
