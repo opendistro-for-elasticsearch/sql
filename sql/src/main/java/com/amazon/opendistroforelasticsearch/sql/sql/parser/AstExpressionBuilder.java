@@ -171,7 +171,7 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitCountStarFunctionCall(CountStarFunctionCallContext ctx) {
-    return new AggregateFunction("count", AllFields.of());
+    return new AggregateFunction("COUNT", AllFields.of());
   }
 
   @Override
