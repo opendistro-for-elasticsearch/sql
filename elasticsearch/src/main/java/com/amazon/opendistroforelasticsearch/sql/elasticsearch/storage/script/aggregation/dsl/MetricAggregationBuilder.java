@@ -87,9 +87,10 @@ public class MetricAggregationBuilder
   }
 
   /**
-   * Replace literal with Elasticsearch metadata field "_index". Value count aggregation
-   * on _index will count all docs which has same semantics as COUNT(*) or COUNT(1) in
-   * SQL language.
+   * Replace literal with Elasticsearch metadata field "_index". Typically literal here
+   * includes * and 1 because analyzer converts * to string literal too.
+   * Value count aggregation on _index counts all docs, therefore it has same semantics as
+   * COUNT(*) or COUNT(1) in SQL language.
    * @param countArg count function argument
    * @return Reference to _index if literal, otherwise return original argument expression
    */

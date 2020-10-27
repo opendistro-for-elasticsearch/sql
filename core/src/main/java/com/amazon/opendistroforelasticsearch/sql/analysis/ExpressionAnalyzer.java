@@ -171,6 +171,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitAllFields(AllFields node, AnalysisContext context) {
+    // Convert to string literal for argument in COUNT(*). For SELECT *, its select expression
+    // analyzer will expand it to the right field name list.
     return DSL.literal("*");
   }
 
