@@ -106,7 +106,15 @@ curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin -k -d '{"quer
 
 * Nested Field
 
-        SELECT address FROM bank b, b.nestedField e WHERE b.state = 'WA' and e.name = 'test'
+	+ 
+        
+			SELECT address FROM bank b, b.nestedField e WHERE b.state = 'WA' and e.name = 'test'
+	 
+	+ 
+			SELECT address, nested(nestedField.name)
+			FROM bank
+			WHERE nested(nestedField, nestedField.state = 'WA' AND nestedField.name = 'test')
+			   OR nested(nestedField.state) = 'CA'
 
 * Aggregations
 
