@@ -136,12 +136,22 @@ public class QuerySpecification {
     return selectItems.get(ordinal - 1);
   }
 
-  private boolean isSelectAlias(UnresolvedExpression expr) {
+  /**
+   * Check if an expression is a select alias.
+   * @param expr  expression
+   * @return true if it's an alias
+   */
+  public boolean isSelectAlias(UnresolvedExpression expr) {
     return (expr instanceof QualifiedName)
         && (selectItemsByAlias.containsKey(expr.toString()));
   }
 
-  private UnresolvedExpression getSelectItemByAlias(UnresolvedExpression expr) {
+  /**
+   * Get original expression aliased in SELECT clause.
+   * @param expr  alias
+   * @return expression in SELECT
+   */
+  public UnresolvedExpression getSelectItemByAlias(UnresolvedExpression expr) {
     return selectItemsByAlias.get(expr.toString());
   }
 

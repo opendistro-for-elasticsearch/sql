@@ -285,6 +285,47 @@ class AstBuilderTest {
   }
 
   @Test
+  public void can_build_having_clause() {
+    assertEquals(
+        project(
+            filter(
+                agg(
+                    relation("test"),
+                    ImmutableList.of(
+                        alias("AVG(age)", aggregate("AVG", qualifiedName("age"))),
+                        alias("MIN(balance)", aggregate("MIN", qualifiedName("balance")))),
+                    emptyList(),
+                    ImmutableList.of(alias("name", qualifiedName("name"))),
+                    emptyList()),
+                function(">",
+                    aggregate("MIN", qualifiedName("balance")),
+                    intLiteral(1000))),
+            alias("name", qualifiedName("name")),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT name, AVG(age) FROM test GROUP BY name HAVING MIN(balance) > 1000"));
+  }
+
+  @Test
+  public void can_build_having_condition_using_alias() {
+    assertEquals(
+        project(
+            filter(
+                agg(
+                    relation("test"),
+                    ImmutableList.of(
+                        alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                    emptyList(),
+                    ImmutableList.of(alias("name", qualifiedName("name"))),
+                    emptyList()),
+                function(">",
+                    aggregate("AVG", qualifiedName("age")),
+                    intLiteral(1000))),
+            alias("name", qualifiedName("name")),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")), "a")),
+        buildAST("SELECT name, AVG(age) AS a FROM test GROUP BY name HAVING a > 1000"));
+  }
+
+  @Test
   public void can_build_order_by_field_name() {
     assertEquals(
         project(

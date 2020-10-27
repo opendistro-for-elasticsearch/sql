@@ -98,6 +98,31 @@ class AnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void analyze_filter_aggregation_relation() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.aggregation(
+                LogicalPlanDSL.relation("schema"),
+                ImmutableList.of(
+                    DSL.named("AVG(integer_value)", dsl.avg(DSL.ref("integer_value", INTEGER))),
+                    DSL.named("MIN(integer_value)", dsl.min(DSL.ref("integer_value", INTEGER)))),
+            ImmutableList.of(DSL.named("string_value", DSL.ref("string_value", STRING)))),
+            dsl.greater(// Expect to be replaced with reference by expression optimizer
+                DSL.ref("MIN(integer_value)", INTEGER), DSL.literal(integerValue(10)))),
+        AstDSL.filter(
+            AstDSL.agg(
+                AstDSL.relation("schema"),
+                ImmutableList.of(
+                    alias("AVG(integer_value)", aggregate("AVG", qualifiedName("integer_value"))),
+                    alias("MIN(integer_value)", aggregate("MIN", qualifiedName("integer_value")))),
+            emptyList(),
+                ImmutableList.of(alias("string_value", qualifiedName("string_value"))),
+                emptyList()),
+            compare(">",
+                aggregate("MIN", qualifiedName("integer_value")), intLiteral(10))));
+  }
+
+  @Test
   public void rename_relation() {
     assertAnalyzeEqual(
         LogicalPlanDSL.rename(
