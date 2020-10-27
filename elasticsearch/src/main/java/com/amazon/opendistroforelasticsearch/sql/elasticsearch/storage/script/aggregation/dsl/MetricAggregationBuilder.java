@@ -17,9 +17,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.dsl;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import java.util.List;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -66,7 +70,7 @@ public class MetricAggregationBuilder
       case "sum":
         return make(AggregationBuilders.sum(name), expression);
       case "count":
-        return make(AggregationBuilders.count(name), expression);
+        return make(AggregationBuilders.count(name), replaceLiteral(expression));
       case "min":
         return make(AggregationBuilders.min(name), expression);
       case "max":
@@ -80,5 +84,12 @@ public class MetricAggregationBuilder
   private ValuesSourceAggregationBuilder<?> make(ValuesSourceAggregationBuilder<?> builder,
                                                   Expression expression) {
     return helper.build(expression, builder::field, builder::script);
+  }
+
+  private Expression replaceLiteral(Expression countArg) {
+    if (countArg instanceof LiteralExpression) {
+      return new ReferenceExpression("_index", INTEGER);
+    }
+    return countArg;
   }
 }
