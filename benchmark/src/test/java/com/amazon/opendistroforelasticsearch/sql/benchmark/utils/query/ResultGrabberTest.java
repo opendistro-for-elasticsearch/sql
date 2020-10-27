@@ -32,7 +32,7 @@ public class ResultGrabberTest {
 
   @Test
   public void testResultGrab() throws Exception {
-    final ResultGrabber resultGrabber = new ResultGrabber(BenchmarkConstants.MOCK1, 10);
+    final ResultGrabber resultGrabber = new ResultGrabber(BenchmarkConstants.MOCK1, 10.0);
     final BenchmarkResults results = resultGrabber.runQueries(QUERIES, "");
     final List<BenchmarkResult> resultList = results.getBenchmarkResults();
     final Long totalMemory = results.getTotalMemory();

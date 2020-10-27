@@ -22,9 +22,9 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataGenera
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataLoader;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataTransformer;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataUtilHolderFactory;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.Queries;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryGenerator;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.ResultGrabber;
-import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.TpchQueries;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +45,7 @@ public class BenchmarkService {
   private String outputFile;
   private String benchmarkPath;
   private String dataDirectoryPath;
-  private List<Integer> scaleFactors;
+  private List<Double> scaleFactors;
   private String systemPassword;
 
   private static final String TYPES = "types";
@@ -71,7 +71,7 @@ public class BenchmarkService {
    */
   private void runBenchmarks() throws Exception {
     final List<BenchmarkResults> results = new ArrayList<>();
-    for (Integer sf: scaleFactors) {
+    for (Double sf: scaleFactors) {
       DataGenerator.generateData(benchmarkPath, sf);
       QueryGenerator.generateQueries(benchmarkPath, sf);
       for (final String type: types) {
@@ -111,10 +111,10 @@ public class BenchmarkService {
    * @return BenchmarkResults for the query execution.
    * @throws Exception Thrown if benchmarking fails.
    */
-  private BenchmarkResults performBenchmark(final String type, final Integer scaleFactor)
+  private BenchmarkResults performBenchmark(final String type, final Double scaleFactor)
       throws Exception {
     final ResultGrabber resultGrabber = new ResultGrabber(type, scaleFactor);
-    return resultGrabber.runQueries(TpchQueries.tpchQueries, benchmarkPath);
+    return resultGrabber.runQueries(Queries.queries, benchmarkPath);
   }
 
   /**
@@ -132,7 +132,7 @@ public class BenchmarkService {
    * @throws Exception Thrown if config file parsing fails.
    */
   private void parseFile(final String filePath) throws Exception {
-    final String jsonString = new String(Files.readAllBytes(Paths.get(filePath)));
+    final String jsonString = new String(Files.readAllBytes(Paths.get(filePath).toAbsolutePath()));
     final ObjectMapper mapper = new ObjectMapper();
     final Map map = mapper.readValue(jsonString, Map.class);
     if (!map.keySet().equals(EXPECTED_KEYS)) {
@@ -141,12 +141,13 @@ public class BenchmarkService {
               + "Instead it contained the following keys: '%s'.",
               EXPECTED_KEYS.toString(), map.keySet().toString()));
     }
-    types = getValueCheckType(map, TYPES, types.getClass());
-    outputFile = getValueCheckType(map, OUTPUT_FILE, outputFile.getClass());
-    benchmarkPath = getValueCheckType(map, BENCHMARK_PATH, benchmarkPath.getClass());
-    dataDirectoryPath = benchmarkPath + "data/";
-    scaleFactors = getValueCheckType(map, SCALE_FACTORS, scaleFactors.getClass());
-    systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, systemPassword.getClass());
+    types = getValueCheckType(map, TYPES, ArrayList.class);
+    outputFile = getValueCheckType(map, OUTPUT_FILE, String.class);
+    final String basePath = getValueCheckType(map, BENCHMARK_PATH, String.class);
+    benchmarkPath = Paths.get(basePath).toAbsolutePath().toString() + "/";
+    dataDirectoryPath = Paths.get(basePath, "data").toString() + "/";
+    scaleFactors = getValueCheckType(map, SCALE_FACTORS, ArrayList.class);
+    systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, String.class);
   }
 
   /**

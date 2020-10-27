@@ -27,7 +27,7 @@ import lombok.Getter;
 public class BenchmarkResults {
   private final List<BenchmarkResult> benchmarkResults;
   private final String benchmarkType;
-  private final Integer scaleFactor;
+  private final Double scaleFactor;
   private final Long totalMemory;
 
   /**

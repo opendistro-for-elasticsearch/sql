@@ -51,6 +51,8 @@ public class ElasticsearchDataTransformer implements DataTransformer {
       throw new FileNotFoundException("Invalid Directory");
     }
 
+    ElasticsearchDataFormat result = new ElasticsearchDataFormat();
+
     for (String tableName : TpchSchema.schemaMap.keySet()) {
       File table = new File(dataPath + tableName + ".tbl");
       if (!table.exists() || !table.isFile()) {
@@ -65,10 +67,13 @@ public class ElasticsearchDataTransformer implements DataTransformer {
 
       // Create new json file for every  table / .tbl file
       transformedDataPath = dataPath + "elasticsearch/";
+      int tableDataFilesIndex = 1;
+      String filename = tableName + "_data_" + tableDataFilesIndex++ + ".json";
       BufferedWriter bufferedWriter = new BufferedWriter(
-          new FileWriter(transformedDataPath + tableName + "_data.json", true));
+          new FileWriter(transformedDataPath + filename, true));
       long tableLineIndex = 1;
       try {
+        result.addFile(tableName, filename);
         String line;
         while ((line = bufferedReader.readLine()) != null) {
           List<String> argsList = Arrays.asList(line.split("\\|"));
@@ -91,6 +96,14 @@ public class ElasticsearchDataTransformer implements DataTransformer {
           }
           bufferedWriter.write(jsonLine.toJSONString());
           bufferedWriter.newLine();
+
+          if (tableLineIndex == 10000 * (tableDataFilesIndex - 1)) {
+            bufferedWriter.close();
+            filename = tableName + "_data_" + tableDataFilesIndex++ + ".json";
+            bufferedWriter = new BufferedWriter(
+                new FileWriter(transformedDataPath + filename, true));
+            result.addFile(tableName, filename);
+          }
         }
       } finally {
         bufferedWriter.close();
@@ -99,7 +112,6 @@ public class ElasticsearchDataTransformer implements DataTransformer {
     }
 
     createTableMappings();
-    ElasticsearchDataFormat result = new ElasticsearchDataFormat();
     result.setDataPath(transformedDataPath);
     return result;
   }

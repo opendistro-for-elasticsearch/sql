@@ -13,12 +13,21 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query;
+package com.amazon.opendistroforelasticsearch.sql.benchmark.utils;
 
-import java.util.LinkedList;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.BenchmarkService;
+import org.junit.jupiter.api.Test;
 
-public class TpchQueries {
+public class BenchmarkServiceTest {
 
-  public static int tpchQueriesCountMax = 22;
-  public static LinkedList<String> tpchQueries = new LinkedList<>();
+  String configFilePath = "config.json";
+
+  @Test
+  public void runbenchmarkService() {
+    try {
+      BenchmarkService.main(new String[]{configFilePath});
+    } catch (Exception e) {
+      System.out.println("Exception: " + e);
+    }
+  }
 }

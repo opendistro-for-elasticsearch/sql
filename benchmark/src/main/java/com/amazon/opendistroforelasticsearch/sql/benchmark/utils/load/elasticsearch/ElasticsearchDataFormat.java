@@ -16,6 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticsearch;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Data format for Elasticsearch database.
@@ -23,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat
 public class ElasticsearchDataFormat extends DataFormat {
 
   private String dataPath;
+  private Map<String, LinkedList<String>> tableDataFilesList = new LinkedHashMap<>();
 
   public void setDataPath(String path) {
     dataPath = path;
@@ -30,5 +34,21 @@ public class ElasticsearchDataFormat extends DataFormat {
 
   public String getDataPath() {
     return dataPath;
+  }
+
+  /**
+   * Add a file to tableDataFilesList.
+   * @param tablename Table name
+   * @param filename  File name
+   */
+  public void addFile(String tablename, String filename) {
+    if (!tableDataFilesList.containsKey(tablename)) {
+      tableDataFilesList.put(tablename, new LinkedList<>());
+    }
+    tableDataFilesList.get(tablename).add(filename);
+  }
+
+  public Map<String, LinkedList<String>> getTableDataFilesList() {
+    return tableDataFilesList;
   }
 }

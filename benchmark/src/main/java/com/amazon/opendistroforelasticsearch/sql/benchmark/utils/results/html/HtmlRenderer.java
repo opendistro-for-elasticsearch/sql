@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.html;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResult;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResults;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.results.BenchmarkResultsInterpreter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,16 +45,16 @@ public class HtmlRenderer {
    * @throws Exception Thrown if HTML rendering fails for any reason.
    */
   public static void render(final List<BenchmarkResults> benchmarkResultsList,
-                            final List<String> queryInfoList)
+                            final List<BenchmarkResultsInterpreter.QueryInfo> queryInfoList)
       throws Exception {
     final ArrayList<HtmlPlan> htmlPlans = new ArrayList<>();
     // Get plan for all plots query by query
-    for (final String query: queryInfoList) {
+    for (final BenchmarkResultsInterpreter.QueryInfo query: queryInfoList) {
       final List<BenchmarkResult> results = new ArrayList<>();
       for (BenchmarkResults result: benchmarkResultsList) {
-        results.add(result.getByQuery(query));
+        results.add(result.getByQuery(query.getQuery()));
       }
-      htmlPlans.add(getPlan(results, query));
+      htmlPlans.add(getPlan(results, query.getQueryIdx(), query.getQuery()));
     }
     executePlans(htmlPlans);
   }
@@ -65,8 +66,8 @@ public class HtmlRenderer {
    * @return HtmlPlan based on BenchmarkResult List and query.
    */
   private static HtmlPlan getPlan(
-      final List<BenchmarkResult> benchmarkResultsList, final String query) {
-    return new HtmlPlan(query, benchmarkResultsList);
+      final List<BenchmarkResult> benchmarkResultsList, final String queryIdx, final String query) {
+    return new HtmlPlan(query, queryIdx, benchmarkResultsList);
   }
 
   /**
@@ -84,6 +85,9 @@ public class HtmlRenderer {
 
     // Write details.
     writeDetails(doc, plans);
+
+    // Write query translation table.
+    writeQueryTable(doc, plans);
 
     // Write file.
     final FileWriter htmlFileOutput = new FileWriter(BenchmarkConstants.OUTPUT_HTML_FILE_NAME);
@@ -112,12 +116,26 @@ public class HtmlRenderer {
   private static void writeDetails(final Document doc, final List<HtmlPlan> plans) {
     doc.body().appendElement("h2").appendText("Query Execution Details");
     plans.forEach(plan -> {
-      doc.body().appendElement("h3").appendText(plan.getQuery());
+      doc.body().appendElement("h3").appendText(plan.getQueryIdx());
       final Element reportTableHeader = writeHeadersQueryDetails(doc);
       plan.getTableResults().forEach(r -> writeRowQueryDetails(reportTableHeader, r));
       doc.body().appendElement("br");
-      addImage(doc, BenchmarkConstants.queryToFileName(plan.getQuery()));
+      addImage(doc, BenchmarkConstants.queryToFileName(plan.getQueryIdx()));
     });
+  }
+
+  /**
+   * Function to write details.
+   * @param doc Document Object to write details to.
+   * @param plans HtmlPlan List to write use to generate details.
+   */
+  private static void writeQueryTable(final Document doc, final List<HtmlPlan> plans) {
+    doc.body().appendElement("h2").appendText("Query Index to Query");
+    final Element reportTableHeader = writeHeadersQueryInfo(doc);
+    plans.forEach(plan -> {
+      writeRowQueryInfo(reportTableHeader, plan);
+    });
+    doc.body().appendElement("br");
   }
 
   /**
@@ -214,6 +232,30 @@ public class HtmlRenderer {
     tr.appendElement("td").appendText(row.getMinCpu());
     tr.appendElement("td").appendText(row.getAvgCpu());
     tr.appendElement("td").appendText(row.getMaxCpu());
+  }
+
+  /**
+   * Function to write header of table for query details.
+   * @param doc Document to write table to.
+   * @return Table Element.
+   */
+  private static Element writeHeadersQueryInfo(final Document doc) {
+    final Element reportTableHeader = doc.body().appendElement("table");
+    reportTableHeader.appendElement("th").attr("style", "width: 20%;").appendText("Query Index");
+    reportTableHeader.appendElement("th").attr("style", "width: 80%;").appendText("Actual Query");
+    return reportTableHeader;
+  }
+
+  /**
+   * Function to write query details for a row in the table.
+   * @param reportTableHeader Table element.
+   * @param plan Plan.
+   */
+  private static void writeRowQueryInfo(
+          final Element reportTableHeader, final HtmlPlan plan) {
+    final Element tr = reportTableHeader.appendElement("tr");
+    tr.appendElement("td").appendText(plan.getQueryIdx());
+    tr.appendElement("td").appendText(plan.getQuery());
   }
 
   /**
