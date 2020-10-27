@@ -105,6 +105,18 @@ class CountAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void count_star_with_null_and_missing() {
+    ExprValue result = aggregation(dsl.count(DSL.literal("*")), tuples_with_null_and_missing);
+    assertEquals(3, result.value());
+  }
+
+  @Test
+  public void count_literal_with_null_and_missing() {
+    ExprValue result = aggregation(dsl.count(DSL.literal(1)), tuples_with_null_and_missing);
+    assertEquals(3, result.value());
+  }
+
+  @Test
   public void valueOf() {
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
         () -> dsl.count(DSL.ref("double_value", DOUBLE)).valueOf(valueEnv()));

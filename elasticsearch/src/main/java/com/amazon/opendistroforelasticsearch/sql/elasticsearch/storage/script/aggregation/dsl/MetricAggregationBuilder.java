@@ -70,7 +70,7 @@ public class MetricAggregationBuilder
       case "sum":
         return make(AggregationBuilders.sum(name), expression);
       case "count":
-        return make(AggregationBuilders.count(name), replaceLiteral(expression));
+        return make(AggregationBuilders.count(name), replaceStarOrLiteral(expression));
       case "min":
         return make(AggregationBuilders.min(name), expression);
       case "max":
@@ -87,14 +87,15 @@ public class MetricAggregationBuilder
   }
 
   /**
-   * Replace literal with Elasticsearch metadata field "_index". Typically literal here
-   * includes * and 1 because analyzer converts * to string literal too.
-   * Value count aggregation on _index counts all docs, therefore it has same semantics as
-   * COUNT(*) or COUNT(1) in SQL language.
+   * Replace star or literal with Elasticsearch metadata field "_index". Because:
+   * 1) Analyzer already converts * to string literal, literal check here can handle
+   *    both COUNT(*) and COUNT(1).
+   * 2) Value count aggregation on _index counts all docs (after filter), therefore
+   *    it has same semantics as COUNT(*) or COUNT(1).
    * @param countArg count function argument
    * @return Reference to _index if literal, otherwise return original argument expression
    */
-  private Expression replaceLiteral(Expression countArg) {
+  private Expression replaceStarOrLiteral(Expression countArg) {
     if (countArg instanceof LiteralExpression) {
       return new ReferenceExpression("_index", INTEGER);
     }
