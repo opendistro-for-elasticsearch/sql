@@ -32,7 +32,7 @@ public class CassandraDataLoader implements DataLoader {
   @Override
   public void loadData(DataFormat data) throws Exception {
     if (!(data instanceof CassandraDataFormat)) {
-      throw new IllegalArgumentException("wrong data format for cassandra");
+      throw new IllegalArgumentException("Wrong data format for Cassandra.");
     }
   }
 }
