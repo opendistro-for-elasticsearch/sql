@@ -23,6 +23,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Buil
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.REGEXP;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CaseFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CountStarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.DateLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentsAsQualifiedNameContext;
@@ -49,6 +50,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
@@ -266,6 +268,21 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
         functionName.equals("<>") ? "!=" : functionName,
         Arrays.asList(visit(ctx.left), visit(ctx.right))
     );
+  }
+
+  @Override
+  public UnresolvedExpression visitCaseFunctionCall(CaseFunctionCallContext ctx) {
+    UnresolvedExpression caseValue = (ctx.expression() == null) ? null : visit(ctx.expression());
+    List<Pair<UnresolvedExpression, UnresolvedExpression>> whenStatements =
+        ctx.caseFuncAlternative()
+           .stream()
+           .map(when -> Pair.of(
+               visit(when.condition),
+               visit(when.consequent)))
+           .collect(Collectors.toList());
+    UnresolvedExpression elseStatement = (ctx.elseArg == null) ? null : visit(ctx.elseArg);
+
+    return new Case(caseValue, whenStatements, elseStatement);
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {

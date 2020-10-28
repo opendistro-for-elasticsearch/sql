@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -185,6 +186,35 @@ public class AstDSL {
 
   public static Function function(String funcName, UnresolvedExpression... funcArgs) {
     return new Function(funcName, Arrays.asList(funcArgs));
+  }
+
+  /**
+   * CASE
+   *     WHEN search_condition THEN statement_list
+   *     [WHEN search_condition THEN statement_list] ...
+   *     [ELSE statement_list]
+   * END CASE
+   */
+  @SafeVarargs
+  public UnresolvedExpression caseWhen(UnresolvedExpression elseStatement,
+                                       Pair<UnresolvedExpression, UnresolvedExpression>...
+                                           whenStatements) {
+    return caseWhen(null, elseStatement, whenStatements);
+  }
+
+  /**
+   * CASE case_value
+   *     WHEN when_value THEN statement_list
+   *     [WHEN when_value THEN statement_list] ...
+   *     [ELSE statement_list]
+   * END CASE
+   */
+  @SafeVarargs
+  public UnresolvedExpression caseWhen(UnresolvedExpression caseValueExpr,
+                                       UnresolvedExpression elseStatement,
+                                       Pair<UnresolvedExpression, UnresolvedExpression>...
+                                           whenStatements) {
+    return new Case(caseValueExpr, Arrays.asList(whenStatements), elseStatement);
   }
 
   public UnresolvedExpression window(Function function,

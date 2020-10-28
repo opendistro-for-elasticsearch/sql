@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
@@ -42,6 +43,7 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 class AstExpressionBuilderTest {
@@ -274,6 +276,29 @@ class AstExpressionBuilderTest {
             ImmutableList.of(qualifiedName("state")),
             ImmutableList.of()),
         buildExprAst("RANK() OVER (PARTITION BY state)"));
+  }
+
+  @Test
+  public void canBuildCaseStatementWithWhenConditions() {
+    assertEquals(
+        caseWhen(
+            stringLiteral("age2"),
+            Pair.of(
+                function(">", qualifiedName("age"), intLiteral(30)),
+                stringLiteral("age1"))),
+        buildExprAst("CASE WHEN age > 30 THEN 'age1' ELSE 'age2' END")
+    );
+  }
+
+  @Test
+  public void canBuildCaseStatementWithWhenValues() {
+    assertEquals(
+        caseWhen(
+            qualifiedName("age"),
+            stringLiteral("age2"),
+            Pair.of(intLiteral(30), stringLiteral("age1"))),
+        buildExprAst("CASE age WHEN 30 THEN 'age1' ELSE 'age2' END")
+    );
   }
 
   @Test
