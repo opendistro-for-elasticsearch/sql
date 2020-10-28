@@ -36,7 +36,7 @@ public class ElasticsearchDataLoader implements DataLoader {
   @Override
   public void loadData(final DataFormat data) throws Exception {
     if (!(data instanceof ElasticsearchDataFormat)) {
-      throw new IllegalArgumentException("wrong data format for elasticsearch");
+      throw new IllegalArgumentException("Wrong data format for Elasticsearch.");
     }
     String commands = "cd " + ((ElasticsearchDataFormat) data).getDataPath();
 
