@@ -21,6 +21,7 @@ cmake_minimum_required(VERSION 3.13)
 endif()
 
 project(global_make_list)
+set(CMAKE_CXX_STANDARD 11)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/modules/code-coverage.cmake")
 add_code_coverage_all_targets(EXCLUDE libraries aws-cpp-sdk googletest IntegrationTests)
