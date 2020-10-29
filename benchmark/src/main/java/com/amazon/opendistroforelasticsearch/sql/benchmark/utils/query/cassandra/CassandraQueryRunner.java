@@ -16,18 +16,34 @@
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.cassandra;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryRunner;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.Session;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 
 /**
  * Query runner for Cassandra databases.
  */
 public class CassandraQueryRunner extends QueryRunner {
+  private boolean queryWasSuccessful;
+  private static final String NODE = "127.0.0.1";
+  private Cluster cluster;
+  private Session session;
+  private String query;
 
   /**
    * Function to run queries against Cassandra database.
    */
   @Override
-  public void runQuery() throws Exception {
-
+  public void runQuery() {
+    try {
+      session.execute(query);
+    } catch (Exception e) {
+      queryWasSuccessful = false;
+    }
   }
 
   /**
@@ -36,8 +52,13 @@ public class CassandraQueryRunner extends QueryRunner {
    * @param query Query to run against Cassandra database.
    */
   @Override
-  public void prepareQueryRunner(String query) throws Exception {
-
+  public void prepareQueryRunner(String query) {
+    cluster = Cluster.builder()
+            .addContactPoint(NODE)
+            .build();
+    session = cluster.connect();
+    this.query = query;
+    queryWasSuccessful = true;
   }
 
   /**
@@ -45,6 +66,22 @@ public class CassandraQueryRunner extends QueryRunner {
    */
   @Override
   public void checkQueryExecutionStatus(String benchmarkPath) throws Exception {
+    session.close();
+    cluster.close();
 
+    if (queryWasSuccessful) {
+      return;
+    }
+
+    File benchmarkDirectory = new File(benchmarkPath);
+    if (benchmarkDirectory.exists() && benchmarkDirectory.isDirectory()) {
+      BufferedWriter bufferedWriter = new BufferedWriter(
+              new FileWriter(benchmarkPath + "/cassandra_failed_queries.txt", true));
+      bufferedWriter.write(query);
+      bufferedWriter.newLine();
+      bufferedWriter.close();
+    } else {
+      throw new FileNotFoundException("Invalid Directory");
+    }
   }
 }

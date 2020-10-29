@@ -104,7 +104,7 @@ public class ElasticsearchQueryRunner extends QueryRunner {
       File benchmarkDirectory = new File(benchmarkPath);
       if (benchmarkDirectory.exists() && benchmarkDirectory.isDirectory()) {
         BufferedWriter bufferedWriter = new BufferedWriter(
-            new FileWriter(benchmarkPath + "/failed_queries.txt", true));
+            new FileWriter(benchmarkPath + "/elasticsearch_failed_queries.txt", true));
         bufferedWriter.write(query);
         bufferedWriter.newLine();
         bufferedWriter.close();
