@@ -20,6 +20,7 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils;
  */
 public class BenchmarkConstants {
   public static final String ELASTICSEARCH = "elasticsearch";
+  public static final String CASSANDRA = "cassandra";
   public static final String MOCK1 = "mock1";
   public static final String MOCK2 = "mock2";
   public static final String MOCK3 = "mock3";
