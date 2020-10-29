@@ -54,10 +54,13 @@ public class ElasticsearchIndex implements Table {
           .put("text", ElasticsearchDataType.ES_TEXT)
           .put("text_keyword", ElasticsearchDataType.ES_TEXT_KEYWORD)
           .put("keyword", ExprCoreType.STRING)
+          .put("byte", ExprCoreType.BYTE)
+          .put("short", ExprCoreType.SHORT)
           .put("integer", ExprCoreType.INTEGER)
           .put("long", ExprCoreType.LONG)
           .put("float", ExprCoreType.FLOAT)
           .put("half_float", ExprCoreType.FLOAT)
+          .put("scaled_float", ExprCoreType.DOUBLE)
           .put("double", ExprCoreType.DOUBLE)
           .put("boolean", ExprCoreType.BOOLEAN)
           .put("nested", ExprCoreType.ARRAY)
@@ -65,6 +68,7 @@ public class ElasticsearchIndex implements Table {
           .put("date", ExprCoreType.TIMESTAMP)
           .put("ip", ElasticsearchDataType.ES_IP)
           .put("geo_point", ElasticsearchDataType.ES_GEO_POINT)
+          .put("binary", ElasticsearchDataType.ES_BINARY)
           .build();
 
   /** Elasticsearch client connection. */

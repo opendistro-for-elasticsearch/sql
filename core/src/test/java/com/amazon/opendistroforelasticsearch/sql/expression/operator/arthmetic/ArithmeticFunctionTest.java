@@ -27,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
@@ -56,10 +57,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 class ArithmeticFunctionTest extends ExpressionTestBase {
 
   private static Stream<Arguments> arithmeticFunctionArguments() {
-    List<ExprValue> numberOp1 = Arrays.asList(new ExprShortValue(3), new ExprIntegerValue(3),
-        new ExprLongValue(3L), new ExprFloatValue(3f), new ExprDoubleValue(3D));
+    List<ExprValue> numberOp1 = Arrays.asList(new ExprByteValue(3), new ExprShortValue(3),
+        new ExprIntegerValue(3), new ExprLongValue(3L), new ExprFloatValue(3f),
+        new ExprDoubleValue(3D));
     List<ExprValue> numberOp2 =
-        Arrays.asList(new ExprShortValue(2), new ExprIntegerValue(2), new ExprLongValue(3L),
+        Arrays.asList(new ExprByteValue(2), new ExprShortValue(2), new ExprIntegerValue(2),
+            new ExprLongValue(3L),
             new ExprFloatValue(2f), new ExprDoubleValue(2D));
     return Lists.cartesianProduct(numberOp1, numberOp2).stream()
         .map(list -> Arguments.of(list.get(0), list.get(1)));
@@ -209,6 +212,29 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
                                   ExprValue op2,
                                   ExprValue actual) {
     switch ((ExprCoreType) type) {
+      case BYTE:
+        Byte vb1 = op1.byteValue();
+        Byte vb2 = op2.byteValue();
+        Integer vbActual = actual.integerValue();
+        switch (builtinFunctionName) {
+          case ADD:
+            assertEquals(vb1 + vb2, vbActual);
+            return;
+          case SUBTRACT:
+            assertEquals(vb1 - vb2, vbActual);
+            return;
+          case DIVIDE:
+            assertEquals(vb1 / vb2, vbActual);
+            return;
+          case MULTIPLY:
+            assertEquals(vb1 * vb2, vbActual);
+            return;
+          case MODULES:
+            assertEquals(vb1 % vb2, vbActual);
+            return;
+          default:
+            throw new IllegalStateException("illegal function name: " + builtinFunctionName);
+        }
       case SHORT:
         Short vs1 = op1.shortValue();
         Short vs2 = op2.shortValue();

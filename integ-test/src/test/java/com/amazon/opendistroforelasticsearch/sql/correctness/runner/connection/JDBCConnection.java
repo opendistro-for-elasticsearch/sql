@@ -127,7 +127,8 @@ public class JDBCConnection implements DBConnection {
   public DBResult select(String query) {
     try (Statement stmt = connection.createStatement()) {
       ResultSet resultSet = stmt.executeQuery(query);
-      DBResult result = new DBResult(databaseName);
+      DBResult result = isOrderByQuery(query)
+          ? DBResult.resultInOrder(databaseName) : DBResult.result(databaseName);
       populateMetaData(resultSet, result);
       populateData(resultSet, result);
       return result;
@@ -198,6 +199,10 @@ public class JDBCConnection implements DBConnection {
       default:
         return esType;
     }
+  }
+
+  private boolean isOrderByQuery(String query) {
+    return query.trim().toUpperCase().contains("ORDER BY");
   }
 
   /**

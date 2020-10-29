@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Switch /> spec renders the component 1`] = `
+<div>
+  <fieldset
+    class="euiButtonGroup__fieldset"
+  >
+    <legend
+      class="euiScreenReaderOnly"
+    >
+      query-language-swtich
+    </legend>
+    <div
+      class="euiButtonGroup euiButtonGroup--m query-language-switch"
+    >
+      <div
+        class="euiToggle euiToggle--checked euiButtonToggle__wrapper euiButtonGroup__toggle"
+      >
+        <input
+          aria-label="SQL"
+          checked=""
+          class="euiToggle__input euiButtonToggle__input"
+          title="SQL"
+          type="radio"
+          value=""
+        />
+        <button
+          class="euiButton euiButton--text euiButtonToggle euiButtonGroup__button euiButtonGroup__button--selected euiButton--fill"
+          id="SQL"
+          tabindex="-1"
+          type="button"
+        >
+          <span
+            class="euiButtonContent euiButton__content"
+          >
+            <span
+              class="euiButton__text"
+            >
+              SQL
+            </span>
+          </span>
+        </button>
+      </div>
+      <div
+        class="euiToggle euiButtonToggle__wrapper euiButtonGroup__toggle"
+      >
+        <input
+          aria-label="PPL"
+          class="euiToggle__input euiButtonToggle__input"
+          title="PPL"
+          type="radio"
+          value=""
+        />
+        <button
+          class="euiButton euiButton--text euiButtonToggle euiButtonGroup__button"
+          id="PPL"
+          tabindex="-1"
+          type="button"
+        >
+          <span
+            class="euiButtonContent euiButton__content"
+          >
+            <span
+              class="euiButton__text"
+            >
+              PPL
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </fieldset>
+</div>
+`;

@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -44,6 +45,11 @@ class WideningTypeRuleTest {
   private static Table<ExprCoreType, ExprCoreType, Integer> numberWidenRule =
       new ImmutableTable.Builder<ExprCoreType, ExprCoreType,
           Integer>()
+          .put(BYTE, SHORT, 1)
+          .put(BYTE, INTEGER, 2)
+          .put(BYTE, LONG, 3)
+          .put(BYTE, FLOAT, 4)
+          .put(BYTE, DOUBLE, 5)
           .put(SHORT, INTEGER, 1)
           .put(SHORT, LONG, 2)
           .put(SHORT, FLOAT, 3)

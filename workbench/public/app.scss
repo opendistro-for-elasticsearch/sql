@@ -21,20 +21,8 @@
 }
 
 .sql-console-query-editor {
-  height: 280px;
-  max-height: 280px;
-  .container-panel {
-    border-radius: 0px;
-    box-shadow: none;
-  }
-  .sql-query-panel {
-    border-radius: 0px;
-    border-width: 1px;
-    box-shadow: none;
-  }
   .sql-query-panel-header {
-    padding: $euiSizeS;
-    background-color: $euiColorLightestShade;
+    margin-top: -10px;
   }
   .resize-panel {
     resize: vertical;
@@ -46,32 +34,22 @@
   }
 }
 
-.action-container {
-  padding: $euiSizeL;
-}
-
 .sql-console-query-result{
-  height: 577px;
+  .query-result-panel-header {
+    color: #3f3f3f;
+  }
   scroll-behavior: smooth;
-  .sql-console-results-container {
-    overflow: auto;
-  }
-  .query-result-container {
-    border: solid 1.5px #d9d9d9;
-    border-radius: 0px;
-    border-bottom-width: 0;
-  }
   .tabs-container {
     overflow: hidden;
     margin: 3px;
   }
   .table-name {
-    font-size: 20px;
-    padding: 20px;
+    color: #3f3f3f;
+    margin-bottom: 7px;
   }
-  .table-header {
-    /*border-top: solid 1px #d9d9d9;*/
-    background-color: #d9d9d9;
+  .table-item-count {
+    color: #8a9596;
+    font-weight: 370;
   }
   .sideNav-table {
     border: solid 1px rgb(217, 217, 217);
@@ -79,15 +57,15 @@
   }
   .search-panel {
     display: inline-flex;
-    width:100%;
-    padding:20px;
+    width: 70%;
   }
   .search-bar {
     width:80%;
   }
   .pagination-container {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    padding: 10px;
+    padding-top: 15px;
+    padding-bottom: 15px;
   }
 
   .tab-arrow-down-container {
@@ -97,21 +75,13 @@
     color: rgb(0, 121, 165);
   }
 
-  .download-container {
-    padding: $euiSizeM;
-    height: 56px;
-    vertical-align: middle;
-    border-width: 1px;
-    margin-bottom: 20px;
-  }
-
-  .download-button-container {
-    float:right;
-  }
-
   .toggleContainer {
     margin: 20px;
   }
+}
+
+.sql-console-results-container {
+  margin-top: -17px;
 }
 
 .expanded-row {

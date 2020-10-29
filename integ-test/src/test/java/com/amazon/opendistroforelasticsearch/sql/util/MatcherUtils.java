@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.hamcrest.Description;
@@ -45,6 +47,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MatcherUtils {
+
+  private static final Logger LOG = LogManager.getLogger();
 
   /**
    * Assert field value in object by a custom matcher and getter to access the field.
@@ -135,7 +139,12 @@ public class MatcherUtils {
 
   @SafeVarargs
   public static void verifySchema(JSONObject response, Matcher<JSONObject>... matchers) {
-    verify(response.getJSONArray("schema"), matchers);
+    try {
+      verify(response.getJSONArray("schema"), matchers);
+    } catch (Exception e) {
+      LOG.error(String.format("verify schema failed, response: %s", response.toString()), e);
+      throw e;
+    }
   }
 
   @SafeVarargs

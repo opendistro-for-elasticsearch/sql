@@ -126,3 +126,64 @@ The aggregation could has expression as arguments::
     | M        | 202    |
     +----------+--------+
 
+
+HAVING Clause
+=============
+
+Description
+-----------
+
+A ``HAVING`` clause can serve as aggregation filter that filters out aggregated values satisfy the condition expression given.
+
+HAVING with GROUP BY
+--------------------
+
+Aggregate expressions or its alias defined in ``SELECT`` clause can be used in ``HAVING`` condition.
+
+1. It's recommended to use non-aggregate expression in ``WHERE`` although it's allowed to do this in ``HAVING`` clause.
+2. The aggregation in ``HAVING`` clause is not necessarily same as that on select list. As extension to SQL standard, it's also not restricted to involve identifiers only on group by list.
+
+Here is an example for typical use of ``HAVING`` clause::
+
+    od> SELECT
+    ...  gender, sum(age)
+    ... FROM accounts
+    ... GROUP BY gender
+    ... HAVING sum(age) > 100;
+    fetched rows / total rows = 1/1
+    +----------+------------+
+    | gender   | sum(age)   |
+    |----------+------------|
+    | M        | 101        |
+    +----------+------------+
+
+Here is another example for using alias in ``HAVING`` condition. Note that if an identifier is ambiguous, for example present both as a select alias and an index field, preference is alias. This means the identifier will be replaced by expression aliased in ``SELECT`` clause::
+
+    od> SELECT
+    ...  gender, sum(age) AS s
+    ... FROM accounts
+    ... GROUP BY gender
+    ... HAVING s > 100;
+    fetched rows / total rows = 1/1
+    +----------+-----+
+    | gender   | s   |
+    |----------+-----|
+    | M        | 101 |
+    +----------+-----+
+
+HAVING without GROUP BY
+-----------------------
+
+Additionally, a ``HAVING`` clause can work without ``GROUP BY`` clause. This is useful because aggregation is not allowed to be present in ``WHERE`` clause::
+
+    od> SELECT
+    ...  'Total of age > 100'
+    ... FROM accounts
+    ... HAVING sum(age) > 100;
+    fetched rows / total rows = 1/1
+    +------------------------+
+    | 'Total of age > 100'   |
+    |------------------------|
+    | Total of age > 100     |
+    +------------------------+
+

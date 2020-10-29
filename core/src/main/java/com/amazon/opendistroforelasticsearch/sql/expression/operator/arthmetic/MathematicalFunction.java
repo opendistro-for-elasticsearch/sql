@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -22,6 +23,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
@@ -97,6 +99,9 @@ public class MathematicalFunction {
    */
   private static FunctionResolver abs() {
     return FunctionDSL.define(BuiltinFunctionName.ABS.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(v -> new ExprByteValue(Math.abs(v.byteValue()))),
+            BYTE, BYTE),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(v -> new ExprShortValue(Math.abs(v.shortValue()))),
             SHORT, SHORT),
@@ -286,6 +291,11 @@ public class MathematicalFunction {
    */
   private static FunctionResolver mod() {
     return FunctionDSL.define(BuiltinFunctionName.MOD.getName(),
+        FunctionDSL.impl(
+            FunctionDSL.nullMissingHandling(
+                (v1, v2) -> v2.byteValue() == 0 ? ExprNullValue.of() :
+                    new ExprByteValue(v1.byteValue() % v2.byteValue())),
+            BYTE, BYTE, BYTE),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
                 (v1, v2) -> v2.shortValue() == 0 ? ExprNullValue.of() :

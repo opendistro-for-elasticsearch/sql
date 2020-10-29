@@ -19,13 +19,16 @@ import {
   EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiOverlayMask,
+  EuiText,
+  EuiCodeEditor,
+  EuiSpacer,
+  EuiCodeBlock,
   EuiModal,
-  EuiModalHeader,
-  EuiModalHeaderTitle,
   EuiModalBody,
   EuiModalFooter,
-  EuiCodeBlock, EuiText, EuiCodeEditor
+  EuiModalHeader,
+  EuiModalHeaderTitle,
+  EuiOverlayMask,
 } from "@elastic/eui";
 import { ResponseDetail, TranslateResult } from '../Main/main';
 import _ from 'lodash';
@@ -71,7 +74,7 @@ export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
     if (this.state.isModalVisible) {
       modal = (
         <EuiOverlayMask onClick={closeModal}>
-          <EuiModal onClose={closeModal}>
+          <EuiModal onClose={closeModal} style={{ width: 800 }}>
             <EuiModalHeader>
               <EuiModalHeaderTitle>Explain</EuiModalHeaderTitle>
             </EuiModalHeader>
@@ -97,67 +100,57 @@ export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
     }
 
     return (
-      <EuiPanel className="ppl-query-editor container-panel"
-        paddingSize="none"
-      >
-        <div className="sql-console-query-editor">
-          <EuiPanel className="sql-query-editor container-panel"
-            paddingSize="none"
+      <EuiPanel className="sql-console-query-editor container-panel" paddingSize="l">
+        <EuiText className="sql-query-panel-header"><h3>Query editor</h3></EuiText>
+        <EuiSpacer size="s" />
+        <EuiCodeEditor
+          theme="sql_console"
+          width="100%"
+          height="5rem"
+          value={this.props.pplQuery}
+          onChange={this.props.updatePPLQueries}
+          showPrintMargin={false}
+          setOptions={{
+            fontSize: "14px",
+            showLineNumbers: false,
+            showGutter: false,
+          }}
+          aria-label="Code Editor"
+        />
+        <EuiSpacer />
+        <EuiFlexGroup className="action-container" gutterSize="m">
+          <EuiFlexItem className="sql-editor-buttons"
+            grow={false}
+            onClick={() => this.props.onRun(this.props.pplQuery)}
           >
-            <EuiText className="sql-query-panel-header">Query Editor</EuiText>
-            <EuiCodeEditor
-              mode="sql"
-              theme="sql_console"
-              width="100%"
-              height="15rem"
-              value={this.props.pplQuery}
-              onChange={this.props.updatePPLQueries}
-              showPrintMargin={false}
-              setOptions={{
-                fontSize: "12px",
-                enableBasicAutocompletion: true,
-                enableSnippets: true,
-                enableLiveAutocompletion: true
-              }}
-              aria-label="Code Editor"
-            />
-          </EuiPanel>
-        </div>
-        <div>
-          <EuiFlexGroup className="action-container" gutterSize="m">
-            <EuiFlexItem className="sql-editor-buttons"
-              grow={false}
-              onClick={() => this.props.onRun(this.props.pplQuery)}
-            >
-              <EuiButton fill={true} className="sql-editor-button" >
-                Run
-              </EuiButton>
-            </EuiFlexItem>
-            <EuiFlexItem
-              grow={false}
-              onClick={() => {
-                this.props.updatePPLQueries("");
-                this.props.onClear();
-              }}
-            >
-              <EuiButton className="sql-editor-button">
-                Clear
-              </EuiButton>
-            </EuiFlexItem>
-            <EuiFlexItem
-              grow={false}
-              onClick={() =>
-                this.props.onTranslate(this.props.pplQuery)
-              }
-            >
-              <EuiButton className="sql-editor-button" onClick={showModal}>
-                Explain
-              </EuiButton>
-              {modal}
-            </EuiFlexItem>
-          </EuiFlexGroup>
-        </div>
-      </EuiPanel>
+            <EuiButton fill={true} className="sql-editor-button" >
+              Run
+            </EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem
+            grow={false}
+            onClick={() => {
+              this.props.updatePPLQueries("");
+              this.props.onClear();
+            }}
+          >
+            <EuiButton className="sql-editor-button">
+              Clear
+            </EuiButton>
+          </EuiFlexItem>
+          <EuiFlexItem
+            grow={false}
+            onClick={() =>
+              this.props.onTranslate(this.props.pplQuery)
+            }
+          >
+            <EuiButton className="sql-editor-button" onClick={showModal}>
+              Explain
+            </EuiButton>
+            {modal}
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiPanel >
     )
   }
 }

@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.equalTo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JdbcTestIT extends SQLIntegTestCase {
@@ -117,6 +118,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
     );
   }
 
+  @Ignore("DATE_FORMAT function signature changed in new engine")
   @Test
   public void dateFunctionNameCaseInsensitiveTest() {
     assertTrue(
