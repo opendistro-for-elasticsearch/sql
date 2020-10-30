@@ -26,7 +26,7 @@ public class ElasticsearchTpchSchema {
     lineitemArgs.put("l_partkey", "integer");
     lineitemArgs.put("l_suppkey", "integer");
     lineitemArgs.put("l_linenumber", "integer");
-    lineitemArgs.put("l_quantity", "integer");
+    lineitemArgs.put("l_quantity", "double");
     lineitemArgs.put("l_extendedprice", "double");
     lineitemArgs.put("l_discount", "double");
     lineitemArgs.put("l_tax", "double");
