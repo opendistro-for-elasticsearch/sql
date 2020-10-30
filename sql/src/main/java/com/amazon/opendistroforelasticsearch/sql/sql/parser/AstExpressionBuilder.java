@@ -21,9 +21,9 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Buil
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.REGEXP;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CountStarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.DateLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentsAsQualifiedNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IsNullPredicateContext;
@@ -36,6 +36,7 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OverClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.RankingWindowFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.RegexpPredicateContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.RegularAggregateFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedDecimalContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedRealContext;
@@ -46,6 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
@@ -160,10 +162,16 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitAggregateFunction(AggregateFunctionContext ctx) {
+  public UnresolvedExpression visitRegularAggregateFunctionCall(
+      RegularAggregateFunctionCallContext ctx) {
     return new AggregateFunction(
         ctx.functionName.getText(),
         visitFunctionArg(ctx.functionArg()));
+  }
+
+  @Override
+  public UnresolvedExpression visitCountStarFunctionCall(CountStarFunctionCallContext ctx) {
+    return new AggregateFunction("COUNT", AllFields.of());
   }
 
   @Override

@@ -196,6 +196,23 @@ class AstBuilderTest {
   }
 
   @Test
+  public void can_build_count_star_and_count_literal() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(
+                    alias("COUNT(*)", aggregate("COUNT", AllFields.of())),
+                    alias("COUNT(1)", aggregate("COUNT", intLiteral(1)))),
+                emptyList(),
+                emptyList(),
+                emptyList()),
+            alias("COUNT(*)", aggregate("COUNT", AllFields.of())),
+            alias("COUNT(1)", aggregate("COUNT", intLiteral(1)))),
+        buildAST("SELECT COUNT(*), COUNT(1) FROM test"));
+  }
+
+  @Test
   public void can_build_group_by_field_name() {
     assertEquals(
         project(

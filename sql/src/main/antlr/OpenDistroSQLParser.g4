@@ -251,8 +251,8 @@ scalarFunctionName
     ;
 
 aggregateFunction
-    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET
-    /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
+    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET #regularAggregateFunctionCall
+    | COUNT LR_BRACKET STAR RR_BRACKET                                       #countStarFunctionCall
     ;
 
 aggregationFunctionName
