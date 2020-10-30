@@ -1,7 +1,0 @@
-tcphkeyspace
-customer
-lastname TEXT, firstname TEXT, myFloat FLOAT, myInt SMALLINT
-lastname, firstname, myFloat, myInt
-'lyndon', 'bauto', 1.234, 15
-'foo', 'bar', 12.34, 11
-'hello', 'world', 123.4, -1
