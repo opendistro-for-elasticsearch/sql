@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -166,6 +167,14 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   public Expression visitField(Field node, AnalysisContext context) {
     String attr = node.getField().toString();
     return visitIdentifier(attr, context);
+  }
+
+  @Override
+  public Expression visitAllFields(AllFields node, AnalysisContext context) {
+    // Convert to string literal for argument in COUNT(*), because there is no difference between
+    // COUNT(*) and COUNT(literal). For SELECT *, its select expression analyzer will expand * to
+    // the right field name list by itself.
+    return DSL.literal("*");
   }
 
   @Override
