@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
@@ -24,7 +25,12 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.sort;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.values;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.window;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
@@ -37,14 +43,18 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protecto
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ResourceMonitorPlan;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankFunction;
 import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
@@ -88,40 +98,51 @@ class ElasticsearchExecutionProtectorTest {
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
     ReferenceExpression topField = ref("name", STRING);
+    List<Expression> topExprs = Arrays.asList(ref("age", INTEGER));
     Expression filterExpr = literal(ExprBooleanValue.of(true));
-    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
-    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
+    Expression whileExpr = literal(ExprBooleanValue.of(true));
+    Boolean keepLast = false;
+    Integer headNumber = 5;
+    List<NamedExpression> groupByExprs = Arrays.asList(named("age", ref("age", INTEGER)));
+    List<NamedAggregator> aggregators =
+        Arrays.asList(named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)),
+            DOUBLE)));
     Map<ReferenceExpression, ReferenceExpression> mappings =
         ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
+        ImmutablePair.of(DEFAULT_ASC, ref("name1", STRING));
 
     assertEquals(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
                 PhysicalPlanDSL.rareTopN(
+                    resourceMonitor(
                     PhysicalPlanDSL.sort(
                         PhysicalPlanDSL.eval(
                             PhysicalPlanDSL.remove(
                                 PhysicalPlanDSL.rename(
                                     PhysicalPlanDSL.agg(
-                                        filter(
-                                            resourceMonitor(
+                                        PhysicalPlanDSL.head(
+                                            filter(
+                                                resourceMonitor(
                                                 new ElasticsearchIndexScan(
                                                     client, settings, indexName, exprValueFactory)),
-                                            filterExpr),
+                                                filterExpr),
+                                            keepLast,
+                                            whileExpr,
+                                            headNumber),
                                         aggregators,
                                         groupByExprs),
                                     mappings),
                                 exclude),
                             newEvalField),
                         sortCount,
-                        sortField),
+                        sortField)),
                     CommandType.TOP,
-                    groupByExprs,
+                    topExprs,
                     topField),
                 dedupeField),
             include),
@@ -134,10 +155,15 @@ class ElasticsearchExecutionProtectorTest {
                                 PhysicalPlanDSL.remove(
                                     PhysicalPlanDSL.rename(
                                         PhysicalPlanDSL.agg(
-                                            filter(
-                                                new ElasticsearchIndexScan(
-                                                    client, settings, indexName, exprValueFactory),
-                                                filterExpr),
+                                            PhysicalPlanDSL.head(
+                                                filter(
+                                                        new ElasticsearchIndexScan(
+                                                            client, settings, indexName,
+                                                            exprValueFactory),
+                                                    filterExpr),
+                                                keepLast,
+                                                whileExpr,
+                                                headNumber),
                                             aggregators,
                                             groupByExprs),
                                         mappings),
@@ -146,10 +172,39 @@ class ElasticsearchExecutionProtectorTest {
                             sortCount,
                             sortField),
                         CommandType.TOP,
-                        groupByExprs,
+                        topExprs,
                         topField),
                     dedupeField),
                 include)));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testProtectSortForWindowOperator() {
+    Expression rank = mock(RankFunction.class);
+    Pair<Sort.SortOption, Expression> sortItem =
+        ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER));
+    WindowDefinition windowDefinition =
+        new WindowDefinition(emptyList(), ImmutableList.of(sortItem));
+
+    assertEquals(
+        window(
+            resourceMonitor(
+                sort(
+                    values(emptyList()),
+                    0,
+                    sortItem)),
+            rank,
+            windowDefinition),
+        executionProtector.protect(
+            window(
+                sort(
+                    values(emptyList()),
+                    0,
+                    sortItem
+                ),
+                rank,
+                windowDefinition)));
   }
 
   @Test

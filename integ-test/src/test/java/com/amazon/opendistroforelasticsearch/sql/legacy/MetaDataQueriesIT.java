@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -297,6 +298,54 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
     assertThat(row.get(2), equalTo(TestsConstants.TEST_INDEX_ACCOUNT));
     assertThat(row.get(3), not(equalTo(JSONObject.NULL)));
     assertThat(row.get(5), not(equalTo(JSONObject.NULL)));
+  }
+
+  @Test
+  public void showSingleIndexAlias() throws IOException {
+    client().performRequest(new Request("PUT",
+        TestsConstants.TEST_INDEX_ACCOUNT + "/_alias/acc"));
+
+    JSONObject expected = executeQuery("SHOW TABLES LIKE " + TestsConstants.TEST_INDEX_ACCOUNT);
+    JSONObject actual = executeQuery("SHOW TABLES LIKE acc");
+
+    assertThat(getDataRows(actual).length(), equalTo(1));
+    assertTrue(StringUtils.format("Expected: %s, actual: %s", expected, actual),
+        expected.similar(actual));
+  }
+
+  @Test
+  public void describeSingleIndexAlias() throws IOException {
+    client().performRequest(new Request("PUT",
+        TestsConstants.TEST_INDEX_ACCOUNT + "/_alias/acc"));
+
+    JSONObject expected = executeQuery("DESCRIBE TABLES LIKE " + TestsConstants.TEST_INDEX_ACCOUNT);
+    JSONObject actual = executeQuery("DESCRIBE TABLES LIKE acc");
+
+    assertThat(getDataRows(actual).length(), greaterThan(0));
+    assertTrue(StringUtils.format("Expected: %s, actual: %s", expected, actual),
+        expected.similar(actual));
+  }
+
+  @Test
+  public void showSingleIndexNameWithDot() throws IOException {
+    Request request = new Request("POST", "/index.date1/_doc");
+    request.setJsonEntity("{ \"test\": 123 }");
+    client().performRequest(request);
+
+    JSONObject response = executeQuery("SHOW TABLES LIKE index.date1");
+    JSONArray dataRows = getDataRows(response);
+    assertThat(dataRows.length(), equalTo(1));
+  }
+
+  @Test
+  public void describeSingleIndexNameWithDot() throws IOException {
+    Request request = new Request("POST", "/index.date2/_doc");
+    request.setJsonEntity("{ \"test\": 123 }");
+    client().performRequest(request);
+
+    JSONObject response = executeQuery("DESCRIBE TABLES LIKE index.date2");
+    JSONArray dataRows = getDataRows(response);
+    assertThat(dataRows.length(), equalTo(1));
   }
 
   @Test

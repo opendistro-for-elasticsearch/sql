@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -39,7 +40,7 @@ public class ESConnection implements DBConnection {
   private final RestClient client;
 
   public ESConnection(String connectionUrl, RestClient client) {
-    this.connection = new JDBCConnection("Elasticsearch", connectionUrl);
+    this.connection = new JDBCConnection("Elasticsearch", connectionUrl, populateProperties());
     this.client = client;
   }
 
@@ -82,6 +83,20 @@ public class ESConnection implements DBConnection {
     // Only close database connection and leave ES REST connection alone
     // because it's initialized and manged by ES test base class.
     connection.close();
+  }
+
+  private Properties populateProperties() {
+    Properties properties = new Properties();
+    if (Boolean.parseBoolean(System.getProperty("https", "false"))) {
+      properties.put("useSSL", "true");
+    }
+    if (!System.getProperty("user", "").isEmpty()) {
+      properties.put("user", System.getProperty("user"));
+      properties.put("password", System.getProperty("password", ""));
+      properties.put("trustSelfSigned", "true");
+      properties.put("hostnameVerification", "false");
+    }
+    return properties;
   }
 
   private void performRequest(Request request) {

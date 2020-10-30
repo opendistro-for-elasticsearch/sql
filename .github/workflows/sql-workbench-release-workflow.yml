@@ -39,20 +39,20 @@ jobs:
       - name: Move Workbench to Plugins Dir
         run: |
           mkdir kibana/plugins
-          mv sql-workbench kibana/plugins
+          mv workbench kibana/plugins
 
       - name: Kibana Plugin Bootstrap
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 60
           max_attempts: 3
-          command: cd kibana/plugins/sql-workbench; yarn kbn bootstrap
+          command: cd kibana/plugins/workbench; yarn kbn bootstrap
 
       - name: Build Artifact
         run: |
-          cd kibana/plugins/sql-workbench
+          cd kibana/plugins/workbench
           yarn build
           artifact=`ls ./build/*.zip`
 
-          aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/kibana-plugins/opendistro-sql-workbench/
+          aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/kibana-plugins/opendistro-query-workbench/
           aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/downloads/*"

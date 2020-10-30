@@ -77,7 +77,7 @@ public class ShowResultSet extends ResultSet {
         String[] indices = ((GetIndexResponse) queryResult).getIndices();
 
         return Arrays.stream(indices)
-                .filter(index -> matchesPattern(index, indexPattern))
+                .filter(index -> matchesPatternIfRegex(index, indexPattern))
                 .collect(Collectors.toList());
     }
 

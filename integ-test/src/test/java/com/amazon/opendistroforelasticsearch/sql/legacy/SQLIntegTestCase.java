@@ -20,6 +20,8 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.createI
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getAccountIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getBankIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getBankWithNullValuesIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getDataTypeNonnumericIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getDataTypeNumericIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getDateIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getDateTimeIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getDeepNestedIndexMapping;
@@ -37,6 +39,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getOrde
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getPeople2IndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getPhraseIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResponseBody;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getStringIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getWeblogsIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.isIndexExist;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.loadDataByRestClient;
@@ -491,6 +494,10 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
         "account_null",
         getBankWithNullValuesIndexMapping(),
         "src/test/resources/bank_with_null_values.json"),
+    BANK_WITH_STRING_VALUES(TestsConstants.TEST_INDEX_STRINGS,
+        "strings",
+        getStringIndexMapping(),
+        "src/test/resources/strings.json"),
     ORDER(TestsConstants.TEST_INDEX_ORDER,
         "_doc",
         getOrderIndexMapping(),
@@ -514,7 +521,15 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     DEEP_NESTED(TestsConstants.TEST_INDEX_DEEP_NESTED,
         "_doc",
         getDeepNestedIndexMapping(),
-        "src/test/resources/deep_nested_index_data.json");
+        "src/test/resources/deep_nested_index_data.json"),
+    DATA_TYPE_NUMERIC(TestsConstants.TEST_INDEX_DATATYPE_NUMERIC,
+        "_doc",
+        getDataTypeNumericIndexMapping(),
+        "src/test/resources/datatypes_numeric.json"),
+    DATA_TYPE_NONNUMERIC(TestsConstants.TEST_INDEX_DATATYPE_NONNUMERIC,
+        "_doc",
+        getDataTypeNonnumericIndexMapping(),
+        "src/test/resources/datatypes.json");
 
     private final String name;
     private final String type;

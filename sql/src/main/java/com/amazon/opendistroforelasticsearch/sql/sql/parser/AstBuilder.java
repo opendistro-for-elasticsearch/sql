@@ -17,9 +17,11 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.HavingClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WhereClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 import static java.util.Collections.emptyList;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
@@ -38,8 +40,6 @@ import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.ParsingConte
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
@@ -62,13 +62,13 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   private final String query;
 
   @Override
-  public UnresolvedPlan visitQuerySpecification(QuerySpecificationContext query) {
+  public UnresolvedPlan visitQuerySpecification(QuerySpecificationContext queryContext) {
     context.push();
-    context.peek().collect(query);
+    context.peek().collect(queryContext, query);
 
-    Project project = (Project) visit(query.selectClause());
+    Project project = (Project) visit(queryContext.selectClause());
 
-    if (query.fromClause() == null) {
+    if (queryContext.fromClause() == null) {
       Optional<UnresolvedExpression> allFields =
           project.getProjectList().stream().filter(node -> node instanceof AllFields)
               .findFirst();
@@ -82,7 +82,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       return project.attach(emptyValue);
     }
 
-    UnresolvedPlan result = project.attach(visit(query.fromClause()));
+    UnresolvedPlan result = project.attach(visit(queryContext.fromClause()));
     context.pop();
     return result;
   }
@@ -116,12 +116,26 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       result = aggregation.attach(result);
     }
 
+    if (ctx.havingClause() != null) {
+      result = visit(ctx.havingClause()).attach(result);
+    }
+
+    if (ctx.orderByClause() != null) {
+      AstSortBuilder sortBuilder = new AstSortBuilder(context.peek());
+      result = sortBuilder.visit(ctx.orderByClause()).attach(result);
+    }
     return result;
   }
 
   @Override
   public UnresolvedPlan visitWhereClause(WhereClauseContext ctx) {
     return new Filter(visitAstExpression(ctx.expression()));
+  }
+
+  @Override
+  public UnresolvedPlan visitHavingClause(HavingClauseContext ctx) {
+    AstHavingFilterBuilder builder = new AstHavingFilterBuilder(context.peek());
+    return new Filter(builder.visit(ctx.expression()));
   }
 
   @Override
@@ -134,7 +148,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   }
 
   private UnresolvedExpression visitSelectItem(SelectElementContext ctx) {
-    String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx.expression()));
+    String name = StringUtils.unquoteIdentifier(getTextInQuery(ctx.expression(), query));
     UnresolvedExpression expr = visitAstExpression(ctx.expression());
 
     if (ctx.alias() == null) {
@@ -143,15 +157,6 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       String alias = StringUtils.unquoteIdentifier(ctx.alias().getText());
       return new Alias(name, expr, alias);
     }
-  }
-
-  /**
-   * Get original text in query.
-   */
-  private String getTextInQuery(ParserRuleContext ctx) {
-    Token start = ctx.getStart();
-    Token stop = ctx.getStop();
-    return query.substring(start.getStartIndex(), stop.getStopIndex() + 1);
   }
 
 }

@@ -44,6 +44,14 @@ public class ExprValueUtils {
     return value ? LITERAL_TRUE : LITERAL_FALSE;
   }
 
+  public static ExprValue byteValue(Byte value) {
+    return new ExprByteValue(value);
+  }
+
+  public static ExprValue shortValue(Short value) {
+    return new ExprShortValue(value);
+  }
+
   public static ExprValue integerValue(Integer value) {
     return new ExprIntegerValue(value);
   }
@@ -105,6 +113,10 @@ public class ExprValueUtils {
       return tupleValue((Map) o);
     } else if (o instanceof List) {
       return collectionValue(((List) o));
+    } else if (o instanceof Byte) {
+      return byteValue((Byte) o);
+    } else if (o instanceof Short) {
+      return shortValue((Short) o);
     } else if (o instanceof Integer) {
       return integerValue((Integer) o);
     } else if (o instanceof Long) {

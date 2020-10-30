@@ -1,0 +1,7 @@
+SELECT COUNT(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT AVG(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT SUM(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT MAX(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT MAX(timestamp) FROM kibana_sample_data_flights
+SELECT MIN(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT MIN(timestamp) FROM kibana_sample_data_flights

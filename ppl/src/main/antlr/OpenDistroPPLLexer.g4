@@ -28,6 +28,7 @@ STATS:                              'STATS';
 DEDUP:                              'DEDUP';
 SORT:                               'SORT';
 EVAL:                               'EVAL';
+HEAD:                               'HEAD';
 TOP:                                'TOP';
 RARE:                               'RARE';
 
@@ -50,11 +51,13 @@ NUM:                                'NUM';
 
 // ARGUMENT KEYWORDS
 KEEPEMPTY:                          'KEEPEMPTY';
+KEEPLAST:                           'KEEPLAST';
 CONSECUTIVE:                        'CONSECUTIVE';
 DEDUP_SPLITVALUES:                  'DEDUP_SPLITVALUES';
 PARTITIONS:                         'PARTITIONS';
 ALLNUM:                             'ALLNUM';
 DELIM:                              'DELIM';
+WHILE:                              'WHILE';
 
 // COMPARISON FUNCTION KEYWORDS
 CASE:                               'CASE';
@@ -68,6 +71,7 @@ XOR:                                'XOR';
 TRUE:                               'TRUE';
 FALSE:                              'FALSE';
 LIKE:                               'LIKE';
+REGEXP:                             'REGEXP';
 
 // DATETIME, INTERVAL AND UNIT KEYWORDS
 DATETIME:                           'DATETIME';
@@ -195,9 +199,36 @@ SIN:                                'SIN';
 TAN:                                'TAN';
 
 // DATE AND TIME FUNCTIONS
+ADDDATE:                            'ADDDATE';
 DATE:                               'DATE';
+DATE_ADD:                           'DATE_ADD';
+DATE_SUB:                           'DATE_SUB';
+DAYOFMONTH:                         'DAYOFMONTH';
+DAYOFWEEK:                          'DAYOFWEEK';
+DAYOFYEAR:                          'DAYOFYEAR';
+DAYNAME:                            'DAYNAME';
+FROM_DAYS:                          'FROM_DAYS';
+MONTHNAME:                          'MONTHNAME';
+SUBDATE:                            'SUBDATE';
 TIME:                               'TIME';
+TIME_TO_SEC:                        'TIME_TO_SEC';
 TIMESTAMP:                          'TIMESTAMP';
+DATE_FORMAT:                        'DATE_FORMAT';
+TO_DAYS:                            'TO_DAYS';
+
+// TEXT FUNCTIONS
+SUBSTR:                             'SUBSTR';
+SUBSTRING:                          'SUBSTRING';
+LTRIM:                              'LTRIM';
+RTRIM:                              'RTRIM';
+TRIM:                               'TRIM';
+TO:                                 'TO';
+LOWER:                              'LOWER';
+UPPER:                              'UPPER';
+CONCAT:                             'CONCAT';
+CONCAT_WS:                          'CONCAT_WS';
+LENGTH:                             'LENGTH';
+STRCMP:                             'STRCMP';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;

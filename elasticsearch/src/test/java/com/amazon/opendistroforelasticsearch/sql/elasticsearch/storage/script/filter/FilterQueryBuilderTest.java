@@ -21,12 +21,11 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -34,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -60,7 +60,7 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_build_term_query_for_equality_expression() {
-    assertEquals(
+    assertJsonEquals(
         "{\n"
             + "  \"term\" : {\n"
             + "    \"name\" : {\n"
@@ -84,7 +84,7 @@ class FilterQueryBuilderTest {
         dsl.gte(params), new Object[]{30, null, true, true});
 
     ranges.forEach((expr, range) ->
-        assertEquals(
+        assertJsonEquals(
             "{\n"
                 + "  \"range\" : {\n"
                 + "    \"age\" : {\n"
@@ -101,7 +101,7 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_build_wildcard_query_for_like_expression() {
-    assertEquals(
+    assertJsonEquals(
         "{\n"
             + "  \"wildcard\" : {\n"
             + "    \"name\" : {\n"
@@ -116,13 +116,26 @@ class FilterQueryBuilderTest {
   }
 
   @Test
-  void should_build_script_query_for_function_expression() {
-    doAnswer(invocation -> {
-      Expression expr = invocation.getArgument(0);
-      return expr.toString();
-    }).when(serializer).serialize(any());
+  void should_build_script_query_for_unsupported_lucene_query() {
+    mockToStringSerializer();
+    assertJsonEquals(
+        "{\n"
+            + "  \"script\" : {\n"
+            + "    \"script\" : {\n"
+            + "      \"source\" : \"is not null(age)\",\n"
+            + "      \"lang\" : \"opendistro_expression\"\n"
+            + "    },\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            dsl.isnotnull(ref("age", INTEGER))));
+  }
 
-    assertEquals(
+  @Test
+  void should_build_script_query_for_function_expression() {
+    mockToStringSerializer();
+    assertJsonEquals(
         "{\n"
             + "  \"script\" : {\n"
             + "    \"script\" : {\n"
@@ -139,12 +152,8 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_build_script_query_for_comparison_between_fields() {
-    doAnswer(invocation -> {
-      Expression expr = invocation.getArgument(0);
-      return expr.toString();
-    }).when(serializer).serialize(any());
-
-    assertEquals(
+    mockToStringSerializer();
+    assertJsonEquals(
         "{\n"
             + "  \"script\" : {\n"
             + "    \"script\" : {\n"
@@ -170,7 +179,7 @@ class FilterQueryBuilderTest {
     };
 
     for (int i = 0; i < names.length; i++) {
-      assertEquals(
+      assertJsonEquals(
           "{\n"
               + "  \"bool\" : {\n"
               + "    \"" + names[i] + "\" : [\n"
@@ -201,7 +210,7 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_build_bool_query_for_not_expression() {
-    assertEquals(
+    assertJsonEquals(
         "{\n"
             + "  \"bool\" : {\n"
             + "    \"must_not\" : [\n"
@@ -226,7 +235,7 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_use_keyword_for_multi_field_in_equality_expression() {
-    assertEquals(
+    assertJsonEquals(
         "{\n"
             + "  \"term\" : {\n"
             + "    \"name.keyword\" : {\n"
@@ -242,7 +251,7 @@ class FilterQueryBuilderTest {
 
   @Test
   void should_use_keyword_for_multi_field_in_like_expression() {
-    assertEquals(
+    assertJsonEquals(
         "{\n"
             + "  \"wildcard\" : {\n"
             + "    \"name.keyword\" : {\n"
@@ -256,8 +265,20 @@ class FilterQueryBuilderTest {
                 ref("name", ES_TEXT_KEYWORD), literal("John%"))));
   }
 
+  private static void assertJsonEquals(String expected, String actual) {
+    assertTrue(new JSONObject(expected).similar(new JSONObject(actual)),
+        StringUtils.format("Expected: %s, actual: %s", expected, actual));
+  }
+
   private String buildQuery(Expression expr) {
     return filterQueryBuilder.build(expr).toString();
+  }
+
+  private void mockToStringSerializer() {
+    doAnswer(invocation -> {
+      Expression expr = invocation.getArgument(0);
+      return expr.toString();
+    }).when(serializer).serialize(any());
   }
 
 }

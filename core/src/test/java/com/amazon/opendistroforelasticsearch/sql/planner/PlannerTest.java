@@ -19,7 +19,9 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.D
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
@@ -31,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
+import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -57,6 +60,9 @@ public class PlannerTest extends PhysicalPlanTestBase {
   @Mock
   private StorageEngine storageEngine;
 
+  @Mock
+  private LogicalPlanOptimizer optimizer;
+
   @BeforeEach
   public void setUp() {
     when(storageEngine.getTable(any())).thenReturn(new MockTable());
@@ -64,6 +70,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
 
   @Test
   public void planner_test() {
+    doAnswer(returnsFirstArg()).when(optimizer).optimize(any());
     assertPhysicalPlan(
         PhysicalPlanDSL.rename(
             PhysicalPlanDSL.agg(
@@ -71,7 +78,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
                     scan,
                     dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))
                 ),
-                ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
+                ImmutableList.of(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
                 ImmutableList.of()
             ),
             ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))
@@ -82,7 +89,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
                     LogicalPlanDSL.relation("schema"),
                     dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))
                 ),
-                ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
+                ImmutableList.of(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
                 ImmutableList.of()
             ),
             ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))
@@ -116,7 +123,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
   }
 
   protected PhysicalPlan analyze(LogicalPlan logicalPlan) {
-    return new Planner(storageEngine).plan(logicalPlan);
+    return new Planner(storageEngine, optimizer).plan(logicalPlan);
   }
 
   protected class MockTable extends LogicalPlanNodeVisitor<PhysicalPlan, Object> implements Table {

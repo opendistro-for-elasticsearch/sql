@@ -16,14 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -60,11 +59,19 @@ public class DBResult {
   private final Collection<Row> dataRows;
 
   /**
-   * By default treat both columns and data rows in order. This makes sense for typical query
-   * with specific column names in SELECT but without ORDER BY.
+   * In theory, a result set is a multi-set (bag) that allows duplicate and doesn't
+   * have order.
    */
-  public DBResult(String databaseName) {
-    this(databaseName, new ArrayList<>(), new HashSet<>());
+  public static DBResult result(String databaseName) {
+    return new DBResult(databaseName, new ArrayList<>(), HashMultiset.create());
+  }
+
+  /**
+   * But for queries with ORDER BY clause, we want to preserve the original order of data rows
+   * so we can check if the order is correct.
+   */
+  public static DBResult resultInOrder(String databaseName) {
+    return new DBResult(databaseName, new ArrayList<>(), new ArrayList<>());
   }
 
   public DBResult(String databaseName, Collection<Type> schema, Collection<Row> rows) {
@@ -97,10 +104,13 @@ public class DBResult {
   }
 
   /**
-   * Flatten for simplifying json generated
+   * Flatten for simplifying json generated.
    */
   public Collection<Collection<Object>> getDataRows() {
-    return dataRows.stream().map(Row::getValues).collect(Collectors.toSet());
+    Collection<Collection<Object>> values = isDataRowOrdered()
+        ? new ArrayList<>() : HashMultiset.create();
+    dataRows.stream().map(Row::getValues).forEach(values::add);
+    return values;
   }
 
   /**
@@ -124,6 +134,9 @@ public class DBResult {
   }
 
   private String diffDataRows(DBResult other) {
+    if (isDataRowOrdered()) {
+      return diff("Data row", (List<?>) dataRows, (List<?>) other.dataRows);
+    }
     List<Row> thisRows = sort(dataRows);
     List<Row> otherRows = sort(other.dataRows);
     return diff("Data row", thisRows, otherRows);
@@ -158,6 +171,14 @@ public class DBResult {
       }
     }
     return -1;
+  }
+
+  /**
+   * Is data row a list that represent original order of data set
+   * which doesn't/shouldn't sort again.
+   */
+  private boolean isDataRowOrdered() {
+    return (dataRows instanceof List);
   }
 
   /**

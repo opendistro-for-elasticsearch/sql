@@ -43,11 +43,19 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
     return visitNode(plan, context);
   }
 
+  public R visitHead(LogicalHead plan, C context) {
+    return visitNode(plan, context);
+  }
+
   public R visitRename(LogicalRename plan, C context) {
     return visitNode(plan, context);
   }
 
   public R visitProject(LogicalProject plan, C context) {
+    return visitNode(plan, context);
+  }
+
+  public R visitWindow(LogicalWindow plan, C context) {
     return visitNode(plan, context);
   }
 
@@ -71,4 +79,11 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
     return visitNode(plan, context);
   }
 
+  public R visitIndexScan(LogicalIndexScan plan, C context) {
+    return visitNode(plan, context);
+  }
+
+  public R visitIndexScanAggregation(LogicalIndexScanAggregation plan, C context) {
+    return visitNode(plan, context);
+  }
 }

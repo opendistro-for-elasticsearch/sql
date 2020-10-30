@@ -1,0 +1,2 @@
+{"index":{"_id":"1"}}
+{"long_number": 1, "integer_number": 2, "short_number": 3, "byte_number": 4, "double_number": 5.1, "float_number": 6.2, "half_float_number": 7.3, "scaled_float_number": 8.4}

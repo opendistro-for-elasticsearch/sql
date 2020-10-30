@@ -39,6 +39,15 @@ public class SQLQueryRequestTest {
   }
 
   @Test
+  public void shouldSupportQueryWithQueryFieldOnly() {
+    SQLQueryRequest request =
+        SQLQueryRequestBuilder.request("SELECT 1")
+                              .jsonContent("{\"query\": \"SELECT 1\"}")
+                              .build();
+    assertTrue(request.isSupported());
+  }
+
+  @Test
   public void shouldSupportQueryWithZeroFetchSize() {
     SQLQueryRequest request =
         SQLQueryRequestBuilder.request("SELECT 1")
@@ -48,12 +57,13 @@ public class SQLQueryRequestTest {
   }
 
   @Test
-  public void shouldNotSupportExplain() {
+  public void shouldSupportExplain() {
     SQLQueryRequest explainRequest =
         SQLQueryRequestBuilder.request("SELECT 1")
                               .path("_opendistro/_sql/_explain")
                               .build();
-    assertFalse(explainRequest.isSupported());
+    assertTrue(explainRequest.isExplainRequest());
+    assertTrue(explainRequest.isSupported());
   }
 
   @Test

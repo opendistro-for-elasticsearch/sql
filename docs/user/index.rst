@@ -35,6 +35,10 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `SQL Functions <dql/functions.rst>`_
 
+  - `SQL Aggregations <dql/aggregations.rst>`_
+
+  - `Window Functions <dql/window.rst>`_
+
 * **Data Manipulation Language**
 
   - `DELETE Statement <dml/delete.rst>`_

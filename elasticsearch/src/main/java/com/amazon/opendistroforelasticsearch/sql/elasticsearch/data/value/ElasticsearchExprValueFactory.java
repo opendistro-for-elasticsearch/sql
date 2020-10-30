@@ -20,13 +20,16 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_BINARY;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_GEO_POINT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_IP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
@@ -35,11 +38,13 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
@@ -56,14 +61,17 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
 import org.elasticsearch.common.time.DateFormatters;
 
 /** Construct ExprValue from Elasticsearch response. */
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ElasticsearchExprValueFactory {
   /** The Mapping of Field and ExprType. */
-  private final Map<String, ExprType> typeMapping;
+  @Setter
+  private Map<String, ExprType> typeMapping;
 
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
@@ -100,6 +108,10 @@ public class ElasticsearchExprValueFactory {
       return constructInteger(value.intValue());
     } else if (type.equals(LONG)) {
       return constructLong(value.longValue());
+    } else if (type.equals(SHORT)) {
+      return constructShort(value.shortValue());
+    } else if (type.equals(BYTE)) {
+      return constructByte(((byte)value.shortValue()));
     } else if (type.equals(FLOAT)) {
       return constructFloat(value.floatValue());
     } else if (type.equals(DOUBLE)) {
@@ -127,6 +139,8 @@ public class ElasticsearchExprValueFactory {
     } else if (type.equals(ES_GEO_POINT)) {
       return new ElasticsearchExprGeoPointValue(value.get("lat").doubleValue(),
           value.get("lon").doubleValue());
+    } else if (type.equals(ES_BINARY)) {
+      return new ElasticsearchExprBinaryValue(value.textValue());
     } else {
       throw new IllegalStateException(
           String.format(
@@ -150,20 +164,20 @@ public class ElasticsearchExprValueFactory {
 
     ExprType type = type(field);
     if (type.equals(INTEGER)) {
-      return constructInteger((Integer) value);
+      return constructInteger(parseNumberValue(value, Integer::valueOf, Number::intValue));
     } else if (type.equals(LONG)) {
-      return constructLong((Long) value);
+      return constructLong(parseNumberValue(value, Long::valueOf, Number::longValue));
     } else if (type.equals(FLOAT)) {
-      return constructFloat((Float) value);
+      return constructFloat(parseNumberValue(value, Float::valueOf, Number::floatValue));
     } else if (type.equals(DOUBLE)) {
-      return constructDouble((Double) value);
+      return constructDouble(parseNumberValue(value, Double::valueOf, Number::doubleValue));
     } else if (type.equals(STRING)) {
       return constructString((String) value);
     } else if (type.equals(BOOLEAN)) {
       return constructBoolean((Boolean) value);
     } else if (type.equals(TIMESTAMP)) {
       if (value instanceof Number) {
-        return constructTimestamp((Long) value);
+        return constructTimestamp(((Number) value).longValue());
       } else if (value instanceof Instant) {
         return constructTimestamp((Instant) value);
       } else {
@@ -177,6 +191,18 @@ public class ElasticsearchExprValueFactory {
       throw new IllegalStateException(String.format(
           "Unsupported type %s to construct expression value from object for "
               + "field: %s, value: %s.", type.typeName(), field, value));
+    }
+  }
+
+  /**
+   * Elastisearch could return value String value even the type is Number.
+   */
+  private <T> T parseNumberValue(Object value, Function<String, T> stringTFunction,
+                                 Function<Number, T> numberTFunction) {
+    if (value instanceof String) {
+      return stringTFunction.apply((String) value);
+    } else {
+      return numberTFunction.apply((Number) value);
     }
   }
 
@@ -194,6 +220,14 @@ public class ElasticsearchExprValueFactory {
 
   private ExprLongValue constructLong(Long value) {
     return new ExprLongValue(value);
+  }
+
+  private ExprShortValue constructShort(Short value) {
+    return new ExprShortValue(value);
+  }
+
+  private ExprByteValue constructByte(Byte value) {
+    return new ExprByteValue(value);
   }
 
   private ExprFloatValue constructFloat(Float value) {

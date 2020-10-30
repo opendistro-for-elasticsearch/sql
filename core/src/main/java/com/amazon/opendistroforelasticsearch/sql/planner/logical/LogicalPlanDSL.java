@@ -21,7 +21,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class LogicalPlanDSL {
 
   public static LogicalPlan aggregation(
-      LogicalPlan input, List<Aggregator> aggregatorList, List<Expression> groupByList) {
+      LogicalPlan input, List<NamedAggregator> aggregatorList, List<NamedExpression> groupByList) {
     return new LogicalAggregation(input, aggregatorList, groupByList);
   }
 
@@ -55,6 +56,12 @@ public class LogicalPlanDSL {
 
   public static LogicalPlan project(LogicalPlan input, NamedExpression... fields) {
     return new LogicalProject(input, Arrays.asList(fields));
+  }
+
+  public LogicalPlan window(LogicalPlan input,
+                            Expression windowFunction,
+                            WindowDefinition windowDefinition) {
+    return new LogicalWindow(input, windowFunction, windowDefinition);
   }
 
   public static LogicalPlan remove(LogicalPlan input, ReferenceExpression... fields) {
@@ -85,6 +92,11 @@ public class LogicalPlanDSL {
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
   }
 
+  public static LogicalPlan head(
+      LogicalPlan input, boolean keeplast, Expression whileExpr, int number) {
+    return new LogicalHead(input, keeplast, whileExpr, number);
+  }
+  
   public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType,
       List<Expression> groupByList, Expression... fields) {
     return rareTopN(input, commandType, 10, groupByList, fields);
@@ -93,6 +105,22 @@ public class LogicalPlanDSL {
   public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType, int noOfResults,
       List<Expression> groupByList, Expression... fields) {
     return new LogicalRareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupByList);
+  }
+
+  public static LogicalPlan indexScan(String tableName, Expression filter) {
+    return new LogicalIndexScan(tableName, filter);
+  }
+
+  public static LogicalPlan indexScanAgg(String tableName, List<NamedAggregator> aggregators,
+                                         List<NamedExpression> groupByList) {
+    return new LogicalIndexScanAggregation(tableName, aggregators, groupByList);
+  }
+
+  public static LogicalPlan indexScanAgg(String tableName,
+                                         Expression filter,
+                                         List<NamedAggregator> aggregators,
+                                         List<NamedExpression> groupByList) {
+    return new LogicalIndexScanAggregation(tableName, filter, aggregators, groupByList);
   }
 
   @SafeVarargs

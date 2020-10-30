@@ -929,6 +929,30 @@ Result set:
 | Quility|
 +--------+
 
+Example 3: Ordering by Aggregate Functions
+------------------------------------------
+
+Aggregate functions are allowed to be used in ``ORDER BY`` clause. You can reference it by same function call or its alias or ordinal in select list::
+
+    od> SELECT gender, MAX(age) FROM accounts GROUP BY gender ORDER BY MAX(age) DESC;
+    fetched rows / total rows = 2/2
+    +----------+------------+
+    | gender   | MAX(age)   |
+    |----------+------------|
+    | M        | 36         |
+    | F        | 28         |
+    +----------+------------+
+
+Even if it's not present in ``SELECT`` clause, it can be also used as follows::
+
+    od> SELECT gender, MIN(age) FROM accounts GROUP BY gender ORDER BY MAX(age) DESC;
+    fetched rows / total rows = 2/2
+    +----------+------------+
+    | gender   | MIN(age)   |
+    |----------+------------|
+    | M        | 32         |
+    | F        | 28         |
+    +----------+------------+
 
 LIMIT
 =====

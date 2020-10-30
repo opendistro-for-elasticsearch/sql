@@ -1,0 +1,7 @@
+{
+  "types": ["elasticsearch"],
+  "outputFile": "index.html",
+  "benchmarkPath": "",
+  "scaleFactors": [0.1],
+  "systemPassword": "password"
+}
