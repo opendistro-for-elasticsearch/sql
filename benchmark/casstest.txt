@@ -1,6 +1,6 @@
 tcphkeyspace
-customer
-lastname TEXT, firstname TEXT, myFloat FLOAT, myInt SMALLINT
+test
+lastname TEXT PRIMARY KEY, firstname TEXT, myFloat FLOAT, myInt SMALLINT
 lastname, firstname, myFloat, myInt
 'lyndon', 'bauto', 1.234, 15
 'foo', 'bar', 12.34, 11

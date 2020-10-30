@@ -62,28 +62,28 @@ public class CassandraDataLoader implements DataLoader {
     return list;
   }
 
-  private void prepareTable(final String keyspace, final String table, final String format) {
+  private void prepareTable(
+      final String keyspace, final String table, final String format) {
     final String createKeyspace = String.format("CREATE KEYSPACE IF NOT EXISTS %s "
             + "WITH REPLICATION = "
             + "{ 'class' : 'SimpleStrategy', 'replication_factor' : 1 };", keyspace);
     final String createTable = String.format("CREATE TABLE IF NOT EXISTS %s.%s "
-            + "(id UUID PRIMARY KEY, %s);", keyspace, table, format);
+            + "(%s);", keyspace, table, format);
     session.execute(createKeyspace);
     session.execute(createTable);
   }
 
   private String getFormattedInsert(
       final String keyspace, final String table, final String format) {
-    String stringFormat = String.format(" INSERT INTO %s.%s (id, %s)", keyspace, table, format);
-    stringFormat += " VALUES (%s, %s);";
+    String stringFormat = String.format(" INSERT INTO %s.%s (%s)", keyspace, table, format);
+    stringFormat += " VALUES (%s);";
     return stringFormat;
   }
 
   private ResultSetFuture uploadBatch(String uploadFormat, List<String> dataUploads) {
     final StringBuilder uploadData = new StringBuilder();
     uploadData.append("BEGIN BATCH");
-    dataUploads.forEach(d -> uploadData.append(
-        String.format(uploadFormat, UUID.randomUUID().toString(), d)));
+    dataUploads.forEach(d -> uploadData.append(String.format(uploadFormat, d)));
     uploadData.append(" APPLY BATCH");
     return session.executeAsync(uploadData.toString());
   }
@@ -157,6 +157,7 @@ public class CassandraDataLoader implements DataLoader {
         Thread.sleep(THREAD_PAUSE_TIME_MILLISECONDS);
       }
     }
+
     cluster.close();
     session.close();
   }
