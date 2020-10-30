@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.dsl;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -107,6 +108,38 @@ class MetricAggregationBuilderTest {
             Arrays.asList(
                 named("count(age)",
                     new CountAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)))));
+  }
+
+  @Test
+  void should_build_count_star_aggregation() {
+    assertEquals(
+        "{\n"
+            + "  \"count(*)\" : {\n"
+            + "    \"value_count\" : {\n"
+            + "      \"field\" : \"_index\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("count(*)",
+                    new CountAggregator(Arrays.asList(literal("*")), INTEGER)))));
+  }
+
+  @Test
+  void should_build_count_other_literal_aggregation() {
+    assertEquals(
+        "{\n"
+            + "  \"count(1)\" : {\n"
+            + "    \"value_count\" : {\n"
+            + "      \"field\" : \"_index\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("count(1)",
+                    new CountAggregator(Arrays.asList(literal(1)), INTEGER)))));
   }
 
   @Test
