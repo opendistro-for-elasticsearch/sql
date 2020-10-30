@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticse
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandExecution;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataLoader;
-import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.TpchSchema;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class ElasticsearchDataLoader implements DataLoader {
     String commands = "cd " + ((ElasticsearchDataFormat) data).getDataPath();
 
     // Add table mappings
-    for (String tableName : TpchSchema.schemaMap.keySet()) {
+    for (String tableName : ElasticsearchTpchSchema.schemaMap.keySet()) {
       commands += " && curl -H 'Content-Type: application/x-ndjson' -XPUT 'https://localhost:9200/"
           + tableName + "?pretty' -u admin:admin --insecure --data-binary @" + tableName
           + "_mappings.json";
