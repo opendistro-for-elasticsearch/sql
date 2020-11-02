@@ -30,10 +30,11 @@ public class ElasticsearchDatabaseLauncher implements DatabaseLauncher {
    */
   @Override
   public void launchDatabase(String systemPassword) throws IOException, InterruptedException {
-    String commands = "echo " + systemPassword + " | sudo -S "
-        + "update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java"
-        + " && echo " + systemPassword + " | sudo -S systemctl start elasticsearch.service";
-    executeCommand(commands);
+    executeCommand("echo " + systemPassword + " | sudo -S "
+        + "update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java");
+    executeCommand("echo " + systemPassword + " | sudo -S systemctl start elasticsearch.service");
+    executeCommand("echo " + systemPassword + " | sudo -S systemctl status elasticsearch");
+
   }
 
   /**
@@ -42,5 +43,6 @@ public class ElasticsearchDatabaseLauncher implements DatabaseLauncher {
   @Override
   public void shutdownDatabase(String systemPassword) throws IOException, InterruptedException {
     executeCommand("echo " + systemPassword + " | sudo -S systemctl stop elasticsearch.service");
+    executeCommand("echo " + systemPassword + " | sudo -S systemctl status elasticsearch");
   }
 }

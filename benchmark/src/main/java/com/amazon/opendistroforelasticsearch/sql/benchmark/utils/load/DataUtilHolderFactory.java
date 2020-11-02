@@ -37,6 +37,8 @@ public class DataUtilHolderFactory {
     try {
       DATA_UTIL_HOLDER_MAP.put(BenchmarkConstants.ELASTICSEARCH,
           new DataUtilHolder(BenchmarkConstants.ELASTICSEARCH));
+      DATA_UTIL_HOLDER_MAP.put(BenchmarkConstants.CASSANDRA,
+          new DataUtilHolder(BenchmarkConstants.CASSANDRA));
     } catch (Exception e) {
       e.printStackTrace();
     }

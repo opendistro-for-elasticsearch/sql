@@ -93,7 +93,7 @@ public class CassandraDataTransformer implements DataTransformer {
           writer.newLine();
           dataLineCounter++;
 
-          if (dataLineCounter == 1000 * (csvFilesNumber - 1)) {
+          if (dataLineCounter == 100 * (csvFilesNumber - 1)) {
             writer.close();
             filename = tablename + "_data_" + csvFilesNumber++ + ".csv";
             writer = new BufferedWriter(new FileWriter(transformedDataPath + filename, true));
@@ -116,18 +116,21 @@ public class CassandraDataTransformer implements DataTransformer {
     writer.write(table);
     writer.newLine();
 
-    int index = 1;
     for (String field : CassandraTpchSchema.schemaMap.get(table).keySet()) {
-      writer.write(field + " " + CassandraTpchSchema.schemaMap.get(table).get(field));
-      if (CassandraTpchSchema.primaryKeyMap.get(table).contains(field)) {
-        writer.write(" PRIMARY KEY");
-      }
-      if (index < CassandraTpchSchema.schemaMap.get(table).size()) {
+      writer.write(field + " " + CassandraTpchSchema.schemaMap.get(table).get(field) + ",");
+    }
+    int index = 1;
+    writer.write(" PRIMARY KEY (");
+    for (String key : CassandraTpchSchema.primaryKeyMap.get(table)) {
+      writer.write(key);
+      if (index < CassandraTpchSchema.primaryKeyMap.get(table).size()) {
         writer.write(", ");
         index++;
       }
     }
+    writer.write(")");
     writer.newLine();
+
     index = 1;
     for (String field : CassandraTpchSchema.schemaMap.get(table).keySet()) {
       writer.write(field);
