@@ -17,29 +17,33 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.cassandra
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
  * Data format for Cassandra database.
  */
-@AllArgsConstructor
 public class CassandraDataFormat extends DataFormat {
+
+  public CassandraDataFormat(List<String> files) {
+    this.files = files;
+  }
+
   /*  Files formatted with following structure:
-      Line 0: keyspace name
-      Line 1: table name
-      Line 2: Comma separated list of types and column names - one or more must contain primary key
-      Line 3: Comma separated list of column names without types
-      Line 4+: Comma separated list of values for columns
+        Line 0: keyspace name
+        Line 1: table name
+        Line 2: Comma separated list of types and column names- one or more must contain primary key
+        Line 3: Comma separated list of column names without types
+        Line 4+: Comma separated list of values for columns
 
-      Data type list available: https://cassandra.apache.org/doc/latest/cql/types.html
+        Data type list available: https://cassandra.apache.org/doc/latest/cql/types.html
 
-      Example:
-      Line 0: tpchkeyspace
-      Line 1: customer
-      Line 2: lastname TEXT PRIMARY KEY, firstname TEXT, myfloat FLOAT, myInt SMALLINT
-      Line 3: lastname, firstname, myFloat, myInt
-      Line 4+: "lyndon", "bauto", 1.234, 15
-   */
-  @Getter private List<String> files;
+        Example:
+        Line 0: tpchkeyspace
+        Line 1: customer
+        Line 2: lastname TEXT PRIMARY KEY, firstname TEXT, myfloat FLOAT, myInt SMALLINT
+        Line 3: lastname, firstname, myFloat, myInt
+        Line 4+: "lyndon", "bauto", 1.234, 15
+     */
+  @Getter
+  private List<String> files;
 }
