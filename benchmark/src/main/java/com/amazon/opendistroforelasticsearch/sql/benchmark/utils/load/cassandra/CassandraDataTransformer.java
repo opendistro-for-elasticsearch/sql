@@ -26,7 +26,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -50,7 +49,7 @@ public class CassandraDataTransformer implements DataTransformer {
       throw new FileNotFoundException("Invalid Directory");
     }
 
-    List<String> fileList = new LinkedList<>();
+    CassandraDataFormat result = new CassandraDataFormat();
 
     // Create directory to store transformed csv files
     CommandExecution.executeCommand("mkdir " + dataPath + "cassandra/");
@@ -70,7 +69,7 @@ public class CassandraDataTransformer implements DataTransformer {
           new FileWriter(transformedDataPath + filename, true));
       int dataLineCounter = 0;
       try {
-        fileList.add(transformedDataPath + filename);
+        result.addFile(transformedDataPath + filename);
         addSchemaToCSV(writer, tablename);
         String line;
 
@@ -98,7 +97,7 @@ public class CassandraDataTransformer implements DataTransformer {
             writer.close();
             filename = tablename + "_data_" + csvFilesNumber++ + ".csv";
             writer = new BufferedWriter(new FileWriter(transformedDataPath + filename, true));
-            fileList.add(transformedDataPath + filename);
+            result.addFile(transformedDataPath + filename);
             addSchemaToCSV(writer, tablename);
           }
         }
@@ -107,9 +106,6 @@ public class CassandraDataTransformer implements DataTransformer {
         writer.close();
       }
     }
-
-
-    CassandraDataFormat result = new CassandraDataFormat(fileList);
     return result;
   }
 

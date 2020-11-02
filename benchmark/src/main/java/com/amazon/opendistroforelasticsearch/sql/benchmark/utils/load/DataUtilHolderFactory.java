@@ -16,6 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.cassandra.CassandraDataFormat;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.cassandra.CassandraDataLoader;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.cassandra.CassandraDataTransformer;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticsearch.ElasticsearchDataFormat;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticsearch.ElasticsearchDataLoader;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticsearch.ElasticsearchDataTransformer;
@@ -27,6 +30,7 @@ import lombok.Getter;
  * Data utility holder factory, used to get a data utility holder.
  */
 public class DataUtilHolderFactory {
+
   private static Map<String, DataUtilHolder> DATA_UTIL_HOLDER_MAP = new HashMap<>();
 
   static {
@@ -46,6 +50,7 @@ public class DataUtilHolderFactory {
 
   /**
    * Returns DataUtilHolder for specified type.
+   *
    * @param type Type of database to get DataUtilHolder for.
    * @return DataUtilHolder for specified type.
    */
@@ -54,10 +59,12 @@ public class DataUtilHolderFactory {
   }
 
   /**
-   * Data utility holder holds the data formatter, loader, and transformer for a specified database.
+   * Data utility holder holds the data formatter, loader, and transformer for a specified
+   * database.
    */
   @Getter
   public static class DataUtilHolder {
+
     final DataFormat dataFormat;
     final DataLoader dataLoader;
     final DataTransformer dataTransformer;
@@ -70,8 +77,12 @@ public class DataUtilHolderFactory {
         dataFormat = new ElasticsearchDataFormat();
         dataLoader = new ElasticsearchDataLoader();
         dataTransformer = new ElasticsearchDataTransformer();
+      } else if (type.equals(BenchmarkConstants.CASSANDRA)) {
+        dataFormat = new CassandraDataFormat();
+        dataLoader = new CassandraDataLoader();
+        dataTransformer = new CassandraDataTransformer();
       } else {
-        throw new Exception("TODO: Proper exceptions.");
+        throw new Exception("Invalid database type.");
       }
     }
   }
