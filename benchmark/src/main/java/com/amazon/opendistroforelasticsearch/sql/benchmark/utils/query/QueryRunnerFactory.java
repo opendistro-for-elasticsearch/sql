@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.cassandra
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.elasticsearch.ElasticsearchQueryRunner;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.mock.MockQueryRunner;
 import com.google.common.collect.ImmutableMap;
-
 import java.util.Map;
 
 /**
@@ -51,7 +50,7 @@ public class QueryRunnerFactory {
       throw new Exception("TODO: Proper exceptions.");
     }
     if (!QUERY_RUNNER_MAP.containsKey(type)) {
-      throw new Exception("TODO: Proper exceptions.");
+      throw new Exception("Invalid database type for query runner.");
     }
     return QUERY_RUNNER_MAP.get(type);
   }

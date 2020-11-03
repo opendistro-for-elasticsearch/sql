@@ -84,7 +84,7 @@ public class DataUtilHolderFactory {
         dataLoader = new CassandraDataLoader();
         dataTransformer = new CassandraDataTransformer();
       } else {
-        throw new Exception("Invalid database type.");
+        throw new Exception("Invalid database type for data holder.");
       }
     }
   }
