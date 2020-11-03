@@ -23,6 +23,7 @@ public class Queries {
   public static LinkedList<String> queries = new LinkedList<>();
 
   static {
+    // TODO: Add proper queries supported by all databases.
     queries.add("select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, "
         + "sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as "
         + "sum_disc_price, sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, "
