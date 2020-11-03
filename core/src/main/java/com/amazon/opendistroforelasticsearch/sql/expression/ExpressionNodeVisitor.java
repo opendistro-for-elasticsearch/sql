@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
 
 /**
@@ -78,4 +79,9 @@ public abstract class ExpressionNodeVisitor<T, C> {
   public T visitNamedAggregator(NamedAggregator node, C context) {
     return visitChildren(node, context);
   }
+
+  public T visitCase(CaseValue node, C context) {
+    return visitNode(node, context);
+  }
+
 }

@@ -35,6 +35,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -92,6 +93,47 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         DSL.ref("integer_value", INTEGER),
         AstDSL.qualifiedName("integer_value")
     );
+  }
+
+  @Test
+  public void case_value() {
+    assertAnalyzeEqual(
+        DSL.cases(
+            DSL.literal("Default value"),
+            DSL.when(
+                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(30)),
+                DSL.literal("Thirty")),
+            DSL.when(
+                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(50)),
+                DSL.literal("Fifty"))),
+        AstDSL.caseWhen(
+            AstDSL.qualifiedName("integer_value"),
+            AstDSL.stringLiteral("Default value"),
+            Pair.of(AstDSL.intLiteral(30), AstDSL.stringLiteral("Thirty")),
+            Pair.of(AstDSL.intLiteral(50), AstDSL.stringLiteral("Fifty"))));
+  }
+
+  @Test
+  public void case_conditions() {
+    assertAnalyzeEqual(
+        DSL.cases(
+            null,
+            DSL.when(
+                dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(50)),
+                DSL.literal("Fifty")),
+            DSL.when(
+                dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(30)),
+                DSL.literal("Thirty"))),
+        AstDSL.caseWhen(
+            null,
+            Pair.of(
+                AstDSL.function(">",
+                    AstDSL.qualifiedName("integer_value"),
+                    AstDSL.intLiteral(50)), AstDSL.stringLiteral("Fifty")),
+            Pair.of(
+                AstDSL.function(">",
+                    AstDSL.qualifiedName("integer_value"),
+                    AstDSL.intLiteral(30)), AstDSL.stringLiteral("Thirty"))));
   }
 
   @Test

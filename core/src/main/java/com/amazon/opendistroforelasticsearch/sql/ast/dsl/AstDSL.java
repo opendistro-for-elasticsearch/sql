@@ -190,10 +190,10 @@ public class AstDSL {
 
   /**
    * CASE
-   *     WHEN search_condition THEN statement_list
-   *     [WHEN search_condition THEN statement_list] ...
-   *     [ELSE statement_list]
-   * END CASE
+   *     WHEN search_condition THEN result
+   *     [WHEN search_condition THEN result] ...
+   *     [ELSE result]
+   * END
    */
   @SafeVarargs
   public UnresolvedExpression caseWhen(UnresolvedExpression elseStatement,
@@ -204,10 +204,10 @@ public class AstDSL {
 
   /**
    * CASE case_value
-   *     WHEN when_value THEN statement_list
-   *     [WHEN when_value THEN statement_list] ...
-   *     [ELSE statement_list]
-   * END CASE
+   *     WHEN when_value THEN result
+   *     [WHEN when_value THEN result] ...
+   *     [ELSE result]
+   * END
    */
   @SafeVarargs
   public UnresolvedExpression caseWhen(UnresolvedExpression caseValueExpr,

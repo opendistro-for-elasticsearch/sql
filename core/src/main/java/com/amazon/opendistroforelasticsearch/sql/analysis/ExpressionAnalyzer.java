@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
@@ -42,6 +43,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.When;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
@@ -161,6 +164,25 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Expression right = analyze(node.getRight(), context);
     return (Expression)
         repository.compile(functionName, Arrays.asList(left, right));
+  }
+
+  @Override
+  public Expression visitCase(Case node, AnalysisContext context) {
+    return new CaseValue(
+        node.getWhenStatements()
+            .stream()
+            .map(when -> new When(
+                ((node.getCaseValue() == null)
+                    ? analyze(when.getLeft(), context)
+                    : (Expression) repository.compile(
+                        BuiltinFunctionName.EQUAL.getName(),
+                        Arrays.asList(
+                            analyze(node.getCaseValue(), context),
+                            analyze(when.getLeft(), context)))),
+                analyze(when.getRight(), context)))
+            .collect(Collectors.toList()),
+        node.getElseStatement() == null ? null
+            : analyze(node.getElseStatement(), context));
   }
 
   @Override
