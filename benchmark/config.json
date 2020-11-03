@@ -1,7 +1,7 @@
 {
-  "types": ["elasticsearch","cassandra"],
+  "types": ["cassandra","elasticsearch"],
   "outputFile": "index.html",
   "benchmarkPath": "",
-  "scaleFactors": [0.1],
+  "scaleFactors": [0.1,1],
   "systemPassword": "password"
 }
