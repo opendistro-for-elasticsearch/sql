@@ -117,7 +117,7 @@ public class CassandraDataTransformer implements DataTransformer {
     writer.newLine();
 
     for (String field : CassandraTpchSchema.schemaMap.get(table).keySet()) {
-      writer.write(field + " " + CassandraTpchSchema.schemaMap.get(table).get(field) + ",");
+      writer.write(" " + field + " " + CassandraTpchSchema.schemaMap.get(table).get(field) + ",");
     }
     int index = 1;
     writer.write(" PRIMARY KEY (");
