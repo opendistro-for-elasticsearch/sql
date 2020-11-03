@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.cassandra.CassandraDatabaseLauncher;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.elasticsearch.ElasticsearchDatabaseLauncher;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.mysql.MysqlDatabaseLauncher;
 
 /**
  * Factory for getting DatabaseLauncher Objects.
@@ -39,15 +40,17 @@ public class DatabaseLauncherFactory {
    */
   public static DatabaseLauncher getDatabaseLauncher(String type) throws Exception {
     if (type == null) {
-      throw new Exception("TODO: Proper exceptions.");
+      throw new NullPointerException("Null value for database type.");
     }
 
     if (type.equals(BenchmarkConstants.ELASTICSEARCH)) {
       return new ElasticsearchDatabaseLauncher();
     } else if (type.equals(BenchmarkConstants.CASSANDRA)) {
       return new CassandraDatabaseLauncher();
+    } else if (type.equals(BenchmarkConstants.MYSQL)) {
+      return new MysqlDatabaseLauncher();
     } else {
-      throw new Exception("Invalid database type.");
+      throw new Exception("Invalid database type for launcher.");
     }
   }
 }
