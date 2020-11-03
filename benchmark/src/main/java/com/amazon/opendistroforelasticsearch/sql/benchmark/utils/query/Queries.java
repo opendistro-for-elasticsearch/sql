@@ -30,6 +30,7 @@ public class Queries {
         + "avg_disc, count(*) as count_order from lineitem;");
     queries.add("select c_custkey, c_name from customer where c_custkey in (1, 2, 3, 4, 5);");
     queries.add("select * from lineitem;");
-    queries.add("select count(*), max(l_discount), l_comment from lineitem where l_shipmode = 'AIR' ALLOW FILTERING");
+    queries.add("select count(*), max(l_discount), l_comment from lineitem where l_shipmode = 'AIR'"
+        + " ALLOW FILTERING");
   }
 }
