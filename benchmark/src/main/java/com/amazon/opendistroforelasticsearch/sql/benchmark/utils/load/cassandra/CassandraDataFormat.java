@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.cassandra;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
+import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
 
@@ -23,10 +24,6 @@ import lombok.Getter;
  * Data format for Cassandra database.
  */
 public class CassandraDataFormat extends DataFormat {
-
-  public CassandraDataFormat(List<String> files) {
-    this.files = files;
-  }
 
   /*  Files formatted with following structure:
         Line 0: keyspace name
@@ -45,5 +42,9 @@ public class CassandraDataFormat extends DataFormat {
         Line 4+: "lyndon", "bauto", 1.234, 15
      */
   @Getter
-  private List<String> files;
+  private List<String> files = new LinkedList<>();
+
+  public void addFile(String file) {
+    files.add(file);
+  }
 }

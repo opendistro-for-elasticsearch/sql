@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
-
 /**
  * Simple class to test that the query runner for Cassandra works.
  * Needs Cassandra instance running on local machine to run the test.
@@ -39,7 +38,7 @@ public class CassandraDataLoaderTest {
       final CassandraDataLoader dataLoader = new CassandraDataLoader();
       final List<String> files = new ArrayList<>();
       files.add("casstest.txt");
-      final DataFormat dataFormat = new CassandraDataFormat(files);
+      final DataFormat dataFormat = new CassandraDataFormat();
       dataLoader.loadData(dataFormat);
       CassandraQueryRunner cassandraQueryRunner = new CassandraQueryRunner();
       cassandraQueryRunner.prepareQueryRunner("SELECT * FROM tcphkeyspace.customer");

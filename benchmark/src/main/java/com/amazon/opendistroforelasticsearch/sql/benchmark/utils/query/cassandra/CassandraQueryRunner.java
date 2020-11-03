@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.cassandra;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.cassandra.CassandraTpchSchema;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryRunner;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
@@ -28,6 +29,7 @@ import java.io.FileWriter;
  * Query runner for Cassandra databases.
  */
 public class CassandraQueryRunner extends QueryRunner {
+
   private boolean queryWasSuccessful;
   private static final String NODE = "127.0.0.1";
   private Cluster cluster;
@@ -40,9 +42,11 @@ public class CassandraQueryRunner extends QueryRunner {
   @Override
   public void runQuery() {
     try {
+      session.execute("Use " + CassandraTpchSchema.keyspaceName);
       session.execute(query);
     } catch (Exception e) {
       queryWasSuccessful = false;
+      System.out.println("Exception received: " + e);
     }
   }
 
@@ -54,8 +58,8 @@ public class CassandraQueryRunner extends QueryRunner {
   @Override
   public void prepareQueryRunner(String query) {
     cluster = Cluster.builder()
-            .addContactPoint(NODE)
-            .build();
+        .addContactPoint(NODE)
+        .build();
     session = cluster.connect();
     this.query = query;
     queryWasSuccessful = true;
@@ -76,7 +80,7 @@ public class CassandraQueryRunner extends QueryRunner {
     File benchmarkDirectory = new File(benchmarkPath);
     if (benchmarkDirectory.exists() && benchmarkDirectory.isDirectory()) {
       BufferedWriter bufferedWriter = new BufferedWriter(
-              new FileWriter(benchmarkPath + "/cassandra_failed_queries.txt", true));
+          new FileWriter(benchmarkPath + "/cassandra_failed_queries.txt", true));
       bufferedWriter.write(query);
       bufferedWriter.newLine();
       bufferedWriter.close();

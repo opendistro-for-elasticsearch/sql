@@ -27,11 +27,10 @@ public class CassandraDatabaseLauncher implements DatabaseLauncher {
    */
   @Override
   public void launchDatabase(String systemPassword) throws IOException, InterruptedException {
-    String commands = "echo " + systemPassword + " | sudo -S "
-        + "update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java"
-        + " && echo " + systemPassword + " | sudo -S systemctl start cassandra.service"
-        + " && sudo systemctl status cassandra";
-    executeCommand(commands);
+    executeCommand("echo " + systemPassword + " | sudo -S "
+        + "update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java");
+    executeCommand("echo " + systemPassword + " | sudo -S systemctl start cassandra.service");
+    executeCommand("echo " + systemPassword + " | sudo -S systemctl status cassandra");
   }
 
   /**
@@ -39,8 +38,7 @@ public class CassandraDatabaseLauncher implements DatabaseLauncher {
    */
   @Override
   public void shutdownDatabase(String systemPassword) throws IOException, InterruptedException {
-    String commands = "echo " + systemPassword + " | sudo -S systemctl stop cassandra.service"
-        + " && sudo systemctl status cassandra";
-    executeCommand(commands);
+    executeCommand("echo " + systemPassword + " | sudo -S systemctl stop cassandra.service");
+    executeCommand("echo " + systemPassword + " | sudo -S systemctl status cassandra");
   }
 }

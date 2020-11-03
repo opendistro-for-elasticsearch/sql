@@ -21,4 +21,17 @@ public class Queries {
 
   public static int tpchQueriesCountMax = 22;
   public static LinkedList<String> queries = new LinkedList<>();
+
+  static {
+    // TODO: Add proper queries supported by all databases.
+    queries.add("select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, "
+        + "sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as "
+        + "sum_disc_price, sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, "
+        + "avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as "
+        + "avg_disc, count(*) as count_order from lineitem;");
+    queries.add("select c_custkey, c_name from customer where c_custkey in (1, 2, 3, 4, 5);");
+    queries.add("select * from lineitem;");
+    queries.add("select count(*), max(l_discount), l_comment from lineitem where l_shipmode = 'AIR'"
+        + " ALLOW FILTERING");
+  }
 }
