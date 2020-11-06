@@ -3,5 +3,7 @@
   "outputFile": "index.html",
   "benchmarkPath": "",
   "scaleFactors": [0.1,1],
-  "systemPassword": "password"
+  "systemPassword": "password",
+  "mysqlUsername" : "root",
+  "mysqlPassword" : "mysql"
 }

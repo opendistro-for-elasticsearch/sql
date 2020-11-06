@@ -22,6 +22,9 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.cassandra.
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticsearch.ElasticsearchDataFormat;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticsearch.ElasticsearchDataLoader;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.elasticsearch.ElasticsearchDataTransformer;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql.MysqlDataFormat;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql.MysqlDataLoader;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql.MysqlDataTransformer;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -39,6 +42,8 @@ public class DataUtilHolderFactory {
           new DataUtilHolder(BenchmarkConstants.ELASTICSEARCH));
       DATA_UTIL_HOLDER_MAP.put(BenchmarkConstants.CASSANDRA,
           new DataUtilHolder(BenchmarkConstants.CASSANDRA));
+      DATA_UTIL_HOLDER_MAP.put(BenchmarkConstants.MYSQL,
+          new DataUtilHolder(BenchmarkConstants.MYSQL));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -83,6 +88,10 @@ public class DataUtilHolderFactory {
         dataFormat = new CassandraDataFormat();
         dataLoader = new CassandraDataLoader();
         dataTransformer = new CassandraDataTransformer();
+      } else if (type.equals(BenchmarkConstants.MYSQL)) {
+        dataFormat = new MysqlDataFormat();
+        dataLoader = new MysqlDataLoader();
+        dataTransformer = new MysqlDataTransformer();
       } else {
         throw new Exception("Invalid database type for data holder.");
       }

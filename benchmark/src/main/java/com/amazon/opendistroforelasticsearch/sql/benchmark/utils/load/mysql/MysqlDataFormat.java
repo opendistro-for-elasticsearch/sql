@@ -16,10 +16,31 @@
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Data format for MySQL database.
  */
 public class MysqlDataFormat extends DataFormat {
 
+  private Map<String, LinkedList<String>> tableDataFilesList = new LinkedHashMap<>();
+
+  /**
+   * Add a file to tableDataFilesList.
+   *
+   * @param tablename Table name
+   * @param filename  File name
+   */
+  public void addFile(String tablename, String filename) {
+    if (!tableDataFilesList.containsKey(tablename)) {
+      tableDataFilesList.put(tablename, new LinkedList<>());
+    }
+    tableDataFilesList.get(tablename).add(filename);
+  }
+
+  public Map<String, LinkedList<String>> getTableDataFilesList() {
+    return tableDataFilesList;
+  }
 }
