@@ -18,7 +18,7 @@ import "regenerator-runtime/runtime";
 import { Request, ResponseToolkit } from 'hapi-latest';
 import { CLUSTER } from './utils/constants';
 import _ from "lodash";
-import { IKibanaResponse } from "kibana/server";
+import { IKibanaResponse, KibanaRequest } from "kibana/server";
 
 export default class QueryService {
   private client: any;
@@ -26,19 +26,23 @@ export default class QueryService {
     this.client = client;
   }
 
-  describeQueryInternal = async (request: Request, h, format: string, responseFormat: string, client) => {
+  describeQueryInternal = async (request: string, h, format: string, responseFormat: string) => {
     try {
       const params = {
-        body: JSON.stringify(request.payload),
+        body: JSON.stringify(request),
       };
+      // console.log('request is', request);
       console.log("about to call get cluster");
-      console.log('client is', client);
-      const { callWithRequest } = await client.callAsCurrentUser(
-        'search',
-        {
-          index: CLUSTER.SQL
-        }
-      );    // client.getCluster(CLUSTER.SQL);
+      // console.log('client is', this.client);
+      // const { callWithRequest } = await client.callAsCurrentUser(
+      //   'search',
+      //   {
+      //     index: CLUSTER.SQL
+      //   }
+      // );    // client.getCluster(CLUSTER.SQL);
+      const  callWithRequest = await this.client.asScoped(request).callAsCurrentUser('sql.sqlQuery', params);
+      // console.log('callwithrequest is', callWithRequest);
+      return;
       const createResponse = await callWithRequest(request, format, params);
       return h.ok({
          resp:
@@ -46,13 +50,13 @@ export default class QueryService {
       });
     } catch (err) {
       console.log(err);
-      return h.response({ ok: false, resp: err.message });
+      // return h.response({ ok: false, resp: err.message });
     }
     // return h.response({ ok: false, resp: err.message });
   };
 
-  describeSQLQuery = async (request: Request, h, client) => {
-    return this.describeQueryInternal(request, h, "sql.sqlQuery", "json", client)
+  describeSQLQuery = async (request: string, h) => {
+    return this.describeQueryInternal(request, h, "sql.sqlQuery", "json");
   };
 
   // describePPLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {

@@ -19,10 +19,14 @@ import {
   CoreStart,
   Plugin,
   Logger,
+  ILegacyClusterClient,
 } from '../../../src/core/server';
 
 import { WorkbenchPluginSetup, WorkbenchPluginStart } from './types';
 import defineRoutes from './routes';
+import { IClusterClient } from 'src/core/server/elasticsearch/client';
+import sqlPlugin from './clusters/sql/sqlPlugin';
+
 
 export class WorkbenchPlugin implements Plugin<WorkbenchPluginSetup, WorkbenchPluginStart> {
   private readonly logger: Logger;
@@ -34,9 +38,15 @@ export class WorkbenchPlugin implements Plugin<WorkbenchPluginSetup, WorkbenchPl
   public setup(core: CoreSetup) {
     this.logger.debug('temp: Setup');
     const router = core.http.createRouter();
+    const client: ILegacyClusterClient = core.elasticsearch.legacy.createClient(
+      'query_workbench',
+      {
+        plugins: [sqlPlugin]
+      }
+    )
 
     // Register server side APIs
-    defineRoutes(router);
+    defineRoutes(router, client);
 
     return {};
   }

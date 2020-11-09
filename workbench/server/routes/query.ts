@@ -36,13 +36,14 @@ export default function query(server: IRouter, service: QueryService) {
     request,
     response
   ): Promise <IKibanaResponse<any | ResponseError>> => {
-    // console.log("context is", context);
-    // console.log("request is", request);
+    console.log("request is", request.url.query);
+    const queryString = convertQueryToString(request.url.query);
+    console.log('query string is', queryString);
     // console.log("respnose is", response);
     // console.log(response.ok);
     // console.log(context.core.elasticsearch);
 
-    service.describeSQLQuery(request, response, context.core.elasticsearch.legacy.client);
+    service.describeSQLQuery(request, response);
     return;
   })
 
@@ -87,4 +88,18 @@ export default function query(server: IRouter, service: QueryService) {
   //   method: 'POST',
   //   handler: service.describePPLText
   // });
+}
+
+const convertQueryToString = (query) => {
+  console.log('in query function, query is', query);
+  console.log(query['0']);
+  let index;
+  var queryString = "";
+  for (index = 0; index < Object.keys(query).length; ++index) {
+    // queryString.concat(query[index.toString()]);
+    console.log('in loop, queryString is', queryString);
+    console.log('index to string is', query[index.toString()]);
+    queryString += query[index.toString()];
+  };
+  return queryString;
 }
