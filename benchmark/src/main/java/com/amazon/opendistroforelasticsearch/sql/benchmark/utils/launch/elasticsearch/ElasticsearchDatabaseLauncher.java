@@ -17,7 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.elastic
 
 import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandExecution.executeCommand;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.BenchmarkService;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.DatabaseLauncher;
+
 import java.io.IOException;
 
 /**
@@ -29,11 +31,13 @@ public class ElasticsearchDatabaseLauncher implements DatabaseLauncher {
    * Function to launch an Elasticsearch database.
    */
   @Override
-  public void launchDatabase(String systemPassword) throws IOException, InterruptedException {
-    executeCommand("echo " + systemPassword + " | sudo -S "
+  public void launchDatabase() throws IOException, InterruptedException {
+    executeCommand("echo " + BenchmarkService.systemPassword + " | sudo -S "
         + "update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java");
-    executeCommand("echo " + systemPassword + " | sudo -S systemctl start elasticsearch.service");
-    executeCommand("echo " + systemPassword + " | sudo -S systemctl status elasticsearch");
+    executeCommand("echo " + BenchmarkService.systemPassword
+        + " | sudo -S systemctl start elasticsearch.service");
+    executeCommand(
+        "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl status elasticsearch");
 
   }
 
@@ -41,8 +45,10 @@ public class ElasticsearchDatabaseLauncher implements DatabaseLauncher {
    * Function to shutdown an Elasticsearch database.
    */
   @Override
-  public void shutdownDatabase(String systemPassword) throws IOException, InterruptedException {
-    executeCommand("echo " + systemPassword + " | sudo -S systemctl stop elasticsearch.service");
-    executeCommand("echo " + systemPassword + " | sudo -S systemctl status elasticsearch");
+  public void shutdownDatabase() throws IOException, InterruptedException {
+    executeCommand("echo " + BenchmarkService.systemPassword
+        + " | sudo -S systemctl stop elasticsearch.service");
+    executeCommand(
+        "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl status elasticsearch");
   }
 }

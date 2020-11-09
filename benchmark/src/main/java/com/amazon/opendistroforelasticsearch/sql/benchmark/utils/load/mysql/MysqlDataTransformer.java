@@ -73,7 +73,7 @@ public class MysqlDataTransformer implements DataTransformer {
 
       long tableLineIndex = 1;
       try {
-        result.addFile(tableName, filename);
+        result.addFile(tableName, transformedDataPath + filename);
         String line;
         while ((line = bufferedReader.readLine()) != null) {
           List<String> argsList = Arrays.asList(line.split("\\|"));
@@ -91,7 +91,7 @@ public class MysqlDataTransformer implements DataTransformer {
             filename = tableName + "_data_" + tableDataFilesIndex++ + ".csv";
             writer = new BufferedWriter(
                 new FileWriter(transformedDataPath + filename, true));
-            result.addFile(tableName, filename);
+            result.addFile(tableName, transformedDataPath + filename);
           }
         }
       } finally {

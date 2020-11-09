@@ -19,10 +19,8 @@ public class BenchmarkResultsInterpreterTest {
       final List<BenchmarkResults> benchmarkResultsList = new ArrayList<>();
       final ResultGrabber resultGrabber1 = new ResultGrabber(BenchmarkConstants.MOCK1, 10.0);
       final ResultGrabber resultGrabber2 = new ResultGrabber(BenchmarkConstants.MOCK2, 10.0);
-      final ResultGrabber resultGrabber3 = new ResultGrabber(BenchmarkConstants.MOCK3, 10.0);
       benchmarkResultsList.add(resultGrabber1.runQueries(QUERIES, ""));
       benchmarkResultsList.add(resultGrabber2.runQueries(QUERIES, ""));
-      benchmarkResultsList.add(resultGrabber3.runQueries(QUERIES, ""));
       final BenchmarkResultsInterpreter benchmarkResultsInterpreter =
           new BenchmarkResultsInterpreter();
       benchmarkResultsInterpreter.interpretResults(benchmarkResultsList);

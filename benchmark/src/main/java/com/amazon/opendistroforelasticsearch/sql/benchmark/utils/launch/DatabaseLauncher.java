@@ -25,10 +25,10 @@ public interface DatabaseLauncher {
   /**
    * Function interface for launching databases.
    */
-  void launchDatabase(String systemPassword) throws IOException, InterruptedException;
+  void launchDatabase() throws IOException, InterruptedException;
 
   /**
    * Function interface for shutting down databases.
    */
-  void shutdownDatabase(String systemPassword) throws IOException, InterruptedException;
+  void shutdownDatabase() throws IOException, InterruptedException;
 }

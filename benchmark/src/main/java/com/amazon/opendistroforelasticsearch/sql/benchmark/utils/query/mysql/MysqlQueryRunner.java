@@ -15,19 +15,35 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.mysql;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.BenchmarkService;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql.MysqlTpchSchema;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.QueryRunner;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 
 /**
  * Query runner for MySQL databases.
  */
 public class MysqlQueryRunner extends QueryRunner {
 
+  private static String url = "jdbc:mysql://localhost/";
+  private Connection connection = null;
+  private Statement statement = null;
+  private boolean result = false;
+  private String query;
+
   /**
    * Function to run queries against MySQL database.
    */
   @Override
   public void runQuery() throws Exception {
-
+    result = statement.execute(query);
   }
 
   /**
@@ -37,7 +53,13 @@ public class MysqlQueryRunner extends QueryRunner {
    */
   @Override
   public void prepareQueryRunner(String query) throws Exception {
-
+    url +=
+        "?user=" + BenchmarkService.mysqlUsername + "&password=" + BenchmarkService.mysqlPassword;
+    Class.forName("com.mysql.cj.jdbc.Driver");
+    connection = DriverManager.getConnection(url);
+    statement = connection.createStatement();
+    statement.executeUpdate("use " + MysqlTpchSchema.databaseName);
+    this.query = query;
   }
 
   /**
@@ -45,6 +67,17 @@ public class MysqlQueryRunner extends QueryRunner {
    */
   @Override
   public void checkQueryExecutionStatus(String benchmarkPath) throws Exception {
-
+    if (result) {
+      File benchmarkDirectory = new File(benchmarkPath);
+      if (benchmarkDirectory.exists() && benchmarkDirectory.isDirectory()) {
+        BufferedWriter bufferedWriter = new BufferedWriter(
+            new FileWriter(benchmarkPath + "/mysql_failed_queries.txt", true));
+        bufferedWriter.write(query);
+        bufferedWriter.newLine();
+        bufferedWriter.close();
+      } else {
+        throw new FileNotFoundException("Invalid Directory");
+      }
+    }
   }
 }

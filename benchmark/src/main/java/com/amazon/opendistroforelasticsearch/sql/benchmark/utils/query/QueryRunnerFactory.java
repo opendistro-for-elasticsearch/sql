@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConsta
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.cassandra.CassandraQueryRunner;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.elasticsearch.ElasticsearchQueryRunner;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.mock.MockQueryRunner;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.query.mysql.MysqlQueryRunner;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
@@ -26,12 +27,14 @@ import java.util.Map;
  * Factory to get query runner for specified database type.
  */
 public class QueryRunnerFactory {
+
   private static Map<String, QueryRunner> QUERY_RUNNER_MAP = ImmutableMap.of(
       BenchmarkConstants.ELASTICSEARCH, new ElasticsearchQueryRunner(),
       BenchmarkConstants.CASSANDRA, new CassandraQueryRunner(),
+      BenchmarkConstants.MYSQL, new MysqlQueryRunner(),
       BenchmarkConstants.MOCK1, new MockQueryRunner(),
-      BenchmarkConstants.MOCK2, new MockQueryRunner(),
-      BenchmarkConstants.MOCK3, new MockQueryRunner());
+      BenchmarkConstants.MOCK2, new MockQueryRunner()
+      );
 
   /**
    * Empty private constructor since this is a factory.
@@ -41,6 +44,7 @@ public class QueryRunnerFactory {
 
   /**
    * Function to get a QueryRunner of specified type.
+   *
    * @param type Type of query runner to get.
    * @return QueryRunner Object for specific type.
    * @throws Exception Thrown if no QueryRunner can be generated for the specified type.

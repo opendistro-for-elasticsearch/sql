@@ -15,12 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.BenchmarkService;
+import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataLoader;
+import com.datastax.driver.core.Cluster;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.Map;
@@ -30,12 +31,17 @@ import java.util.Map;
  */
 public class MysqlDataLoader implements DataLoader {
 
-  private static final String url = "jdbc:mysql://localhost/";
-  private String username = "root";
-  private String password = "mysql";
-
+  private static String url = "jdbc:mysql://localhost/";
   private Connection connection = null;
   private Statement statement = null;
+
+  /**
+   * Constructor for MysqlDataLoader.
+   */
+  public MysqlDataLoader() {
+    url +=
+        "?user=" + BenchmarkService.mysqlUsername + "&password=" + BenchmarkService.mysqlPassword;
+  }
 
   /**
    * Load function for MySQL databases.
@@ -49,46 +55,40 @@ public class MysqlDataLoader implements DataLoader {
       throw new IllegalArgumentException("Wrong data format for MySQL.");
     }
 
-    try {
-      Class.forName("com.mysql.jdbc.Driver");
-      connection = DriverManager.getConnection(url, username, password);
-      statement = connection.createStatement();
+    Class.forName("com.mysql.cj.jdbc.Driver");
+    connection = DriverManager.getConnection(url);
+    statement = connection.createStatement();
 
-      createDatabase();
-      createTables();
+    createDatabase();
+    createTables();
 
-      Map<String, LinkedList<String>> list = ((MysqlDataFormat) data).getTableDataFilesList();
+    Map<String, LinkedList<String>> list = ((MysqlDataFormat) data).getTableDataFilesList();
 
-      for (String table : list.keySet()) {
-        for (String file : list.get(table)) {
-          String query =
-              "LOAD DATA INFILE '" + file + "' INTO TABLE " + MysqlTpchSchema.databaseName + "."
-                  + table + " FIELDS TERMINATED BY ',' ENCLOSED BY '\"'"
-                  + " LINES TERMINATED BY '\n'";
-          statement.execute(query);
-        }
+    for (String table : list.keySet()) {
+      for (String file : list.get(table)) {
+        String query =
+            "LOAD DATA LOCAL INFILE '" + file + "' INTO TABLE " + MysqlTpchSchema.databaseName + "."
+                + table + " FIELDS TERMINATED BY ',' ENCLOSED BY '\"'"
+                + " LINES TERMINATED BY '\n'";
+        statement.executeUpdate(query);
       }
-
-    } finally {
-      statement.close();
-      connection.close();
     }
   }
 
   private void createDatabase() throws Exception {
-    String sql = "create database " + MysqlTpchSchema.databaseName;
-    statement.executeUpdate(sql);
+    statement.executeUpdate("SET GLOBAL local_infile=1;");
+    statement.executeUpdate("create database " + MysqlTpchSchema.databaseName);
   }
 
   private void createTables() throws Exception {
     for (String tablename : MysqlTpchSchema.schemaMap.keySet()) {
-      String sql = "create table " + tablename + " (";
+      String sql = "create table " + MysqlTpchSchema.databaseName + "." + tablename + " (";
       for (String field : MysqlTpchSchema.schemaMap.get(tablename).keySet()) {
         sql += field + " " + MysqlTpchSchema.schemaMap.get(tablename).get(field) + ", ";
       }
 
       sql += "primary key ( ";
-      int index = 0;
+      int index = 1;
       for (String key : MysqlTpchSchema.primaryKeyMap.get(tablename)) {
         sql += key;
         if (index++ < MysqlTpchSchema.primaryKeyMap.get(tablename).size()) {

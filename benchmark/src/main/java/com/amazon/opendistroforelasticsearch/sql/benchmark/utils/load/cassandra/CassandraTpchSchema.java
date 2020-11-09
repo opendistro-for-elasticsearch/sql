@@ -25,7 +25,7 @@ public class CassandraTpchSchema {
 
   public static Map<String, List<String>> primaryKeyMap;
   public static Map<String, Map<String, String>> schemaMap;
-  public static String keyspaceName = "benchmark_keyspace";
+  public static String keyspaceName = "benchmark";
 
   static {
     primaryKeyMap = new LinkedHashMap<>();
@@ -34,10 +34,9 @@ public class CassandraTpchSchema {
     primaryKeyMap.put("nation", new LinkedList<>(Arrays.asList("n_nationkey")));
     primaryKeyMap.put("orders", new LinkedList<>(Arrays.asList("o_orderkey")));
     primaryKeyMap.put("part", new LinkedList<>(Arrays.asList("p_partkey")));
-    primaryKeyMap.put("partsupp", new LinkedList<>(Arrays.asList("ps_partkey","ps_suppkey")));
+    primaryKeyMap.put("partsupp", new LinkedList<>(Arrays.asList("ps_partkey", "ps_suppkey")));
     primaryKeyMap.put("region", new LinkedList<>(Arrays.asList("r_regionkey")));
     primaryKeyMap.put("supplier", new LinkedList<>(Arrays.asList("s_suppkey")));
-
 
     schemaMap = new LinkedHashMap<>();
 
