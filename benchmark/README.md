@@ -12,7 +12,7 @@
 * Build the project.
 * Run `BenchmarkServiceTest`.
 
-## Running the configuration script
+## Run the configuration script
 
 The script will install Open Distro for Elasticsearch, MySQL, Cassandra, and all prerequisites.
 
@@ -24,7 +24,7 @@ bash scripts/configure-environment.sh
 
 * Follow the guidelines until installation is complete. 
 
-## Configuring the inputs
+## Configure the inputs
 
 * You can configure following options in `/benchmark/config.json`
 
