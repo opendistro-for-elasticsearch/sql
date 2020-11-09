@@ -237,6 +237,7 @@ export class Main extends React.Component<MainProps, MainState> {
   }
 
   processQueryResponse(response: IHttpResponse<ResponseData>): ResponseDetail<string> {
+    console.log('response is', response);
     if (!response) {
       return {
         fulfilled: false,
@@ -252,6 +253,7 @@ export class Main extends React.Component<MainProps, MainState> {
       };
     }
 
+    console.log('response data is ok');
     return {
       fulfilled: true,
       data: response.data.resp

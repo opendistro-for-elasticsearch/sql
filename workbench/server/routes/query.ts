@@ -43,8 +43,9 @@ export default function query(server: IRouter, service: QueryService) {
     // console.log(response.ok);
     // console.log(context.core.elasticsearch);
 
-    service.describeSQLQuery(request, response);
-    return;
+    const retVal = await service.describeSQLQuery(queryString, response);
+    console.log('described sql query. retval is', retVal);
+    return retVal;
   })
 
   // server.route({

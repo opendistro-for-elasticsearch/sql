@@ -26,10 +26,13 @@ export default class QueryService {
     this.client = client;
   }
 
-  describeQueryInternal = async (request: string, h, format: string, responseFormat: string) => {
+  describeQueryInternal = async (request: string, response, format: string, responseFormat: string) => {
     try {
+      const queryRequest = {
+        query: request
+      };
       const params = {
-        body: JSON.stringify(request),
+        body: JSON.stringify(queryRequest),
       };
       // console.log('request is', request);
       console.log("about to call get cluster");
@@ -40,14 +43,17 @@ export default class QueryService {
       //     index: CLUSTER.SQL
       //   }
       // );    // client.getCluster(CLUSTER.SQL);
-      const  callWithRequest = await this.client.asScoped(request).callAsCurrentUser('sql.sqlQuery', params);
-      // console.log('callwithrequest is', callWithRequest);
-      return;
-      const createResponse = await callWithRequest(request, format, params);
-      return h.ok({
-         resp:
-          _.isEqual(responseFormat, "json") ? JSON.stringify(createResponse) : createResponse
-      });
+      const callWithRequest = await this.client.asScoped(request).callAsCurrentUser('sql.sqlQuery', params);
+      console.log('callwithrequest is', callWithRequest);
+      // return;
+      // const createResponse = await callWithRequest(request, format, params);
+      // return response.ok({
+      //    resp:
+      //     _.isEqual(responseFormat, "json") ? JSON.stringify(createResponse) : createResponse
+      // });
+      return response.ok({
+        data: JSON.stringify(callWithRequest)
+      })
     } catch (err) {
       console.log(err);
       // return h.response({ ok: false, resp: err.message });
