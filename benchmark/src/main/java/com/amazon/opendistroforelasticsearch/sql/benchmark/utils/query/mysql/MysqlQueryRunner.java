@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 /**
@@ -35,7 +36,7 @@ public class MysqlQueryRunner extends QueryRunner {
   private static String url = "jdbc:mysql://localhost/";
   private Connection connection = null;
   private Statement statement = null;
-  private boolean result = false;
+  private ResultSet result = null;
   private String query;
 
   /**
@@ -43,7 +44,7 @@ public class MysqlQueryRunner extends QueryRunner {
    */
   @Override
   public void runQuery() throws Exception {
-    result = statement.execute(query);
+    result = statement.executeQuery(query);
   }
 
   /**
@@ -67,7 +68,7 @@ public class MysqlQueryRunner extends QueryRunner {
    */
   @Override
   public void checkQueryExecutionStatus(String benchmarkPath) throws Exception {
-    if (result) {
+    if (result.next() == false) {
       File benchmarkDirectory = new File(benchmarkPath);
       if (benchmarkDirectory.exists() && benchmarkDirectory.isDirectory()) {
         BufferedWriter bufferedWriter = new BufferedWriter(
