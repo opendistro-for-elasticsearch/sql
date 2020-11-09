@@ -30,8 +30,8 @@ bash scripts/configure-environment.sh
 
 | Option | Description | Default Value |
 | --- | --- | --- |
-| types | list of databases to test | "cassandra","mysql","elasticsearch"|
-| outputFile | name of the result's file | index.html |
+| types | List of databases to test | cassandra,mysql,elasticsearch|
+| outputFile | Name of the result's file | index.html |
 | scaleFactors | List of scale factors for dataset (1.0 indicates 1 GB) | 1.0 |
 | systemPassword | Password of the system | password |
 | mysqlUsername | Username for connecting to MySQL | root|
