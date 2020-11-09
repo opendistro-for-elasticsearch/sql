@@ -53,13 +53,12 @@ public class BenchmarkService {
 
   private static final String TYPES = "types";
   private static final String OUTPUT_FILE = "outputFile";
-  private static final String BENCHMARK_PATH = "benchmarkPath";
   private static final String SCALE_FACTORS = "scaleFactors";
   private static final String SYSTEM_PASSWORD = "systemPassword";
   private static final String MYSQL_USERNAME = "mysqlUsername";
   private static final String MYSQL_PASSWORD = "mysqlPassword";
   private static final Set<String> EXPECTED_KEYS = ImmutableSet.of(
-      TYPES, OUTPUT_FILE, BENCHMARK_PATH, SCALE_FACTORS, SYSTEM_PASSWORD, MYSQL_USERNAME,
+      TYPES, OUTPUT_FILE, SCALE_FACTORS, SYSTEM_PASSWORD, MYSQL_USERNAME,
       MYSQL_PASSWORD);
 
   /**
@@ -155,9 +154,8 @@ public class BenchmarkService {
     }
     types = getValueCheckType(map, TYPES, ArrayList.class);
     outputFile = getValueCheckType(map, OUTPUT_FILE, String.class);
-    final String basePath = getValueCheckType(map, BENCHMARK_PATH, String.class);
-    benchmarkPath = Paths.get(basePath).toAbsolutePath().toString() + "/";
-    dataDirectoryPath = Paths.get(basePath, "data").toString() + "/";
+    benchmarkPath = Paths.get("").toAbsolutePath().toString() + "/";
+    dataDirectoryPath = Paths.get("", "data").toString() + "/";
     scaleFactors = getValueCheckType(map, SCALE_FACTORS, ArrayList.class);
     systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, String.class);
     mysqlUsername = getValueCheckType(map, MYSQL_USERNAME, String.class);
