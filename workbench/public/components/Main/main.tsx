@@ -64,7 +64,7 @@ export type ItemIdToExpandedRowMap = {
 };
 
 interface MainProps {
-  httpClient: IHttpService;
+  httpClient: any;
   onChange: (id: string, value?: any) => void;
 }
 
@@ -181,8 +181,8 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
 }
 
 export class Main extends React.Component<MainProps, MainState> {
-  httpClient: IHttpService;
-  // httpClient: any;
+  // httpClient: IHttpService;
+  httpClient: any;
 
   constructor(props: MainProps) {
     super(props);

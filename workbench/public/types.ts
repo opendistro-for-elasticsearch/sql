@@ -13,3 +13,14 @@
  *   permissions and limitations under the License.
  */
 
+import { NavigationPublicPluginStart } from '../../../src/plugins/navigation/public';
+
+export interface WorkbenchPluginSetup {
+  getGreeting: () => string;
+}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface WorkbenchPluginStart {}
+
+export interface AppPluginStartDependencies {
+  navigation: NavigationPublicPluginStart;
+}

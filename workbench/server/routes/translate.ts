@@ -14,18 +14,49 @@
  */
 
 import { Server } from 'hapi-latest';
+// import { schema } from 'packages/kbn-config-schema/target/types';
+import { schema } from '@kbn/config-schema';
+import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import TranslateService from '../services/TranslateService';
+import { CLUSTER } from '../services/utils/constants';
 
-export default function translate(server: Server, service: TranslateService) {
-  server.route({
+export default function translate(server: IRouter, service: TranslateService) {
+  // server.post({
+  //   path: '/api/sql_console/translatesql',
+  //   method: 'POST',
+  //   handler: service.translateSQL
+  // });
+
+  server.post({
     path: '/api/sql_console/translatesql',
-    method: 'POST',
-    handler: service.translateSQL
+    validate: {
+      body: schema.any()
+    }
+  }, async (
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    service.translateSQL(request, response);
+    return;
   });
 
-  server.route({
+  // server.route({
+  //   path: '/api/sql_console/translateppl',
+  //   method: 'POST',
+  //   handler: service.translatePPL
+  // });
+  server.post({
     path: '/api/sql_console/translateppl',
-    method: 'POST',
-    handler: service.translatePPL
-  });
+    validate: {
+      body: schema.any()
+    }
+  }, async (
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    service.translatePPL(request, response);
+    return;
+  })
 }

@@ -13,3 +13,14 @@
  *   permissions and limitations under the License.
  */
 
+import './index.scss';
+// import './ace-themes/sql_console.css';
+
+import { WorkbenchPlugin } from './plugin';
+
+// This exports static code and TypeScript types,
+// as well as, Kibana Platform `plugin()` initializer.
+export function plugin() {
+  return new WorkbenchPlugin();
+}
+export { WorkbenchPluginSetup, WorkbenchPluginStart } from './types';

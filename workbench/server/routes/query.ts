@@ -14,55 +14,77 @@
  */
 
 import { Server } from 'hapi-latest';
+// import { schema } from 'packages/kbn-config-schema/target/types';
+import { schema } from '@kbn/config-schema';
+import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import QueryService from '../services/QueryService';
 import { ROUTE_PATH_SQL_QUERY, ROUTE_PATH_PPL_QUERY, ROUTE_PATH_SQL_CSV, ROUTE_PATH_SQL_JSON, ROUTE_PATH_SQL_TEXT, ROUTE_PATH_PPL_CSV, ROUTE_PATH_PPL_JSON, ROUTE_PATH_PPL_TEXT } from "../utils/constants";
 
-export default function query(server: Server, service: QueryService) {
-  server.route({
+export default function query(server: IRouter, service: QueryService) {
+  // server.route({
+  //   path: ROUTE_PATH_SQL_QUERY,
+  //   method: 'POST',
+  //   handler: service.describeSQLQuery
+  // });
+  server.post({
     path: ROUTE_PATH_SQL_QUERY,
-    method: 'POST',
-    handler: service.describeSQLQuery
-  });
+    validate: {
+      body: schema.any()
+    }
+  }, async(
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    // console.log("context is", context);
+    // console.log("request is", request);
+    // console.log("respnose is", response);
+    // console.log(response.ok);
+    // console.log(context.core.elasticsearch);
 
-  server.route({
-    path: ROUTE_PATH_PPL_QUERY,
-    method: 'POST',
-    handler: service.describePPLQuery
-  });
+    service.describeSQLQuery(request, response, context.core.elasticsearch.legacy.client);
+    return;
+  })
 
-  server.route({
-    path: ROUTE_PATH_SQL_CSV,
-    method: 'POST',
-    handler: service.describeSQLCsv
-  });
+  // server.route({
+  //   path: ROUTE_PATH_PPL_QUERY,
+  //   method: 'POST',
+  //   handler: service.describePPLQuery
+  // });
 
-  server.route({
-    path: ROUTE_PATH_PPL_CSV,
-    method: 'POST',
-    handler: service.describePPLCsv
-  });
+  // server.route({
+  //   path: ROUTE_PATH_SQL_CSV,
+  //   method: 'POST',
+  //   handler: service.describeSQLCsv
+  // });
 
-  server.route({
-    path: ROUTE_PATH_SQL_JSON,
-    method: 'POST',
-    handler: service.describeSQLJson
-  });
+  // server.route({
+  //   path: ROUTE_PATH_PPL_CSV,
+  //   method: 'POST',
+  //   handler: service.describePPLCsv
+  // });
 
-  server.route({
-    path: ROUTE_PATH_PPL_JSON,
-    method: 'POST',
-    handler: service.describePPLJson
-  });
+  // server.route({
+  //   path: ROUTE_PATH_SQL_JSON,
+  //   method: 'POST',
+  //   handler: service.describeSQLJson
+  // });
 
-  server.route({
-    path: ROUTE_PATH_SQL_TEXT,
-    method: 'POST',
-    handler: service.describeSQLText
-  });
+  // server.route({
+  //   path: ROUTE_PATH_PPL_JSON,
+  //   method: 'POST',
+  //   handler: service.describePPLJson
+  // });
 
-  server.route({
-    path: ROUTE_PATH_PPL_TEXT,
-    method: 'POST',
-    handler: service.describePPLText
-  });
+  // server.route({
+  //   path: ROUTE_PATH_SQL_TEXT,
+  //   method: 'POST',
+  //   handler: service.describeSQLText
+  // });
+
+  // server.route({
+  //   path: ROUTE_PATH_PPL_TEXT,
+  //   method: 'POST',
+  //   handler: service.describePPLText
+  // });
 }

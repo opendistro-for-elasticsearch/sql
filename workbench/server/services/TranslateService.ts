@@ -23,7 +23,7 @@ export default class TranslateService {
     this.client = client;
   }
 
-  translateSQL = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  translateSQL = async (request: Request, h: ResponseToolkit) => {
     try {
       const params = {
         body: JSON.stringify(request.payload),
@@ -37,7 +37,7 @@ export default class TranslateService {
     }
   };
 
-  translatePPL = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  translatePPL = async (request: Request, h: ResponseToolkit) => {
     try {
       const params = {
         body: JSON.stringify(request.payload),

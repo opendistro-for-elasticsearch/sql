@@ -18,6 +18,7 @@ import "regenerator-runtime/runtime";
 import { Request, ResponseToolkit } from 'hapi-latest';
 import { CLUSTER } from './utils/constants';
 import _ from "lodash";
+import { IKibanaResponse } from "kibana/server";
 
 export default class QueryService {
   private client: any;
@@ -25,52 +26,60 @@ export default class QueryService {
     this.client = client;
   }
 
-  describeQueryInternal = async (request: Request, h: ResponseToolkit, format: string, responseFormat: string, err?: Error) => {
+  describeQueryInternal = async (request: Request, h, format: string, responseFormat: string, client) => {
     try {
       const params = {
         body: JSON.stringify(request.payload),
       };
-      const { callWithRequest } = await this.client.getCluster(CLUSTER.SQL);
+      console.log("about to call get cluster");
+      console.log('client is', client);
+      const { callWithRequest } = await client.callAsCurrentUser(
+        'search',
+        {
+          index: CLUSTER.SQL
+        }
+      );    // client.getCluster(CLUSTER.SQL);
       const createResponse = await callWithRequest(request, format, params);
-      return h.response({
-        ok: true, resp:
+      return h.ok({
+         resp:
           _.isEqual(responseFormat, "json") ? JSON.stringify(createResponse) : createResponse
       });
     } catch (err) {
       console.log(err);
+      return h.response({ ok: false, resp: err.message });
     }
-    return h.response({ ok: false, resp: err.message });
+    // return h.response({ ok: false, resp: err.message });
   };
 
-  describeSQLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.sqlQuery", "json", err)
+  describeSQLQuery = async (request: Request, h, client) => {
+    return this.describeQueryInternal(request, h, "sql.sqlQuery", "json", client)
   };
 
-  describePPLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.pplQuery", "json", err)
-  };
+  // describePPLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  //   return this.describeQueryInternal(request, h, "sql.pplQuery", "json")
+  // };
 
-  describeSQLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.sqlCsv", null, err)
-  };
+  // describeSQLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  //   return this.describeQueryInternal(request, h, "sql.sqlCsv", null)
+  // };
 
-  describePPLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.pplCsv", null, err)
-  };
+  // describePPLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  //   return this.describeQueryInternal(request, h, "sql.pplCsv", null)
+  // };
 
-  describeSQLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.sqlJson", "json", err)
-  };
+  // describeSQLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  //   return this.describeQueryInternal(request, h, "sql.sqlJson", "json")
+  // };
 
-  describePPLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.pplJson", "json", err)
-  };
+  // describePPLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  //   return this.describeQueryInternal(request, h, "sql.pplJson", "json")
+  // };
 
-  describeSQLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.sqlText", null, err)
-  };
+  // describeSQLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  //   return this.describeQueryInternal(request, h, "sql.sqlText", null)
+  // };
 
-  describePPLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.pplText", null, err)
-  };
+  // describePPLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  //   return this.describeQueryInternal(request, h, "sql.pplText", null)
+  // };
 }
