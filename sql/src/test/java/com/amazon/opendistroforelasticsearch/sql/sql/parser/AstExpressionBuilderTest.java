@@ -279,19 +279,19 @@ class AstExpressionBuilderTest {
   }
 
   @Test
-  public void canBuildCaseStatementWithWhenConditions() {
+  public void canBuildCaseConditionStatement() {
     assertEquals(
         caseWhen(
-            stringLiteral("age2"),
+            null, // no else statement
             Pair.of(
                 function(">", qualifiedName("age"), intLiteral(30)),
                 stringLiteral("age1"))),
-        buildExprAst("CASE WHEN age > 30 THEN 'age1' ELSE 'age2' END")
+        buildExprAst("CASE WHEN age > 30 THEN 'age1' END")
     );
   }
 
   @Test
-  public void canBuildCaseStatementWithWhenValues() {
+  public void canBuildCaseValueStatement() {
     assertEquals(
         caseWhen(
             qualifiedName("age"),
