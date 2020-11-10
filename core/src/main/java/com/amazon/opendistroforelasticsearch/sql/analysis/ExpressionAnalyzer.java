@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.When;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
@@ -43,11 +44,12 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
-import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.When;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -168,21 +170,29 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitCase(Case node, AnalysisContext context) {
-    return new CaseValue(
-        node.getWhenStatements()
-            .stream()
-            .map(when -> new When(
-                ((node.getCaseValue() == null)
-                    ? analyze(when.getLeft(), context)
-                    : (Expression) repository.compile(
-                        BuiltinFunctionName.EQUAL.getName(),
-                        Arrays.asList(
-                            analyze(node.getCaseValue(), context),
-                            analyze(when.getLeft(), context)))),
-                analyze(when.getRight(), context)))
-            .collect(Collectors.toList()),
-        node.getElseStatement() == null ? null
-            : analyze(node.getElseStatement(), context));
+    List<WhenClause> whens = new ArrayList<>();
+    for (When when : node.getWhenStatements()) {
+      if (node.getCaseValue() == null) {
+        whens.add((WhenClause) analyze(when, context));
+      } else {
+        whens.add(
+            (WhenClause) analyze(new When(
+                new Function("=", Arrays.asList(node.getCaseValue(), when.getCondition())),
+                when.getResult()
+            ), context));
+      }
+    }
+
+    Expression defaultResult = (node.getElseStatement() == null)
+        ? null : analyze(node.getElseStatement(), context);
+    return new CaseClause(whens, defaultResult);
+  }
+
+  @Override
+  public Expression visitWhen(When node, AnalysisContext context) {
+    return new WhenClause(
+        analyze(node.getCondition(), context),
+        analyze(node.getResult(), context));
   }
 
   @Override

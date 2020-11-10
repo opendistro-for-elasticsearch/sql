@@ -35,7 +35,6 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -109,8 +108,8 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         AstDSL.caseWhen(
             AstDSL.qualifiedName("integer_value"),
             AstDSL.stringLiteral("Default value"),
-            Pair.of(AstDSL.intLiteral(30), AstDSL.stringLiteral("Thirty")),
-            Pair.of(AstDSL.intLiteral(50), AstDSL.stringLiteral("Fifty"))));
+            AstDSL.when(AstDSL.intLiteral(30), AstDSL.stringLiteral("Thirty")),
+            AstDSL.when(AstDSL.intLiteral(50), AstDSL.stringLiteral("Fifty"))));
   }
 
   @Test
@@ -126,11 +125,11 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
                 DSL.literal("Thirty"))),
         AstDSL.caseWhen(
             null,
-            Pair.of(
+            AstDSL.when(
                 AstDSL.function(">",
                     AstDSL.qualifiedName("integer_value"),
                     AstDSL.intLiteral(50)), AstDSL.stringLiteral("Fifty")),
-            Pair.of(
+            AstDSL.when(
                 AstDSL.function(">",
                     AstDSL.qualifiedName("integer_value"),
                     AstDSL.intLiteral(30)), AstDSL.stringLiteral("Thirty"))));

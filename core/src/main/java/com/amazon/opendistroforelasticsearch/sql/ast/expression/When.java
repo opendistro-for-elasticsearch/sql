@@ -18,46 +18,40 @@ package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * AST node that represents CASE clause similar as switch statement in programming language.
+ * AST node that represents WHEN clause.
  */
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Getter
+@RequiredArgsConstructor
 @ToString
-public class Case extends UnresolvedExpression {
+public class When extends UnresolvedExpression {
 
   /**
-   * Value to be compared by WHEN statements. Null in the case of CASE WHEN conditions.
+   * WHEN condition.
    */
-  private final UnresolvedExpression caseValue;
+  private final UnresolvedExpression condition;
 
   /**
-   * Expression list that represents WHEN statements. Each is a mapping from condition
-   * to its result.
+   * Result if condition matched.
    */
-  private final List<When> whenStatements;
-
-  /**
-   * Expression that represents ELSE statement result.
-   */
-  private final UnresolvedExpression elseStatement;
+  private final UnresolvedExpression result;
 
   @Override
   public List<? extends Node> getChild() {
-    return Collections.emptyList(); //TODO: AST when is required?
+    return ImmutableList.of(condition, result);
   }
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-    return nodeVisitor.visitCase(this, context);
+    return nodeVisitor.visitWhen(this, context);
   }
 
 }

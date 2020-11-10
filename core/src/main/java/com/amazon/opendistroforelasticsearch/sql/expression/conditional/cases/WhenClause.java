@@ -16,45 +16,42 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@AllArgsConstructor
 @EqualsAndHashCode
 @Getter
+@RequiredArgsConstructor
 @ToString
-public class CaseValue implements Expression {
+public class WhenClause implements Expression {
 
-  private final List<When> whenClauses;
-  private Expression defaultResult;
+  private final Expression condition;
+  private final Expression result;
+
+  public boolean isTrue(Environment<Expression, ExprValue> valueEnv) {
+    return condition.valueOf(valueEnv).booleanValue();
+  }
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    for (When when : whenClauses) {
-      if (when.isTrue(valueEnv)) {
-        return when.valueOf(valueEnv);
-      }
-    }
-    return (defaultResult == null) ? ExprNullValue.of() : defaultResult.valueOf(valueEnv);
+    return result.valueOf(valueEnv);
   }
 
   @Override
   public ExprType type() {
-    return whenClauses.get(0).type();
+    return result.type();
   }
 
   @Override
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
-    return visitor.visitCase(this, context);
+    return visitor.visitWhen(this, context);
   }
 
 }

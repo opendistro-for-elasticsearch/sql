@@ -16,42 +16,57 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression that represent CASE clause which is quite different from a regular function.
+ * Functions have pre-defined signature
+ * This is why case expressions are required to check evaluate "manually"
+ */
+@AllArgsConstructor
 @EqualsAndHashCode
 @Getter
-@RequiredArgsConstructor
 @ToString
-public class When implements Expression {
+public class CaseClause implements Expression {
 
-  private final Expression condition;
-  private final Expression result;
+  /**
+   * List of WHEN statements.
+   */
+  private final List<WhenClause> whenClauses;
 
-  public boolean isTrue(Environment<Expression, ExprValue> valueEnv) {
-    return condition.valueOf(valueEnv).booleanValue();
-  }
+  /**
+   * Default result if none of WHEN conditions matches.
+   */
+  private final Expression defaultResult;
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    return result.valueOf(valueEnv);
+    for (WhenClause when : whenClauses) {
+      if (when.isTrue(valueEnv)) {
+        return when.valueOf(valueEnv);
+      }
+    }
+    return (defaultResult == null) ? ExprNullValue.of() : defaultResult.valueOf(valueEnv);
   }
 
   @Override
   public ExprType type() {
-    return result.type();
+    return whenClauses.get(0).type();
   }
 
   @Override
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
-    return null;
+    return visitor.visitCase(this, context);
   }
 
 }

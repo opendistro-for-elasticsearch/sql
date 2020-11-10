@@ -21,8 +21,8 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
-import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.When;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
@@ -511,12 +511,12 @@ public class DSL {
   }
 
   public static Expression cases(Expression defaultResult,
-                                 When... whenClauses) {
-    return new CaseValue(Arrays.asList(whenClauses), defaultResult);
+                                 WhenClause... whenClauses) {
+    return new CaseClause(Arrays.asList(whenClauses), defaultResult);
   }
 
-  public static When when(Expression condition, Expression result) {
-    return new When(condition, result);
+  public static WhenClause when(Expression condition, Expression result) {
+    return new WhenClause(condition, result);
   }
 
   public FunctionExpression interval(Expression value, Expression unit) {

@@ -36,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.When;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
@@ -195,10 +196,8 @@ public class AstDSL {
    *     [ELSE result]
    * END
    */
-  @SafeVarargs
   public UnresolvedExpression caseWhen(UnresolvedExpression elseStatement,
-                                       Pair<UnresolvedExpression, UnresolvedExpression>...
-                                           whenStatements) {
+                                       When... whenStatements) {
     return caseWhen(null, elseStatement, whenStatements);
   }
 
@@ -209,12 +208,14 @@ public class AstDSL {
    *     [ELSE result]
    * END
    */
-  @SafeVarargs
   public UnresolvedExpression caseWhen(UnresolvedExpression caseValueExpr,
                                        UnresolvedExpression elseStatement,
-                                       Pair<UnresolvedExpression, UnresolvedExpression>...
-                                           whenStatements) {
+                                       When... whenStatements) {
     return new Case(caseValueExpr, Arrays.asList(whenStatements), elseStatement);
+  }
+
+  public When when(UnresolvedExpression condition, UnresolvedExpression result) {
+    return new When(condition, result);
   }
 
   public UnresolvedExpression window(Function function,
