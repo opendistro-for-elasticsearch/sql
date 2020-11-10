@@ -58,19 +58,8 @@ export const WorkbenchApp = ({ basename, notifications, http, navigation }: Work
     <Router basename={'/' + basename}>
       <I18nProvider>
         <div>
-          <EuiPage restrictWidth="1000px">
+          <EuiPage>
             <EuiPageBody>
-              {/* <EuiPageHeader>
-                <EuiTitle size="l">
-                  <h1>
-                    <FormattedMessage
-                      id="temp.helloWorldText"
-                      defaultMessage="{name}"
-                      values={{ name: PLUGIN_NAME }}
-                    />
-                  </h1>
-                </EuiTitle>
-              </EuiPageHeader> */}
               <Route
                 path="/"
                 render={(props) => (
@@ -81,39 +70,6 @@ export const WorkbenchApp = ({ basename, notifications, http, navigation }: Work
                   />
                 )}
               />
-              {/* <EuiPageContent>
-                <EuiPageContentHeader>
-                  <EuiTitle>
-                    <h2>
-                      <FormattedMessage
-                        id="temp.congratulationsTitle"
-                        defaultMessage="Congratulations, you have successfully created a new Kibana Plugin!"
-                      />
-                    </h2>
-                  </EuiTitle>
-                </EuiPageContentHeader>
-                <EuiPageContentBody>
-                  <EuiText>
-                    <p>
-                      <FormattedMessage
-                        id="temp.content"
-                        defaultMessage="Look through the generated code and check out the plugin development documentation."
-                      />
-                    </p>
-                    <EuiHorizontalRule />
-                    <p>
-                      <FormattedMessage
-                        id="temp.timestampText"
-                        defaultMessage="Last timestamp: {time}"
-                        values={{ time: timestamp ? timestamp : 'Unknown' }}
-                      />
-                    </p>
-                    <EuiButton type="primary" size="s" onClick={onClickHandler}>
-                      <FormattedMessage id="temp.buttonText" defaultMessage="Get data" />
-                    </EuiButton>
-                  </EuiText>
-                </EuiPageContentBody>
-              </EuiPageContent> */}
             </EuiPageBody>
           </EuiPage>
         </div>

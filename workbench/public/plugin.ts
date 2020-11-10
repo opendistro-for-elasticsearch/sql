@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-import { AppMountParameters, CoreSetup, CoreStart, Plugin } from '../../../src/core/public';
+import { AppMountParameters, CoreSetup, CoreStart, DEFAULT_APP_CATEGORIES, Plugin } from '../../../src/core/public';
 import { WorkbenchPluginSetup, WorkbenchPluginStart, AppPluginStartDependencies } from './types';
 import { PLUGIN_NAME } from '../common';
 
@@ -21,8 +21,10 @@ export class WorkbenchPlugin implements Plugin<WorkbenchPluginSetup, WorkbenchPl
   public setup(core: CoreSetup): WorkbenchPluginSetup {
     // Register an application into the side navigation menu
     core.application.register({
-      id: 'Workbench',
+      id: 'opendistro-query-workbench',
       title: PLUGIN_NAME,
+      category: DEFAULT_APP_CATEGORIES.kibana,
+      order: 8010,
       async mount(params: AppMountParameters) {
         // Load application bundle
         const { renderApp } = await import('./application');
