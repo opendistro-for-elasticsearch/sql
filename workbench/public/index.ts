@@ -14,7 +14,6 @@
  */
 
 import './index.scss';
-// import './ace-themes/sql_console.css';
 
 import { WorkbenchPlugin } from './plugin';
 

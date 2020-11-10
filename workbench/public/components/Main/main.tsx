@@ -181,7 +181,6 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
 }
 
 export class Main extends React.Component<MainProps, MainState> {
-  // httpClient: IHttpService;
   httpClient: any;
 
   constructor(props: MainProps) {
@@ -622,7 +621,6 @@ export class Main extends React.Component<MainProps, MainState> {
 
     return (
       <div>
-        <Header />
         <div className="sql-console-query-container">
           <div className="query-language-switch">
             <EuiFlexGroup alignItems="center">
