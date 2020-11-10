@@ -15,11 +15,7 @@
 
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import { Request, ResponseToolkit } from 'hapi-latest';
-import { CLUSTER } from './utils/constants';
 import _ from "lodash";
-import { IKibanaResponse, KibanaRequest } from "kibana/server";
-import { KibanaResponse } from "src/core/server/http/router";
 
 export default class QueryService {
   private client: any;
@@ -37,7 +33,6 @@ export default class QueryService {
         body: JSON.stringify(queryRequest) 
       };
       // console.log('request is', request);
-      console.log("about to call get cluster");
       // console.log('client is', this.client);
       // const { callWithRequest } = await client.callAsCurrentUser(
       //   'search',
@@ -45,12 +40,12 @@ export default class QueryService {
       //     index: CLUSTER.SQL
       //   }
       // );    // client.getCluster(CLUSTER.SQL);
-      const callWithRequest = await this.client.asScoped(request).callAsCurrentUser(format, params);
-      console.log('callwithrequest is', callWithRequest);
+      const queryResponse = await this.client.asScoped(request).callAsCurrentUser(format, params);
+      console.log('callwithrequest is', queryResponse);
       const ret = {
         data: {
           ok: true,
-          resp: _.isEqual(responseFormat, "json") ? JSON.stringify(callWithRequest) : callWithRequest
+          resp: _.isEqual(responseFormat, "json") ? JSON.stringify(queryResponse) : queryResponse
         }
       }
       return ret;
@@ -58,7 +53,6 @@ export default class QueryService {
       console.log(err);
       // return h.response({ ok: false, resp: err.message });
     }
-    // return h.response({ ok: false, resp: err.message });
   };
 
   describeSQLQuery = async (request: string) => {
@@ -86,7 +80,6 @@ export default class QueryService {
   };
 
   describeSQLText = async (request: string) => {
-    // console.log('in describeSQLText');
     return this.describeQueryInternal(request, "sql.sqlText", null)
   };
 

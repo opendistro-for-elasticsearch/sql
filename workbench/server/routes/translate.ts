@@ -18,6 +18,7 @@ import { Server } from 'hapi-latest';
 import { schema } from '@kbn/config-schema';
 import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import TranslateService from '../services/TranslateService';
+import { convertQueryToString } from '../services/utils/constants';
 import { CLUSTER } from '../services/utils/constants';
 
 export default function translate(server: IRouter, service: TranslateService) {
@@ -37,8 +38,13 @@ export default function translate(server: IRouter, service: TranslateService) {
     request,
     response
   ): Promise <IKibanaResponse<any | ResponseError>> => {
-    service.translateSQL(request, response);
-    return;
+    console.log('request in translate is', request);
+    const queryString = convertQueryToString(request.url.query);
+    console.log('query string in translate is', queryString);
+    const retVal = service.translateSQL(queryString, response);
+    return response.ok({
+      body: retVal
+    });
   });
 
   // server.route({
