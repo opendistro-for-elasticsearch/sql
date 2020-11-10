@@ -14,18 +14,12 @@
  */
 
 import { Server } from 'hapi-latest';
-// import { schema } from 'packages/kbn-config-schema/target/types';
 import { schema } from '@kbn/config-schema';
 import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import QueryService from '../services/QueryService';
 import { ROUTE_PATH_SQL_QUERY, ROUTE_PATH_PPL_QUERY, ROUTE_PATH_SQL_CSV, ROUTE_PATH_SQL_JSON, ROUTE_PATH_SQL_TEXT, ROUTE_PATH_PPL_CSV, ROUTE_PATH_PPL_JSON, ROUTE_PATH_PPL_TEXT } from "../utils/constants";
 
 export default function query(server: IRouter, service: QueryService) {
-  // server.route({
-  //   path: ROUTE_PATH_SQL_QUERY,
-  //   method: 'POST',
-  //   handler: service.describeSQLQuery
-  // });
   server.post({
     path: ROUTE_PATH_SQL_QUERY,
     validate: {
@@ -36,29 +30,61 @@ export default function query(server: IRouter, service: QueryService) {
     request,
     response
   ): Promise <IKibanaResponse<any | ResponseError>> => {
-    console.log("request is", request.url.query);
+    // console.log("request is", request.url.query);
     const queryString = convertQueryToString(request.url.query);
-    console.log('query string is', queryString);
-    // console.log("respnose is", response);
-    // console.log(response.ok);
-    // console.log(context.core.elasticsearch);
+    // console.log('query string is', queryString);
 
     const retVal = await service.describeSQLQuery(queryString, response);
-    console.log('described sql query. retval is', retVal);
-    return retVal;
-  })
+    return response.ok({
+      body: retVal
+    });
+  });
 
-  // server.route({
-  //   path: ROUTE_PATH_PPL_QUERY,
-  //   method: 'POST',
-  //   handler: service.describePPLQuery
-  // });
+  server.post({
+    path: ROUTE_PATH_PPL_QUERY,
+    validate: {
+      body: schema.any()
+    }
+  }, async(
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    // console.log("request is", request.url.query);
+    const queryString = convertQueryToString(request.url.query);
+    // console.log('query string is', queryString);
+
+    const retVal = await service.describePPLQuery(queryString, response);
+    return response.ok({
+      body: retVal
+    });
+  });
 
   // server.route({
   //   path: ROUTE_PATH_SQL_CSV,
   //   method: 'POST',
   //   handler: service.describeSQLCsv
   // });
+  server.post({
+    path: ROUTE_PATH_SQL_CSV,
+    validate: {
+      body: schema.any()
+    }
+  }, async(
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    // console.log("request is", request.url.query);
+    console.log('in describe sql csv');
+    const queryString = convertQueryToString(request.url.query);
+    // console.log('query string is', queryString);
+
+    const retVal = await service.describeSQLCsv(queryString, response);
+    return response.ok({
+      body: retVal
+    });
+  });
 
   // server.route({
   //   path: ROUTE_PATH_PPL_CSV,
@@ -97,9 +123,6 @@ const convertQueryToString = (query) => {
   let index;
   var queryString = "";
   for (index = 0; index < Object.keys(query).length; ++index) {
-    // queryString.concat(query[index.toString()]);
-    console.log('in loop, queryString is', queryString);
-    console.log('index to string is', query[index.toString()]);
     queryString += query[index.toString()];
   };
   return queryString;

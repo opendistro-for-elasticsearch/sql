@@ -19,6 +19,7 @@ import { Request, ResponseToolkit } from 'hapi-latest';
 import { CLUSTER } from './utils/constants';
 import _ from "lodash";
 import { IKibanaResponse, KibanaRequest } from "kibana/server";
+import { KibanaResponse } from "src/core/server/http/router";
 
 export default class QueryService {
   private client: any;
@@ -28,11 +29,12 @@ export default class QueryService {
 
   describeQueryInternal = async (request: string, response, format: string, responseFormat: string) => {
     try {
+      console.log('request is', request);
       const queryRequest = {
         query: request
       };
       const params = {
-        body: JSON.stringify(queryRequest),
+        body: JSON.stringify(queryRequest) 
       };
       // console.log('request is', request);
       console.log("about to call get cluster");
@@ -43,17 +45,15 @@ export default class QueryService {
       //     index: CLUSTER.SQL
       //   }
       // );    // client.getCluster(CLUSTER.SQL);
-      const callWithRequest = await this.client.asScoped(request).callAsCurrentUser('sql.sqlQuery', params);
+      const callWithRequest = await this.client.asScoped(request).callAsCurrentUser(format, params);
       console.log('callwithrequest is', callWithRequest);
-      // return;
-      // const createResponse = await callWithRequest(request, format, params);
-      // return response.ok({
-      //    resp:
-      //     _.isEqual(responseFormat, "json") ? JSON.stringify(createResponse) : createResponse
-      // });
-      return response.ok({
-        data: JSON.stringify(callWithRequest)
-      })
+      const ret = {
+        data: {
+          ok: true,
+          resp: _.isEqual(responseFormat, "json") ? JSON.stringify(callWithRequest) : callWithRequest
+        }
+      }
+      return ret;
     } catch (err) {
       console.log(err);
       // return h.response({ ok: false, resp: err.message });
@@ -61,17 +61,17 @@ export default class QueryService {
     // return h.response({ ok: false, resp: err.message });
   };
 
-  describeSQLQuery = async (request: string, h) => {
-    return this.describeQueryInternal(request, h, "sql.sqlQuery", "json");
+  describeSQLQuery = async (request: string, response) => {
+    return this.describeQueryInternal(request, response, "sql.sqlQuery", "json");
   };
 
-  // describePPLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
-  //   return this.describeQueryInternal(request, h, "sql.pplQuery", "json")
-  // };
+  describePPLQuery = async (request: string, response) => {
+    return this.describeQueryInternal(request, response, "sql.pplQuery", "json")
+  };
 
-  // describeSQLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
-  //   return this.describeQueryInternal(request, h, "sql.sqlCsv", null)
-  // };
+  describeSQLCsv = async (request: string, response) => {
+    return this.describeQueryInternal(request, response, "sql.sqlCsv", null)
+  };
 
   // describePPLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
   //   return this.describeQueryInternal(request, h, "sql.pplCsv", null)
