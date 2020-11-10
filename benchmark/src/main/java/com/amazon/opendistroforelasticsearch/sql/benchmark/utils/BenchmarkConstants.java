@@ -24,7 +24,6 @@ public class BenchmarkConstants {
   public static final String MYSQL = "mysql";
   public static final String MOCK1 = "mock1";
   public static final String MOCK2 = "mock2";
-  public static final String MOCK3 = "mock3";
   public static final String SUMMARY_FILE_NAME = "summary.jpg";
   public static final String OUTPUT_HTML_FILE_NAME = "index.html";
   private static final String QUERY_FILE_NAME_FORMAT = "%s.jpg";

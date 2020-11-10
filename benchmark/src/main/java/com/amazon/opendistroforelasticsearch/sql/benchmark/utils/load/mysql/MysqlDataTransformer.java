@@ -26,13 +26,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Data transformer for MySQL database.
  */
 public class MysqlDataTransformer implements DataTransformer {
-
-  private String transformedDataPath;
 
   /**
    * Data transforming function for MySQL.
@@ -43,27 +42,25 @@ public class MysqlDataTransformer implements DataTransformer {
    */
   @Override
   public DataFormat transformData(String dataPath) throws Exception {
-    File path = new File(dataPath);
+    final File path = new File(dataPath);
     if (!path.exists() || !path.isDirectory()) {
       throw new FileNotFoundException("Invalid Directory");
     }
 
     MysqlDataFormat result = new MysqlDataFormat();
 
-    // Create directory to store transformed json files
+    // Create directory to store transformed csv files.
     CommandExecution.executeCommand("mkdir " + dataPath + "mysql/");
-
-    // Create new json file for every  table / .tbl file
-    transformedDataPath = dataPath + "mysql/";
+    final String transformedDataPath = dataPath + "mysql/";
 
     for (String tableName : MysqlTpchSchema.schemaMap.keySet()) {
-      File table = new File(dataPath + tableName + ".tbl");
+      final File table = new File(dataPath + tableName + ".tbl");
       if (!table.exists() || !table.isFile()) {
         throw new FileNotFoundException(tableName + ".tbl not found");
       }
 
-      FileReader fileReader = new FileReader(table);
-      BufferedReader bufferedReader = new BufferedReader(fileReader);
+      final FileReader fileReader = new FileReader(table);
+      final BufferedReader bufferedReader = new BufferedReader(fileReader);
 
       int tableDataFilesIndex = 1;
       String filename = tableName + "_data_" + tableDataFilesIndex++ + ".csv";
@@ -72,20 +69,19 @@ public class MysqlDataTransformer implements DataTransformer {
           new FileWriter(transformedDataPath + filename, true));
 
       long tableLineIndex = 1;
+
+      // Create list of csv files for all tables. Each file contains 1000 data rows.
       try {
         result.addFile(tableName, transformedDataPath + filename);
         String line;
         while ((line = bufferedReader.readLine()) != null) {
           List<String> argsList = Arrays.asList(line.split("\\|"));
-          for (String field : argsList) {
-            writer.write("\"" + field + "\"");
-            if (argsList.indexOf(field) < argsList.size() - 1) {
-              writer.write(",");
-            }
-          }
+          String row = argsList.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(","));
+          writer.write(row);
           tableLineIndex++;
           writer.newLine();
 
+          // Close file when 1000 data rows are added and create new file to store next set of rows.
           if (tableLineIndex == 1000 * (tableDataFilesIndex - 1)) {
             writer.close();
             filename = tableName + "_data_" + tableDataFilesIndex++ + ".csv";

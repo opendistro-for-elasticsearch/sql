@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -40,7 +41,10 @@ public class MysqlDataFormat extends DataFormat {
     tableDataFilesList.get(tablename).add(filename);
   }
 
+  /**
+   * Returns list of data files for all tables.
+   */
   public Map<String, LinkedList<String>> getTableDataFilesList() {
-    return tableDataFilesList;
+    return Collections.unmodifiableMap(tableDataFilesList);
   }
 }

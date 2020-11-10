@@ -25,13 +25,15 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * Data loader for MySQL database.
  */
 public class MysqlDataLoader implements DataLoader {
 
-  private static String url = "jdbc:mysql://localhost/";
+  private static final String url = "jdbc:mysql://localhost/";
+  private String authUrl;
   private Connection connection = null;
   private Statement statement = null;
 
@@ -39,8 +41,8 @@ public class MysqlDataLoader implements DataLoader {
    * Constructor for MysqlDataLoader.
    */
   public MysqlDataLoader() {
-    url +=
-        "?user=" + BenchmarkService.mysqlUsername + "&password=" + BenchmarkService.mysqlPassword;
+    authUrl = url + "?user=" + BenchmarkService.mysqlUsername + "&password="
+        + BenchmarkService.mysqlPassword;
   }
 
   /**
@@ -56,7 +58,7 @@ public class MysqlDataLoader implements DataLoader {
     }
 
     Class.forName("com.mysql.cj.jdbc.Driver");
-    connection = DriverManager.getConnection(url);
+    connection = DriverManager.getConnection(authUrl);
     statement = connection.createStatement();
 
     createDatabase();
@@ -83,19 +85,14 @@ public class MysqlDataLoader implements DataLoader {
   private void createTables() throws Exception {
     for (String tablename : MysqlTpchSchema.schemaMap.keySet()) {
       String sql = "create table " + MysqlTpchSchema.databaseName + "." + tablename + " (";
-      for (String field : MysqlTpchSchema.schemaMap.get(tablename).keySet()) {
-        sql += field + " " + MysqlTpchSchema.schemaMap.get(tablename).get(field) + ", ";
-      }
 
-      sql += "primary key ( ";
-      int index = 1;
-      for (String key : MysqlTpchSchema.primaryKeyMap.get(tablename)) {
-        sql += key;
-        if (index++ < MysqlTpchSchema.primaryKeyMap.get(tablename).size()) {
-          sql += ", ";
-        }
-      }
-      sql += ")";
+      StringJoiner fields = new StringJoiner(", ", "", "");
+      MysqlTpchSchema.schemaMap.entrySet().forEach(field -> fields.add((CharSequence) field));
+      sql += fields.toString();
+
+      StringJoiner primaryKey = new StringJoiner(", ", ", primary key (", ")");
+      MysqlTpchSchema.primaryKeyMap.get(tablename).forEach(table -> primaryKey.add(table));
+      sql += primaryKey.toString();
 
       if (MysqlTpchSchema.foreignKeyMap.containsKey(tablename)) {
         for (String field : MysqlTpchSchema.foreignKeyMap.get(tablename).keySet()) {

@@ -33,7 +33,8 @@ import java.sql.Statement;
  */
 public class MysqlQueryRunner extends QueryRunner {
 
-  private static String url = "jdbc:mysql://localhost/";
+  private static final String url = "jdbc:mysql://localhost/";
+  private String authUrl;
   private Connection connection = null;
   private Statement statement = null;
   private ResultSet result = null;
@@ -54,10 +55,10 @@ public class MysqlQueryRunner extends QueryRunner {
    */
   @Override
   public void prepareQueryRunner(String query) throws Exception {
-    url +=
-        "?user=" + BenchmarkService.mysqlUsername + "&password=" + BenchmarkService.mysqlPassword;
+    authUrl = url + "?user=" + BenchmarkService.mysqlUsername + "&password="
+        + BenchmarkService.mysqlPassword;
     Class.forName("com.mysql.cj.jdbc.Driver");
-    connection = DriverManager.getConnection(url);
+    connection = DriverManager.getConnection(authUrl);
     statement = connection.createStatement();
     statement.executeUpdate("use " + MysqlTpchSchema.databaseName);
     this.query = query;
@@ -68,14 +69,14 @@ public class MysqlQueryRunner extends QueryRunner {
    */
   @Override
   public void checkQueryExecutionStatus(String benchmarkPath) throws Exception {
-    if (result.next() == false) {
+    if (!result.next()) {
       File benchmarkDirectory = new File(benchmarkPath);
       if (benchmarkDirectory.exists() && benchmarkDirectory.isDirectory()) {
-        BufferedWriter bufferedWriter = new BufferedWriter(
-            new FileWriter(benchmarkPath + "/mysql_failed_queries.txt", true));
-        bufferedWriter.write(query);
-        bufferedWriter.newLine();
-        bufferedWriter.close();
+        try (BufferedWriter bufferedWriter = new BufferedWriter(
+            new FileWriter(benchmarkPath + "/mysql_failed_queries.txt", true))) {
+          bufferedWriter.write(query);
+          bufferedWriter.newLine();
+        }
       } else {
         throw new FileNotFoundException("Invalid Directory");
       }

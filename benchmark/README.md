@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-* Git
+* Git 2.0 or later
 * Gradle 6.5 or later
 
 ## Run the benchmarking test
@@ -44,9 +44,9 @@ bash scripts/configure-environment.sh
 
 | Option | Description | Default Value |
 | --- | --- | --- |
-| types | List of databases to test | cassandra,mysql,elasticsearch|
+| types | List of databases to test. The acceptable values are elasticsearch, mysql and cassandra. | cassandra,mysql,elasticsearch|
 | outputFile | Name of the result's file | index.html |
-| scaleFactors | List of scale factors for dataset (1.0 indicates 1 GB) | 1.0 |
+| scaleFactors | List of fractional scale factors for dataset (1.0 indicates 1 GB) | 0.1 |
 | systemPassword | Password of the system | password |
 | mysqlUsername | Username for connecting to MySQL | root|
 | mysqlPassword | Password for connecting to MySQL | password |
@@ -55,7 +55,7 @@ bash scripts/configure-environment.sh
 
 ## Troubleshooting
 
-* If you get NoHostAvailableException for cassandra, rerun the test.
+* If you get NoHostAvailableException for Cassandra, rerun the test.
 
 * If you get Access Denied for MySQL, make sure user has all privileges.
 
