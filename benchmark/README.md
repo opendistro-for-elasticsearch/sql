@@ -46,7 +46,7 @@ bash scripts/configure-environment.sh
 | --- | --- | --- |
 | types | List of databases to test. The acceptable values are elasticsearch, mysql and cassandra. | cassandra,mysql,elasticsearch|
 | outputFile | Name of the result's file | index.html |
-| scaleFactors | List of fractional scale factors for dataset (1.0 indicates 1 GB) | 0.1 |
+| scaleFactors | List of fractional scale factors for dataset (1.0 indicates 1 GB). The maximum limit is 100000. | 0.1 |
 | systemPassword | Password of the system | password |
 | mysqlUsername | Username for connecting to MySQL | root|
 | mysqlPassword | Password for connecting to MySQL | password |
