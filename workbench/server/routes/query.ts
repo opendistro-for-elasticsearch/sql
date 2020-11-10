@@ -173,14 +173,3 @@ export default function query(server: IRouter, service: QueryService) {
     });
   });
 }
-
-// const convertQueryToString = (query) => {
-//   console.log('in query function, query is', query);
-//   console.log(query['0']);
-//   let index;
-//   var queryString = "";
-//   for (index = 0; index < Object.keys(query).length; ++index) {
-//     queryString += query[index.toString()];
-//   };
-//   return queryString;
-// }

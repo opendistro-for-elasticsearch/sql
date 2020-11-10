@@ -24,7 +24,6 @@ import {
 
 import { WorkbenchPluginSetup, WorkbenchPluginStart } from './types';
 import defineRoutes from './routes';
-import { IClusterClient } from 'src/core/server/elasticsearch/client';
 import sqlPlugin from './clusters/sql/sqlPlugin';
 
 

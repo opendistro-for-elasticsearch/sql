@@ -21,19 +21,6 @@ import QueryService from '../services/QueryService';
 
 
 export default function (router: IRouter, client: ILegacyClusterClient) {
-  // router.get(
-  //   {
-  //     path: '/api/workbench/example',
-  //     validate: false,
-  //   },
-  //   async (context, request, response) => {
-  //     return response.ok({
-  //       body: {
-  //         time: new Date().toISOString(),
-  //       },
-  //     });
-  //   }
-  // );
   const translateService = new TranslateService(client);
   registerTranslateRoute(router, translateService);
 

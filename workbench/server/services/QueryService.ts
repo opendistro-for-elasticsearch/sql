@@ -25,33 +25,28 @@ export default class QueryService {
 
   describeQueryInternal = async (request: string, format: string, responseFormat: string) => {
     try {
-      console.log('request is', request);
       const queryRequest = {
         query: request
       };
       const params = {
         body: JSON.stringify(queryRequest) 
       };
-      // console.log('request is', request);
-      // console.log('client is', this.client);
-      // const { callWithRequest } = await client.callAsCurrentUser(
-      //   'search',
-      //   {
-      //     index: CLUSTER.SQL
-      //   }
-      // );    // client.getCluster(CLUSTER.SQL);
+
       const queryResponse = await this.client.asScoped(request).callAsCurrentUser(format, params);
-      console.log('callwithrequest is', queryResponse);
-      const ret = {
+      return {
         data: {
           ok: true,
           resp: _.isEqual(responseFormat, "json") ? JSON.stringify(queryResponse) : queryResponse
         }
       }
-      return ret;
     } catch (err) {
       console.log(err);
-      // return h.response({ ok: false, resp: err.message });
+      return {
+        data: {
+          ok: false,
+          resp: err.message
+        }
+      }
     }
   };
 

@@ -13,7 +13,6 @@
  *   permissions and limitations under the License.
  */
 
-import { i18n } from '@kbn/i18n';
 import { AppMountParameters, CoreSetup, CoreStart, Plugin } from '../../../src/core/public';
 import { WorkbenchPluginSetup, WorkbenchPluginStart, AppPluginStartDependencies } from './types';
 import { PLUGIN_NAME } from '../common';
@@ -35,16 +34,7 @@ export class WorkbenchPlugin implements Plugin<WorkbenchPluginSetup, WorkbenchPl
     });
 
     // Return methods that should be available to other plugins
-    return {
-      getGreeting() {
-        return i18n.translate('temp.greetingText', {
-          defaultMessage: 'Hello from {name}!',
-          values: {
-            name: PLUGIN_NAME,
-          },
-        });
-      },
-    };
+    return {};
   }
 
   public start(core: CoreStart): WorkbenchPluginStart {

@@ -15,9 +15,8 @@
 
 import { NavigationPublicPluginStart } from '../../../src/plugins/navigation/public';
 
-export interface WorkbenchPluginSetup {
-  getGreeting: () => string;
-}
+export interface WorkbenchPluginSetup {}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface WorkbenchPluginStart {}
 

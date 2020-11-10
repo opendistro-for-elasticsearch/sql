@@ -13,6 +13,8 @@
  *   permissions and limitations under the License.
  */
 
+import { ParsedUrlQuery } from "querystring";
+
 export const SQL_TRANSLATE_ROUTE = `/_opendistro/_sql/_explain`;
 export const PPL_TRANSLATE_ROUTE = `/_opendistro/_ppl/_explain`;
 export const SQL_QUERY_ROUTE = `/_opendistro/_sql`;
@@ -33,9 +35,7 @@ export const CLUSTER = {
   DATA: 'data',
 };
 
-export const convertQueryToString = (query) => {
-  console.log('in query function, query is', query);
-  console.log(query['0']);
+export const convertQueryToString = (query: string | ParsedUrlQuery) => {
   let index;
   var queryString = "";
   for (index = 0; index < Object.keys(query).length; ++index) {
