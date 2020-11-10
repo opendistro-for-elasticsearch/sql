@@ -13,9 +13,8 @@
  *   permissions and limitations under the License.
  */
 
-import React, { useState } from 'react';
-import { i18n } from '@kbn/i18n';
-import { FormattedMessage, I18nProvider } from '@kbn/i18n/react';
+import React from 'react';
+import { I18nProvider } from '@kbn/i18n/react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import {
@@ -34,7 +33,6 @@ import {
 import { CoreStart } from '../../../../src/core/public';
 import { NavigationPublicPluginStart } from '../../../../src/plugins/navigation/public';
 
-import { PLUGIN_ID, PLUGIN_NAME } from '../../common';
 import { Main } from './Main';
 
 interface WorkbenchAppDeps {
@@ -44,9 +42,7 @@ interface WorkbenchAppDeps {
   navigation: NavigationPublicPluginStart;
 }
 
-const onChange = () => {
-
-}
+const onChange = () => {}
 
 export const WorkbenchApp = ({ basename, notifications, http, navigation }: WorkbenchAppDeps) => {
   // Use React hooks to manage state.
