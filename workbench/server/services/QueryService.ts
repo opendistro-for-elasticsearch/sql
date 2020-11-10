@@ -27,7 +27,7 @@ export default class QueryService {
     this.client = client;
   }
 
-  describeQueryInternal = async (request: string, response, format: string, responseFormat: string) => {
+  describeQueryInternal = async (request: string, format: string, responseFormat: string) => {
     try {
       console.log('request is', request);
       const queryRequest = {
@@ -61,25 +61,25 @@ export default class QueryService {
     // return h.response({ ok: false, resp: err.message });
   };
 
-  describeSQLQuery = async (request: string, response) => {
-    return this.describeQueryInternal(request, response, "sql.sqlQuery", "json");
+  describeSQLQuery = async (request: string) => {
+    return this.describeQueryInternal(request, "sql.sqlQuery", "json");
   };
 
-  describePPLQuery = async (request: string, response) => {
-    return this.describeQueryInternal(request, response, "sql.pplQuery", "json")
+  describePPLQuery = async (request: string) => {
+    return this.describeQueryInternal(request, "sql.pplQuery", "json")
   };
 
-  describeSQLCsv = async (request: string, response) => {
-    return this.describeQueryInternal(request, response, "sql.sqlCsv", null)
+  describeSQLCsv = async (request: string) => {
+    return this.describeQueryInternal(request, "sql.sqlCsv", null)
   };
 
-  // describePPLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
-  //   return this.describeQueryInternal(request, h, "sql.pplCsv", null)
-  // };
+  describePPLCsv = async (request: string) => {
+    return this.describeQueryInternal(request, "sql.pplCsv", null)
+  };
 
-  // describeSQLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
-  //   return this.describeQueryInternal(request, h, "sql.sqlJson", "json")
-  // };
+  describeSQLJson = async (request: string) => {
+    return this.describeQueryInternal(request, "sql.sqlJson", "json")
+  };
 
   // describePPLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
   //   return this.describeQueryInternal(request, h, "sql.pplJson", "json")

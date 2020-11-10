@@ -34,7 +34,7 @@ export default function query(server: IRouter, service: QueryService) {
     const queryString = convertQueryToString(request.url.query);
     // console.log('query string is', queryString);
 
-    const retVal = await service.describeSQLQuery(queryString, response);
+    const retVal = await service.describeSQLQuery(queryString);
     return response.ok({
       body: retVal
     });
@@ -54,7 +54,7 @@ export default function query(server: IRouter, service: QueryService) {
     const queryString = convertQueryToString(request.url.query);
     // console.log('query string is', queryString);
 
-    const retVal = await service.describePPLQuery(queryString, response);
+    const retVal = await service.describePPLQuery(queryString);
     return response.ok({
       body: retVal
     });
@@ -80,7 +80,7 @@ export default function query(server: IRouter, service: QueryService) {
     const queryString = convertQueryToString(request.url.query);
     // console.log('query string is', queryString);
 
-    const retVal = await service.describeSQLCsv(queryString, response);
+    const retVal = await service.describeSQLCsv(queryString);
     return response.ok({
       body: retVal
     });
@@ -91,6 +91,26 @@ export default function query(server: IRouter, service: QueryService) {
   //   method: 'POST',
   //   handler: service.describePPLCsv
   // });
+  server.post({
+    path: ROUTE_PATH_PPL_CSV,
+    validate: {
+      body: schema.any()
+    }
+  }, async(
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    // console.log("request is", request.url.query);
+    console.log('in describe ppl csv');
+    const queryString = convertQueryToString(request.url.query);
+    // console.log('query string is', queryString);
+
+    const retVal = await service.describePPLCsv(queryString);
+    return response.ok({
+      body: retVal
+    });
+  });
 
   // server.route({
   //   path: ROUTE_PATH_SQL_JSON,

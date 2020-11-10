@@ -60,7 +60,7 @@ export const WorkbenchApp = ({ basename, notifications, http, navigation }: Work
         <div>
           <EuiPage restrictWidth="1000px">
             <EuiPageBody>
-              <EuiPageHeader>
+              {/* <EuiPageHeader>
                 <EuiTitle size="l">
                   <h1>
                     <FormattedMessage
@@ -70,7 +70,7 @@ export const WorkbenchApp = ({ basename, notifications, http, navigation }: Work
                     />
                   </h1>
                 </EuiTitle>
-              </EuiPageHeader>
+              </EuiPageHeader> */}
               <Route
                 path="/"
                 render={(props) => (
