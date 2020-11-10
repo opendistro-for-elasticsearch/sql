@@ -23,57 +23,61 @@ export default class TranslateService {
   translateSQL = async (request: string) => {
     try {
       const queryRequest = {
-        query: request
+        query: request,
       };
 
       const params = {
         body: JSON.stringify(queryRequest),
       };
 
-      const queryResponse = await this.client.asScoped(request).callAsCurrentUser('sql.translateSQL', params);
+      const queryResponse = await this.client
+        .asScoped(request)
+        .callAsCurrentUser('sql.translateSQL', params);
       const ret = {
         data: {
           ok: true,
-          resp: queryResponse
-        }
-      }
+          resp: queryResponse,
+        },
+      };
       return ret;
     } catch (err) {
       console.log(err);
       return {
         data: {
           ok: false,
-          resp: err.message
-        }
-      }
+          resp: err.message,
+        },
+      };
     }
   };
 
   translatePPL = async (request: string) => {
     try {
       const queryRequest = {
-        query: request
+        query: request,
       };
 
       const params = {
         body: JSON.stringify(queryRequest),
       };
 
-      const queryResponse = await this.client.asScoped(request).callAsCurrentUser('sql.translatePPL', params);
+      const queryResponse = await this.client
+        .asScoped(request)
+        .callAsCurrentUser('sql.translatePPL', params);
       return {
         data: {
           ok: true,
-          resp: queryResponse
-        }
-      }
+          resp: queryResponse,
+        },
+      };
     } catch (err) {
       console.log(err);
       return {
         data: {
           ok: false,
-          resp: err.message
-        }
-      }
+          resp: err.message,
+        },
+      };
     }
   };
 }

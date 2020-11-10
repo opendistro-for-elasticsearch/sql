@@ -13,9 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-import _ from "lodash";
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import _ from 'lodash';
 
 export default class QueryService {
   private client: any;
@@ -26,59 +26,59 @@ export default class QueryService {
   describeQueryInternal = async (request: string, format: string, responseFormat: string) => {
     try {
       const queryRequest = {
-        query: request
+        query: request,
       };
       const params = {
-        body: JSON.stringify(queryRequest) 
+        body: JSON.stringify(queryRequest),
       };
 
       const queryResponse = await this.client.asScoped(request).callAsCurrentUser(format, params);
       return {
         data: {
           ok: true,
-          resp: _.isEqual(responseFormat, "json") ? JSON.stringify(queryResponse) : queryResponse
-        }
-      }
+          resp: _.isEqual(responseFormat, 'json') ? JSON.stringify(queryResponse) : queryResponse,
+        },
+      };
     } catch (err) {
       console.log(err);
       return {
         data: {
           ok: false,
-          resp: err.message
-        }
-      }
+          resp: err.message,
+        },
+      };
     }
   };
 
   describeSQLQuery = async (request: string) => {
-    return this.describeQueryInternal(request, "sql.sqlQuery", "json");
+    return this.describeQueryInternal(request, 'sql.sqlQuery', 'json');
   };
 
   describePPLQuery = async (request: string) => {
-    return this.describeQueryInternal(request, "sql.pplQuery", "json")
+    return this.describeQueryInternal(request, 'sql.pplQuery', 'json');
   };
 
   describeSQLCsv = async (request: string) => {
-    return this.describeQueryInternal(request, "sql.sqlCsv", null)
+    return this.describeQueryInternal(request, 'sql.sqlCsv', null);
   };
 
   describePPLCsv = async (request: string) => {
-    return this.describeQueryInternal(request, "sql.pplCsv", null)
+    return this.describeQueryInternal(request, 'sql.pplCsv', null);
   };
 
   describeSQLJson = async (request: string) => {
-    return this.describeQueryInternal(request, "sql.sqlJson", "json")
+    return this.describeQueryInternal(request, 'sql.sqlJson', 'json');
   };
 
   describePPLJson = async (request: string) => {
-    return this.describeQueryInternal(request, "sql.pplJson", "json")
+    return this.describeQueryInternal(request, 'sql.pplJson', 'json');
   };
 
   describeSQLText = async (request: string) => {
-    return this.describeQueryInternal(request, "sql.sqlText", null)
+    return this.describeQueryInternal(request, 'sql.sqlText', null);
   };
 
   describePPLText = async (request: string) => {
-    return this.describeQueryInternal(request, "sql.pplText", null)
+    return this.describeQueryInternal(request, 'sql.pplText', null);
   };
 }

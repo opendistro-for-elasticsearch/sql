@@ -19,37 +19,35 @@ import TranslateService from '../services/TranslateService';
 import { convertQueryToString } from '../services/utils/constants';
 
 export default function translate(server: IRouter, service: TranslateService) {
-  server.post({
-    path: '/api/sql_console/translatesql',
-    validate: {
-      body: schema.any()
+  server.post(
+    {
+      path: '/api/sql_console/translatesql',
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const queryString = convertQueryToString(request.url.query);
+      const retVal = await service.translateSQL(queryString);
+      return response.ok({
+        body: retVal,
+      });
     }
-  }, async (
-    context,
-    request,
-    response
-  ): Promise <IKibanaResponse<any | ResponseError>> => {
-    const queryString = convertQueryToString(request.url.query);
-    const retVal = await service.translateSQL(queryString);
-    return response.ok({
-      body: retVal
-    });
-  });
+  );
 
-  server.post({
-    path: '/api/sql_console/translateppl',
-    validate: {
-      body: schema.any()
+  server.post(
+    {
+      path: '/api/sql_console/translateppl',
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const queryString = convertQueryToString(request.url.query);
+      const retVal = await service.translatePPL(queryString);
+      return response.ok({
+        body: retVal,
+      });
     }
-  }, async (
-    context,
-    request,
-    response
-  ): Promise <IKibanaResponse<any | ResponseError>> => {
-    const queryString = convertQueryToString(request.url.query);
-    const retVal = await service.translatePPL(queryString);
-    return response.ok({
-      body: retVal
-    });
-  })
+  );
 }

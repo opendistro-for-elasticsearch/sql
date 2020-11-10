@@ -17,10 +17,7 @@ import React from 'react';
 import { I18nProvider } from '@kbn/i18n/react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-import {
-  EuiPage,
-  EuiPageBody,
-} from '@elastic/eui';
+import { EuiPage, EuiPageBody } from '@elastic/eui';
 
 import { CoreStart } from '../../../../src/core/public';
 import { NavigationPublicPluginStart } from '../../../../src/plugins/navigation/public';
@@ -34,7 +31,7 @@ interface WorkbenchAppDeps {
   navigation: NavigationPublicPluginStart;
 }
 
-const onChange = () => {}
+const onChange = () => {};
 
 export const WorkbenchApp = ({ basename, notifications, http, navigation }: WorkbenchAppDeps) => {
   return (
@@ -45,13 +42,7 @@ export const WorkbenchApp = ({ basename, notifications, http, navigation }: Work
             <EuiPageBody>
               <Route
                 path="/"
-                render={(props) => (
-                  <Main 
-                    httpClient={http} 
-                    {...props}
-                    onChange={onChange}
-                  />
-                )}
+                render={(props) => <Main httpClient={http} {...props} onChange={onChange} />}
               />
             </EuiPageBody>
           </EuiPage>
