@@ -13,11 +13,19 @@
  *   permissions and limitations under the License.
  */
 
-import { Server } from 'hapi-latest';
 import { schema } from '@kbn/config-schema';
 import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import QueryService from '../services/QueryService';
-import { ROUTE_PATH_SQL_QUERY, ROUTE_PATH_PPL_QUERY, ROUTE_PATH_SQL_CSV, ROUTE_PATH_SQL_JSON, ROUTE_PATH_SQL_TEXT, ROUTE_PATH_PPL_CSV, ROUTE_PATH_PPL_JSON, ROUTE_PATH_PPL_TEXT } from "../utils/constants";
+import { 
+  ROUTE_PATH_SQL_QUERY, 
+  ROUTE_PATH_PPL_QUERY, 
+  ROUTE_PATH_SQL_CSV, 
+  ROUTE_PATH_SQL_JSON, 
+  ROUTE_PATH_SQL_TEXT, 
+  ROUTE_PATH_PPL_CSV, 
+  ROUTE_PATH_PPL_JSON, 
+  ROUTE_PATH_PPL_TEXT 
+} from "../utils/constants";
 
 export default function query(server: IRouter, service: QueryService) {
   server.post({
@@ -30,9 +38,7 @@ export default function query(server: IRouter, service: QueryService) {
     request,
     response
   ): Promise <IKibanaResponse<any | ResponseError>> => {
-    // console.log("request is", request.url.query);
     const queryString = convertQueryToString(request.url.query);
-    // console.log('query string is', queryString);
 
     const retVal = await service.describeSQLQuery(queryString);
     return response.ok({
@@ -50,9 +56,7 @@ export default function query(server: IRouter, service: QueryService) {
     request,
     response
   ): Promise <IKibanaResponse<any | ResponseError>> => {
-    // console.log("request is", request.url.query);
     const queryString = convertQueryToString(request.url.query);
-    // console.log('query string is', queryString);
 
     const retVal = await service.describePPLQuery(queryString);
     return response.ok({
@@ -60,11 +64,6 @@ export default function query(server: IRouter, service: QueryService) {
     });
   });
 
-  // server.route({
-  //   path: ROUTE_PATH_SQL_CSV,
-  //   method: 'POST',
-  //   handler: service.describeSQLCsv
-  // });
   server.post({
     path: ROUTE_PATH_SQL_CSV,
     validate: {
@@ -75,10 +74,7 @@ export default function query(server: IRouter, service: QueryService) {
     request,
     response
   ): Promise <IKibanaResponse<any | ResponseError>> => {
-    // console.log("request is", request.url.query);
-    console.log('in describe sql csv');
     const queryString = convertQueryToString(request.url.query);
-    // console.log('query string is', queryString);
 
     const retVal = await service.describeSQLCsv(queryString);
     return response.ok({
@@ -86,11 +82,6 @@ export default function query(server: IRouter, service: QueryService) {
     });
   });
 
-  // server.route({
-  //   path: ROUTE_PATH_PPL_CSV,
-  //   method: 'POST',
-  //   handler: service.describePPLCsv
-  // });
   server.post({
     path: ROUTE_PATH_PPL_CSV,
     validate: {
@@ -101,10 +92,7 @@ export default function query(server: IRouter, service: QueryService) {
     request,
     response
   ): Promise <IKibanaResponse<any | ResponseError>> => {
-    // console.log("request is", request.url.query);
-    console.log('in describe ppl csv');
     const queryString = convertQueryToString(request.url.query);
-    // console.log('query string is', queryString);
 
     const retVal = await service.describePPLCsv(queryString);
     return response.ok({
@@ -112,29 +100,77 @@ export default function query(server: IRouter, service: QueryService) {
     });
   });
 
-  // server.route({
-  //   path: ROUTE_PATH_SQL_JSON,
-  //   method: 'POST',
-  //   handler: service.describeSQLJson
-  // });
+  server.post({
+    path: ROUTE_PATH_SQL_JSON,
+    validate: {
+      body: schema.any()
+    }
+  }, async(
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    const queryString = convertQueryToString(request.url.query);
 
-  // server.route({
-  //   path: ROUTE_PATH_PPL_JSON,
-  //   method: 'POST',
-  //   handler: service.describePPLJson
-  // });
+    const retVal = await service.describeSQLJson(queryString);
+    return response.ok({
+      body: retVal
+    });
+  });
 
-  // server.route({
-  //   path: ROUTE_PATH_SQL_TEXT,
-  //   method: 'POST',
-  //   handler: service.describeSQLText
-  // });
+  server.post({
+    path: ROUTE_PATH_PPL_JSON,
+    validate: {
+      body: schema.any()
+    }
+  }, async(
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    const queryString = convertQueryToString(request.url.query);
 
-  // server.route({
-  //   path: ROUTE_PATH_PPL_TEXT,
-  //   method: 'POST',
-  //   handler: service.describePPLText
-  // });
+    const retVal = await service.describePPLJson(queryString);
+    return response.ok({
+      body: retVal
+    });
+  });
+
+  server.post({
+    path: ROUTE_PATH_SQL_TEXT,
+    validate: {
+      body: schema.any()
+    }
+  }, async(
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    const queryString = convertQueryToString(request.url.query);
+
+    const retVal = await service.describeSQLText(queryString);
+    return response.ok({
+      body: retVal
+    });
+  });
+
+  server.post({
+    path: ROUTE_PATH_PPL_TEXT,
+    validate: {
+      body: schema.any()
+    }
+  }, async(
+    context,
+    request,
+    response
+  ): Promise <IKibanaResponse<any | ResponseError>> => {
+    const queryString = convertQueryToString(request.url.query);
+
+    const retVal = await service.describePPLText(queryString);
+    return response.ok({
+      body: retVal
+    });
+  });
 }
 
 const convertQueryToString = (query) => {

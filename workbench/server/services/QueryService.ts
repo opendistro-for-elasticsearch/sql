@@ -81,15 +81,16 @@ export default class QueryService {
     return this.describeQueryInternal(request, "sql.sqlJson", "json")
   };
 
-  // describePPLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
-  //   return this.describeQueryInternal(request, h, "sql.pplJson", "json")
-  // };
+  describePPLJson = async (request: string) => {
+    return this.describeQueryInternal(request, "sql.pplJson", "json")
+  };
 
-  // describeSQLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
-  //   return this.describeQueryInternal(request, h, "sql.sqlText", null)
-  // };
+  describeSQLText = async (request: string) => {
+    // console.log('in describeSQLText');
+    return this.describeQueryInternal(request, "sql.sqlText", null)
+  };
 
-  // describePPLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
-  //   return this.describeQueryInternal(request, h, "sql.pplText", null)
-  // };
+  describePPLText = async (request: string) => {
+    return this.describeQueryInternal(request, "sql.pplText", null)
+  };
 }
