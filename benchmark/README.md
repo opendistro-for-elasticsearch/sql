@@ -4,13 +4,27 @@
 
 * Ubuntu 20.4 LTS
 
+## Prerequisites
+
+* Git
+* Gradle 6.5 or later
+
 ## Run the benchmarking test
 
 * Get the source code of benchmark.
+```
+git clone https://github.com/opendistro-for-elasticsearch/sql.git
+```
 * Run the [configuration script](#running-the-configuration-script).
-* Configure the [`config.json`](#configuring-the-inputs). Please make sure to update the values of `systemPassword`, `mysqlUsername` and `mysqlPassword`.
-* Build the project.
-* Run `BenchmarkServiceTest`.
+* [Configure the inputs](#configuring-the-inputs) using `config.json`. Please make sure to update the values of `systemPassword`, `mysqlUsername` and `mysqlPassword`.
+* Verify if you can connect to MySQL using above credentials.
+```
+mysql -u root -p 
+```
+* Run BenchmarkServiceTest.
+```
+gradle test --tests BenchmarkServiceTest.runbenchmarkService
+```
 
 ## Run the configuration script
 
