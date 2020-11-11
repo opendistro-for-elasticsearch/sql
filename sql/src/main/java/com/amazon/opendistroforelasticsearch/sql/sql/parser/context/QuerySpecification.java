@@ -174,6 +174,7 @@ public class QuerySpecification {
 
     @Override
     public Void visitSubqueryAsRelation(OpenDistroSQLParser.SubqueryAsRelationContext ctx) {
+      // skip collecting subquery for current layer
       visit(ctx.alias());
       return null;
     }
