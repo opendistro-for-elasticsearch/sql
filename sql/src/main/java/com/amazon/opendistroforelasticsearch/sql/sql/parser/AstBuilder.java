@@ -35,6 +35,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.ParsingContext;
@@ -101,15 +102,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
-    UnresolvedPlan result;
-    String tableAlias = (ctx.alias() == null) ? null
-        : StringUtils.unquoteIdentifier(ctx.alias().getText());
-    if (ctx.subquery == null) {
-      UnresolvedExpression tableName = visitAstExpression(ctx.tableName());
-      result = new Relation(tableName, tableAlias);
-    } else {
-      result = new RelationSubquery(visit(ctx.subquery), tableAlias);
-    }
+    UnresolvedPlan result = visit(ctx.relation());
 
     if (ctx.whereClause() != null) {
       result = visit(ctx.whereClause()).attach(result);
@@ -131,6 +124,18 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       result = sortBuilder.visit(ctx.orderByClause()).attach(result);
     }
     return result;
+  }
+
+  @Override
+  public UnresolvedPlan visitTableAsRelation(OpenDistroSQLParser.TableAsRelationContext ctx) {
+    String tableAlias = (ctx.alias() == null) ? null
+        : StringUtils.unquoteIdentifier(ctx.alias().getText());
+    return new Relation(visitAstExpression(ctx.tableName()), tableAlias);
+  }
+
+  @Override
+  public UnresolvedPlan visitSubqueryAsRelation(OpenDistroSQLParser.SubqueryAsRelationContext ctx) {
+    return new RelationSubquery(visit(ctx.subquery), ctx.alias().getText());
   }
 
   @Override

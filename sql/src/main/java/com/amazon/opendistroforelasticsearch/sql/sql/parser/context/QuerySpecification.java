@@ -173,31 +173,9 @@ public class QuerySpecification {
     }
 
     @Override
-    public Void visitQuerySpecification(QuerySpecificationContext ctx) {
-      // TODO: avoid collect sub-query
-      return super.visitQuerySpecification(ctx);
-    }
-
-    @Override
-    public Void visitFromClause(OpenDistroSQLParser.FromClauseContext ctx) {
-      // skip collecting subquery info
-      if (ctx.subquery != null) {
-        visit(ctx.alias());
-        if (ctx.whereClause() != null) {
-          visit(ctx.whereClause());
-        }
-        if (ctx.groupByClause() != null) {
-          visit(ctx.groupByClause());
-        }
-        if (ctx.havingClause() != null) {
-          visit(ctx.havingClause());
-        }
-        if (ctx.orderByClause() != null) {
-          visit(ctx.orderByClause());
-        }
-        return null;
-      }
-      return super.visitFromClause(ctx);
+    public Void visitSubqueryAsRelation(OpenDistroSQLParser.SubqueryAsRelationContext ctx) {
+      visit(ctx.alias());
+      return null;
     }
 
     @Override
