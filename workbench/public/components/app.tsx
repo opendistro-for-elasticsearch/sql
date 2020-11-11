@@ -40,10 +40,7 @@ export const WorkbenchApp = ({ basename, notifications, http, navigation }: Work
         <div>
           <EuiPage>
             <EuiPageBody>
-              <Route
-                path="/"
-                render={(props) => <Main httpClient={http} {...props} onChange={onChange} />}
-              />
+              <Route path="/" render={(props) => <Main httpClient={http} {...props} />} />
             </EuiPageBody>
           </EuiPage>
         </div>

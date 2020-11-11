@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-import { ParsedUrlQuery } from "querystring";
+import { ParsedUrlQuery } from 'querystring';
 
 export const SQL_TRANSLATE_ROUTE = `/_opendistro/_sql/_explain`;
 export const PPL_TRANSLATE_ROUTE = `/_opendistro/_ppl/_explain`;
@@ -25,7 +25,7 @@ export const FORMAT_TEXT = `format=raw`;
 
 export const DEFAULT_HEADERS = {
   'Content-Type': 'application/json',
-  'Accept': 'application/json',
+  Accept: 'application/json',
   'User-Agent': 'Kibana',
 };
 
@@ -37,9 +37,9 @@ export const CLUSTER = {
 
 export const convertQueryToString = (query: string | ParsedUrlQuery) => {
   let index;
-  var queryString = "";
+  let queryString = '';
   for (index = 0; index < Object.keys(query).length; ++index) {
     queryString += query[index.toString()];
-  };
+  }
   return queryString;
-}
+};

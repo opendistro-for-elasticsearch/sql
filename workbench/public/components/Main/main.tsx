@@ -71,7 +71,6 @@ export type ItemIdToExpandedRowMap = {
 
 interface MainProps {
   httpClient: CoreStart['http'];
-  onChange: (id: string, value?: any) => void;
 }
 
 interface MainState {
