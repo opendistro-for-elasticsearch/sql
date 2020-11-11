@@ -13,13 +13,13 @@
  *   permissions and limitations under the License.
  */
 
-import * as ace from 'brace';
+import { NavigationPublicPluginStart } from '../../../src/plugins/navigation/public';
 
-ace.define('ace/theme/sql_console', ['require', 'exports', 'module', 'ace/lib/dom'], function (acequire, exports, module) {
-  exports.isDark = false;
-  exports.cssClass = 'ace-sql-console';
-  exports.cssText = require('../index.scss');
+export interface WorkbenchPluginSetup {}
 
-  const dom = acequire('../lib/dom');
-  dom.importCssString(exports.cssText, exports.cssClass);
-});
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface WorkbenchPluginStart {}
+
+export interface AppPluginStartDependencies {
+  navigation: NavigationPublicPluginStart;
+}

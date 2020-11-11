@@ -13,13 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-import * as ace from 'brace';
+import { PluginInitializerContext } from '../../../src/core/server';
+import { WorkbenchPlugin } from './plugin';
 
-ace.define('ace/theme/sql_console', ['require', 'exports', 'module', 'ace/lib/dom'], function (acequire, exports, module) {
-  exports.isDark = false;
-  exports.cssClass = 'ace-sql-console';
-  exports.cssText = require('../index.scss');
+//  This exports static code and TypeScript types,
+//  as well as, Kibana Platform `plugin()` initializer.
 
-  const dom = acequire('../lib/dom');
-  dom.importCssString(exports.cssText, exports.cssClass);
-});
+export function plugin(initializerContext: PluginInitializerContext) {
+  return new WorkbenchPlugin(initializerContext);
+}
+
+export { WorkbenchPluginSetup, WorkbenchPluginStart } from './types';
