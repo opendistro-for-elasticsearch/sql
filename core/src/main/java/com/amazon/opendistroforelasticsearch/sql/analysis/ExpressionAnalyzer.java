@@ -172,7 +172,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitCase(Case node, AnalysisContext context) {
     List<WhenClause> whens = new ArrayList<>();
-    for (When when : node.getWhenStatements()) {
+    for (When when : node.getWhenClauses()) {
       if (node.getCaseValue() == null) {
         whens.add((WhenClause) analyze(when, context));
       } else {
@@ -185,8 +185,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
       }
     }
 
-    Expression defaultResult = (node.getElseStatement() == null)
-        ? null : analyze(node.getElseStatement(), context);
+    Expression defaultResult = (node.getElseClause() == null)
+        ? null : analyze(node.getElseClause(), context);
     CaseClause caseClause = new CaseClause(whens, defaultResult);
 
     // To make this simple, require all result type same regardless of implicit convert

@@ -47,7 +47,11 @@ public class ConditionalFunctionTest extends ExpressionTestBase {
    */
   private static Stream<Arguments> caseArguments() {
     Stream.Builder<Arguments> builder = Stream.builder();
-    return builder.add(Arguments.of(18, 30, 45, 50, 60, 30)).build();
+    return builder
+        .add(Arguments.of(18, 30, 45, 50, 60, 10))
+        .add(Arguments.of(30, 30, 45, 50, 60, 10))
+        .add(Arguments.of(50, 30, 45, 50, 60, 10))
+        .build();
   }
 
   @ParameterizedTest(name = "case {0} when {1} then {2} when {3} then {4} else {5}")

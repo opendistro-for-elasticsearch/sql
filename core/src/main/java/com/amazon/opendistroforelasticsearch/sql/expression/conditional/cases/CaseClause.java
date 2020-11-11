@@ -45,7 +45,7 @@ public class CaseClause implements Expression {
   private final List<WhenClause> whenClauses;
 
   /**
-   * Default result if none of WHEN conditions matches.
+   * Default result if none of WHEN conditions match.
    */
   private final Expression defaultResult;
 

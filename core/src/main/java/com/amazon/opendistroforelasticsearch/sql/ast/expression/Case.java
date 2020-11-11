@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -26,7 +26,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
- * AST node that represents CASE clause similar as switch statement in programming language.
+ * AST node that represents CASE clause similar as Switch statement in programming language.
  */
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
@@ -43,16 +43,25 @@ public class Case extends UnresolvedExpression {
    * Expression list that represents WHEN statements. Each is a mapping from condition
    * to its result.
    */
-  private final List<When> whenStatements;
+  private final List<When> whenClauses;
 
   /**
    * Expression that represents ELSE statement result.
    */
-  private final UnresolvedExpression elseStatement;
+  private final UnresolvedExpression elseClause;
 
   @Override
   public List<? extends Node> getChild() {
-    return Collections.emptyList(); //TODO: AST when is required?
+    ImmutableList.Builder<Node> children = ImmutableList.builder();
+    if (caseValue != null) {
+      children.add(caseValue);
+    }
+    children.addAll(whenClauses);
+
+    if (elseClause != null) {
+      children.add(elseClause);
+    }
+    return children.build();
   }
 
   @Override
