@@ -175,8 +175,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
       if (node.getCaseValue() == null) {
         whens.add((WhenClause) analyze(when, context));
       } else {
-        whens.add(
-            (WhenClause) analyze(new When(
+        // Merge case value and condition (compare value) into a single equal condition
+        whens.add((WhenClause) analyze(
+            new When(
                 new Function("=", Arrays.asList(node.getCaseValue(), when.getCondition())),
                 when.getResult()
             ), context));

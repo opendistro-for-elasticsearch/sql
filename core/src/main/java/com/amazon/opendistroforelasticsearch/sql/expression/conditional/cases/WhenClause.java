@@ -26,13 +26,23 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * WHEN clause that consists of a condition and a result corresponding.
+ */
 @EqualsAndHashCode
 @Getter
 @RequiredArgsConstructor
 @ToString
 public class WhenClause implements Expression {
 
+  /**
+   * Condition that must be a predicate.
+   */
   private final Expression condition;
+
+  /**
+   * Result to return if condition is evaluated to true.
+   */
   private final Expression result;
 
   public boolean isTrue(Environment<Expression, ExprValue> valueEnv) {

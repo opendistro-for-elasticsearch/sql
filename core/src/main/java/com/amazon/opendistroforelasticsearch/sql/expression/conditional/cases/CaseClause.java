@@ -29,9 +29,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
- * Expression that represent CASE clause which is quite different from a regular function.
- * Functions have pre-defined signature
- * This is why case expressions are required to check evaluate "manually"
+ * A CASE clause is very different from a regular function. Functions have well-defined signature,
+ * though CASE clause is more like a function implementation which requires type check "manually".
  */
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -40,7 +39,7 @@ import lombok.ToString;
 public class CaseClause implements Expression {
 
   /**
-   * List of WHEN statements.
+   * List of WHEN clauses.
    */
   private final List<WhenClause> whenClauses;
 

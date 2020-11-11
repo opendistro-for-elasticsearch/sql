@@ -35,12 +35,12 @@ import lombok.ToString;
 public class When extends UnresolvedExpression {
 
   /**
-   * WHEN condition.
+   * WHEN condition, either a search condition or compare value if case value present.
    */
   private final UnresolvedExpression condition;
 
   /**
-   * Result if condition matched.
+   * Result to return if condition matched.
    */
   private final UnresolvedExpression result;
 
