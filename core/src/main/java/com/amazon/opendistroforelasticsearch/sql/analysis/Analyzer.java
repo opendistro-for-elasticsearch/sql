@@ -35,6 +35,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
@@ -116,6 +117,13 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     curEnv.define(new Symbol(Namespace.INDEX_NAME, node.getTableNameOrAlias()), STRUCT);
 
     return new LogicalRelation(node.getTableName());
+  }
+
+  @Override
+  public LogicalPlan visitRelationSubquery(RelationSubquery node, AnalysisContext context) {
+    context.push();
+    context.peek().define(new Symbol(Namespace.INDEX_NAME, node.getAliasAsTableName()), STRUCT);
+    return analyze(node.getChild().get(0), context);
   }
 
   @Override

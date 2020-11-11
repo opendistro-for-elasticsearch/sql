@@ -22,7 +22,8 @@ public enum Namespace {
 
   INDEX_NAME("Index"),
   FIELD_NAME("Field"),
-  FUNCTION_NAME("Function");
+  FUNCTION_NAME("Function"),
+  INTERMEDIATE_TABLE_NAME("Intermediate_table");
 
   private final String name;
 

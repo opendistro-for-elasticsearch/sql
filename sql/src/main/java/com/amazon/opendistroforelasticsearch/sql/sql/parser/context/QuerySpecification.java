@@ -26,8 +26,10 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
@@ -37,6 +39,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -173,6 +176,28 @@ public class QuerySpecification {
     public Void visitQuerySpecification(QuerySpecificationContext ctx) {
       // TODO: avoid collect sub-query
       return super.visitQuerySpecification(ctx);
+    }
+
+    @Override
+    public Void visitFromClause(OpenDistroSQLParser.FromClauseContext ctx) {
+      // skip collecting subquery info
+      if (ctx.subquery != null) {
+        visit(ctx.alias());
+        if (ctx.whereClause() != null) {
+          visit(ctx.whereClause());
+        }
+        if (ctx.groupByClause() != null) {
+          visit(ctx.groupByClause());
+        }
+        if (ctx.havingClause() != null) {
+          visit(ctx.havingClause());
+        }
+        if (ctx.orderByClause() != null) {
+          visit(ctx.orderByClause());
+        }
+        return null;
+      }
+      return super.visitFromClause(ctx);
     }
 
     @Override

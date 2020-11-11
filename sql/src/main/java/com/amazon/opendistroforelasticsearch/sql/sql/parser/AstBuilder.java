@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpres
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
@@ -100,11 +101,16 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
-    UnresolvedExpression tableName = visitAstExpression(ctx.tableName());
+    UnresolvedPlan result;
     String tableAlias = (ctx.alias() == null) ? null
         : StringUtils.unquoteIdentifier(ctx.alias().getText());
+    if (ctx.subquery == null) {
+      UnresolvedExpression tableName = visitAstExpression(ctx.tableName());
+      result = new Relation(tableName, tableAlias);
+    } else {
+      result = new RelationSubquery(visit(ctx.subquery), tableAlias);
+    }
 
-    UnresolvedPlan result = new Relation(tableName, tableAlias);
     if (ctx.whereClause() != null) {
       result = visit(ctx.whereClause()).attach(result);
     }
