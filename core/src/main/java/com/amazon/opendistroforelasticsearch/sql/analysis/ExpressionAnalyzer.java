@@ -49,6 +49,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.Wh
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -186,7 +187,16 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     Expression defaultResult = (node.getElseStatement() == null)
         ? null : analyze(node.getElseStatement(), context);
-    return new CaseClause(whens, defaultResult);
+    CaseClause caseClause = new CaseClause(whens, defaultResult);
+
+    // To make this simple, require all result type same regardless of implicit convert
+    // Make CaseClause return list so it can be used in error message in determined order
+    List<ExprType> resultTypes = caseClause.allResultTypes();
+    if (ImmutableSet.copyOf(resultTypes).size() > 1) {
+      throw new SemanticCheckException(
+          "All result types of CASE clause must be the same, but found " + resultTypes);
+    }
+    return caseClause;
   }
 
   @Override

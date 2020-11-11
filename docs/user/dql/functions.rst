@@ -1842,7 +1842,7 @@ Description
 
 ``CASE`` statement has two forms with slightly different syntax: Simple Case and Searched Case.
 
-The simple case syntax compares a case value with each compare value in ``WHEN`` clause and return its result if matched. Otherwise, result in ``ELSE`` clause is returned (or ``NULL`` if absent). Note that case value, compare value and result can be any expression::
+Simple case syntax compares a case value with each compare value in ``WHEN`` clause and return its result if matched. Otherwise, result in ``ELSE`` clause is returned (or ``NULL`` if absent). Note that case value, compare value and result can be any expression::
 
    CASE case_value
      WHEN compare_value THEN result
@@ -1850,7 +1850,7 @@ The simple case syntax compares a case value with each compare value in ``WHEN``
      [ELSE result]
    END
 
-Similarly, the searched case syntax evaluates each search condition and return result if true. A search condition must be a predicate that returns a bool when evaluated::
+Similarly, searched case syntax evaluates each search condition and return result if true. A search condition must be a predicate that returns a bool when evaluated::
 
    CASE
      WHEN search_condition THEN result
@@ -1858,16 +1858,20 @@ Similarly, the searched case syntax evaluates each search condition and return r
      [ELSE result]
    END
 
-
 Type Check
 >>>>>>>>>>
 
-TODO
+All result types in ``WHEN`` and ``ELSE`` clause are required to be exactly the same. Otherwise, take the following query for example, you'll see an semantic analysis exception thrown::
+
+   CASE age
+     WHEN 30 THEN 'Thirty'
+     WHEN 50 THEN true
+   END
 
 Examples
 >>>>>>>>
 
-Here is an example for the first simple case syntax::
+Here are examples for simple case syntax::
 
     od> SELECT
     ...   CASE 1
@@ -1888,7 +1892,7 @@ Here is an example for the first simple case syntax::
     | One           | Absolute two      | Absolute three |
     +---------------+-------------------+----------------+
 
-Here is another example for the second searched case syntax::
+Here are examples for searched case syntax::
 
     od> SELECT
     ...   CASE

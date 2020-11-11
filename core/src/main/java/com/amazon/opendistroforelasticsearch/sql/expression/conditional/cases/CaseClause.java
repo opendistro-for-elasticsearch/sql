@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -66,6 +67,20 @@ public class CaseClause implements Expression {
   @Override
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
     return visitor.visitCase(this, context);
+  }
+
+  /**
+   * Get types of each result in WHEN clause and ELSE clause.
+   * @return all result types
+   */
+  public List<ExprType> allResultTypes() {
+    List<ExprType> types = whenClauses.stream()
+                                      .map(WhenClause::type)
+                                      .collect(Collectors.toList());
+    if (defaultResult != null) {
+      types.add(defaultResult.type());
+    }
+    return types;
   }
 
 }

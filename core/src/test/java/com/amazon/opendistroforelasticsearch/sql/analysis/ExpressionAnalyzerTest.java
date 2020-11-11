@@ -136,6 +136,21 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void case_with_default_result_type_different() {
+    UnresolvedExpression caseWhen = AstDSL.caseWhen(
+        AstDSL.qualifiedName("integer_value"),
+        AstDSL.intLiteral(60),
+        AstDSL.when(AstDSL.intLiteral(30), AstDSL.stringLiteral("Thirty")),
+        AstDSL.when(AstDSL.intLiteral(50), AstDSL.stringLiteral("Fifty")));
+
+    SemanticCheckException exception = assertThrows(
+        SemanticCheckException.class, () -> analyze(caseWhen));
+    assertEquals(
+        "All result types of CASE clause must be the same, but found [STRING, STRING, INTEGER]",
+        exception.getMessage());
+  }
+
+  @Test
   public void qualified_name_with_qualifier() {
     analysisContext.push();
     analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
