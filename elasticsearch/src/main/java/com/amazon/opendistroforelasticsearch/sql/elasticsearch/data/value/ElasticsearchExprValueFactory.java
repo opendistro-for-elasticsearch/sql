@@ -36,7 +36,6 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
-import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.STRICT_HOUR_MINUTE_SECOND_FORMATTER;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
@@ -77,7 +76,6 @@ public class ElasticsearchExprValueFactory {
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
           .appendOptional(SQL_LITERAL_DATE_TIME_FORMAT)
-          .appendOptional(STRICT_HOUR_MINUTE_SECOND_FORMATTER)
           .appendOptional(STRICT_DATE_OPTIONAL_TIME_FORMATTER)
           .toFormatter();
 
