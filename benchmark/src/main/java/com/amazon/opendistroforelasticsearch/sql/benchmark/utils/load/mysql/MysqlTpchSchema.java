@@ -36,33 +36,46 @@ public class MysqlTpchSchema {
 
   static {
     primaryKeyMap = new LinkedHashMap<>();
-    primaryKeyMap.put("customer", new LinkedList<>(Arrays.asList("c_custkey")));
-    primaryKeyMap.put("lineitem", new LinkedList<>(Arrays.asList("l_orderkey", "l_linenumber")));
+    primaryKeyMap.put("region", new LinkedList<>(Arrays.asList("r_regionkey")));
     primaryKeyMap.put("nation", new LinkedList<>(Arrays.asList("n_nationkey")));
+    primaryKeyMap.put("customer", new LinkedList<>(Arrays.asList("c_custkey")));
     primaryKeyMap.put("orders", new LinkedList<>(Arrays.asList("o_orderkey")));
+    primaryKeyMap.put("supplier", new LinkedList<>(Arrays.asList("s_suppkey")));
     primaryKeyMap.put("part", new LinkedList<>(Arrays.asList("p_partkey")));
     primaryKeyMap.put("partsupp", new LinkedList<>(Arrays.asList("ps_partkey", "ps_suppkey")));
-    primaryKeyMap.put("region", new LinkedList<>(Arrays.asList("r_regionkey")));
-    primaryKeyMap.put("supplier", new LinkedList<>(Arrays.asList("s_suppkey")));
+    primaryKeyMap.put("lineitem", new LinkedList<>(Arrays.asList("l_orderkey", "l_linenumber")));
 
     foreignKeyMap = new LinkedHashMap<>();
+    foreignKeyMap
+        .put("nation", ImmutableMap.of("n_regionkey", (ImmutableMap.of("region", "r_regionkey"))));
     foreignKeyMap.put("customer",
         ImmutableMap.of("c_nationkey", (ImmutableMap.of("nation", "n_nationkey"))));
+    foreignKeyMap
+        .put("orders", ImmutableMap.of("o_custkey", (ImmutableMap.of("customer", "c_custkey"))));
+    foreignKeyMap.put("supplier",
+        ImmutableMap.of("s_nationkey", (ImmutableMap.of("nation", "n_nationkey"))));
+    foreignKeyMap
+        .put("partsupp", ImmutableMap.of("ps_partkey", (ImmutableMap.of("part", "p_partkey")),
+            "ps_suppkey", (ImmutableMap.of("supplier", "s_suppkey"))));
     foreignKeyMap
         .put("lineitem", ImmutableMap.of("l_orderkey", (ImmutableMap.of("orders", "o_orderkey")),
             "l_partkey", (ImmutableMap.of("part", "p_partkey")),
             "l_suppkey", (ImmutableMap.of("supplier", "s_suppkey"))));
-    foreignKeyMap
-        .put("nation", ImmutableMap.of("n_regionkey", (ImmutableMap.of("region", "r_regionkey"))));
-    foreignKeyMap
-        .put("orders", ImmutableMap.of("o_custkey", (ImmutableMap.of("customer", "c_custkey"))));
-    foreignKeyMap
-        .put("partsupp", ImmutableMap.of("ps_partkey", (ImmutableMap.of("part", "p_partkey")),
-            "ps_suppkey", (ImmutableMap.of("supplier", "s_suppkey"))));
-    foreignKeyMap.put("supplier",
-        ImmutableMap.of("s_nationkey", (ImmutableMap.of("nation", "n_nationkey"))));
 
     schemaMap = new LinkedHashMap<>();
+
+    LinkedHashMap regionArgs = new LinkedHashMap<>();
+    regionArgs.put("r_regionkey", BIGINT);
+    regionArgs.put("r_name", TEXT);
+    regionArgs.put("r_comment", TEXT);
+    schemaMap.put("region", regionArgs);
+
+    LinkedHashMap nationArgs = new LinkedHashMap<>();
+    nationArgs.put("n_nationkey", BIGINT);
+    nationArgs.put("n_name", TEXT);
+    nationArgs.put("n_regionkey", BIGINT);
+    nationArgs.put("n_comment", TEXT);
+    schemaMap.put("nation", nationArgs);
 
     LinkedHashMap customerArgs = new LinkedHashMap<>();
     customerArgs.put("c_custkey", BIGINT);
@@ -75,32 +88,6 @@ public class MysqlTpchSchema {
     customerArgs.put("c_comment", TEXT);
     schemaMap.put("customer", customerArgs);
 
-    LinkedHashMap lineitemArgs = new LinkedHashMap<>();
-    lineitemArgs.put("l_orderkey", BIGINT);
-    lineitemArgs.put("l_partkey", BIGINT);
-    lineitemArgs.put("l_suppkey", BIGINT);
-    lineitemArgs.put("l_linenumber", INT);
-    lineitemArgs.put("l_quantity", DECIMAL);
-    lineitemArgs.put("l_extendedprice", DECIMAL);
-    lineitemArgs.put("l_discount", DECIMAL);
-    lineitemArgs.put("l_tax", DECIMAL);
-    lineitemArgs.put("l_returnflag", TEXT);
-    lineitemArgs.put("l_linestatus", TEXT);
-    lineitemArgs.put("l_shipdate", DATE);
-    lineitemArgs.put("l_commitdate", DATE);
-    lineitemArgs.put("l_receiptdate", DATE);
-    lineitemArgs.put("l_shipinstruct", TEXT);
-    lineitemArgs.put("l_shipmode", TEXT);
-    lineitemArgs.put("l_comment", TEXT);
-    schemaMap.put("lineitem", lineitemArgs);
-
-    LinkedHashMap nationArgs = new LinkedHashMap<>();
-    nationArgs.put("n_nationkey", BIGINT);
-    nationArgs.put("n_name", TEXT);
-    nationArgs.put("n_regionkey", BIGINT);
-    nationArgs.put("n_comment", TEXT);
-    schemaMap.put("nation", nationArgs);
-
     LinkedHashMap ordersArgs = new LinkedHashMap<>();
     ordersArgs.put("o_orderkey", BIGINT);
     ordersArgs.put("o_custkey", BIGINT);
@@ -112,6 +99,16 @@ public class MysqlTpchSchema {
     ordersArgs.put("o_shippriority", INT);
     ordersArgs.put("o_comment", TEXT);
     schemaMap.put("orders", ordersArgs);
+
+    LinkedHashMap supplierArgs = new LinkedHashMap<>();
+    supplierArgs.put("s_suppkey", BIGINT);
+    supplierArgs.put("s_name", TEXT);
+    supplierArgs.put("s_address", TEXT);
+    supplierArgs.put("s_nationkey", BIGINT);
+    supplierArgs.put("s_phone", TEXT);
+    supplierArgs.put("s_acctbal", DECIMAL);
+    supplierArgs.put("s_comment", TEXT);
+    schemaMap.put("supplier", supplierArgs);
 
     LinkedHashMap partArgs = new LinkedHashMap<>();
     partArgs.put("p_partkey", BIGINT);
@@ -133,20 +130,23 @@ public class MysqlTpchSchema {
     partsuppArgs.put("ps_comment", TEXT);
     schemaMap.put("partsupp", partsuppArgs);
 
-    LinkedHashMap regionArgs = new LinkedHashMap<>();
-    regionArgs.put("r_regionkey", BIGINT);
-    regionArgs.put("r_name", TEXT);
-    regionArgs.put("r_comment", TEXT);
-    schemaMap.put("region", regionArgs);
-
-    LinkedHashMap supplierArgs = new LinkedHashMap<>();
-    supplierArgs.put("s_suppkey", BIGINT);
-    supplierArgs.put("s_name", TEXT);
-    supplierArgs.put("s_address", TEXT);
-    supplierArgs.put("s_nationkey", BIGINT);
-    supplierArgs.put("s_phone", TEXT);
-    supplierArgs.put("s_acctbal", DECIMAL);
-    supplierArgs.put("s_comment", TEXT);
-    schemaMap.put("supplier", supplierArgs);
+    LinkedHashMap lineitemArgs = new LinkedHashMap<>();
+    lineitemArgs.put("l_orderkey", BIGINT);
+    lineitemArgs.put("l_partkey", BIGINT);
+    lineitemArgs.put("l_suppkey", BIGINT);
+    lineitemArgs.put("l_linenumber", INT);
+    lineitemArgs.put("l_quantity", DECIMAL);
+    lineitemArgs.put("l_extendedprice", DECIMAL);
+    lineitemArgs.put("l_discount", DECIMAL);
+    lineitemArgs.put("l_tax", DECIMAL);
+    lineitemArgs.put("l_returnflag", TEXT);
+    lineitemArgs.put("l_linestatus", TEXT);
+    lineitemArgs.put("l_shipdate", DATE);
+    lineitemArgs.put("l_commitdate", DATE);
+    lineitemArgs.put("l_receiptdate", DATE);
+    lineitemArgs.put("l_shipinstruct", TEXT);
+    lineitemArgs.put("l_shipmode", TEXT);
+    lineitemArgs.put("l_comment", TEXT);
+    schemaMap.put("lineitem", lineitemArgs);
   }
 }
