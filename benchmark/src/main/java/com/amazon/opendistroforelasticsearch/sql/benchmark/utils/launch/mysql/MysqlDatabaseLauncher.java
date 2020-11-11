@@ -41,7 +41,7 @@ public class MysqlDatabaseLauncher implements DatabaseLauncher {
    * Function to shutdown an MySQL database.
    */
   @Override
-  public void shutdownDatabase() throws IOException, InterruptedException {
+  public void close() throws Exception {
     executeCommand(
         "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl stop mysql.service");
     executeCommand("echo " + BenchmarkService.systemPassword + " | sudo -S systemctl status mysql");

@@ -41,10 +41,11 @@ public class CassandraDatabaseLauncher implements DatabaseLauncher {
    * Function to shutdown an Cassandra database.
    */
   @Override
-  public void shutdownDatabase() throws IOException, InterruptedException {
+  public void close() throws Exception {
     executeCommand(
         "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl stop cassandra.service");
     executeCommand(
         "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl status cassandra");
+
   }
 }

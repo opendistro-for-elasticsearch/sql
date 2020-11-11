@@ -45,7 +45,7 @@ public class ElasticsearchDatabaseLauncher implements DatabaseLauncher {
    * Function to shutdown an Elasticsearch database.
    */
   @Override
-  public void shutdownDatabase() throws IOException, InterruptedException {
+  public void close() throws Exception {
     executeCommand("echo " + BenchmarkService.systemPassword
         + " | sudo -S systemctl stop elasticsearch.service");
     executeCommand(

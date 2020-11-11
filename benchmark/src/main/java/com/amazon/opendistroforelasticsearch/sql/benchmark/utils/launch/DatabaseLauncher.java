@@ -20,15 +20,11 @@ import java.io.IOException;
 /**
  * Interface for launching and shutting down databases.
  */
-public interface DatabaseLauncher {
+public interface DatabaseLauncher extends AutoCloseable {
 
   /**
    * Function interface for launching databases.
    */
   void launchDatabase() throws IOException, InterruptedException;
 
-  /**
-   * Function interface for shutting down databases.
-   */
-  void shutdownDatabase() throws IOException, InterruptedException;
 }

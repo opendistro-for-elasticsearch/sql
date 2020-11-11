@@ -82,11 +82,11 @@ public class BenchmarkService {
       DataGenerator.generateData(benchmarkPath, sf);
       // QueryGenerator.generateQueries(benchmarkPath, sf);
       for (final String type : types) {
-        DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
-        launcher.launchDatabase();
-        performDataLoad(type);
-        results.add(performBenchmark(type, sf));
-        launcher.shutdownDatabase();
+        try (DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type)) {
+          launcher.launchDatabase();
+          performDataLoad(type);
+          results.add(performBenchmark(type, sf));
+        }
       }
       DataGenerator.cleanupData(benchmarkPath);
       // QueryGenerator.cleanupQueries(benchmarkPath);

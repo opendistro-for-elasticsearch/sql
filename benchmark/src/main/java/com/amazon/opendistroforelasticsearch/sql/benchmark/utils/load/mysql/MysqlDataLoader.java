@@ -16,14 +16,14 @@
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql;
 
 import com.amazon.opendistroforelasticsearch.sql.benchmark.BenchmarkService;
-import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataFormat;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.DataLoader;
-import com.datastax.driver.core.Cluster;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
@@ -84,28 +84,36 @@ public class MysqlDataLoader implements DataLoader {
 
   private void createTables() throws Exception {
     for (String tablename : MysqlTpchSchema.schemaMap.keySet()) {
-      String sql = "create table " + MysqlTpchSchema.databaseName + "." + tablename + " (";
+      StringBuilder sql =  new StringBuilder();
+      sql.append("create table " + MysqlTpchSchema.databaseName + "." + tablename + " (");
 
       StringJoiner fields = new StringJoiner(", ", "", "");
       MysqlTpchSchema.schemaMap.get(tablename).entrySet()
           .forEach(field -> fields.add(field.getKey() + " " + field.getValue()));
-      sql += fields.toString();
+      sql.append(fields.toString());
 
       StringJoiner primaryKey = new StringJoiner(", ", ", primary key (", ")");
       MysqlTpchSchema.primaryKeyMap.get(tablename).forEach(table -> primaryKey.add(table));
-      sql += primaryKey.toString();
+      sql.append(primaryKey.toString());
 
       if (MysqlTpchSchema.foreignKeyMap.containsKey(tablename)) {
-        for (String field : MysqlTpchSchema.foreignKeyMap.get(tablename).keySet()) {
-          sql += ", foreign key (" + field + ") references ";
-          for (String key : MysqlTpchSchema.foreignKeyMap.get(tablename).get(field).keySet()) {
-            sql +=
-                key + "(" + MysqlTpchSchema.foreignKeyMap.get(tablename).get(field).get(key) + ")";
-          }
+        List<String> foreignKeys = new ArrayList<String>();
+        MysqlTpchSchema.foreignKeyMap.get(tablename).entrySet().forEach(field -> {
+          StringJoiner foreignKey = new StringJoiner("", ", foreign key (", ") references ");
+          foreignKey.add(field.getKey());
+          MysqlTpchSchema.foreignKeyMap.get(tablename).get(field.getKey()).entrySet()
+              .forEach(ref -> {
+                StringJoiner foreignKeyreference = new StringJoiner("", ref.getKey() + "(", ")");
+                foreignKeyreference.add(ref.getValue());
+                foreignKeys.add(foreignKey.toString() + foreignKeyreference.toString());
+              });
+        });
+        for (String key : foreignKeys) {
+          sql.append(key);
         }
       }
-      sql += ");";
-      statement.executeUpdate(sql);
+      sql.append(");");
+      statement.executeUpdate(sql.toString());
     }
   }
 }
