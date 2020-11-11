@@ -13,17 +13,23 @@
  *   permissions and limitations under the License.
  */
 
-import React from "react";
-import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton, EuiTitle } from "@elastic/eui";
-import { IHttpResponse, IHttpService } from "angular";
-import _ from "lodash";
-import Header from "../Header/Header";
-import QueryResults from "../QueryResults/QueryResults";
-import Switch from "../QueryLanguageSwitch/Switch";
-import { SQLPage } from "../SQLPage/SQLPage";
-import { PPLPage } from "../PPLPage/PPLPage";
-import { getDefaultTabId, getDefaultTabLabel, getQueries, getSelectedResults, Tree } from "../../utils/utils";
-import { MESSAGE_TAB_LABEL } from "../../utils/constants";
+import React from 'react';
+import { EuiSpacer, EuiFlexGroup, EuiFlexItem, EuiButton, EuiTitle } from '@elastic/eui';
+import { IHttpResponse, IHttpService } from 'angular';
+import _ from 'lodash';
+import QueryResults from '../QueryResults/QueryResults';
+import Switch from '../QueryLanguageSwitch/Switch';
+import { SQLPage } from '../SQLPage/SQLPage';
+import { PPLPage } from '../PPLPage/PPLPage';
+import {
+  getDefaultTabId,
+  getDefaultTabLabel,
+  getQueries,
+  getSelectedResults,
+  Tree,
+} from '../../utils/utils';
+import { MESSAGE_TAB_LABEL } from '../../utils/constants';
+import { CoreStart } from 'kibana/public';
 
 interface ResponseData {
   ok: boolean;
@@ -60,11 +66,11 @@ export type ItemIdToExpandedRowMap = {
     nodes: Tree;
     expandedRow?: {};
     selectedNodes?: { [key: string]: any };
-  }
+  };
 };
 
 interface MainProps {
-  httpClient: any;
+  httpClient: CoreStart['http'];
   onChange: (id: string, value?: any) => void;
 }
 
@@ -87,20 +93,24 @@ interface MainState {
   isResultFullScreen: boolean;
 }
 
-const SUCCESS_MESSAGE = "Success";
+const SUCCESS_MESSAGE = 'Success';
 
 // It gets column names and row values to display in a Table from the json API response
-export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]): ResponseDetail<QueryResult>[] {
+export function getQueryResultsForTable(
+  queryResults: ResponseDetail<string>[]
+): ResponseDetail<QueryResult>[] {
   return queryResults.map(
     (queryResultResponseDetail: ResponseDetail<string>): ResponseDetail<QueryResult> => {
       if (!queryResultResponseDetail.fulfilled) {
         return {
           fulfilled: queryResultResponseDetail.fulfilled,
-          errorMessage: queryResultResponseDetail.errorMessage
+          errorMessage: queryResultResponseDetail.errorMessage,
         };
       } else {
         let databaseRecords: { [key: string]: any }[] = [];
-        const responseObj = queryResultResponseDetail.data ? JSON.parse(queryResultResponseDetail.data) : '';
+        const responseObj = queryResultResponseDetail.data
+          ? JSON.parse(queryResultResponseDetail.data)
+          : '';
         let databaseFields: string[] = [];
         let fields: string[] = [];
 
@@ -112,8 +122,7 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
           if (_.isEqual(_.get(column, 'name'), 'TABLE_NAME')) {
             queryType = 'show';
             for (const col of schema.values()) {
-              if (_.isEqual(_.get(col, 'name'), 'DATA_TYPE'))
-                queryType = 'describe';
+              if (_.isEqual(_.get(col, 'name'), 'DATA_TYPE')) queryType = 'describe';
             }
           }
         }
@@ -150,7 +159,7 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
               }
             }
             databaseFields = fields;
-            databaseFields.unshift("id");
+            databaseFields.unshift('id');
             for (const [id, datarow] of datarows.entries()) {
               let databaseRecord: { [key: string]: any } = {};
               databaseRecord['id'] = id;
@@ -172,26 +181,26 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
           data: {
             fields: databaseFields,
             records: databaseRecords,
-            message: SUCCESS_MESSAGE
-          }
-        }
+            message: SUCCESS_MESSAGE,
+          },
+        };
       }
     }
   );
 }
 
 export class Main extends React.Component<MainProps, MainState> {
-  httpClient: any;
+  httpClient: CoreStart['http'];
 
   constructor(props: MainProps) {
     super(props);
 
-    this.onChange = this.onChange.bind(this)
+    this.onChange = this.onChange.bind(this);
 
     this.state = {
       language: 'SQL',
-      sqlQueriesString: "SHOW tables LIKE %;",
-      pplQueriesString: "",
+      sqlQueriesString: 'SHOW tables LIKE %;',
+      pplQueriesString: '',
       queries: [],
       queryTranslations: [],
       queryResultsTable: [],
@@ -201,7 +210,7 @@ export class Main extends React.Component<MainProps, MainState> {
       queryResultsTEXT: [],
       selectedTabName: MESSAGE_TAB_LABEL,
       selectedTabId: MESSAGE_TAB_LABEL,
-      searchQuery: "",
+      searchQuery: '',
       itemIdToExpandedRowMap: {},
       messages: [],
       isResultFullScreen: false,
@@ -211,27 +220,26 @@ export class Main extends React.Component<MainProps, MainState> {
     this.updateSQLQueries = _.debounce(this.updateSQLQueries, 250).bind(this);
     this.updatePPLQueries = _.debounce(this.updatePPLQueries, 250).bind(this);
     this.setIsResultFullScreen = this.setIsResultFullScreen.bind(this);
-
   }
 
   processTranslateResponse(response: IHttpResponse<ResponseData>): ResponseDetail<TranslateResult> {
     if (!response) {
       return {
         fulfilled: false,
-        errorMessage: "no response",
-        data: undefined
-      }
+        errorMessage: 'no response',
+        data: undefined,
+      };
     }
     if (!response.data.ok) {
       return {
         fulfilled: false,
         errorMessage: response.data.resp,
-        data: undefined
+        data: undefined,
       };
     }
     return {
       fulfilled: true,
-      data: response.data.resp
+      data: response.data.resp,
     };
   }
 
@@ -239,21 +247,21 @@ export class Main extends React.Component<MainProps, MainState> {
     if (!response) {
       return {
         fulfilled: false,
-        errorMessage: "no response",
-        data: ''
-      }
+        errorMessage: 'no response',
+        data: '',
+      };
     }
     if (!response.data.ok) {
       return {
         fulfilled: false,
         errorMessage: response.data.resp,
-        data: ''
+        data: '',
       };
     }
 
     return {
       fulfilled: true,
-      data: response.data.resp
+      data: response.data.resp,
     };
   }
 
@@ -261,8 +269,8 @@ export class Main extends React.Component<MainProps, MainState> {
     this.setState({
       selectedTabId: tab.id,
       selectedTabName: tab.name,
-      searchQuery: "",
-      itemIdToExpandedRowMap: {}
+      searchQuery: '',
+      itemIdToExpandedRowMap: {},
     });
   };
 
@@ -280,66 +288,69 @@ export class Main extends React.Component<MainProps, MainState> {
 
   // It returns the error or successful message to display in the Message Tab
   getMessage(queryResultsForTable: ResponseDetail<QueryResult>[]): Array<QueryMessage> {
-    return queryResultsForTable.map(queryResult => {
+    return queryResultsForTable.map((queryResult) => {
       return {
-
-        text: queryResult.fulfilled && queryResult.data ? queryResult.data.message : queryResult.errorMessage,
-        className: queryResult.fulfilled ? "successful-message" : "error-message"
+        text:
+          queryResult.fulfilled && queryResult.data
+            ? queryResult.data.message
+            : queryResult.errorMessage,
+        className: queryResult.fulfilled ? 'successful-message' : 'error-message',
       };
     });
   }
 
   getTranslateMessage(translationResult: ResponseDetail<TranslateResult>[]): Array<QueryMessage> {
-    return translationResult.map(translation => {
+    return translationResult.map((translation) => {
       return {
         text: translation.data ? SUCCESS_MESSAGE : translation.errorMessage,
-        className: translation.fulfilled ? "successful-message" : "error-message"
-      }
+        className: translation.fulfilled ? 'successful-message' : 'error-message',
+      };
     });
   }
 
   onRun = (queriesString: string): void => {
     const queries: string[] = getQueries(queriesString);
-    const language = this.state.language
+    const language = this.state.language;
     if (queries.length > 0) {
-      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqlquery" : "pplquery");
+      let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlquery' : 'pplquery');
       const responsePromise = Promise.all(
         queries.map((query: string) =>
-          this.httpClient
-            .post(endpoint, { query })
-            .catch((error: any) => {
-              this.setState({
-                messages: [
-                  {
-                    text: error.message,
-                    className: "error-message"
-                  }
-                ]
-              });
-            })
+          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+            this.setState({
+              messages: [
+                {
+                  text: error.message,
+                  className: 'error-message',
+                },
+              ],
+            });
+          })
         )
       );
 
       Promise.all([responsePromise]).then(([response]) => {
-        const results: ResponseDetail<string>[] = response.map(response =>
-          this.processQueryResponse(response as IHttpResponse<ResponseData>));
+        const results: ResponseDetail<string>[] = response.map((response) =>
+          this.processQueryResponse(response as IHttpResponse<ResponseData>)
+        );
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
 
-        this.setState({
-          queries: queries,
-          queryResults: results,
-          queryResultsTable: resultTable,
-          selectedTabId: getDefaultTabId(results),
-          selectedTabName: getDefaultTabLabel(results, queries[0]),
-          messages: this.getMessage(resultTable),
-          itemIdToExpandedRowMap: {},
-          queryResultsJSON: [],
-          queryResultsCSV: [],
-          queryResultsTEXT: [],
-          searchQuery: ""
-        }, () => console.log("Successfully updated the states")); // added callback function to handle async issues
-      })
-
+        this.setState(
+          {
+            queries: queries,
+            queryResults: results,
+            queryResultsTable: resultTable,
+            selectedTabId: getDefaultTabId(results),
+            selectedTabName: getDefaultTabLabel(results, queries[0]),
+            messages: this.getMessage(resultTable),
+            itemIdToExpandedRowMap: {},
+            queryResultsJSON: [],
+            queryResultsCSV: [],
+            queryResultsTEXT: [],
+            searchQuery: '',
+          },
+          () => console.log('Successfully updated the states')
+        ); // added callback function to handle async issues
+      });
     }
   };
 
@@ -348,40 +359,45 @@ export class Main extends React.Component<MainProps, MainState> {
     const language = this.state.language;
 
     if (queries.length > 0) {
-      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "translatesql" : "translateppl");
+      let endpoint =
+        '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'translatesql' : 'translateppl');
       const translationPromise = Promise.all(
         queries.map((query: string) =>
-          this.httpClient
-            .post(endpoint, { query })
-            .catch((error: any) => {
-              this.setState({
-                messages: [
-                  {
-                    text: error.message,
-                    className: "error-message"
-                  }
-                ]
-              });
-            })
+          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+            this.setState({
+              messages: [
+                {
+                  text: error.message,
+                  className: 'error-message',
+                },
+              ],
+            });
+          })
         )
       );
 
       Promise.all([translationPromise]).then(([translationResponse]) => {
-        const translationResult: ResponseDetail<TranslateResult>[] = translationResponse.map(translationResponse =>
-          this.processTranslateResponse(translationResponse as IHttpResponse<ResponseData>));
+        const translationResult: ResponseDetail<
+          TranslateResult
+        >[] = translationResponse.map((translationResponse) =>
+          this.processTranslateResponse(translationResponse as IHttpResponse<ResponseData>)
+        );
         const shouldCleanResults = queries == this.state.queries;
         if (shouldCleanResults) {
           this.setState({
             queries,
             queryTranslations: translationResult,
-            messages: this.getTranslateMessage(translationResult)
-          })
+            messages: this.getTranslateMessage(translationResult),
+          });
         } else {
-          this.setState({
-            queries,
-            queryTranslations: translationResult,
-            messages: this.getTranslateMessage(translationResult)
-          }, () => console.log("Successfully updated the states"))
+          this.setState(
+            {
+              queries,
+              queryTranslations: translationResult,
+              messages: this.getTranslateMessage(translationResult),
+            },
+            () => console.log('Successfully updated the states')
+          );
         }
       });
     }
@@ -391,125 +407,125 @@ export class Main extends React.Component<MainProps, MainState> {
     if (queries.length > 0) {
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient
-            .post("../api/sql_console/queryjson", { query })
-            .catch((error: any) => {
-              this.setState({
-                messages: [
-                  {
-                    text: error.message,
-                    className: "error-message"
-                  }
-                ]
-              });
-            })
+          this.httpClient.post('../api/sql_console/queryjson', { query }).catch((error: any) => {
+            this.setState({
+              messages: [
+                {
+                  text: error.message,
+                  className: 'error-message',
+                },
+              ],
+            });
+          })
         )
-      ).then(
-        response => {
-          const results: ResponseDetail<string>[] = response.map(response =>
-            this.processQueryResponse(response as IHttpResponse<ResponseData>));
-          this.setState({
+      ).then((response) => {
+        const results: ResponseDetail<string>[] = response.map((response) =>
+          this.processQueryResponse(response as IHttpResponse<ResponseData>)
+        );
+        this.setState(
+          {
             queries,
-            queryResultsJSON: results
-          }, () => console.log("Successfully updated the states"));
-        }
-      )
+            queryResultsJSON: results,
+          },
+          () => console.log('Successfully updated the states')
+        );
+      });
     }
   };
 
   getJdbc = (queries: string[]): void => {
-    const language = this.state.language
+    const language = this.state.language;
     if (queries.length > 0) {
-      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqlquery" : "pplquery");
+      let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlquery' : 'pplquery');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient
-            .post(endpoint, { query })
-            .catch((error: any) => {
-              this.setState({
-                messages: [
-                  {
-                    text: error.message,
-                    className: "error-message"
-                  }
-                ]
-              });
-            })
+          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+            this.setState({
+              messages: [
+                {
+                  text: error.message,
+                  className: 'error-message',
+                },
+              ],
+            });
+          })
         )
-      ).then(
-        jdbcResponse => {
-          const jdbcResult: ResponseDetail<string>[] = jdbcResponse.map(jdbcResponse =>
-            this.processQueryResponse(jdbcResponse as IHttpResponse<ResponseData>));
-          this.setState({
+      ).then((jdbcResponse) => {
+        const jdbcResult: ResponseDetail<string>[] = jdbcResponse.map((jdbcResponse) =>
+          this.processQueryResponse(jdbcResponse as IHttpResponse<ResponseData>)
+        );
+        this.setState(
+          {
             queries,
-            queryResults: jdbcResult
-          }, () => console.log("Successfully updated the states"));
-        }
-      )
+            queryResults: jdbcResult,
+          },
+          () => console.log('Successfully updated the states')
+        );
+      });
     }
   };
 
   getCsv = (queries: string[]): void => {
-    const language = this.state.language
+    const language = this.state.language;
     if (queries.length > 0) {
-      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqlcsv" : "pplcsv");
+      let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlcsv' : 'pplcsv');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient
-            .post(endpoint, { query })
-            .catch((error: any) => {
-              this.setState({
-                messages: [
-                  {
-                    text: error.message,
-                    className: "error-message"
-                  }
-                ]
-              });
-            })
+          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+            this.setState({
+              messages: [
+                {
+                  text: error.message,
+                  className: 'error-message',
+                },
+              ],
+            });
+          })
         )
-      ).then(
-        csvResponse => {
-          const csvResult: ResponseDetail<string>[] = csvResponse.map(csvResponse =>
-            this.processQueryResponse(csvResponse as IHttpResponse<ResponseData>));
-          this.setState({
+      ).then((csvResponse) => {
+        const csvResult: ResponseDetail<string>[] = csvResponse.map((csvResponse) =>
+          this.processQueryResponse(csvResponse as IHttpResponse<ResponseData>)
+        );
+        this.setState(
+          {
             queries,
-            queryResultsCSV: csvResult
-          }, () => console.log("Successfully updated the states"));
-        }
-      )
+            queryResultsCSV: csvResult,
+          },
+          () => console.log('Successfully updated the states')
+        );
+      });
     }
   };
 
   getText = (queries: string[]): void => {
-    const language = this.state.language
+    const language = this.state.language;
     if (queries.length > 0) {
-      let endpoint = "../api/sql_console/" + (_.isEqual(language, 'SQL') ? "sqltext" : "ppltext");
+      let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqltext' : 'ppltext');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient
-            .post(endpoint, { query })
-            .catch((error: any) => {
-              this.setState({
-                messages: [
-                  {
-                    text: error.message,
-                    className: "error-message"
-                  }
-                ]
-              });
-            })
+          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+            this.setState({
+              messages: [
+                {
+                  text: error.message,
+                  className: 'error-message',
+                },
+              ],
+            });
+          })
         )
-      ).then(
-        textResponse => {
-          const textResult: ResponseDetail<string>[] = textResponse.map(textResponse =>
-            this.processQueryResponse(textResponse as IHttpResponse<ResponseData>));
-          this.setState({
+      ).then((textResponse) => {
+        const textResult: ResponseDetail<string>[] = textResponse.map((textResponse) =>
+          this.processQueryResponse(textResponse as IHttpResponse<ResponseData>)
+        );
+        this.setState(
+          {
             queries,
-            queryResultsTEXT: textResult
-          }, () => console.log("Successfully updated the states"));
-        }
-      )
+            queryResultsTEXT: textResult,
+          },
+          () => console.log('Successfully updated the states')
+        );
+      });
     }
   };
 
@@ -525,37 +541,39 @@ export class Main extends React.Component<MainProps, MainState> {
       messages: [],
       selectedTabId: MESSAGE_TAB_LABEL,
       selectedTabName: MESSAGE_TAB_LABEL,
-      itemIdToExpandedRowMap: {}
+      itemIdToExpandedRowMap: {},
     });
   };
 
   onChange = (id: string) => {
-    this.setState({
-      language: id,
-      queryResultsTable: [],
-    }, () => console.log("Successfully updated language to ", this.state.language)); // added callback function to handle async issues
-  }
+    this.setState(
+      {
+        language: id,
+        queryResultsTable: [],
+      },
+      () => console.log('Successfully updated language to ', this.state.language)
+    ); // added callback function to handle async issues
+  };
 
   updateSQLQueries(query: string) {
     this.setState({
-      sqlQueriesString: query
+      sqlQueriesString: query,
     });
   }
 
   updatePPLQueries(query: string) {
     this.setState({
-      pplQueriesString: query
+      pplQueriesString: query,
     });
   }
 
   setIsResultFullScreen(isFullScreen: boolean) {
     this.setState({
-      isResultFullScreen: isFullScreen
+      isResultFullScreen: isFullScreen,
     });
   }
 
   render() {
-
     let page;
     let link;
     let linkTitle;
@@ -571,8 +589,8 @@ export class Main extends React.Component<MainProps, MainState> {
           updateSQLQueries={this.updateSQLQueries}
         />
       );
-      link = "https://opendistro.github.io/for-elasticsearch-docs/docs/sql/";
-      linkTitle = "SQL documentation";
+      link = 'https://opendistro.github.io/for-elasticsearch-docs/docs/sql/';
+      linkTitle = 'SQL documentation';
     } else {
       page = (
         <PPLPage
@@ -584,8 +602,8 @@ export class Main extends React.Component<MainProps, MainState> {
           updatePPLQueries={this.updatePPLQueries}
         />
       );
-      link = "https://opendistro.github.io/for-elasticsearch-docs/docs/ppl/";
-      linkTitle = "PPL documentation";
+      link = 'https://opendistro.github.io/for-elasticsearch-docs/docs/ppl/';
+      linkTitle = 'PPL documentation';
     }
 
     if (this.state.isResultFullScreen) {
@@ -596,9 +614,18 @@ export class Main extends React.Component<MainProps, MainState> {
             queries={this.state.queries}
             queryResults={this.state.queryResultsTable}
             queryResultsJDBC={getSelectedResults(this.state.queryResults, this.state.selectedTabId)}
-            queryResultsJSON={getSelectedResults(this.state.queryResultsJSON, this.state.selectedTabId)}
-            queryResultsCSV={getSelectedResults(this.state.queryResultsCSV, this.state.selectedTabId)}
-            queryResultsTEXT={getSelectedResults(this.state.queryResultsTEXT, this.state.selectedTabId)}
+            queryResultsJSON={getSelectedResults(
+              this.state.queryResultsJSON,
+              this.state.selectedTabId
+            )}
+            queryResultsCSV={getSelectedResults(
+              this.state.queryResultsCSV,
+              this.state.selectedTabId
+            )}
+            queryResultsTEXT={getSelectedResults(
+              this.state.queryResultsTEXT,
+              this.state.selectedTabId
+            )}
             messages={this.state.messages}
             selectedTabId={this.state.selectedTabId}
             selectedTabName={this.state.selectedTabName}
@@ -630,27 +657,17 @@ export class Main extends React.Component<MainProps, MainState> {
                 </EuiTitle>
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
-                <Switch
-                  onChange={this.onChange}
-                  language={this.state.language}
-                />
+                <Switch onChange={this.onChange} language={this.state.language} />
               </EuiFlexItem>
               <EuiFlexItem grow={false}>
-                <EuiButton
-                  href={link}
-                  target="_blank"
-                  iconType="popout"
-                  iconSide="right">
+                <EuiButton href={link} target="_blank" iconType="popout" iconSide="right">
                   {linkTitle}
                 </EuiButton>
               </EuiFlexItem>
             </EuiFlexGroup>
-
           </div>
           <EuiSpacer size="l" />
-          <div>
-            {page}
-          </div>
+          <div>{page}</div>
 
           <EuiSpacer size="l" />
           <div className="sql-console-query-result">
@@ -658,10 +675,22 @@ export class Main extends React.Component<MainProps, MainState> {
               language={this.state.language}
               queries={this.state.queries}
               queryResults={this.state.queryResultsTable}
-              queryResultsJDBC={getSelectedResults(this.state.queryResults, this.state.selectedTabId)}
-              queryResultsJSON={getSelectedResults(this.state.queryResultsJSON, this.state.selectedTabId)}
-              queryResultsCSV={getSelectedResults(this.state.queryResultsCSV, this.state.selectedTabId)}
-              queryResultsTEXT={getSelectedResults(this.state.queryResultsTEXT, this.state.selectedTabId)}
+              queryResultsJDBC={getSelectedResults(
+                this.state.queryResults,
+                this.state.selectedTabId
+              )}
+              queryResultsJSON={getSelectedResults(
+                this.state.queryResultsJSON,
+                this.state.selectedTabId
+              )}
+              queryResultsCSV={getSelectedResults(
+                this.state.queryResultsCSV,
+                this.state.selectedTabId
+              )}
+              queryResultsTEXT={getSelectedResults(
+                this.state.queryResultsTEXT,
+                this.state.selectedTabId
+              )}
               messages={this.state.messages}
               selectedTabId={this.state.selectedTabId}
               selectedTabName={this.state.selectedTabName}
