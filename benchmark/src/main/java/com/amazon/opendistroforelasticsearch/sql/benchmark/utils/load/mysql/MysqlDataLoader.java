@@ -32,7 +32,7 @@ import java.util.StringJoiner;
  */
 public class MysqlDataLoader implements DataLoader {
 
-  private static final String url = "jdbc:mysql://localhost/";
+  private static final String URL = "jdbc:mysql://localhost/";
   private String authUrl;
   private Connection connection = null;
   private Statement statement = null;
@@ -41,7 +41,7 @@ public class MysqlDataLoader implements DataLoader {
    * Constructor for MysqlDataLoader.
    */
   public MysqlDataLoader() {
-    authUrl = url + "?user=" + BenchmarkService.mysqlUsername + "&password="
+    authUrl = URL + "?user=" + BenchmarkService.mysqlUsername + "&password="
         + BenchmarkService.mysqlPassword;
   }
 
@@ -87,7 +87,8 @@ public class MysqlDataLoader implements DataLoader {
       String sql = "create table " + MysqlTpchSchema.databaseName + "." + tablename + " (";
 
       StringJoiner fields = new StringJoiner(", ", "", "");
-      MysqlTpchSchema.schemaMap.entrySet().forEach(field -> fields.add((CharSequence) field));
+      MysqlTpchSchema.schemaMap.get(tablename).entrySet()
+          .forEach(field -> fields.add(field.getKey() + " " + field.getValue()));
       sql += fields.toString();
 
       StringJoiner primaryKey = new StringJoiner(", ", ", primary key (", ")");
@@ -104,7 +105,6 @@ public class MysqlDataLoader implements DataLoader {
         }
       }
       sql += ");";
-
       statement.executeUpdate(sql);
     }
   }

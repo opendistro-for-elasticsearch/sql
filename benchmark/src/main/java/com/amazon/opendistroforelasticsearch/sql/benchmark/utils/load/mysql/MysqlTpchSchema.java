@@ -46,21 +46,21 @@ public class MysqlTpchSchema {
     primaryKeyMap.put("supplier", new LinkedList<>(Arrays.asList("s_suppkey")));
 
     foreignKeyMap = new LinkedHashMap<>();
-    foreignKeyMap = ImmutableMap
-        .of("customer", ImmutableMap.of("c_nationkey", (ImmutableMap.of("nation", "n_nationkey"))));
-    foreignKeyMap = ImmutableMap
-        .of("lineitem", ImmutableMap.of("l_orderkey", (ImmutableMap.of("orders", "o_orderkey")),
+    foreignKeyMap.put("customer",
+        ImmutableMap.of("c_nationkey", (ImmutableMap.of("nation", "n_nationkey"))));
+    foreignKeyMap
+        .put("lineitem", ImmutableMap.of("l_orderkey", (ImmutableMap.of("orders", "o_orderkey")),
             "l_partkey", (ImmutableMap.of("part", "p_partkey")),
             "l_suppkey", (ImmutableMap.of("supplier", "s_suppkey"))));
-    foreignKeyMap = ImmutableMap
-        .of("nation", ImmutableMap.of("n_regionkey", (ImmutableMap.of("region", "r_regionkey"))));
-    foreignKeyMap = ImmutableMap
-        .of("orders", ImmutableMap.of("o_custkey", (ImmutableMap.of("customer", "c_custkey"))));
-    foreignKeyMap = ImmutableMap
-        .of("partsupp", ImmutableMap.of("ps_partkey", (ImmutableMap.of("part", "p_partkey")),
+    foreignKeyMap
+        .put("nation", ImmutableMap.of("n_regionkey", (ImmutableMap.of("region", "r_regionkey"))));
+    foreignKeyMap
+        .put("orders", ImmutableMap.of("o_custkey", (ImmutableMap.of("customer", "c_custkey"))));
+    foreignKeyMap
+        .put("partsupp", ImmutableMap.of("ps_partkey", (ImmutableMap.of("part", "p_partkey")),
             "ps_suppkey", (ImmutableMap.of("supplier", "s_suppkey"))));
-    foreignKeyMap = ImmutableMap
-        .of("supplier", ImmutableMap.of("s_nationkey", (ImmutableMap.of("nation", "n_nationkey"))));
+    foreignKeyMap.put("supplier",
+        ImmutableMap.of("s_nationkey", (ImmutableMap.of("nation", "n_nationkey"))));
 
     schemaMap = new LinkedHashMap<>();
 

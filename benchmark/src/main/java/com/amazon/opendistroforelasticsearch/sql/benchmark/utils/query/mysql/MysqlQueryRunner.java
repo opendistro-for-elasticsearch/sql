@@ -33,7 +33,7 @@ import java.sql.Statement;
  */
 public class MysqlQueryRunner extends QueryRunner {
 
-  private static final String url = "jdbc:mysql://localhost/";
+  private static final String URL = "jdbc:mysql://localhost/";
   private String authUrl;
   private Connection connection = null;
   private Statement statement = null;
@@ -55,7 +55,7 @@ public class MysqlQueryRunner extends QueryRunner {
    */
   @Override
   public void prepareQueryRunner(String query) throws Exception {
-    authUrl = url + "?user=" + BenchmarkService.mysqlUsername + "&password="
+    authUrl = URL + "?user=" + BenchmarkService.mysqlUsername + "&password="
         + BenchmarkService.mysqlPassword;
     Class.forName("com.mysql.cj.jdbc.Driver");
     connection = DriverManager.getConnection(authUrl);
