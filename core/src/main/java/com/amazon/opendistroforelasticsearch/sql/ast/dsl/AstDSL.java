@@ -203,8 +203,8 @@ public class AstDSL {
 
   /**
    * CASE case_value
-   *     WHEN when_value THEN result
-   *     [WHEN when_value THEN result] ...
+   *     WHEN compare_value THEN result
+   *     [WHEN compare_value THEN result] ...
    *     [ELSE result]
    * END
    */

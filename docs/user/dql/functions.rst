@@ -1832,3 +1832,78 @@ Description
 Specifications:
 
 1. ISNULL(ES_TYPE) -> INTEGER
+
+
+CASE
+----
+
+Description
+>>>>>>>>>>>
+
+``CASE`` statement has two forms with slightly different syntax: Simple Case and Searched Case.
+
+The simple case syntax compares a case value with each compare value in ``WHEN`` clause and return its result if matched. Otherwise, result in ``ELSE`` clause is returned (or ``NULL`` if absent). Note that case value, compare value and result can be any expression::
+
+   CASE case_value
+     WHEN compare_value THEN result
+     [WHEN compare_value THEN result] ...
+     [ELSE result]
+   END
+
+Similarly, the searched case syntax evaluates each search condition and return result if true. A search condition must be a predicate that returns a bool when evaluated::
+
+   CASE
+     WHEN search_condition THEN result
+     [WHEN search_condition THEN result] ...
+     [ELSE result]
+   END
+
+
+Type Check
+>>>>>>>>>>
+
+TODO
+
+Examples
+>>>>>>>>
+
+Here is an example for the first simple case syntax::
+
+    od> SELECT
+    ...   CASE 1
+    ...     WHEN 1 THEN 'One'
+    ...   END AS simple_case,
+    ...   CASE ABS(-2)
+    ...     WHEN 1 THEN 'One'
+    ...     WHEN 2 THEN 'Absolute two'
+    ...   END AS func_case_value,
+    ...   CASE ABS(-3)
+    ...     WHEN 1 THEN 'One'
+    ...     ELSE TRIM(' Absolute three ')
+    ...   END AS func_result;
+    fetched rows / total rows = 1/1
+    +---------------+-------------------+----------------+
+    | simple_case   | func_case_value   | func_result    |
+    |---------------+-------------------+----------------|
+    | One           | Absolute two      | Absolute three |
+    +---------------+-------------------+----------------+
+
+Here is another example for the second searched case syntax::
+
+    od> SELECT
+    ...   CASE
+    ...     WHEN 1 = 1 THEN 'One'
+    ...   END AS single_search,
+    ...   CASE
+    ...     WHEN 2 = 1 THEN 'One'
+    ...     WHEN 'hello' = 'hello' THEN 'Hello' END AS multi_searches,
+    ...   CASE
+    ...     WHEN 2 = 1 THEN 'One'
+    ...     WHEN 'hello' = 'world' THEN 'Hello'
+    ...   END AS no_else;
+    fetched rows / total rows = 1/1
+    +-----------------+------------------+-----------+
+    | single_search   | multi_searches   | no_else   |
+    |-----------------+------------------+-----------|
+    | One             | Hello            | null      |
+    +-----------------+------------------+-----------+
