@@ -117,6 +117,12 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canParseDistinctClause() {
+    assertNotNull(parser.parse("SELECT DISTINCT name FROM test"));
+    assertNotNull(parser.parse("SELECT DISTINCT name, balance FROM test"));
+  }
+
+  @Test
   public void canNotParseAggregateFunctionWithWrongArgument() {
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM() FROM test"));
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG() FROM test"));
