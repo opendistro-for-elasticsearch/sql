@@ -63,20 +63,20 @@ public class MysqlTpchSchema {
 
     schemaMap = new LinkedHashMap<>();
 
-    Map regionArgs = new LinkedHashMap<>();
+    Map<String, String> regionArgs = new LinkedHashMap<>();
     regionArgs.put("r_regionkey", BIGINT);
     regionArgs.put("r_name", TEXT);
     regionArgs.put("r_comment", TEXT);
     schemaMap.put("region", regionArgs);
 
-    Map nationArgs = new LinkedHashMap<>();
+    Map<String, String> nationArgs = new LinkedHashMap<>();
     nationArgs.put("n_nationkey", BIGINT);
     nationArgs.put("n_name", TEXT);
     nationArgs.put("n_regionkey", BIGINT);
     nationArgs.put("n_comment", TEXT);
     schemaMap.put("nation", nationArgs);
 
-    Map customerArgs = new LinkedHashMap<>();
+    Map<String, String> customerArgs = new LinkedHashMap<>();
     customerArgs.put("c_custkey", BIGINT);
     customerArgs.put("c_name", TEXT);
     customerArgs.put("c_address", TEXT);
@@ -87,7 +87,7 @@ public class MysqlTpchSchema {
     customerArgs.put("c_comment", TEXT);
     schemaMap.put("customer", customerArgs);
 
-    Map ordersArgs = new LinkedHashMap<>();
+    Map<String, String> ordersArgs = new LinkedHashMap<>();
     ordersArgs.put("o_orderkey", BIGINT);
     ordersArgs.put("o_custkey", BIGINT);
     ordersArgs.put("o_orderstatus", TEXT);
@@ -99,7 +99,7 @@ public class MysqlTpchSchema {
     ordersArgs.put("o_comment", TEXT);
     schemaMap.put("orders", ordersArgs);
 
-    Map supplierArgs = new LinkedHashMap<>();
+    Map<String, String> supplierArgs = new LinkedHashMap<>();
     supplierArgs.put("s_suppkey", BIGINT);
     supplierArgs.put("s_name", TEXT);
     supplierArgs.put("s_address", TEXT);
@@ -109,7 +109,7 @@ public class MysqlTpchSchema {
     supplierArgs.put("s_comment", TEXT);
     schemaMap.put("supplier", supplierArgs);
 
-    Map partArgs = new LinkedHashMap<>();
+    Map<String, String> partArgs = new LinkedHashMap<>();
     partArgs.put("p_partkey", BIGINT);
     partArgs.put("p_name", TEXT);
     partArgs.put("p_mfgr", TEXT);
@@ -121,7 +121,7 @@ public class MysqlTpchSchema {
     partArgs.put("p_comment", TEXT);
     schemaMap.put("part", partArgs);
 
-    Map partsuppArgs = new LinkedHashMap<>();
+    Map<String, String> partsuppArgs = new LinkedHashMap<>();
     partsuppArgs.put("ps_partkey", BIGINT);
     partsuppArgs.put("ps_suppkey", BIGINT);
     partsuppArgs.put("ps_availqty", INT);
@@ -129,7 +129,7 @@ public class MysqlTpchSchema {
     partsuppArgs.put("ps_comment", TEXT);
     schemaMap.put("partsupp", partsuppArgs);
 
-    Map lineitemArgs = new LinkedHashMap<>();
+    Map<String, String> lineitemArgs = new LinkedHashMap<>();
     lineitemArgs.put("l_orderkey", BIGINT);
     lineitemArgs.put("l_partkey", BIGINT);
     lineitemArgs.put("l_suppkey", BIGINT);
