@@ -423,6 +423,14 @@ class AstBuilderTest {
         buildAST("SELECT DISTINCT name, age FROM test"));
   }
 
+  @Test
+  public void can_build_all_distinct_clause() {
+    assertEquals(
+        buildAST("SELECT name, age FROM test"),
+        buildAST("SELECT ALL name, age FROM test")
+    );
+  }
+
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
     return parseTree.accept(new AstBuilder(query));
