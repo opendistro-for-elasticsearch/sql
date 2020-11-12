@@ -424,7 +424,30 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_all_distinct_clause() {
+  public void can_build_select_distinct_clause_with_function() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                emptyList(),
+                emptyList(),
+                ImmutableList.of(
+                    alias("SUBSTRING(name, 1, 2)",
+                        function(
+                            "SUBSTRING",
+                            qualifiedName("name"),
+                            intLiteral(1), intLiteral(2)))),
+                emptyList()),
+            alias("SUBSTRING(name, 1, 2)",
+                function(
+                    "SUBSTRING",
+                    qualifiedName("name"),
+                    intLiteral(1), intLiteral(2)))),
+        buildAST("SELECT DISTINCT SUBSTRING(name, 1, 2) FROM test"));
+  }
+
+  @Test
+  public void can_build_select_all_clause() {
     assertEquals(
         buildAST("SELECT name, age FROM test"),
         buildAST("SELECT ALL name, age FROM test")
