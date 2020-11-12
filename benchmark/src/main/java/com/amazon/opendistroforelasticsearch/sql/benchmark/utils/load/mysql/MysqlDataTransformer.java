@@ -25,8 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.StringJoiner;
 
 /**
  * Data transformer for MySQL database.
@@ -75,9 +74,10 @@ public class MysqlDataTransformer implements DataTransformer {
         result.addFile(tableName, transformedDataPath + filename);
         String line;
         while ((line = bufferedReader.readLine()) != null) {
-          List<String> argsList = Arrays.asList(line.split("\\|"));
-          String row = argsList.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(","));
-          writer.write(row);
+          StringJoiner row = new StringJoiner(",");
+          Arrays.asList(line.split("\\|")).forEach(field -> row.add("\"" + field + "\""));
+
+          writer.write(row.toString());
           tableLineIndex++;
           writer.newLine();
 

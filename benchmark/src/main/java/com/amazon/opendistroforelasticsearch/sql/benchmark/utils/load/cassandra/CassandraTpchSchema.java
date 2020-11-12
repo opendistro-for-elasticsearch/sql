@@ -15,9 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.cassandra;
 
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.BIGINT;
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.DECIMAL;
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.INT;
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.TEXT;
+
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,100 +34,100 @@ public class CassandraTpchSchema {
 
   static {
     primaryKeyMap = new LinkedHashMap<>();
-    primaryKeyMap.put("customer", new LinkedList<>(Arrays.asList("c_custkey")));
-    primaryKeyMap.put("lineitem", new LinkedList<>(Arrays.asList("l_orderkey", "l_linenumber")));
-    primaryKeyMap.put("nation", new LinkedList<>(Arrays.asList("n_nationkey")));
-    primaryKeyMap.put("orders", new LinkedList<>(Arrays.asList("o_orderkey")));
-    primaryKeyMap.put("part", new LinkedList<>(Arrays.asList("p_partkey")));
-    primaryKeyMap.put("partsupp", new LinkedList<>(Arrays.asList("ps_partkey", "ps_suppkey")));
-    primaryKeyMap.put("region", new LinkedList<>(Arrays.asList("r_regionkey")));
-    primaryKeyMap.put("supplier", new LinkedList<>(Arrays.asList("s_suppkey")));
+    primaryKeyMap.put("customer", Arrays.asList("c_custkey"));
+    primaryKeyMap.put("lineitem", Arrays.asList("l_orderkey", "l_linenumber"));
+    primaryKeyMap.put("nation", Arrays.asList("n_nationkey"));
+    primaryKeyMap.put("orders", Arrays.asList("o_orderkey"));
+    primaryKeyMap.put("part", Arrays.asList("p_partkey"));
+    primaryKeyMap.put("partsupp", Arrays.asList("ps_partkey", "ps_suppkey"));
+    primaryKeyMap.put("region", Arrays.asList("r_regionkey"));
+    primaryKeyMap.put("supplier", Arrays.asList("s_suppkey"));
 
     schemaMap = new LinkedHashMap<>();
 
-    LinkedHashMap customerArgs = new LinkedHashMap<>();
-    customerArgs.put("c_custkey", "bigint");
-    customerArgs.put("c_name", "text");
-    customerArgs.put("c_address", "text");
-    customerArgs.put("c_nationkey", "bigint");
-    customerArgs.put("c_phone", "text");
-    customerArgs.put("c_acctbal", "decimal");
-    customerArgs.put("c_mktsegment", "text");
-    customerArgs.put("c_comment", "text");
+    Map<String, String> customerArgs = new LinkedHashMap<>();
+    customerArgs.put("c_custkey", BIGINT);
+    customerArgs.put("c_name", TEXT);
+    customerArgs.put("c_address", TEXT);
+    customerArgs.put("c_nationkey", BIGINT);
+    customerArgs.put("c_phone", TEXT);
+    customerArgs.put("c_acctbal", DECIMAL);
+    customerArgs.put("c_mktsegment", TEXT);
+    customerArgs.put("c_comment", TEXT);
     schemaMap.put("customer", customerArgs);
 
-    LinkedHashMap lineitemArgs = new LinkedHashMap<>();
-    lineitemArgs.put("l_orderkey", "bigint");
-    lineitemArgs.put("l_partkey", "bigint");
-    lineitemArgs.put("l_suppkey", "bigint");
-    lineitemArgs.put("l_linenumber", "int");
-    lineitemArgs.put("l_quantity", "decimal");
-    lineitemArgs.put("l_extendedprice", "decimal");
-    lineitemArgs.put("l_discount", "decimal");
-    lineitemArgs.put("l_tax", "decimal");
-    lineitemArgs.put("l_returnflag", "text");
-    lineitemArgs.put("l_linestatus", "text");
-    lineitemArgs.put("l_shipdate", "date");
-    lineitemArgs.put("l_commitdate", "date");
-    lineitemArgs.put("l_receiptdate", "date");
-    lineitemArgs.put("l_shipinstruct", "text");
-    lineitemArgs.put("l_shipmode", "text");
-    lineitemArgs.put("l_comment", "text");
+    Map<String, String> lineitemArgs = new LinkedHashMap<>();
+    lineitemArgs.put("l_orderkey", BIGINT);
+    lineitemArgs.put("l_partkey", BIGINT);
+    lineitemArgs.put("l_suppkey", BIGINT);
+    lineitemArgs.put("l_linenumber", INT);
+    lineitemArgs.put("l_quantity", DECIMAL);
+    lineitemArgs.put("l_extendedprice", DECIMAL);
+    lineitemArgs.put("l_discount", DECIMAL);
+    lineitemArgs.put("l_tax", DECIMAL);
+    lineitemArgs.put("l_returnflag", TEXT);
+    lineitemArgs.put("l_linestatus", TEXT);
+    lineitemArgs.put("l_shipdate", DATE);
+    lineitemArgs.put("l_commitdate", DATE);
+    lineitemArgs.put("l_receiptdate", DATE);
+    lineitemArgs.put("l_shipinstruct", TEXT);
+    lineitemArgs.put("l_shipmode", TEXT);
+    lineitemArgs.put("l_comment", TEXT);
     schemaMap.put("lineitem", lineitemArgs);
 
-    LinkedHashMap nationArgs = new LinkedHashMap<>();
-    nationArgs.put("n_nationkey", "bigint");
-    nationArgs.put("n_name", "text");
-    nationArgs.put("n_regionkey", "bigint");
-    nationArgs.put("n_comment", "text");
+    Map<String, String> nationArgs = new LinkedHashMap<>();
+    nationArgs.put("n_nationkey", BIGINT);
+    nationArgs.put("n_name", TEXT);
+    nationArgs.put("n_regionkey", BIGINT);
+    nationArgs.put("n_comment", TEXT);
     schemaMap.put("nation", nationArgs);
 
-    LinkedHashMap ordersArgs = new LinkedHashMap<>();
-    ordersArgs.put("o_orderkey", "bigint");
-    ordersArgs.put("o_custkey", "bigint");
-    ordersArgs.put("o_orderstatus", "text");
-    ordersArgs.put("o_totalprice", "decimal");
-    ordersArgs.put("o_orderdate", "date");
-    ordersArgs.put("o_orderpriority", "text");
-    ordersArgs.put("o_clerk", "text");
-    ordersArgs.put("o_shippriority", "int");
-    ordersArgs.put("o_comment", "text");
+    Map<String, String> ordersArgs = new LinkedHashMap<>();
+    ordersArgs.put("o_orderkey", BIGINT);
+    ordersArgs.put("o_custkey", BIGINT);
+    ordersArgs.put("o_orderstatus", TEXT);
+    ordersArgs.put("o_totalprice", DECIMAL);
+    ordersArgs.put("o_orderdate", DATE);
+    ordersArgs.put("o_orderpriority", TEXT);
+    ordersArgs.put("o_clerk", TEXT);
+    ordersArgs.put("o_shippriority", INT);
+    ordersArgs.put("o_comment", TEXT);
     schemaMap.put("orders", ordersArgs);
 
-    LinkedHashMap partArgs = new LinkedHashMap<>();
-    partArgs.put("p_partkey", "bigint");
-    partArgs.put("p_name", "text");
-    partArgs.put("p_mfgr", "text");
-    partArgs.put("p_brand", "text");
-    partArgs.put("p_type", "text");
-    partArgs.put("p_size", "int");
-    partArgs.put("p_container", "text");
-    partArgs.put("p_retailprice", "decimal");
-    partArgs.put("p_comment", "text");
+    Map<String, String> partArgs = new LinkedHashMap<>();
+    partArgs.put("p_partkey", BIGINT);
+    partArgs.put("p_name", TEXT);
+    partArgs.put("p_mfgr", TEXT);
+    partArgs.put("p_brand", TEXT);
+    partArgs.put("p_type", TEXT);
+    partArgs.put("p_size", INT);
+    partArgs.put("p_container", TEXT);
+    partArgs.put("p_retailprice", DECIMAL);
+    partArgs.put("p_comment", TEXT);
     schemaMap.put("part", partArgs);
 
-    LinkedHashMap partsuppArgs = new LinkedHashMap<>();
-    partsuppArgs.put("ps_partkey", "bigint");
-    partsuppArgs.put("ps_suppkey", "bigint");
-    partsuppArgs.put("ps_availqty", "int");
-    partsuppArgs.put("ps_supplycost", "decimal");
-    partsuppArgs.put("ps_comment", "text");
+    Map<String, String> partsuppArgs = new LinkedHashMap<>();
+    partsuppArgs.put("ps_partkey", BIGINT);
+    partsuppArgs.put("ps_suppkey", BIGINT);
+    partsuppArgs.put("ps_availqty", INT);
+    partsuppArgs.put("ps_supplycost", DECIMAL);
+    partsuppArgs.put("ps_comment", TEXT);
     schemaMap.put("partsupp", partsuppArgs);
 
-    LinkedHashMap regionArgs = new LinkedHashMap<>();
-    regionArgs.put("r_regionkey", "bigint");
-    regionArgs.put("r_name", "text");
-    regionArgs.put("r_comment", "text");
+    Map<String, String> regionArgs = new LinkedHashMap<>();
+    regionArgs.put("r_regionkey", BIGINT);
+    regionArgs.put("r_name", TEXT);
+    regionArgs.put("r_comment", TEXT);
     schemaMap.put("region", regionArgs);
 
-    LinkedHashMap supplierArgs = new LinkedHashMap<>();
-    supplierArgs.put("s_suppkey", "bigint");
-    supplierArgs.put("s_name", "text");
-    supplierArgs.put("s_address", "text");
-    supplierArgs.put("s_nationkey", "bigint");
-    supplierArgs.put("s_phone", "text");
-    supplierArgs.put("s_acctbal", "decimal");
-    supplierArgs.put("s_comment", "text");
+    Map<String, String> supplierArgs = new LinkedHashMap<>();
+    supplierArgs.put("s_suppkey", BIGINT);
+    supplierArgs.put("s_name", TEXT);
+    supplierArgs.put("s_address", TEXT);
+    supplierArgs.put("s_nationkey", BIGINT);
+    supplierArgs.put("s_phone", TEXT);
+    supplierArgs.put("s_acctbal", DECIMAL);
+    supplierArgs.put("s_comment", TEXT);
     schemaMap.put("supplier", supplierArgs);
   }
 }

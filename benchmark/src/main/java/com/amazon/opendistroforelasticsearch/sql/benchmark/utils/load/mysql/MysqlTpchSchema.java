@@ -15,6 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.load.mysql;
 
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.BIGINT;
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.DECIMAL;
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.INT;
+import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.BenchmarkConstants.TEXT;
+
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -27,11 +33,6 @@ public class MysqlTpchSchema {
   public static Map<String, List<String>> primaryKeyMap;
   public static Map<String, Map<String, Map<String, String>>> foreignKeyMap;
   public static Map<String, Map<String, String>> schemaMap;
-  private static String BIGINT = "bigint";
-  private static String TEXT = "text";
-  private static String DECIMAL = "decimal";
-  private static String DATE = "date";
-  private static String INT = "int";
 
   static {
     primaryKeyMap = new LinkedHashMap<>();
