@@ -1,7 +1,8 @@
 {
-  "types": ["cassandra","elasticsearch"],
+  "types": ["cassandra","mysql","elasticsearch"],
   "outputFile": "index.html",
-  "benchmarkPath": "",
-  "scaleFactors": [0.1,1],
-  "systemPassword": "password"
+  "scaleFactors": [0.1],
+  "systemPassword": "password",
+  "mysqlUsername": "root",
+  "mysqlPassword": "password"
 }

@@ -41,23 +41,29 @@ import java.util.Set;
  * Class to run benchmarking, includes entry-point for benchmarking.
  */
 public class BenchmarkService {
+
   private List<String> types;
   private String outputFile;
   private String benchmarkPath;
   private String dataDirectoryPath;
   private List<Double> scaleFactors;
-  private String systemPassword;
+  public static String systemPassword;
+  public static String mysqlUsername;
+  public static String mysqlPassword;
 
   private static final String TYPES = "types";
   private static final String OUTPUT_FILE = "outputFile";
-  private static final String BENCHMARK_PATH = "benchmarkPath";
   private static final String SCALE_FACTORS = "scaleFactors";
   private static final String SYSTEM_PASSWORD = "systemPassword";
+  private static final String MYSQL_USERNAME = "mysqlUsername";
+  private static final String MYSQL_PASSWORD = "mysqlPassword";
   private static final Set<String> EXPECTED_KEYS = ImmutableSet.of(
-      TYPES, OUTPUT_FILE, BENCHMARK_PATH, SCALE_FACTORS, SYSTEM_PASSWORD);
+      TYPES, OUTPUT_FILE, SCALE_FACTORS, SYSTEM_PASSWORD, MYSQL_USERNAME,
+      MYSQL_PASSWORD);
 
   /**
    * Constructor for BenchmarkingService.
+   *
    * @param filePath Path to configuration file.
    * @throws Exception Thrown if file parsing fails.
    */
@@ -67,28 +73,30 @@ public class BenchmarkService {
 
   /**
    * Function to run all procedures related to benchmarking.
+   *
    * @throws Exception Thrown if benchmarking fails.
    */
   private void runBenchmarks() throws Exception {
     final List<BenchmarkResults> results = new ArrayList<>();
-    for (Double sf: scaleFactors) {
+    for (Double sf : scaleFactors) {
       DataGenerator.generateData(benchmarkPath, sf);
-      QueryGenerator.generateQueries(benchmarkPath, sf);
-      for (final String type: types) {
-        DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type);
-        launcher.launchDatabase(systemPassword);
-        performDataLoad(type);
-        results.add(performBenchmark(type, sf));
-        launcher.shutdownDatabase(systemPassword);
+      // QueryGenerator.generateQueries(benchmarkPath, sf);
+      for (final String type : types) {
+        try (DatabaseLauncher launcher = DatabaseLauncherFactory.getDatabaseLauncher(type)) {
+          launcher.launchDatabase();
+          performDataLoad(type);
+          results.add(performBenchmark(type, sf));
+        }
       }
       DataGenerator.cleanupData(benchmarkPath);
-      QueryGenerator.cleanupQueries(benchmarkPath);
+      // QueryGenerator.cleanupQueries(benchmarkPath);
     }
     interpretResults(results);
   }
 
   /**
    * Function to load data into a specified database.
+   *
    * @param type Type of database to load data into.
    * @throws Exception Thrown if data load fails.
    */
@@ -106,7 +114,8 @@ public class BenchmarkService {
 
   /**
    * Function to run benchmarking and get a result for a specified database.
-   * @param type Database type to run benchmarking against.
+   *
+   * @param type        Database type to run benchmarking against.
    * @param scaleFactor Scale factor for data set.
    * @return BenchmarkResults for the query execution.
    * @throws Exception Thrown if benchmarking fails.
@@ -119,6 +128,7 @@ public class BenchmarkService {
 
   /**
    * Function to run result interpreter.
+   *
    * @param results List of benchmarking results to use.
    */
   private void interpretResults(final List<BenchmarkResults> results) throws Exception {
@@ -128,6 +138,7 @@ public class BenchmarkService {
 
   /**
    * Function to parse the config file and get parameters needed for running benchmarking.
+   *
    * @param filePath Path to config file.
    * @throws Exception Thrown if config file parsing fails.
    */
@@ -138,24 +149,26 @@ public class BenchmarkService {
     if (!map.keySet().equals(EXPECTED_KEYS)) {
       throw new Exception(
           String.format("Expected JSON config file to contain the following keys: '%s'. "
-              + "Instead it contained the following keys: '%s'.",
+                  + "Instead it contained the following keys: '%s'.",
               EXPECTED_KEYS.toString(), map.keySet().toString()));
     }
     types = getValueCheckType(map, TYPES, ArrayList.class);
     outputFile = getValueCheckType(map, OUTPUT_FILE, String.class);
-    final String basePath = getValueCheckType(map, BENCHMARK_PATH, String.class);
-    benchmarkPath = Paths.get(basePath).toAbsolutePath().toString() + "/";
-    dataDirectoryPath = Paths.get(basePath, "data").toString() + "/";
+    benchmarkPath = Paths.get("").toAbsolutePath().toString() + "/";
+    dataDirectoryPath = Paths.get("", "data").toString() + "/";
     scaleFactors = getValueCheckType(map, SCALE_FACTORS, ArrayList.class);
     systemPassword = getValueCheckType(map, SYSTEM_PASSWORD, String.class);
+    mysqlUsername = getValueCheckType(map, MYSQL_USERNAME, String.class);
+    mysqlPassword = getValueCheckType(map, MYSQL_PASSWORD, String.class);
   }
 
   /**
    * Function to get value from map and check the type before returning it.
-   * @param map Map to get result from.
-   * @param key Key that Object exists in map under.
+   *
+   * @param map           Map to get result from.
+   * @param key           Key that Object exists in map under.
    * @param expectedClass Expected type of Object from map.
-   * @param <T> Template type to cast Object to.
+   * @param <T>           Template type to cast Object to.
    * @return Object casted for specific type.
    * @throws Exception Throws an exception if the type does not match.
    */
@@ -165,14 +178,15 @@ public class BenchmarkService {
     final Object obj = map.get(key);
     if (!(obj.getClass().equals(expectedClass))) {
       throw new Exception(String.format("Expected %s key to have a value of type '%s'. "
-          + "Instead it contained a value of type '%s'.",
+              + "Instead it contained a value of type '%s'.",
           key, expectedClass.toString(), obj.getClass().toString()));
     }
-    return (T)obj;
+    return (T) obj;
   }
 
   /**
    * Entry point to run benchmarking service.
+   *
    * @param args Should only specify a single configuration file.
    */
   public static void main(final String[] args) {

@@ -24,10 +24,17 @@ public class BenchmarkConstants {
   public static final String MYSQL = "mysql";
   public static final String MOCK1 = "mock1";
   public static final String MOCK2 = "mock2";
-  public static final String MOCK3 = "mock3";
   public static final String SUMMARY_FILE_NAME = "summary.jpg";
   public static final String OUTPUT_HTML_FILE_NAME = "index.html";
   private static final String QUERY_FILE_NAME_FORMAT = "%s.jpg";
+  public static final String BIGINT = "bigint";
+  public static final String TEXT = "text";
+  public static final String DECIMAL = "decimal";
+  public static final String DATE = "date";
+  public static final String INT = "int";
+  public static final String INTEGER = "integer";
+  public static final String KEYWORD = "keyword";
+  public static final String DOUBLE = "double";
 
   public static String queryToFileName(String query) {
     return String.format(QUERY_FILE_NAME_FORMAT, query);

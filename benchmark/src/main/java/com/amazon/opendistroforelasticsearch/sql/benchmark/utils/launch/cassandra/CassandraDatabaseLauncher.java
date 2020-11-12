@@ -17,7 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.cassand
 
 import static com.amazon.opendistroforelasticsearch.sql.benchmark.utils.CommandExecution.executeCommand;
 
+import com.amazon.opendistroforelasticsearch.sql.benchmark.BenchmarkService;
 import com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch.DatabaseLauncher;
+
 import java.io.IOException;
 
 public class CassandraDatabaseLauncher implements DatabaseLauncher {
@@ -26,19 +28,24 @@ public class CassandraDatabaseLauncher implements DatabaseLauncher {
    * Function to launch an Cassandra database.
    */
   @Override
-  public void launchDatabase(String systemPassword) throws IOException, InterruptedException {
-    executeCommand("echo " + systemPassword + " | sudo -S "
+  public void launchDatabase() throws IOException, InterruptedException {
+    executeCommand("echo " + BenchmarkService.systemPassword + " | sudo -S "
         + "update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java");
-    executeCommand("echo " + systemPassword + " | sudo -S systemctl start cassandra.service");
-    executeCommand("echo " + systemPassword + " | sudo -S systemctl status cassandra");
+    executeCommand(
+        "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl start cassandra.service");
+    executeCommand(
+        "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl status cassandra");
   }
 
   /**
    * Function to shutdown an Cassandra database.
    */
   @Override
-  public void shutdownDatabase(String systemPassword) throws IOException, InterruptedException {
-    executeCommand("echo " + systemPassword + " | sudo -S systemctl stop cassandra.service");
-    executeCommand("echo " + systemPassword + " | sudo -S systemctl status cassandra");
+  public void close() throws Exception {
+    executeCommand(
+        "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl stop cassandra.service");
+    executeCommand(
+        "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl status cassandra");
+
   }
 }
