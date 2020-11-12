@@ -406,6 +406,23 @@ class AstBuilderTest {
         buildAST("SELECT name, age FROM test ORDER BY name, age DESC"));
   }
 
+  @Test
+  public void can_build_select_distinct_clause() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                emptyList(),
+                emptyList(),
+                ImmutableList.of(
+                    alias("name", qualifiedName("name")),
+                    alias("age", qualifiedName("age"))),
+                emptyList()),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT DISTINCT name, age FROM test"));
+  }
+
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
     return parseTree.accept(new AstBuilder(query));
