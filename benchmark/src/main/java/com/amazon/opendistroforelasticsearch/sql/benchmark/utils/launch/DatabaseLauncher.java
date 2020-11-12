@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-rootProject.name = 'opendistro-sql'
+package com.amazon.opendistroforelasticsearch.sql.benchmark.utils.launch;
 
-include 'plugin'
-include 'ppl'
-include 'integ-test'
-include 'common'
-include 'elasticsearch'
-include 'core'
-include 'protocol'
-include 'doctest'
-include 'legacy'
-include 'sql'
-include 'benchmark'
+import java.io.IOException;
 
+/**
+ * Interface for launching and shutting down databases.
+ */
+public interface DatabaseLauncher extends AutoCloseable {
+
+  /**
+   * Function interface for launching databases.
+   */
+  void launchDatabase() throws IOException, InterruptedException;
+
+}
