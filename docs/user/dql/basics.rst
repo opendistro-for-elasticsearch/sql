@@ -255,6 +255,17 @@ Result set:
 | 36|
 +---+
 
+Actually your can use any expression in a ``DISTINCT`` clause as follows::
+
+    od> SELECT DISTINCT SUBSTRING(lastname, 1, 1) FROM accounts;
+    fetched rows / total rows = 3/3
+    +-----------------------------+
+    | SUBSTRING(lastname, 1, 1)   |
+    |-----------------------------|
+    | A                           |
+    | B                           |
+    | D                           |
+    +-----------------------------+
 
 FROM
 ====
