@@ -13,9 +13,6 @@
  *   permissions and limitations under the License.
  */
 
-import { Request, ResponseToolkit } from 'hapi-latest';
-import { CLUSTER } from './utils/constants';
-
 export default class TranslateService {
   private client: any;
 
@@ -23,31 +20,64 @@ export default class TranslateService {
     this.client = client;
   }
 
-  translateSQL = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  translateSQL = async (request: string) => {
     try {
-      const params = {
-        body: JSON.stringify(request.payload),
+      const queryRequest = {
+        query: request,
       };
-      const { callWithRequest } = await this.client.getCluster(CLUSTER.SQL);
-      const createResponse = await callWithRequest(request, 'sql.translateSQL', params);
-      return h.response({ ok: true, resp: createResponse });
 
+      const params = {
+        body: JSON.stringify(queryRequest),
+      };
+
+      const queryResponse = await this.client
+        .asScoped(request)
+        .callAsCurrentUser('sql.translateSQL', params);
+      const ret = {
+        data: {
+          ok: true,
+          resp: queryResponse,
+        },
+      };
+      return ret;
     } catch (err) {
-      return h.response({ ok: false, resp: err.message });
+      console.log(err);
+      return {
+        data: {
+          ok: false,
+          resp: err.message,
+        },
+      };
     }
   };
 
-  translatePPL = async (request: Request, h: ResponseToolkit, err?: Error) => {
+  translatePPL = async (request: string) => {
     try {
-      const params = {
-        body: JSON.stringify(request.payload),
+      const queryRequest = {
+        query: request,
       };
-      const { callWithRequest } = await this.client.getCluster(CLUSTER.SQL);
-      const createResponse = await callWithRequest(request, 'sql.translatePPL', params);
-      return h.response({ ok: true, resp: createResponse });
 
+      const params = {
+        body: JSON.stringify(queryRequest),
+      };
+
+      const queryResponse = await this.client
+        .asScoped(request)
+        .callAsCurrentUser('sql.translatePPL', params);
+      return {
+        data: {
+          ok: true,
+          resp: queryResponse,
+        },
+      };
     } catch (err) {
-      return h.response({ ok: false, resp: err.message });
+      console.log(err);
+      return {
+        data: {
+          ok: false,
+          resp: err.message,
+        },
+      };
     }
   };
 }
