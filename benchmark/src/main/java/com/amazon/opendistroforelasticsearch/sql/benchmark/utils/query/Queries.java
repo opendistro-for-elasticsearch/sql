@@ -24,7 +24,9 @@ public class Queries {
 
   static {
     // TODO: Add proper queries supported by all databases.
-    queries.add("select * from customer;");
-    queries.add("select count(*) from lineitem;");
+    queries.add("select * from lineitem;");
+    queries.add("select l_orderkey, l_partkey, l_suppkey from lineitem;");
+    queries
+        .add("select count(*), max(l_discount), sum(l_tax), avg(l_extendedprice) from lineitem;");
   }
 }
