@@ -3,11 +3,6 @@
 exports[`<Main /> spec click clear button 1`] = `
 <div>
   <div>
-    <div>
-      <hr
-        class="euiHorizontalRule euiHorizontalRule--full"
-      />
-    </div>
     <div
       class="sql-console-query-container"
     >
@@ -387,11 +382,6 @@ exports[`<Main /> spec click clear button 1`] = `
 exports[`<Main /> spec click run button, and response causes an error 1`] = `
 <div>
   <div>
-    <div>
-      <hr
-        class="euiHorizontalRule euiHorizontalRule--full"
-      />
-    </div>
     <div
       class="sql-console-query-container"
     >
@@ -771,11 +761,6 @@ exports[`<Main /> spec click run button, and response causes an error 1`] = `
 exports[`<Main /> spec click run button, and response is not ok 1`] = `
 <div>
   <div>
-    <div>
-      <hr
-        class="euiHorizontalRule euiHorizontalRule--full"
-      />
-    </div>
     <div
       class="sql-console-query-container"
     >
@@ -1155,11 +1140,6 @@ exports[`<Main /> spec click run button, and response is not ok 1`] = `
 exports[`<Main /> spec click run button, and response is ok 1`] = `
 <div>
   <div>
-    <div>
-      <hr
-        class="euiHorizontalRule euiHorizontalRule--full"
-      />
-    </div>
     <div
       class="sql-console-query-container"
     >
@@ -1542,11 +1522,6 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
   data-aria-hidden="true"
 >
   <div>
-    <div>
-      <hr
-        class="euiHorizontalRule euiHorizontalRule--full"
-      />
-    </div>
     <div
       class="sql-console-query-container"
     >
@@ -1926,11 +1901,6 @@ exports[`<Main /> spec click translation button, and response is ok 1`] = `
 exports[`<Main /> spec renders the component 1`] = `
 <div>
   <div>
-    <div>
-      <hr
-        class="euiHorizontalRule euiHorizontalRule--full"
-      />
-    </div>
     <div
       class="sql-console-query-container"
     >

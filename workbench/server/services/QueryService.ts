@@ -13,11 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
-import { Request, ResponseToolkit } from 'hapi-latest';
-import { CLUSTER } from './utils/constants';
-import _ from "lodash";
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import _ from 'lodash';
 
 export default class QueryService {
   private client: any;
@@ -25,52 +23,62 @@ export default class QueryService {
     this.client = client;
   }
 
-  describeQueryInternal = async (request: Request, h: ResponseToolkit, format: string, responseFormat: string, err?: Error) => {
+  describeQueryInternal = async (request: string, format: string, responseFormat: string) => {
     try {
-      const params = {
-        body: JSON.stringify(request.payload),
+      const queryRequest = {
+        query: request,
       };
-      const { callWithRequest } = await this.client.getCluster(CLUSTER.SQL);
-      const createResponse = await callWithRequest(request, format, params);
-      return h.response({
-        ok: true, resp:
-          _.isEqual(responseFormat, "json") ? JSON.stringify(createResponse) : createResponse
-      });
+      const params = {
+        body: JSON.stringify(queryRequest),
+      };
+
+      const queryResponse = await this.client.asScoped(request).callAsCurrentUser(format, params);
+      return {
+        data: {
+          ok: true,
+          resp: _.isEqual(responseFormat, 'json') ? JSON.stringify(queryResponse) : queryResponse,
+        },
+      };
     } catch (err) {
       console.log(err);
+      return {
+        data: {
+          ok: false,
+          resp: err.message,
+        },
+      };
     }
-    return h.response({ ok: false, resp: err.message });
   };
 
-  describeSQLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.sqlQuery", "json", err)
+  describeSQLQuery = async (request: string) => {
+    return this.describeQueryInternal(request, 'sql.sqlQuery', 'json');
   };
 
-  describePPLQuery = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.pplQuery", "json", err)
+  describePPLQuery = async (request: string) => {
+    return this.describeQueryInternal(request, 'sql.pplQuery', 'json');
   };
 
-  describeSQLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.sqlCsv", null, err)
+  describeSQLCsv = async (request: string) => {
+    return this.describeQueryInternal(request, 'sql.sqlCsv', null);
   };
 
-  describePPLCsv = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.pplCsv", null, err)
+  describePPLCsv = async (request: string) => {
+    return this.describeQueryInternal(request, 'sql.pplCsv', null);
   };
 
-  describeSQLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.sqlJson", "json", err)
+  describeSQLJson = async (request: string) => {
+    return this.describeQueryInternal(request, 'sql.sqlJson', 'json');
   };
 
-  describePPLJson = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.pplJson", "json", err)
+  describePPLJson = async (request: string) => {
+    return this.describeQueryInternal(request, 'sql.pplJson', 'json');
   };
 
-  describeSQLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.sqlText", null, err)
+  describeSQLText = async (request: string) => {
+    return this.describeQueryInternal(request, 'sql.sqlText', null);
   };
 
-  describePPLText = async (request: Request, h: ResponseToolkit, err?: Error) => {
-    return this.describeQueryInternal(request, h, "sql.pplText", null, err)
+  describePPLText = async (request: string) => {
+    return this.describeQueryInternal(request, 'sql.pplText', null);
   };
 }
