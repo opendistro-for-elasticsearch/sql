@@ -1,12 +1,12 @@
 {
   "name": "opendistro-query-workbench",
-  "version": "1.11.0.0",
+  "version": "1.12.0.0",
   "description": "Query Workbench",
   "main": "index.js",
   "license": "Apache-2.0",
   "homepage": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench",
   "kibana": {
-    "version": "7.9.1",
+    "version": "7.10.0",
     "templateVersion": "6.3.3"
   },
   "repository": {
@@ -39,11 +39,13 @@
     "@babel/preset-react": "^7.7.4",
     "@babel/preset-typescript": "^7.3.3",
     "@elastic/elasticsearch": "^7.2.0",
-    "@elastic/eslint-config-kibana": "link:../../packages/eslint-config-kibana",
+    "@elastic/eslint-config-kibana": "link:../../packages/elastic-eslint-config-kibana",
     "@elastic/eslint-import-resolver-kibana": "link:../../packages/kbn-eslint-import-resolver-kibana",
     "@elastic/eui": "^28.4.0",
     "@kbn/expect": "link:../../packages/kbn-expect",
     "@kbn/i18n": "link:../../packages/kbn-i18n",
+    "@kbn/utils": "link:../../packages/kbn-utils",
+    "@kbn/dev-utils": "link:../../packages/kbn-dev-utils",
     "@kbn/plugin-helpers": "link:../../packages/kbn-plugin-helpers",
     "@kbn/ui-framework": "link:../../packages/kbn-ui-framework",
     "@testing-library/jest-dom": "^5.5.0",
@@ -84,7 +86,7 @@
     "typescript": "3.0.3"
   },
   "engines": {
-    "node": "10.22.0",
+    "node": "10.22.1",
     "yarn": "^1.21.1"
   },
   "resolutions": {
