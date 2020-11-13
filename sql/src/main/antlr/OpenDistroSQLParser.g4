@@ -215,6 +215,11 @@ predicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate NOT? LIKE right=predicate                      #likePredicate
     | left=predicate REGEXP right=predicate                         #regexpPredicate
+    | LR_BRACKET subqueryInComparison RR_BRACKET                    #subqueryComparisonPredicate
+    ;
+
+subqueryInComparison
+    : expr=predicate comparisonOperator subquery=querySpecification
     ;
 
 expressionAtom
