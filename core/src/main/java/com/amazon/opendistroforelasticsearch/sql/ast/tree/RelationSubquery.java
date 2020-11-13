@@ -40,10 +40,6 @@ public class RelationSubquery extends UnresolvedPlan {
    * Take subquery alias as table name.
    */
   public String getAliasAsTableName() {
-    if (alias == null) {
-      throw new SemanticCheckException(
-          String.format(Locale.ROOT, "missing table alias for subquery %s", toString()));
-    }
     return alias;
   }
 
