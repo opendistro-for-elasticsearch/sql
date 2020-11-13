@@ -20,6 +20,8 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.HavingClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TableAsRelationContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WhereClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 import static java.util.Collections.emptyList;
@@ -35,7 +37,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
-import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.ParsingContext;
@@ -127,14 +128,14 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   }
 
   @Override
-  public UnresolvedPlan visitTableAsRelation(OpenDistroSQLParser.TableAsRelationContext ctx) {
+  public UnresolvedPlan visitTableAsRelation(TableAsRelationContext ctx) {
     String tableAlias = (ctx.alias() == null) ? null
         : StringUtils.unquoteIdentifier(ctx.alias().getText());
     return new Relation(visitAstExpression(ctx.tableName()), tableAlias);
   }
 
   @Override
-  public UnresolvedPlan visitSubqueryAsRelation(OpenDistroSQLParser.SubqueryAsRelationContext ctx) {
+  public UnresolvedPlan visitSubqueryAsRelation(SubqueryAsRelationContext ctx) {
     return new RelationSubquery(visit(ctx.subquery), ctx.alias().getText());
   }
 
