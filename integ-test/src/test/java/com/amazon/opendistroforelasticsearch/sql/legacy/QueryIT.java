@@ -1723,8 +1723,8 @@ public class QueryIT extends SQLIntegTestCase {
   @Test
   public void caseWhenSwitchTest() throws IOException {
     JSONObject response = executeQuery("SELECT CASE age " +
-        "WHEN '30' THEN '1' " +
-        "WHEN '40' THEN '2' " +
+        "WHEN 30 THEN '1' " +
+        "WHEN 40 THEN '2' " +
         "ELSE '0' END AS cases FROM " + TEST_INDEX_ACCOUNT + " WHERE age IS NOT NULL");
     JSONObject hit = getHits(response).getJSONObject(0);
     String age = hit.query("/_source/age").toString();
@@ -1736,8 +1736,8 @@ public class QueryIT extends SQLIntegTestCase {
   @Test
   public void caseWhenJdbcResponseTest() {
     String response = executeQuery("SELECT CASE age " +
-        "WHEN '30' THEN 'age is 30' " +
-        "WHEN '40' THEN 'age is 40' " +
+        "WHEN 30 THEN 'age is 30' " +
+        "WHEN 40 THEN 'age is 40' " +
         "ELSE 'NA' END AS cases FROM " + TEST_INDEX_ACCOUNT + " WHERE age is not null", "jdbc");
     assertTrue(
         response.contains("age is 30") ||
@@ -1746,6 +1746,7 @@ public class QueryIT extends SQLIntegTestCase {
     );
   }
 
+  @Ignore("This is already supported in new SQL engine")
   @Test
   public void functionInCaseFieldShouldThrowESExceptionDueToIllegalScriptInJdbc() {
     String response = executeQuery(

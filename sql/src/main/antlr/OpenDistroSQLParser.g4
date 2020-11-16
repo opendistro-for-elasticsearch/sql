@@ -245,6 +245,7 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    | specificFunction                                              #specificFunctionCall
     | windowFunction                                                #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
     ;
@@ -253,6 +254,18 @@ scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
     | textFunctionName
+    ;
+
+specificFunction
+    : CASE expression caseFuncAlternative+
+        (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    | CASE caseFuncAlternative+
+        (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    ;
+
+caseFuncAlternative
+    : WHEN condition=functionArg
+      THEN consequent=functionArg
     ;
 
 aggregateFunction

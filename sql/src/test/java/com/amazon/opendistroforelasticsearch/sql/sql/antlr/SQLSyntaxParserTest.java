@@ -117,6 +117,16 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canParseCaseStatement() {
+    assertNotNull(parser.parse("SELECT CASE WHEN age > 30 THEN 'age1' ELSE 'age2' END FROM test"));
+    assertNotNull(parser.parse("SELECT CASE WHEN age > 30 THEN 'age1' "
+                                        + " WHEN age < 50 THEN 'age2' "
+                                        + " ELSE 'age3' END FROM test"));
+    assertNotNull(parser.parse("SELECT CASE age WHEN 30 THEN 'age1' ELSE 'age2' END FROM test"));
+    assertNotNull(parser.parse("SELECT CASE age WHEN 30 THEN 'age1' END FROM test"));
+  }
+
+  @Test
   public void canNotParseAggregateFunctionWithWrongArgument() {
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM() FROM test"));
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG() FROM test"));
