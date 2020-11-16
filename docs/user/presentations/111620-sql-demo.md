@@ -108,8 +108,7 @@ Contribution: https://github.com/opendistro-for-elasticsearch/sql/blob/develop/d
 1. SQL reference manual
     1. https://opendistro.github.io/for-elasticsearch-docs/docs/sql/
     2. https://github.com/opendistro-for-elasticsearch/sql/blob/develop/docs/user/index.rst
-2. Setting for enabling new SQL engine
-3. PR with latest docs
+2. Setting for enabling new SQL engine: https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/user/admin/settings.rst#opendistro-sql-engine-new-enabled
 
 ### (II) Demo Cluster Setup
 
