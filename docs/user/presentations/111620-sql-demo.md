@@ -92,11 +92,11 @@ GROUP BY sub
 ## Features in Development
 
 1. SQL standard
-  1.1 SQL Functions
-  1.2 Complex queries: JOINs
+    1. SQL Functions
+    2. Complex queries: JOINs
 2. Elasticsearch
-  2.1 More nested field support
-  2.2 More metrics and bucket functions
+    1. More nested field support
+    2. More metrics and bucket functions
 
 Contribution: https://github.com/opendistro-for-elasticsearch/sql/blob/develop/docs/developing.rst
 
