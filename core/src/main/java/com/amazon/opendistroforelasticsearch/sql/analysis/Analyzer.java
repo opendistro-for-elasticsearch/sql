@@ -121,13 +121,14 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
   @Override
   public LogicalPlan visitRelationSubquery(RelationSubquery node, AnalysisContext context) {
+    LogicalPlan subquery = analyze(node.getChild().get(0), context);
     context.push();
     TypeEnvironment curEnv = context.peek();
 
     // Put subquery alias in index namespace so the qualifier can be removed
     // when analyzing qualified name in the subquery layer
     curEnv.define(new Symbol(Namespace.INDEX_NAME, node.getAliasAsTableName()), STRUCT);
-    return analyze(node.getChild().get(0), context);
+    return subquery;
   }
 
   @Override
