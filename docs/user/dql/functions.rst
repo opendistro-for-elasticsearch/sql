@@ -1842,20 +1842,20 @@ Description
 
 ``CASE`` statement has two forms with slightly different syntax: Simple Case and Searched Case.
 
-Simple case syntax compares a case value with each compare value in ``WHEN`` clause and return its result if matched. Otherwise, result in ``ELSE`` clause is returned (or ``NULL`` if absent). Note that case value, compare value and result can be any expression::
+Simple case syntax compares a case value expression with each compare expression in ``WHEN`` clause and return its result if matched. Otherwise, result expression's value in ``ELSE`` clause is returned (or ``NULL`` if absent)::
 
-   CASE case_value
-     WHEN compare_value THEN result
-     [WHEN compare_value THEN result] ...
-     [ELSE result]
+   CASE case_value_expression
+     WHEN compare_expression THEN result_expression
+     [WHEN compare_expression THEN result_expression] ...
+     [ELSE result_expression]
    END
 
 Similarly, searched case syntax evaluates each search condition and return result if true. A search condition must be a predicate that returns a bool when evaluated::
 
    CASE
-     WHEN search_condition THEN result
-     [WHEN search_condition THEN result] ...
-     [ELSE result]
+     WHEN search_condition THEN result_expression
+     [WHEN search_condition THEN result_expression] ...
+     [ELSE result_expression]
    END
 
 Type Check

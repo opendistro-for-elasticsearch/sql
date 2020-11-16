@@ -191,27 +191,27 @@ public class AstDSL {
 
   /**
    * CASE
-   *     WHEN search_condition THEN result
-   *     [WHEN search_condition THEN result] ...
-   *     [ELSE result]
+   *     WHEN search_condition THEN result_expr
+   *     [WHEN search_condition THEN result_expr] ...
+   *     [ELSE result_expr]
    * END
    */
-  public UnresolvedExpression caseWhen(UnresolvedExpression elseStatement,
-                                       When... whenStatements) {
-    return caseWhen(null, elseStatement, whenStatements);
+  public UnresolvedExpression caseWhen(UnresolvedExpression elseClause,
+                                       When... whenClauses) {
+    return caseWhen(null, elseClause, whenClauses);
   }
 
   /**
-   * CASE case_value
-   *     WHEN compare_value THEN result
-   *     [WHEN compare_value THEN result] ...
-   *     [ELSE result]
+   * CASE case_value_expr
+   *     WHEN compare_expr THEN result_expr
+   *     [WHEN compare_expr THEN result_expr] ...
+   *     [ELSE result_expr]
    * END
    */
   public UnresolvedExpression caseWhen(UnresolvedExpression caseValueExpr,
-                                       UnresolvedExpression elseStatement,
-                                       When... whenStatements) {
-    return new Case(caseValueExpr, Arrays.asList(whenStatements), elseStatement);
+                                       UnresolvedExpression elseClause,
+                                       When... whenClauses) {
+    return new Case(caseValueExpr, Arrays.asList(whenClauses), elseClause);
   }
 
   public When when(UnresolvedExpression condition, UnresolvedExpression result) {
