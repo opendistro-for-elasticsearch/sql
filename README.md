@@ -26,7 +26,7 @@ Please refer to the [SQL Language Reference Manual](./docs/user/index.rst), [Pip
 
 ## Experimental
 
-Recently we have been actively working on a new query engine primarily for better correctness and extensibility. In fact, the new engine has been already supporting the new released Piped Processing Language (PPL) behind the scene. Meanwhile, the integration with SQL language is also under way. For now, to try out the power of the new query engine with SQL, simply run the command to enable it in [New Engine Setting](https://github.com/opendistro-for-elasticsearch/sql/blob/develop/docs/user/admin/settings.rst#opendistro-sql-engine-new-enabled). Please stay tuned for updates on our progress and its new exciting features.
+Recently we have been actively working on a new query engine primarily for better correctness and extensibility. The new query engine has been already supporting the new released Piped Processing Language (PPL) behind the scene. Meanwhile, the integration with SQL language is also under way. For now, to try out the power of the new query engine with SQL, simply run the command to enable it in [New Engine Setting](https://github.com/opendistro-for-elasticsearch/sql/blob/develop/docs/user/admin/settings.rst#opendistro-sql-engine-new-enabled). In future release, this will be enabled by default and nothing required to do from your side. Please stay tuned for updates on our progress and its new exciting features.
 
 
 ## Setup
