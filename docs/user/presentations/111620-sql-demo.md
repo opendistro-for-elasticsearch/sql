@@ -113,11 +113,11 @@ Contribution: https://github.com/opendistro-for-elasticsearch/sql/blob/develop/d
 
 ### (II) Demo Cluster Setup
 
-    1. Create a Docker compose file as below
-    2. Start docker container: `docker-compose up`
-    3. Visit Kibana on http://localhost:5601 (default username and password are both `admin`)
-    4. Load Kibana sample flights and ecommerce indices and `employees` test index as below
-    5. Start playing with our SQL plugin
+1. Create a Docker compose file as below
+2. Start docker container: `docker-compose up`
+3. Visit Kibana on http://localhost:5601 (default username and password are both `admin`)
+4. Load Kibana sample flights and ecommerce indices and `employees` test index as below
+5. Start playing with our SQL plugin
 
 
 `docker-compose.yml` sample:
