@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -35,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.When;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
@@ -185,6 +187,35 @@ public class AstDSL {
 
   public static Function function(String funcName, UnresolvedExpression... funcArgs) {
     return new Function(funcName, Arrays.asList(funcArgs));
+  }
+
+  /**
+   * CASE
+   *     WHEN search_condition THEN result_expr
+   *     [WHEN search_condition THEN result_expr] ...
+   *     [ELSE result_expr]
+   * END
+   */
+  public UnresolvedExpression caseWhen(UnresolvedExpression elseClause,
+                                       When... whenClauses) {
+    return caseWhen(null, elseClause, whenClauses);
+  }
+
+  /**
+   * CASE case_value_expr
+   *     WHEN compare_expr THEN result_expr
+   *     [WHEN compare_expr THEN result_expr] ...
+   *     [ELSE result_expr]
+   * END
+   */
+  public UnresolvedExpression caseWhen(UnresolvedExpression caseValueExpr,
+                                       UnresolvedExpression elseClause,
+                                       When... whenClauses) {
+    return new Case(caseValueExpr, Arrays.asList(whenClauses), elseClause);
+  }
+
+  public When when(UnresolvedExpression condition, UnresolvedExpression result) {
+    return new When(condition, result);
   }
 
   public UnresolvedExpression window(Function function,

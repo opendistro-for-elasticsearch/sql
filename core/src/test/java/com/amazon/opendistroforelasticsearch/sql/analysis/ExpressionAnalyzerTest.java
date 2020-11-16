@@ -95,6 +95,62 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void case_value() {
+    assertAnalyzeEqual(
+        DSL.cases(
+            DSL.literal("Default value"),
+            DSL.when(
+                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(30)),
+                DSL.literal("Thirty")),
+            DSL.when(
+                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(50)),
+                DSL.literal("Fifty"))),
+        AstDSL.caseWhen(
+            AstDSL.qualifiedName("integer_value"),
+            AstDSL.stringLiteral("Default value"),
+            AstDSL.when(AstDSL.intLiteral(30), AstDSL.stringLiteral("Thirty")),
+            AstDSL.when(AstDSL.intLiteral(50), AstDSL.stringLiteral("Fifty"))));
+  }
+
+  @Test
+  public void case_conditions() {
+    assertAnalyzeEqual(
+        DSL.cases(
+            null,
+            DSL.when(
+                dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(50)),
+                DSL.literal("Fifty")),
+            DSL.when(
+                dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(30)),
+                DSL.literal("Thirty"))),
+        AstDSL.caseWhen(
+            null,
+            AstDSL.when(
+                AstDSL.function(">",
+                    AstDSL.qualifiedName("integer_value"),
+                    AstDSL.intLiteral(50)), AstDSL.stringLiteral("Fifty")),
+            AstDSL.when(
+                AstDSL.function(">",
+                    AstDSL.qualifiedName("integer_value"),
+                    AstDSL.intLiteral(30)), AstDSL.stringLiteral("Thirty"))));
+  }
+
+  @Test
+  public void case_with_default_result_type_different() {
+    UnresolvedExpression caseWhen = AstDSL.caseWhen(
+        AstDSL.qualifiedName("integer_value"),
+        AstDSL.intLiteral(60),
+        AstDSL.when(AstDSL.intLiteral(30), AstDSL.stringLiteral("Thirty")),
+        AstDSL.when(AstDSL.intLiteral(50), AstDSL.stringLiteral("Fifty")));
+
+    SemanticCheckException exception = assertThrows(
+        SemanticCheckException.class, () -> analyze(caseWhen));
+    assertEquals(
+        "All result types of CASE clause must be the same, but found [STRING, STRING, INTEGER]",
+        exception.getMessage());
+  }
+
+  @Test
   public void qualified_name_with_qualifier() {
     analysisContext.push();
     analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
