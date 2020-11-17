@@ -1832,3 +1832,82 @@ Description
 Specifications:
 
 1. ISNULL(ES_TYPE) -> INTEGER
+
+
+CASE
+----
+
+Description
+>>>>>>>>>>>
+
+``CASE`` statement has two forms with slightly different syntax: Simple Case and Searched Case.
+
+Simple case syntax compares a case value expression with each compare expression in ``WHEN`` clause and return its result if matched. Otherwise, result expression's value in ``ELSE`` clause is returned (or ``NULL`` if absent)::
+
+   CASE case_value_expression
+     WHEN compare_expression THEN result_expression
+     [WHEN compare_expression THEN result_expression] ...
+     [ELSE result_expression]
+   END
+
+Similarly, searched case syntax evaluates each search condition and return result if true. A search condition must be a predicate that returns a bool when evaluated::
+
+   CASE
+     WHEN search_condition THEN result_expression
+     [WHEN search_condition THEN result_expression] ...
+     [ELSE result_expression]
+   END
+
+Type Check
+>>>>>>>>>>
+
+All result types in ``WHEN`` and ``ELSE`` clause are required to be exactly the same. Otherwise, take the following query for example, you'll see an semantic analysis exception thrown::
+
+   CASE age
+     WHEN 30 THEN 'Thirty'
+     WHEN 50 THEN true
+   END
+
+Examples
+>>>>>>>>
+
+Here are examples for simple case syntax::
+
+    od> SELECT
+    ...   CASE 1
+    ...     WHEN 1 THEN 'One'
+    ...   END AS simple_case,
+    ...   CASE ABS(-2)
+    ...     WHEN 1 THEN 'One'
+    ...     WHEN 2 THEN 'Absolute two'
+    ...   END AS func_case_value,
+    ...   CASE ABS(-3)
+    ...     WHEN 1 THEN 'One'
+    ...     ELSE TRIM(' Absolute three ')
+    ...   END AS func_result;
+    fetched rows / total rows = 1/1
+    +---------------+-------------------+----------------+
+    | simple_case   | func_case_value   | func_result    |
+    |---------------+-------------------+----------------|
+    | One           | Absolute two      | Absolute three |
+    +---------------+-------------------+----------------+
+
+Here are examples for searched case syntax::
+
+    od> SELECT
+    ...   CASE
+    ...     WHEN 1 = 1 THEN 'One'
+    ...   END AS single_search,
+    ...   CASE
+    ...     WHEN 2 = 1 THEN 'One'
+    ...     WHEN 'hello' = 'hello' THEN 'Hello' END AS multi_searches,
+    ...   CASE
+    ...     WHEN 2 = 1 THEN 'One'
+    ...     WHEN 'hello' = 'world' THEN 'Hello'
+    ...   END AS no_else;
+    fetched rows / total rows = 1/1
+    +-----------------+------------------+-----------+
+    | single_search   | multi_searches   | no_else   |
+    |-----------------+------------------+-----------|
+    | One             | Hello            | null      |
+    +-----------------+------------------+-----------+

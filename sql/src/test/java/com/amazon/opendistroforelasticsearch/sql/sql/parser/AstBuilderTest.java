@@ -29,6 +29,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLitera
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relationSubquery;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
@@ -404,6 +405,31 @@ class AstBuilderTest {
             alias("name", qualifiedName("name")),
             alias("age", qualifiedName("age"))),
         buildAST("SELECT name, age FROM test ORDER BY name, age DESC"));
+  }
+
+  @Test
+  public void can_build_from_subquery() {
+    assertEquals(
+        project(
+            filter(
+                relationSubquery(
+                    project(
+                        relation("test"),
+                        alias("firstname", qualifiedName("firstname"), "first"),
+                        alias("lastname", qualifiedName("lastname"), "last")
+                    ),
+                    "a"
+                ),
+                function(">", qualifiedName("age"), intLiteral(20))
+            ),
+            alias("a.first", qualifiedName("a", "first")),
+            alias("last", qualifiedName("last"))),
+        buildAST(
+            "SELECT a.first, last FROM ("
+                + "SELECT firstname AS first, lastname AS last FROM test"
+                + ") AS a where age > 20"
+        )
+    );
   }
 
   private UnresolvedPlan buildAST(String query) {
