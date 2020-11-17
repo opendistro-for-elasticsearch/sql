@@ -83,10 +83,9 @@ jobs:
       run:
         working-directory: sql-odbc
     steps:
-    - uses: @actions/core@v1.2.6
     - uses: actions/checkout@v1
     - name: add-msbuild-to-path
-      uses: microsoft/setup-msbuild@v1.0.0
+      uses: microsoft/setup-msbuild@v1.0.2
     - name: configure-and-build-driver
       run: |
         .\build_win_release32.ps1
@@ -127,10 +126,9 @@ jobs:
       run:
         working-directory: sql-odbc
     steps:
-    - uses: @actions/core@v1.2.6
     - uses: actions/checkout@v1
     - name: add-msbuild-to-path
-      uses: microsoft/setup-msbuild@v1.0.0
+      uses: microsoft/setup-msbuild@v1.0.2
     - name: configure-and-build-driver
       run: |
         .\build_win_release64.ps1
