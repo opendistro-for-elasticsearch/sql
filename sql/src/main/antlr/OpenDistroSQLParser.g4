@@ -105,10 +105,16 @@ havingClause
 
 orderByClause
     : ORDER BY orderByElement (COMMA orderByElement)*
+    limitClause?
     ;
 
 orderByElement
     : expression order=(ASC | DESC)?
+    ;
+
+limitClause
+    : LIMIT (offset=intervalLiteral COMMA)? limit=intervalLiteral
+    | LIMIT limit=intervalLiteral OFFSET offset=intervalLiteral
     ;
 
 

@@ -52,6 +52,8 @@ public class SortOperator extends PhysicalPlan {
   @Getter
   private final Integer count;
   @Getter
+  private final Integer offset;
+  @Getter
   private final List<Pair<SortOption, Expression>> sortList;
   @EqualsAndHashCode.Exclude
   private final Sorter sorter;
@@ -66,9 +68,11 @@ public class SortOperator extends PhysicalPlan {
    *                 The sort field is specified by the {@link Expression} with {@link SortOption}
    */
   public SortOperator(
-      PhysicalPlan input, Integer count, List<Pair<SortOption, Expression>> sortList) {
+      PhysicalPlan input, Integer count, Integer offset,
+      List<Pair<SortOption, Expression>> sortList) {
     this.input = input;
     this.count = count;
+    this.offset = offset;
     this.sortList = sortList;
     SorterBuilder sorterBuilder = Sorter.builder();
     for (Pair<SortOption, Expression> pair : sortList) {
@@ -97,7 +101,7 @@ public class SortOperator extends PhysicalPlan {
       sorted.add(input.next());
     }
 
-    Iterator<ExprValue> sortedIterator = iterator(sorted);
+    Iterator<ExprValue> sortedIterator = offset(iterator(sorted), offset);
     iterator = count == 0 ? sortedIterator : Iterators.limit(sortedIterator, count);
   }
 
@@ -150,5 +154,13 @@ public class SortOperator extends PhysicalPlan {
         return result.poll();
       }
     };
+  }
+
+  private Iterator<ExprValue> offset(Iterator<ExprValue> iterator, int offset) {
+    if (offset > 0 && iterator.hasNext()) {
+      iterator.next();
+      return offset(iterator, offset - 1);
+    }
+    return iterator;
   }
 }

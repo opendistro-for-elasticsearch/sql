@@ -1,0 +1,7 @@
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 0
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10 OFFSET 5
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10 OFFSET 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 100 OFFSET 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10, 10

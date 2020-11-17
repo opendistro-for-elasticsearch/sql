@@ -74,4 +74,22 @@ class LogicalSortTest extends AnalyzerTestBase {
                 exprList(argument("asc", booleanLiteral(false)), argument("type", nullLiteral()))),
             field("double_value", defaultSortFieldArgs())));
   }
+
+  @Test
+  public void analyze_sort_with_size_limit_and_offset() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.sort(
+            LogicalPlanDSL.relation("schema"),
+            100,
+            5,
+            ImmutablePair.of(SortOption.DEFAULT_DESC, DSL.ref("integer_value", INTEGER)),
+            ImmutablePair.of(SortOption.DEFAULT_ASC, DSL.ref("double_value", DOUBLE))),
+        sort(
+            relation("schema"),
+            sortOptions(100, 5),
+            field(
+                "integer_value",
+                exprList(argument("asc", booleanLiteral(false)), argument("type", nullLiteral()))),
+            field("double_value", defaultSortFieldArgs())));
+  }
 }

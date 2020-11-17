@@ -127,6 +127,7 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
         new SortOperator(
             visitInput(node.getInput(), context),
             node.getCount(),
+            node.getOffset(),
             node.getSortList()),
         resourceMonitor);
   }

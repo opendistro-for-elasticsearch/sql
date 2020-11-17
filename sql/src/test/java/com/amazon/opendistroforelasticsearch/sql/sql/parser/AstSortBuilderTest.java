@@ -62,7 +62,7 @@ class AstSortBuilderTest {
     assertEquals(
         new Sort(
             child, // has to mock and attach child otherwise Guava ImmutableList NPE in getChild()
-            ImmutableList.of(argument("count", intLiteral(0))),
+            ImmutableList.of(argument("count", intLiteral(0)), argument("offset", intLiteral(0))),
             ImmutableList.of(field("name", argument("asc", booleanLiteral(true))))),
         sortBuilder.visitOrderByClause(orderByClause).attach(child));
   }

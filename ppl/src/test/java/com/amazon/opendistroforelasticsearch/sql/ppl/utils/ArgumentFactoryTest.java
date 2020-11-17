@@ -110,6 +110,7 @@ public class ArgumentFactoryTest extends AstBuilderTest {
             relation("t"),
             exprList(
                 argument("count", intLiteral(3)),
+                argument("offset", intLiteral(0)),
                 argument("desc", booleanLiteral(true))
             ),
             field("field0", defaultSortFieldArgs())

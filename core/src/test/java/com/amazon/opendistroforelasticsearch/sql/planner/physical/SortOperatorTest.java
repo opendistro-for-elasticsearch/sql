@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.sort;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -308,5 +309,32 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         0,
         execute(sort(inputPlan, 1,
             Pair.of(SortOption.DEFAULT_ASC, ref("response", INTEGER)))).size());
+  }
+
+  @Test
+  public void sort_with_size_limit_and_offset() {
+    when(inputPlan.hasNext()).thenReturn(true, true, true, false);
+    when(inputPlan.next())
+        .thenReturn(tupleValue(ImmutableMap.of("size", 499, "response", 404)))
+        .thenReturn(tupleValue(ImmutableMap.of("size", 320, "response", 200)))
+        .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
+
+    assertThat(
+        execute(sort(inputPlan, 1, 1, Pair.of(SortOption.DEFAULT_ASC, ref("response", INTEGER)))),
+        contains(
+            tupleValue(ImmutableMap.of("size", 499, "response", 404))));
+  }
+
+  @Test
+  public void sort_with_size_limit_larger_than_actual() {
+    when(inputPlan.hasNext()).thenReturn(true, true, true, false);
+    when(inputPlan.next())
+        .thenReturn(tupleValue(ImmutableMap.of("size", 499, "response", 404)))
+        .thenReturn(tupleValue(ImmutableMap.of("size", 320, "response", 200)))
+        .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
+
+    assertThat(
+        execute(sort(inputPlan, 10, 8, Pair.of(SortOption.DEFAULT_ASC, ref("response", INTEGER)))),
+        empty());
   }
 }

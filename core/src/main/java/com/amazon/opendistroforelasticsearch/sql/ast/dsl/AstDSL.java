@@ -328,11 +328,17 @@ public class AstDSL {
   }
 
   public static List<Argument> defaultSortOptions() {
-    return exprList(argument("count", intLiteral(1000)), argument("desc", booleanLiteral(false)));
+    return exprList(argument("count", intLiteral(1000)), argument("offset", intLiteral(0)),
+        argument("desc", booleanLiteral(false)));
+  }
+
+  public static List<Argument> sortOptions(int count, int offset) {
+    return exprList(argument("count", intLiteral(count)), argument("offset", intLiteral(offset)),
+        argument("desc", booleanLiteral(false)));
   }
 
   public static List<Argument> sortOptions(int count) {
-    return exprList(argument("count", intLiteral(count)), argument("desc", booleanLiteral(false)));
+    return sortOptions(count, 0);
   }
 
   public static List<Argument> defaultSortFieldArgs() {

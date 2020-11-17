@@ -133,6 +133,7 @@ public class ArgumentFactory {
         ctx.count != null
             ? new Argument("count", getArgumentValue(ctx.count))
             : new Argument("count", new Literal(1000, DataType.INTEGER)),
+        new Argument("offset", new Literal(0, DataType.INTEGER)),
         ctx.D() != null || ctx.DESC() != null
             ? new Argument("desc", new Literal(true, DataType.BOOLEAN))
             : new Argument("desc", new Literal(false, DataType.BOOLEAN))

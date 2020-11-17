@@ -35,16 +35,18 @@ import org.apache.commons.lang3.tuple.Pair;
 public class LogicalSort extends LogicalPlan {
 
   private final Integer count;
+  private final Integer offset;
   private final List<Pair<SortOption, Expression>> sortList;
 
   /**
    * Constructor of LogicalSort.
    */
   public LogicalSort(
-      LogicalPlan child, Integer count,
+      LogicalPlan child, Integer count, Integer offset,
       List<Pair<SortOption, Expression>> sortList) {
     super(Collections.singletonList(child));
     this.count = count;
+    this.offset = offset;
     this.sortList = sortList;
   }
 

@@ -311,7 +311,9 @@ class AnalyzerTest extends AnalyzerTestBase {
                     ImmutableList.of(AstDSL.alias("string_value", qualifiedName("string_value"))),
                     emptyList()
                 ),
-                ImmutableList.of(argument("count", intLiteral(0))),
+                ImmutableList.of(
+                    argument("count", intLiteral(0)),
+                    argument("offset", intLiteral(0))),
                 field(
                     function("avg", qualifiedName("integer_value")),
                     argument("asc", booleanLiteral(true)))),

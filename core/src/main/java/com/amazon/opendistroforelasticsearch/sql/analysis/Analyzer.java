@@ -297,8 +297,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     ExpressionReferenceOptimizer optimizer =
         new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child);
 
-    // the first options is {"count": "integer"}
+    // the first options is {"count": "integer"}, the second is {"offset": "integer"}
     Integer count = (Integer) node.getOptions().get(0).getValue().getValue();
+    Integer offset = (Integer) node.getOptions().get(1).getValue().getValue();
     List<Pair<SortOption, Expression>> sortList =
         node.getSortList().stream()
             .map(
@@ -312,7 +313,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
                 })
             .collect(Collectors.toList());
 
-    return new LogicalSort(child, count, sortList);
+    return new LogicalSort(child, count, offset, sortList);
   }
 
   /**
