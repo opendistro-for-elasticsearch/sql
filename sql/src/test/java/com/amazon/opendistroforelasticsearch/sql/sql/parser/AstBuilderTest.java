@@ -411,6 +411,34 @@ class AstBuilderTest {
         buildAST("SELECT name, age FROM test ORDER BY name, age DESC"));
   }
 
+  @Test
+  public void can_build_order_by_with_size_limit() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                ImmutableList.of(
+                    argument("count", intLiteral(2)), argument("offset", intLiteral(0))),
+                field("age", argument("asc", booleanLiteral(true)))),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT name, age FROM test ORDER BY age LIMIT 2"));
+  }
+
+  @Test
+  public void can_build_order_by_with_size_limit_and_offset() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                ImmutableList.of(
+                    argument("count", intLiteral(2)), argument("offset", intLiteral(2))),
+                field("age", argument("asc", booleanLiteral(true)))),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT name, age FROM test ORDER BY age LIMIT 2 OFFSET 2"));
+  }
+
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
     return parseTree.accept(new AstBuilder(query));

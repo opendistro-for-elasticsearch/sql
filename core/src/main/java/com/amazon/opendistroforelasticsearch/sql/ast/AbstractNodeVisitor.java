@@ -34,7 +34,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.SubqueryExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.When;
@@ -222,10 +221,6 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitUnresolvedArgument(UnresolvedArgument node, C context) {
-    return visitChildren(node, context);
-  }
-
-  public T visitSubqueryExpression(SubqueryExpression node, C context) {
     return visitChildren(node, context);
   }
 }
