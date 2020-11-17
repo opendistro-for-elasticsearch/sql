@@ -83,8 +83,8 @@ jobs:
       run:
         working-directory: sql-odbc
     steps:
+    - uses: actions/core@v1.2.6
     - uses: actions/checkout@v1
-      - actions/core@v1.2.6
     - name: add-msbuild-to-path
       uses: microsoft/setup-msbuild@v1.0.0
     - name: configure-and-build-driver
@@ -127,8 +127,8 @@ jobs:
       run:
         working-directory: sql-odbc
     steps:
+    - uses: actions/core@v1.2.6
     - uses: actions/checkout@v1
-        - actions/core@v1.2.6
     - name: add-msbuild-to-path
       uses: microsoft/setup-msbuild@v1.0.0
     - name: configure-and-build-driver
