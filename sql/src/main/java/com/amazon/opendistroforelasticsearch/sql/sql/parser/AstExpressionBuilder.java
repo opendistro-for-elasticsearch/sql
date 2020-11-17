@@ -23,6 +23,8 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Buil
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.REGEXP;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CaseFuncAlternativeContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CaseFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CountStarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.DateLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentsAsQualifiedNameContext;
@@ -49,6 +51,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
@@ -56,6 +59,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.When;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AndExpressionContext;
@@ -266,6 +270,23 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
         functionName.equals("<>") ? "!=" : functionName,
         Arrays.asList(visit(ctx.left), visit(ctx.right))
     );
+  }
+
+  @Override
+  public UnresolvedExpression visitCaseFunctionCall(CaseFunctionCallContext ctx) {
+    UnresolvedExpression caseValue = (ctx.expression() == null) ? null : visit(ctx.expression());
+    List<When> whenStatements = ctx.caseFuncAlternative()
+                                   .stream()
+                                   .map(when -> (When) visit(when))
+                                   .collect(Collectors.toList());
+    UnresolvedExpression elseStatement = (ctx.elseArg == null) ? null : visit(ctx.elseArg);
+
+    return new Case(caseValue, whenStatements, elseStatement);
+  }
+
+  @Override
+  public UnresolvedExpression visitCaseFuncAlternative(CaseFuncAlternativeContext ctx) {
+    return new When(visit(ctx.condition), visit(ctx.consequent));
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {

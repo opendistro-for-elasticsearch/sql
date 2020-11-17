@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
@@ -30,6 +31,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.when;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.window;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -274,6 +276,29 @@ class AstExpressionBuilderTest {
             ImmutableList.of(qualifiedName("state")),
             ImmutableList.of()),
         buildExprAst("RANK() OVER (PARTITION BY state)"));
+  }
+
+  @Test
+  public void canBuildCaseConditionStatement() {
+    assertEquals(
+        caseWhen(
+            null, // no else statement
+            when(
+                function(">", qualifiedName("age"), intLiteral(30)),
+                stringLiteral("age1"))),
+        buildExprAst("CASE WHEN age > 30 THEN 'age1' END")
+    );
+  }
+
+  @Test
+  public void canBuildCaseValueStatement() {
+    assertEquals(
+        caseWhen(
+            qualifiedName("age"),
+            stringLiteral("age2"),
+            when(intLiteral(30), stringLiteral("age1"))),
+        buildExprAst("CASE age WHEN 30 THEN 'age1' ELSE 'age2' END")
+    );
   }
 
   @Test

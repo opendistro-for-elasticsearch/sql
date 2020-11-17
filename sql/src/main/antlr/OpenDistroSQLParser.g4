@@ -80,11 +80,16 @@ selectElement
     ;
 
 fromClause
-    : FROM tableName (AS? alias)?
+    : FROM relation
       (whereClause)?
       (groupByClause)?
       (havingClause)?
       (orderByClause)? // Place it under FROM for now but actually not necessary ex. A UNION B ORDER BY
+    ;
+
+relation
+    : tableName (AS? alias)?                                                #tableAsRelation
+    | LR_BRACKET subquery=querySpecification RR_BRACKET AS? alias           #subqueryAsRelation
     ;
 
 whereClause
@@ -244,6 +249,7 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    | specificFunction                                              #specificFunctionCall
     | windowFunction                                                #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
     ;
@@ -252,6 +258,18 @@ scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
     | textFunctionName
+    ;
+
+specificFunction
+    : CASE expression caseFuncAlternative+
+        (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    | CASE caseFuncAlternative+
+        (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    ;
+
+caseFuncAlternative
+    : WHEN condition=functionArg
+      THEN consequent=functionArg
     ;
 
 aggregateFunction

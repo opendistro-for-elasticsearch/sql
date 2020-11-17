@@ -45,6 +45,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -345,6 +346,36 @@ class AnalyzerTest extends AnalyzerTestBase {
                     Collections.singletonList(AstDSL.qualifiedName("string_value")),
                     Collections.singletonList(
                         ImmutablePair.of("ASC", AstDSL.qualifiedName("integer_value")))))));
+  }
+
+  /**
+   * SELECT name FROM (
+   *   SELECT name, age FROM test
+   * ) AS a.
+   */
+  @Test
+  public void from_subquery() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.project(
+                LogicalPlanDSL.relation("schema"),
+                DSL.named("string_value", DSL.ref("string_value", STRING)),
+                DSL.named("integer_value", DSL.ref("integer_value", INTEGER))
+            ),
+            DSL.named("string_value", DSL.ref("string_value", STRING))
+        ),
+        AstDSL.project(
+            AstDSL.relationSubquery(
+                AstDSL.project(
+                    AstDSL.relation("schema"),
+                    AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),
+                    AstDSL.alias("integer_value", AstDSL.qualifiedName("integer_value"))
+                ),
+                "schema"
+            ),
+            AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+        )
+    );
   }
 
   /**
