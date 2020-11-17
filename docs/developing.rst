@@ -78,7 +78,7 @@ You can develop the plugin in your favorite IDEs such as Eclipse and IntelliJ ID
 Java Language Level
 -------------------
 
-Although specific later version of JDK is required to build the plugin, the Java language level needs to be Java 8 for compatibility. Only in this case your plugin works with Elasticsearch running against JDK 8. Otherwise it will raise runtime exception when executing new API from new JDK. In case your IDE doesn’t set it right, you may want to double check your project setting after import.
+Although later version of JDK is required to build the plugin, the Java language level needs to be Java 8 for compatibility. Only in this case your plugin works with Elasticsearch running against JDK 8. Otherwise it will raise runtime exception when executing new API from new JDK. In case your IDE doesn’t set it right, you may want to double check your project setting after import.
 
 Remote Debugging
 ----------------

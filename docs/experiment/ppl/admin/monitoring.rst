@@ -50,6 +50,7 @@ Result set::
       "ppl_request_total": 10,
       "ppl_request_count": 2,
       "ppl_failed_request_count_syserr": 0,
-      "ppl_failed_request_count_cuserr": 0
+      "ppl_failed_request_count_cuserr": 0,
+      ...
     }
 

@@ -21,12 +21,12 @@ The following projects have been merged into this repository as separate folders
 
 ## Documentation
 
-Please refer to the [SQL Language Reference Manual](./docs/user/index.rst), [Piped Processing Language Reference Manual](./docs/experiment/ppl/index.rst) and [Technical Documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!
+Please refer to the [SQL Language Reference Manual](./docs/user/index.rst), [Piped Processing Language (PPL) Reference Manual](./docs/experiment/ppl/index.rst) and [Technical Documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!
 
 
 ## Experimental
 
-Recently we have been actively working on a new query engine primarily for better correctness and extensibility. The new query engine has been already supporting the new released Piped Processing Language (PPL) behind the scene. Meanwhile, the integration with SQL language is also under way. For now, to try out the power of the new query engine with SQL, simply run the command to enable it in [New Engine Setting](https://github.com/opendistro-for-elasticsearch/sql/blob/develop/docs/user/admin/settings.rst#opendistro-sql-engine-new-enabled). In future release, this will be enabled by default and nothing required to do from your side. Please stay tuned for updates on our progress and its new exciting features.
+Recently we have been actively improving our query engine primarily for better correctness and extensibility. The new enhanced query engine has been already supporting the new released Piped Processing Language query processing behind the scene. Meanwhile, the integration with SQL language is also under way. To try out the power of the new query engine with SQL, simply run the command to enable it by [plugin setting](https://github.com/opendistro-for-elasticsearch/sql/blob/develop/docs/user/admin/settings.rst#opendistro-sql-engine-new-enabled). In future release, this will be enabled by default and nothing required to do from your side. Please stay tuned for updates on our progress and its new exciting features.
 
 
 ## Setup
