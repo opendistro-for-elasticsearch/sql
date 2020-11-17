@@ -48,6 +48,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
@@ -122,6 +123,10 @@ public class AstDSL {
 
   public static UnresolvedExpression unresolvedAttr(String attr) {
     return new UnresolvedAttribute(attr);
+  }
+
+  public static UnresolvedPlan relationSubquery(UnresolvedPlan subquery, String subqueryAlias) {
+    return new RelationSubquery(subquery, subqueryAlias);
   }
 
   private static Literal literal(Object value, DataType type) {
