@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.node.NodeClient;
@@ -39,7 +38,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.threadpool.ThreadPool;
 
 /** Elasticsearch connection by node client. */
-@RequiredArgsConstructor
 public class ElasticsearchNodeClient implements ElasticsearchClient {
 
   /** Default types and field filter to match all. */
@@ -55,9 +53,19 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
   private final NodeClient client;
 
   /** Index name expression resolver to get concrete index name. */
-  private final IndexNameExpressionResolver resolver = new IndexNameExpressionResolver();
+  private final IndexNameExpressionResolver resolver;
 
   private static final String SQL_WORKER_THREAD_POOL_NAME = "sql-worker";
+
+  /**
+   * Constructor of ElasticsearchNodeClient.
+   */
+  public ElasticsearchNodeClient(ClusterService clusterService,
+                                 NodeClient client) {
+    this.clusterService = clusterService;
+    this.client = client;
+    this.resolver = new IndexNameExpressionResolver(client.threadPool().getThreadContext());
+  }
 
   /**
    * Get field mappings of index by an index expression. Majority is copied from legacy

@@ -24,7 +24,7 @@ esplugin {
 
 javadoc.enabled = false
 test.enabled = false
-integTest.enabled = false
+loggerUsageCheck.enabled = false
 dependencyLicenses.enabled = false
 thirdPartyAudit.enabled = false
 
@@ -129,5 +129,4 @@ afterEvaluate {
         archiveName "${packageName}-${version}.deb"
         dependsOn 'assemble'
     }
-
 }
