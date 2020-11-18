@@ -21,8 +21,10 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +37,9 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByClauseContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -59,19 +64,28 @@ class AstSortBuilderTest {
   void can_build_sort_node() {
     doAnswer(returnsFirstArg()).when(querySpec).replaceIfAliasOrOrdinal(any());
     when(querySpec.getOrderByItems()).thenReturn(ImmutableList.of(qualifiedName("name")));
-    when(querySpec.getOrderByOptions()).thenReturn(ImmutableList.of(
-        new SortOption(SortOrder.ASC, NullOrder.NULL_FIRST)));
 
-    AstSortBuilder sortBuilder = new AstSortBuilder(querySpec);
-    assertEquals(
-        new Sort(
-            child, // has to mock and attach child otherwise Guava ImmutableList NPE in getChild()
-            ImmutableList.of(argument("count", intLiteral(0))),
-            ImmutableList.of(
-                field("name",
-                    argument("asc", booleanLiteral(true)),
-                    argument("nullFirst", booleanLiteral(true))))),
-        sortBuilder.visitOrderByClause(orderByClause).attach(child));
+    ImmutableMap<SortOption, Pair<Boolean, Boolean>> expects =
+        ImmutableMap.<SortOption, Pair<Boolean, Boolean>>builder()
+            .put(new SortOption(null, null), ImmutablePair.of(true, true))
+            .put(new SortOption(ASC, NULL_FIRST), ImmutablePair.of(true, true))
+            .put(new SortOption(DESC, NULL_LAST), ImmutablePair.of(false, false))
+            .build();
+
+    expects.forEach((option, expect) -> {
+      when(querySpec.getOrderByOptions()).thenReturn(ImmutableList.of(option));
+
+      AstSortBuilder sortBuilder = new AstSortBuilder(querySpec);
+      assertEquals(
+          new Sort(
+              child, // has to mock and attach child otherwise Guava ImmutableList NPE in getChild()
+              ImmutableList.of(argument("count", intLiteral(0))),
+              ImmutableList.of(
+                  field("name",
+                      argument("asc", booleanLiteral(expect.getLeft())),
+                      argument("nullFirst", booleanLiteral(expect.getRight()))))),
+          sortBuilder.visitOrderByClause(orderByClause).attach(child));
+    });
   }
 
 }
