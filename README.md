@@ -1,4 +1,6 @@
+
 [![Test and Build Workflow](https://github.com/opendistro-for-elasticsearch/sql/workflows/Java%20CI/badge.svg)](https://github.com/opendistro-for-elasticsearch/sql/actions)
+[![codecov](https://codecov.io/gh/opendistro-for-elasticsearch/sql/branch/develop/graph/badge.svg)](https://codecov.io/gh/opendistro-for-elasticsearch/sql)
 [![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/endpoints/)
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/sql/)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
