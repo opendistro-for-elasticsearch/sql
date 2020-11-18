@@ -17,15 +17,15 @@ Prerequisites
 JDK
 ---
 
-Java 12 is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have a JDK 12 installation on your machine. After the installation, please configure the ``JAVA_HOME`` environment variable accordingly. If everything goes right, you should something similar to this macOS sample output::
+Specific version of JDK is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have the required version of JDK installation on your machine. After the installation, please configure the ``JAVA_HOME`` environment variable accordingly. If everything goes right, you should something similar to this sample output on macOS (take OpenJDK 14 for example)::
 
    $ echo $JAVA_HOME
-   /Library/Java/JavaVirtualMachines/jdk-12.0.2.jdk/Contents/Home
+   /Library/Java/JavaVirtualMachines/adoptopenjdk-14.jdk/Contents/Home
 
    $ java -version
-   java version "12.0.2" 2019-07-16
-   Java(TM) SE Runtime Environment (build 12.0.2+10)
-   Java HotSpot(TM) 64-Bit Server VM (build 12.0.2+10, mixed mode, sharing)
+   openjdk version "14.0.1" 2020-04-14
+   OpenJDK Runtime Environment AdoptOpenJDK (build 14.0.1+7)
+   OpenJDK 64-Bit Server VM AdoptOpenJDK (build 14.0.1+7, mixed mode, sharing)
 
 Here are the official instructions on how to set ``JAVA_HOME`` for different platforms: https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/. 
 
@@ -34,15 +34,16 @@ Elasticsearch & Kibana
 
 For convenience, we recommend installing Elasticsearch and Kibana on your local machine. You can download the open source ZIP for each and extract them to a folder.
 
-Kibana is optional, but makes it easier to test your queries. Alternately, you can use curl from the terminal to run queries against the plugin.
+If you just want to have a quick look, you can also get an Elasticsearch running with plugin installed by ``./gradlew :plugin:run``.
 
+Kibana is optional, but makes it easier to test your queries. Alternately, you can use curl from the terminal to run queries against the plugin.
 
 Getting Source Code
 ===================
 
 Now you can check out the code from your forked GitHub repository and create a new branch for your bug fix or enhancement work::
 
-   $ git clone https://github.com/<your_account>/sql.git
+   $ git clone git@github.com:<your_account>/sql.git
    $ git checkout -b <branch_name>
 
 If there is update in master or you want to keep the forked repository long living, you can sync it by following the instructions: https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork. Basically you just need to pull latest changes from upstream master once you add it for the first time::
@@ -67,7 +68,6 @@ After getting the source code as well as Elasticsearch and Kibana, your workspac
    drwxr-xr-x 10 user group^users 4096 Nov  8 12:16 elasticsearch-7.3.2
    drwxr-xr-x 14 user group^users 4096 Nov  8 12:14 kibana-7.3.2-linux-x86_64
    drwxr-xr-x 16 user group^users 4096 Nov 15 10:59 sql
-   drwxr-xr-x  9 user group^users 4096 Oct 31 14:39 sql-jdbc
 
 
 Configuring IDEs
@@ -78,7 +78,7 @@ You can develop the plugin in your favorite IDEs such as Eclipse and IntelliJ ID
 Java Language Level
 -------------------
 
-Although JDK 12 is required to build the plugin, the Java language level needs to be Java 8 for compatibility. Only in this case your plugin works with Elasticsearch running against JDK 8. Otherwise it will raise runtime exception when executing new API from new JDK. In case your IDE doesn’t set it right, you may want to double check your project setting after import.
+Although later version of JDK is required to build the plugin, the Java language level needs to be Java 8 for compatibility. Only in this case your plugin works with Elasticsearch running against JDK 8. Otherwise it will raise runtime exception when executing new API from new JDK. In case your IDE doesn’t set it right, you may want to double check your project setting after import.
 
 Remote Debugging
 ----------------
@@ -128,51 +128,67 @@ The plugin codebase is in standard layout of Gradle project::
    ├── build.gradle
    ├── config
    │   └── checkstyle
-   │       ├── checkstyle.xml
-   │       └── suppressions.xml
    ├── docs
-   │   ├── dev
-   │   │   ├── SemanticAnalysis.md
-   │   │   ├── SubQuery.md
-   │   │   └── img
-   │   └── user
-   │       ├── admin
-   │       ├── index.rst
-   │       └── interfaces
+   │   ├── attributions.md
+   │   ├── category.json
+   │   ├── dev
+   │   ├── developing.rst
+   │   ├── experiment
+   │   └── user
    ├── gradle.properties
    ├── gradlew
    ├── gradlew.bat
    ├── opendistro-elasticsearch-sql.release-notes
    ├── settings.gradle
-   └── src
-       ├── assembly
-       │   └── zip.xml
-       ├── main
-       │   ├── antlr
-       │   ├── java
-       │   └── resources
-       └── test
-           ├── java
-           └── resources
+   ├── common
+   ├── core
+   ├── doctest
+   ├── elasticsearch
+   ├── integ-test
+   ├── legacy
+   ├── plugin
+   ├── protocol
+   ├── ppl
+   ├── sql
+   ├── sql-cli
+   ├── sql-jdbc
+   ├── sql-odbc
+   └── workbench
 
-Here are files and folders you are most likely to touch:
+Here are sub-folders (Gradle modules) for plugin source code:
 
-- build.gradle: Gradle build script.
-- config/: only Checkstyle configuration files for now.
-- docs/: include documentation for developers and reference manual for users.
-- src/: source code root
+- ``plugin``: Elasticsearch plugin related code.
+- ``sql``: SQL language processor.
+- ``ppl``: PPL language processor.
+- ``core``: core query engine.
+- ``elasticsearch``: Elasticsearch storage engine.
+- ``protocol``: request/response protocol formatter.
+- ``common``: common util code.
+- ``integ-test``: integration and comparison test.
 
-  - main/antlr: ANTLR4 grammar files.
-  - main/java: Java source code.
-  - test/java: Java test code.
+Here are other files and sub-folders that you are likely to touch:
+
+- ``build.gradle``: Gradle build script.
+- ``config``: only Checkstyle configuration files for now.
+- ``docs``: documentation for developers and reference manual for users.
+- ``doc-test``: code that run .rst docs in ``docs`` folder by Python doctest library.
+
+Note that other related project code has already merged into this single repository together:
+
+- ``sql-cli``: CLI tool for running query from command line.
+- ``sql-jdbc``: JDBC driver.
+- ``sql-odbc``: ODBC driver.
+- ``workbench``: query workbench UI.
+
 
 Code Convention
 ---------------
 
-We’re integrated Checkstyle plugin into Gradle build: https://github.com/opendistro-for-elasticsearch/sql/blob/master/config/checkstyle/checkstyle.xml. So any violation will fail the build. You need to identify the offending code from Gradle error message and fix them and rerun the Gradle build. Here are the highlight of some Checkstyle rules:
+We’re integrated Checkstyle plugin into Gradle build: https://github.com/opendistro-for-elasticsearch/sql/blob/master/config/checkstyle/google_checks.xml. So any violation will fail the build. You need to identify the offending code from Gradle error message and fix them and rerun the Gradle build. Here are the highlight of some Checkstyle rules:
 
+* 2 spaces indentation.
 * No line starts with tab character in source file.
-* Line width <= 120 characters.
+* Line width <= 100 characters.
 * Wildcard imports: You can enforce single import by configuring your IDE. Instructions for Intellij IDEA: https://www.jetbrains.com/help/idea/creating-and-optimizing-imports.html#disable-wildcard-imports.
 * Operator needs to wrap at next line.
 
@@ -201,10 +217,17 @@ Most of the time you just need to run ./gradlew build which will make sure you p
      - Run all checks according to Checkstyle configuration.
    * - ./gradlew test
      - Run all unit tests.
-   * - ./gradlew integTestRunner
+   * - ./gradlew :integ-test:integTestRunner
      - Run all integration test (this takes time).
+   * - ./gradlew build
+     - Build plugin by run all tasks above (this takes time).
 
-For ``test`` and ``integTestRunner``, you can use —tests “UT full path” to run a task individually. For example ./gradlew test --tests “com.amazon.opendistroforelasticsearch.sql.unittest.LocalClusterStateTest”.
+For integration test, you can use ``-Dtests.class`` “UT full path” to run a task individually. For example ``./gradlew :integ-test:integTest -Dtests.class="*QueryIT"``.
+
+To run the task above for specific module, you can do ``./gradlew :<module_name>:task``. For example, only build core module by ``./gradlew :core:build``.
+
+Troubleshooting
+---------------
 
 Sometimes your Gradle build fails or timeout due to Elasticsearch integration test process hung there. You can check this by the following commands::
 
@@ -270,12 +293,13 @@ For test cases, you can use the cases in the following checklist in case you mis
 For unit test:
 
 * Put your test class in the same package in src/test/java so you can access and test package-level method.
-* Make sure you are testing against the right abstraction. For example a bad practice is to create many classes by ESActionFactory class and write test cases on very high level. This makes it more like an integration test.
+* Make sure you are testing against the right abstraction with dependencies mocked. For example a bad practice is to create many classes by ESActionFactory class and write test cases on very high level. This makes it more like an integration test.
 
 For integration test:
 
 * Elasticsearch test framework is in use so an in-memory cluster will spin up for each test class.
-* You can only access the plugin and verify the correctness of your functionality via REST client externally. 
+* You can only access the plugin and verify the correctness of your functionality via REST client externally.
+* Our homemade comparison test framework is used heavily to compare with other databases without need of assertion written manually. More details can be found in `Testing <./dev/Testing.md>`_.
 
 Here is a sample for integration test for your reference:
 
@@ -295,7 +319,7 @@ Here is a sample for integration test for your reference:
        }
    }
 
-Finally thanks to JaCoCo library, you can check out the test coverage for your changes easily.
+Finally thanks to JaCoCo library, you can check out the test coverage in ``<module_name>/build/reports/jacoco`` for your changes easily.
 
 Deploying Locally
 -----------------
@@ -325,6 +349,9 @@ For new feature or big enhancement, it is worth document your design idea for ot
 Reference Manual
 ----------------
 
+Doc Generator
+>>>>>>>>>>>>>
+
 Currently the reference manual documents are generated from a set of special integration tests. The integration tests use custom DSL to build ReStructure Text markup with real query and result set captured and documented.
 
 1. Add a new template to ``src/test/resources/doctest/templates``.
@@ -352,3 +379,8 @@ Sample test class:
            );
        }
    }
+
+Doctest
+>>>>>>>
+
+Python doctest library makes our document executable which keeps it up-to-date to source code. The doc generator aforementioned served as scaffolding and generated many docs in short time. Now the examples inside is changed to doctest gradually. For more details please read `Doctest <./dev/Doctest.md>`_.
