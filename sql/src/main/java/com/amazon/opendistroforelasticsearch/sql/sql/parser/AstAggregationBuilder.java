@@ -41,7 +41,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
  * AST aggregation builder that builds AST aggregation node for the following scenarios:
  *
  *  1. Explicit GROUP BY
- *     1.1 Group by column name or scalar expression:
+ *     1.1 Group by column name or scalar expression (SELECT DISTINCT equivalent):
  *          SELECT ABS(age) FROM test GROUP BY ABS(age)
  *     1.2 Group by alias in SELECT AS clause:
  *          SELECT state AS s FROM test GROUP BY s
