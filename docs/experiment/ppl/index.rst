@@ -30,6 +30,8 @@ The query start with search command and then flowing a set of command delimited 
 
   - `Plugin Settings <admin/settings.rst>`_
 
+  - `Monitoring <admin/monitoring.rst>`_
+
 * **Commands**
 
   - `Syntax <cmd/syntax.rst>`_
