@@ -21,6 +21,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,6 +30,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByClauseContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
@@ -56,14 +59,18 @@ class AstSortBuilderTest {
   void can_build_sort_node() {
     doAnswer(returnsFirstArg()).when(querySpec).replaceIfAliasOrOrdinal(any());
     when(querySpec.getOrderByItems()).thenReturn(ImmutableList.of(qualifiedName("name")));
-    when(querySpec.getOrderByOptions()).thenReturn(ImmutableList.of("ASC"));
+    when(querySpec.getOrderByOptions()).thenReturn(ImmutableList.of(
+        new SortOption(SortOrder.ASC, NullOrder.NULL_FIRST)));
 
     AstSortBuilder sortBuilder = new AstSortBuilder(querySpec);
     assertEquals(
         new Sort(
             child, // has to mock and attach child otherwise Guava ImmutableList NPE in getChild()
             ImmutableList.of(argument("count", intLiteral(0))),
-            ImmutableList.of(field("name", argument("asc", booleanLiteral(true))))),
+            ImmutableList.of(
+                field("name",
+                    argument("asc", booleanLiteral(true)),
+                    argument("nullFirst", booleanLiteral(true))))),
         sortBuilder.visitOrderByClause(orderByClause).attach(child));
   }
 
