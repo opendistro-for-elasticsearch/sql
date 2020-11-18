@@ -1,0 +1,2 @@
+SELECT flights.TEMP1 AS a, flights.TEMP2 AS b FROM (SELECT COUNT(*) AS TEMP1, SUM(AvgTicketPrice) AS TEMP2 FROM kibana_sample_data_flights) flights
+SELECT flights.origin AS a FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights GROUP BY origin, price) flights
