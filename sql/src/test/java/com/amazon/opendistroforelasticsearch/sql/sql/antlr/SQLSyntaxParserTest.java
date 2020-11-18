@@ -134,4 +134,20 @@ class SQLSyntaxParserTest {
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG(a,b,c) FROM test"));
   }
 
+  @Test
+  public void canParseOrderByClause() {
+    assertNotNull(parser.parse("SELECT name, age FROM test ORDER BY name, age"));
+    assertNotNull(parser.parse("SELECT name, age FROM test ORDER BY name ASC, age DESC"));
+
+    assertNotNull(parser.parse(
+        "SELECT name, age FROM test ORDER BY name IS NULL, age IS NOT NULL"));
+    assertNotNull(parser.parse(
+        "SELECT name, age FROM test ORDER BY name NULLS LAST, age NULLS FIRST"));
+
+    assertNotNull(parser.parse(
+        "SELECT name, age FROM test ORDER BY name ASC IS NOT NULL, age DESC IS NULL"));
+    assertNotNull(parser.parse(
+        "SELECT name, age FROM test ORDER BY name ASC NULLS FIRST, age DESC NULLS LAST"));
+  }
+
 }

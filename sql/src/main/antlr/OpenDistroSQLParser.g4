@@ -113,7 +113,14 @@ orderByClause
     ;
 
 orderByElement
-    : expression order=(ASC | DESC)?
+    : expression order=(ASC | DESC)? nullOrderClause?
+    ;
+
+nullOrderClause
+    : IS NOT NULL_LITERAL       #nullFirst
+    | IS NULL_LITERAL           #nullLast
+    | NULLS FIRST               #nullFirst
+    | NULLS LAST                #nullLast
     ;
 
 
