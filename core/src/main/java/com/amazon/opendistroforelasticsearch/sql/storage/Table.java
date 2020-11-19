@@ -38,4 +38,13 @@ public interface Table {
    */
   PhysicalPlan implement(LogicalPlan plan);
 
+  /**
+   * Optimize the {@link LogicalPlan} by storage engine rule.
+   * @param plan logical plan.
+   * @return logical plan.
+   */
+  default LogicalPlan optimize(LogicalPlan plan) {
+    return plan;
+  }
+
 }
