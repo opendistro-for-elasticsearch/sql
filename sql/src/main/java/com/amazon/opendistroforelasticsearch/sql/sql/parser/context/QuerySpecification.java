@@ -202,9 +202,10 @@ public class QuerySpecification {
     @Override
     public Void visitOrderByElement(OrderByElementContext ctx) {
       orderByItems.add(visitAstExpression(ctx.expression()));
-      orderByOptions.add(new SortOption(
-          visitSortOrder(ctx.order),
-          visitNullOrderClause(ctx.FIRST(), ctx.LAST())));
+      orderByOptions.add(
+          new SortOption(
+              visitSortOrder(ctx.order),
+              visitNullOrderClause(ctx.FIRST(), ctx.LAST())));
       return super.visitOrderByElement(ctx);
     }
 

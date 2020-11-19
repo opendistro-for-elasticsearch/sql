@@ -16,10 +16,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByClauseContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
@@ -64,21 +64,25 @@ public class AstSortBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPla
       fields.add(
           new Field(
               querySpec.replaceIfAliasOrOrdinal(items.get(i)),
-              createSortArgument(options.get(i))));
+              createSortArguments(options.get(i))));
     }
     return fields;
   }
 
-  private List<Argument> createSortArgument(SortOption option) {
+  /**
+   * Argument "asc" is required.
+   * Argument "nullFirst" is optional and determined by Analyzer later if absent.
+   */
+  private List<Argument> createSortArguments(SortOption option) {
     SortOrder sortOrder = option.getSortOrder();
     NullOrder nullOrder = option.getNullOrder();
-    return ImmutableList.of(
-        new Argument(
-            "asc",
-            new Literal((sortOrder == null) || ASC.equals(sortOrder), BOOLEAN)),
-        new Argument(
-            "nullFirst",
-            new Literal((nullOrder == null) || NULL_FIRST.equals(nullOrder), BOOLEAN)));
+    ImmutableList.Builder<Argument> args = ImmutableList.builder();
+    args.add(new Argument("asc", booleanLiteral(sortOrder != DESC))); // handle both null and ASC
+
+    if (nullOrder != null) {
+      args.add(new Argument("nullFirst", booleanLiteral(nullOrder == NULL_FIRST)));
+    }
+    return args.build();
   }
 
 }

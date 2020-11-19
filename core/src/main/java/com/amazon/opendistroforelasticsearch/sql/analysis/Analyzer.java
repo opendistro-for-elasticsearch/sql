@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
@@ -71,6 +75,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -320,6 +325,16 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
                   Boolean asc = (Boolean) sortField.getFieldArgs().get(0).getValue().getValue();
                   Expression expression = optimizer.optimize(
                       expressionAnalyzer.analyze(sortField.getField(), context), context);
+
+                  // given nullFirst, use it. otherwise use DEFAULT_ASC/DESC
+                  Optional<Argument> nullFirst = sortField.getFieldArgs().stream()
+                      .filter(option -> "nullFirst".equals(option.getArgName())).findFirst();
+                  if (nullFirst.isPresent()) {
+                    Boolean isNullFirst = (Boolean) nullFirst.get().getValue().getValue();
+                    return ImmutablePair.of(
+                        new SortOption((asc ? ASC : DESC), (isNullFirst ? NULL_FIRST : NULL_LAST)),
+                        expression);
+                  }
                   return ImmutablePair.of(
                       asc ? SortOption.DEFAULT_ASC : SortOption.DEFAULT_DESC, expression);
                 })
