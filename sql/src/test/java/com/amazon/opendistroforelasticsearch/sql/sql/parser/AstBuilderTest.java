@@ -351,8 +351,7 @@ class AstBuilderTest {
                 relation("test"),
                 ImmutableList.of(argument("count", intLiteral(0))),
                 field("name",
-                    argument("asc", booleanLiteral(true)),
-                    argument("nullFirst", booleanLiteral(true)))),
+                    argument("asc", booleanLiteral(true)))),
         alias("name", qualifiedName("name"))),
         buildAST("SELECT name FROM test ORDER BY name"));
   }
@@ -366,8 +365,7 @@ class AstBuilderTest {
                 ImmutableList.of(argument("count", intLiteral(0))),
                 field(
                     function("ABS", qualifiedName("name")),
-                    argument("asc", booleanLiteral(true)),
-                    argument("nullFirst", booleanLiteral(true)))),
+                    argument("asc", booleanLiteral(true)))),
         alias("name", qualifiedName("name"))),
         buildAST("SELECT name FROM test ORDER BY ABS(name)"));
   }
@@ -379,9 +377,7 @@ class AstBuilderTest {
             sort(
                 relation("test"),
                 ImmutableList.of(argument("count", intLiteral(0))),
-                field("name",
-                    argument("asc", booleanLiteral(true)),
-                    argument("nullFirst", booleanLiteral(true)))),
+                field("name", argument("asc", booleanLiteral(true)))),
         alias("name", qualifiedName("name"), "n")),
         buildAST("SELECT name AS n FROM test ORDER BY n ASC"));
   }
@@ -393,9 +389,7 @@ class AstBuilderTest {
             sort(
                 relation("test"),
                 ImmutableList.of(argument("count", intLiteral(0))),
-                field("name",
-                    argument("asc", booleanLiteral(false)),
-                    argument("nullFirst", booleanLiteral(true)))),
+                field("name", argument("asc", booleanLiteral(false)))),
         alias("name", qualifiedName("name"))),
         buildAST("SELECT name FROM test ORDER BY 1 DESC"));
   }
@@ -407,15 +401,25 @@ class AstBuilderTest {
             sort(
                 relation("test"),
                 ImmutableList.of(argument("count", intLiteral(0))),
-                field("name",
-                    argument("asc", booleanLiteral(true)),
-                    argument("nullFirst", booleanLiteral(true))),
-            field("age",
-                argument("asc", booleanLiteral(false)),
-                argument("nullFirst", booleanLiteral(true)))),
+                field("name", argument("asc", booleanLiteral(true))),
+            field("age", argument("asc", booleanLiteral(false)))),
         alias("name", qualifiedName("name")),
             alias("age", qualifiedName("age"))),
         buildAST("SELECT name, age FROM test ORDER BY name, age DESC"));
+  }
+
+  @Test
+  public void can_build_order_by_null_option() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                ImmutableList.of(argument("count", intLiteral(0))),
+                field("name",
+                    argument("asc", booleanLiteral(true)),
+                    argument("nullFirst", booleanLiteral(false)))),
+        alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY name NULLS LAST"));
   }
 
   @Test
