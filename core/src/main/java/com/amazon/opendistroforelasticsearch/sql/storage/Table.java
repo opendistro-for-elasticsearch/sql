@@ -40,6 +40,8 @@ public interface Table {
 
   /**
    * Optimize the {@link LogicalPlan} by storage engine rule.
+   * The default optimize solution is no optimization.
+   *
    * @param plan logical plan.
    * @return logical plan.
    */
