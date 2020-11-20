@@ -21,10 +21,7 @@ import static com.facebook.presto.matching.DefaultMatcher.DEFAULT_MATCHER;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
-import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeAggAndIndexScan;
-import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeAggAndRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeFilterAndFilter;
-import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeFilterAndRelation;
 import com.facebook.presto.matching.Match;
 import java.util.Arrays;
 import java.util.List;
@@ -41,8 +38,10 @@ public class LogicalPlanOptimizer {
 
   private final List<Rule<?>> rules;
 
-  private LogicalPlanOptimizer(
-      List<Rule<?>> rules) {
+  /**
+   * Create {@link LogicalPlanOptimizer} with customized rules.
+   */
+  public LogicalPlanOptimizer(List<Rule<?>> rules) {
     this.rules = rules;
   }
 
@@ -51,9 +50,6 @@ public class LogicalPlanOptimizer {
    */
   public static LogicalPlanOptimizer create(DSL dsl) {
     return new LogicalPlanOptimizer(Arrays.asList(
-        new MergeFilterAndRelation(),
-        new MergeAggAndIndexScan(),
-        new MergeAggAndRelation(),
         new MergeFilterAndFilter(dsl)));
   }
 
@@ -65,7 +61,7 @@ public class LogicalPlanOptimizer {
     optimized.replaceChildPlans(
         optimized.getChild().stream().map(this::optimize).collect(
             Collectors.toList()));
-    return internalOptimize(plan);
+    return internalOptimize(optimized);
   }
 
   private LogicalPlan internalOptimize(LogicalPlan plan) {

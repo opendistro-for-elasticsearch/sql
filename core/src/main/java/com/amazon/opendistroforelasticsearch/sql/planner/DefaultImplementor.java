@@ -21,8 +21,6 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScan;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScanAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
@@ -140,18 +138,6 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
 
   @Override
   public PhysicalPlan visitRelation(LogicalRelation node, C context) {
-    throw new UnsupportedOperationException("Storage engine is responsible for "
-        + "implementing and optimizing logical plan with relation involved");
-  }
-
-  @Override
-  public PhysicalPlan visitIndexScan(LogicalIndexScan plan, C context) {
-    throw new UnsupportedOperationException("Storage engine is responsible for "
-        + "implementing and optimizing logical plan with relation involved");
-  }
-
-  @Override
-  public PhysicalPlan visitIndexScanAggregation(LogicalIndexScanAggregation plan, C context) {
     throw new UnsupportedOperationException("Storage engine is responsible for "
         + "implementing and optimizing logical plan with relation involved");
   }

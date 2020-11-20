@@ -23,7 +23,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
  */
 public abstract class LogicalPlanNodeVisitor<R, C> {
 
-  protected R visitNode(LogicalPlan plan, C context) {
+  public R visitNode(LogicalPlan plan, C context) {
     return null;
   }
 
@@ -76,14 +76,6 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
   }
 
   public R visitRareTopN(LogicalRareTopN plan, C context) {
-    return visitNode(plan, context);
-  }
-
-  public R visitIndexScan(LogicalIndexScan plan, C context) {
-    return visitNode(plan, context);
-  }
-
-  public R visitIndexScanAggregation(LogicalIndexScanAggregation plan, C context) {
     return visitNode(plan, context);
   }
 }
