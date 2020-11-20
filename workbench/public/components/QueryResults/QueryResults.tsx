@@ -190,6 +190,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
   render() {
     // Update PAGINATION and SORTABLE columns
     const queryResultSelected = getSelectedResults(this.props.queryResults, this.props.selectedTabId);
+    
     if (queryResultSelected) {
       const matchingItems: object[] = this.props.searchQuery
         ? EuiSearchBar.Query.execute(
