@@ -29,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.E
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.ElasticsearchLogicalPlanOptimizerFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.AggregationQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.sort.SortQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -40,6 +41,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -145,9 +147,18 @@ public class ElasticsearchIndex implements Table {
      */
     public PhysicalPlan visitIndexScan(ElasticsearchLogicalIndexScan node,
                                        ElasticsearchIndexScan context) {
-      FilterQueryBuilder queryBuilder = new FilterQueryBuilder(new DefaultExpressionSerializer());
-      QueryBuilder query = queryBuilder.build(node.getFilter());
-      context.pushDown(query);
+      if (null != node.getSortList()) {
+        final SortQueryBuilder builder = new SortQueryBuilder();
+        context.pushDownSort(node.getSortList().stream()
+            .map(sort -> builder.build(sort.getValue(), sort.getKey()))
+            .collect(Collectors.toList()));
+      }
+
+      if (null != node.getFilter()) {
+        FilterQueryBuilder queryBuilder = new FilterQueryBuilder(new DefaultExpressionSerializer());
+        QueryBuilder query = queryBuilder.build(node.getFilter());
+        context.pushDown(query);
+      }
       return indexScan;
     }
 
