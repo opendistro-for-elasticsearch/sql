@@ -116,7 +116,9 @@ public class ESConnection implements DBConnection {
     for (Object[] fieldValues : batch) {
       JSONObject json = new JSONObject();
       for (int i = 0; i < columnNames.length; i++) {
-        json.put(columnNames[i], fieldValues[i]);
+        if (fieldValues[i] != null) {
+          json.put(columnNames[i], fieldValues[i]);
+        }
       }
 
       body.append("{\"index\":{}}\n").
