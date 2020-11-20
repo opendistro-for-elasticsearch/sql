@@ -326,6 +326,10 @@ class AnalyzerTest extends AnalyzerTestBase {
   public void sort_with_options() {
     ImmutableMap<Argument[], SortOption> argOptions =
         ImmutableMap.<Argument[], SortOption>builder()
+            .put(new Argument[]{argument("asc", booleanLiteral(true))},
+                new SortOption(SortOrder.ASC, NullOrder.NULL_FIRST))
+            .put(new Argument[]{argument("asc", booleanLiteral(false))},
+                new SortOption(SortOrder.DESC, NullOrder.NULL_LAST))
             .put(new Argument[]{
                 argument("asc", booleanLiteral(true)),
                 argument("nullFirst", booleanLiteral(true))},

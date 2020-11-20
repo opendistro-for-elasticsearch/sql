@@ -19,3 +19,7 @@ SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORD
 SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles, FlightDelay NULLS LAST
 SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles, FlightDelay ASC NULLS LAST
 SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles, FlightDelay DESC NULLS FIRST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles NULLS LAST, FlightDelay NULLS FIRST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles NULLS FIRST, FlightDelay NULLS LAST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles DESC NULLS FIRST, FlightDelay ASC NULLS LAST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles ASC NULLS LAST, FlightDelay DESC NULLS FIRST
