@@ -27,7 +27,6 @@ jobs:
           node-version: '10.22.1'
       - name: Move Workbench to Plugins Dir
         run: |
-          mkdir kibana/plugins
           mv workbench kibana/plugins
       - name: Kibana Plugin Bootstrap
         uses: nick-invision/retry@v1
