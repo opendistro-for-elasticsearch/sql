@@ -28,8 +28,11 @@
 ### Documentation
 * Add doc for ODFE SQL demo ([#826](https://github.com/opendistro-for-elasticsearch/sql/pull/826))
 * Update out-of-date documentation ([#820](https://github.com/opendistro-for-elasticsearch/sql/pull/820))
+* Add release notes for ODFE 1.12 ([#841](https://github.com/opendistro-for-elasticsearch/sql/pull/841))
 
 ### Maintenance
 * SQL release for Elasticsearch 7.10 ([#834](https://github.com/opendistro-for-elasticsearch/sql/pull/834))
 * Migrate Query Workbench to new Platform ([#812](https://github.com/opendistro-for-elasticsearch/sql/pull/812))
+* Migrate Query Workbench to 7.10 ([#840](https://github.com/opendistro-for-elasticsearch/sql/pull/840))
+* Bump version number to 1.12.0.0 for [JDBC, ODBC, SQL-CLI] ([#838](https://github.com/opendistro-for-elasticsearch/sql/pull/838))
 
