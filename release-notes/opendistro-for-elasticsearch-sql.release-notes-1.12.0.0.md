@@ -5,7 +5,6 @@
 * Support CASE clause in new engine ([#818](https://github.com/opendistro-for-elasticsearch/sql/pull/818))
 * Support COUNT star and literal in new engine ([#802](https://github.com/opendistro-for-elasticsearch/sql/pull/802))
 * Adding example of nested() for more complex nested queries ([#801](https://github.com/opendistro-for-elasticsearch/sql/pull/801))
-* Revert "Adding example of nested() for more complex nested queries" ([#800](https://github.com/opendistro-for-elasticsearch/sql/pull/800))
 * Adding example of nested() for more complex nested queries ([#799](https://github.com/opendistro-for-elasticsearch/sql/pull/799))
 * Support HAVING in new SQL engine ([#798](https://github.com/opendistro-for-elasticsearch/sql/pull/798))
 * Add ppl request log ([#796](https://github.com/opendistro-for-elasticsearch/sql/pull/796))
