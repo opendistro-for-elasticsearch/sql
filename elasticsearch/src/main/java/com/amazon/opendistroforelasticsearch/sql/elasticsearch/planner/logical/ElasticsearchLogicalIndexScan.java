@@ -15,23 +15,29 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner.logical;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * Logical Index Scan Operation which could include Filter conditions ans Project Lists.
+ * Elasticsearch Logical Index Scan Operation.
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class LogicalIndexScan extends LogicalPlan {
+public class ElasticsearchLogicalIndexScan extends LogicalPlan {
 
   /**
    * Relation Name.
@@ -41,58 +47,39 @@ public class LogicalIndexScan extends LogicalPlan {
   /**
    * Filter Condition.
    */
+  @Setter
   private Expression filter;
 
   /**
-   * Select List.
+   * Projection List.
    */
+  @Setter
   private List<NamedExpression> projectList;
 
   /**
-   * Construct the {@link LogicalIndexScan} with relationName and filter condition.
+   * Sort List.
    */
-  public LogicalIndexScan(String relationName, Expression filter) {
-    super(ImmutableList.of());
-    this.relationName = relationName;
-    this.filter = filter;
-  }
+  @Setter
+  private List<Pair<Sort.SortOption, Expression>> sortList;
 
   /**
-   * Construct the {@link LogicalIndexScan} with relationName and project list.
+   * ElasticsearchLogicalIndexScan Constructor.
    */
-  public LogicalIndexScan(String relationName, List<NamedExpression> projectList) {
-    super(ImmutableList.of());
-    this.relationName = relationName;
-    this.projectList = projectList;
-  }
-
-  /**
-   * Construct the {@link LogicalIndexScan} with relationName, filter condition and project list.
-   */
-  public LogicalIndexScan(String relationName, Expression filter,
-                          List<NamedExpression> projectList) {
+  @Builder
+  public ElasticsearchLogicalIndexScan(
+      String relationName,
+      Expression filter,
+      List<NamedExpression> projectList,
+      List<Pair<Sort.SortOption, Expression>> sortList) {
     super(ImmutableList.of());
     this.relationName = relationName;
     this.filter = filter;
     this.projectList = projectList;
+    this.sortList = sortList;
   }
 
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-    return visitor.visitIndexScan(this, context);
-  }
-
-  /**
-   * Has Projects.
-   */
-  public boolean hasProjects() {
-    return projectList != null && !projectList.isEmpty();
-  }
-
-  /**
-   * Has Filter.
-   */
-  public boolean hasFilter() {
-    return filter != null;
+    return visitor.visitNode(this, context);
   }
 }

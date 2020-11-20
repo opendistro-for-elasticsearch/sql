@@ -56,14 +56,15 @@ public class Planner {
     }
 
     Table table = storageEngine.getTable(tableName);
-    return table.implement(optimize(plan));
+    return table.implement(
+        table.optimize(optimize(plan)));
   }
 
   private String findTableName(LogicalPlan plan) {
     return plan.accept(new LogicalPlanNodeVisitor<String, Object>() {
 
       @Override
-      protected String visitNode(LogicalPlan node, Object context) {
+      public String visitNode(LogicalPlan node, Object context) {
         List<LogicalPlan> children = node.getChild();
         if (children.isEmpty()) {
           return "";

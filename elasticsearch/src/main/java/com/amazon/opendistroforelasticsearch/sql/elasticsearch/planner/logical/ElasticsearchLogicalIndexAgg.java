@@ -15,15 +15,19 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner.logical;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -32,40 +36,37 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class LogicalIndexScanAggregation extends LogicalPlan {
+public class ElasticsearchLogicalIndexAgg extends LogicalPlan {
 
   private final String relationName;
 
+  @Setter
   private Expression filter;
 
+  @Setter
   private List<NamedAggregator> aggregatorList;
 
+  @Setter
   private List<NamedExpression> groupByList;
 
   /**
-   * Construct {@link LogicalIndexScanAggregation} with Filter and Aggregation.
+   * ElasticsearchLogicalIndexAgg Constructor.
    */
-  public LogicalIndexScanAggregation(String relationName, Expression filter,
-                          List<NamedAggregator> aggregatorList,
-                          List<NamedExpression> groupByList) {
+  @Builder
+  public ElasticsearchLogicalIndexAgg(
+      String relationName,
+      Expression filter,
+      List<NamedAggregator> aggregatorList,
+      List<NamedExpression> groupByList) {
     super(ImmutableList.of());
-    this.filter = filter;
     this.relationName = relationName;
+    this.filter = filter;
     this.aggregatorList = aggregatorList;
     this.groupByList = groupByList;
   }
 
-  /**
-   * Construct {@link LogicalIndexScanAggregation} with Aggregation without Filter.
-   */
-  public LogicalIndexScanAggregation(String relationName,
-                                     List<NamedAggregator> aggregatorList,
-                                     List<NamedExpression> groupByList) {
-    this(relationName, null, aggregatorList, groupByList);
-  }
-
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-    return visitor.visitIndexScanAggregation(this, context);
+    return visitor.visitNode(this, context);
   }
 }
