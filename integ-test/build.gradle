@@ -17,6 +17,7 @@ tasks.withType(licenseHeaders.class) {
 }
 
 validateNebulaPom.enabled = false
+loggerUsageCheck.enabled = false
 
 repositories {
     mavenCentral()
@@ -63,14 +64,15 @@ compileTestJava {
     }
 }
 
-tasks.integTest.dependsOn(':plugin:bundlePlugin', ':integ-test:integTestWithNewEngine')
-testClusters.integTest {
+testClusters.all {
     testDistribution = 'oss'
-    plugin file(tasks.getByPath(':plugin:bundlePlugin').archiveFile)
+    plugin ":plugin"
 }
 
 // Run only legacy SQL ITs with new SQL engine disabled
-integTest.runner {
+integTest {
+    dependsOn (':plugin:bundlePlugin',':integ-test:integTestWithNewEngine')
+
     systemProperty 'tests.security.manager', 'false'
     systemProperty('project.root', project.projectDir.absolutePath)
 
@@ -95,112 +97,95 @@ integTest.runner {
 // Run PPL ITs and new, legacy and comparison SQL ITs with new SQL engine enabled
 task integTestWithNewEngine(type: RestIntegTestTask) {
     dependsOn ':plugin:bundlePlugin'
-    runner {
-        systemProperty 'tests.security.manager', 'false'
-        systemProperty('project.root', project.projectDir.absolutePath)
 
-        systemProperty "https", System.getProperty("https")
-        systemProperty "user", System.getProperty("user")
-        systemProperty "password", System.getProperty("password")
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty('project.root', project.projectDir.absolutePath)
 
-        // Enable new SQL engine
-        systemProperty 'enableNewEngine', 'true'
+    systemProperty "https", System.getProperty("https")
+    systemProperty "user", System.getProperty("user")
+    systemProperty "password", System.getProperty("password")
 
-        // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
-        // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
-        doFirst { systemProperty 'cluster.debug', getDebug() }
+    // Enable new SQL engine
+    systemProperty 'enableNewEngine', 'true'
 
-        if (System.getProperty("test.debug") != null) {
-            jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
-        }
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst { systemProperty 'cluster.debug', getDebug() }
 
-        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
-
-        // Explain IT is dependent on internal implementation of old engine so it's not necessary
-        // to run these with new engine and not necessary to make this consistent with old engine.
-        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/ExplainIT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/PrettyFormatterIT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/TermQueryExplainIT.class'
-
-        // Skip old semantic analyzer IT because analyzer in new engine has different behavior
-        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/QueryAnalysisIT.class'
-
-        // Skip this IT to avoid breaking tests due to inconsistency in JDBC schema
-        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/AggregationExpressionIT.class'
-
-        // Skip this IT because all assertions are against explain output
-        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/OrderIT.class'
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
     }
+
+    exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+
+    // Explain IT is dependent on internal implementation of old engine so it's not necessary
+    // to run these with new engine and not necessary to make this consistent with old engine.
+    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/ExplainIT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/PrettyFormatterIT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/TermQueryExplainIT.class'
+
+    // Skip old semantic analyzer IT because analyzer in new engine has different behavior
+    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/QueryAnalysisIT.class'
+
+    // Skip this IT to avoid breaking tests due to inconsistency in JDBC schema
+    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/AggregationExpressionIT.class'
+
+    // Skip this IT because all assertions are against explain output
+    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/OrderIT.class'
 }
 
-testClusters.integTestWithNewEngine {
-    testDistribution = 'oss'
-    plugin file(tasks.getByPath(':plugin:bundlePlugin').archiveFile)
-}
+
 
 
 task docTest(type: RestIntegTestTask) {
     dependsOn ':plugin:bundlePlugin'
-    runner {
-        systemProperty 'tests.security.manager', 'false'
-        systemProperty('project.root', project.projectDir.absolutePath)
 
-        // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
-        // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
-        doFirst { systemProperty 'cluster.debug', getDebug()}
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty('project.root', project.projectDir.absolutePath)
 
-        if (System.getProperty("test.debug") != null) {
-            jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
-        }
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst { systemProperty 'cluster.debug', getDebug()}
 
-        include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/ppl/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/sql/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/**/*IT.class'
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
     }
-}
 
-testClusters.docTest {
-    testDistribution = 'oss'
-    plugin file(tasks.getByPath(':plugin:bundlePlugin').archiveFile)
+    include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/ppl/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/sql/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/**/*IT.class'
 }
-
 
 task comparisonTest(type: RestIntegTestTask) {
     dependsOn ':plugin:bundlePlugin'
-    runner {
-        systemProperty 'tests.security.manager', 'false'
-        systemProperty('project.root', project.projectDir.absolutePath)
 
-        // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
-        // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
-        doFirst { systemProperty 'cluster.debug', getDebug()}
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty('project.root', project.projectDir.absolutePath)
 
-        if (System.getProperty("test.debug") != null) {
-            jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
-        }
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst { systemProperty 'cluster.debug', getDebug()}
 
-        include 'com/amazon/opendistroforelasticsearch/sql/correctness/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/ppl/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/**/*IT.class'
-
-        // Enable logging output to console
-        testLogging.showStandardStreams true
-
-        // Pass down system properties to IT class
-        systemProperty "esHost", System.getProperty("esHost")
-        systemProperty "dbUrl", System.getProperty("dbUrl")
-        systemProperty "otherDbUrls", System.getProperty("otherDbUrls")
-        systemProperty "queries", System.getProperty("queries")
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
     }
-}
 
-testClusters.comparisonTest {
-    testDistribution = 'oss'
-    plugin file(tasks.getByPath(':plugin:bundlePlugin').archiveFile)
+    include 'com/amazon/opendistroforelasticsearch/sql/correctness/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/ppl/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/**/*IT.class'
+
+    // Enable logging output to console
+    testLogging.showStandardStreams true
+
+    // Pass down system properties to IT class
+    systemProperty "esHost", System.getProperty("esHost")
+    systemProperty "dbUrl", System.getProperty("dbUrl")
+    systemProperty "otherDbUrls", System.getProperty("otherDbUrls")
+    systemProperty "queries", System.getProperty("queries")
 }
 
 task compileJdbc(type:Exec) {

@@ -94,7 +94,7 @@ public class ExpressionReferenceOptimizer
   class ExpressionMapBuilder extends LogicalPlanNodeVisitor<Void, Void> {
 
     @Override
-    protected Void visitNode(LogicalPlan plan, Void context) {
+    public Void visitNode(LogicalPlan plan, Void context) {
       plan.getChild().forEach(child -> child.accept(this, context));
       return null;
     }

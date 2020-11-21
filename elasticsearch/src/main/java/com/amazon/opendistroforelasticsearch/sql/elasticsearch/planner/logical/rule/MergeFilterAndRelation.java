@@ -15,50 +15,50 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule;
 
 import static com.amazon.opendistroforelasticsearch.sql.planner.optimizer.pattern.Patterns.source;
 import static com.facebook.presto.matching.Pattern.typeOf;
 
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScanAggregation;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.ElasticsearchLogicalIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.Rule;
 import com.facebook.presto.matching.Capture;
 import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
-import lombok.Getter;
-import lombok.experimental.Accessors;
 
 /**
- * Merge Aggregation -- Relation to IndexScanAggregation.
+ * Merge Filter -- Relation to LogicalIndexScan.
  */
-public class MergeAggAndRelation implements Rule<LogicalAggregation> {
+public class MergeFilterAndRelation implements Rule<LogicalFilter> {
 
   private final Capture<LogicalRelation> relationCapture;
-
-  @Accessors(fluent = true)
-  @Getter
-  private final Pattern<LogicalAggregation> pattern;
+  private final Pattern<LogicalFilter> pattern;
 
   /**
-   * Constructor of MergeAggAndRelation.
+   * Constructor of MergeFilterAndRelation.
    */
-  public MergeAggAndRelation() {
+  public MergeFilterAndRelation() {
     this.relationCapture = Capture.newCapture();
-    this.pattern = typeOf(LogicalAggregation.class)
+    this.pattern = typeOf(LogicalFilter.class)
         .with(source().matching(typeOf(LogicalRelation.class).capturedAs(relationCapture)));
   }
 
   @Override
-  public LogicalPlan apply(LogicalAggregation aggregation,
+  public Pattern<LogicalFilter> pattern() {
+    return pattern;
+  }
+
+  @Override
+  public LogicalPlan apply(LogicalFilter filter,
                            Captures captures) {
     LogicalRelation relation = captures.get(relationCapture);
-    return new LogicalIndexScanAggregation(
-        relation.getRelationName(),
-        aggregation.getAggregatorList(),
-        aggregation.getGroupByList()
-    );
+    return ElasticsearchLogicalIndexScan
+        .builder()
+        .relationName(relation.getRelationName())
+        .filter(filter.getCondition())
+        .build();
   }
 }
