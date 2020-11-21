@@ -55,6 +55,7 @@ import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.cluster.metadata.Metadata;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.util.concurrent.ThreadContext;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
@@ -83,6 +84,9 @@ class ElasticsearchNodeClientTest {
 
   @Mock
   private SearchHit searchHit;
+
+  @Mock
+  private ThreadContext threadContext;
 
   private ExprTupleValue exprTupleValue = ExprTupleValue.fromExprValueMap(ImmutableMap.of("id",
       new ExprIntegerValue(1)));
@@ -198,6 +202,7 @@ class ElasticsearchNodeClientTest {
   void schedule() {
     ThreadPool threadPool = mock(ThreadPool.class);
     when(nodeClient.threadPool()).thenReturn(threadPool);
+    when(threadPool.getThreadContext()).thenReturn(threadContext);
 
     doAnswer(
         invocation -> {

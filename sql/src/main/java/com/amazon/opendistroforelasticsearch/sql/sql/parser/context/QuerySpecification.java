@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
@@ -170,9 +171,9 @@ public class QuerySpecification {
     }
 
     @Override
-    public Void visitQuerySpecification(QuerySpecificationContext ctx) {
-      // TODO: avoid collect sub-query
-      return super.visitQuerySpecification(ctx);
+    public Void visitSubqueryAsRelation(SubqueryAsRelationContext ctx) {
+      // skip collecting subquery for current layer
+      return null;
     }
 
     @Override

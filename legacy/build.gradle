@@ -89,7 +89,7 @@ dependencies {
 
     testCompile group: 'org.hamcrest', name: 'hamcrest-core', version:'2.2'
     // testCompile group: 'com.alibaba', name: 'fastjson', version:'1.2.56'
-    testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
+    testCompile group: 'org.mockito', name: 'mockito-core', version:'3.5.0'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: "org.elasticsearch.client", name: 'transport', version: "${es_version}"
 

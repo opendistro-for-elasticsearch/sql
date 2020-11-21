@@ -15,7 +15,7 @@
 
 buildscript {
     ext {
-        es_version = "7.9.1"
+        es_version = "7.10.0"
     }
 
     repositories {
@@ -43,7 +43,7 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '1.11.0'
+    opendistroVersion = '1.12.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 

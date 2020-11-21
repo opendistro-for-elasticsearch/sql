@@ -20,6 +20,8 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.HavingClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TableAsRelationContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WhereClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 import static java.util.Collections.emptyList;
@@ -30,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpres
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
@@ -100,11 +103,8 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
-    UnresolvedExpression tableName = visitAstExpression(ctx.tableName());
-    String tableAlias = (ctx.alias() == null) ? null
-        : StringUtils.unquoteIdentifier(ctx.alias().getText());
+    UnresolvedPlan result = visit(ctx.relation());
 
-    UnresolvedPlan result = new Relation(tableName, tableAlias);
     if (ctx.whereClause() != null) {
       result = visit(ctx.whereClause()).attach(result);
     }
@@ -125,6 +125,18 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       result = sortBuilder.visit(ctx.orderByClause()).attach(result);
     }
     return result;
+  }
+
+  @Override
+  public UnresolvedPlan visitTableAsRelation(TableAsRelationContext ctx) {
+    String tableAlias = (ctx.alias() == null) ? null
+        : StringUtils.unquoteIdentifier(ctx.alias().getText());
+    return new Relation(visitAstExpression(ctx.tableName()), tableAlias);
+  }
+
+  @Override
+  public UnresolvedPlan visitSubqueryAsRelation(SubqueryAsRelationContext ctx) {
+    return new RelationSubquery(visit(ctx.subquery), ctx.alias().getText());
   }
 
   @Override
