@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.google.common.collect.ImmutableList;
@@ -30,26 +31,59 @@ import org.junit.jupiter.api.Test;
 
 class JdbcResponseFormatterTest {
 
+  private final JdbcResponseFormatter formatter = new JdbcResponseFormatter(COMPACT);
+
   @Test
-  void format_response_pretty() {
+  void format_response() {
     QueryResult response = new QueryResult(
         new ExecutionEngine.Schema(ImmutableList.of(
             new ExecutionEngine.Schema.Column("firstname", "name", STRING))),
         ImmutableList.of(
             tupleValue(ImmutableMap.of("firstname", "John", "age", 20))));
 
-    JdbcResponseFormatter formatter = new JdbcResponseFormatter(COMPACT);
+    assertJsonEquals(
+        "{"
+            + "\"schema\":[{\"name\":\"firstname\",\"alias\":\"name\",\"type\":\"text\"}],"
+            + "\"datarows\":[[\"John\",20]],"
+            + "\"version\":\"2.0\","
+            + "\"total\":1,"
+            + "\"size\":1,"
+            + "\"status\":200}",
+        formatter.format(response));
+  }
 
+  @Test
+  void format_client_error_response() {
+    assertJsonEquals(
+        "{\"error\":"
+            + "{\""
+            + "type\":\"SyntaxCheckException\","
+            + "\"reason\":\"Invalid query syntax\","
+            + "\"details\":\"Invalid query syntax\""
+            + "},"
+            + "\"status\":400}",
+        formatter.format(new SyntaxCheckException("Invalid query syntax"))
+    );
+  }
+
+  @Test
+  void format_server_error_response() {
+    assertJsonEquals(
+        "{\"error\":"
+            + "{\""
+            + "type\":\"IllegalStateException\","
+            + "\"reason\":\"Execution error\","
+            + "\"details\":\"Execution error\""
+            + "},"
+            + "\"status\":500}",
+        formatter.format(new IllegalStateException("Execution error"))
+    );
+  }
+
+  private static void assertJsonEquals(String expected, String actual) {
     assertEquals(
-        JsonParser.parseString(
-            "{"
-                + "\"schema\":[{\"name\":\"firstname\",\"alias\":\"name\",\"type\":\"text\"}],"
-                + "\"datarows\":[[\"John\",20]],"
-                + "\"version\":\"v2.0\","
-                + "\"total\":1,"
-                + "\"size\":1,"
-                + "\"status\":200}"),
-        JsonParser.parseString(formatter.format(response)));
+        JsonParser.parseString(expected),
+        JsonParser.parseString(actual));
   }
 
 }

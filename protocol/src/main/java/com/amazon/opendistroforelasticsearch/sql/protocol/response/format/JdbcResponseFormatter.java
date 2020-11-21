@@ -16,7 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import java.util.List;
 import lombok.Builder;
@@ -38,7 +40,7 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
   @Getter
   @RequiredArgsConstructor
   private enum Version {
-    V_2_0("v2.0");
+    V_2_0("2.0");
 
     private final String name;
   }
@@ -67,6 +69,15 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
     return json.build();
   }
 
+  @Override
+  public String format(Throwable t) {
+    Error error = new Error(
+        t.getClass().getSimpleName(),
+        t.getMessage(),
+        t.getMessage());
+    return jsonify(new JdbcErrorResponse(error, getStatus(t)));
+  }
+
   private String convertType(ExprType type) {
     String typeName = type.typeName();
     if ("string".equalsIgnoreCase(typeName)) {
@@ -82,6 +93,11 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
       rows[i++] = values;
     }
     return rows;
+  }
+
+  private int getStatus(Throwable t) {
+    return (t instanceof SyntaxCheckException
+        || t instanceof QueryEngineException) ? 400 : 500;
   }
 
   /**
@@ -107,6 +123,21 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
     private final String name;
     private final String alias;
     private final String type;
+  }
+
+  @RequiredArgsConstructor
+  @Getter
+  public static class JdbcErrorResponse {
+    private final Error error;
+    private final int status;
+  }
+
+  @RequiredArgsConstructor
+  @Getter
+  public static class Error {
+    private final String type;
+    private final String reason;
+    private final String details;
   }
 
 }
