@@ -42,7 +42,6 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Sort extends UnresolvedPlan {
   private UnresolvedPlan child;
-  private final List<Argument> options;
   private final List<Field> sortList;
 
   @Override

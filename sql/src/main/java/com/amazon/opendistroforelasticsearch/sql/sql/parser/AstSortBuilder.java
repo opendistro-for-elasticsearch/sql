@@ -17,7 +17,6 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByClauseContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
@@ -46,7 +45,6 @@ public class AstSortBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPla
   @Override
   public UnresolvedPlan visitOrderByClause(OrderByClauseContext ctx) {
     return new Sort(
-        ImmutableList.of(new Argument("count", new Literal(0, INTEGER))),
         createSortFields()
     );
   }

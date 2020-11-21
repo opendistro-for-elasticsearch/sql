@@ -166,7 +166,6 @@ class ElasticsearchLogicOptimizerTest {
         optimize(
             sort(
                 relation("schema"),
-                0,
                 Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("intV", INTEGER))
             )
         )
@@ -185,7 +184,6 @@ class ElasticsearchLogicOptimizerTest {
         optimize(
             sort(
                 indexScan("schema", Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("intV", INTEGER))),
-                0,
                 Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
             )
         )
@@ -208,7 +206,6 @@ class ElasticsearchLogicOptimizerTest {
                     relation("schema"),
                     dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
                 ),
-                0,
                 Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
             )
         )
@@ -220,13 +217,11 @@ class ElasticsearchLogicOptimizerTest {
     assertEquals(
         sort(
             relation("schema"),
-            0,
             Pair.of(Sort.SortOption.DEFAULT_ASC, dsl.abs(DSL.ref("intV", INTEGER)))
         ),
         optimize(
             sort(
                 relation("schema"),
-                0,
                 Pair.of(Sort.SortOption.DEFAULT_ASC, dsl.abs(DSL.ref("intV", INTEGER)))
             )
         )

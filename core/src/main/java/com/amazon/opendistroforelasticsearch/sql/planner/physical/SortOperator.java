@@ -46,11 +46,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class SortOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
-  /**
-   * How many sorted result should been return. If count = 0, all the resulted will be returned.
-   */
-  @Getter
-  private final Integer count;
+
   @Getter
   private final List<Pair<SortOption, Expression>> sortList;
   @EqualsAndHashCode.Exclude
@@ -61,14 +57,12 @@ public class SortOperator extends PhysicalPlan {
   /**
    * Sort Operator Constructor.
    * @param input input {@link PhysicalPlan}
-   * @param count how many sorted result should been return
    * @param sortList list of sort sort field.
    *                 The sort field is specified by the {@link Expression} with {@link SortOption}
    */
   public SortOperator(
-      PhysicalPlan input, Integer count, List<Pair<SortOption, Expression>> sortList) {
+      PhysicalPlan input, List<Pair<SortOption, Expression>> sortList) {
     this.input = input;
-    this.count = count;
     this.sortList = sortList;
     SorterBuilder sorterBuilder = Sorter.builder();
     for (Pair<SortOption, Expression> pair : sortList) {
@@ -97,8 +91,7 @@ public class SortOperator extends PhysicalPlan {
       sorted.add(input.next());
     }
 
-    Iterator<ExprValue> sortedIterator = iterator(sorted);
-    iterator = count == 0 ? sortedIterator : Iterators.limit(sortedIterator, count);
+    iterator = iterator(sorted);
   }
 
   @Override

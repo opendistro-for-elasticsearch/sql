@@ -190,7 +190,6 @@ class ElasticsearchIndexTest {
                                 mappings),
                             exclude),
                         newEvalField),
-                    sortCount,
                     sortField),
                 dedupeField),
             include);
@@ -208,7 +207,6 @@ class ElasticsearchIndexTest {
                                 mappings),
                             exclude),
                         newEvalField),
-                    sortCount,
                     sortField),
                 dedupeField),
             include),

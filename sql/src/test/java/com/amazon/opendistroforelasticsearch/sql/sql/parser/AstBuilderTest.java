@@ -349,7 +349,6 @@ class AstBuilderTest {
         project(
             sort(
                 relation("test"),
-                ImmutableList.of(argument("count", intLiteral(0))),
                 field("name", argument("asc", booleanLiteral(true)))),
             alias("name", qualifiedName("name"))),
         buildAST("SELECT name FROM test ORDER BY name"));
@@ -361,7 +360,6 @@ class AstBuilderTest {
         project(
             sort(
                 relation("test"),
-                ImmutableList.of(argument("count", intLiteral(0))),
                 field(
                     function("ABS", qualifiedName("name")),
                     argument("asc", booleanLiteral(true)))),
@@ -375,7 +373,6 @@ class AstBuilderTest {
         project(
             sort(
                 relation("test"),
-                ImmutableList.of(argument("count", intLiteral(0))),
                 field("name", argument("asc", booleanLiteral(true)))),
             alias("name", qualifiedName("name"), "n")),
         buildAST("SELECT name AS n FROM test ORDER BY n ASC"));
@@ -387,7 +384,6 @@ class AstBuilderTest {
         project(
             sort(
                 relation("test"),
-                ImmutableList.of(argument("count", intLiteral(0))),
                 field("name", argument("asc", booleanLiteral(false)))),
             alias("name", qualifiedName("name"))),
         buildAST("SELECT name FROM test ORDER BY 1 DESC"));
@@ -399,7 +395,6 @@ class AstBuilderTest {
         project(
             sort(
                 relation("test"),
-                ImmutableList.of(argument("count", intLiteral(0))),
                 field("name", argument("asc", booleanLiteral(true))),
                 field("age", argument("asc", booleanLiteral(false)))),
             alias("name", qualifiedName("name")),

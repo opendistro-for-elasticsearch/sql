@@ -34,17 +34,15 @@ import org.apache.commons.lang3.tuple.Pair;
 @EqualsAndHashCode(callSuper = true)
 public class LogicalSort extends LogicalPlan {
 
-  private final Integer count;
   private final List<Pair<SortOption, Expression>> sortList;
 
   /**
    * Constructor of LogicalSort.
    */
   public LogicalSort(
-      LogicalPlan child, Integer count,
+      LogicalPlan child,
       List<Pair<SortOption, Expression>> sortList) {
     super(Collections.singletonList(child));
-    this.count = count;
     this.sortList = sortList;
   }
 
