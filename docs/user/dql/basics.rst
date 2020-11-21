@@ -945,8 +945,8 @@ Note that the example above is essentially sorting on a predicate expression. In
 The sorting rule can be summarized as follows:
 
 1. Without NULLS clause
-    1. ``ASC``: sort non-nulls in ascending order and put nulls first
-    2. ``DESC``: sort non-nulls in descending order and put nulls last
+  1. ``ASC``: sort non-nulls in ascending order and put nulls first
+  2. ``DESC``: sort non-nulls in descending order and put nulls last
 2. With NULLS clause: just use the nulls order given
 
 Here is another example for sort in descending order without ``NULLS`` clause::
