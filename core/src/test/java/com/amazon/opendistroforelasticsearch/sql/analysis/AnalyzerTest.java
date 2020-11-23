@@ -351,13 +351,11 @@ class AnalyzerTest extends AnalyzerTestBase {
             LogicalPlanDSL.project(
                 LogicalPlanDSL.sort(
                     LogicalPlanDSL.relation("test"),
-                    0,
                     Pair.of(expectOption, DSL.ref("integer_value", INTEGER))),
                 DSL.named("string_value", DSL.ref("string_value", STRING))),
             AstDSL.project(
                 AstDSL.sort(
                     AstDSL.relation("test"),
-                    ImmutableList.of(argument("count", intLiteral(0))),
                     field(qualifiedName("integer_value"), args)),
                 AstDSL.alias("string_value", qualifiedName("string_value")))));
   }
