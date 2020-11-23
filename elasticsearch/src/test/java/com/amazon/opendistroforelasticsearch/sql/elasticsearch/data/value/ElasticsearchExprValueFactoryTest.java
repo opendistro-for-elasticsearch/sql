@@ -272,7 +272,7 @@ class ElasticsearchExprValueFactoryTest {
   }
 
   public Map<String, ExprValue> tupleValue(String jsonString) {
-    return (Map<String, ExprValue>) exprValueFactory.construct(jsonString).value();
+    return exprValueFactory.construct(jsonString).tupleValue();
   }
 
   private ExprValue constructFromObject(String fieldName, Object value) {
