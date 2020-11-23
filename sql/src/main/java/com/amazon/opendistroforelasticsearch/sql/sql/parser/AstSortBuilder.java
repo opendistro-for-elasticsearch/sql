@@ -16,8 +16,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByClauseContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
@@ -25,6 +27,9 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
@@ -54,21 +59,30 @@ public class AstSortBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPla
   private List<Field> createSortFields() {
     List<Field> fields = new ArrayList<>();
     List<UnresolvedExpression> items = querySpec.getOrderByItems();
-    List<String> options = querySpec.getOrderByOptions();
+    List<SortOption> options = querySpec.getOrderByOptions();
     for (int i = 0; i < items.size(); i++) {
       fields.add(
           new Field(
               querySpec.replaceIfAliasOrOrdinal(items.get(i)),
-              createSortArgument(options.get(i))));
+              createSortArguments(options.get(i))));
     }
     return fields;
   }
 
-  private List<Argument> createSortArgument(String option) {
-    return ImmutableList.of(
-        new Argument(
-            "asc",
-            new Literal("ASC".equalsIgnoreCase(option), BOOLEAN)));
+  /**
+   * Argument "asc" is required.
+   * Argument "nullFirst" is optional and determined by Analyzer later if absent.
+   */
+  private List<Argument> createSortArguments(SortOption option) {
+    SortOrder sortOrder = option.getSortOrder();
+    NullOrder nullOrder = option.getNullOrder();
+    ImmutableList.Builder<Argument> args = ImmutableList.builder();
+    args.add(new Argument("asc", booleanLiteral(sortOrder != DESC))); // handle both null and ASC
+
+    if (nullOrder != null) {
+      args.add(new Argument("nullFirst", booleanLiteral(nullOrder == NULL_FIRST)));
+    }
+    return args.build();
   }
 
 }

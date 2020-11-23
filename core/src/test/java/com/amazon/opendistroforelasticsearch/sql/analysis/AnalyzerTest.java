@@ -28,7 +28,10 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -39,13 +42,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -298,7 +300,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                     ImmutableList.of(DSL.named("string_value", DSL.ref("string_value", STRING)))),
                 0,
                 // Aggregator in Sort AST node is replaced with reference by expression optimizer
-                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("avg(integer_value)", DOUBLE))),
+                Pair.of(SortOption.DEFAULT_ASC, DSL.ref("avg(integer_value)", DOUBLE))),
             DSL.named("string_value", DSL.ref("string_value", STRING))),
         AstDSL.project(
             AstDSL.sort(
@@ -317,6 +319,49 @@ class AnalyzerTest extends AnalyzerTestBase {
                     function("avg", qualifiedName("integer_value")),
                     argument("asc", booleanLiteral(true)))),
             AstDSL.alias("string_value", qualifiedName("string_value"))));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void sort_with_options() {
+    ImmutableMap<Argument[], SortOption> argOptions =
+        ImmutableMap.<Argument[], SortOption>builder()
+            .put(new Argument[]{argument("asc", booleanLiteral(true))},
+                new SortOption(SortOrder.ASC, NullOrder.NULL_FIRST))
+            .put(new Argument[]{argument("asc", booleanLiteral(false))},
+                new SortOption(SortOrder.DESC, NullOrder.NULL_LAST))
+            .put(new Argument[]{
+                argument("asc", booleanLiteral(true)),
+                argument("nullFirst", booleanLiteral(true))},
+                new SortOption(SortOrder.ASC, NullOrder.NULL_FIRST))
+            .put(new Argument[]{
+                argument("asc", booleanLiteral(true)),
+                argument("nullFirst", booleanLiteral(false))},
+                new SortOption(SortOrder.ASC, NullOrder.NULL_LAST))
+            .put(new Argument[]{
+                argument("asc", booleanLiteral(false)),
+                argument("nullFirst", booleanLiteral(true))},
+                new SortOption(SortOrder.DESC, NullOrder.NULL_FIRST))
+            .put(new Argument[]{
+                argument("asc", booleanLiteral(false)),
+                argument("nullFirst", booleanLiteral(false))},
+                new SortOption(SortOrder.DESC, NullOrder.NULL_LAST))
+            .build();
+
+    argOptions.forEach((args, expectOption) ->
+        assertAnalyzeEqual(
+            LogicalPlanDSL.project(
+                LogicalPlanDSL.sort(
+                    LogicalPlanDSL.relation("test"),
+                    0,
+                    Pair.of(expectOption, DSL.ref("integer_value", INTEGER))),
+                DSL.named("string_value", DSL.ref("string_value", STRING))),
+            AstDSL.project(
+                AstDSL.sort(
+                    AstDSL.relation("test"),
+                    ImmutableList.of(argument("count", intLiteral(0))),
+                    field(qualifiedName("integer_value"), args)),
+                AstDSL.alias("string_value", qualifiedName("string_value")))));
   }
 
   @SuppressWarnings("unchecked")
