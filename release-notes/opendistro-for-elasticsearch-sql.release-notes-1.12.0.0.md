@@ -1,6 +1,7 @@
 ## 2020-11-20 Version 1.12.0.0
 
 ### Features
+* Support NULLS FIRST/LAST in new engine ([#843](https://github.com/opendistro-for-elasticsearch/sql/pull/843))
 * Support subquery in FROM clause in new engine ([#822](https://github.com/opendistro-for-elasticsearch/sql/pull/822))
 * Support CASE clause in new engine ([#818](https://github.com/opendistro-for-elasticsearch/sql/pull/818))
 * Support COUNT star and literal in new engine ([#802](https://github.com/opendistro-for-elasticsearch/sql/pull/802))
@@ -13,6 +14,8 @@
 * Seperate the logical plan optimization rule from core to storage engine ([#836](https://github.com/opendistro-for-elasticsearch/sql/pull/836))
 
 ### Bug Fixes
+* Config the default locale for gradle as en_US ([#847](https://github.com/opendistro-for-elasticsearch/sql/pull/847))
+* Fix bug of nested field format issue in JDBC response ([#846](https://github.com/opendistro-for-elasticsearch/sql/pull/846))
 * Fix symbol error and Fix SSLError when connect es. ([#831](https://github.com/opendistro-for-elasticsearch/sql/pull/831))
 * Bug fix, using Local.Root when format the string in DateTimeFunctionIT ([#794](https://github.com/opendistro-for-elasticsearch/sql/pull/794))
 
