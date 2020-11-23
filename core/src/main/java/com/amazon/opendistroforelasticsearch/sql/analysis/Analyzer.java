@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
@@ -71,6 +75,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -316,12 +321,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
         node.getSortList().stream()
             .map(
                 sortField -> {
-                  // the first options is {"asc": "true/false"}
-                  Boolean asc = (Boolean) sortField.getFieldArgs().get(0).getValue().getValue();
                   Expression expression = optimizer.optimize(
                       expressionAnalyzer.analyze(sortField.getField(), context), context);
-                  return ImmutablePair.of(
-                      asc ? SortOption.DEFAULT_ASC : SortOption.DEFAULT_DESC, expression);
+                  return ImmutablePair.of(analyzeSortOption(sortField.getFieldArgs()), expression);
                 })
             .collect(Collectors.toList());
 
@@ -377,6 +379,22 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
           .collect(Collectors.toList()));
     }
     return new LogicalValues(valueExprs);
+  }
+
+  /**
+   * The first argument is always "asc", others are optional.
+   * Given nullFirst argument, use its value. Otherwise just use DEFAULT_ASC/DESC.
+   */
+  private SortOption analyzeSortOption(List<Argument> fieldArgs) {
+    Boolean asc = (Boolean) fieldArgs.get(0).getValue().getValue();
+    Optional<Argument> nullFirst = fieldArgs.stream()
+        .filter(option -> "nullFirst".equals(option.getArgName())).findFirst();
+
+    if (nullFirst.isPresent()) {
+      Boolean isNullFirst = (Boolean) nullFirst.get().getValue().getValue();
+      return new SortOption((asc ? ASC : DESC), (isNullFirst ? NULL_FIRST : NULL_LAST));
+    }
+    return asc ? SortOption.DEFAULT_ASC : SortOption.DEFAULT_DESC;
   }
 
 }
