@@ -1,6 +1,6 @@
 {
-  "id": "opendistroQueryWorkbench",
-  "version": "7.9.1",
+  "id": "opendistroQueryWorkbenchKibana",
+  "version": "7.10.0",
   "server": true,
   "ui": true,
   "requiredPlugins": ["navigation"],

@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+env: 
+  PLUGIN_NAME: opendistroQueryWorkbenchKibana
+  OD_VERSION: 1.12.0.0
+
 jobs:
 
   build:
@@ -27,14 +31,14 @@ jobs:
         uses: actions/checkout@v1
         with:
           repository: opendistro-for-elasticsearch/kibana-oss
-          ref: 7.9.1
+          ref: 7.10.0
           token: ${{secrets.OD_ACCESS}}
           path: sql/kibana
 
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '10.22.0'
+          node-version: '10.22.1'
 
       - name: Move Workbench to Plugins Dir
         run: |
@@ -52,6 +56,7 @@ jobs:
         run: |
           cd kibana/plugins/workbench
           yarn build
+          mv ./build/*.zip ./build/${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}.zip
           artifact=`ls ./build/*.zip`
 
           aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/kibana-plugins/opendistro-query-workbench/

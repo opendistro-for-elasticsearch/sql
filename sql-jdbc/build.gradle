@@ -32,7 +32,7 @@ plugins {
 group 'com.amazon.opendistroforelasticsearch.client'
 
 // keep version in sync with version in Driver source
-version '1.11.0.0'
+version '1.12.0.0'
 
 boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
 if (snapshot) {
