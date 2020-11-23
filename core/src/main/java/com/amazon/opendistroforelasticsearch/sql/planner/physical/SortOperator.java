@@ -23,7 +23,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.utils.ExprValueOrdering;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator.Sorter.SorterBuilder;
-import com.google.common.collect.Iterators;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;

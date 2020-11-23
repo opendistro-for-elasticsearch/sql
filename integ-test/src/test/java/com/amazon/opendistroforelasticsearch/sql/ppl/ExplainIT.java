@@ -78,7 +78,7 @@ public class ExplainIT extends PPLIntegTestCase {
 
   @Test
   public void testSortPushDownExplain() throws Exception {
-    String expected = loadFromFile("expectedOutput/ppl/explain_filter_agg_push.json");
+    String expected = loadFromFile("expectedOutput/ppl/explain_sort_push.json");
 
     String actual = explainQueryToString(
         "source=elasticsearch-sql_test_index_account"

@@ -21,7 +21,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
