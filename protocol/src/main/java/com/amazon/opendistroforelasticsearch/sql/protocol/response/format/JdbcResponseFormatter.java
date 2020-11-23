@@ -27,13 +27,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Singular;
 
 /**
- * JDBC formatter that formats response exactly same way as legacy code
- * so as to avoid impact on client side.
- * The major differences include:
- *  1. Version
- *  2. Alias in schema
- *  3. Convert type name in schema
- *  3. Status
+ * JDBC formatter that formats both normal or error response exactly same way as legacy code to
+ * avoid impact on client side. The only difference is a new "version" that indicates the response
+ * was produced by new query engine.
  */
 public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
