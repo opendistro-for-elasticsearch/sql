@@ -403,6 +403,19 @@ class AstBuilderTest {
   }
 
   @Test
+  public void can_build_order_by_null_option() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("name",
+                    argument("asc", booleanLiteral(true)),
+                    argument("nullFirst", booleanLiteral(false)))),
+        alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY name NULLS LAST"));
+  }
+
+  @Test
   public void can_build_from_subquery() {
     assertEquals(
         project(
@@ -410,18 +423,18 @@ class AstBuilderTest {
                 relationSubquery(
                     project(
                         relation("test"),
-                        alias("firstname", qualifiedName("firstname"), "first"),
-                        alias("lastname", qualifiedName("lastname"), "last")
+                        alias("firstname", qualifiedName("firstname"), "firstName"),
+                        alias("lastname", qualifiedName("lastname"), "lastName")
                     ),
                     "a"
                 ),
                 function(">", qualifiedName("age"), intLiteral(20))
             ),
-            alias("a.first", qualifiedName("a", "first")),
-            alias("last", qualifiedName("last"))),
+            alias("a.firstName", qualifiedName("a", "firstName")),
+            alias("lastName", qualifiedName("lastName"))),
         buildAST(
-            "SELECT a.first, last FROM ("
-                + "SELECT firstname AS first, lastname AS last FROM test"
+            "SELECT a.firstName, lastName FROM ("
+                + "SELECT firstname AS firstName, lastname AS lastName FROM test"
                 + ") AS a where age > 20"
         )
     );

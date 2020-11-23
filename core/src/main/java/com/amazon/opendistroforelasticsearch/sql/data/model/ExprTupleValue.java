@@ -42,7 +42,11 @@ public class ExprTupleValue extends AbstractExprValue {
 
   @Override
   public Object value() {
-    return valueMap;
+    LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
+    for (Entry<String, ExprValue> entry : valueMap.entrySet()) {
+      resultMap.put(entry.getKey(), entry.getValue().value());
+    }
+    return resultMap;
   }
 
   @Override

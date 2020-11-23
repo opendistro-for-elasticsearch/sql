@@ -13,7 +13,6 @@
  * permissions and limitations under the License.
  */
 
-import "@testing-library/react/cleanup-after-each";
 import "@testing-library/jest-dom/extend-expect";
 import 'mutationobserver-shim';
 import { configure } from "@testing-library/react";
