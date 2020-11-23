@@ -17,11 +17,13 @@
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.google.common.collect.ImmutableList;
@@ -37,13 +39,17 @@ class JdbcResponseFormatterTest {
   void format_response() {
     QueryResult response = new QueryResult(
         new ExecutionEngine.Schema(ImmutableList.of(
-            new ExecutionEngine.Schema.Column("firstname", "name", STRING))),
+            new ExecutionEngine.Schema.Column("name", "name", STRING),
+            new ExecutionEngine.Schema.Column("age", "name", INTEGER))),
         ImmutableList.of(
-            tupleValue(ImmutableMap.of("firstname", "John", "age", 20))));
+            tupleValue(ImmutableMap.of("name", "John", "age", 20))));
 
     assertJsonEquals(
         "{"
-            + "\"schema\":[{\"name\":\"firstname\",\"alias\":\"name\",\"type\":\"text\"}],"
+            + "\"schema\":["
+            + "{\"name\":\"name\",\"alias\":\"name\",\"type\":\"text\"},"
+            + "{\"name\":\"age\",\"alias\":\"name\",\"type\":\"integer\"}"
+            + "],"
             + "\"datarows\":[[\"John\",20]],"
             + "\"version\":\"2.0\","
             + "\"total\":1,"
@@ -53,7 +59,7 @@ class JdbcResponseFormatterTest {
   }
 
   @Test
-  void format_client_error_response() {
+  void format_client_error_response_due_to_syntax_exception() {
     assertJsonEquals(
         "{\"error\":"
             + "{\""
@@ -63,6 +69,20 @@ class JdbcResponseFormatterTest {
             + "},"
             + "\"status\":400}",
         formatter.format(new SyntaxCheckException("Invalid query syntax"))
+    );
+  }
+
+  @Test
+  void format_client_error_response_due_to_semantic_exception() {
+    assertJsonEquals(
+        "{\"error\":"
+            + "{\""
+            + "type\":\"SemanticCheckException\","
+            + "\"reason\":\"Invalid query semantics\","
+            + "\"details\":\"Invalid query semantics\""
+            + "},"
+            + "\"status\":400}",
+        formatter.format(new SemanticCheckException("Invalid query semantics"))
     );
   }
 
