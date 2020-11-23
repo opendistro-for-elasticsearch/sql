@@ -43,11 +43,11 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   @Test
   public void testConv() throws IOException {
     JSONObject result = executeQuery("select conv(11, 10, 16)");
-    verifySchema(result, schema("conv(11, 10, 16)", null, "string"));
+    verifySchema(result, schema("conv(11, 10, 16)", null, "text"));
     verifyDataRows(result, rows("b"));
 
     result = executeQuery("select conv(11, 16, 10)");
-    verifySchema(result, schema("conv(11, 16, 10)", null, "string"));
+    verifySchema(result, schema("conv(11, 16, 10)", null, "text"));
     verifyDataRows(result, rows("17"));
   }
 

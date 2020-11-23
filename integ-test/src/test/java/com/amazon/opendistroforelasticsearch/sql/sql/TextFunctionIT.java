@@ -60,59 +60,59 @@ public class TextFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void testSubstr() throws IOException {
-    verifyQuery("substr('hello', 2)", "string", "ello");
-    verifyQuery("substr('hello', 2, 2)", "string", "el");
+    verifyQuery("substr('hello', 2)", "text", "ello");
+    verifyQuery("substr('hello', 2, 2)", "text", "el");
   }
 
   @Test
   public void testSubstring() throws IOException {
-    verifyQuery("substring('hello', 2)", "string", "ello");
-    verifyQuery("substring('hello', 2, 2)", "string", "el");
+    verifyQuery("substring('hello', 2)", "text", "ello");
+    verifyQuery("substring('hello', 2, 2)", "text", "el");
   }
 
   @Test
   public void testUpper() throws IOException {
-    verifyQuery("upper('hello')", "string", "HELLO");
-    verifyQuery("upper('HELLO')", "string", "HELLO");
+    verifyQuery("upper('hello')", "text", "HELLO");
+    verifyQuery("upper('HELLO')", "text", "HELLO");
   }
 
   @Test
   public void testLower() throws IOException {
-    verifyQuery("lower('hello')", "string", "hello");
-    verifyQuery("lower('HELLO')", "string", "hello");
+    verifyQuery("lower('hello')", "text", "hello");
+    verifyQuery("lower('HELLO')", "text", "hello");
   }
 
   @Test
   public void testTrim() throws IOException {
-    verifyQuery("trim(' hello')", "string", "hello");
-    verifyQuery("trim('hello ')", "string", "hello");
-    verifyQuery("trim('  hello  ')", "string", "hello");
+    verifyQuery("trim(' hello')", "text", "hello");
+    verifyQuery("trim('hello ')", "text", "hello");
+    verifyQuery("trim('  hello  ')", "text", "hello");
   }
 
   @Test
   public void testRtrim() throws IOException {
-    verifyQuery("rtrim(' hello')", "string", " hello");
-    verifyQuery("rtrim('hello ')", "string", "hello");
-    verifyQuery("rtrim('  hello  ')", "string", "  hello");
+    verifyQuery("rtrim(' hello')", "text", " hello");
+    verifyQuery("rtrim('hello ')", "text", "hello");
+    verifyQuery("rtrim('  hello  ')", "text", "  hello");
   }
 
   @Test
   public void testLtrim() throws IOException {
-    verifyQuery("ltrim(' hello')", "string", "hello");
-    verifyQuery("ltrim('hello ')", "string", "hello ");
-    verifyQuery("ltrim('  hello  ')", "string", "hello  ");
+    verifyQuery("ltrim(' hello')", "text", "hello");
+    verifyQuery("ltrim('hello ')", "text", "hello ");
+    verifyQuery("ltrim('  hello  ')", "text", "hello  ");
   }
 
   @Test
   public void testConcat() throws IOException {
-    verifyQuery("concat('hello', 'world')", "string", "helloworld");
-    verifyQuery("concat('', 'hello')", "string", "hello");
+    verifyQuery("concat('hello', 'world')", "text", "helloworld");
+    verifyQuery("concat('', 'hello')", "text", "hello");
   }
 
   @Test
   public void testConcat_ws() throws IOException {
-    verifyQuery("concat_ws(',', 'hello', 'world')", "string", "hello,world");
-    verifyQuery("concat_ws(',', '', 'hello')", "string", ",hello");
+    verifyQuery("concat_ws(',', 'hello', 'world')", "text", "hello,world");
+    verifyQuery("concat_ws(',', '', 'hello')", "text", ",hello");
   }
 
   @Test
