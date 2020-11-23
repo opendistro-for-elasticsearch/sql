@@ -51,7 +51,6 @@ class JdbcResponseFormatterTest {
             + "{\"name\":\"age\",\"alias\":\"name\",\"type\":\"integer\"}"
             + "],"
             + "\"datarows\":[[\"John\",20]],"
-            + "\"version\":\"2.0\","
             + "\"total\":1,"
             + "\"size\":1,"
             + "\"status\":200}",

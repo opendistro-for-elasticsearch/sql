@@ -34,14 +34,6 @@ import lombok.Singular;
  */
 public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
-  @Getter
-  @RequiredArgsConstructor
-  private enum Version {
-    V_2_0("2.0");
-
-    private final String name;
-  }
-
   public JdbcResponseFormatter(Style style) {
     super(style);
   }
@@ -50,8 +42,7 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
   protected Object buildJsonObject(QueryResult response) {
     JdbcResponse.JdbcResponseBuilder json = JdbcResponse.builder();
 
-    json.version(Version.V_2_0.getName())
-        .total(response.size())
+    json.total(response.size())
         .size(response.size())
         .status(200);
 
@@ -107,10 +98,7 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
   public static class JdbcResponse {
     @Singular("column")
     private final List<Column> schema;
-
     private final Object[][] datarows;
-
-    private final String version;
     private final long total;
     private final long size;
     private final int status;
