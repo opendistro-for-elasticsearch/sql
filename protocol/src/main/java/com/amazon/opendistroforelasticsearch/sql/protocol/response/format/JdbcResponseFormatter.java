@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
@@ -59,7 +60,7 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
             new Column(
                 col.getName(),
                 col.getAlias(),
-                convertType(col.getExprType()))));
+                convertToLegacyType(col.getExprType()))));
 
     json.datarows(fetchDataRows(response));
     return json.build();
@@ -74,12 +75,14 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
     return jsonify(new JdbcErrorResponse(error, getStatus(t)));
   }
 
-  private String convertType(ExprType type) {
-    String typeName = type.typeName();
-    if ("string".equalsIgnoreCase(typeName)) {
-      return "text";
+  private String convertToLegacyType(ExprType type) {
+    String typeName = StringUtils.toLower(type.typeName());
+    switch (typeName) {
+      case "string":
+        return "text";
+      default:
+        return typeName;
     }
-    return typeName;
   }
 
   private Object[][] fetchDataRows(QueryResult response) {
@@ -107,10 +110,10 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
     private final Object[][] datarows;
 
-    private String version;
-    private long total;
-    private long size;
-    private int status;
+    private final String version;
+    private final long total;
+    private final long size;
+    private final int status;
   }
 
   @RequiredArgsConstructor

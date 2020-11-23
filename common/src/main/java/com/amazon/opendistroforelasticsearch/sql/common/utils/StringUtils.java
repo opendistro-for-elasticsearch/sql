@@ -79,6 +79,32 @@ public class StringUtils {
     return String.format(Locale.ROOT, format, args);
   }
 
+  /**
+   * Converts all of the characters in this {@code String} to lower
+   * case using the rules of the {@link Locale#ROOT} locale. This is equivalent to calling
+   * {@link String#toLowerCase(Locale)} with {@link Locale#ROOT}.
+   *
+   * @param input the input String
+   * @return the {@code String}, converted to lowercase
+   * @see java.lang.String#toLowerCase(Locale)
+   */
+  public static String toLower(final String input) {
+    return input.toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * Converts all of the characters in this {@code String} to upper
+   * case using the rules of the {@link Locale#ROOT} locale. This is equivalent to calling
+   * {@link String#toUpperCase(Locale)} with {@link Locale#ROOT}.
+   *
+   * @param input the input String
+   * @return the {@code String}, converted to uppercase
+   * @see java.lang.String#toUpperCase(Locale)
+   */
+  public static String toUpper(final String input) {
+    return input.toUpperCase(Locale.ROOT);
+  }
+
   private static boolean isQuoted(String text, String mark) {
     return !Strings.isNullOrEmpty(text) && text.startsWith(mark) && text.endsWith(mark);
   }
