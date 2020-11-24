@@ -59,6 +59,15 @@ public class ElasticsearchDateFormatters {
           .toFormatter(Locale.ROOT)
           .withResolverStyle(ResolverStyle.STRICT);
 
+  public static final DateTimeFormatter STRICT_HOUR_MINUTE_SECOND_FORMATTER = new DateTimeFormatterBuilder()
+          .appendValue(HOUR_OF_DAY, 2, 2, SignStyle.NOT_NEGATIVE)
+          .appendLiteral(':')
+          .appendValue(MINUTE_OF_HOUR, 2, 2, SignStyle.NOT_NEGATIVE)
+          .appendLiteral(':')
+          .appendValue(SECOND_OF_MINUTE, 2, 2, SignStyle.NOT_NEGATIVE)
+          .toFormatter(Locale.ROOT)
+          .withResolverStyle(ResolverStyle.STRICT);
+
   public static final DateTimeFormatter STRICT_DATE_OPTIONAL_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
           .append(STRICT_YEAR_MONTH_DAY_FORMATTER)
@@ -89,6 +98,13 @@ public class ElasticsearchDateFormatters {
           .optionalEnd()
           .optionalEnd()
           .optionalEnd()
+          .toFormatter(Locale.ROOT)
+          .withResolverStyle(ResolverStyle.STRICT);
+
+  public static final DateTimeFormatter STRICT_DATE_FORMATTER = new DateTimeFormatterBuilder()
+          .append(STRICT_YEAR_MONTH_DAY_FORMATTER)
+          .appendLiteral(' ')
+          .append(STRICT_HOUR_MINUTE_SECOND_FORMATTER)
           .toFormatter(Locale.ROOT)
           .withResolverStyle(ResolverStyle.STRICT);
 
