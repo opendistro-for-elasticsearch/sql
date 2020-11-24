@@ -17,8 +17,12 @@
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -40,15 +44,23 @@ class JdbcResponseFormatterTest {
     QueryResult response = new QueryResult(
         new ExecutionEngine.Schema(ImmutableList.of(
             new ExecutionEngine.Schema.Column("name", "name", STRING),
-            new ExecutionEngine.Schema.Column("age", "name", INTEGER))),
+            new ExecutionEngine.Schema.Column("address1", "address1", ES_TEXT),
+            new ExecutionEngine.Schema.Column("address2", "address2", ES_TEXT_KEYWORD),
+            new ExecutionEngine.Schema.Column("location", "location", STRUCT),
+            new ExecutionEngine.Schema.Column("employer", "employer", ARRAY),
+            new ExecutionEngine.Schema.Column("age", "age", INTEGER))),
         ImmutableList.of(
             tupleValue(ImmutableMap.of("name", "John", "age", 20))));
 
     assertJsonEquals(
         "{"
             + "\"schema\":["
-            + "{\"name\":\"name\",\"alias\":\"name\",\"type\":\"text\"},"
-            + "{\"name\":\"age\",\"alias\":\"name\",\"type\":\"integer\"}"
+            + "{\"name\":\"name\",\"alias\":\"name\",\"type\":\"keyword\"},"
+            + "{\"name\":\"address1\",\"alias\":\"address1\",\"type\":\"text\"},"
+            + "{\"name\":\"address2\",\"alias\":\"address2\",\"type\":\"text\"},"
+            + "{\"name\":\"location\",\"alias\":\"location\",\"type\":\"object\"},"
+            + "{\"name\":\"employer\",\"alias\":\"employer\",\"type\":\"nested\"},"
+            + "{\"name\":\"age\",\"alias\":\"age\",\"type\":\"integer\"}"
             + "],"
             + "\"datarows\":[[\"John\",20]],"
             + "\"total\":1,"

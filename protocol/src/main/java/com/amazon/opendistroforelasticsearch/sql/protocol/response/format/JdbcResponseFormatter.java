@@ -16,6 +16,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
+
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
@@ -65,12 +71,22 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
     return jsonify(new JdbcErrorResponse(error, getStatus(t)));
   }
 
+  /**
+   * Convert type that exists in both legacy and new engine but has different name.
+   * Return old type name to avoid breaking impact on client-side.
+   */
   private String convertToLegacyType(ExprType type) {
-    String typeName = type.typeName().toLowerCase();
-    if ("string".equals(typeName)) {
+    if (type == ES_TEXT || type == ES_TEXT_KEYWORD) {
       return "text";
+    } else if (type == STRING) {
+      return "keyword";
+    } else if (type == STRUCT) {
+      return "object";
+    } else if (type == ARRAY) {
+      return "nested";
+    } else {
+      return type.typeName().toLowerCase();
     }
-    return typeName;
   }
 
   private Object[][] fetchDataRows(QueryResult response) {
