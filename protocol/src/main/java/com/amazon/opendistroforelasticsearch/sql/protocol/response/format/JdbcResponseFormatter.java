@@ -87,7 +87,7 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
   private int getStatus(Throwable t) {
     return (t instanceof SyntaxCheckException
-        || t instanceof QueryEngineException) ? 400 : 500;
+        || t instanceof QueryEngineException) ? 400 : 503;
   }
 
   /**

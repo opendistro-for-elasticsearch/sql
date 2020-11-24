@@ -94,7 +94,7 @@ class JdbcResponseFormatterTest {
             + "\"reason\":\"Execution error\","
             + "\"details\":\"Execution error\""
             + "},"
-            + "\"status\":500}",
+            + "\"status\":503}",
         formatter.format(new IllegalStateException("Execution error"))
     );
   }
