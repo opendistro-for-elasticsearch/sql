@@ -77,7 +77,7 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
     WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
 
     return new LogicalWindow(
-        new LogicalSort(child, 0, windowDefinition.getAllSortItems()),
+        new LogicalSort(child,windowDefinition.getAllSortItems()),
         windowFunction,
         windowDefinition);
   }

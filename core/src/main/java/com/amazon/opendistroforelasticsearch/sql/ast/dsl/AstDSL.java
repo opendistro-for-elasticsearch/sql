@@ -332,20 +332,16 @@ public class AstDSL {
         argument("consecutive", booleanLiteral(false)));
   }
 
-  public static List<Argument> defaultSortOptions() {
-    return exprList(argument("count", intLiteral(1000)), argument("desc", booleanLiteral(false)));
-  }
-
-  public static List<Argument> sortOptions(int count) {
-    return exprList(argument("count", intLiteral(count)), argument("desc", booleanLiteral(false)));
+  public static List<Argument> sortOptions() {
+    return exprList(argument("desc", booleanLiteral(false)));
   }
 
   public static List<Argument> defaultSortFieldArgs() {
     return exprList(argument("asc", booleanLiteral(true)), argument("type", nullLiteral()));
   }
 
-  public static Sort sort(UnresolvedPlan input, List<Argument> options, Field... sorts) {
-    return new Sort(input, options, Arrays.asList(sorts));
+  public static Sort sort(UnresolvedPlan input, Field... sorts) {
+    return new Sort(input, Arrays.asList(sorts));
   }
 
   public static Dedupe dedupe(UnresolvedPlan input, List<Argument> options, Field... fields) {

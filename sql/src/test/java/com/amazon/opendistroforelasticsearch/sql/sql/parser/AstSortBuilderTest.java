@@ -19,7 +19,6 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
@@ -90,7 +89,6 @@ class AstSortBuilderTest {
       assertEquals(
           new Sort(
               child, // has to mock and attach child otherwise Guava ImmutableList NPE in getChild()
-              ImmutableList.of(argument("count", intLiteral(0))),
               ImmutableList.of(field("name", expect))),
           sortBuilder.visitOrderByClause(orderByClause).attach(child));
     });

@@ -105,7 +105,7 @@ class LogicalPlanNodeVisitorTest {
     assertNull(eval.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    LogicalPlan sort = LogicalPlanDSL.sort(relation, 100,
+    LogicalPlan sort = LogicalPlanDSL.sort(relation,
         Pair.of(SortOption.DEFAULT_ASC, expression));
     assertNull(sort.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));

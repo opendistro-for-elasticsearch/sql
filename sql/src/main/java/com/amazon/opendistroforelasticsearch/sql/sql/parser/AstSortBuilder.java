@@ -51,7 +51,6 @@ public class AstSortBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPla
   @Override
   public UnresolvedPlan visitOrderByClause(OrderByClauseContext ctx) {
     return new Sort(
-        ImmutableList.of(new Argument("count", new Literal(0, INTEGER))),
         createSortFields()
     );
   }

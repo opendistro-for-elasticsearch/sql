@@ -16,10 +16,9 @@ Description
 
 Syntax
 ============
-sort [count] <[+|-] sort-field>...
+sort <[+|-] sort-field>...
 
 
-* count: optional. The maximum number results to return from the sorted result. if count=0, all the result will be returned. **Default:** 1000
 * [+|-]: optional. The plus [+] for ascending order and a minus [-] for descending order. **Default:** ascending order.
 * sort-field: mandatory. The field used to sort.
 
@@ -50,7 +49,7 @@ The example show sort all the document with age field in ascending order.
 
 PPL query::
 
-    od> source=accounts | sort 0 age | fields account_number, age;
+    od> source=accounts | sort age | fields account_number, age;
     fetched rows / total rows = 4/4
     +------------------+-------+
     | account_number   | age   |
@@ -80,24 +79,7 @@ PPL query::
     | 13               | 28    |
     +------------------+-------+
 
-
-Example 4: Specify the number of sorted documents to return
-============================================================
-
-The example show sort all the document and return 2 documents.
-
-PPL query::
-
-    od> source=accounts | sort 2 age | fields account_number, age;
-    fetched rows / total rows = 2/2
-    +------------------+-------+
-    | account_number   | age   |
-    |------------------+-------|
-    | 13               | 28    |
-    | 1                | 32    |
-    +------------------+-------+
-
-Example 5: Sort by multiple field
+Example 4: Sort by multiple field
 =============================
 
 The example show sort all the document with gender field in ascending order and age field in descending.
