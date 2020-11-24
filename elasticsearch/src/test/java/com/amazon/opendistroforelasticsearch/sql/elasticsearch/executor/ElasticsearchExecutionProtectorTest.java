@@ -144,13 +144,13 @@ class ElasticsearchExecutionProtectorTest {
                                             mappings),
                                         exclude),
                                     newEvalField),
-                                sortCount,
                                 sortField)),
                         CommandType.TOP,
                         topExprs,
                         topField),
                     dedupeField),
-                limit, offset),
+                limit,
+                offset),
             include),
         executionProtector.protect(
             PhysicalPlanDSL.project(
@@ -176,13 +176,13 @@ class ElasticsearchExecutionProtectorTest {
                                             mappings),
                                         exclude),
                                     newEvalField),
-                                sortCount,
                                 sortField),
                             CommandType.TOP,
                             topExprs,
                             topField),
                         dedupeField),
-                    limit, offset),
+                    limit,
+                    offset),
                 include)));
   }
 
@@ -200,7 +200,6 @@ class ElasticsearchExecutionProtectorTest {
             resourceMonitor(
                 sort(
                     values(emptyList()),
-                    0,
                     sortItem)),
             rank,
             windowDefinition),
@@ -208,7 +207,6 @@ class ElasticsearchExecutionProtectorTest {
             window(
                 sort(
                     values(emptyList()),
-                    0,
                     sortItem
                 ),
                 rank,

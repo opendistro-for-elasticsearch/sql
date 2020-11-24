@@ -127,7 +127,6 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
     return new ResourceMonitorPlan(
         new SortOperator(
             visitInput(node.getInput(), context),
-            node.getCount(),
             node.getSortList()),
         resourceMonitor);
   }

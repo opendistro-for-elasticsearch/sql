@@ -41,6 +41,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
 
 /**
  * Elasticsearch index scan operator.
@@ -103,6 +104,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   public void pushDown(QueryBuilder query) {
     SearchSourceBuilder source = request.getSourceBuilder();
     QueryBuilder current = source.query();
+
     if (current == null) {
       source.query(query);
     } else {
@@ -128,6 +130,18 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     SearchSourceBuilder source = request.getSourceBuilder();
     aggregationBuilderList.forEach(aggregationBuilder -> source.aggregation(aggregationBuilder));
     source.size(0);
+  }
+
+  /**
+   * Push down sort to DSL request.
+   *
+   * @param sortBuilders sortBuilders.
+   */
+  public void pushDownSort(List<SortBuilder<?>> sortBuilders) {
+    SearchSourceBuilder source = request.getSourceBuilder();
+    for (SortBuilder<?> sortBuilder : sortBuilders) {
+      source.sort(sortBuilder);
+    }
   }
 
   public void pushTypeMapping(Map<String, ExprType> typeMapping) {
