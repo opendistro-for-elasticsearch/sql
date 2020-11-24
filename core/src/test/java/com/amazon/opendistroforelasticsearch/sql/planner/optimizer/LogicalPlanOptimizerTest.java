@@ -18,15 +18,20 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.optimizer;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.sort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.AnalyzerTestBase;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -55,6 +60,60 @@ class LogicalPlanOptimizerTest extends AnalyzerTestBase {
                     dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1)))
                 ),
                 dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(2)))
+            )
+        )
+    );
+  }
+
+  /**
+   * Filter - Sort --> Sort - Filter.
+   */
+  @Test
+  void push_filter_under_sort() {
+    assertEquals(
+        sort(
+            filter(
+                relation("schema"),
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+            ),
+            Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+        ),
+        optimize(
+            filter(
+                sort(
+                    relation("schema"),
+                    Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+                ),
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+            )
+        )
+    );
+  }
+
+  /**
+   * Filter - Sort --> Sort - Filter.
+   */
+  @Test
+  void multiple_filter_should_eventually_be_merged() {
+    assertEquals(
+        sort(
+            filter(
+                relation("schema"),
+                dsl.and(dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1))),
+                    dsl.less(DSL.ref("longV", INTEGER), DSL.literal(longValue(1L))))
+            ),
+            Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+        ),
+        optimize(
+            filter(
+                sort(
+                    filter(
+                        relation("schema"),
+                        dsl.less(DSL.ref("longV", INTEGER), DSL.literal(longValue(1L)))
+                    ),
+                    Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+                ),
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
             )
         )
     );

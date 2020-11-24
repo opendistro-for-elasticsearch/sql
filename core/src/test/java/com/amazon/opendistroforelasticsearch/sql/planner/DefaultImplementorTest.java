@@ -119,7 +119,6 @@ class DefaultImplementorTest {
                                         mappings),
                                     exclude),
                                 newEvalField),
-                            sortCount,
                             sortField),
                         CommandType.TOP,
                         topByExprs,
@@ -150,7 +149,6 @@ class DefaultImplementorTest {
                                         mappings),
                                     exclude),
                                 newEvalField),
-                            sortCount,
                             sortField),
                         CommandType.TOP,
                         topByExprs,
@@ -192,7 +190,6 @@ class DefaultImplementorTest {
             window(
                 sort(
                     values(),
-                    0,
                     sortList),
                 windowFunction,
                 windowDefinition),
@@ -203,7 +200,6 @@ class DefaultImplementorTest {
             PhysicalPlanDSL.window(
                 PhysicalPlanDSL.sort(
                     PhysicalPlanDSL.values(),
-                    0,
                     sortList),
                 windowFunction,
                 windowDefinition),

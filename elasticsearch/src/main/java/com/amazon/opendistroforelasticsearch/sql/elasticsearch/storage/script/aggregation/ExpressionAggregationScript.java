@@ -53,7 +53,7 @@ public class ExpressionAggregationScript extends AggregationScript {
 
   @Override
   public Object execute() {
-    return expressionScript.execute(this::getDoc, this::evaluateExpression);
+    return expressionScript.execute(this::getDoc, this::evaluateExpression).value();
   }
 
   private ExprValue evaluateExpression(Expression expression, Environment<Expression,

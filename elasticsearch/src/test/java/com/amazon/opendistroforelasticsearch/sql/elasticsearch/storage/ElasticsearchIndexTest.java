@@ -190,7 +190,6 @@ class ElasticsearchIndexTest {
                                 mappings),
                             exclude),
                         newEvalField),
-                    sortCount,
                     sortField),
                 dedupeField),
             include);
@@ -208,7 +207,6 @@ class ElasticsearchIndexTest {
                                 mappings),
                             exclude),
                         newEvalField),
-                    sortCount,
                     sortField),
                 dedupeField),
             include),
@@ -320,5 +318,27 @@ class ElasticsearchIndexTest {
             aggregators,
             groupByExprs));
     assertTrue(plan instanceof AggregationOperator);
+  }
+
+  @Test
+  void shouldImplIndexScanWithSort() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+    Expression sortExpr = ref("name", STRING);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName,
+                Pair.of(Sort.SortOption.DEFAULT_ASC, sortExpr)
+            ),
+            named));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
   }
 }

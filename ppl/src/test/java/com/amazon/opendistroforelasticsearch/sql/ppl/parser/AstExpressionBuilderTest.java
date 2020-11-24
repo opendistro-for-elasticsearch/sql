@@ -24,7 +24,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.equalTo;
@@ -40,7 +39,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
@@ -216,7 +214,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     assertEqual("source=t | sort + f",
         sort(
             relation("t"),
-            defaultSortOptions(),
             field("f", defaultSortFieldArgs())
         ));
   }
@@ -226,7 +223,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     assertEqual("source=t | sort - f",
         sort(
             relation("t"),
-            defaultSortOptions(),
             field(
                 "f",
                 argument("asc", booleanLiteral(false)),
@@ -240,7 +236,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     assertEqual("source=t | sort auto(f)",
         sort(
             relation("t"),
-            defaultSortOptions(),
             field(
                 "f",
                 argument("asc", booleanLiteral(true)),
@@ -254,7 +249,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     assertEqual("source=t | sort ip(f)",
         sort(
             relation("t"),
-            defaultSortOptions(),
             field(
                 "f",
                 argument("asc", booleanLiteral(true)),
@@ -268,7 +262,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     assertEqual("source=t | sort num(f)",
         sort(
             relation("t"),
-            defaultSortOptions(),
             field(
                 "f",
                 argument("asc", booleanLiteral(true)),
@@ -282,7 +275,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     assertEqual("source=t | sort str(f)",
         sort(
             relation("t"),
-            defaultSortOptions(),
             field(
                 "f",
                 argument("asc", booleanLiteral(true)),

@@ -125,23 +125,6 @@ public class ArgumentFactory {
   /**
    * Get list of {@link Argument}.
    *
-   * @param ctx SortCommandContext instance
-   * @return the list of arguments fetched from the sort command
-   */
-  public static List<Argument> getArgumentList(SortCommandContext ctx) {
-    return Arrays.asList(
-        ctx.count != null
-            ? new Argument("count", getArgumentValue(ctx.count))
-            : new Argument("count", new Literal(1000, DataType.INTEGER)),
-        ctx.D() != null || ctx.DESC() != null
-            ? new Argument("desc", new Literal(true, DataType.BOOLEAN))
-            : new Argument("desc", new Literal(false, DataType.BOOLEAN))
-    );
-  }
-
-  /**
-   * Get list of {@link Argument}.
-   *
    * @param ctx SortFieldContext instance
    * @return the list of arguments fetched from the sort field in sort command
    */

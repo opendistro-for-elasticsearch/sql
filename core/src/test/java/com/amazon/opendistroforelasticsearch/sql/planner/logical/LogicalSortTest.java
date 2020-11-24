@@ -18,13 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 
@@ -48,12 +46,10 @@ class LogicalSortTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.sort(
             LogicalPlanDSL.relation("schema"),
-            1000,
             ImmutablePair.of(SortOption.DEFAULT_ASC, DSL.ref("integer_value", INTEGER)),
             ImmutablePair.of(SortOption.DEFAULT_ASC, DSL.ref("double_value", DOUBLE))),
         sort(
             relation("schema"),
-            defaultSortOptions(),
             field("integer_value", defaultSortFieldArgs()),
             field("double_value", defaultSortFieldArgs())));
   }
@@ -63,12 +59,10 @@ class LogicalSortTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.sort(
             LogicalPlanDSL.relation("schema"),
-            100,
             ImmutablePair.of(SortOption.DEFAULT_DESC, DSL.ref("integer_value", INTEGER)),
             ImmutablePair.of(SortOption.DEFAULT_ASC, DSL.ref("double_value", DOUBLE))),
         sort(
             relation("schema"),
-            sortOptions(100),
             field(
                 "integer_value",
                 exprList(argument("asc", booleanLiteral(false)), argument("type", nullLiteral()))),
