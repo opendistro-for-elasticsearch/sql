@@ -219,7 +219,7 @@ public class QuerySpecification {
       if (ctx == null) {
         return null;
       }
-      return SortOrder.valueOf(ctx.getText());
+      return SortOrder.valueOf(ctx.getText().toUpperCase());
     }
 
     private NullOrder visitNullOrderClause(TerminalNode first, TerminalNode last) {

@@ -416,6 +416,29 @@ class AstBuilderTest {
   }
 
   @Test
+  public void can_build_order_by_sort_order_keyword_insensitive() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("age",
+                    argument("asc", booleanLiteral(true)))),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT age FROM test ORDER BY age ASC")
+    );
+
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("age",
+                    argument("asc", booleanLiteral(true)))),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT age FROM test ORDER BY age asc")
+    );
+  }
+
+  @Test
   public void can_build_from_subquery() {
     assertEquals(
         project(
