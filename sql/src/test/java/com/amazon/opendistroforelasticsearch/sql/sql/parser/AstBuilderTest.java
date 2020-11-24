@@ -471,7 +471,6 @@ class AstBuilderTest {
             limit(
                 sort(
                     relation("test"),
-                    ImmutableList.of(argument("count", intLiteral(0))),
                     field("age", argument("asc", booleanLiteral(true)))
                 ),
                 10,

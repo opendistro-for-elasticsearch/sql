@@ -290,6 +290,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     assertContainsData(getDataRows(response), fields);
   }
 
+  @Ignore("Skip this test due to inconsistency in total hits")
   @Test
   public void testSizeAndTotal() throws IOException {
     JSONObject response = executeQuery(

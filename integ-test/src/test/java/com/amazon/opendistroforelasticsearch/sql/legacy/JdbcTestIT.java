@@ -65,6 +65,8 @@ public class JdbcTestIT extends SQLIntegTestCase {
         equalTo("17-08-2014"));
   }
 
+  @Ignore("Skip this test because sort functions is limited to index size in new engine "
+      + "before script sorting is pushed down")
   public void testDivisionInQuery() {
     JSONObject response = executeJdbcRequest(
         "SELECT all_client/10 from elasticsearch-sql_test_index_online ORDER BY all_client/10 desc limit 1");
