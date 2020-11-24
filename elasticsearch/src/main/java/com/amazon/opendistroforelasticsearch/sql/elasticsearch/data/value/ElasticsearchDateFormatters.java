@@ -59,7 +59,8 @@ public class ElasticsearchDateFormatters {
           .toFormatter(Locale.ROOT)
           .withResolverStyle(ResolverStyle.STRICT);
 
-  public static final DateTimeFormatter STRICT_HOUR_MINUTE_SECOND_FORMATTER = new DateTimeFormatterBuilder()
+  public static final DateTimeFormatter STRICT_HOUR_MINUTE_SECOND_FORMATTER =
+          new DateTimeFormatterBuilder()
           .appendValue(HOUR_OF_DAY, 2, 2, SignStyle.NOT_NEGATIVE)
           .appendLiteral(':')
           .appendValue(MINUTE_OF_HOUR, 2, 2, SignStyle.NOT_NEGATIVE)
