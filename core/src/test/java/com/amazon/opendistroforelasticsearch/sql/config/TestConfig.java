@@ -70,7 +70,7 @@ public class TestConfig {
   protected StorageEngine storageEngine() {
     return new StorageEngine() {
       @Override
-      public Table getTable(String name) {
+      public Table getTable(String name, Integer size) {
         return new Table() {
           @Override
           public Map<String, ExprType> getFieldTypes() {

@@ -20,3 +20,11 @@ SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPr
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE ABS(AvgTicketPrice * -2) > 1000
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE 'JetBeat_'
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE '%Air%'
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 0
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10 OFFSET 5
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10 OFFSET 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 1000 OFFSET 100
+SELECT abs(AvgTicketPrice) FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10, 10
+SELECT AvgTicketPrice - 1 FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10, 10

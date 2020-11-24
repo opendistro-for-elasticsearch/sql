@@ -26,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
@@ -445,6 +446,51 @@ class AstBuilderTest {
                 + ") AS a where age > 20"
         )
     );
+  }
+
+  @Test
+  public void can_build_limit_clause() {
+    assertEquals(
+        project(
+            limit(
+                sort(
+                    relation("test"),
+                    ImmutableList.of(argument("count", intLiteral(0))),
+                    field("age", argument("asc", booleanLiteral(true)))
+                ),
+                10,
+                0
+            ),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))
+        ),
+        buildAST("SELECT name, age FROM test ORDER BY age LIMIT 10")
+    );
+  }
+
+  @Test
+  public void can_build_limit_clause_with_offset() {
+    assertEquals(
+        project(
+            limit(
+                relation("test"),
+                10,
+                5
+            ),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test LIMIT 10 OFFSET 5"));
+
+    assertEquals(
+        project(
+            limit(
+                relation("test"),
+                10,
+                5
+            ),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test LIMIT 5, 10"));
   }
 
   private UnresolvedPlan buildAST(String query) {

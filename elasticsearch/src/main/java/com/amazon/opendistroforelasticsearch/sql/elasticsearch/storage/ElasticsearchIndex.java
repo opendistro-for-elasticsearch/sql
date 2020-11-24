@@ -82,6 +82,8 @@ public class ElasticsearchIndex implements Table {
   /** Current Elasticsearch index name. */
   private final String indexName;
 
+  private final Integer size;
+
   /*
    * TODO: Assume indexName doesn't have wildcard.
    *  Need to either handle field name conflicts
@@ -102,7 +104,7 @@ public class ElasticsearchIndex implements Table {
    */
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
-    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, settings, indexName,
+    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, settings, indexName, size,
         new ElasticsearchExprValueFactory(getFieldTypes()));
 
     /*

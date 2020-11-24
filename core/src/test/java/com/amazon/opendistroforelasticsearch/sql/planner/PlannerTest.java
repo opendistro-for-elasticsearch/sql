@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
@@ -36,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanTestBase;
@@ -65,7 +67,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
 
   @BeforeEach
   public void setUp() {
-    when(storageEngine.getTable(any())).thenReturn(new MockTable());
+    when(storageEngine.getTable(any(), any())).thenReturn(new MockTable());
   }
 
   @Test
@@ -93,6 +95,21 @@ public class PlannerTest extends PhysicalPlanTestBase {
                 ImmutableList.of()
             ),
             ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))
+        )
+    );
+  }
+
+  @Test
+  public void plan_a_query_with_limit() {
+    doAnswer(returnsFirstArg()).when(optimizer).optimize(any());
+    assertPhysicalPlan(
+        PhysicalPlanDSL.rename(
+            PhysicalPlanDSL.limit(scan, 1, 1),
+            ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("response", INTEGER))),
+        LogicalPlanDSL.rename(
+            LogicalPlanDSL.limit(
+                LogicalPlanDSL.relation("schema"), 1, 1),
+            ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("response", INTEGER))
         )
     );
   }
@@ -159,6 +176,12 @@ public class PlannerTest extends PhysicalPlanTestBase {
     public PhysicalPlan visitRename(LogicalRename plan, Object context) {
       return new RenameOperator(plan.getChild().get(0).accept(this, context),
           plan.getRenameMap());
+    }
+
+    @Override
+    public PhysicalPlan visitLimit(LogicalLimit plan, Object context) {
+      return new LimitOperator(plan.getChild().get(0).accept(this, context),
+          plan.getLimit(), plan.getOffset());
     }
   }
 }

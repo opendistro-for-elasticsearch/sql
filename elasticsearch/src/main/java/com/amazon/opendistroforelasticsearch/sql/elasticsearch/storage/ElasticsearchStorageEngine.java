@@ -32,7 +32,7 @@ public class ElasticsearchStorageEngine implements StorageEngine {
   private final Settings settings;
 
   @Override
-  public Table getTable(String name) {
-    return new ElasticsearchIndex(client, settings, name);
+  public Table getTable(String name, Integer size) {
+    return new ElasticsearchIndex(client, settings, name, size);
   }
 }

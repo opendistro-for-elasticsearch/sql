@@ -23,5 +23,5 @@ public interface StorageEngine {
   /**
    * Get {@link Table} from storage engine.
    */
-  Table getTable(String name);
+  Table getTable(String name, Integer size);
 }

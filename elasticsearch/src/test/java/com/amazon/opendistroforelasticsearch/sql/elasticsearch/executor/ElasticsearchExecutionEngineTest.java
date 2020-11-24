@@ -136,7 +136,7 @@ class ElasticsearchExecutionEngineTest {
     Settings settings = mock(Settings.class);
     when(settings.getSettingValue(QUERY_SIZE_LIMIT)).thenReturn(100);
     PhysicalPlan plan = new ElasticsearchIndexScan(mock(ElasticsearchClient.class),
-        settings, "test", mock(ElasticsearchExprValueFactory.class));
+        settings, "test", 200, mock(ElasticsearchExprValueFactory.class));
 
     AtomicReference<ExplainResponse> result = new AtomicReference<>();
     executor.explain(plan, new ResponseListener<ExplainResponse>() {

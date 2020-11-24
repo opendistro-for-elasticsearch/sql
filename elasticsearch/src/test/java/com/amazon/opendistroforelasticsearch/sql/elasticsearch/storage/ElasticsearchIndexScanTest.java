@@ -71,7 +71,7 @@ class ElasticsearchIndexScanTest {
   void queryEmptyResult() {
     mockResponse();
     try (ElasticsearchIndexScan indexScan =
-             new ElasticsearchIndexScan(client, settings, "test", exprValueFactory)) {
+             new ElasticsearchIndexScan(client, settings, "test", 200, exprValueFactory)) {
       indexScan.open();
       assertFalse(indexScan.hasNext());
     }
@@ -85,7 +85,7 @@ class ElasticsearchIndexScanTest {
         new ExprValue[]{employee(3, "Allen", "IT")});
 
     try (ElasticsearchIndexScan indexScan =
-             new ElasticsearchIndexScan(client, settings, "employees", exprValueFactory)) {
+             new ElasticsearchIndexScan(client, settings, "employees", 200, exprValueFactory)) {
       indexScan.open();
 
       assertTrue(indexScan.hasNext());
@@ -98,6 +98,29 @@ class ElasticsearchIndexScanTest {
       assertEquals(employee(3, "Allen", "IT"), indexScan.next());
 
       assertFalse(indexScan.hasNext());
+    }
+    verify(client).cleanup(any());
+  }
+
+  @Test
+  void querySizeShouldBeDefaultSettingWhenHavingSmallLimitInQuery() {
+    mockResponse();
+    try (ElasticsearchIndexScan indexScan =
+             new ElasticsearchIndexScan(client, settings, "test", 10, exprValueFactory)) {
+      indexScan.open();
+      assertEquals(indexScan.getRequest().getSourceBuilder().size(), 200);
+    }
+    verify(client).cleanup(any());
+
+  }
+
+  @Test
+  void querySizeShouldAdaptToLimitInQueryWhenHavingLargerLimitInQuery() {
+    mockResponse();
+    try (ElasticsearchIndexScan indexScan =
+             new ElasticsearchIndexScan(client, settings, "test", 1000, exprValueFactory)) {
+      indexScan.open();
+      assertEquals(indexScan.getRequest().getSourceBuilder().size(), 1000);
     }
     verify(client).cleanup(any());
   }
@@ -134,7 +157,7 @@ class ElasticsearchIndexScanTest {
                              ElasticsearchExprValueFactory valueFactory,
                              Settings settings) {
       this.client = client;
-      this.indexScan = new ElasticsearchIndexScan(client, settings, "test", valueFactory);
+      this.indexScan = new ElasticsearchIndexScan(client, settings, "test", 200, valueFactory);
       this.response = mock(ElasticsearchResponse.class);
       this.factory = valueFactory;
       when(response.isEmpty()).thenReturn(true);
