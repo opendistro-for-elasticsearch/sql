@@ -17,7 +17,6 @@
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
-import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
@@ -67,13 +66,11 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
   }
 
   private String convertToLegacyType(ExprType type) {
-    String typeName = StringUtils.toLower(type.typeName());
-    switch (typeName) {
-      case "string":
-        return "text";
-      default:
-        return typeName;
+    String typeName = type.typeName().toLowerCase();
+    if ("string".equals(typeName)) {
+      return "text";
     }
+    return typeName;
   }
 
   private Object[][] fetchDataRows(QueryResult response) {
