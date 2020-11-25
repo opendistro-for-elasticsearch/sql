@@ -110,6 +110,27 @@ class SimpleJsonResponseFormatterTest {
   }
 
   @Test
+  void formatResponseWithTupleValue() {
+    QueryResult response =
+        new QueryResult(
+            schema,
+            Arrays.asList(
+                tupleValue(ImmutableMap
+                    .of("name", "Smith",
+                        "address", ImmutableMap.of("state", "WA", "street",
+                            ImmutableMap.of("city", "seattle"))))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+
+    assertEquals(
+        "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},"
+            + "{\"name\":\"age\",\"type\":\"integer\"}],"
+            + "\"datarows\":[[\"Smith\",{\"state\":\"WA\",\"street\":{\"city\":\"seattle\"}}]],"
+            + "\"total\":1,\"size\":1}",
+        formatter.format(response));
+  }
+
+
+  @Test
   void formatError() {
     SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
     assertEquals(

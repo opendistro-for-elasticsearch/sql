@@ -28,6 +28,7 @@ gen/
 # various IDE files
 .vscode
 .idea
+.history
 
 # git mergetool artifact
 *.orig

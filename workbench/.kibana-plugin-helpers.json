@@ -1,6 +1,5 @@
 {
-  "styleSheetToCompile": "public/app.scss",
-  "buildSourcePatterns": [
+  "serverSourcePatterns": [
     "package.json",
     "tsconfig.json",
     "yarn.lock",

@@ -99,8 +99,8 @@ public class PPLQueryDataAnonymizerTest {
   //todo, sort order is ignored, it doesn't impact the log analysis.
   @Test
   public void testSortCommandWithOptions() {
-    assertEquals("source=t | sort 100 f1,f2",
-        anonymize("source=t | sort 100 - f1, + f2"));
+    assertEquals("source=t | sort f1,f2",
+        anonymize("source=t | sort - f1, + f2"));
   }
 
   @Test

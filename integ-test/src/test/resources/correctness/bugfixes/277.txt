@@ -2,7 +2,6 @@ SELECT COUNT(FlightNum) FROM kibana_sample_data_flights GROUP BY FlightDelay ORD
 SELECT COUNT(FlightNum) AS cnt FROM kibana_sample_data_flights GROUP BY FlightDelay ORDER BY cnt
 SELECT COUNT(FlightNum) FROM kibana_sample_data_flights GROUP BY FlightDelay ORDER BY 1
 SELECT OriginWeather, AVG(FlightTimeMin) FROM kibana_sample_data_flights GROUP BY OriginWeather ORDER BY AVG(FlightTimeMin)
-SELECT OriginWeather, AVG(FlightTimeMin) FROM kibana_sample_data_flights GROUP BY OriginWeather ORDER BY SUM(FlightDelayMin)
 SELECT OriginWeather, AVG(FlightTimeMin), SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginWeather ORDER BY AVG(FlightTimeMin), SUM(FlightDelayMin)
 SELECT OriginWeather, AVG(FlightTimeMin), SUM(FlightDelayMin) AS s FROM kibana_sample_data_flights GROUP BY OriginWeather ORDER BY AVG(FlightTimeMin), s
 SELECT OriginWeather, AVG(FlightTimeMin) AS a, SUM(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY OriginWeather ORDER BY a, SUM(FlightDelayMin)

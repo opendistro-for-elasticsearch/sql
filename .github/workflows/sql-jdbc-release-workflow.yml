@@ -3,13 +3,13 @@ name: Build and Release SQL-JDBC
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   Release-SQL-JDBC:
     strategy:
       matrix:
-        java: [10]
+        java: [14]
 
     name: Build and Release JDBC Plugin
     runs-on: ubuntu-latest
@@ -20,19 +20,19 @@ jobs:
     steps:
       - name: Checkout SQL-JDBC
         uses: actions/checkout@v1
-      
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-        
+
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
-      
+
       - name: Run build
         run: |
           ./gradlew publishShadowPublicationToInternal-releasesRepository '-Dorg.gradle.jvmargs=--add-modules java.xml.bind' -Dbuild.snapshot=false

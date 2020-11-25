@@ -28,6 +28,9 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
@@ -44,7 +47,9 @@ import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
  * Query specification domain that collects basic info for a simple query.
@@ -92,7 +97,7 @@ public class QuerySpecification {
    * Items in ORDER BY clause that may be different forms as above and its options.
    */
   private final List<UnresolvedExpression> orderByItems = new ArrayList<>();
-  private final List<String> orderByOptions = new ArrayList<>();
+  private final List<SortOption> orderByOptions = new ArrayList<>();
 
   /**
    * Collect all query information in the parse tree excluding info in sub-query).
@@ -210,7 +215,10 @@ public class QuerySpecification {
     @Override
     public Void visitOrderByElement(OrderByElementContext ctx) {
       orderByItems.add(visitAstExpression(ctx.expression()));
-      orderByOptions.add((ctx.order == null) ? "ASC" : ctx.order.getText());
+      orderByOptions.add(
+          new SortOption(
+              visitSortOrder(ctx.order),
+              visitNullOrderClause(ctx.FIRST(), ctx.LAST())));
       return super.visitOrderByElement(ctx);
     }
 
@@ -222,6 +230,23 @@ public class QuerySpecification {
 
     private boolean isDistinct(SelectSpecContext ctx) {
       return (ctx != null) && "DISTINCT".equalsIgnoreCase(ctx.getText());
+    }
+
+    private SortOrder visitSortOrder(Token ctx) {
+      if (ctx == null) {
+        return null;
+      }
+      return SortOrder.valueOf(ctx.getText().toUpperCase());
+    }
+
+    private NullOrder visitNullOrderClause(TerminalNode first, TerminalNode last) {
+      if (first != null) {
+        return NullOrder.NULL_FIRST;
+      } else if (last != null) {
+        return NullOrder.NULL_LAST;
+      } else {
+        return null;
+      }
     }
 
     private UnresolvedExpression visitAstExpression(ParseTree tree) {

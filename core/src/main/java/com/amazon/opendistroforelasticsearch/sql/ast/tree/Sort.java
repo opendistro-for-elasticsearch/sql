@@ -21,7 +21,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -42,7 +41,6 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Sort extends UnresolvedPlan {
   private UnresolvedPlan child;
-  private final List<Argument> options;
   private final List<Field> sortList;
 
   @Override

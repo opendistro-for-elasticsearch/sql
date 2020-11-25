@@ -76,6 +76,23 @@ public class ExplainIT extends PPLIntegTestCase {
     );
   }
 
+  @Test
+  public void testSortPushDownExplain() throws Exception {
+    String expected = loadFromFile("expectedOutput/ppl/explain_sort_push.json");
+
+    String actual = explainQueryToString(
+        "source=elasticsearch-sql_test_index_account"
+            + "| sort age "
+            + "| where age > 30");
+    assertJsonEquals(
+        expected,
+        explainQueryToString(
+            "source=elasticsearch-sql_test_index_account"
+                + "| sort age "
+                + "| where age > 30")
+    );
+  }
+
   String loadFromFile(String filename) throws Exception {
     URI uri = Resources.getResource(filename).toURI();
     return new String(Files.readAllBytes(Paths.get(uri)));
