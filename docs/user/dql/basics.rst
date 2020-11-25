@@ -996,7 +996,7 @@ LIMIT
 Description
 -----------
 
-Mostly specifying maximum number of documents returned is necessary to prevent fetching large amount of data into memory. `LIMIT` clause is helpful in this case.
+Mostly specifying maximum number of documents returned is necessary to prevent fetching large amount of data into memory. `LIMIT` clause is helpful in this case. Basically the limit is set to the query planning, so different LIMIT and OFFSET might end up unpredictable subset in the results. Thus it is suggested to use order by to sort the results in query with limit keyword to enforce a fixed ordering in the result set.
 
 Example 1: Limiting Result Size
 -------------------------------
@@ -1086,5 +1086,17 @@ Result set:
 +==============+
 |             6|
 +--------------+
+
+
+Offset position can be given following the OFFSET keyword as well, here is an example::
+
+    >od SELECT age FROM accounts ORDER BY age LIMIT 2 OFFSET 1
+    fetched rows / total rows = 2/2
+    +-------+
+    | age   |
+    |-------|
+    | 32    |
+    | 33    |
+    +-------+
 
 
