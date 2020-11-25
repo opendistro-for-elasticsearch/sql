@@ -83,7 +83,7 @@ The Filter operator should be push down under Sort operator::
 Elasticsearch Specific Optimization
 ===================================
 
-The Elasticsearch (Query DSL)[https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html] and (Aggregation)[https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html] also enabling the storage engine specific optimization.
+The Elasticsearch `Query DSL <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html>`_ and `Aggregation <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html>`_ also enabling the storage engine specific optimization.
 
 Filter Merge Into Query DSL
 ---------------------------
