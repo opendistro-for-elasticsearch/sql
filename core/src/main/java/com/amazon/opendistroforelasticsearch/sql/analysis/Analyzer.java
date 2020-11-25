@@ -116,7 +116,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   public LogicalPlan visitRelation(Relation node, AnalysisContext context) {
     context.push();
     TypeEnvironment curEnv = context.peek();
-    Table table = storageEngine.getTable(node.getTableName(), 0);
+    Table table = storageEngine.getTable(node.getTableName());
     table.getFieldTypes().forEach((k, v) -> curEnv.define(new Symbol(Namespace.FIELD_NAME, k), v));
 
     // Put index name or its alias in index namespace on type environment so qualifier

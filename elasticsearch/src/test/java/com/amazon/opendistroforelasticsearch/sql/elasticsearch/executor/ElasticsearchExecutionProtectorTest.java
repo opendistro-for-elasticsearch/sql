@@ -133,8 +133,7 @@ class ElasticsearchExecutionProtectorTest {
                                                     filter(
                                                         resourceMonitor(
                                                             new ElasticsearchIndexScan(
-                                                                client, settings, indexName, size,
-                                                                exprValueFactory)),
+                                                                client, settings, indexName, exprValueFactory)),
                                                         filterExpr),
                                                     keepLast,
                                                     whileExpr,
@@ -165,7 +164,7 @@ class ElasticsearchExecutionProtectorTest {
                                                 PhysicalPlanDSL.head(
                                                     filter(
                                                         new ElasticsearchIndexScan(
-                                                            client, settings, indexName, size,
+                                                            client, settings, indexName,
                                                             exprValueFactory),
                                                         filterExpr),
                                                     keepLast,

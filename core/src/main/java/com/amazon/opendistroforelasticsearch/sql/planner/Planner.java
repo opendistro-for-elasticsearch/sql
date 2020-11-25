@@ -56,8 +56,7 @@ public class Planner {
       return plan.accept(new DefaultImplementor<>(), null);
     }
 
-    Integer size = tableScanSize(plan);
-    Table table = storageEngine.getTable(tableName, size);
+    Table table = storageEngine.getTable(tableName);
     return table.implement(
         table.optimize(optimize(plan)));
   }
@@ -77,25 +76,6 @@ public class Planner {
       @Override
       public String visitRelation(LogicalRelation node, Object context) {
         return node.getRelationName();
-      }
-    }, null);
-  }
-
-  private Integer tableScanSize(LogicalPlan plan) {
-    return plan.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
-      @Override
-      public Integer visitNode(LogicalPlan node, Object context) {
-        if (node.getChild().isEmpty()) {
-          return 0;
-        }
-        return node.getChild().get(0).accept(this, context);
-      }
-
-      @Override
-      public Integer visitLimit(LogicalLimit node, Object context) {
-        // At least (limit + offset) amount of rows should be fetched
-        // from the standpoint of logical planning
-        return node.getLimit() + node.getOffset();
       }
     }, null);
   }

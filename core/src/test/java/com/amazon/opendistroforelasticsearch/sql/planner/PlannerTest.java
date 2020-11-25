@@ -67,7 +67,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
 
   @BeforeEach
   public void setUp() {
-    when(storageEngine.getTable(any(), any())).thenReturn(new MockTable());
+    when(storageEngine.getTable(any())).thenReturn(new MockTable());
   }
 
   @Test

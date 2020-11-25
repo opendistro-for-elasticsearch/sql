@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.MergeFilterAndFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.PushFilterUnderSort;
+import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule.PushLimitUnderSort;
 import com.facebook.presto.matching.Match;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +53,8 @@ public class LogicalPlanOptimizer {
   public static LogicalPlanOptimizer create(DSL dsl) {
     return new LogicalPlanOptimizer(Arrays.asList(
         new MergeFilterAndFilter(dsl),
-        new PushFilterUnderSort()));
+        new PushFilterUnderSort(),
+        new PushLimitUnderSort()));
   }
 
   /**

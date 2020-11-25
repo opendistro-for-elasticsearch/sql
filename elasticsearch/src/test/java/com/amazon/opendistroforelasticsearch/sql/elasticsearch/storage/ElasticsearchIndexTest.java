@@ -112,7 +112,7 @@ class ElasticsearchIndexTest {
                         .put("blob", "binary")
                         .build())));
 
-    Table index = new ElasticsearchIndex(client, settings, "test", 200);
+    Table index = new ElasticsearchIndex(client, settings, "test");
     Map<String, ExprType> fieldTypes = index.getFieldTypes();
     assertThat(
         fieldTypes,
@@ -140,9 +140,9 @@ class ElasticsearchIndexTest {
 
     String indexName = "test";
     LogicalPlan plan = relation(indexName);
-    Table index = new ElasticsearchIndex(client, settings, indexName, 200);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
     assertEquals(
-        new ElasticsearchIndexScan(client, settings, indexName, 200, exprValueFactory),
+        new ElasticsearchIndexScan(client, settings, indexName, exprValueFactory),
         index.implement(plan));
   }
 
@@ -152,9 +152,9 @@ class ElasticsearchIndexTest {
 
     String indexName = "test";
     LogicalPlan plan = relation(indexName);
-    Table index = new ElasticsearchIndex(client, settings, indexName, 200);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
     assertEquals(
-        new ElasticsearchIndexScan(client, settings, indexName, 200, exprValueFactory),
+        new ElasticsearchIndexScan(client, settings, indexName, exprValueFactory),
         index.implement(index.optimize(plan)));
   }
 
@@ -194,7 +194,7 @@ class ElasticsearchIndexTest {
                 dedupeField),
             include);
 
-    Table index = new ElasticsearchIndex(client, settings, indexName, 200);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
     assertEquals(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
@@ -202,8 +202,7 @@ class ElasticsearchIndexTest {
                     PhysicalPlanDSL.eval(
                         PhysicalPlanDSL.remove(
                             PhysicalPlanDSL.rename(
-                                new ElasticsearchIndexScan(client, settings, indexName, 200,
-                                    exprValueFactory),
+                                new ElasticsearchIndexScan(client, settings, indexName, exprValueFactory),
                                 mappings),
                             exclude),
                         newEvalField),
@@ -222,7 +221,7 @@ class ElasticsearchIndexTest {
     Expression filterExpr = dsl.equal(field, literal("John"));
 
     String indexName = "test";
-    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName, 200);
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
     PhysicalPlan plan = index.implement(
         project(
             indexScan(
@@ -247,7 +246,7 @@ class ElasticsearchIndexTest {
             DOUBLE)));
 
     String indexName = "test";
-    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName, 200);
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
     PhysicalPlan plan = index.implement(
         filter(
             aggregation(
@@ -272,7 +271,7 @@ class ElasticsearchIndexTest {
             DOUBLE)));
 
     String indexName = "test";
-    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName, 200);
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
 
     // IndexScanAgg without Filter
     PhysicalPlan plan = index.implement(
@@ -308,7 +307,7 @@ class ElasticsearchIndexTest {
             DOUBLE)));
 
     String indexName = "test";
-    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName, 200);
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
 
     PhysicalPlan plan = index.implement(
         aggregation(
@@ -329,7 +328,7 @@ class ElasticsearchIndexTest {
     Expression sortExpr = ref("name", STRING);
 
     String indexName = "test";
-    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName, 200);
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
     PhysicalPlan plan = index.implement(
         project(
             indexScan(
