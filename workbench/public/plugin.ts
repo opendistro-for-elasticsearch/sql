@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-import { AppMountParameters, CoreSetup, CoreStart, DEFAULT_APP_CATEGORIES, Plugin } from '../../../src/core/public';
+import { AppMountParameters, CoreSetup, CoreStart, Plugin } from '../../../src/core/public';
 import { WorkbenchPluginSetup, WorkbenchPluginStart, AppPluginStartDependencies } from './types';
 import { PLUGIN_NAME } from '../common';
 
