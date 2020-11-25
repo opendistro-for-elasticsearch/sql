@@ -48,7 +48,6 @@ public class ExplainIT extends PPLIntegTestCase {
                 + "| dedup age2 "
                 + "| fields age2")
     );
-    Arrays.asList().stream().limit()
   }
 
   @Test
