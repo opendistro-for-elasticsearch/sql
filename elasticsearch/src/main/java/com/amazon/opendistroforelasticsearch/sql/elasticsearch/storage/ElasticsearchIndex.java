@@ -161,6 +161,10 @@ public class ElasticsearchIndex implements Table {
         QueryBuilder query = queryBuilder.build(node.getFilter());
         context.pushDown(query);
       }
+
+      if (node.getSize() != null) {
+        context.pushDownSize(node.getSize(), node.getOffset());
+      }
       return indexScan;
     }
 
