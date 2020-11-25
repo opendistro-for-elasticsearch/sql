@@ -112,7 +112,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
 
   @Override
   public PhysicalPlan visitSort(LogicalSort node, C context) {
-    return new SortOperator(visitChild(node, context), node.getCount(), node.getSortList());
+    return new SortOperator(visitChild(node, context), node.getSortList());
   }
 
   @Override

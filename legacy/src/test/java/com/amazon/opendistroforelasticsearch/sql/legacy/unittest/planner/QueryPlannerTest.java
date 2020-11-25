@@ -23,6 +23,7 @@ import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.legacy.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.legacy.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.legacy.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings;
@@ -140,6 +141,8 @@ public abstract class QueryPlannerTest {
 
         returnMockResponse(SCROLL_ID1, response1);
         returnMockResponse(SCROLL_ID2, response2);
+
+        Metrics.getInstance().registerDefaultMetrics();
     }
 
     private void returnMockResponse(String scrollId, SearchResponse response) {

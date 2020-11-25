@@ -21,22 +21,23 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScan;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScanAgg;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.sort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
-import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -155,27 +156,81 @@ class ElasticsearchLogicOptimizerTest {
     );
   }
 
+  /**
+   * Sort - Relation --> IndexScan.
+   */
+  @Test
+  void sort_merge_with_relation() {
+    assertEquals(
+        indexScan("schema", Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("intV", INTEGER))),
+        optimize(
+            sort(
+                relation("schema"),
+                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("intV", INTEGER))
+            )
+        )
+    );
+  }
+
+  /**
+   * Sort - IndexScan --> IndexScan.
+   */
+  @Test
+  void sort_merge_with_indexScan() {
+    assertEquals(
+        indexScan("schema",
+            Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("intV", INTEGER)),
+            Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))),
+        optimize(
+            sort(
+                indexScan("schema", Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("intV", INTEGER))),
+                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+            )
+        )
+    );
+  }
+
+  /**
+   * Sort - Filter - Relation --> IndexScan.
+   */
+  @Test
+  void sort_filter_merge_with_relation() {
+    assertEquals(
+        indexScan("schema",
+            dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1))),
+            Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+        ),
+        optimize(
+            sort(
+                filter(
+                    relation("schema"),
+                    dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+                ),
+                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+            )
+        )
+    );
+  }
+
+  @Test
+  void sort_with_expression_cannot_merge_with_relation() {
+    assertEquals(
+        sort(
+            relation("schema"),
+            Pair.of(Sort.SortOption.DEFAULT_ASC, dsl.abs(DSL.ref("intV", INTEGER)))
+        ),
+        optimize(
+            sort(
+                relation("schema"),
+                Pair.of(Sort.SortOption.DEFAULT_ASC, dsl.abs(DSL.ref("intV", INTEGER)))
+            )
+        )
+    );
+  }
+
   private LogicalPlan optimize(LogicalPlan plan) {
     final LogicalPlanOptimizer optimizer = ElasticsearchLogicalPlanOptimizerFactory.create();
     final LogicalPlan optimize = optimizer.optimize(plan);
     return optimize;
-  }
-
-  public static LogicalPlan indexScan(String tableName, Expression filter) {
-    return ElasticsearchLogicalIndexScan.builder().relationName(tableName).filter(filter).build();
-  }
-
-  public static LogicalPlan indexScanAgg(String tableName, List<NamedAggregator> aggregators,
-                                         List<NamedExpression> groupByList) {
-    return ElasticsearchLogicalIndexAgg.builder().relationName(tableName)
-        .aggregatorList(aggregators).groupByList(groupByList).build();
-  }
-
-  public static LogicalPlan indexScanAgg(String tableName,
-                                         Expression filter,
-                                         List<NamedAggregator> aggregators,
-                                         List<NamedExpression> groupByList) {
-    return ElasticsearchLogicalIndexAgg.builder().relationName(tableName).filter(filter)
-        .aggregatorList(aggregators).groupByList(groupByList).build();
   }
 }

@@ -26,7 +26,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDe
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultHeadArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
@@ -43,7 +42,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
@@ -331,7 +329,6 @@ public class AstBuilderTest {
     assertEqual("source=t | sort f1, f2",
         sort(
             relation("t"),
-            defaultSortOptions(),
             field("f1", defaultSortFieldArgs()),
             field("f2", defaultSortFieldArgs())
         ));
@@ -339,10 +336,9 @@ public class AstBuilderTest {
 
   @Test
   public void testSortCommandWithOptions() {
-    assertEqual("source=t | sort 100 - f1, + f2",
+    assertEqual("source=t | sort - f1, + f2",
         sort(
             relation("t"),
-            sortOptions(100),
             field("f1", exprList(argument("asc", booleanLiteral(false)),
                 argument("type", nullLiteral()))),
             field("f2", defaultSortFieldArgs())

@@ -127,7 +127,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(eval.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.DEFAULT_ASC, ref));
+    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, Pair.of(SortOption.DEFAULT_ASC, ref));
     assertNull(sort.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

@@ -1,12 +1,12 @@
 {
   "name": "opendistro-query-workbench",
-  "version": "1.11.0.0",
+  "version": "1.12.0.0",
   "description": "Query Workbench",
   "main": "index.js",
   "license": "Apache-2.0",
   "homepage": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench",
   "kibana": {
-    "version": "7.9.1",
+    "version": "7.10.0",
     "templateVersion": "6.3.3"
   },
   "repository": {
@@ -14,77 +14,39 @@
     "url": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench"
   },
   "scripts": {
-    "preinstall": "node ../../preinstall_check",
     "kbn": "node ../../scripts/kbn",
     "lint": "tslint .",
     "start": "plugin-helpers start",
     "test:server": "plugin-helpers test:server",
     "test:browser": "plugin-helpers test:browser",
     "test:jest": "NODE_PATH=../../node_modules ../../node_modules/.bin/jest --config ./test/jest.config.js",
-    "build": "plugin-helpers build"
+    "build": "yarn plugin_helpers build",
+    "plugin_helpers": "node ../../scripts/plugin_helpers"
   },
   "dependencies": {
     "brace": "0.11.1",
-    "css-loader": "^5.0.1",
-    "lodash": "^4.17.19",
-    "react-dom": "^16.3.0",
-    "react-double-scrollbar": "^0.0.15",
-    "style-loader": "^2.0.0"
+    "react-double-scrollbar": "^0.0.15"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.7.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
-    "@babel/plugin-transform-runtime": "^7.8.3",
-    "@babel/preset-env": "^7.7.6",
-    "@babel/preset-react": "^7.7.4",
-    "@babel/preset-typescript": "^7.3.3",
-    "@elastic/elasticsearch": "^7.2.0",
-    "@elastic/eslint-config-kibana": "link:../../packages/eslint-config-kibana",
     "@elastic/eslint-import-resolver-kibana": "link:../../packages/kbn-eslint-import-resolver-kibana",
-    "@elastic/eui": "^28.4.0",
-    "@kbn/expect": "link:../../packages/kbn-expect",
-    "@kbn/i18n": "link:../../packages/kbn-i18n",
-    "@kbn/plugin-helpers": "link:../../packages/kbn-plugin-helpers",
-    "@kbn/ui-framework": "link:../../packages/kbn-ui-framework",
-    "@testing-library/jest-dom": "^5.5.0",
-    "@testing-library/react": "^10.0.3",
-    "@testing-library/user-event": "^4.1.0",
-    "@types/angular": "1.6.50",
     "@types/hapi-latest": "npm:@types/hapi@18.0.3",
-    "@types/jest": "^25.2.1",
-    "@types/lodash": "^4.14.150",
-    "@types/node": "^13.13.4",
-    "@types/react": "^16.3.14",
-    "@types/react-dom": "^16.0.5",
     "@types/react-router-dom": "^5.1.5",
-    "babel-eslint": "^10.1.0",
-    "cypress": "^4.9.0",
+    "cypress": "^5.0.0",
     "eslint": "^6.8.0",
-    "eslint-plugin-babel": "^5.2.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jest": "^23.8.2",
-    "eslint-plugin-jsx-a11y": "^6.1.2",
-    "eslint-plugin-mocha": "^6.3.0",
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
-    "eslint-plugin-react": "^7.11.1",
     "husky": "^4.2.5",
-    "jest": "^25.5.0",
-    "jest-cli": "^25.5.0",
     "jest-raw-loader": "^1.0.1",
     "lint-staged": "^10.2.0",
     "mutationobserver-shim": "^0.3.3",
-    "prettier": "^2.0.5",
     "ts-jest": "^25.4.0",
-    "ts-loader": "^7.0.1",
     "ts-node": "^8.9.1",
     "tslint": "^6.1.2",
     "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "3.0.3"
+    "tslint-plugin-prettier": "^2.0.1"
   },
   "engines": {
-    "node": "10.22.0",
+    "node": "10.22.1",
     "yarn": "^1.21.1"
   },
   "resolutions": {

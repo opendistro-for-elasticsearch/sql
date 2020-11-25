@@ -20,6 +20,8 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeAggAndIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeAggAndRelation;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeFilterAndRelation;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeSortAndIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeSortAndRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import java.util.Arrays;
 import lombok.experimental.UtilityClass;
@@ -37,6 +39,8 @@ public class ElasticsearchLogicalPlanOptimizerFactory {
     return new LogicalPlanOptimizer(Arrays.asList(
         new MergeFilterAndRelation(),
         new MergeAggAndIndexScan(),
-        new MergeAggAndRelation()));
+        new MergeAggAndRelation(),
+        new MergeSortAndRelation(),
+        new MergeSortAndIndexScan()));
   }
 }

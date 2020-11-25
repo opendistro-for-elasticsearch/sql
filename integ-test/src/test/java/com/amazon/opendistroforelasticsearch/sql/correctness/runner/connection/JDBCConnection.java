@@ -158,10 +158,19 @@ public class JDBCConnection implements DBConnection {
 
   private String getValueList(Object[] fieldValues) {
     return Arrays.stream(fieldValues).
-        map(String::valueOf).
-        map(val -> val.replace(SINGLE_QUOTE, DOUBLE_QUOTE)).
-        map(val -> SINGLE_QUOTE + val + SINGLE_QUOTE).
+        map(this::convertValueObjectToString).
         collect(joining(","));
+  }
+
+  private String convertValueObjectToString(Object value) {
+    if (value == null) {
+      return "NULL";
+    }
+
+    String str = String.valueOf(value);
+    str = str.replace(SINGLE_QUOTE, DOUBLE_QUOTE);
+    str = SINGLE_QUOTE + str + SINGLE_QUOTE;
+    return str;
   }
 
   private void populateMetaData(ResultSet resultSet, DBResult result) throws SQLException {
@@ -181,7 +190,8 @@ public class JDBCConnection implements DBConnection {
     while (resultSet.next()) {
       Row row = new Row();
       for (int i = 1; i <= result.columnSize(); i++) {
-        row.add(resultSet.getObject(i));
+        Object value = resultSet.getObject(i);
+        row.add(resultSet.wasNull() ? null : value);
       }
       result.addRow(row);
     }

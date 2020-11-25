@@ -50,7 +50,7 @@ class ExpressionFilterScript extends FilterScript {
 
   @Override
   public boolean execute() {
-    return (Boolean) expressionScript.execute(this::getDoc, this::evaluateExpression);
+    return expressionScript.execute(this::getDoc, this::evaluateExpression).booleanValue();
   }
 
   private ExprValue evaluateExpression(Expression expression,

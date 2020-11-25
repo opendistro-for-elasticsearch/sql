@@ -139,7 +139,6 @@ class ElasticsearchExecutionProtectorTest {
                                     mappings),
                                 exclude),
                             newEvalField),
-                        sortCount,
                         sortField)),
                     CommandType.TOP,
                     topExprs,
@@ -169,7 +168,6 @@ class ElasticsearchExecutionProtectorTest {
                                         mappings),
                                     exclude),
                                 newEvalField),
-                            sortCount,
                             sortField),
                         CommandType.TOP,
                         topExprs,
@@ -192,7 +190,6 @@ class ElasticsearchExecutionProtectorTest {
             resourceMonitor(
                 sort(
                     values(emptyList()),
-                    0,
                     sortItem)),
             rank,
             windowDefinition),
@@ -200,7 +197,6 @@ class ElasticsearchExecutionProtectorTest {
             window(
                 sort(
                     values(emptyList()),
-                    0,
                     sortItem
                 ),
                 rank,

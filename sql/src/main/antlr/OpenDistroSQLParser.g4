@@ -113,9 +113,8 @@ orderByClause
     ;
 
 orderByElement
-    : expression order=(ASC | DESC)?
+    : expression order=(ASC | DESC)? (NULLS (FIRST | LAST))?
     ;
-
 
 //  Window Function's Details
 windowFunction
