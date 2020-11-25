@@ -162,7 +162,7 @@ public class ElasticsearchIndex implements Table {
         context.pushDown(query);
       }
 
-      if (null != node.getSize()) {
+      if (node.getSize() != null) {
         context.pushDownSize(node.getSize(), node.getOffset());
       }
       return indexScan;
