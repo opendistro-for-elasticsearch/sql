@@ -64,4 +64,4 @@ The query start with search command and then flowing a set of command delimited 
 
 * **Optimization**
 
-  - `Optimization <../../optimization/optimization.rst>`_
+  - `Optimization <../../user/optimization/optimization.rst>`_
