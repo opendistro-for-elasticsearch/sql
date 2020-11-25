@@ -257,6 +257,34 @@ class ElasticsearchLogicOptimizerTest {
     );
   }
 
+  /**
+   * SELECT avg(intV) FROM schema GROUP BY stringV ORDER BY stringV.
+   */
+  @Test
+  void sort_merge_indexagg_nulls_last() {
+    assertEquals(
+        project(
+            indexScanAgg("schema",
+                ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING))),
+                ImmutableList
+                    .of(Pair.of(Sort.SortOption.DEFAULT_DESC, DSL.ref("stringV", STRING)))),
+            DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE))),
+        optimize(
+            project(
+                sort(
+                    aggregation(
+                        relation("schema"),
+                        ImmutableList
+                            .of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                        ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+                    Pair.of(Sort.SortOption.DEFAULT_DESC, DSL.ref("stringV", STRING))
+                ),
+                DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE)))
+        )
+    );
+  }
+
 
   /**
    * Can't Optimize the following query.

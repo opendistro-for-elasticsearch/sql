@@ -46,8 +46,8 @@ public class OptimizationRuleUtils {
    */
   public static boolean sortByDefaultOptionOnly(LogicalSort logicalSort) {
     return logicalSort.getSortList().stream()
-        .map(sort -> sort.getLeft() == Sort.SortOption.DEFAULT_ASC
-            || sort.getLeft() == Sort.SortOption.DEFAULT_DESC)
+        .map(sort -> Sort.SortOption.DEFAULT_ASC.equals(sort.getLeft())
+            || Sort.SortOption.DEFAULT_DESC.equals(sort.getLeft()))
         .reduce(true, Boolean::logicalAnd);
   }
 }
