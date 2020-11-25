@@ -73,6 +73,16 @@ public class Utils {
   /**
    * Build ElasticsearchLogicalIndexAgg.
    */
+  public static LogicalPlan indexScanAgg(String tableName, List<NamedAggregator> aggregators,
+                                         List<NamedExpression> groupByList,
+                                         List<Pair<Sort.SortOption, Expression>> sortList) {
+    return ElasticsearchLogicalIndexAgg.builder().relationName(tableName)
+        .aggregatorList(aggregators).groupByList(groupByList).sortList(sortList).build();
+  }
+
+  /**
+   * Build ElasticsearchLogicalIndexAgg.
+   */
   public static LogicalPlan indexScanAgg(String tableName,
                                          Expression filter,
                                          List<NamedAggregator> aggregators,
