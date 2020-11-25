@@ -46,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -169,11 +170,14 @@ class ElasticsearchExprValueFactoryTest {
         new ExprTimestampValue("2015-01-01 12:10:30"),
         tupleValue("{\"dateV\":\"2015-01-01T12:10:30\"}").get("dateV"));
     assertEquals(
-            new ExprTimestampValue("2015-01-01 12:10:30"),
-            tupleValue("{\"dateV\":\"2015-01-01 12:10:30\"}").get("dateV"));
+        new ExprTimestampValue("2015-01-01 12:10:30"),
+        tupleValue("{\"dateV\":\"2015-01-01 12:10:30\"}").get("dateV"));
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         tupleValue("{\"dateV\":1420070400001}").get("dateV"));
+    assertEquals(
+        new ExprTimeValue("19:36:22"),
+        tupleValue("{\"dateV\":\"19:36:22\"}").get("dateV"));
 
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),

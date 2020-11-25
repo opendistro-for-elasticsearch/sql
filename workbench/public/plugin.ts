@@ -23,8 +23,13 @@ export class WorkbenchPlugin implements Plugin<WorkbenchPluginSetup, WorkbenchPl
     core.application.register({
       id: 'opendistro-query-workbench',
       title: PLUGIN_NAME,
-      category: DEFAULT_APP_CATEGORIES.kibana,
-      order: 8010,
+      category: {
+        id: 'odfe',
+        label: 'Open Distro for Elasticsearch',
+        euiIconType: 'logoKibana',
+        order: 2000,
+      },
+      order: 1000,
       async mount(params: AppMountParameters) {
         // Load application bundle
         const { renderApp } = await import('./application');
