@@ -23,12 +23,13 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
+import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Schema;
+import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Schema.Column;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
-import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -42,13 +43,13 @@ class JdbcResponseFormatterTest {
   @Test
   void format_response() {
     QueryResult response = new QueryResult(
-        new ExecutionEngine.Schema(ImmutableList.of(
-            new ExecutionEngine.Schema.Column("name", "name", STRING),
-            new ExecutionEngine.Schema.Column("address1", "address1", ES_TEXT),
-            new ExecutionEngine.Schema.Column("address2", "address2", ES_TEXT_KEYWORD),
-            new ExecutionEngine.Schema.Column("location", "location", STRUCT),
-            new ExecutionEngine.Schema.Column("employer", "employer", ARRAY),
-            new ExecutionEngine.Schema.Column("age", "age", INTEGER))),
+        new Schema(ImmutableList.of(
+            new Column("name", "name", STRING),
+            new Column("address1", "address1", ES_TEXT),
+            new Column("address2", "address2", ES_TEXT_KEYWORD),
+            new Column("location", "location", STRUCT),
+            new Column("employer", "employer", ARRAY),
+            new Column("age", "age", INTEGER))),
         ImmutableList.of(
             tupleValue(ImmutableMap.of("name", "John", "age", 20))));
 
