@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Schema;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import java.util.List;
 import lombok.Builder;
@@ -47,18 +48,15 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
   protected Object buildJsonObject(QueryResult response) {
     JdbcResponse.JdbcResponseBuilder json = JdbcResponse.builder();
 
+    // Fetch schema and data rows
+    response.getSchema().getColumns().forEach(col -> json.column(fetchColumn(col)));
+    json.datarows(fetchDataRows(response));
+
+    // Populate other fields
     json.total(response.size())
         .size(response.size())
         .status(200);
 
-    response.getSchema().getColumns().forEach(col ->
-        json.column(
-            new Column(
-                col.getName(),
-                col.getAlias(),
-                convertToLegacyType(col.getExprType()))));
-
-    json.datarows(fetchDataRows(response));
     return json.build();
   }
 
@@ -69,6 +67,10 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
         t.getMessage(),
         t.getMessage());
     return jsonify(new JdbcErrorResponse(error, getStatus(t)));
+  }
+
+  private Column fetchColumn(Schema.Column col) {
+    return new Column(col.getName(), col.getAlias(), convertToLegacyType(col.getExprType()));
   }
 
   /**
