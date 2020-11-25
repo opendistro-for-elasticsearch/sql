@@ -269,14 +269,14 @@ class ElasticsearchLogicOptimizerTest {
             indexScanAgg("schema",
                 ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
                 ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
-            Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("AVG(intV)", INTEGER))
+            Pair.of(Sort.SortOption.DEFAULT_DESC, DSL.ref("AVG(intV)", INTEGER))
         ),
         optimize(
             sort(
                 indexScanAgg("schema",
                     ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
                     ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
-                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("AVG(intV)", INTEGER))
+                Pair.of(Sort.SortOption.DEFAULT_DESC, DSL.ref("AVG(intV)", INTEGER))
             )
         )
     );
