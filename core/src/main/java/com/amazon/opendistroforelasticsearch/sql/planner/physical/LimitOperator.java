@@ -17,9 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,27 +31,28 @@ public class LimitOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final Integer limit;
   private final Integer offset;
-  private Iterator<ExprValue> iterator;
+  private Integer count = 0;
 
   @Override
   public void open() {
     super.open();
 
-    List<ExprValue> results = new LinkedList<>();
-    while (input.hasNext()) {
-      results.add(input.next());
+    // skip the leading rows of offset size
+    while (input.hasNext() && count < offset) {
+      count++;
+      input.next();
     }
-    iterator = Iterators.limit(offset(results.iterator(), offset), limit);
   }
 
   @Override
   public boolean hasNext() {
-    return iterator.hasNext();
+    return input.hasNext() && count < offset + limit;
   }
 
   @Override
   public ExprValue next() {
-    return iterator.next();
+    count++;
+    return input.next();
   }
 
   @Override
@@ -65,17 +63,6 @@ public class LimitOperator extends PhysicalPlan {
   @Override
   public List<PhysicalPlan> getChild() {
     return ImmutableList.of(input);
-  }
-
-  /**
-   * Util method to skip first rows of an {offset} amount from the starting of the result set.
-   */
-  private Iterator<ExprValue> offset(Iterator<ExprValue> iterator, Integer offset) {
-    if (offset > 0 && iterator.hasNext()) {
-      iterator.next();
-      return offset(iterator, offset - 1);
-    }
-    return iterator;
   }
 
 }
