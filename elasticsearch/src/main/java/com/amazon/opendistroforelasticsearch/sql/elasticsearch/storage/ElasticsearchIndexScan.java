@@ -144,6 +144,14 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     }
   }
 
+  /**
+   * Push down size and from (offset) to DSL request.
+   */
+  public void pushDownSize(Integer size, Integer offset) {
+    SearchSourceBuilder sourceBuilder = request.getSourceBuilder();
+    sourceBuilder.from(offset).size(size);
+  }
+
   public void pushTypeMapping(Map<String, ExprType> typeMapping) {
     request.getExprValueFactory().setTypeMapping(typeMapping);
   }
