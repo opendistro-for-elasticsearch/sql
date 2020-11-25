@@ -312,4 +312,4 @@ At the moment there is no optimization to merge similar sort operators to avoid 
 
 Sort Push Down
 --------------
-Without sort push down optimization, the sort operator will sort the result from child operator. By default, only 200 docs will extracted from the source index, you can change this value by using `size_limit setting https://github.com/penghuo/sql/blob/sort-aggregation-push-down/docs/experiment/ppl/admin/settings.rst#opendistro-query-size-limit`_.
+Without sort push down optimization, the sort operator will sort the result from child operator. By default, only 200 docs will extracted from the source index, `you can change this value by using size_limit setting <https://github.com/penghuo/sql/blob/sort-aggregation-push-down/docs/experiment/ppl/admin/settings.rst#opendistro-query-size-limit>`_.
