@@ -52,7 +52,7 @@ public class MergeLimitAndRelation implements Rule<LogicalLimit> {
     return ElasticsearchLogicalIndexScan.builder()
         .relationName(relation.getRelationName())
         .offset(plan.getOffset())
-        .size(plan.getLimit())
+        .limit(plan.getLimit())
         .build();
   }
 }

@@ -54,7 +54,7 @@ public class MergeLimitAndIndexScan implements Rule<LogicalLimit> {
     builder.relationName(indexScan.getRelationName())
         .filter(indexScan.getFilter())
         .offset(plan.getOffset())
-        .size(plan.getLimit());
+        .limit(plan.getLimit());
     if (indexScan.getSortList() != null) {
       builder.sortList(indexScan.getSortList());
     }

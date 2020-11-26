@@ -133,7 +133,8 @@ class ElasticsearchExecutionProtectorTest {
                                                     filter(
                                                         resourceMonitor(
                                                             new ElasticsearchIndexScan(
-                                                                client, settings, indexName, exprValueFactory)),
+                                                                client, settings, indexName,
+                                                                exprValueFactory)),
                                                         filterExpr),
                                                     keepLast,
                                                     whileExpr,

@@ -48,7 +48,7 @@ public class AnalyzerTestBase {
   protected StorageEngine storageEngine() {
     return new StorageEngine() {
       @Override
-      public Table getTable(String name, Integer size) {
+      public Table getTable(String name) {
         return new Table() {
           @Override
           public Map<String, ExprType> getFieldTypes() {

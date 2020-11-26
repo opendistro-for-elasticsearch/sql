@@ -64,10 +64,10 @@ public class Utils {
   /**
    * Build ElasticsearchLogicalIndexScan.
    */
-  public static LogicalPlan indexScan(String tableName, Integer offset, Integer size) {
+  public static LogicalPlan indexScan(String tableName, Integer offset, Integer limit) {
     return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
         .offset(offset)
-        .size(size)
+        .limit(limit)
         .build();
   }
 
@@ -76,11 +76,11 @@ public class Utils {
    */
   public static LogicalPlan indexScan(String tableName,
                                       Expression filter,
-                                      Integer offset, Integer size) {
+                                      Integer offset, Integer limit) {
     return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
         .filter(filter)
         .offset(offset)
-        .size(size)
+        .limit(limit)
         .build();
   }
 
@@ -89,13 +89,13 @@ public class Utils {
    */
   public static LogicalPlan indexScan(String tableName,
                                       Expression filter,
-                                      Integer offset, Integer size,
+                                      Integer offset, Integer limit,
                                       Pair<Sort.SortOption, Expression>... sorts) {
     return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
         .filter(filter)
         .sortList(Arrays.asList(sorts))
         .offset(offset)
-        .size(size)
+        .limit(limit)
         .build();
   }
 

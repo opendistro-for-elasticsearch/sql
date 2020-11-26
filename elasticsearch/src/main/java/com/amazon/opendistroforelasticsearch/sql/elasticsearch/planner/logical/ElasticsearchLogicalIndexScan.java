@@ -66,7 +66,7 @@ public class ElasticsearchLogicalIndexScan extends LogicalPlan {
   private Integer offset;
 
   @Setter
-  private Integer size;
+  private Integer limit;
 
   /**
    * ElasticsearchLogicalIndexScan Constructor.
@@ -77,14 +77,14 @@ public class ElasticsearchLogicalIndexScan extends LogicalPlan {
       Expression filter,
       List<NamedExpression> projectList,
       List<Pair<Sort.SortOption, Expression>> sortList,
-      Integer offset, Integer size) {
+      Integer offset, Integer limit) {
     super(ImmutableList.of());
     this.relationName = relationName;
     this.filter = filter;
     this.projectList = projectList;
     this.sortList = sortList;
     this.offset = offset;
-    this.size = size;
+    this.limit = limit;
   }
 
   @Override
