@@ -47,6 +47,8 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAct
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
+
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -64,6 +66,7 @@ import javax.management.remote.JMXServiceURL;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
+import org.elasticsearch.common.settings.Setting;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.AfterClass;
@@ -85,6 +88,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     }
 
     enableNewQueryEngine();
+    setDefaultQuerySizeLimit();
     init();
   }
 
@@ -148,6 +152,12 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     if (isEnabled) {
       com.amazon.opendistroforelasticsearch.sql.util.TestUtils.enableNewQueryEngine(client());
     }
+  }
+
+  private void setDefaultQuerySizeLimit() throws IOException {
+    Integer limit = Integer.parseInt(System.getProperty("defaultQuerySizeLimit", "false"));
+    updateClusterSettings(
+        new ClusterSetting("transient", Settings.Key.QUERY_SIZE_LIMIT.getKeyValue(), limit.toString()));
   }
 
   protected static void wipeAllClusterSettings() throws IOException {
