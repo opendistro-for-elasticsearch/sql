@@ -155,7 +155,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   }
 
   /**
-   * Push down size and from (offset) to DSL request.
+   * Push down size (limit) and from (offset) to DSL request.
    */
   public void pushDownLimit(Integer limit, Integer offset) {
     SearchSourceBuilder sourceBuilder = request.getSourceBuilder();

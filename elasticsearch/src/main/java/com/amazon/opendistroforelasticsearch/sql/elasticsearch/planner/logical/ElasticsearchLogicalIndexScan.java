@@ -77,14 +77,14 @@ public class ElasticsearchLogicalIndexScan extends LogicalPlan {
       Expression filter,
       List<NamedExpression> projectList,
       List<Pair<Sort.SortOption, Expression>> sortList,
-      Integer offset, Integer limit) {
+      Integer limit, Integer offset) {
     super(ImmutableList.of());
     this.relationName = relationName;
     this.filter = filter;
     this.projectList = projectList;
     this.sortList = sortList;
-    this.offset = offset;
     this.limit = limit;
+    this.offset = offset;
   }
 
   @Override

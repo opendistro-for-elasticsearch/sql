@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.planner;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;

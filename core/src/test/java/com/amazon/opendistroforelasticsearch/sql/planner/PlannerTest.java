@@ -100,21 +100,6 @@ public class PlannerTest extends PhysicalPlanTestBase {
   }
 
   @Test
-  public void plan_a_query_with_limit() {
-    doAnswer(returnsFirstArg()).when(optimizer).optimize(any());
-    assertPhysicalPlan(
-        PhysicalPlanDSL.rename(
-            PhysicalPlanDSL.limit(scan, 1, 1),
-            ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("response", INTEGER))),
-        LogicalPlanDSL.rename(
-            LogicalPlanDSL.limit(
-                LogicalPlanDSL.relation("schema"), 1, 1),
-            ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("response", INTEGER))
-        )
-    );
-  }
-
-  @Test
   public void plan_a_query_without_relation_involved() {
     // Storage engine mock is not needed here since no relation involved.
     Mockito.reset(storageEngine);
@@ -176,12 +161,6 @@ public class PlannerTest extends PhysicalPlanTestBase {
     public PhysicalPlan visitRename(LogicalRename plan, Object context) {
       return new RenameOperator(plan.getChild().get(0).accept(this, context),
           plan.getRenameMap());
-    }
-
-    @Override
-    public PhysicalPlan visitLimit(LogicalLimit plan, Object context) {
-      return new LimitOperator(plan.getChild().get(0).accept(this, context),
-          plan.getLimit(), plan.getOffset());
     }
   }
 }

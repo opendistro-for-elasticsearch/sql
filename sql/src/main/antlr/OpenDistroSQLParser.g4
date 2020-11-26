@@ -119,7 +119,7 @@ orderByElement
 
 limitClause
     : LIMIT (offset=decimalLiteral COMMA)? limit=decimalLiteral
-    | LIMIT limit=decimalLiteral (OFFSET offset=decimalLiteral)?
+    | LIMIT limit=decimalLiteral OFFSET offset=decimalLiteral
     ;
 
 //  Window Function's Details
