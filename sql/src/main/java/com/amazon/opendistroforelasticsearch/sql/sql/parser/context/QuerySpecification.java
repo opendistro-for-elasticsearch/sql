@@ -229,7 +229,7 @@ public class QuerySpecification {
     }
 
     private boolean isDistinct(SelectSpecContext ctx) {
-      return (ctx != null) && "DISTINCT".equalsIgnoreCase(ctx.getText());
+      return (ctx != null) && (ctx.DISTINCT() != null);
     }
 
     private SortOrder visitSortOrder(Token ctx) {
