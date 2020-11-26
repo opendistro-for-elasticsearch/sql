@@ -996,7 +996,7 @@ LIMIT
 Description
 -----------
 
-Mostly specifying maximum number of documents returned is necessary to prevent fetching large amount of data into memory. `LIMIT` clause is helpful in this case. Basically the limit is set to the query planning, so different LIMIT and OFFSET might end up unpredictable subset in the results. Thus it is suggested to use order by to sort the results in query with limit keyword to enforce a fixed ordering in the result set.
+Mostly specifying maximum number of documents returned is necessary to prevent fetching large amount of data into memory. `LIMIT` clause is helpful in this case. Basically the limit is set to the query planning, so different LIMIT and OFFSET might end up unpredictable subset in the results. Thus it is suggested to use order by to sort the results in query with limit keyword to enforce a fixed ordering in the result set. Generally, sort plan is pushed down into the Elasticsearch DSL in plan optimization, but it is worth noting that if a query has complex sorting, like sort expression, which is not pushed down during optimization (see `Optimizations <../optimization/optimization.rst>`_ for details), and also if the sum of limit value and offset value exceeds the default size limit set in the plugin setting (200 by default) in the meanwhile, the engine will attempt to scan the index of the size {limit + offset} to ensure the result window size is equal to the limit value (assuming the index size is large enough). In this case, the sort might differ based on the limit and offset value the query has specified.
 
 Example 1: Limiting Result Size
 -------------------------------
