@@ -129,6 +129,24 @@ class SimpleJsonResponseFormatterTest {
         formatter.format(response));
   }
 
+  @Test
+  void formatResponseWithArrayValue() {
+    QueryResult response =
+        new QueryResult(
+            schema,
+            Arrays.asList(
+                tupleValue(ImmutableMap
+                    .of("name", "Smith",
+                        "address", Arrays.asList(
+                            ImmutableMap.of("state", "WA"), ImmutableMap.of("state", "NYC")
+                        )))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+    assertEquals(
+        "[{\"name\":\"firstname\",\"type\":\"string\"},"
+            + "{\"name\":\"age\",\"type\":\"integer\"}],"
+            + "\"datarows\":[[\"Smith\",[{\"state\":\"WA\"},{\"state\":\"NYC\"}]]]",
+        formatter.format(response));
+  }
 
   @Test
   void formatError() {
