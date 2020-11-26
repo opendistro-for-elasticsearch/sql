@@ -199,7 +199,7 @@ Result set:
 Example 4: Selecting Distinct Fields
 ------------------------------------
 
-By default, ``SELECT ALL`` takes effect to return all rows. ``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can provide one or more field names.
+By default, ``SELECT ALL`` takes effect to return all rows. ``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can provide one or more field names ('DISTINCT *' is not supported yet).
 
 SQL query::
 
