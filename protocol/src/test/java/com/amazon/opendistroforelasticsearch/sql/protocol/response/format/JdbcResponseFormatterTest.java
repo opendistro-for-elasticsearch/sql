@@ -16,6 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -29,13 +32,18 @@ import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonParser;
+import java.util.Arrays;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class JdbcResponseFormatterTest {
 
   private final JdbcResponseFormatter formatter = new JdbcResponseFormatter(COMPACT);
@@ -51,7 +59,16 @@ class JdbcResponseFormatterTest {
             new Column("employer", "employer", ARRAY),
             new Column("age", "age", INTEGER))),
         ImmutableList.of(
-            tupleValue(ImmutableMap.of("name", "John", "age", 20))));
+            tupleValue(ImmutableMap.<String, Object>builder()
+                    .put("name", "John")
+                    .put("address1", "Seattle")
+                    .put("address2", "WA")
+                    .put("location", ImmutableMap.of("x", "1", "y", "2"))
+                    .put("employments", ImmutableList.of(
+                        ImmutableMap.of("name", "Amazon"),
+                        ImmutableMap.of("name", "AWS")))
+                    .put("age", 20)
+                .build())));
 
     assertJsonEquals(
         "{"
@@ -63,10 +80,36 @@ class JdbcResponseFormatterTest {
             + "{\"name\":\"employer\",\"alias\":\"employer\",\"type\":\"nested\"},"
             + "{\"name\":\"age\",\"alias\":\"age\",\"type\":\"integer\"}"
             + "],"
-            + "\"datarows\":[[\"John\",20]],"
+            + "\"datarows\":["
+            + "[\"John\",\"Seattle\",\"WA\",{\"x\":\"1\",\"y\":\"2\"},"
+            + "[{\"valueMap\":{\"name\":{\"value\":\"Amazon\"}}},"
+            + "{\"valueMap\":{\"name\":{\"value\":\"AWS\"}}}],"
+            + "20]],"
             + "\"total\":1,"
             + "\"size\":1,"
             + "\"status\":200}",
+        formatter.format(response));
+  }
+
+  @Test
+  void format_response_with_missing_and_null_value() {
+    QueryResult response =
+        new QueryResult(
+            new Schema(ImmutableList.of(
+                new Column("name", null, STRING),
+                new Column("age", null, INTEGER))),
+            Arrays.asList(
+                ExprTupleValue.fromExprValueMap(
+                    ImmutableMap.of("name", stringValue("John"), "age", LITERAL_MISSING)),
+                ExprTupleValue.fromExprValueMap(
+                    ImmutableMap.of("name", stringValue("Allen"), "age", LITERAL_NULL)),
+                tupleValue(ImmutableMap.of("name", "Smith", "age", 30))));
+
+    assertEquals(
+        "{\"schema\":[{\"name\":\"name\",\"type\":\"keyword\"},"
+            + "{\"name\":\"age\",\"type\":\"integer\"}],"
+            + "\"datarows\":[[\"John\",null],[\"Allen\",null],"
+            + "[\"Smith\",30]],\"total\":3,\"size\":3,\"status\":200}",
         formatter.format(response));
   }
 
