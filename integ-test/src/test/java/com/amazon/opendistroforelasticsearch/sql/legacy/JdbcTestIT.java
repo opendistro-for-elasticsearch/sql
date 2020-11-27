@@ -65,6 +65,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
         equalTo("17-08-2014"));
   }
 
+  @Ignore
   public void testDivisionInQuery() {
     JSONObject response = executeJdbcRequest(
         "SELECT all_client/10 from elasticsearch-sql_test_index_online ORDER BY all_client/10 desc limit 1");
