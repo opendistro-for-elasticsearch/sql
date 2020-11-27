@@ -88,7 +88,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     }
 
     enableNewQueryEngine();
-    setDefaultQuerySizeLimit();
+//    setDefaultQuerySizeLimit();
     init();
   }
 
