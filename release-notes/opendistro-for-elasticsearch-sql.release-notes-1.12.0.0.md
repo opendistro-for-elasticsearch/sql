@@ -4,7 +4,6 @@
 * For ODFE 1.12 change position for sql workbench plugin (remove DEFAULT_APP_CATEGORIES) ([#857](https://github.com/opendistro-for-elasticsearch/sql/pull/857))
 * For ODFE 1.12 change position for sql workbench plugin ([#855](https://github.com/opendistro-for-elasticsearch/sql/pull/855))
 * add support for HH:mm:ss ([#850](https://github.com/opendistro-for-elasticsearch/sql/pull/850))
-* Sort field push down ([#848](https://github.com/opendistro-for-elasticsearch/sql/pull/848))
 * Support NULLS FIRST/LAST in new engine ([#843](https://github.com/opendistro-for-elasticsearch/sql/pull/843))
 * Support subquery in FROM clause in new engine ([#822](https://github.com/opendistro-for-elasticsearch/sql/pull/822))
 * Support CASE clause in new engine ([#818](https://github.com/opendistro-for-elasticsearch/sql/pull/818))
@@ -15,11 +14,12 @@
 * Add ppl request log ([#796](https://github.com/opendistro-for-elasticsearch/sql/pull/796))
 
 ### Enhancements
+* Sort field push down ([#848](https://github.com/opendistro-for-elasticsearch/sql/pull/848))
 * Seperate the logical plan optimization rule from core to storage engine ([#836](https://github.com/opendistro-for-elasticsearch/sql/pull/836))
 
 ### Bug Fixes
-* Fix issue: sort order keyword is case sensitive ([#853](https://github.com/opendistro-for-elasticsearch/sql/pull/853))
 * Fix ExprCollectionValue serialization bug ([#859](https://github.com/opendistro-for-elasticsearch/sql/pull/859))
+* Fix issue: sort order keyword is case sensitive ([#853](https://github.com/opendistro-for-elasticsearch/sql/pull/853))
 * Config the default locale for gradle as en_US ([#847](https://github.com/opendistro-for-elasticsearch/sql/pull/847))
 * Fix bug of nested field format issue in JDBC response ([#846](https://github.com/opendistro-for-elasticsearch/sql/pull/846))
 * Fix symbol error and Fix SSLError when connect es. ([#831](https://github.com/opendistro-for-elasticsearch/sql/pull/831))
