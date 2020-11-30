@@ -40,6 +40,7 @@ columnName
 
 alias
     : ident
+    | keywordsCanBeId
     ;
 
 qualifiedName
