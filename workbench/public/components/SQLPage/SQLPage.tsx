@@ -48,7 +48,7 @@ interface SQLPageProps {
 interface SQLPageState {
   sqlQuery: string,
   translation: string,
-  isModalVisible: boolean
+  isModalVisible: boolean,
 }
 
 export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
@@ -57,7 +57,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
     this.state = {
       sqlQuery: this.props.sqlQuery,
       translation: "",
-      isModalVisible: false
+      isModalVisible: false,
     };
   }
 
@@ -71,6 +71,23 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
 
     const closeModal = () => this.setIsModalVisible(false);
     const showModal = () => this.setIsModalVisible(true);
+
+    const sqlTranslationsNotEmpty = () => {
+      if (this.props.sqlTranslations.length > 0) {
+        return this.props.sqlTranslations[0].fulfilled;
+      }
+      return false;
+    }
+
+    const showExplainErrorMessage = () => {
+      return this.props.sqlTranslations.map((queryTranslation: any) => JSON.stringify(
+        queryTranslation.errorMessage + ": This query is not explainable", null, 2
+      ));
+    }
+
+    const explainContent = sqlTranslationsNotEmpty()
+    ? this.props.sqlTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")
+    : showExplainErrorMessage();
 
     let modal;
 
@@ -88,7 +105,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
                 fontSize="m"
                 isCopyable
               >
-                {this.props.sqlTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")}
+                {explainContent}
               </EuiCodeBlock>
             </EuiModalBody>
 
@@ -148,7 +165,10 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
               this.props.onTranslate(this.props.sqlQuery)
             }
           >
-            <EuiButton className="sql-editor-button" onClick={showModal}>
+            <EuiButton
+              className="sql-editor-button"
+              onClick={showModal}
+            >
               Explain
             </EuiButton>
             {modal}
