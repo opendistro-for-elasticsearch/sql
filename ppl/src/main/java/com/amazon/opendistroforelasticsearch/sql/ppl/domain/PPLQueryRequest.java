@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 
+import com.google.common.base.Strings;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 
@@ -25,6 +27,25 @@ public class PPLQueryRequest {
   private final String pplQuery;
   private final JSONObject jsonContent;
   private final String path;
+  private String format = null;
+
+  /**
+   * Constructor of PPLQueryRequest.
+   */
+  public PPLQueryRequest(String pplQuery, JSONObject jsonContent, String path, String format) {
+    this.pplQuery = pplQuery;
+    this.jsonContent = jsonContent;
+    this.path = path;
+    this.format = format;
+  }
+
+  /**
+   * Response format options.
+   */
+  public enum Format {
+    JDBC,
+    CSV
+  }
 
   public String getRequest() {
     return pplQuery;
@@ -36,6 +57,25 @@ public class PPLQueryRequest {
    */
   public boolean isExplainRequest() {
     return path.endsWith("/_explain");
+  }
+
+  /**
+   * Decide on the formatter by the requested format.
+   */
+  public Format format() {
+    if (Strings.isNullOrEmpty(format)) {
+      return Format.JDBC;
+    }
+    switch (format.toLowerCase()) {
+      case "jdbc":
+        return Format.JDBC;
+      case "csv":
+        return Format.CSV;
+
+      default:
+        throw new IllegalArgumentException(
+            String.format(Locale.ROOT, "response in %s format is not supported.", format));
+    }
   }
 
 }

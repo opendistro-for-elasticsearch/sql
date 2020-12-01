@@ -39,7 +39,9 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
@@ -76,6 +78,8 @@ public class RestPPLQueryAction extends BaseRestHandler {
   private final Settings pluginSettings;
 
   private final Supplier<Boolean> pplEnabled;
+
+  private ResponseFormatter<QueryResult> formatter;
 
   /**
    * Constructor of RestPPLQueryAction.
@@ -119,6 +123,13 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
     PPLService pplService = createPPLService(nodeClient);
     PPLQueryRequest pplRequest = PPLQueryRequestFactory.getPPLRequest(request);
+
+    if (pplRequest.format().equals(PPLQueryRequest.Format.CSV)) {
+      formatter = new CsvResponseFormatter();
+    } else {
+      formatter = new SimpleJsonResponseFormatter(PRETTY);
+    }
+
     if (pplRequest.isExplainRequest()) {
       return channel -> pplService.explain(pplRequest, createExplainResponseListener(channel));
     }
@@ -178,8 +189,6 @@ public class RestPPLQueryAction extends BaseRestHandler {
   }
 
   private ResponseListener<QueryResponse> createListener(RestChannel channel) {
-    SimpleJsonResponseFormatter formatter =
-        new SimpleJsonResponseFormatter(PRETTY); // TODO: decide format and pretty from URL param
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {

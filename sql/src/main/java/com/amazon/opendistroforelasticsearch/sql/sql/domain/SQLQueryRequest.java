@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.domain;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,7 +30,6 @@ import org.json.JSONObject;
  * SQL query request.
  */
 @ToString
-@Getter
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class SQLQueryRequest {
@@ -45,6 +45,7 @@ public class SQLQueryRequest {
   /**
    * SQL query.
    */
+  @Getter
   private final String query;
 
   /**
@@ -58,6 +59,14 @@ public class SQLQueryRequest {
   private final String format;
 
   /**
+   * Response format options.
+   */
+  public enum Format {
+    JDBC,
+    CSV
+  }
+
+  /**
    * Pre-check if the request can be supported by meeting the following criteria:
    *  1.Only "query" field or "query" and "fetch_size=0" in payload. In other word,
    *  it's not a cursor request with either non-zero "fetch_size" or "cursor" field,
@@ -68,7 +77,7 @@ public class SQLQueryRequest {
    */
   public boolean isSupported() {
     return (isOnlyQueryFieldInPayload() || isOnlyQueryAndFetchSizeZeroInPayload())
-        && isDefaultFormat();
+        && isSupportedFormat();
   }
 
   /**
@@ -77,6 +86,25 @@ public class SQLQueryRequest {
    */
   public boolean isExplainRequest() {
     return path.endsWith("/_explain");
+  }
+
+  /**
+   * Decide on the formatter by the requested format.
+   */
+  public Format format() {
+    if (Strings.isNullOrEmpty(format)) {
+      return Format.JDBC;
+    }
+    switch (format.toLowerCase()) {
+      case "jdbc":
+        return Format.JDBC;
+      case "csv":
+        return Format.CSV;
+
+      default:
+        throw new IllegalArgumentException(
+            String.format(Locale.ROOT, "response in %s format is not supported.", format));
+    }
   }
 
   private boolean isOnlyQueryFieldInPayload() {
@@ -88,8 +116,9 @@ public class SQLQueryRequest {
         && (jsonContent.getInt("fetch_size") == 0);
   }
 
-  private boolean isDefaultFormat() {
-    return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format);
+  private boolean isSupportedFormat() {
+    return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format)
+        || "csv".equalsIgnoreCase(format);
   }
 
 }

@@ -16,7 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.domain;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.json.JSONObject;
@@ -28,6 +30,7 @@ public class SQLQueryRequestTest {
   public void shouldSupportQuery() {
     SQLQueryRequest request = SQLQueryRequestBuilder.request("SELECT 1").build();
     assertTrue(request.isSupported());
+    assertEquals(request.format(), SQLQueryRequest.Format.JDBC);
   }
 
   @Test
@@ -36,6 +39,7 @@ public class SQLQueryRequestTest {
                                                     .format("jdbc")
                                                     .build();
     assertTrue(request.isSupported());
+    assertEquals(request.format(), SQLQueryRequest.Format.JDBC);
   }
 
   @Test
@@ -82,12 +86,24 @@ public class SQLQueryRequestTest {
   }
 
   @Test
-  public void shouldNotSupportCSVFormat() {
+  public void shouldSupportCSVFormat() {
     SQLQueryRequest csvRequest =
         SQLQueryRequestBuilder.request("SELECT 1")
                               .format("csv")
                               .build();
+    assertTrue(csvRequest.isSupported());
+    assertEquals(csvRequest.format(), SQLQueryRequest.Format.CSV);
+  }
+
+  @Test
+  public void shouldNotSupportRawFormat() {
+    SQLQueryRequest csvRequest =
+        SQLQueryRequestBuilder.request("SELECT 1")
+            .format("raw")
+            .build();
     assertFalse(csvRequest.isSupported());
+    assertThrows(IllegalArgumentException.class, csvRequest::format,
+        "response in raw format is not supported.");
   }
 
   /**

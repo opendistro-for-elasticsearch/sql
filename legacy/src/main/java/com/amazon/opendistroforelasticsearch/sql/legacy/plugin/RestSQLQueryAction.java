@@ -28,7 +28,9 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.Security
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
@@ -64,6 +66,8 @@ public class RestSQLQueryAction extends BaseRestHandler {
    * Settings required by been initialization.
    */
   private final Settings pluginSettings;
+
+  private ResponseFormatter<QueryResult> formatter;
 
   public RestSQLQueryAction(ClusterService clusterService, Settings pluginSettings) {
     super();
@@ -109,6 +113,12 @@ public class RestSQLQueryAction extends BaseRestHandler {
       return NOT_SUPPORTED_YET;
     }
 
+    if (request.format().equals(SQLQueryRequest.Format.CSV)) {
+      formatter = new CsvResponseFormatter();
+    } else {
+      formatter = new SimpleJsonResponseFormatter(PRETTY);
+    }
+
     if (request.isExplainRequest()) {
       return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
     }
@@ -151,7 +161,6 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   // TODO: duplicate code here as in RestPPLQueryAction
   private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel) {
-    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {
