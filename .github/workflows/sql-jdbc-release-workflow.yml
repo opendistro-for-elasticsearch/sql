@@ -9,7 +9,7 @@ jobs:
   Release-SQL-JDBC:
     strategy:
       matrix:
-        java: [14]
+        java: [10]
 
     name: Build and Release JDBC Plugin
     runs-on: ubuntu-latest
