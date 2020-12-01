@@ -32,27 +32,27 @@ public class LimitOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final Integer limit;
   private final Integer offset;
-  private final AtomicInteger count = new AtomicInteger(0);
+  private Integer count;
 
   @Override
   public void open() {
     super.open();
 
     // skip the leading rows of offset size
-    while (input.hasNext() && count.get() < offset) {
-      count.incrementAndGet();
+    while (input.hasNext() && count < offset) {
+      count++;
       input.next();
     }
   }
 
   @Override
   public boolean hasNext() {
-    return input.hasNext() && count.get() < offset + limit;
+    return input.hasNext() && count < offset + limit;
   }
 
   @Override
   public ExprValue next() {
-    count.incrementAndGet();
+    count++;
     return input.next();
   }
 
