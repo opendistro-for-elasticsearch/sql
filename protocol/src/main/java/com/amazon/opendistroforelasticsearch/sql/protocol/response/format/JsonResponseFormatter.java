@@ -71,7 +71,7 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
    */
   protected abstract Object buildJsonObject(R response);
 
-  private String jsonify(Object jsonObject) {
+  protected String jsonify(Object jsonObject) {
     return AccessController.doPrivileged((PrivilegedAction<String>) () ->
         (style == PRETTY) ? PRETTY_PRINT_GSON.toJson(jsonObject) : GSON.toJson(jsonObject));
   }

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -31,6 +32,8 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class QueryResult implements Iterable<Object[]> {
+
+  @Getter
   private final ExecutionEngine.Schema schema;
 
   /**
