@@ -136,11 +136,11 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testDayName() throws IOException {
     JSONObject result = executeQuery("select dayname(date('2020-09-16'))");
-    verifySchema(result, schema("dayname(date('2020-09-16'))", null, "string"));
+    verifySchema(result, schema("dayname(date('2020-09-16'))", null, "keyword"));
     verifyDataRows(result, rows("Wednesday"));
 
     result = executeQuery("select dayname('2020-09-16')");
-    verifySchema(result, schema("dayname('2020-09-16')", null, "string"));
+    verifySchema(result, schema("dayname('2020-09-16')", null, "keyword"));
     verifyDataRows(result, rows("Wednesday"));
   }
 
@@ -256,11 +256,11 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testMonthName() throws IOException {
     JSONObject result = executeQuery("select monthname(date('2020-09-16'))");
-    verifySchema(result, schema("monthname(date('2020-09-16'))", null, "string"));
+    verifySchema(result, schema("monthname(date('2020-09-16'))", null, "keyword"));
     verifyDataRows(result, rows("September"));
 
     result = executeQuery("select monthname('2020-09-16')");
-    verifySchema(result, schema("monthname('2020-09-16')", null, "string"));
+    verifySchema(result, schema("monthname('2020-09-16')", null, "keyword"));
     verifyDataRows(result, rows("September"));
   }
 
@@ -378,12 +378,12 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
     String query = String.format("date_format(%s('%s'), '%s')", type, date, format);
     JSONObject result = executeQuery("select " + query);
-    verifySchema(result, schema(query, null, "string"));
+    verifySchema(result, schema(query, null, "keyword"));
     verifyDataRows(result, rows(formatted));
 
     query = String.format("date_format('%s', '%s')", date, format);
     result = executeQuery("select " + query);
-    verifySchema(result, schema(query, null, "string"));
+    verifySchema(result, schema(query, null, "keyword"));
     verifyDataRows(result, rows(formatted));
   }
 
