@@ -48,7 +48,7 @@ interface SQLPageProps {
 interface SQLPageState {
   sqlQuery: string,
   translation: string,
-  isModalVisible: boolean,
+  isModalVisible: boolean
 }
 
 export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
@@ -57,7 +57,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
     this.state = {
       sqlQuery: this.props.sqlQuery,
       translation: "",
-      isModalVisible: false,
+      isModalVisible: false
     };
   }
 

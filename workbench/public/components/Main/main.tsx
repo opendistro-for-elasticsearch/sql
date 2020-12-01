@@ -332,7 +332,6 @@ export class Main extends React.Component<MainProps, MainState> {
           this.processQueryResponse(response as IHttpResponse<ResponseData>)
         );
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
-        console.log('resutlTable is', resultTable);
         this.setState(
           {
             queries: queries,
