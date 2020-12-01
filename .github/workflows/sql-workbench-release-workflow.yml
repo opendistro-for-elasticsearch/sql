@@ -42,7 +42,6 @@ jobs:
 
       - name: Move Workbench to Plugins Dir
         run: |
-          mkdir kibana/plugins
           mv workbench kibana/plugins
 
       - name: Kibana Plugin Bootstrap
