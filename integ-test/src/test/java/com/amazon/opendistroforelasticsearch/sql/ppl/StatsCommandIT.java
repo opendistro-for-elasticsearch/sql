@@ -85,6 +85,15 @@ public class StatsCommandIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testStatsNestedDoubleValue() throws IOException {
+    JSONObject response =
+        executeQuery(String.format("source=%s | stats avg(abs(age)*2.0)",
+            TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("avg(abs(age)*2.0)", null, "double"));
+    verifyDataRows(response, rows(60.342));
+  }
+
+  @Test
   public void testStatsWhere() throws IOException {
     JSONObject response =
         executeQuery(String.format(

@@ -80,7 +80,8 @@ class ESConnection:
         ssl_context.verify_mode = ssl.CERT_NONE
 
         open_distro_client = Elasticsearch(
-            [self.endpoint], http_auth=self.http_auth, verify_certs=False, ssl_context=ssl_context
+            [self.endpoint], http_auth=self.http_auth, verify_certs=False, ssl_context=ssl_context,
+            connection_class=RequestsHttpConnection
         )
 
         return open_distro_client

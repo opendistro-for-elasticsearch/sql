@@ -205,7 +205,6 @@ class ExplainTest extends ExpressionTestBase {
                     dedupe(
                         sort(
                             values(values),
-                            1000,
                             sortList),
                         dedupeList),
                     evalExprs),
@@ -233,7 +232,6 @@ class ExplainTest extends ExpressionTestBase {
                             singletonList(new ExplainResponseNode(
                                 "SortOperator",
                                 ImmutableMap.of(
-                                    "count", 1000,
                                     "sortList", ImmutableMap.of(
                                         "age", ImmutableMap.of(
                                             "sortOrder", "ASC",

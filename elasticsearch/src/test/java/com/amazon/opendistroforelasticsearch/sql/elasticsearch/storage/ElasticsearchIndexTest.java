@@ -19,14 +19,14 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScan;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScanAgg;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScan;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScanAgg;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
@@ -147,6 +147,18 @@ class ElasticsearchIndexTest {
   }
 
   @Test
+  void implementRelationOperatorWithOptimization() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    String indexName = "test";
+    LogicalPlan plan = relation(indexName);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
+    assertEquals(
+        new ElasticsearchIndexScan(client, settings, indexName, exprValueFactory),
+        index.implement(index.optimize(plan)));
+  }
+
+  @Test
   void implementOtherLogicalOperators() {
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
 
@@ -178,7 +190,6 @@ class ElasticsearchIndexTest {
                                 mappings),
                             exclude),
                         newEvalField),
-                    sortCount,
                     sortField),
                 dedupeField),
             include);
@@ -196,7 +207,6 @@ class ElasticsearchIndexTest {
                                 mappings),
                             exclude),
                         newEvalField),
-                    sortCount,
                     sortField),
                 dedupeField),
             include),
@@ -308,5 +318,27 @@ class ElasticsearchIndexTest {
             aggregators,
             groupByExprs));
     assertTrue(plan instanceof AggregationOperator);
+  }
+
+  @Test
+  void shouldImplIndexScanWithSort() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+    Expression sortExpr = ref("name", STRING);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName,
+                Pair.of(Sort.SortOption.DEFAULT_ASC, sortExpr)
+            ),
+            named));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
   }
 }

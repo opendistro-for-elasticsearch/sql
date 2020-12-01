@@ -48,8 +48,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggre
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RowNumberFunction;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScan;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScanAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
@@ -121,7 +119,6 @@ class DefaultImplementorTest {
                                         mappings),
                                     exclude),
                                 newEvalField),
-                            sortCount,
                             sortField),
                         CommandType.TOP,
                         topByExprs,
@@ -152,7 +149,6 @@ class DefaultImplementorTest {
                                         mappings),
                                     exclude),
                                 newEvalField),
-                            sortCount,
                             sortField),
                         CommandType.TOP,
                         topByExprs,
@@ -194,7 +190,6 @@ class DefaultImplementorTest {
             window(
                 sort(
                     values(),
-                    0,
                     sortList),
                 windowFunction,
                 windowDefinition),
@@ -205,26 +200,11 @@ class DefaultImplementorTest {
             PhysicalPlanDSL.window(
                 PhysicalPlanDSL.sort(
                     PhysicalPlanDSL.values(),
-                    0,
                     sortList),
                 windowFunction,
                 windowDefinition),
             projectList);
 
     assertEquals(physicalPlan, logicalPlan.accept(implementor, null));
-  }
-
-  @Test
-  public void visitIndexScanShouldThrowException() {
-    assertThrows(UnsupportedOperationException.class,
-        () -> new LogicalIndexScan("test", filter).accept(implementor, null));
-  }
-
-  @Test
-  public void visitIndexScanAggShouldThrowException() {
-    assertThrows(UnsupportedOperationException.class,
-        () -> new LogicalIndexScanAggregation("test", Arrays.asList(aggregator),
-            Arrays.asList(groupBy)).accept(implementor,
-            null));
   }
 }

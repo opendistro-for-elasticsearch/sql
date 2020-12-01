@@ -76,9 +76,16 @@ selectElement
     ;
 
 fromClause
-    : FROM tableName (AS? alias)?
+    : FROM relation
       (whereClause)?
       (groupByClause)?
+      (havingClause)?
+      (orderByClause)? // Place it under FROM for now but actually not necessary ex. A UNION B ORDER BY
+    ;
+
+relation
+    : tableName (AS? alias)?                                                #tableAsRelation
+    | LR_BRACKET subquery=querySpecification RR_BRACKET AS? alias           #subqueryAsRelation
     ;
 
 whereClause
@@ -97,14 +104,17 @@ groupByElement
     : expression
     ;
 
+havingClause
+    : HAVING expression
+    ;
+
 orderByClause
     : ORDER BY orderByElement (COMMA orderByElement)*
     ;
 
 orderByElement
-    : expression order=(ASC | DESC)?
+    : expression order=(ASC | DESC)? (NULLS (FIRST | LAST))?
     ;
-
 
 //  Window Function's Details
 windowFunction
@@ -234,6 +244,7 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    | specificFunction                                              #specificFunctionCall
     | windowFunction                                                #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
     ;
@@ -244,9 +255,21 @@ scalarFunctionName
     | textFunctionName
     ;
 
+specificFunction
+    : CASE expression caseFuncAlternative+
+        (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    | CASE caseFuncAlternative+
+        (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    ;
+
+caseFuncAlternative
+    : WHEN condition=functionArg
+      THEN consequent=functionArg
+    ;
+
 aggregateFunction
-    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET
-    /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
+    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET #regularAggregateFunctionCall
+    | COUNT LR_BRACKET STAR RR_BRACKET                                       #countStarFunctionCall
     ;
 
 aggregationFunctionName

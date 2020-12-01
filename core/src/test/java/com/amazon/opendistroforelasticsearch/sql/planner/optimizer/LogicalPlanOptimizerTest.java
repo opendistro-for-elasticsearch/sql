@@ -18,24 +18,20 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.optimizer;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScan;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScanAgg;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.sort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.AnalyzerTestBase;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
-import com.google.common.collect.ImmutableList;
-import java.util.Collections;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -47,36 +43,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTestBase.class})
 class LogicalPlanOptimizerTest extends AnalyzerTestBase {
   /**
-   * SELECT integer_value as i FROM schema WHERE integer_value = 1.
-   */
-  @Test
-  void project_filter_merge_with_relation() {
-    assertEquals(
-        project(
-            indexScan("schema",
-                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1)))),
-            DSL.named("i", DSL.ref("integer_value", INTEGER))
-        ),
-        optimize(
-            project(
-                filter(
-                    relation("schema"),
-                    dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1)))
-                ),
-                DSL.named("i", DSL.ref("integer_value", INTEGER)))
-        )
-    );
-  }
-
-  /**
    * Filter - Filter --> Filter.
    */
   @Test
   void filter_merge_filter() {
     assertEquals(
-        indexScan("schema",
+        filter(
+            relation("schema"),
             dsl.and(dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(2))),
-                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))))),
+                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))))
+        ),
         optimize(
             filter(
                 filter(
@@ -90,86 +66,56 @@ class LogicalPlanOptimizerTest extends AnalyzerTestBase {
   }
 
   /**
-   * SELECT avg(integer_value) FROM schema GROUP BY string_value.
+   * Filter - Sort --> Sort - Filter.
    */
   @Test
-  void aggregation_merge_relation() {
+  void push_filter_under_sort() {
     assertEquals(
-        project(
-            indexScanAgg("schema", ImmutableList
-                    .of(DSL.named("AVG(integer_value)",
-                        dsl.avg(DSL.ref("integer_value", INTEGER)))),
-                ImmutableList.of(DSL.named("long_value",
-                    dsl.abs(DSL.ref("long_value", LONG))))),
-            DSL.named("AVG(integer_value)", DSL.ref("AVG(integer_value)", DOUBLE))),
+        sort(
+            filter(
+                relation("schema"),
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+            ),
+            Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+        ),
         optimize(
-            project(
-                aggregation(
+            filter(
+                sort(
                     relation("schema"),
-                    ImmutableList
-                        .of(DSL.named("AVG(integer_value)",
-                            dsl.avg(DSL.ref("integer_value", INTEGER)))),
-                    ImmutableList.of(DSL.named("long_value",
-                        dsl.abs(DSL.ref("long_value", LONG))))),
-                DSL.named("AVG(integer_value)", DSL.ref("AVG(integer_value)", DOUBLE)))
+                    Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+                ),
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+            )
         )
     );
   }
 
   /**
-   * SELECT avg(integer_value) FROM schema WHERE integer_value = 1 GROUP BY string_value.
+   * Filter - Sort --> Sort - Filter.
    */
   @Test
-  void aggregation_merge_filter_relation() {
+  void multiple_filter_should_eventually_be_merged() {
     assertEquals(
-        project(
-            indexScanAgg("schema",
-                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))),
-                ImmutableList
-                    .of(DSL.named("AVG(integer_value)",
-                        dsl.avg(DSL.ref("integer_value", INTEGER)))),
-                ImmutableList.of(DSL.named("long_value",
-                    dsl.abs(DSL.ref("long_value", LONG))))),
-            DSL.named("AVG(integer_value)", DSL.ref("AVG(integer_value)", DOUBLE))),
+        sort(
+            filter(
+                relation("schema"),
+                dsl.and(dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1))),
+                    dsl.less(DSL.ref("longV", INTEGER), DSL.literal(longValue(1L))))
+            ),
+            Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+        ),
         optimize(
-            project(
-                aggregation(
+            filter(
+                sort(
                     filter(
                         relation("schema"),
-                        dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1)))
+                        dsl.less(DSL.ref("longV", INTEGER), DSL.literal(longValue(1L)))
                     ),
-                    ImmutableList
-                        .of(DSL.named("AVG(integer_value)",
-                            dsl.avg(DSL.ref("integer_value", INTEGER)))),
-                    ImmutableList.of(DSL.named("long_value",
-                        dsl.abs(DSL.ref("long_value", LONG))))),
-                DSL.named("AVG(integer_value)", DSL.ref("AVG(integer_value)", DOUBLE)))
+                    Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+                ),
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+            )
         )
-    );
-  }
-
-  @Test
-  void aggregation_cant_merge_indexScan_with_project() {
-    assertEquals(
-        aggregation(
-            new LogicalIndexScan("schema",
-                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))),
-                Collections.singletonList(DSL.named("i", DSL.ref("integer_value", INTEGER)))),
-            ImmutableList
-                .of(DSL.named("AVG(integer_value)",
-                    dsl.avg(DSL.ref("integer_value", INTEGER)))),
-            ImmutableList.of(DSL.named("long_value",
-                dsl.abs(DSL.ref("long_value", LONG))))),
-        optimize(
-            aggregation(
-                new LogicalIndexScan("schema",
-                    dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))),
-                    Collections.singletonList(DSL.named("i", DSL.ref("integer_value", INTEGER)))),
-                ImmutableList
-                    .of(DSL.named("AVG(integer_value)",
-                        dsl.avg(DSL.ref("integer_value", INTEGER)))),
-                ImmutableList.of(DSL.named("long_value",
-                    dsl.abs(DSL.ref("long_value", LONG))))))
     );
   }
 

@@ -1,0 +1,19 @@
+SELECT Origin FROM (SELECT * FROM kibana_sample_data_flights) AS f
+SELECT f.Origin FROM (SELECT * FROM kibana_sample_data_flights) AS f
+SELECT f.o FROM (SELECT Origin AS o FROM kibana_sample_data_flights) AS f
+SELECT origin FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights WHERE AvgTicketPrice > 100) AS f
+SELECT origin FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights) AS f WHERE f.price > 100
+SELECT origin FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights) AS f WHERE price > 100
+SELECT origin FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights WHERE AvgTicketPrice > 100) AS f WHERE price < 1000
+SELECT origin FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights) AS f ORDER BY f.price
+SELECT origin FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights) AS f ORDER BY price DESC
+SELECT origin, price FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights GROUP BY origin, price) AS f
+SELECT origin, price FROM (SELECT Origin AS origin, AvgTicketPrice AS price FROM kibana_sample_data_flights) AS f GROUP BY origin, price
+SELECT origin, price FROM (SELECT Origin AS origin, Dest AS dest, AvgTicketPrice AS price FROM kibana_sample_data_flights GROUP BY origin, dest, price) AS f GROUP BY origin, price
+SELECT origin, price FROM (SELECT Origin AS origin, Dest AS dest, AvgTicketPrice AS price FROM kibana_sample_data_flights GROUP BY 1, 2, 3) AS f GROUP BY 1, 2
+SELECT ABS(AvgTicketPrice) FROM (SELECT AvgTicketPrice FROM kibana_sample_data_flights) AS flights GROUP BY ABS(AvgTicketPrice)
+SELECT Origin, Dest FROM (SELECT * FROM kibana_sample_data_flights WHERE AvgTicketPrice > 100 GROUP BY Origin, Dest, AvgTicketPrice) AS flights WHERE AvgTicketPrice < 1000 ORDER BY AvgTicketPrice
+SELECT Origin, MIN(AvgTicketPrice) FROM (SELECT * FROM kibana_sample_data_flights) AS flights GROUP BY Origin ORDER BY MAX(AvgTicketPrice)
+SELECT Origin FROM (SELECT Origin, AvgTicketPrice FROM kibana_sample_data_flights) AS flights GROUP BY Origin HAVING MIN(AvgTicketPrice) > 500
+SELECT avg_price FROM (SELECT AVG(AvgTicketPrice) AS avg_price FROM kibana_sample_data_flights) AS flights
+SELECT Dest FROM (SELECT Dest, OriginWeather FROM (SELECT Dest, OriginWeather, AvgTicketPrice FROM (SELECT Dest, Origin, OriginWeather, AvgTicketPrice FROM kibana_sample_data_flights WHERE Origin = 'Zurich Airport') AS flights_data WHERE AvgTicketPrice < 10000) AS flights WHERE OriginWeather = 'Clear') AS f

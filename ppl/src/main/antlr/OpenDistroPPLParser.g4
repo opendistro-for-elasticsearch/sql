@@ -68,7 +68,7 @@ dedupCommand
     ;
 
 sortCommand
-    : SORT (count=integerLiteral)? sortbyClause (D | DESC)?
+    : SORT sortbyClause
     ;
 
 evalCommand

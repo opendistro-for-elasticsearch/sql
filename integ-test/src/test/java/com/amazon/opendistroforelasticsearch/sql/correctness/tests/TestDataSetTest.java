@@ -108,4 +108,33 @@ public class TestDataSetTest {
     );
   }
 
+  @Test
+  public void testDataSetWithNullData() {
+    String mappings =
+        "{\n"
+            + "  \"mappings\": {\n"
+            + "    \"properties\": {\n"
+            + "      \"field1\": {\n"
+            + "        \"type\": \"text\"\n"
+            + "      },\n"
+            + "      \"field2\": {\n"
+            + "        \"type\": \"integer\"\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+
+    TestDataSet dataSet = new TestDataSet("test", mappings,
+        "field1,field2\n,123\nworld,\n,");
+    assertThat(
+        dataSet.getDataRows(),
+        contains(
+            new Object[] {"field1", "field2"},
+            new Object[] {null, 123},
+            new Object[] {"world", null},
+            new Object[] {null, null}
+        )
+    );
+  }
+
 }

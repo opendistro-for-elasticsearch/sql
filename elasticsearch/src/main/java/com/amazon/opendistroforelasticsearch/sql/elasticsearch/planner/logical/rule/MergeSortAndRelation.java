@@ -15,49 +15,50 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner.optimizer.rule;
+package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule;
 
 import static com.amazon.opendistroforelasticsearch.sql.planner.optimizer.pattern.Patterns.source;
 import static com.facebook.presto.matching.Pattern.typeOf;
 
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.ElasticsearchLogicalIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.Rule;
 import com.facebook.presto.matching.Capture;
 import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
 
 /**
- * Merge Filter -- Relation to LogicalIndexScan.
+ * Merge Sort with Relation only when Sort by fields.
  */
-public class MergeFilterAndRelation implements Rule<LogicalFilter> {
+public class MergeSortAndRelation implements Rule<LogicalSort> {
 
   private final Capture<LogicalRelation> relationCapture;
-  private final Pattern<LogicalFilter> pattern;
+  private final Pattern<LogicalSort> pattern;
 
   /**
-   * Constructor of MergeFilterAndRelation.
+   * Constructor of MergeSortAndRelation.
    */
-  public MergeFilterAndRelation() {
+  public MergeSortAndRelation() {
     this.relationCapture = Capture.newCapture();
-    this.pattern = typeOf(LogicalFilter.class)
+    this.pattern = typeOf(LogicalSort.class).matching(OptimizationRuleUtils::sortByFieldsOnly)
         .with(source().matching(typeOf(LogicalRelation.class).capturedAs(relationCapture)));
   }
 
   @Override
-  public Pattern<LogicalFilter> pattern() {
+  public Pattern<LogicalSort> pattern() {
     return pattern;
   }
 
   @Override
-  public LogicalPlan apply(LogicalFilter filter,
+  public LogicalPlan apply(LogicalSort sort,
                            Captures captures) {
     LogicalRelation relation = captures.get(relationCapture);
-    return new LogicalIndexScan(
-        relation.getRelationName(),
-        filter.getCondition()
-    );
+    return ElasticsearchLogicalIndexScan
+        .builder()
+        .relationName(relation.getRelationName())
+        .sortList(sort.getSortList())
+        .build();
   }
 }

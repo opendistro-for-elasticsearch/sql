@@ -73,9 +73,8 @@ public class LogicalPlanDSL {
     return new LogicalEval(input, Arrays.asList(expressions));
   }
 
-  public static LogicalPlan sort(
-      LogicalPlan input, Integer count, Pair<SortOption, Expression>... sorts) {
-    return new LogicalSort(input, count, Arrays.asList(sorts));
+  public static LogicalPlan sort(LogicalPlan input, Pair<SortOption, Expression>... sorts) {
+    return new LogicalSort(input, Arrays.asList(sorts));
   }
 
   public static LogicalPlan dedupe(LogicalPlan input, Expression... fields) {
@@ -105,22 +104,6 @@ public class LogicalPlanDSL {
   public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType, int noOfResults,
       List<Expression> groupByList, Expression... fields) {
     return new LogicalRareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupByList);
-  }
-
-  public static LogicalPlan indexScan(String tableName, Expression filter) {
-    return new LogicalIndexScan(tableName, filter);
-  }
-
-  public static LogicalPlan indexScanAgg(String tableName, List<NamedAggregator> aggregators,
-                                         List<NamedExpression> groupByList) {
-    return new LogicalIndexScanAggregation(tableName, aggregators, groupByList);
-  }
-
-  public static LogicalPlan indexScanAgg(String tableName,
-                                         Expression filter,
-                                         List<NamedAggregator> aggregators,
-                                         List<NamedExpression> groupByList) {
-    return new LogicalIndexScanAggregation(tableName, filter, aggregators, groupByList);
   }
 
   @SafeVarargs

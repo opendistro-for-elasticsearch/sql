@@ -18,9 +18,11 @@
     "user/dql/expressions.rst",
     "user/general/identifiers.rst",
     "user/general/values.rst",
+    "user/dql/basics.rst",
     "user/dql/functions.rst",
     "user/dql/window.rst",
     "user/beyond/partiql.rst",
-    "user/dql/aggregations.rst"
+    "user/dql/aggregations.rst",
+    "user/dql/complex.rst"
   ]
 }
