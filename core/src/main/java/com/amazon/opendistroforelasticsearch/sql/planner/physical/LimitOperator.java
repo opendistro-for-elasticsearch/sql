@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,27 +32,27 @@ public class LimitOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final Integer limit;
   private final Integer offset;
-  private Integer count = 0;
+  private final AtomicInteger count = new AtomicInteger(0);
 
   @Override
   public void open() {
     super.open();
 
     // skip the leading rows of offset size
-    while (input.hasNext() && count < offset) {
-      count++;
+    while (input.hasNext() && count.get() < offset) {
+      count.incrementAndGet();
       input.next();
     }
   }
 
   @Override
   public boolean hasNext() {
-    return input.hasNext() && count < offset + limit;
+    return input.hasNext() && count.get() < offset + limit;
   }
 
   @Override
   public ExprValue next() {
-    count++;
+    count.incrementAndGet();
     return input.next();
   }
 
