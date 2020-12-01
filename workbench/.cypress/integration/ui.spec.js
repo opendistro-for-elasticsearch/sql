@@ -22,6 +22,7 @@ import { delay, testQueries, verifyDownloadData, files } from "../utils/constant
 describe('Test PPL UI', () => {
   beforeEach(() => {
     cy.visit('app/opendistro-query-workbench');
+    cy.wait(delay);
     cy.get('.euiToggle__input[title=PPL]').click();
     cy.wait(delay);
   });
@@ -58,7 +59,7 @@ describe('Test PPL UI', () => {
       expect(editor.getValue()).to.equal('');
     });
   });
-  
+
   it('Test full screen view', () => {
     cy.get('.euiButton__text').contains('Full screen view').should('not.exist');
     cy.get('.euiTitle').contains('Query Workbench').should('exist');
@@ -70,7 +71,7 @@ describe('Test PPL UI', () => {
     cy.get('.euiButton__text').contains('Full screen view').click();
 
     cy.get('.euiTitle').should('not.exist');
-    
+
     cy.get('button#exit-fullscreen-button').click();
     cy.wait(delay);
     cy.get('.euiButton__text').contains('Full screen view').should('exist');
@@ -81,6 +82,7 @@ describe('Test PPL UI', () => {
 describe('Test SQL UI', () => {
   beforeEach(() => {
     cy.visit('app/opendistro-query-workbench');
+    cy.wait(delay);
     cy.get('.euiToggle__input[title=SQL]').click();
     cy.wait(delay);
   });
@@ -128,20 +130,11 @@ describe('Test SQL UI', () => {
     cy.get('.euiButton__text').contains('Full screen view').should('not.exist');
     cy.get('.euiTitle').contains('Query Workbench').should('exist');
 
-    cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}', { force: true });
-    cy.wait(delay);
-    cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}select log(balance) from accounts where abs(age) > 20;', { force: true });
-    cy.wait(delay);
     cy.get('.euiButton__text').contains('Run').click();
     cy.wait(delay);
     cy.get('.euiButton__text').contains('Full screen view').click();
 
     cy.get('.euiTitle').should('not.exist');
-    
-    cy.get('button#exit-fullscreen-button').click();
-    cy.wait(delay);
-    cy.get('.euiButton__text').contains('Full screen view').should('exist');
-    cy.get('.euiTitle').contains('Query Workbench').should('exist');
   });
 });
 
@@ -169,6 +162,7 @@ describe('Test and verify SQL downloads', () => {
 describe('Test table display', () => {
   beforeEach(() => {
     cy.visit('app/opendistro-query-workbench');
+    cy.wait(delay);
     cy.get('.euiToggle__input[title=SQL]').click();
     cy.wait(delay);
     cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}', { force: true });

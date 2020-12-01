@@ -117,11 +117,31 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canParseCaseStatement() {
+    assertNotNull(parser.parse("SELECT CASE WHEN age > 30 THEN 'age1' ELSE 'age2' END FROM test"));
+    assertNotNull(parser.parse("SELECT CASE WHEN age > 30 THEN 'age1' "
+                                        + " WHEN age < 50 THEN 'age2' "
+                                        + " ELSE 'age3' END FROM test"));
+    assertNotNull(parser.parse("SELECT CASE age WHEN 30 THEN 'age1' ELSE 'age2' END FROM test"));
+    assertNotNull(parser.parse("SELECT CASE age WHEN 30 THEN 'age1' END FROM test"));
+  }
+
+  @Test
   public void canNotParseAggregateFunctionWithWrongArgument() {
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM() FROM test"));
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG() FROM test"));
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM(a,b) FROM test"));
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG(a,b,c) FROM test"));
+  }
+
+  @Test
+  public void canParseOrderByClause() {
+    assertNotNull(parser.parse("SELECT name, age FROM test ORDER BY name, age"));
+    assertNotNull(parser.parse("SELECT name, age FROM test ORDER BY name ASC, age DESC"));
+    assertNotNull(parser.parse(
+        "SELECT name, age FROM test ORDER BY name NULLS LAST, age NULLS FIRST"));
+    assertNotNull(parser.parse(
+        "SELECT name, age FROM test ORDER BY name ASC NULLS FIRST, age DESC NULLS LAST"));
   }
 
 }

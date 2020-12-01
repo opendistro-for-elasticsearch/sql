@@ -35,11 +35,13 @@ import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Simple
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.elasticsearch.client.Node;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -58,8 +60,8 @@ public class StandaloneIT extends PPLIntegTestCase {
 
   @Override
   public void init() {
-    restClient =
-        new RestHighLevelClient(RestClient.builder(client().getNodes().toArray(new Node[0])));
+    // Using client() defined in ODFERestTestCase.
+    restClient = new InternalRestHighLevelClient(client());
 
     ElasticsearchClient client = new ElasticsearchRestClient(restClient);
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
@@ -71,12 +73,6 @@ public class StandaloneIT extends PPLIntegTestCase {
     context.refresh();
 
     pplService = context.getBean(PPLService.class);
-  }
-
-  @AfterEach
-  public void tearDown() throws Exception {
-    restClient.close();
-    super.tearDown();
   }
 
   @Test
@@ -143,5 +139,14 @@ public class StandaloneIT extends PPLIntegTestCase {
         return (T) defaultSettings.get(key);
       }
     };
+  }
+
+  /**
+   * Internal RestHighLevelClient only for testing purpose.
+   */
+  static class InternalRestHighLevelClient extends RestHighLevelClient {
+    public InternalRestHighLevelClient(RestClient restClient) {
+      super(restClient, RestClient::close, Collections.emptyList());
+    }
   }
 }

@@ -334,6 +334,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     }
   }
 
+  @Ignore("In MySQL and our new engine, the original text in SELECT is used as final column name")
   @Test
   public void aggregationFunctionInSelectCaseCheck() throws IOException {
     JSONObject response = executeQuery(

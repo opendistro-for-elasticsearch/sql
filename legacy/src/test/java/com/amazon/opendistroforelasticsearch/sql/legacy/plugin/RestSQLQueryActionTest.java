@@ -21,12 +21,16 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAct
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.service.ClusterService;
+import org.elasticsearch.common.util.concurrent.ThreadContext;
+import org.elasticsearch.threadpool.ThreadPool;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -38,11 +42,20 @@ public class RestSQLQueryActionTest {
   @Mock
   private ClusterService clusterService;
 
-  @Mock
   private NodeClient nodeClient;
 
   @Mock
+  private ThreadPool threadPool;
+
+  @Mock
   private Settings settings;
+
+  @Before
+  public void setup() {
+    nodeClient = new NodeClient(org.elasticsearch.common.settings.Settings.EMPTY, threadPool);
+    when(threadPool.getThreadContext())
+        .thenReturn(new ThreadContext(org.elasticsearch.common.settings.Settings.EMPTY));
+  }
 
   @Test
   public void handleQueryThatCanSupport() {

@@ -29,7 +29,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 public class Field extends UnresolvedExpression {
-  private QualifiedName field;
+  private UnresolvedExpression field;
   private List<Argument> fieldArgs = Collections.emptyList();
 
   public Field(QualifiedName field) {

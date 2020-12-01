@@ -70,7 +70,6 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   @Override
   public ExplainResponseNode visitSort(SortOperator node, Object context) {
     return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
-        "count", node.getCount(),
         "sortList", describeSortList(node.getSortList()))));
   }
 

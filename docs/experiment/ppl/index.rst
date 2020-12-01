@@ -30,6 +30,8 @@ The query start with search command and then flowing a set of command delimited 
 
   - `Plugin Settings <admin/settings.rst>`_
 
+  - `Monitoring <admin/monitoring.rst>`_
+
 * **Commands**
 
   - `Syntax <cmd/syntax.rst>`_
@@ -38,7 +40,7 @@ The query start with search command and then flowing a set of command delimited 
 
   - `eval command <cmd/eval.rst>`_
 
-  - `field command <cmd/fields.rst>`_
+  - `fields command <cmd/fields.rst>`_
 
   - `rename command <cmd/rename.rst>`_
 

@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.analysis.AnalysisContext;
 import com.amazon.opendistroforelasticsearch.sql.analysis.Analyzer;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -33,10 +34,13 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.parser.AstBuilder;
 import com.amazon.opendistroforelasticsearch.sql.ppl.parser.AstExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.ppl.utils.PPLQueryDataAnonymizer;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.UnresolvedPlanHelper;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @RequiredArgsConstructor
 public class PPLService {
@@ -49,6 +53,10 @@ public class PPLService {
   private final ExecutionEngine executionEngine;
 
   private final BuiltinFunctionRepository repository;
+
+  private final PPLQueryDataAnonymizer anonymizer = new PPLQueryDataAnonymizer();
+
+  private static final Logger LOG = LogManager.getLogger();
 
   /**
    * Execute the {@link PPLQueryRequest}, using {@link ResponseListener} to get response.
@@ -84,6 +92,8 @@ public class PPLService {
     ParseTree cst = parser.analyzeSyntax(request.getRequest());
     UnresolvedPlan ast = cst.accept(
         new AstBuilder(new AstExpressionBuilder(), request.getRequest()));
+
+    LOG.info("[{}] Incoming request {}", LogUtils.getRequestId(), anonymizer.anonymizeData(ast));
 
     // 2.Analyze abstract syntax to generate logical plan
     LogicalPlan logicalPlan = analyzer.analyze(UnresolvedPlanHelper.addSelectAll(ast),

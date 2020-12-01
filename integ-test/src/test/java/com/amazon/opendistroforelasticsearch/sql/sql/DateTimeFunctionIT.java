@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.getResponseBody;
 
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.IOException;
@@ -354,9 +355,10 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   private void week(String date, int mode, int expectedResult) throws IOException {
-    JSONObject result = executeQuery(String.format("select week(date('%s'), %d)", date, mode));
+    JSONObject result = executeQuery(StringUtils.format("select week(date('%s'), %d)", date,
+        mode));
     verifySchema(result,
-        schema(String.format("week(date('%s'), %d)", date, mode), null, "integer"));
+        schema(StringUtils.format("week(date('%s'), %d)", date, mode), null, "integer"));
     verifyDataRows(result, rows(expectedResult));
   }
 

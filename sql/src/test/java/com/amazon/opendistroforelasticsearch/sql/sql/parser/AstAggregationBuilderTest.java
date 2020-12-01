@@ -105,6 +105,16 @@ class AstAggregationBuilderTest {
   }
 
   @Test
+  void can_build_implicit_group_by_for_aggregator_in_having_clause() {
+    assertThat(
+        buildAggregation("SELECT true FROM test HAVING AVG(age) > 30"),
+        allOf(
+            hasGroupByItems(),
+            hasAggregators(
+                alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
+  }
+
+  @Test
   void should_build_nothing_if_no_group_by_and_no_aggregators_in_select() {
     assertNull(buildAggregation("SELECT name FROM test"));
   }
@@ -139,7 +149,7 @@ class AstAggregationBuilderTest {
     SemanticCheckException error = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT state AS s FROM test GROUP BY 1.5"));
     assertEquals(
-        "Non-integer constant [1.5] found in GROUP BY clause",
+        "Non-integer constant [1.5] found in ordinal",
         error.getMessage());
   }
 
@@ -182,11 +192,21 @@ class AstAggregationBuilderTest {
   void should_report_error_for_group_by_ordinal_out_of_bound_of_select_list() {
     SemanticCheckException error1 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT age, AVG(balance) FROM tests GROUP BY 0"));
-    assertEquals("Group by ordinal [0] is out of bound of select item list", error1.getMessage());
+    assertEquals("Ordinal [0] is out of bound of select item list", error1.getMessage());
 
     SemanticCheckException error2 = assertThrows(SemanticCheckException.class, () ->
         buildAggregation("SELECT age, AVG(balance) FROM tests GROUP BY 3"));
-    assertEquals("Group by ordinal [3] is out of bound of select item list", error2.getMessage());
+    assertEquals("Ordinal [3] is out of bound of select item list", error2.getMessage());
+  }
+
+  @Test
+  void should_report_error_for_non_aggregated_item_in_select_if_only_having() {
+    SemanticCheckException error = assertThrows(SemanticCheckException.class, () ->
+        buildAggregation("SELECT age FROM tests HAVING AVG(balance) > 30"));
+    assertEquals(
+        "Explicit GROUP BY clause is required because expression [age] "
+            + "contains non-aggregated column",
+        error.getMessage());
   }
 
   private Matcher<UnresolvedPlan> hasGroupByItems(UnresolvedExpression... exprs) {

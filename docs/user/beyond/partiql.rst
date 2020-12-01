@@ -69,10 +69,58 @@ There are three fields in test index ``people``: 1) deep nested object field ``c
 Example: Employees
 ------------------
 
+Here is the mapping for test index ``employees_nested``. Note that field ``projects`` is a nested field::
+
+    {
+      "mappings": {
+        "properties": {
+          "id": {
+            "type": "long"
+          },
+          "name": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "projects": {
+            "type": "nested",
+            "properties": {
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword"
+                  }
+                },
+                "fielddata": true
+              },
+              "started_year": {
+                "type": "long"
+              }
+            }
+          },
+          "title": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
+
+
 Result set::
 
 	{
-	  "employees" : [
+	  "employees_nested" : [
 	    {
 	      "id" : 3,
 	      "name" : "Bob Smith",

@@ -48,8 +48,8 @@ import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuil
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.histogram.HistogramAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.histogram.LongBounds;
 import org.elasticsearch.search.aggregations.bucket.nested.ReverseNestedAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.range.DateRangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
@@ -586,7 +586,7 @@ public class AggMaker {
                     case "extended_bounds":
                         String[] bounds = value.split(":");
                         if (bounds.length == 2) {
-                            dateHistogram.extendedBounds(new ExtendedBounds(bounds[0], bounds[1]));
+                            dateHistogram.extendedBounds(new LongBounds(bounds[0], bounds[1]));
                         }
                         break;
 

@@ -19,7 +19,9 @@ import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
@@ -31,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.When;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
@@ -41,9 +44,13 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -163,9 +170,54 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   }
 
   @Override
+  public Expression visitCase(Case node, AnalysisContext context) {
+    List<WhenClause> whens = new ArrayList<>();
+    for (When when : node.getWhenClauses()) {
+      if (node.getCaseValue() == null) {
+        whens.add((WhenClause) analyze(when, context));
+      } else {
+        // Merge case value and condition (compare value) into a single equal condition
+        whens.add((WhenClause) analyze(
+            new When(
+                new Function("=", Arrays.asList(node.getCaseValue(), when.getCondition())),
+                when.getResult()
+            ), context));
+      }
+    }
+
+    Expression defaultResult = (node.getElseClause() == null)
+        ? null : analyze(node.getElseClause(), context);
+    CaseClause caseClause = new CaseClause(whens, defaultResult);
+
+    // To make this simple, require all result type same regardless of implicit convert
+    // Make CaseClause return list so it can be used in error message in determined order
+    List<ExprType> resultTypes = caseClause.allResultTypes();
+    if (ImmutableSet.copyOf(resultTypes).size() > 1) {
+      throw new SemanticCheckException(
+          "All result types of CASE clause must be the same, but found " + resultTypes);
+    }
+    return caseClause;
+  }
+
+  @Override
+  public Expression visitWhen(When node, AnalysisContext context) {
+    return new WhenClause(
+        analyze(node.getCondition(), context),
+        analyze(node.getResult(), context));
+  }
+
+  @Override
   public Expression visitField(Field node, AnalysisContext context) {
     String attr = node.getField().toString();
     return visitIdentifier(attr, context);
+  }
+
+  @Override
+  public Expression visitAllFields(AllFields node, AnalysisContext context) {
+    // Convert to string literal for argument in COUNT(*), because there is no difference between
+    // COUNT(*) and COUNT(literal). For SELECT *, its select expression analyzer will expand * to
+    // the right field name list by itself.
+    return DSL.literal("*");
   }
 
   @Override

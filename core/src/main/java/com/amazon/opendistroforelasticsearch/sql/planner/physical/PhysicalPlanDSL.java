@@ -63,9 +63,9 @@ public class PhysicalPlanDSL {
     return new EvalOperator(input, Arrays.asList(expressions));
   }
 
-  public static SortOperator sort(PhysicalPlan input, Integer count, Pair<SortOption,
+  public static SortOperator sort(PhysicalPlan input, Pair<SortOption,
       Expression>... sorts) {
-    return new SortOperator(input, count, Arrays.asList(sorts));
+    return new SortOperator(input, Arrays.asList(sorts));
   }
 
   public static DedupeOperator dedupe(PhysicalPlan input, Expression... expressions) {

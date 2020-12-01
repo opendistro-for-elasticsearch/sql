@@ -31,7 +31,6 @@
                   {
                     "name": "SortOperator",
                     "description": {
-                      "count": 1000,
                       "sortList": {
                         "state": {
                           "sortOrder": "ASC",
