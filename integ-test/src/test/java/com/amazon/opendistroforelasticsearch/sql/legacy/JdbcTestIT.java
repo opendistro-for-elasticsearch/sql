@@ -19,6 +19,8 @@ package com.amazon.opendistroforelasticsearch.sql.legacy;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
+
+import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;

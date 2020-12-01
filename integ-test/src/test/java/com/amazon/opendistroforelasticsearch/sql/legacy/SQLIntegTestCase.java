@@ -88,7 +88,6 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     }
 
     enableNewQueryEngine();
-//    setDefaultQuerySizeLimit();
     init();
   }
 
@@ -154,7 +153,12 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     }
   }
 
-  private void setDefaultQuerySizeLimit() throws IOException {
+  protected void updateQuerySizeLimit(Integer limit) throws IOException {
+    updateClusterSettings(
+        new ClusterSetting("transient", Settings.Key.QUERY_SIZE_LIMIT.getKeyValue(), limit.toString()));
+  }
+
+  protected void resetQuerySizeLimit() throws IOException {
     Integer limit = Integer.parseInt(System.getProperty("defaultQuerySizeLimit", "false"));
     updateClusterSettings(
         new ClusterSetting("transient", Settings.Key.QUERY_SIZE_LIMIT.getKeyValue(), limit.toString()));
