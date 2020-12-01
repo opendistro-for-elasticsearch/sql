@@ -81,7 +81,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
 
     const showExplainErrorMessage = () => {
       return this.props.sqlTranslations.map((queryTranslation: any) => JSON.stringify(
-        queryTranslation.errorMessage + ": This query is not explainable", null, 2
+        queryTranslation.errorMessage + ": This query is not explainable.", null, 2
       ));
     }
 

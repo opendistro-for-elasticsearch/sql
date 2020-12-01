@@ -78,7 +78,7 @@ export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
 
     const showExplainErrorMessage = () => {
       return this.props.pplTranslations.map((queryTranslation: any) => JSON.stringify(
-        queryTranslation.errorMessage + ": This query is not explainable", null, 2
+        queryTranslation.errorMessage + ": This query is not explainable.", null, 2
       ));
     }
 
