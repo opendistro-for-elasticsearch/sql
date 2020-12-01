@@ -32,7 +32,7 @@ public class LimitOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final Integer limit;
   private final Integer offset;
-  private Integer count;
+  private Integer count = 0;
 
   @Override
   public void open() {
