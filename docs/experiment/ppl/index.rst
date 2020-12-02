@@ -61,3 +61,9 @@ The query start with search command and then flowing a set of command delimited 
 * **Functions**
 
   - `PPL Functions <../../user/dql/functions.rst>`_
+
+* **Language Structure**
+
+  - `Identifiers <general/identifiers.rst>`_
+
+  - `Data Types <general/datatypes.rst>`_
