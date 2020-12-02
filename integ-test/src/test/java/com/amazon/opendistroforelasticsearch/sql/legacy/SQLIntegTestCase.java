@@ -47,7 +47,6 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAct
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
-
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.google.common.base.Strings;
 import java.io.IOException;

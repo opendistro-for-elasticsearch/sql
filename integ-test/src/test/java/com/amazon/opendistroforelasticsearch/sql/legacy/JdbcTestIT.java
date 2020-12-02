@@ -67,8 +67,8 @@ public class JdbcTestIT extends SQLIntegTestCase {
         equalTo("17-08-2014"));
   }
 
-  @Ignore
-  public void testDivisionInQuery() {
+  public void testDivisionInQuery() throws IOException {
+    updateQuerySizeLimit(10000);
     JSONObject response = executeJdbcRequest(
         "SELECT all_client/10 from elasticsearch-sql_test_index_online ORDER BY all_client/10 desc limit 1");
 
@@ -77,6 +77,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
             .getJSONArray(0)
             .getDouble(0),
         equalTo(16827.0));
+    resetQuerySizeLimit();
   }
 
   public void testGroupByInQuery() {

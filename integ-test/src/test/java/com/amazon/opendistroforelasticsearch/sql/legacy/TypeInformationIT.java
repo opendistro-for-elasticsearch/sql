@@ -67,7 +67,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
   /*
   stringOperators
    */
-  @Ignore
+  @Ignore("skip this test due to inconsistency in jdbc schema between old and new engines")
   @Test
   public void testUpperWithStringFieldReturnsString() {
     JSONObject response = executeJdbcRequest("SELECT UPPER(firstname) AS firstname_alias FROM " +
@@ -76,7 +76,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     verifySchema(response, schema("firstname_alias", null, "text"));
   }
 
-  @Ignore
+  @Ignore("skip this test due to inconsistency in jdbc schema between old and new engines")
   @Test
   public void testLowerWithTextFieldReturnsText() {
     JSONObject response = executeJdbcRequest("SELECT LOWER(firstname) FROM " +
@@ -127,7 +127,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
   /*
   binaryOperators
    */
-  @Ignore
+  @Ignore("skip this test due to inconsistency in jdbc schema between old and new engines")
   @Test
   public void testAddWithIntReturnsInt() {
     JSONObject response = executeJdbcRequest("SELECT (balance + 5) AS balance_add_five FROM " +
