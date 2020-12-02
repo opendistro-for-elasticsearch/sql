@@ -338,8 +338,6 @@ export class Main extends React.Component<MainProps, MainState> {
         const results: ResponseDetail<string>[] = response.map((response) =>
           this.processQueryResponse(response as IHttpResponse<ResponseData>)
         );
-        console.log('responsePromise is', responsePromise);
-        console.log('results is', results);
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
         this.setState(
           {
