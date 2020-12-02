@@ -12,7 +12,8 @@
     "experiment/ppl/cmd/search.rst",
     "experiment/ppl/cmd/sort.rst",
     "experiment/ppl/cmd/stats.rst",
-    "experiment/ppl/cmd/where.rst"
+    "experiment/ppl/cmd/where.rst",
+    "experiment/ppl/general/identifiers.rst"
   ],
   "sql_cli": [
     "user/dql/expressions.rst",
