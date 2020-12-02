@@ -1,0 +1,54 @@
+name: Rename and release ODBC
+
+# This workflow will rename previous artifacts of odbc and upload to s3, triggered by tag "rename*"
+
+on:
+  push:
+    tags:
+      - rename*
+
+env:
+  OD_VERSION: 1.12.0.0
+
+jobs:
+  upload-odbc:
+    runs-on: ubuntu-latest
+
+    name: Upload ODBC to S3
+    steps:
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Rename and upload for MacOS
+        run: |
+          mkdir macos
+          cd macos
+          aws s3 cp "s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/mac/Open Distro for Elasticsearch SQL ODBC Driver 64-bit-1.11.0.0-Darwin.pkg" "Open Distro for Elasticsearch SQL ODBC Driver 64-bit-${{ env.OD_VERSION }}-Darwin.pkg"
+          mac_installer=`ls -1t *.pkg | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          echo $mac_installer
+          aws s3 cp "$mac_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/mac/
+          cd ..
+
+      - name: Rename and upload for win32
+        run: |
+          mkdir win32
+          cd win32
+          aws s3 cp "s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/Open Distro for Elasticsearch SQL ODBC Driver 32-bit-1.11.0.0-Windows.msi" "Open Distro for Elasticsearch SQL ODBC Driver 32-bit-${{ env.OD_VERSION }}-Windows.msi"
+          windows_installer=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          echo $windows_installer
+          aws s3 cp "$windows_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/
+          cd ..
+
+      - name: Rename and upload for win64
+        run: |
+          mkdir win64
+          cd win64
+          aws s3 cp "s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/Open Distro for Elasticsearch SQL ODBC Driver 64-bit-1.11.0.0-Windows.msi" "Open Distro for Elasticsearch SQL ODBC Driver 64-bit-${{ env.OD_VERSION }}-Windows.msi"
+          windows_installer=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          echo $windows_installer
+          aws s3 cp "$windows_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/
+
