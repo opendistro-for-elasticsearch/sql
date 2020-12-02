@@ -41,7 +41,6 @@ export default class TranslateService {
       };
       return ret;
     } catch (err) {
-      console.log(err);
       return {
         data: {
           ok: false,

@@ -34,6 +34,7 @@ import { CoreStart } from 'kibana/public';
 interface ResponseData {
   ok: boolean;
   resp: any;
+  body: any;
 }
 
 export interface ResponseDetail<T> {
@@ -94,6 +95,12 @@ interface MainState {
 
 const SUCCESS_MESSAGE = 'Success';
 
+const errorQueryResponse = (queryResultResponseDetail: any) => {
+  let errorMessage = queryResultResponseDetail.errorMessage + ', this query is not runnable. \n \n' +
+    queryResultResponseDetail.data;
+  return errorMessage;
+}
+
 // It gets column names and row values to display in a Table from the json API response
 export function getQueryResultsForTable(
   queryResults: ResponseDetail<string>[]
@@ -103,7 +110,7 @@ export function getQueryResultsForTable(
       if (!queryResultResponseDetail.fulfilled) {
         return {
           fulfilled: queryResultResponseDetail.fulfilled,
-          errorMessage: queryResultResponseDetail.errorMessage + ', this query is not runnable.',
+          errorMessage: errorQueryResponse(queryResultResponseDetail),
         };
       } else {
         let databaseRecords: { [key: string]: any }[] = [];
@@ -254,7 +261,7 @@ export class Main extends React.Component<MainProps, MainState> {
       return {
         fulfilled: false,
         errorMessage: response.data.resp,
-        data: '',
+        data: response.data.body,
       };
     }
 
@@ -331,6 +338,8 @@ export class Main extends React.Component<MainProps, MainState> {
         const results: ResponseDetail<string>[] = response.map((response) =>
           this.processQueryResponse(response as IHttpResponse<ResponseData>)
         );
+        console.log('responsePromise is', responsePromise);
+        console.log('results is', results);
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
         this.setState(
           {

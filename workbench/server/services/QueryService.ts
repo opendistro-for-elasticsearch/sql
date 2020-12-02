@@ -45,6 +45,7 @@ export default class QueryService {
         data: {
           ok: false,
           resp: err.message,
+          body: err.body,
         },
       };
     }
