@@ -65,7 +65,6 @@ import javax.management.remote.JMXServiceURL;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
-import org.elasticsearch.common.settings.Setting;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.AfterClass;
@@ -79,6 +78,8 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
 
   public static final String PERSISTENT = "persistent";
   public static final String TRANSIENT = "transient";
+  public static final Integer DEFAULT_QUERY_SIZE_LIMIT =
+      Integer.parseInt(System.getProperty("defaultQuerySizeLimit", "false"));
 
   @Before
   public void setUpIndices() throws Exception {
@@ -87,6 +88,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     }
 
     enableNewQueryEngine();
+    resetQuerySizeLimit();
     init();
   }
 
@@ -152,15 +154,15 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     }
   }
 
-  protected void updateQuerySizeLimit(Integer limit) throws IOException {
+  protected void setQuerySizeLimit(Integer limit) throws IOException {
     updateClusterSettings(
         new ClusterSetting("transient", Settings.Key.QUERY_SIZE_LIMIT.getKeyValue(), limit.toString()));
   }
 
   protected void resetQuerySizeLimit() throws IOException {
-    Integer limit = Integer.parseInt(System.getProperty("defaultQuerySizeLimit", "false"));
     updateClusterSettings(
-        new ClusterSetting("transient", Settings.Key.QUERY_SIZE_LIMIT.getKeyValue(), limit.toString()));
+        new ClusterSetting("transient", Settings.Key.QUERY_SIZE_LIMIT.getKeyValue(), DEFAULT_QUERY_SIZE_LIMIT
+            .toString()));
   }
 
   protected static void wipeAllClusterSettings() throws IOException {

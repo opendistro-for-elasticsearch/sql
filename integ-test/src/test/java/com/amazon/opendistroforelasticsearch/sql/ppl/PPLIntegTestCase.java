@@ -60,13 +60,6 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
     return request;
   }
 
-
-  protected void setQuerySizeLimit(Integer limit) throws IOException {
-    updateClusterSettings(
-        new ClusterSetting("persistent", "opendistro.query.size_limit",
-            limit.toString()));
-  }
-
   protected static JSONObject updateClusterSettings(ClusterSetting setting) throws IOException {
     Request request = new Request("PUT", "/_cluster/settings");
     String persistentSetting = String.format(Locale.ROOT,
