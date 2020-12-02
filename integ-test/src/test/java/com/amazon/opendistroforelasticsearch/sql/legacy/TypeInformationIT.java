@@ -43,6 +43,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     verifySchema(response, schema("ABS(age)", null, "long"));
   }
 
+  @Ignore
   @Test
   public void testCeilWithLongFieldReturnsLong() {
     JSONObject response =
@@ -66,6 +67,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
   /*
   stringOperators
    */
+  @Ignore
   @Test
   public void testUpperWithStringFieldReturnsString() {
     JSONObject response = executeJdbcRequest("SELECT UPPER(firstname) AS firstname_alias FROM " +
@@ -74,6 +76,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     verifySchema(response, schema("firstname_alias", null, "text"));
   }
 
+  @Ignore
   @Test
   public void testLowerWithTextFieldReturnsText() {
     JSONObject response = executeJdbcRequest("SELECT LOWER(firstname) FROM " +
@@ -124,6 +127,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
   /*
   binaryOperators
    */
+  @Ignore
   @Test
   public void testAddWithIntReturnsInt() {
     JSONObject response = executeJdbcRequest("SELECT (balance + 5) AS balance_add_five FROM " +
@@ -132,6 +136,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     verifySchema(response, schema("balance_add_five", null, "integer"));
   }
 
+  @Ignore
   @Test
   public void testSubtractLongWithLongReturnsLong() {
     JSONObject response = executeJdbcRequest("SELECT (balance - balance) FROM " +
