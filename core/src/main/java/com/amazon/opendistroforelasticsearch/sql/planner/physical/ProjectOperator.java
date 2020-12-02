@@ -62,7 +62,7 @@ public class ProjectOperator extends PhysicalPlan {
     ImmutableMap.Builder<String, ExprValue> mapBuilder = new Builder<>();
     for (NamedExpression expr : projectList) {
       ExprValue exprValue = expr.valueOf(inputValue.bindingTuples());
-      mapBuilder.put(expr.getName(), exprValue);
+      mapBuilder.put(expr.getNameOrAlias(), exprValue);
     }
     return ExprTupleValue.fromExprValueMap(mapBuilder.build());
   }
@@ -70,7 +70,7 @@ public class ProjectOperator extends PhysicalPlan {
   @Override
   public ExecutionEngine.Schema schema() {
     return new ExecutionEngine.Schema(getProjectList().stream()
-        .map(expr -> new ExecutionEngine.Schema.Column(expr.getName(),
+        .map(expr -> new ExecutionEngine.Schema.Column(expr.getNameOrAlias(),
             expr.getAlias(), expr.type())).collect(Collectors.toList()));
   }
 }

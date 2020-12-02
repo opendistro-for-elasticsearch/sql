@@ -44,7 +44,7 @@ public class BucketAggregationBuilder {
         new ImmutableList.Builder<>();
     for (NamedExpression expression : expressions) {
       TermsValuesSourceBuilder valuesSourceBuilder =
-          new TermsValuesSourceBuilder(expression.getName()).missingBucket(true);
+          new TermsValuesSourceBuilder(expression.getNameOrAlias()).missingBucket(true);
       resultBuilder
           .add(helper.build(expression.getDelegated(), valuesSourceBuilder::field,
               valuesSourceBuilder::script));
