@@ -249,6 +249,15 @@ export class Main extends React.Component<MainProps, MainState> {
     };
   }
 
+  formatQueryErrorBody(data: any) {
+    let prettyErrorMessage = "";
+    prettyErrorMessage += 'reason: ' + data.errorReason + '\n';
+    prettyErrorMessage += 'details: ' + data.errorDetails + '\n';
+    prettyErrorMessage += 'type: ' + data.errorType + '\n';
+    prettyErrorMessage += 'status: ' + data.status;
+    return prettyErrorMessage;
+  }
+
   processQueryResponse(response: IHttpResponse<ResponseData>): ResponseDetail<string> {
     if (!response) {
       return {
@@ -261,7 +270,7 @@ export class Main extends React.Component<MainProps, MainState> {
       return {
         fulfilled: false,
         errorMessage: response.data.resp,
-        data: response.data.body,
+        data: this.formatQueryErrorBody(response.data),
       };
     }
 
