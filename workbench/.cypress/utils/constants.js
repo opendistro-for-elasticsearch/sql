@@ -15,25 +15,27 @@
 
 export const delay = 1000;
 
+const queryBody = '?0=s&1=e&2=l&3=e&4=c&5=t&6=%20&7=*&8=%20&9=f&10=r&11=o&12=m&13=%20&14=a&15=c&16=c&17=o&18=u&19=n&20=t&21=s&22=%20&23=w&24=h&25=e&26=r&27=e&28=%20&29=b&30=a&31=l&32=a&33=n&34=c&35=e&36=%20&37=%3E&38=%20&39=4&40=9&41=5&42=0&43=0';
+
 export const verifyDownloadData = [
   {
     title: 'Download and verify JSON',
-    url: 'api/sql_console/sqljson',
+    url: 'api/sql_console/sqljson' + queryBody,
     file: 'JSONFile'
   },
   {
     title: 'Download and verify JDBC',
-    url: 'api/sql_console/sqlquery',
+    url: 'api/sql_console/sqlquery' + queryBody,
     file: 'JDBCFile'
   },
   {
     title: 'Download and verify CSV',
-    url: 'api/sql_console/sqlcsv',
+    url: 'api/sql_console/sqlcsv' + queryBody,
     file: 'CSVFile'
   },
   {
     title: 'Download and verify Text',
-    url: 'api/sql_console/sqltext',
+    url: 'api/sql_console/sqltext' + queryBody,
     file: 'TextFile'
   },
 ];
