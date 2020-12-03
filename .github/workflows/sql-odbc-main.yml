@@ -126,8 +126,8 @@ jobs:
       run:
         working-directory: sql-odbc
     steps:
-    - uses: actions/virtual-environments@win19/20201116.1
     - uses: actions/checkout@v1
+    - uses: actions/virtual-environments@win19/20201116.1
     - name: add-msbuild-to-path
       uses: microsoft/setup-msbuild@v1.0.2
     - name: configure-and-build-driver
