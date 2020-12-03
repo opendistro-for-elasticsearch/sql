@@ -421,7 +421,7 @@ export class Main extends React.Component<MainProps, MainState> {
     if (queries.length > 0) {
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post('../api/sql_console/queryjson', { query }).catch((error: any) => {
+          this.httpClient.post('../api/sql_console/sqljson', { query }).catch((error: any) => {
             this.setState({
               messages: [
                 {
