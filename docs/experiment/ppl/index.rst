@@ -65,3 +65,9 @@ The query start with search command and then flowing a set of command delimited 
 * **Optimization**
 
   - `Optimization <../../user/optimization/optimization.rst>`_
+
+* **Language Structure**
+
+  - `Identifiers <general/identifiers.rst>`_
+
+  - `Data Types <general/datatypes.rst>`_

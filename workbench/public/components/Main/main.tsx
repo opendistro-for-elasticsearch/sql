@@ -34,6 +34,7 @@ import { CoreStart } from 'kibana/public';
 interface ResponseData {
   ok: boolean;
   resp: any;
+  body: any;
 }
 
 export interface ResponseDetail<T> {
@@ -94,6 +95,12 @@ interface MainState {
 
 const SUCCESS_MESSAGE = 'Success';
 
+const errorQueryResponse = (queryResultResponseDetail: any) => {
+  let errorMessage = queryResultResponseDetail.errorMessage + ', this query is not runnable. \n \n' +
+    queryResultResponseDetail.data;
+  return errorMessage;
+}
+
 // It gets column names and row values to display in a Table from the json API response
 export function getQueryResultsForTable(
   queryResults: ResponseDetail<string>[]
@@ -103,7 +110,7 @@ export function getQueryResultsForTable(
       if (!queryResultResponseDetail.fulfilled) {
         return {
           fulfilled: queryResultResponseDetail.fulfilled,
-          errorMessage: queryResultResponseDetail.errorMessage,
+          errorMessage: errorQueryResponse(queryResultResponseDetail),
         };
       } else {
         let databaseRecords: { [key: string]: any }[] = [];
@@ -242,6 +249,15 @@ export class Main extends React.Component<MainProps, MainState> {
     };
   }
 
+  formatQueryErrorBody(data: any) {
+    let prettyErrorMessage = "";
+    prettyErrorMessage += 'reason: ' + data.errorReason + '\n';
+    prettyErrorMessage += 'details: ' + data.errorDetails + '\n';
+    prettyErrorMessage += 'type: ' + data.errorType + '\n';
+    prettyErrorMessage += 'status: ' + data.status;
+    return prettyErrorMessage;
+  }
+
   processQueryResponse(response: IHttpResponse<ResponseData>): ResponseDetail<string> {
     if (!response) {
       return {
@@ -254,7 +270,7 @@ export class Main extends React.Component<MainProps, MainState> {
       return {
         fulfilled: false,
         errorMessage: response.data.resp,
-        data: '',
+        data: this.formatQueryErrorBody(response.data),
       };
     }
 
@@ -332,7 +348,6 @@ export class Main extends React.Component<MainProps, MainState> {
           this.processQueryResponse(response as IHttpResponse<ResponseData>)
         );
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
-
         this.setState(
           {
             queries: queries,
