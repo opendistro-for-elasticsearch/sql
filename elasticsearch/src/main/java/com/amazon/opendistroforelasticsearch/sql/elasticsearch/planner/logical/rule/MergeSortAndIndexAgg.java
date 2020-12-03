@@ -39,7 +39,7 @@ import lombok.experimental.Accessors;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * Merge Aggregation -- IndexAgg to IndexScanAggregation.
+ * Merge Sort -- IndexScanAggregation to IndexScanAggregation.
  */
 public class MergeSortAndIndexAgg implements Rule<LogicalSort> {
 
