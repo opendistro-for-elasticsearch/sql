@@ -121,7 +121,7 @@ jobs:
     #    name: windows-test-results
     #    path: $CI_OUTPUT_PATH/test
   build-windows64:
-    runs-on: win19/20201116.1
+    runs-on: windows-2019/20201116.1
     defaults:
       run:
         working-directory: sql-odbc
