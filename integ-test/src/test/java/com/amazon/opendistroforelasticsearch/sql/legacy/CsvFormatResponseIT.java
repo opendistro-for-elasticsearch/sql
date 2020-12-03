@@ -105,6 +105,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
   }
 
+  @Ignore("skip this test since array is not supported in new engine")
   @Test
   public void nestedObjectsAndArraysAreQuoted() throws IOException {
 
@@ -121,6 +122,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertThat(result, containsString(expectedMessage));
   }
 
+  @Ignore("skip this test since array is not supported in new engine")
   @Test
   public void arraysAreQuotedInFlatMode() throws IOException {
 
@@ -141,6 +143,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     setFlatOption(false);
   }
 
+  @Ignore("skip this test since array is not supported in new engine")
   @Test
   public void doubleQuotesAreEscapedWithDoubleQuotes() throws IOException {
     final String query = "SELECT * FROM " + TEST_INDEX_NESTED_WITH_QUOTES;
@@ -317,7 +320,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void simpleNumericValueAgg() throws Exception {
-    String query = String.format(Locale.ROOT, "select count(*) from %s ", TEST_INDEX_DOG);
+    String query = String.format(Locale.ROOT, "select COUNT(*) from %s ", TEST_INDEX_DOG);
     CSVResult csvResult = executeCsvRequest(query, false);
 
     List<String> headers = csvResult.getHeaders();
@@ -372,6 +375,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   }
 
+  @Ignore("skip this test because the result should be integer type without fractional part")
   @Test
   public void aggAfterTermsGroupBy() throws Exception {
     String query = String.format(Locale.ROOT, "SELECT COUNT(*) FROM %s GROUP BY gender",
@@ -595,6 +599,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   }
 
+  @Ignore("skip this test since flat, socre, type, id are not applicable in new engine")
   @Test
   public void includeIdAndNotTypeOrScore() throws Exception {
     String query = String.format(Locale.ROOT,
@@ -609,6 +614,8 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertTrue(lines.get(0).contains(",437") || lines.get(0).contains("437,"));
   }
 
+
+  @Ignore("skip this test since flat, socre, type, id are not applicable in new engine")
   @Test
   public void includeIdAndTypeButNoScore() throws Exception {
     String query = String.format(Locale.ROOT,
@@ -625,6 +632,8 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
   }
   //endregion Tests migrated from CSVResultsExtractorTests
 
+
+  @Ignore("skip this test since array is not supported in new engine")
   @Test
   public void sensitiveCharacterSanitizeTest() throws IOException {
     String requestBody =
@@ -649,6 +658,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertTrue(lines.get(0).contains("'@cmd|' /C notepad'!_xlbgnm.A1"));
   }
 
+  @Ignore("skip this test since array is not supported in new engine")
   @Test
   public void sensitiveCharacterSanitizeAndQuotedTest() throws IOException {
     String requestBody =
