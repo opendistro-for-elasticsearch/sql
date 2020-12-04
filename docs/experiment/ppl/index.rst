@@ -66,6 +66,8 @@ The query start with search command and then flowing a set of command delimited 
 
   - `String Functions <functions/string.rst>`_
 
+  - `Condition Functions <functions/condition.rst>`_
+
 * **Optimization**
 
   - `Optimization <../../user/optimization/optimization.rst>`_

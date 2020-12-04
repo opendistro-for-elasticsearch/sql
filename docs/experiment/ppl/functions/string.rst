@@ -81,17 +81,27 @@ Example::
     +------------------------+
 
 
-LOCATE
+LIKE
 ------
 
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: like(string, PATTERN) return true if the string match the PATTERN.
 
-1. LOCATE(STRING, STRING, INTEGER) -> INTEGER
-2. LOCATE(STRING, STRING) -> INTEGER
+There are two wildcards often used in conjunction with the LIKE operator:
+* ``%`` - The percent sign represents zero, one, or multiple characters
+* ``_`` - The underscore represents a single character
 
+Example::
+
+    od> source=people | eval `LIKE('hello world', '_ello%')` = LIKE('hello world', '_ello%') | fields `LIKE('hello world', '_ello%')`
+    fetched rows / total rows = 1/1
+    +---------------------------------+
+    | LIKE('hello world', '_ello%')   |
+    |---------------------------------|
+    | True                            |
+    +---------------------------------+
 
 LOWER
 -----

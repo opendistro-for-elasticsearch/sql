@@ -127,7 +127,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     assertEqual("source=t isnull(a)",
         filter(
             relation("t"),
-            function("isnull", field("a"))
+            function("is null", field("a"))
         ));
   }
 
@@ -136,7 +136,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     assertEqual("source=t isnotnull(a)",
         filter(
             relation("t"),
-            function("isnotnull", field("a"))
+            function("is not null", field("a"))
         ));
   }
 
