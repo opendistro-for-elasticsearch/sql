@@ -62,6 +62,10 @@ The query start with search command and then flowing a set of command delimited 
 
   - `PPL Functions <../../user/dql/functions.rst>`_
 
+* **Optimization**
+
+  - `Optimization <../../user/optimization/optimization.rst>`_
+
 * **Language Structure**
 
   - `Identifiers <general/identifiers.rst>`_

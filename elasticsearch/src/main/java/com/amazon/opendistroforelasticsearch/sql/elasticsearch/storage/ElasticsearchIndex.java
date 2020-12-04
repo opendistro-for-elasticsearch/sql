@@ -177,7 +177,7 @@ public class ElasticsearchIndex implements Table {
           new AggregationQueryBuilder(new DefaultExpressionSerializer());
       List<AggregationBuilder> aggregationBuilder =
           builder.buildAggregationBuilder(node.getAggregatorList(),
-              node.getGroupByList());
+              node.getGroupByList(), node.getSortList());
       context.pushDownAggregation(aggregationBuilder);
       context.pushTypeMapping(
           builder.buildTypeMapping(node.getAggregatorList(),
