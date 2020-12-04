@@ -87,4 +87,16 @@ class CaseClauseTest extends ExpressionTestBase {
         caseClause.allResultTypes());
   }
 
+  @Test
+  void should_return_all_result_types_excluding_null_result() {
+    when(whenClause.type()).thenReturn(ExprCoreType.UNKNOWN);
+    Expression defaultResult = mock(Expression.class);
+    when(defaultResult.type()).thenReturn(ExprCoreType.UNKNOWN);
+
+    CaseClause caseClause = new CaseClause(ImmutableList.of(whenClause), defaultResult);
+    assertEquals(
+        ImmutableList.of(),
+        caseClause.allResultTypes());
+  }
+
 }
