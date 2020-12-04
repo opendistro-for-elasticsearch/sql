@@ -70,7 +70,7 @@ public class PPLQueryRequest {
       return optionalFormat.get();
     } else {
       throw new IllegalArgumentException(
-          "Failed to create executor due to unknown response format: " + format);
+          String.format(Locale.ROOT,"response in %s format is not supported.", format));
     }
   }
 
