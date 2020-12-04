@@ -18,7 +18,7 @@ import React from "react";
 import { SortableProperties, SortableProperty } from "@elastic/eui/lib/services";
 // @ts-ignore
 import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer, EuiTextAlign, EuiButton, EuiButtonIcon } from "@elastic/eui";
-import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap } from "../Main/main";
+import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap, DataRow } from "../Main/main";
 import QueryResultsBody from "./QueryResultsBody";
 import { getQueryIndex, needsScrolling, getSelectedResults } from "../../utils/utils";
 import { DEFAULT_NUM_RECORDS_PER_PAGE, MESSAGE_TAB_LABEL, TAB_CONTAINER_ID } from "../../utils/constants";
@@ -155,11 +155,24 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     }
   }
 
-  onSort = (prop: string) => {
-    this.sortableProperties.sortOn(prop);
-    this.sortedColumn = prop;
-    this.setState({});
-  };
+  searchItems(dataRows: DataRow[], searchQuery: string): DataRow[] {
+
+    let rows: { [key: string]: any }[] = [];
+    for (const row of dataRows) {
+      rows.push(row.data)
+    }
+    const searchResult = EuiSearchBar.Query.execute(searchQuery, rows);
+    let result: DataRow[] = [];
+    for (const row of searchResult) {
+      let dataRow: DataRow = {
+        // rowId does not matter here since the data rows would be sorted later
+        rowId: 0,
+        data: row
+      }
+      result.push(dataRow)
+    }
+    return result;
+  }
 
   renderTabs(): Tab[] {
     const tabs = [
@@ -193,10 +206,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
 
     if (queryResultSelected) {
       const matchingItems: object[] = this.props.searchQuery
-        ? EuiSearchBar.Query.execute(
-          this.props.searchQuery,
-          queryResultSelected.records
-        )
+        ? this.searchItems(queryResultSelected.records, this.props.searchQuery)
         : queryResultSelected.records;
       this.updatePagination(matchingItems.length);
       this.updateSortableColumns(queryResultSelected);
@@ -354,7 +364,6 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   lastItemIndex={this.pager.getLastItemIndex()}
                   onChangeItemsPerPage={this.onChangeItemsPerPage}
                   onChangePage={this.onChangePage}
-                  onSort={this.onSort}
                   sortedColumn={this.sortedColumn}
                   sortableProperties={this.sortableProperties}
                   itemIdToExpandedRowMap={this.props.itemIdToExpandedRowMap}
