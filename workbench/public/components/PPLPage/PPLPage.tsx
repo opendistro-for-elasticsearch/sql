@@ -83,8 +83,8 @@ export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
     }
 
     const explainContent = pplTranslationsNotEmpty()
-    ? this.props.pplTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")
-    : showExplainErrorMessage();
+      ? this.props.pplTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")
+      : showExplainErrorMessage();
 
     let modal;
 

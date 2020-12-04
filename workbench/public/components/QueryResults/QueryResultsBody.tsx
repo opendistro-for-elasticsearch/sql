@@ -50,7 +50,7 @@ import {
 } from "../../utils/utils";
 import "../../ace-themes/sql_console";
 import { COLUMN_WIDTH, MEDIUM_COLUMN_WIDTH, PAGE_OPTIONS, SMALL_COLUMN_WIDTH } from "../../utils/constants";
-import { ItemIdToExpandedRowMap, QueryMessage, QueryResult } from "../Main/main";
+import { DataRow, ItemIdToExpandedRowMap, QueryMessage, QueryResult } from "../Main/main";
 
 const DoubleScrollbar = require('react-double-scrollbar');
 
@@ -110,7 +110,7 @@ interface FieldValue {
 }
 
 class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResultsBodyState> {
-  public items: any[];
+  public items: DataRow[];
   public columns: any[];
   public panels: any[];
   public expandedRowColSpan: number;
@@ -537,7 +537,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   renderHeaderCells(columns: any[]) {
     return columns.map((field: any) => {
       const label = field.id === "expandIcon" ? field.label : field;
-      const colwidth = field.id === "expandIcon" ? SMALL_COLUMN_WIDTH : field === "id" ? MEDIUM_COLUMN_WIDTH : COLUMN_WIDTH;
+      const colwidth = field.id === "expandIcon" ? SMALL_COLUMN_WIDTH : COLUMN_WIDTH;
       return (
         <EuiTableHeaderCell
           key={label}
@@ -566,17 +566,18 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     });
   }
 
-  renderRow(item: any, columns: string[], rowId: string, expandedRowMap: ItemIdToExpandedRowMap) {
+  renderRow(item: DataRow, columns: string[], rowId: string, expandedRowMap: ItemIdToExpandedRowMap) {
     let rows: any[] = [];
-    // If the item is an array or an object we add it to the expandedRowMap
-    if (item && ((typeof item === "object" && !isEmpty(item)) || (Array.isArray(item) && item.length > 0))
+    const data = item.data;
+    // If the data is an array or an object we add it to the expandedRowMap
+    if (data && ((typeof data === "object" && !isEmpty(data)) || (Array.isArray(data) && data.length > 0))
     ) {
       let rowItems: any[] = [];
 
-      if (Array.isArray(item)) {
-        rowItems = item;
+      if (Array.isArray(data)) {
+        rowItems = data;
       } else {
-        rowItems.push(item);
+        rowItems.push(data);
       }
 
       for (let i = 0; i < rowItems.length; i++) {
@@ -677,7 +678,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     return rows;
   }
 
-  renderRows(items: any, columns: string[], expandedRowMap: ItemIdToExpandedRowMap) {
+  renderRows(items: DataRow[], columns: string[], expandedRowMap: ItemIdToExpandedRowMap) {
     let rows: any[] = [];
     if (items) {
       for (
@@ -686,12 +687,12 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
         itemIndex++
       ) {
         const item = items[itemIndex];
+        const rowId = item.rowId;
         if (item) {
-          const rowId = item["id"].toString();
           const rowsForItem = this.renderRow(
             item,
             columns,
-            rowId,
+            rowId.toString(10),
             expandedRowMap
           );
           rows.push(rowsForItem);
@@ -721,6 +722,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   }
 
   renderNodeData = (node: Node, expandedRowMap: ItemIdToExpandedRowMap) => {
+    // let dataRow: DataRow = {};
     let items: any[] = [];
     let columns: string[] = [];
     let records: any[] = [];
@@ -734,6 +736,10 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       items = records;
       columns = this.addExpandingIconColumn(Object.keys(data));
     }
+    let dataRow: DataRow = {
+      rowId: 0,
+      data: items
+    };
 
     return (
       <div>
@@ -743,7 +749,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
           </EuiTableHeader>
 
           <EuiTableBody>
-            {this.renderRow(items, columns, node.nodeId.toString(), expandedRowMap)}
+            {this.renderRow(dataRow, columns, node.nodeId.toString(), expandedRowMap)}
           </EuiTableBody>
         </EuiTable>
       </div>
