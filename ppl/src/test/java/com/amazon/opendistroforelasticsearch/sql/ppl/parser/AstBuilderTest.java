@@ -50,11 +50,17 @@ import static org.junit.Assert.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class AstBuilderTest {
+
+  @Rule
+  public ExpectedException exceptionRule = ExpectedException.none();
 
   private PPLSyntaxParser parser = new PPLSyntaxParser();
 
@@ -363,6 +369,40 @@ public class AstBuilderTest {
         filter(
             relation("log.2020.04.20."),
             compare("=", field("a"), intLiteral(1))
+        ));
+  }
+
+  @Test
+  public void testIdentifierAsIndexNameStartWithDot() {
+    assertEqual("source=.kibana",
+        relation(".kibana"));
+  }
+
+  @Test
+  public void identifierAsIndexNameWithDotInTheMiddleThrowException() {
+    exceptionRule.expect(SyntaxCheckException.class);
+    plan("source=log.2020.10.10");
+  }
+
+  @Test
+  public void testIdentifierAsIndexNameWithSlashInTheMiddle() {
+    assertEqual("source=log-2020",
+        relation("log-2020"));
+  }
+
+  @Test
+  public void testIdentifierAsIndexNameContainStar() {
+    assertEqual("source=log-2020-10-*",
+        relation("log-2020-10-*"));
+  }
+
+  @Test
+  public void testIdentifierAsFieldNameStartWithAt() {
+    assertEqual("source=log-2020 | fields @timestamp",
+        projectWithArg(
+            relation("log-2020"),
+            defaultFieldsArgs(),
+            field("@timestamp")
         ));
   }
 
