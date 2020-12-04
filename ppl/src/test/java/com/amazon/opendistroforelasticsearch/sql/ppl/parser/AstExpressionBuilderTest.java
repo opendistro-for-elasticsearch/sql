@@ -47,6 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLit
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.xor;
 import static java.util.Collections.emptyList;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -320,6 +321,27 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
             ),
             emptyList(),
             emptyList(),
+            defaultStatsArgs()
+        ));
+  }
+
+  @Test
+  public void testCountFuncCallExpr() {
+    assertEqual("source=t | stats count() by b",
+        agg(
+            relation("t"),
+            exprList(
+                alias(
+                    "count()",
+                    aggregate("count", AllFields.of())
+                )
+            ),
+            emptyList(),
+            exprList(
+                alias(
+                    "b",
+                    field("b")
+                )),
             defaultStatsArgs()
         ));
   }
