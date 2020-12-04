@@ -40,13 +40,16 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -109,6 +112,13 @@ public class RestPPLQueryAction extends BaseRestHandler {
   }
 
   @Override
+  protected Set<String> responseParams() {
+    Set<String> responseParams = new HashSet<>(super.responseParams());
+    responseParams.addAll(Arrays.asList("format", "escape"));
+    return responseParams;
+  }
+
+  @Override
   protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient nodeClient) {
     Metrics.getInstance().getNumericalMetric(MetricName.PPL_REQ_TOTAL).increment();
     Metrics.getInstance().getNumericalMetric(MetricName.PPL_REQ_COUNT_TOTAL).increment();
@@ -123,9 +133,10 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
     PPLService pplService = createPPLService(nodeClient);
     PPLQueryRequest pplRequest = PPLQueryRequestFactory.getPPLRequest(request);
+    Format format = pplRequest.format();
 
-    if (pplRequest.format().equals(PPLQueryRequest.Format.CSV)) {
-      formatter = new CsvResponseFormatter();
+    if (format.equals(Format.CSV)) {
+      formatter = new CsvResponseFormatter(pplRequest.escape());
     } else {
       formatter = new SimpleJsonResponseFormatter(PRETTY);
     }

@@ -29,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Explai
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
@@ -37,7 +38,10 @@ import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -69,6 +73,9 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   private ResponseFormatter<QueryResult> formatter;
 
+  /**
+   * Constructor of RestSQLQueryAction.
+   */
   public RestSQLQueryAction(ClusterService clusterService, Settings pluginSettings) {
     super();
     this.clusterService = clusterService;
@@ -113,8 +120,9 @@ public class RestSQLQueryAction extends BaseRestHandler {
       return NOT_SUPPORTED_YET;
     }
 
-    if (request.format().equals(SQLQueryRequest.Format.CSV)) {
-      formatter = new CsvResponseFormatter();
+    Format format = request.format();
+    if (format.equals(Format.CSV)) {
+      formatter = new CsvResponseFormatter(request.escape());
     } else {
       formatter = new SimpleJsonResponseFormatter(PRETTY);
     }

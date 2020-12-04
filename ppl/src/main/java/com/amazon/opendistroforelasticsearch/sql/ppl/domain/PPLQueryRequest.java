@@ -15,19 +15,28 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.google.common.base.Strings;
 import java.util.Locale;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.json.JSONObject;
 
 @RequiredArgsConstructor
 public class PPLQueryRequest {
-  public static final PPLQueryRequest NULL = new PPLQueryRequest("", null, "");
+  public static final PPLQueryRequest NULL = new PPLQueryRequest("", null, "", "");
 
   private final String pplQuery;
   private final JSONObject jsonContent;
   private final String path;
-  private String format = null;
+  private String format = "";
+
+  @Setter
+  @Getter
+  @Accessors(fluent = true)
+  private boolean escape = false;
 
   /**
    * Constructor of PPLQueryRequest.
@@ -37,14 +46,6 @@ public class PPLQueryRequest {
     this.jsonContent = jsonContent;
     this.path = path;
     this.format = format;
-  }
-
-  /**
-   * Response format options.
-   */
-  public enum Format {
-    JDBC,
-    CSV
   }
 
   public String getRequest() {

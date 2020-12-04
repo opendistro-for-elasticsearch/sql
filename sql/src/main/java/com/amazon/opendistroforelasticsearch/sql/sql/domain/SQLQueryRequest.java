@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.domain;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
@@ -23,7 +24,9 @@ import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.json.JSONObject;
 
 /**
@@ -58,13 +61,10 @@ public class SQLQueryRequest {
    */
   private final String format;
 
-  /**
-   * Response format options.
-   */
-  public enum Format {
-    JDBC,
-    CSV
-  }
+  @Setter
+  @Getter
+  @Accessors(fluent = true)
+  private boolean escape = false;
 
   /**
    * Pre-check if the request can be supported by meeting the following criteria:

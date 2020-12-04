@@ -25,12 +25,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Singular;
 
+@RequiredArgsConstructor
 public class CsvResponseFormatter implements ResponseFormatter<QueryResult> {
   private static final String INLINE_SEPARATOR = ",";
   private static final String INTERLINE_SEPARATOR = "\n";
   private static final Set<String> SENSITIVE_CHAR = ImmutableSet.of("=", "+", "-", "@");
+
+  private final boolean escapeSanity;
 
   @Override
   public String format(QueryResult response) {
@@ -54,13 +58,14 @@ public class CsvResponseFormatter implements ResponseFormatter<QueryResult> {
     response.columnNameTypes().forEach((column, type) -> builder.header(column));
     response.iterator().forEachRemaining(row -> {
       ImmutableList.Builder<String> line = new ImmutableList.Builder<>();
-      Arrays.stream(row).forEach(val -> line.add(val.toString()));
+      // replace null values with empty string
+      Arrays.asList(row).forEach(val -> line.add(val == null ? "" : val.toString()));
       dataLines.add(line.build());
     });
     builder.data(dataLines.build());
 
     CsvResult result = builder.build();
-    return result.sanitize();
+    return escapeSanity ? result : result.sanitize();
   }
 
   @Builder(builderClassName = "Builder")

@@ -154,6 +154,10 @@ public class RestSqlAction extends BaseRestHandler {
                                                                     sqlRequest.getSql(),
                                                                     request.path(),
                                                                     format.getFormatName());
+                // set escape option if csv format
+                if (format.equals(Format.CSV)) {
+                    newSqlRequest.escape(SqlRequestParam.getEscapeOption(request.params()));
+                }
                 RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
                 if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
                     LOG.info("[{}] Request {} is handled by new SQL query engine",
@@ -175,7 +179,7 @@ public class RestSqlAction extends BaseRestHandler {
     @Override
     protected Set<String> responseParams() {
         Set<String> responseParams = new HashSet<>(super.responseParams());
-        responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format"));
+        responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format", "escape"));
         return responseParams;
     }
 

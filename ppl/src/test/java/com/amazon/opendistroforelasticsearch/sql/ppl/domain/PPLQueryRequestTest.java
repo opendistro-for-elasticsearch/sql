@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,21 +45,21 @@ public class PPLQueryRequestTest {
   public void testDefaultFormat() {
     PPLQueryRequest request = new PPLQueryRequest(
         "source=test", null, "/_opendistro/_ppl");
-    assertEquals(request.format(), PPLQueryRequest.Format.JDBC);
+    assertEquals(request.format(), Format.JDBC);
   }
 
   @Test
   public void testJDBCFormat() {
     PPLQueryRequest request = new PPLQueryRequest(
         "source=test", null, "/_opendistro/_ppl", "jdbc");
-    assertEquals(request.format(), PPLQueryRequest.Format.JDBC);
+    assertEquals(request.format(), Format.JDBC);
   }
 
   @Test
   public void testCSVFormat() {
     PPLQueryRequest request = new PPLQueryRequest(
         "source=test", null, "/_opendistro/_ppl", "csv");
-    assertEquals(request.format(), PPLQueryRequest.Format.CSV);
+    assertEquals(request.format(), Format.CSV);
   }
 
   @Test
