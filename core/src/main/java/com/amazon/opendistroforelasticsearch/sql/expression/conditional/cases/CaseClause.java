@@ -21,10 +21,12 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -33,11 +35,10 @@ import lombok.ToString;
  * A CASE clause is very different from a regular function. Functions have well-defined signature,
  * though CASE clause is more like a function implementation which requires type check "manually".
  */
-@AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Getter
 @ToString
-public class CaseClause implements Expression {
+public class CaseClause extends FunctionExpression {
 
   /**
    * List of WHEN clauses.
@@ -49,10 +50,19 @@ public class CaseClause implements Expression {
    */
   private final Expression defaultResult;
 
+  /**
+   * Initialize case clause.
+   */
+  public CaseClause(List<WhenClause> whenClauses, Expression defaultResult) {
+    super(FunctionName.of("case"), concatArgs(whenClauses, defaultResult));
+    this.whenClauses = whenClauses;
+    this.defaultResult = defaultResult;
+  }
+
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
     for (WhenClause when : whenClauses) {
-      if (when.isTrue(valueEnv)) {
+      if (when.isSatisfied(valueEnv)) {
         return when.valueOf(valueEnv);
       }
     }
@@ -81,6 +91,17 @@ public class CaseClause implements Expression {
       types.add(defaultResult.type());
     }
     return types;
+  }
+
+  private static List<Expression> concatArgs(List<WhenClause> whenClauses,
+                                             Expression defaultResult) {
+    ImmutableList.Builder<Expression> args = ImmutableList.builder();
+    whenClauses.forEach(args::add);
+
+    if (defaultResult != null) {
+      args.add(defaultResult);
+    }
+    return args.build();
   }
 
 }

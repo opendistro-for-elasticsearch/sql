@@ -82,11 +82,11 @@ public abstract class ExpressionNodeVisitor<T, C> {
   }
 
   public T visitCase(CaseClause node, C context) {
-    return visitNode(node, context);
+    return visitFunction(node, context);
   }
 
   public T visitWhen(WhenClause node, C context) {
-    return visitNode(node, context);
+    return visitFunction(node, context);
   }
 
 }
