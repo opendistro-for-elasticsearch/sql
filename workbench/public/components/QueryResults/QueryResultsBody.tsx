@@ -303,6 +303,15 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       };
     }
 
+    if (typeof fieldValue === "boolean") {
+      return {
+        hasExpandingRow: hasExpandingRow,
+        value: String(fieldValue),
+        hasExpandingArray,
+        link
+      }
+    }
+
     // Not an object or array
     if (typeof fieldValue !== "object") {
       return {
