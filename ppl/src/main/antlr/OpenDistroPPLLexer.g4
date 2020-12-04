@@ -70,7 +70,6 @@ AND:                                'AND';
 XOR:                                'XOR';
 TRUE:                               'TRUE';
 FALSE:                              'FALSE';
-LIKE:                               'LIKE';
 REGEXP:                             'REGEXP';
 
 // DATETIME, INTERVAL AND UNIT KEYWORDS
@@ -229,6 +228,11 @@ CONCAT:                             'CONCAT';
 CONCAT_WS:                          'CONCAT_WS';
 LENGTH:                             'LENGTH';
 STRCMP:                             'STRCMP';
+
+// BOOL FUNCTIONS
+LIKE:                               'LIKE';
+ISNULL:                             'ISNULL';
+ISNOTNULL:                          'ISNOTNULL';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
