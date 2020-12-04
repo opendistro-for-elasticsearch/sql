@@ -6,7 +6,7 @@ Mathematical Functions
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
 ABS
