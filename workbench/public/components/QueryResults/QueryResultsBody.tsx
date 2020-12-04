@@ -722,7 +722,6 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   }
 
   renderNodeData = (node: Node, expandedRowMap: ItemIdToExpandedRowMap) => {
-    // let dataRow: DataRow = {};
     let items: any[] = [];
     let columns: string[] = [];
     let records: any[] = [];

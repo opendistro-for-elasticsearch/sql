@@ -115,7 +115,6 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
           errorMessage: errorQueryResponse(queryResultResponseDetail),
         };
       } else {
-        // let resultTable: Table;
         const responseObj = queryResultResponseDetail.data ? JSON.parse(queryResultResponseDetail.data) : '';
         let fields: string[] = [];
         let dataRows: DataRow[] = [];
