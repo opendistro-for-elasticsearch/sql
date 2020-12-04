@@ -21,7 +21,7 @@ import QueryResultsBody from "./QueryResultsBody";
 import { Pager } from "@elastic/eui/lib";
 // @ts-ignore
 import { SortableProperties } from "@elastic/eui/lib/services";
-import { mockQueryResults, mockQueryResultJSONResponse, mockErrorMessage, mockSuccessfulMessage, mockSortableColumns, mockQueryResultJDBCResponse, mockQueryResult } from "../../../test/mocks/mockData";
+import { mockQueryResults, mockQueryResultJSONResponse, mockErrorMessage, mockSuccessfulMessage, mockSortableColumns, mockQueryResultJDBCResponse } from "../../../test/mocks/mockData";
 import userEvent from "@testing-library/user-event";
 import { QueryMessage, QueryResult } from "../Main/main";
 
