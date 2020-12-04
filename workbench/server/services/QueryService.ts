@@ -41,15 +41,11 @@ export default class QueryService {
       };
     } catch (err) {
       console.log(err);
-      const errorObj = JSON.parse(err.body);
       return {
         data: {
           ok: false,
           resp: err.message,
-          errorReason: errorObj.error.reason,
-          errorDetails: errorObj.error.details,
-          errorType: errorObj.error.type,
-          status: errorObj.status
+          body: err.body
         },
       };
     }
