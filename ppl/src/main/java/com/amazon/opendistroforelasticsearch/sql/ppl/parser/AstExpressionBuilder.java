@@ -41,6 +41,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldExpressionContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -167,6 +168,12 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitStatsFunctionCall(StatsFunctionCallContext ctx) {
     return new AggregateFunction(ctx.statsFunctionName().getText(), visit(ctx.valueExpression()));
+  }
+
+  @Override
+  public UnresolvedExpression visitCountAllFunctionCall(
+      OpenDistroPPLParser.CountAllFunctionCallContext ctx) {
+    return new AggregateFunction("count", AllFields.of());
   }
 
   @Override
