@@ -59,6 +59,14 @@ public class StatsCommandIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testStatsCountAll() throws IOException {
+    JSONObject response =
+        executeQuery(String.format("source=%s | stats count()", TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("count()", null, "integer"));
+    verifyDataRows(response, rows(1000));
+  }
+
+  @Test
   public void testStatsMin() throws IOException {
     JSONObject response = executeQuery(String.format(
         "source=%s | stats min(age)",
