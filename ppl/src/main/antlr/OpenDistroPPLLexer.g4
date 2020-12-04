@@ -230,13 +230,11 @@ CONCAT_WS:                          'CONCAT_WS';
 LENGTH:                             'LENGTH';
 STRCMP:                             'STRCMP';
 
-// LITERALS AND VALUES
-//STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;
 INTEGER_LITERAL:                    DEC_DIGIT+;
 DECIMAL_LITERAL:                    (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
-fragment ID_LITERAL:                [A-Z_]+[A-Z_$0-9@\-]*;
+fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
 DQUOTA_STRING:                      '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 SQUOTA_STRING:                      '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 BQUOTA_STRING:                      '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
