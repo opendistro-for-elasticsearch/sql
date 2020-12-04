@@ -90,7 +90,7 @@ public class StatsCommandIT extends PPLIntegTestCase {
     JSONObject response =
         executeQuery(String.format("source=%s | stats avg(abs(age) * 2.0)",
             TEST_INDEX_ACCOUNT));
-    verifySchema(response, schema("avg(abs(age)*2.0)", null, "double"));
+    verifySchema(response, schema("avg(abs(age) * 2.0)", null, "double"));
     verifyDataRows(response, rows(60.342));
   }
 
