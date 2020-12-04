@@ -21,8 +21,10 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serializa
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
 import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 /**
  * Bucket Aggregation Builder.
@@ -39,14 +41,17 @@ public class BucketAggregationBuilder {
   /**
    * Build the list of CompositeValuesSourceBuilder.
    */
-  public List<CompositeValuesSourceBuilder<?>> build(List<NamedExpression> expressions) {
+  public List<CompositeValuesSourceBuilder<?>> build(
+      List<Pair<NamedExpression, SortOrder>> groupList) {
     ImmutableList.Builder<CompositeValuesSourceBuilder<?>> resultBuilder =
         new ImmutableList.Builder<>();
-    for (NamedExpression expression : expressions) {
+    for (Pair<NamedExpression, SortOrder> groupPair : groupList) {
       TermsValuesSourceBuilder valuesSourceBuilder =
-          new TermsValuesSourceBuilder(expression.getName()).missingBucket(true);
+          new TermsValuesSourceBuilder(groupPair.getLeft().getName())
+              .missingBucket(true)
+              .order(groupPair.getRight());
       resultBuilder
-          .add(helper.build(expression.getDelegated(), valuesSourceBuilder::field,
+          .add(helper.build(groupPair.getLeft().getDelegated(), valuesSourceBuilder::field,
               valuesSourceBuilder::script));
     }
     return resultBuilder.build();
