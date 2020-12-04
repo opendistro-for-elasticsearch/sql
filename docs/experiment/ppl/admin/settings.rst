@@ -129,7 +129,7 @@ Notes: This setting will impact the correctness of the aggregation operation, fo
 Example
 -------
 
-PPL query::
+Change the size_limit to 1000::
 
     sh$ curl -sS -H 'Content-Type: application/json' \
     ... -X PUT localhost:9200/_cluster/settings \
@@ -146,3 +146,13 @@ PPL query::
       "transient": {}
     }
 
+Rollback to default value::
+
+    sh$ curl -sS -H 'Content-Type: application/json' \
+    ... -X PUT localhost:9200/_cluster/settings \
+    ... -d '{"persistent" : {"opendistro.query.size_limit" : null}}'
+    {
+      "acknowledged": true,
+      "persistent": {},
+      "transient": {}
+    }

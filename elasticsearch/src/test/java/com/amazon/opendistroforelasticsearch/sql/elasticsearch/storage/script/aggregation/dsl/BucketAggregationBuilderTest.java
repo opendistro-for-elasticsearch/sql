@@ -29,11 +29,13 @@ import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import java.util.Arrays;
 import java.util.List;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -68,7 +70,7 @@ class BucketAggregationBuilderTest {
             + "}",
         buildQuery(
             Arrays.asList(
-                named("age", ref("age", INTEGER)))));
+                asc(named("age", ref("age", INTEGER))))));
   }
 
   @Test
@@ -83,11 +85,11 @@ class BucketAggregationBuilderTest {
             + "}",
         buildQuery(
             Arrays.asList(
-                named("name", ref("name", ES_TEXT_KEYWORD)))));
+                asc(named("name", ref("name", ES_TEXT_KEYWORD))))));
   }
 
   @SneakyThrows
-  private String buildQuery(List<NamedExpression> groupByExpressions) {
+  private String buildQuery(List<Pair<NamedExpression, SortOrder>> groupByExpressions) {
     XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON).prettyPrint();
     builder.startObject();
     CompositeValuesSourceBuilder<?> sourceBuilder =
@@ -95,5 +97,9 @@ class BucketAggregationBuilderTest {
     sourceBuilder.toXContent(builder, EMPTY_PARAMS);
     builder.endObject();
     return BytesReference.bytes(builder).utf8ToString();
+  }
+
+  private Pair<NamedExpression, SortOrder> asc(NamedExpression expression) {
+    return Pair.of(expression, SortOrder.ASC);
   }
 }

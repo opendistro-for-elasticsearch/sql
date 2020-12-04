@@ -2,7 +2,8 @@
   "bash": [
     "experiment/ppl/interfaces/endpoint.rst",
     "experiment/ppl/interfaces/protocol.rst",
-    "experiment/ppl/admin/settings.rst"
+    "experiment/ppl/admin/settings.rst",
+    "user/optimization/optimization.rst"
   ],
   "ppl_cli": [
     "experiment/ppl/cmd/dedup.rst",
