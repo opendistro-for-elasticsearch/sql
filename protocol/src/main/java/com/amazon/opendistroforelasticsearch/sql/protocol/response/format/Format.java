@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,8 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Format {
   JDBC("jdbc"),
-  CSV("csv"),
-  RAW("raw");
+  CSV("csv");
 
   @Getter
   private final String formatName;
@@ -40,6 +40,7 @@ public enum Format {
   }
 
   public static Optional<Format> of(String formatName) {
-    return Optional.ofNullable(ALL_FORMATS.getOrDefault(formatName, null));
+    String format = Strings.isNullOrEmpty(formatName) ? "jdbc" : formatName.toLowerCase();
+    return Optional.ofNullable(ALL_FORMATS.getOrDefault(format, null));
   }
 }

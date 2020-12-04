@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ public class SQLQueryRequestTest {
   public void shouldSupportQuery() {
     SQLQueryRequest request = SQLQueryRequestBuilder.request("SELECT 1").build();
     assertTrue(request.isSupported());
-    assertEquals(request.format(), SQLQueryRequest.Format.JDBC);
+    assertEquals(request.format(), Format.JDBC);
   }
 
   @Test
@@ -39,7 +40,7 @@ public class SQLQueryRequestTest {
                                                     .format("jdbc")
                                                     .build();
     assertTrue(request.isSupported());
-    assertEquals(request.format(), SQLQueryRequest.Format.JDBC);
+    assertEquals(request.format(), Format.JDBC);
   }
 
   @Test
@@ -92,7 +93,7 @@ public class SQLQueryRequestTest {
                               .format("csv")
                               .build();
     assertTrue(csvRequest.isSupported());
-    assertEquals(csvRequest.format(), SQLQueryRequest.Format.CSV);
+    assertEquals(csvRequest.format(), Format.CSV);
   }
 
   @Test

@@ -36,6 +36,10 @@ public class CsvResponseFormatter implements ResponseFormatter<QueryResult> {
 
   private final boolean escapeSanity;
 
+  public CsvResponseFormatter() {
+    this.escapeSanity = false;
+  }
+
   @Override
   public String format(QueryResult response) {
     CsvResult result = buildCsvResult(response);

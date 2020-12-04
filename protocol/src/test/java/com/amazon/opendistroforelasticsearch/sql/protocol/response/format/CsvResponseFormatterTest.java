@@ -15,11 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.google.common.collect.ImmutableList;
@@ -100,6 +105,38 @@ public class CsvResponseFormatterTest {
     String expected =
         "{\n  \"type\": \"RuntimeException\",\n  \"reason\": \"This is an exception\"\n}";
     assertEquals(expected, formatter.format(t));
+  }
+
+  @Test
+  void escapeSanitize() {
+    CsvResponseFormatter escapeFormatter = new CsvResponseFormatter(true);
+    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
+        new ExecutionEngine.Schema.Column("city", "city", STRING)));
+    QueryResult response = new QueryResult(schema, Arrays.asList(
+        tupleValue(ImmutableMap.of("city", "=Seattle")),
+        tupleValue(ImmutableMap.of("city", ",,Seattle"))));
+    String expected = "city\n"
+        + "=Seattle\n"
+        + ",,Seattle";
+    assertEquals(expected, escapeFormatter.format(response));
+  }
+
+  @Test
+  void replaceNullValues() {
+    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
+        new ExecutionEngine.Schema.Column("name", "name", STRING),
+        new ExecutionEngine.Schema.Column("city", "city", STRING)));
+    QueryResult response = new QueryResult(schema, Arrays.asList(
+        tupleValue(ImmutableMap.of("name", "John","city", "Seattle")),
+        ExprTupleValue.fromExprValueMap(
+            ImmutableMap.of("firstname", LITERAL_NULL, "city", stringValue("Seattle"))),
+        ExprTupleValue.fromExprValueMap(
+            ImmutableMap.of("firstname", stringValue("John"), "city", LITERAL_MISSING))));
+    String expected = "name,city\n"
+        + "John,Seattle\n"
+        + ",Seattle\n"
+        + "John,";
+    assertEquals(expected, formatter.format(response));
   }
 
 }

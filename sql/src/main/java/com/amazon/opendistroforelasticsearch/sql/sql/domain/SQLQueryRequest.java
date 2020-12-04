@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -92,18 +93,12 @@ public class SQLQueryRequest {
    * Decide on the formatter by the requested format.
    */
   public Format format() {
-    if (Strings.isNullOrEmpty(format)) {
-      return Format.JDBC;
-    }
-    switch (format.toLowerCase()) {
-      case "jdbc":
-        return Format.JDBC;
-      case "csv":
-        return Format.CSV;
-
-      default:
-        throw new IllegalArgumentException(
-            String.format(Locale.ROOT, "response in %s format is not supported.", format));
+    Optional<Format> optionalFormat = Format.of(format);
+    if (optionalFormat.isPresent()) {
+      return optionalFormat.get();
+    } else {
+      throw new IllegalArgumentException(
+          "Failed to create executor due to unknown response format: " + format);
     }
   }
 
