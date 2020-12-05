@@ -48,6 +48,7 @@ import {
 import "../../ace-themes/sql_console";
 import { COLUMN_WIDTH, PAGE_OPTIONS, SMALL_COLUMN_WIDTH } from "../../utils/constants";
 import { DataRow, ItemIdToExpandedRowMap, QueryMessage, QueryResult } from "../Main/main";
+import _ from "lodash";
 
 const DoubleScrollbar = require('react-double-scrollbar');
 
@@ -281,7 +282,11 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   // It filters table values that conatins the given items
   getItems(records: DataRow[]) {
     const matchingItems = this.props.searchQuery ? this.searchItems(records, this.props.searchQuery) : records;
-    return matchingItems;
+    let field: string = "";
+    if (_.get(this.props.sortedColumn, this.columns)) {
+      field = this.props.sortedColumn;
+    }
+    return this.sortDataRows(matchingItems, field)
   }
 
   searchItems(dataRows: DataRow[], searchQuery: string): DataRow[] {
@@ -309,8 +314,12 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
   }
 
   sortDataRows(dataRows: DataRow[], field: string): DataRow[] {
+    const property = this.props.sortableProperties.getSortablePropertyByName(field);
     const copy = [...dataRows];
     let comparator = (a: DataRow, b: DataRow) => {
+      if (typeof property === "undefined") {
+        return 0;
+      }
       let dataA = a.data;
       let dataB = b.data;
       if (dataA[field] && dataB[field]) {
@@ -323,7 +332,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       }
       return 0;
     }
-    if (!this.props.sortableProperties.isCurrentSortAscending()) {
+    if (!property.isAscending) {
       Comparators.reverse(comparator);
     }
     return copy.sort(comparator);

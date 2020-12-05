@@ -175,6 +175,9 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
   }
 
   updateSortedColumn(column: string) {
+    // this call does not lead to a sort in DataRow[], but only to update sortable properties
+    this.sortableProperties.sortOn(column)
+
     this.sortedColumn = column;
     this.setState({});
   }
