@@ -17,7 +17,7 @@ import React, { Fragment } from "react";
 // @ts-ignore
 import { SortableProperties } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { Comparators, EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiPanel, EuiPortal, EuiSearchBar, EuiSideNav } from "@elastic/eui";
+import { Comparators, EuiBasicTable, EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiPanel, EuiPortal, EuiSearchBar, EuiSideNav } from "@elastic/eui";
 import {
   EuiButton,
   EuiButtonIcon,
@@ -79,6 +79,7 @@ interface QueryResultsBodyProps {
   getJdbc: (queries: string[]) => void;
   getCsv: (queries: string[]) => void;
   getText: (queries: string[]) => void;
+  updateSortedColumn: (column: string) => void;
 }
 
 interface QueryResultsBodyState {
@@ -277,19 +278,13 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     });
   };
 
-  onSort = (prop: string): void => {
-    let sortedRows = this.sortDataRows(this.items, prop);
-    this.items = sortedRows;
-  }
-
-  // It sorts and filters table values
+  // It filters table values that conatins the given items
   getItems(records: DataRow[]) {
     const matchingItems = this.props.searchQuery ? this.searchItems(records, this.props.searchQuery) : records;
     return matchingItems;
   }
 
   searchItems(dataRows: DataRow[], searchQuery: string): DataRow[] {
-
     let rows: { [key: string]: any }[] = [];
     for (const row of dataRows) {
       rows.push(row.data)
@@ -307,16 +302,22 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     return result;
   }
 
-  sortDataRows(dataRows: DataRow[], sortOn: string): DataRow[] {
+  onSort = (prop: string): void => {
+    let sortedRows = this.sortDataRows(this.items, prop);
+    this.items = sortedRows;
+    this.props.updateSortedColumn(prop);
+  }
+
+  sortDataRows(dataRows: DataRow[], field: string): DataRow[] {
     const copy = [...dataRows];
     let comparator = (a: DataRow, b: DataRow) => {
       let dataA = a.data;
       let dataB = b.data;
-      if (dataA[sortOn] && dataB[sortOn]) {
-        if (dataA[sortOn] > dataB[sortOn]) {
+      if (dataA[field] && dataB[field]) {
+        if (dataA[field] > dataB[field]) {
           return 1;
         }
-        if (dataA[sortOn] < dataB[sortOn]) {
+        if (dataA[field] < dataB[field]) {
           return -1;
         }
       }
@@ -577,17 +578,15 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
 
   renderHeaderCells(columns: any[]) {
     return columns.map((field: any) => {
-      const label = field.id === "expandIcon" ? field.label : field;
+      const label: string = field.id === "expandIcon" ? field.label : field;
       const colwidth = field.id === "expandIcon" ? SMALL_COLUMN_WIDTH : COLUMN_WIDTH;
       return (
         <EuiTableHeaderCell
           key={label}
           width={colwidth}
-          onSort={this.onSort.bind(this, field)}
-          isSorted={this.props.sortedColumn === field}
-          isSortAscending={this.props.sortableProperties.isAscendingByName(
-            field
-          )}
+          onSort={this.onSort.bind(this, label)}
+          isSorted={this.props.sortedColumn === label}
+          isSortAscending={this.props.sortableProperties.isAscendingByName(label)}
         >
           {label}
         </EuiTableHeaderCell>
@@ -694,7 +693,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
           );
         }
 
-        const tableRow = <EuiTableRow key={rowId} data-test-subj={'tableRow'}>{tableCells} </EuiTableRow>;
+        const tableRow = <EuiTableRow key={rowId} data-test-subj={'tableRow'}>{tableCells}</EuiTableRow>;
         let row = <Fragment>{tableRow}</Fragment>;
 
         if (expandedRowMap[rowId] && expandedRowMap[rowId].expandedRow) {

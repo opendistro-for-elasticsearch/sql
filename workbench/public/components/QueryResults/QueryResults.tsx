@@ -174,6 +174,11 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     return result;
   }
 
+  updateSortedColumn(column: string) {
+    this.sortedColumn = column;
+    this.setState({});
+  }
+
   renderTabs(): Tab[] {
     const tabs = [
       {
@@ -372,6 +377,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   getJdbc={this.props.getJdbc}
                   getCsv={this.props.getCsv}
                   getText={this.props.getText}
+                  updateSortedColumn={this.updateSortedColumn}
                 />
               </PanelWrapper>
             </>
