@@ -1076,6 +1076,374 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                     >
                       <td
                         class="euiTableRowCell"
+                        id="6"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <button
+                              aria-label="Expand"
+                              class="euiButtonIcon euiButtonIcon--primary"
+                              style="margin-left: -4px;"
+                              type="button"
+                            >
+                              EuiIconMock
+                            </button>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                category: [1]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            EUR
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Eddie
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Eddie Underwood
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            MALE
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            38
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Underwood
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          />
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Monday
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            0
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            eddie@underwood-family.zzz
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                manufacturer: [2]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2019-10-07T09:28:48+00:00
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            584677
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                products: {2}
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                sku: [2]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            36.98
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            36.98
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            order
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            eddie
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                geoip: {1}
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr
+                      class="euiTableRow"
+                      data-test-subj="tableRow"
+                    >
+                      <td
+                        class="euiTableRowCell"
                         id="0"
                       >
                         <div
@@ -1437,376 +1805,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
-                    </tr>
-                    <tr
-                      class="euiTableRow"
-                      data-test-subj="tableRow"
-                    >
-                      <td
-                        class="euiTableRowCell"
-                        id="1"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <button
-                              aria-label="Expand"
-                              class="euiButtonIcon euiButtonIcon--primary"
-                              style="margin-left: -4px;"
-                              type="button"
-                            >
-                              EuiIconMock
-                            </button>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                category: [1]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            EUR
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Eddie
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Eddie Underwood
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            MALE
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            38
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Underwood
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          />
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Monday
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            0
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            eddie@underwood-family.zzz
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                manufacturer: [2]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2019-10-07T09:28:48+00:00
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            584677
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                products: {2}
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                sku: [2]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            36.98
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            36.98
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            order
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            eddie
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                geoip: {1}
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -2175,7 +2173,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -2544,7 +2541,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -2913,7 +2909,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -3282,7 +3277,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -3290,7 +3284,7 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                     >
                       <td
                         class="euiTableRowCell"
-                        id="6"
+                        id="1"
                       >
                         <div
                           class="euiTableCellContent"
@@ -3651,7 +3645,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -4020,7 +4013,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -4389,7 +4381,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -4758,7 +4749,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                   </tbody>
                 </table>
@@ -5860,6 +5850,374 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                     >
                       <td
                         class="euiTableRowCell"
+                        id="6"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <button
+                              aria-label="Expand"
+                              class="euiButtonIcon euiButtonIcon--primary"
+                              style="margin-left: -4px;"
+                              type="button"
+                            >
+                              EuiIconMock
+                            </button>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                category: [1]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            EUR
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Eddie
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Eddie Underwood
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            MALE
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            38
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Underwood
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          />
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Monday
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            0
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            eddie@underwood-family.zzz
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                manufacturer: [2]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2019-10-07T09:28:48+00:00
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            584677
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                products: {2}
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                sku: [2]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            36.98
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            36.98
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            order
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            eddie
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                geoip: {1}
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr
+                      class="euiTableRow"
+                      data-test-subj="tableRow"
+                    >
+                      <td
+                        class="euiTableRowCell"
                         id="0"
                       >
                         <div
@@ -6221,376 +6579,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
-                    </tr>
-                    <tr
-                      class="euiTableRow"
-                      data-test-subj="tableRow"
-                    >
-                      <td
-                        class="euiTableRowCell"
-                        id="1"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <button
-                              aria-label="Expand"
-                              class="euiButtonIcon euiButtonIcon--primary"
-                              style="margin-left: -4px;"
-                              type="button"
-                            >
-                              EuiIconMock
-                            </button>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                category: [1]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            EUR
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Eddie
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Eddie Underwood
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            MALE
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            38
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Underwood
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          />
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Monday
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            0
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            eddie@underwood-family.zzz
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                manufacturer: [2]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2019-10-07T09:28:48+00:00
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            584677
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                products: {2}
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                sku: [2]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            36.98
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            36.98
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            order
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            eddie
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                geoip: {1}
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -6959,7 +6947,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -7328,7 +7315,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -7697,7 +7683,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -8066,7 +8051,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -8074,7 +8058,7 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                     >
                       <td
                         class="euiTableRowCell"
-                        id="6"
+                        id="1"
                       >
                         <div
                           class="euiTableCellContent"
@@ -8435,7 +8419,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -8804,7 +8787,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -9173,7 +9155,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -9542,7 +9523,6 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                   </tbody>
                 </table>
@@ -10737,6 +10717,374 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                     >
                       <td
                         class="euiTableRowCell"
+                        id="6"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <button
+                              aria-label="Expand"
+                              class="euiButtonIcon euiButtonIcon--primary"
+                              style="margin-left: -4px;"
+                              type="button"
+                            >
+                              EuiIconMock
+                            </button>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                category: [1]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            EUR
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Eddie
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Eddie Underwood
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            MALE
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            38
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Underwood
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          />
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Monday
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            0
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            eddie@underwood-family.zzz
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                manufacturer: [2]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2019-10-07T09:28:48+00:00
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            584677
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                products: {2}
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                sku: [2]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            36.98
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            36.98
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            order
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            eddie
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                geoip: {1}
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr
+                      class="euiTableRow"
+                      data-test-subj="tableRow"
+                    >
+                      <td
+                        class="euiTableRowCell"
                         id="0"
                       >
                         <div
@@ -11098,376 +11446,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
-                    </tr>
-                    <tr
-                      class="euiTableRow"
-                      data-test-subj="tableRow"
-                    >
-                      <td
-                        class="euiTableRowCell"
-                        id="1"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <button
-                              aria-label="Expand"
-                              class="euiButtonIcon euiButtonIcon--primary"
-                              style="margin-left: -4px;"
-                              type="button"
-                            >
-                              EuiIconMock
-                            </button>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                category: [1]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            EUR
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Eddie
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Eddie Underwood
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            MALE
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            38
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Underwood
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          />
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Monday
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            0
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            eddie@underwood-family.zzz
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                manufacturer: [2]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2019-10-07T09:28:48+00:00
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            584677
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                products: {2}
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                sku: [2]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            36.98
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            36.98
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            order
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            eddie
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                geoip: {1}
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -11836,7 +11814,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -12205,7 +12182,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -12574,7 +12550,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -12943,7 +12918,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -12951,7 +12925,7 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                     >
                       <td
                         class="euiTableRowCell"
-                        id="6"
+                        id="1"
                       >
                         <div
                           class="euiTableCellContent"
@@ -13312,7 +13286,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -13681,7 +13654,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -14050,7 +14022,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -14419,7 +14390,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                   </tbody>
                 </table>
@@ -15521,6 +15491,374 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                     >
                       <td
                         class="euiTableRowCell"
+                        id="6"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <button
+                              aria-label="Expand"
+                              class="euiButtonIcon euiButtonIcon--primary"
+                              style="margin-left: -4px;"
+                              type="button"
+                            >
+                              EuiIconMock
+                            </button>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                category: [1]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            EUR
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Eddie
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Eddie Underwood
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            MALE
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            38
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Underwood
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          />
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            Monday
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            0
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            eddie@underwood-family.zzz
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                manufacturer: [2]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2019-10-07T09:28:48+00:00
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            584677
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                products: {2}
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                sku: [2]
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            36.98
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            36.98
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            2
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            order
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            eddie
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        class="euiTableRowCell"
+                      >
+                        <div
+                          class="euiTableCellContent"
+                        >
+                          <span
+                            class="euiTableCellContent__text"
+                          >
+                            <span>
+                               
+                              
+                              <button
+                                class="euiLink euiLink--primary"
+                                type="button"
+                              >
+                                geoip: {1}
+                              </button>
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr
+                      class="euiTableRow"
+                      data-test-subj="tableRow"
+                    >
+                      <td
+                        class="euiTableRowCell"
                         id="0"
                       >
                         <div
@@ -15882,376 +16220,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
-                    </tr>
-                    <tr
-                      class="euiTableRow"
-                      data-test-subj="tableRow"
-                    >
-                      <td
-                        class="euiTableRowCell"
-                        id="1"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <button
-                              aria-label="Expand"
-                              class="euiButtonIcon euiButtonIcon--primary"
-                              style="margin-left: -4px;"
-                              type="button"
-                            >
-                              EuiIconMock
-                            </button>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                category: [1]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            EUR
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Eddie
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Eddie Underwood
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            MALE
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            38
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Underwood
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          />
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            Monday
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            0
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            eddie@underwood-family.zzz
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                manufacturer: [2]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2019-10-07T09:28:48+00:00
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            584677
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                products: {2}
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                sku: [2]
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            36.98
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            36.98
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            2
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            order
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            eddie
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        class="euiTableRowCell"
-                      >
-                        <div
-                          class="euiTableCellContent"
-                        >
-                          <span
-                            class="euiTableCellContent__text"
-                          >
-                            <span>
-                               
-                              
-                              <button
-                                class="euiLink euiLink--primary"
-                                type="button"
-                              >
-                                geoip: {1}
-                              </button>
-                            </span>
-                          </span>
-                        </div>
-                      </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -16620,7 +16588,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -16989,7 +16956,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -17358,7 +17324,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -17727,7 +17692,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -17735,7 +17699,7 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                     >
                       <td
                         class="euiTableRowCell"
-                        id="6"
+                        id="1"
                       >
                         <div
                           class="euiTableCellContent"
@@ -18096,7 +18060,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -18465,7 +18428,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -18834,7 +18796,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                     <tr
                       class="euiTableRow"
@@ -19203,7 +19164,6 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                           </span>
                         </div>
                       </td>
-                       
                     </tr>
                   </tbody>
                 </table>

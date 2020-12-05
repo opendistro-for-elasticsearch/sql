@@ -17,7 +17,7 @@ import React from "react";
 // @ts-ignore
 import { SortableProperties, SortableProperty } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer, EuiTextAlign, EuiButton, EuiButtonIcon } from "@elastic/eui";
+import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer, EuiTextAlign, EuiButton, EuiButtonIcon, Comparators } from "@elastic/eui";
 import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap, DataRow } from "../Main/main";
 import QueryResultsBody from "./QueryResultsBody";
 import { getQueryIndex, needsScrolling, getSelectedResults } from "../../utils/utils";
@@ -137,22 +137,23 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
   }
 
   // Update SORTABLE COLUMNS - All columns
-  updateSortableColumns(queryResultsSelected: QueryResult): void {
-    if (this.sortableColumns.length === 0) {
-      queryResultsSelected.fields.map((field: string) => {
-        this.sortableColumns.push({
-          name: field,
-          getValue: (item: any) => item[field],
-          isAscending: true
-        });
-      });
-      this.sortedColumn =
-        this.sortableColumns.length > 0 ? this.sortableColumns[0].name : "";
-      this.sortableProperties = new SortableProperties(
-        this.sortableColumns,
-        this.sortedColumn
-      );
+  updateSortableColumns = (queryResultsSelected: QueryResult) => {
+    if (this.sortableColumns.length != 0) {
+      this.sortableColumns = [];
     }
+    queryResultsSelected.fields.map((field: string) => {
+      this.sortableColumns.push({
+        name: field,
+        getValue: (item: DataRow) => item.data[field],
+        isAscending: true
+      });
+    });
+    this.sortedColumn =
+      this.sortableColumns.length > 0 ? this.sortableColumns[0].name : "";
+    this.sortableProperties = new SortableProperties(
+      this.sortableColumns,
+      this.sortedColumn
+    );
   }
 
   searchItems(dataRows: DataRow[], searchQuery: string): DataRow[] {
@@ -174,12 +175,45 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     return result;
   }
 
-  updateSortedColumn(column: string) {
+  updateSortedColumn = (column: string) => {
     // this call does not lead to a sort in DataRow[], but only to update sortable properties
     this.sortableProperties.sortOn(column)
 
     this.sortedColumn = column;
     this.setState({});
+  }
+
+  onSort = (prop: string, items: DataRow[]): DataRow[] => {
+    let sortedRows = this.sortDataRows(items, prop);
+    this.sortableProperties.sortOn(prop)
+    this.sortedColumn = prop;
+    this.setState({});
+    return sortedRows;
+  }
+
+  sortDataRows(dataRows: DataRow[], field: string): DataRow[] {
+    const property = this.sortableProperties.getSortablePropertyByName(field);
+    const copy = [...dataRows];
+    let comparator = (a: DataRow, b: DataRow) => {
+      if (typeof property === "undefined") {
+        return 0;
+      }
+      let dataA = a.data;
+      let dataB = b.data;
+      if (dataA[field] && dataB[field]) {
+        if (dataA[field] > dataB[field]) {
+          return 1;
+        }
+        if (dataA[field] < dataB[field]) {
+          return -1;
+        }
+      }
+      return 0;
+    }
+    if (!this.sortableProperties.isAscendingByName(field)) {
+      Comparators.reverse(comparator);
+    }
+    return copy.sort(comparator);
   }
 
   renderTabs(): Tab[] {
@@ -381,6 +415,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   getCsv={this.props.getCsv}
                   getText={this.props.getText}
                   updateSortedColumn={this.updateSortedColumn}
+                  onSort={this.onSort}
                 />
               </PanelWrapper>
             </>

@@ -81,6 +81,7 @@ interface QueryResultsBodyProps {
   getCsv: (queries: string[]) => void;
   getText: (queries: string[]) => void;
   updateSortedColumn: (column: string) => void;
+  onSort: (column: string, rows: DataRow[]) => DataRow[];
 }
 
 interface QueryResultsBodyState {
@@ -307,10 +308,8 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     return result;
   }
 
-  onSort = (prop: string): void => {
-    let sortedRows = this.sortDataRows(this.items, prop);
-    this.items = sortedRows;
-    this.props.updateSortedColumn(prop);
+  onSort(prop: string): void {
+    this.items = this.props.onSort(prop, this.items);
   }
 
   sortDataRows(dataRows: DataRow[], field: string): DataRow[] {
@@ -332,7 +331,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       }
       return 0;
     }
-    if (!property.isAscending) {
+    if (!this.props.sortableProperties.isAscendingByName(field)) {
       Comparators.reverse(comparator);
     }
     return copy.sort(comparator);
