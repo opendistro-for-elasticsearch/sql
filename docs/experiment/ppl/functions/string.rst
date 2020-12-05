@@ -90,6 +90,7 @@ Description
 Usage: like(string, PATTERN) return true if the string match the PATTERN.
 
 There are two wildcards often used in conjunction with the LIKE operator:
+
 * ``%`` - The percent sign represents zero, one, or multiple characters
 * ``_`` - The underscore represents a single character
 
