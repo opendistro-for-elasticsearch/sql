@@ -150,6 +150,7 @@ logicalExpression
     | left=logicalExpression OR right=logicalExpression             #logicalOr
     | left=logicalExpression (AND)? right=logicalExpression         #logicalAnd
     | left=logicalExpression XOR right=logicalExpression            #logicalXor
+    | booleanExpression                                             #booleanExpr
     ;
 
 comparisonExpression
@@ -168,6 +169,10 @@ primaryExpression
     : evalFunctionCall
     | fieldExpression
     | literalValue
+    ;
+
+booleanExpression
+    : booleanFunctionCall
     ;
 
 /** tables */
@@ -209,10 +214,16 @@ evalFunctionCall
     : evalFunctionName LT_PRTHS functionArgs RT_PRTHS
     ;
 
+/** boolean functions */
+booleanFunctionCall
+    : conditionFunctionBase LT_PRTHS functionArgs RT_PRTHS
+    ;
+
 evalFunctionName
     : mathematicalFunctionBase
     | dateAndTimeFunctionBase
     | textFunctionBase
+    | conditionFunctionBase
     ;
 
 functionArgs
@@ -239,13 +250,19 @@ dateAndTimeFunctionBase
     | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT
     ;
 
+/** condition function return boolean value */
+conditionFunctionBase
+    : LIKE
+    | ISNULL | ISNOTNULL
+    ;
+
 textFunctionBase
     : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER | CONCAT | CONCAT_WS | LENGTH | STRCMP
     ;
 
 /** operators */
 comparisonOperator
-    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | LIKE | REGEXP
+    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | REGEXP
     ;
 
 binaryOperator

@@ -60,7 +60,13 @@ The query start with search command and then flowing a set of command delimited 
 
 * **Functions**
 
-  - `PPL Functions <../../user/dql/functions.rst>`_
+  - `Math Functions <functions/math.rst>`_
+
+  - `Date and Time Functions <functions/datetime.rst>`_
+
+  - `String Functions <functions/string.rst>`_
+
+  - `Condition Functions <functions/condition.rst>`_
 
 * **Optimization**
 

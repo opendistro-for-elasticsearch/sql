@@ -115,10 +115,28 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
 
   @Test
   public void testLogicalLikeExpr() {
-    assertEqual("source=t a like '_a%b%c_d_'",
+    assertEqual("source=t like(a, '_a%b%c_d_')",
         filter(
             relation("t"),
-            compare("like", field("a"), stringLiteral("_a%b%c_d_"))
+            function("like", field("a"), stringLiteral("_a%b%c_d_"))
+        ));
+  }
+
+  @Test
+  public void testBooleanIsNullFunction() {
+    assertEqual("source=t isnull(a)",
+        filter(
+            relation("t"),
+            function("is null", field("a"))
+        ));
+  }
+
+  @Test
+  public void testBooleanIsNotNullFunction() {
+    assertEqual("source=t isnotnull(a)",
+        filter(
+            relation("t"),
+            function("is not null", field("a"))
         ));
   }
 
