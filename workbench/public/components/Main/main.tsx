@@ -46,7 +46,7 @@ export interface QueryMessage {
 
 export type QueryResult = {
   fields: string[];
-  records: { [key: string]: any }[];
+  records: DataRow[];
   message: string;
 };
 
@@ -63,6 +63,11 @@ export type ItemIdToExpandedRowMap = {
     selectedNodes?: { [key: string]: any };
   }
 };
+
+export type DataRow = {
+  rowId: number
+  data: { [key: string]: any }
+}
 
 interface MainProps {
   httpClient: IHttpService;
@@ -96,7 +101,6 @@ const errorQueryResponse = (queryResultResponseDetail: any) => {
   return errorMessage;
 }
 
-// It gets column names and row values to display in a Table from the json API response
 export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]): ResponseDetail<QueryResult>[] {
   return queryResults.map(
     (queryResultResponseDetail: ResponseDetail<string>): ResponseDetail<QueryResult> => {
@@ -106,10 +110,9 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
           errorMessage: errorQueryResponse(queryResultResponseDetail),
         };
       } else {
-        let databaseRecords: { [key: string]: any }[] = [];
         const responseObj = queryResultResponseDetail.data ? JSON.parse(queryResultResponseDetail.data) : '';
-        let databaseFields: string[] = [];
         let fields: string[] = [];
+        let dataRows: DataRow[] = [];
 
         const schema: object[] = _.get(responseObj, 'schema');
         const datarows: any[][] = _.get(responseObj, 'datarows');
@@ -127,8 +130,8 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
 
         switch (queryType) {
           case 'show':
-            databaseFields[0] = 'TABLE_NAME';
-            databaseFields.unshift('id');
+            fields[0] = 'TABLE_NAME';
+
             let index: number = -1;
             for (const [id, field] of schema.entries()) {
               if (_.eq(_.get(field, 'name'), 'TABLE_NAME')) {
@@ -136,11 +139,15 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
                 break;
               }
             }
-            for (const [id, datarow] of datarows.entries()) {
-              let databaseRecord: { [key: string]: any } = {};
-              databaseRecord['id'] = id;
-              databaseRecord['TABLE_NAME'] = datarow[index];
-              databaseRecords.push(databaseRecord);
+
+            for (const [id, field] of datarows.entries()) {
+              let row: { [key: string]: any } = {};
+              row['TABLE_NAME'] = field[index];
+              let dataRow: DataRow = {
+                rowId: id,
+                data: row
+              };
+              dataRows[id] = dataRow;
             }
             break;
 
@@ -156,32 +163,33 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
                 fields[id] = !alias ? _.get(field, 'name') : alias;
               }
             }
-            databaseFields = fields;
-            databaseFields.unshift("id");
-            for (const [id, datarow] of datarows.entries()) {
-              let databaseRecord: { [key: string]: any } = {};
-              databaseRecord['id'] = id;
+
+            for (const [id, data] of datarows.entries()) {
+              let row: { [key: string]: any } = {};
               for (const index of schema.keys()) {
-                const fieldname = databaseFields[index + 1];
-                databaseRecord[fieldname] = datarow[index];
+                const fieldname = fields[index];
+                row[fieldname] = data[index];
               }
-              databaseRecords.push(databaseRecord);
+              let dataRow: DataRow = {
+                rowId: id,
+                data: row
+              };
+              dataRows[id] = dataRow;
             }
             break;
 
           default:
-            let databaseRecord: { [key: string]: any } = {};
-            databaseRecords.push(databaseRecord);
-        }
 
+        }
         return {
           fulfilled: queryResultResponseDetail.fulfilled,
           data: {
-            fields: databaseFields,
-            records: databaseRecords,
-            message: SUCCESS_MESSAGE
-          }
-        }
+            fields: fields,
+            records: dataRows,
+            message: SUCCESS_MESSAGE,
+          },
+        };
+
       }
     }
   );
