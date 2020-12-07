@@ -171,6 +171,9 @@ describe('Test and verify SQL downloads', () => {
           'content-type': 'application/json;charset=UTF-8',
           'kbn-version': '7.10.0',
         },
+        body: {
+          'query': 'select * from accounts where balance > 49500'
+        }
       }).then((response) => {
         expect(response.body.data.resp).to.have.string(files[file]);
       });
