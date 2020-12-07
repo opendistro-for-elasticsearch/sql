@@ -14,7 +14,11 @@
     "experiment/ppl/cmd/sort.rst",
     "experiment/ppl/cmd/stats.rst",
     "experiment/ppl/cmd/where.rst",
-    "experiment/ppl/general/identifiers.rst"
+    "experiment/ppl/general/identifiers.rst",
+    "experiment/ppl/functions/math.rst",
+    "experiment/ppl/functions/datetime.rst",
+    "experiment/ppl/functions/string.rst",
+    "experiment/ppl/functions/condition.rst"
   ],
   "sql_cli": [
     "user/dql/expressions.rst",

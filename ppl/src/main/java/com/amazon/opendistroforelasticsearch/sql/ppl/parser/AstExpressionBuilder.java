@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BinaryArithmeticContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CompareExprContext;
@@ -62,8 +64,10 @@ import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 
@@ -71,6 +75,16 @@ import org.antlr.v4.runtime.ParserRuleContext;
  * Class of building AST Expression nodes.
  */
 public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedExpression> {
+
+  /**
+   * The function name mapping between fronted and core engine.
+   */
+  private static Map<String, String> FUNCTION_NAME_MAPPING =
+      new ImmutableMap.Builder<String, String>()
+          .put("isnull", IS_NULL.getName().getFunctionName())
+          .put("isnotnull", IS_NOT_NULL.getName().getFunctionName())
+          .build();
+
   /**
    * Eval clause.
    */
@@ -180,6 +194,23 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   public UnresolvedExpression visitPercentileAggFunction(PercentileAggFunctionContext ctx) {
     return new AggregateFunction(ctx.PERCENTILE().getText(), visit(ctx.aggField),
         Collections.singletonList(new Argument("rank", (Literal) visit(ctx.value))));
+  }
+
+  /**
+   * Eval function.
+   */
+  @Override
+  public UnresolvedExpression visitBooleanFunctionCall(
+      OpenDistroPPLParser.BooleanFunctionCallContext ctx) {
+    final String functionName = ctx.conditionFunctionBase().getText();
+
+    return new Function(
+        FUNCTION_NAME_MAPPING.getOrDefault(functionName, functionName),
+        ctx.functionArgs()
+            .functionArg()
+            .stream()
+            .map(this::visitFunctionArg)
+            .collect(Collectors.toList()));
   }
 
   /**
