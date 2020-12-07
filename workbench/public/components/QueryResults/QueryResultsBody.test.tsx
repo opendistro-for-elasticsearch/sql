@@ -31,7 +31,6 @@ function renderSQLQueryResultsBody(mockQueries: string[],
   mockQueryResultsRaw: string,
   mockSortableProperties: SortableProperties,
   messages: QueryMessage[],
-  onSort: (prop: string) => void,
   onQueryChange: (query: object) => void,
   updateExpandedMap: (map: object) => void,
   onChangeItemsPerPage: (itemsPerPage: number) => void,
@@ -61,7 +60,6 @@ function renderSQLQueryResultsBody(mockQueries: string[],
         lastItemIndex={10}
         onChangeItemsPerPage={onChangeItemsPerPage}
         onChangePage={() => { }}
-        onSort={onSort}
         sortedColumn={'col1'}
         sortableProperties={mockSortableProperties}
         itemIdToExpandedRowMap={{}}
@@ -78,7 +76,6 @@ function renderSQLQueryResultsBody(mockQueries: string[],
 describe("<QueryResultsBody /> spec", () => {
 
   afterEach(cleanup);
-  const onSort = jest.fn();
   const onQueryChange = jest.fn();
   const updateExpandedMap = jest.fn();
   const onChangeItemsPerPage = jest.fn();
@@ -100,7 +97,7 @@ describe("<QueryResultsBody /> spec", () => {
     );
 
     const { queryByTestId } = renderSQLQueryResultsBody(undefined, undefined, undefined,
-      mockSortableProperties, mockErrorMessage, onSort, onQueryChange, updateExpandedMap, onChangeItemsPerPage,
+      mockSortableProperties, mockErrorMessage, onQueryChange, updateExpandedMap, onChangeItemsPerPage,
       getJson, getJdbc, getCsv, getText);
 
     // Download buttons, pagination, search area, table should not be visible when there is no data
@@ -123,13 +120,13 @@ describe("<QueryResultsBody /> spec", () => {
 
     const { getAllByText, getAllByTestId, getAllByLabelText, getByText, getByPlaceholderText } =
       renderSQLQueryResultsBody(undefined, mockQueryResults[0].data, mockQueryResultJSONResponse.data.resp, mockSortableProperties,
-        mockSuccessfulMessage, onSort, onQueryChange, updateExpandedMap, onChangeItemsPerPage, getJson, getJdbc,
+        mockSuccessfulMessage, onQueryChange, updateExpandedMap, onChangeItemsPerPage, getJson, getJdbc,
         getCsv, getText);
     expect(document.body.children[0]).toMatchSnapshot();
 
     // Test sorting
-    await fireEvent.click(getAllByTestId('tableHeaderSortButton')[0]);
-    expect(onSort).toHaveBeenCalled();
+    // await fireEvent.click(getAllByTestId('tableHeaderSortButton')[0]);
+    // expect(onSort).toHaveBeenCalled();
 
     // Test pagination
     await fireEvent.click(getAllByText('Rows per page', { exact: false })[0]);
@@ -183,7 +180,6 @@ function renderPPLQueryResultsBody(mockQueries: string[],
   mockQueryResultsRaw: string,
   mockSortableProperties: SortableProperties,
   messages: QueryMessage[],
-  onSort: (prop: string) => void,
   onQueryChange: (query: object) => void,
   updateExpandedMap: (map: object) => void,
   onChangeItemsPerPage: (itemsPerPage: number) => void,
@@ -213,7 +209,6 @@ function renderPPLQueryResultsBody(mockQueries: string[],
         lastItemIndex={10}
         onChangeItemsPerPage={onChangeItemsPerPage}
         onChangePage={() => { }}
-        onSort={onSort}
         sortedColumn={'col1'}
         sortableProperties={mockSortableProperties}
         itemIdToExpandedRowMap={{}}
@@ -230,7 +225,6 @@ function renderPPLQueryResultsBody(mockQueries: string[],
 describe("<QueryResultsBody /> spec", () => {
 
   afterEach(cleanup);
-  const onSort = jest.fn();
   const onQueryChange = jest.fn();
   const updateExpandedMap = jest.fn();
   const onChangeItemsPerPage = jest.fn();
@@ -252,7 +246,7 @@ describe("<QueryResultsBody /> spec", () => {
     );
 
     const { queryByTestId } = renderPPLQueryResultsBody(undefined, undefined, undefined,
-      mockSortableProperties, mockErrorMessage, onSort, onQueryChange, updateExpandedMap, onChangeItemsPerPage,
+      mockSortableProperties, mockErrorMessage, onQueryChange, updateExpandedMap, onChangeItemsPerPage,
       getJson, getJdbc, getCsv, getText);
 
     // Download buttons, pagination, search area, table should not be visible when there is no data
@@ -275,13 +269,13 @@ describe("<QueryResultsBody /> spec", () => {
 
     const { getAllByText, getAllByTestId, getAllByLabelText, getByText, getByPlaceholderText } =
       renderPPLQueryResultsBody(undefined, mockQueryResults[0].data, mockQueryResultJDBCResponse.data.resp, mockSortableProperties,
-        mockSuccessfulMessage, onSort, onQueryChange, updateExpandedMap, onChangeItemsPerPage, getJson, getJdbc,
+        mockSuccessfulMessage, onQueryChange, updateExpandedMap, onChangeItemsPerPage, getJson, getJdbc,
         getCsv, getText);
     expect(document.body.children[0]).toMatchSnapshot();
 
     // Test sorting
-    await fireEvent.click(getAllByTestId('tableHeaderSortButton')[0]);
-    expect(onSort).toHaveBeenCalled();
+    // await fireEvent.click(getAllByTestId('tableHeaderSortButton')[0]);
+    // expect(onSort).toHaveBeenCalled();
 
     // Test pagination
     await fireEvent.click(getAllByText('Rows per page', { exact: false })[0]);
