@@ -59,6 +59,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -202,6 +203,9 @@ class ElasticsearchExprValueFactoryTest {
     assertEquals(
         new ExprTimeValue("12:10:30"),
         constructFromObject("timeV","12:10:30"));
+    assertEquals(
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("datetimeV", "2015-01-01 12:10:30"));
   }
 
   @Test

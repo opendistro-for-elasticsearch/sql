@@ -183,7 +183,8 @@ public class ElasticsearchExprValueFactory {
       return constructString((String) value);
     } else if (type.equals(BOOLEAN)) {
       return constructBoolean((Boolean) value);
-    } else if (type.equals(TIMESTAMP) || type.equals(DATE) || type.equals(TIME)) {
+    } else if (type.equals(TIMESTAMP) || type.equals(DATE) || type.equals(TIME)
+            || type.equals(DATETIME)) {
       ExprValue exprValue;
       if (value instanceof Number) {
         exprValue = constructTimestamp(((Number) value).longValue());
