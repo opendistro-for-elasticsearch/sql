@@ -17,17 +17,15 @@ import React, { Fragment } from "react";
 // @ts-ignore
 import { SortableProperties } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiPanel, EuiPortal, EuiSearchBar, EuiSideNav } from "@elastic/eui";
+import { Comparators, EuiBasicTable, EuiCodeEditor, EuiModal, EuiModalBody, EuiModalFooter, EuiModalHeader, EuiModalHeaderTitle, EuiOverlayMask, EuiPanel, EuiPortal, EuiSearchBar, EuiSideNav } from "@elastic/eui";
 import {
   EuiButton,
   EuiButtonIcon,
   EuiContextMenu,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiHorizontalRule,
   EuiLink,
   EuiPopover,
-  EuiSpacer,
   EuiTable,
   EuiTableBody,
   EuiTableHeader,
@@ -39,7 +37,6 @@ import {
   Pager
 } from "@elastic/eui";
 import {
-  capitalizeFirstLetter,
   findRootNode,
   getMessageString,
   getRowTree,
@@ -49,8 +46,9 @@ import {
   scrollToNode
 } from "../../utils/utils";
 import "../../ace-themes/sql_console";
-import { COLUMN_WIDTH, MEDIUM_COLUMN_WIDTH, PAGE_OPTIONS, SMALL_COLUMN_WIDTH } from "../../utils/constants";
-import { ItemIdToExpandedRowMap, QueryMessage, QueryResult } from "../Main/main";
+import { COLUMN_WIDTH, PAGE_OPTIONS, SMALL_COLUMN_WIDTH } from "../../utils/constants";
+import { DataRow, ItemIdToExpandedRowMap, QueryMessage, QueryResult } from "../Main/main";
+import _ from "lodash";
 
 const DoubleScrollbar = require('react-double-scrollbar');
 
@@ -76,13 +74,13 @@ interface QueryResultsBodyProps {
   sortedColumn: string;
   onChangeItemsPerPage: (itemsPerPage: number) => void;
   onChangePage: (pageIndex: number) => void;
-  onSort: (prop: string) => void;
   onQueryChange: (query: object) => void;
   updateExpandedMap: (map: ItemIdToExpandedRowMap) => void;
   getJson: (queries: string[]) => void;
   getJdbc: (queries: string[]) => void;
   getCsv: (queries: string[]) => void;
   getText: (queries: string[]) => void;
+  onSort: (column: string, rows: DataRow[]) => DataRow[];
 }
 
 interface QueryResultsBodyState {
@@ -110,7 +108,7 @@ interface FieldValue {
 }
 
 class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResultsBodyState> {
-  public items: any[];
+  public items: DataRow[];
   public columns: any[];
   public panels: any[];
   public expandedRowColSpan: number;
@@ -281,10 +279,62 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     });
   };
 
-  // It sorts and filters table values
-  getItems(records: { [key: string]: any }[]) {
-    const matchingItems = this.props.searchQuery ? EuiSearchBar.Query.execute(this.props.searchQuery, records) : records;
-    return this.props.sortableProperties.sortItems(matchingItems);
+  // It filters table values that conatins the given items
+  getItems(records: DataRow[]) {
+    const matchingItems = this.props.searchQuery ? this.searchItems(records, this.props.searchQuery) : records;
+    let field: string = "";
+    if (_.get(this.props.sortedColumn, this.columns)) {
+      field = this.props.sortedColumn;
+    }
+    return this.sortDataRows(matchingItems, field);
+  }
+
+  searchItems(dataRows: DataRow[], searchQuery: string): DataRow[] {
+    let rows: { [key: string]: any }[] = [];
+    for (const row of dataRows) {
+      rows.push(row.data)
+    }
+    const searchResult = EuiSearchBar.Query.execute(searchQuery, rows);
+    let result: DataRow[] = [];
+    for (const row of searchResult) {
+      let dataRow: DataRow = {
+        // rowId does not matter here since the data rows would be sorted later
+        rowId: 0,
+        data: row
+      }
+      result.push(dataRow)
+    }
+    return result;
+  }
+
+  onSort(prop: string): void {
+    this.items = this.props.onSort(prop, this.items);
+    this.renderRows(this.items, this.columns, this.props.itemIdToExpandedRowMap);
+  }
+
+  sortDataRows(dataRows: DataRow[], field: string): DataRow[] {
+    const property = this.props.sortableProperties.getSortablePropertyByName(field);
+    const copy = [...dataRows];
+    let comparator = (a: DataRow, b: DataRow) => {
+      if (typeof property === "undefined") {
+        return 0;
+      }
+      let dataA = a.data;
+      let dataB = b.data;
+      if (dataA[field] && dataB[field]) {
+        if (dataA[field] > dataB[field]) {
+          return 1;
+        }
+        if (dataA[field] < dataB[field]) {
+          return -1;
+        }
+      }
+      return 0;
+    }
+    if (!this.props.sortableProperties.isAscendingByName(field)) {
+      Comparators.reverse(comparator);
+    }
+    return copy.sort(comparator);
   }
 
   // It processes field values and determines whether it should link to an expanded row or an expanded array
@@ -545,17 +595,15 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
 
   renderHeaderCells(columns: any[]) {
     return columns.map((field: any) => {
-      const label = field.id === "expandIcon" ? field.label : field;
-      const colwidth = field.id === "expandIcon" ? SMALL_COLUMN_WIDTH : field === "id" ? MEDIUM_COLUMN_WIDTH : COLUMN_WIDTH;
+      const label: string = field.id === "expandIcon" ? field.label : field;
+      const colwidth = field.id === "expandIcon" ? SMALL_COLUMN_WIDTH : COLUMN_WIDTH;
       return (
         <EuiTableHeaderCell
           key={label}
           width={colwidth}
-          onSort={this.props.onSort.bind(this, field)}
-          isSorted={this.props.sortedColumn === field}
-          isSortAscending={this.props.sortableProperties.isAscendingByName(
-            field
-          )}
+          onSort={this.onSort.bind(this, label)}
+          isSorted={this.props.sortedColumn === label}
+          isSortAscending={this.props.sortableProperties.isAscendingByName(label)}
         >
           {label}
         </EuiTableHeaderCell>
@@ -575,17 +623,18 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     });
   }
 
-  renderRow(item: any, columns: string[], rowId: string, expandedRowMap: ItemIdToExpandedRowMap) {
+  renderRow(item: DataRow, columns: string[], rowId: string, expandedRowMap: ItemIdToExpandedRowMap) {
     let rows: any[] = [];
-    // If the item is an array or an object we add it to the expandedRowMap
-    if (item && ((typeof item === "object" && !isEmpty(item)) || (Array.isArray(item) && item.length > 0))
+    const data = item.data;
+    // If the data is an array or an object we add it to the expandedRowMap
+    if (data && ((typeof data === "object" && !isEmpty(data)) || (Array.isArray(data) && data.length > 0))
     ) {
       let rowItems: any[] = [];
 
-      if (Array.isArray(item)) {
-        rowItems = item;
+      if (Array.isArray(data)) {
+        rowItems = data;
       } else {
-        rowItems.push(item);
+        rowItems.push(data);
       }
 
       for (let i = 0; i < rowItems.length; i++) {
@@ -661,7 +710,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
           );
         }
 
-        const tableRow = <EuiTableRow key={rowId} data-test-subj={'tableRow'}>{tableCells} </EuiTableRow>;
+        const tableRow = <EuiTableRow key={rowId} data-test-subj={'tableRow'}>{tableCells}</EuiTableRow>;
         let row = <Fragment>{tableRow}</Fragment>;
 
         if (expandedRowMap[rowId] && expandedRowMap[rowId].expandedRow) {
@@ -686,7 +735,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     return rows;
   }
 
-  renderRows(items: any, columns: string[], expandedRowMap: ItemIdToExpandedRowMap) {
+  renderRows(items: DataRow[], columns: string[], expandedRowMap: ItemIdToExpandedRowMap) {
     let rows: any[] = [];
     if (items) {
       for (
@@ -696,11 +745,11 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       ) {
         const item = items[itemIndex];
         if (item) {
-          const rowId = item["id"].toString();
+          const rowId = item.rowId;
           const rowsForItem = this.renderRow(
             item,
             columns,
-            rowId,
+            rowId.toString(10),
             expandedRowMap
           );
           rows.push(rowsForItem);
@@ -743,6 +792,10 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
       items = records;
       columns = this.addExpandingIconColumn(Object.keys(data));
     }
+    let dataRow: DataRow = {
+      rowId: 0,
+      data: items
+    };
 
     return (
       <div>
@@ -752,7 +805,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
           </EuiTableHeader>
 
           <EuiTableBody>
-            {this.renderRow(items, columns, node.nodeId.toString(), expandedRowMap)}
+            {this.renderRow(dataRow, columns, node.nodeId.toString(), expandedRowMap)}
           </EuiTableBody>
         </EuiTable>
       </div>
