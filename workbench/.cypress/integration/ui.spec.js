@@ -41,7 +41,7 @@ describe('Test PPL UI', () => {
     cy.get('.euiTab__content').contains('Events').click({ force: true });
 
     cy.get('span.euiTableCellContent__text')
-      .eq(21)
+      .eq(19)
       .should((employer) => {
         expect(employer).to.contain('Pyrami');
       });
@@ -113,7 +113,7 @@ describe('Test SQL UI', () => {
 
     cy.get('input.euiFieldSearch').type('marissa');
     cy.get('span.euiTableCellContent__text')
-      .eq(15)
+      .eq(13)
       .should((account_number) => {
         expect(account_number).to.contain('803');
       });
@@ -206,7 +206,7 @@ describe('Test table display', () => {
     });
   });
 
-  it.only('Test nested fields display', () => {
+  it('Test nested fields display', () => {
     cy.get('textarea.ace_text-input')
       .eq(0)
       .focus()
@@ -218,7 +218,7 @@ describe('Test table display', () => {
     cy.get('button.euiLink').eq(2).click({ force: true });
     cy.wait(delay);
     cy.get('span.euiTableCellContent__text')
-      .eq(27)
+      .eq(24)
       .should((cell) => {
         expect(cell).to.contain('2018-06-23');
       });
