@@ -175,19 +175,10 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
     return result;
   }
 
-  updateSortedColumn = (column: string) => {
-    // this call does not lead to a sort in DataRow[], but only to update sortable properties
-    this.sortableProperties.sortOn(column)
-
-    this.sortedColumn = column;
-    this.setState({});
-  }
-
   onSort = (prop: string, items: DataRow[]): DataRow[] => {
     let sortedRows = this.sortDataRows(items, prop);
     this.sortableProperties.sortOn(prop)
     this.sortedColumn = prop;
-    this.setState({});
     return sortedRows;
   }
 
@@ -414,7 +405,6 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   getJdbc={this.props.getJdbc}
                   getCsv={this.props.getCsv}
                   getText={this.props.getText}
-                  updateSortedColumn={this.updateSortedColumn}
                   onSort={this.onSort}
                 />
               </PanelWrapper>
