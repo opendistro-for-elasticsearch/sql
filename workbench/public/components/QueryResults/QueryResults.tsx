@@ -347,7 +347,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                     style={{ marginTop: "8px" }}
                     grow={false}
                   >
-                    <EuiTabs>{tabsButtons}</EuiTabs>
+                    <EuiTabs style={{marginLeft: 7, marginBottom: 6}}>{tabsButtons}</EuiTabs>
                   </EuiFlexItem>
                 </EuiFlexGroup>
 

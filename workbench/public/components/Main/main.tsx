@@ -325,7 +325,7 @@ export class Main extends React.Component<MainProps, MainState> {
       let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlquery' : 'pplquery');
       const responsePromise = Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -372,7 +372,7 @@ export class Main extends React.Component<MainProps, MainState> {
         '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'translatesql' : 'translateppl');
       const translationPromise = Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -416,7 +416,7 @@ export class Main extends React.Component<MainProps, MainState> {
     if (queries.length > 0) {
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post('../api/sql_console/queryjson', { query }).catch((error: any) => {
+          this.httpClient.post('../api/sql_console/sqljson', { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -448,7 +448,7 @@ export class Main extends React.Component<MainProps, MainState> {
       let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlquery' : 'pplquery');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -480,7 +480,7 @@ export class Main extends React.Component<MainProps, MainState> {
       let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlcsv' : 'pplcsv');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -512,7 +512,7 @@ export class Main extends React.Component<MainProps, MainState> {
       let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqltext' : 'ppltext');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {

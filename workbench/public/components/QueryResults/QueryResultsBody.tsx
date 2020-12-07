@@ -683,7 +683,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
               }
               tableCells.push(
                 <EuiTableRowCell
-                  key={field}
+                  key={`rowCell-${field}-${rowId}`}
                   truncateText={false}
                   textOnly={true}
                 >
@@ -695,7 +695,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
             // Expanding icon cell
             else {
               tableCells.push(
-                <EuiTableRowCell id={tree._root.nodeId}>
+                <EuiTableRowCell id={tree._root.nodeId} key={`rowCell-expandIconRow-${rowId}`}>
                   {expandingNode}
                 </EuiTableRowCell>
               );
@@ -704,26 +704,26 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
         } else {
           const fieldObj = this.getFieldValue(rowItem, "");
           tableCells.push(
-            <EuiTableRowCell truncateText={false} textOnly={true}>
+            <EuiTableRowCell key={`rowCell-default-${rowId}`} truncateText={false} textOnly={true}>
               {fieldObj.value}
             </EuiTableRowCell>
           );
         }
 
-        const tableRow = <EuiTableRow key={rowId} data-test-subj={'tableRow'}>{tableCells}</EuiTableRow>;
-        let row = <Fragment>{tableRow}</Fragment>;
+        const tableRow = <EuiTableRow key={`row-${rowId}`} data-test-subj={'tableRow'}>{tableCells}</EuiTableRow>;
+        let row = <Fragment key={`row-wrapper-${rowId}`}>{tableRow}</Fragment>;
 
         if (expandedRowMap[rowId] && expandedRowMap[rowId].expandedRow) {
           const tableRow = (
-            <EuiTableRow className="expanded-row" key={rowId}>
+            <EuiTableRow className="expanded-row" key={`expanded-row-${rowId}`}>
               {tableCells}{" "}
             </EuiTableRow>
           );
           const expandedRow = (
-            <EuiTableRow>{expandedRowMap[rowId].expandedRow}</EuiTableRow>
+            <EuiTableRow key={`row-${rowId}`}>{expandedRowMap[rowId].expandedRow}</EuiTableRow>
           );
           row = (
-            <Fragment>
+            <Fragment key={`row-wrapper-${rowId}`}>
               {tableRow}
               {expandedRow}
             </Fragment>
