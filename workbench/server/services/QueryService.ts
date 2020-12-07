@@ -23,10 +23,10 @@ export default class QueryService {
     this.client = client;
   }
 
-  describeQueryInternal = async (request: string, format: string, responseFormat: string) => {
+  describeQueryInternal = async (request: any, format: string, responseFormat: string) => {
     try {
       const queryRequest = {
-        query: request,
+        query: request.body.query,
       };
       const params = {
         body: JSON.stringify(queryRequest),
@@ -51,35 +51,35 @@ export default class QueryService {
     }
   };
 
-  describeSQLQuery = async (request: string) => {
+  describeSQLQuery = async (request: any) => {
     return this.describeQueryInternal(request, 'sql.sqlQuery', 'json');
   };
 
-  describePPLQuery = async (request: string) => {
+  describePPLQuery = async (request: any) => {
     return this.describeQueryInternal(request, 'sql.pplQuery', 'json');
   };
 
-  describeSQLCsv = async (request: string) => {
+  describeSQLCsv = async (request: any) => {
     return this.describeQueryInternal(request, 'sql.sqlCsv', null);
   };
 
-  describePPLCsv = async (request: string) => {
+  describePPLCsv = async (request: any) => {
     return this.describeQueryInternal(request, 'sql.pplCsv', null);
   };
 
-  describeSQLJson = async (request: string) => {
+  describeSQLJson = async (request: any) => {
     return this.describeQueryInternal(request, 'sql.sqlJson', 'json');
   };
 
-  describePPLJson = async (request: string) => {
+  describePPLJson = async (request: any) => {
     return this.describeQueryInternal(request, 'sql.pplJson', 'json');
   };
 
-  describeSQLText = async (request: string) => {
+  describeSQLText = async (request: any) => {
     return this.describeQueryInternal(request, 'sql.sqlText', null);
   };
 
-  describePPLText = async (request: string) => {
+  describePPLText = async (request: any) => {
     return this.describeQueryInternal(request, 'sql.pplText', null);
   };
 }
