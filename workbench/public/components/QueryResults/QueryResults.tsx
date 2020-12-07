@@ -157,7 +157,6 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
   }
 
   searchItems(dataRows: DataRow[], searchQuery: string): DataRow[] {
-
     let rows: { [key: string]: any }[] = [];
     for (const row of dataRows) {
       rows.push(row.data)

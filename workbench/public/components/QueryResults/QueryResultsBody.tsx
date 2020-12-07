@@ -286,7 +286,7 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
     if (_.get(this.props.sortedColumn, this.columns)) {
       field = this.props.sortedColumn;
     }
-    return this.props.onSort(field, matchingItems);
+    return this.sortDataRows(matchingItems, field);
   }
 
   searchItems(dataRows: DataRow[], searchQuery: string): DataRow[] {
@@ -309,6 +309,32 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
 
   onSort(prop: string): void {
     this.items = this.props.onSort(prop, this.items);
+    this.renderRows(this.items, this.columns, this.props.itemIdToExpandedRowMap);
+  }
+
+  sortDataRows(dataRows: DataRow[], field: string): DataRow[] {
+    const property = this.props.sortableProperties.getSortablePropertyByName(field);
+    const copy = [...dataRows];
+    let comparator = (a: DataRow, b: DataRow) => {
+      if (typeof property === "undefined") {
+        return 0;
+      }
+      let dataA = a.data;
+      let dataB = b.data;
+      if (dataA[field] && dataB[field]) {
+        if (dataA[field] > dataB[field]) {
+          return 1;
+        }
+        if (dataA[field] < dataB[field]) {
+          return -1;
+        }
+      }
+      return 0;
+    }
+    if (!this.props.sortableProperties.isAscendingByName(field)) {
+      Comparators.reverse(comparator);
+    }
+    return copy.sort(comparator);
   }
 
   // It processes field values and determines whether it should link to an expanded row or an expanded array
