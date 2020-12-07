@@ -732,7 +732,6 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
         rows.push(row);
       }
     }
-    console.log('rows', rows);
     return rows;
   }
 
