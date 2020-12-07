@@ -23,6 +23,13 @@ Description
 
 A regular identifier is a string of characters that must start with ASCII letter (lower or upper case). The subsequent character can be a combination of letter, digit, underscore (``_``). It cannot be a reversed key word. And whitespace and other special characters are not allowed.
 
+For Elasticsearch, the following identifiers are supported extensionally:
+
+1. Identifiers prefixed by dot ``.``: this is called hidden index in Elasticsearch, for example ``.kibana``.
+2. Identifiers prefixed by at sign ``@``: this is common for meta fields generated in Logstash ingestion.
+3. Identifiers with ``-`` in the middle: this is mostly the case for index name with date information.
+4. Identifiers with star ``*`` present: this is mostly an index pattern for wildcard match.
+
 Examples
 --------
 
@@ -46,12 +53,7 @@ Delimited Identifiers
 Description
 -----------
 
-A delimited identifier is an identifier enclosed in back ticks `````. In this case, the identifier enclosed is not necessarily a regular identifier. In other words, it can contain any special character not allowed by regular identifier. For Elasticsearch, the following identifiers are supported extensionally:
-
-1. Identifiers prefixed by dot ``.``: this is called hidden index in Elasticsearch, for example ``.kibana``.
-2. Identifiers prefixed by at sign ``@``: this is common for meta fields generated in Logstash ingestion.
-3. Identifiers with ``-`` in the middle: this is mostly the case for index name with date information.
-4. Identifiers with star ``*`` present: this is mostly an index pattern for wildcard match.
+A delimited identifier is an identifier enclosed in back ticks `````. In this case, the identifier enclosed is not necessarily a regular identifier. In other words, it can contain any special character not allowed by regular identifier.
 
 Use Cases
 ---------
@@ -67,7 +69,7 @@ Examples
 
 Here are examples for quoting an index name by back ticks::
 
-    od> source=`acc*` | fields `account_number`;
+    od> source=`accounts` | fields `account_number`;
     fetched rows / total rows = 4/4
     +------------------+
     | account_number   |

@@ -17,8 +17,8 @@ import React from "react";
 // @ts-ignore
 import { SortableProperties, SortableProperty } from "@elastic/eui/lib/services";
 // @ts-ignore
-import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer, EuiTextAlign, EuiButton, EuiButtonIcon } from "@elastic/eui";
-import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap } from "../Main/main";
+import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiTab, EuiTabs, EuiPopover, EuiContextMenuItem, EuiContextMenuPanel, EuiHorizontalRule, EuiSearchBar, Pager, EuiIcon, EuiText, EuiSpacer, EuiTextAlign, EuiButton, EuiButtonIcon, Comparators } from "@elastic/eui";
+import { QueryResult, QueryMessage, Tab, ResponseDetail, ItemIdToExpandedRowMap, DataRow } from "../Main/main";
 import QueryResultsBody from "./QueryResultsBody";
 import { getQueryIndex, needsScrolling, getSelectedResults } from "../../utils/utils";
 import { DEFAULT_NUM_RECORDS_PER_PAGE, MESSAGE_TAB_LABEL, TAB_CONTAINER_ID } from "../../utils/constants";
@@ -137,29 +137,74 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
   }
 
   // Update SORTABLE COLUMNS - All columns
-  updateSortableColumns(queryResultsSelected: QueryResult): void {
-    if (this.sortableColumns.length === 0) {
-      queryResultsSelected.fields.map((field: string) => {
-        this.sortableColumns.push({
-          name: field,
-          getValue: (item: any) => item[field],
-          isAscending: true
-        });
-      });
-      this.sortedColumn =
-        this.sortableColumns.length > 0 ? this.sortableColumns[0].name : "";
-      this.sortableProperties = new SortableProperties(
-        this.sortableColumns,
-        this.sortedColumn
-      );
+  updateSortableColumns = (queryResultsSelected: QueryResult) => {
+    if (this.sortableColumns.length != 0) {
+      this.sortableColumns = [];
     }
+    queryResultsSelected.fields.map((field: string) => {
+      this.sortableColumns.push({
+        name: field,
+        getValue: (item: DataRow) => item.data[field],
+        isAscending: true
+      });
+    });
+    this.sortedColumn =
+      this.sortableColumns.length > 0 ? this.sortableColumns[0].name : "";
+    this.sortableProperties = new SortableProperties(
+      this.sortableColumns,
+      this.sortedColumn
+    );
   }
 
-  onSort = (prop: string) => {
-    this.sortableProperties.sortOn(prop);
+  searchItems(dataRows: DataRow[], searchQuery: string): DataRow[] {
+    let rows: { [key: string]: any }[] = [];
+    for (const row of dataRows) {
+      rows.push(row.data)
+    }
+    const searchResult = EuiSearchBar.Query.execute(searchQuery, rows);
+    let result: DataRow[] = [];
+    for (const row of searchResult) {
+      let dataRow: DataRow = {
+        // rowId does not matter here since the data rows would be sorted later
+        rowId: 0,
+        data: row
+      }
+      result.push(dataRow)
+    }
+    return result;
+  }
+
+  onSort = (prop: string, items: DataRow[]): DataRow[] => {
+    let sortedRows = this.sortDataRows(items, prop);
+    this.sortableProperties.sortOn(prop)
     this.sortedColumn = prop;
-    this.setState({});
-  };
+    return sortedRows;
+  }
+
+  sortDataRows(dataRows: DataRow[], field: string): DataRow[] {
+    const property = this.sortableProperties.getSortablePropertyByName(field);
+    const copy = [...dataRows];
+    let comparator = (a: DataRow, b: DataRow) => {
+      if (typeof property === "undefined") {
+        return 0;
+      }
+      let dataA = a.data;
+      let dataB = b.data;
+      if (dataA[field] && dataB[field]) {
+        if (dataA[field] > dataB[field]) {
+          return 1;
+        }
+        if (dataA[field] < dataB[field]) {
+          return -1;
+        }
+      }
+      return 0;
+    }
+    if (!this.sortableProperties.isAscendingByName(field)) {
+      Comparators.reverse(comparator);
+    }
+    return copy.sort(comparator);
+  }
 
   renderTabs(): Tab[] {
     const tabs = [
@@ -193,10 +238,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
 
     if (queryResultSelected) {
       const matchingItems: object[] = this.props.searchQuery
-        ? EuiSearchBar.Query.execute(
-          this.props.searchQuery,
-          queryResultSelected.records
-        )
+        ? this.searchItems(queryResultSelected.records, this.props.searchQuery)
         : queryResultSelected.records;
       this.updatePagination(matchingItems.length);
       this.updateSortableColumns(queryResultSelected);
@@ -354,7 +396,6 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   lastItemIndex={this.pager.getLastItemIndex()}
                   onChangeItemsPerPage={this.onChangeItemsPerPage}
                   onChangePage={this.onChangePage}
-                  onSort={this.onSort}
                   sortedColumn={this.sortedColumn}
                   sortableProperties={this.sortableProperties}
                   itemIdToExpandedRowMap={this.props.itemIdToExpandedRowMap}
@@ -363,6 +404,7 @@ class QueryResults extends React.Component<QueryResultsProps, QueryResultsState>
                   getJdbc={this.props.getJdbc}
                   getCsv={this.props.getCsv}
                   getText={this.props.getText}
+                  onSort={this.onSort}
                 />
               </PanelWrapper>
             </>
