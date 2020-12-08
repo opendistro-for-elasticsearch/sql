@@ -50,6 +50,13 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
     return getResponseBody(response, true);
   }
 
+  protected String executeCsvQuery(String query) throws IOException {
+    Request request = buildRequest(query, QUERY_API_ENDPOINT + "?format=csv");
+    Response response = client().performRequest(request);
+    Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+    return getResponseBody(response, true);
+  }
+
   protected Request buildRequest(String query, String endpoint) {
     Request request = new Request("POST", endpoint);
     request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
