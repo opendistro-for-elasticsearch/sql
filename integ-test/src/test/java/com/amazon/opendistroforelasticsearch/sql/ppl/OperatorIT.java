@@ -249,10 +249,10 @@ public class OperatorIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void testLikeOperator() throws IOException {
+  public void testLikeFunction() throws IOException {
     JSONObject result =
-        executeQuery(
-            String.format("source=%s firstname like 'Hatti_' | fields firstname", TEST_INDEX_BANK));
+        executeQuery(String.format("source=%s like(firstname, 'Hatti_') | fields firstname",
+            TEST_INDEX_BANK));
     verifyDataRows(result, rows("Hattie"));
   }
 

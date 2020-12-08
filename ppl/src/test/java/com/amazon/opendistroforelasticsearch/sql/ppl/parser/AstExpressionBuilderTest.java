@@ -47,6 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLit
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.xor;
 import static java.util.Collections.emptyList;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -114,10 +115,28 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
 
   @Test
   public void testLogicalLikeExpr() {
-    assertEqual("source=t a like '_a%b%c_d_'",
+    assertEqual("source=t like(a, '_a%b%c_d_')",
         filter(
             relation("t"),
-            compare("like", field("a"), stringLiteral("_a%b%c_d_"))
+            function("like", field("a"), stringLiteral("_a%b%c_d_"))
+        ));
+  }
+
+  @Test
+  public void testBooleanIsNullFunction() {
+    assertEqual("source=t isnull(a)",
+        filter(
+            relation("t"),
+            function("is null", field("a"))
+        ));
+  }
+
+  @Test
+  public void testBooleanIsNotNullFunction() {
+    assertEqual("source=t isnotnull(a)",
+        filter(
+            relation("t"),
+            function("is not null", field("a"))
         ));
   }
 
@@ -320,6 +339,27 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
             ),
             emptyList(),
             emptyList(),
+            defaultStatsArgs()
+        ));
+  }
+
+  @Test
+  public void testCountFuncCallExpr() {
+    assertEqual("source=t | stats count() by b",
+        agg(
+            relation("t"),
+            exprList(
+                alias(
+                    "count()",
+                    aggregate("count", AllFields.of())
+                )
+            ),
+            emptyList(),
+            exprList(
+                alias(
+                    "b",
+                    field("b")
+                )),
             defaultStatsArgs()
         ));
   }

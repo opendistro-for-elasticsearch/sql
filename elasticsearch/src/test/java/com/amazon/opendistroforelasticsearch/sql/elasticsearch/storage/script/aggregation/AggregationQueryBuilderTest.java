@@ -21,6 +21,10 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.D
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.agg;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.avg;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.group;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.sort;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,11 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
@@ -45,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -99,6 +107,40 @@ class AggregationQueryBuilderTest {
             Arrays.asList(
                 named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER))),
             Arrays.asList(named("name", ref("name", STRING)))));
+  }
+
+  @Test
+  void should_build_composite_aggregation_for_field_reference_with_order() {
+    assertEquals(
+        "{\n"
+            + "  \"composite_buckets\" : {\n"
+            + "    \"composite\" : {\n"
+            + "      \"size\" : 1000,\n"
+            + "      \"sources\" : [ {\n"
+            + "        \"name\" : {\n"
+            + "          \"terms\" : {\n"
+            + "            \"field\" : \"name\",\n"
+            + "            \"missing_bucket\" : true,\n"
+            + "            \"order\" : \"desc\"\n"
+            + "          }\n"
+            + "        }\n"
+            + "      } ]\n"
+            + "    },\n"
+            + "    \"aggregations\" : {\n"
+            + "      \"avg(age)\" : {\n"
+            + "        \"avg\" : {\n"
+            + "          \"field\" : \"age\"\n"
+            + "        }\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER))),
+            Arrays.asList(named("name", ref("name", STRING))),
+            sort(ref("name", STRING), Sort.SortOption.DEFAULT_DESC)
+        ));
   }
 
   @Test
@@ -201,6 +243,48 @@ class AggregationQueryBuilderTest {
   }
 
   @Test
+  void should_build_composite_aggregation_follow_with_order_by_position() {
+    assertEquals(
+        "{\n"
+            + "  \"composite_buckets\" : {\n"
+            + "    \"composite\" : {\n"
+            + "      \"size\" : 1000,\n"
+            + "      \"sources\" : [ {\n"
+            + "        \"name\" : {\n"
+            + "          \"terms\" : {\n"
+            + "            \"field\" : \"name\",\n"
+            + "            \"missing_bucket\" : true,\n"
+            + "            \"order\" : \"desc\"\n"
+            + "          }\n"
+            + "        }\n"
+            + "      }, {\n"
+            + "        \"age\" : {\n"
+            + "          \"terms\" : {\n"
+            + "            \"field\" : \"age\",\n"
+            + "            \"missing_bucket\" : true,\n"
+            + "            \"order\" : \"asc\"\n"
+            + "          }\n"
+            + "        }\n"
+            + "      } ]\n"
+            + "    },\n"
+            + "    \"aggregations\" : {\n"
+            + "      \"avg(balance)\" : {\n"
+            + "        \"avg\" : {\n"
+            + "          \"field\" : \"balance\"\n"
+            + "        }\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            agg(named("avg(balance)", avg(ref("balance", INTEGER), INTEGER))),
+            group(named("age", ref("age", INTEGER)), named("name", ref("name", STRING))),
+            sort(ref("name", STRING), Sort.SortOption.DEFAULT_DESC,
+                ref("age", INTEGER), Sort.SortOption.DEFAULT_ASC)
+        ));
+  }
+
+  @Test
   void should_build_type_mapping_for_expression() {
     assertThat(
         buildTypeMapping(Arrays.asList(
@@ -245,9 +329,17 @@ class AggregationQueryBuilderTest {
   @SneakyThrows
   private String buildQuery(List<NamedAggregator> namedAggregatorList,
                             List<NamedExpression> groupByList) {
+    return buildQuery(namedAggregatorList, groupByList, null);
+  }
+
+  @SneakyThrows
+  private String buildQuery(List<NamedAggregator> namedAggregatorList,
+                            List<NamedExpression> groupByList,
+                            List<Pair<Sort.SortOption, Expression>> sortList) {
     ObjectMapper objectMapper = new ObjectMapper();
     return objectMapper.readTree(
-        queryBuilder.buildAggregationBuilder(namedAggregatorList, groupByList).get(0).toString())
+        queryBuilder.buildAggregationBuilder(namedAggregatorList, groupByList, sortList).get(0)
+            .toString())
         .toPrettyString();
   }
 

@@ -72,6 +72,17 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
     const closeModal = () => this.setIsModalVisible(false);
     const showModal = () => this.setIsModalVisible(true);
 
+    const sqlTranslationsNotEmpty = () => {
+      if (this.props.sqlTranslations.length > 0) {
+        return this.props.sqlTranslations[0].fulfilled;
+      }
+      return false;
+    }
+
+    const explainContent = sqlTranslationsNotEmpty()
+    ? this.props.sqlTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")
+    : 'This query is not explainable.';
+
     let modal;
 
     if (this.state.isModalVisible) {
@@ -88,7 +99,7 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
                 fontSize="m"
                 isCopyable
               >
-                {this.props.sqlTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")}
+                {explainContent}
               </EuiCodeBlock>
             </EuiModalBody>
 
@@ -148,7 +159,10 @@ export class SQLPage extends React.Component<SQLPageProps, SQLPageState> {
               this.props.onTranslate(this.props.sqlQuery)
             }
           >
-            <EuiButton className="sql-editor-button" onClick={showModal}>
+            <EuiButton
+              className="sql-editor-button"
+              onClick={showModal}
+            >
               Explain
             </EuiButton>
             {modal}
