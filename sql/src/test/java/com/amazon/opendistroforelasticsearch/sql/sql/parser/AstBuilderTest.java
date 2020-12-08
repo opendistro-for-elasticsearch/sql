@@ -33,8 +33,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relationS
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
-import static com.amazon.opendistroforelasticsearch.sql.utils.ReservedSystemIndex.TABLE_INFO;
-import static com.amazon.opendistroforelasticsearch.sql.utils.ReservedSystemIndex.mappingTable;
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.TABLE_INFO;
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.mappingTable;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
