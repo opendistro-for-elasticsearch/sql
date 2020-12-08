@@ -42,32 +42,32 @@ export const testQueries = [
   {
     title: 'Test GROUP BY',
     query: 'select count(*) from accounts group by gender;',
-    cell_idx: 5,
+    cell_idx: 3,
     expected_string: '507'
   },
   {
     title: 'Test GROUP BY with aliases and scalar function',
     query: 'SELECT ABS(age) AS a FROM accounts GROUP BY ABS(age);',
     cell_idx: 17,
-    expected_string: '35.0'
+    expected_string: '28.0'
   },
   {
     title: 'Test GROUP BY and HAVING',
     query: 'SELECT age, MAX(balance) FROM accounts GROUP BY age HAVING MIN(balance) > 3000;',
-    cell_idx: 15,
-    expected_string: '49339'
+    cell_idx: 5,
+    expected_string: '47257'
   },
   {
     title: 'Test ORDER BY',
     query: 'SELECT account_number FROM accounts ORDER BY account_number DESC;',
     cell_idx: 5,
-    expected_string: '999'
+    expected_string: '998'
   },
   {
     title: 'Test JOIN',
     query: 'select a.account_number, a.firstname, a.lastname, e.id, e.name from accounts a join employee_nested e order by a.account_number;',
     cell_idx: 45,
-    expected_string: 'Amber'
+    expected_string: 'Duke'
   },
 ];
 

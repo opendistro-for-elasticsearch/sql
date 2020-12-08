@@ -16,7 +16,6 @@
 import { schema } from '@kbn/config-schema';
 import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import TranslateService from '../services/TranslateService';
-import { convertQueryToString } from '../services/utils/constants';
 
 export default function translate(server: IRouter, service: TranslateService) {
   server.post(
@@ -27,8 +26,7 @@ export default function translate(server: IRouter, service: TranslateService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-      const retVal = await service.translateSQL(queryString);
+      const retVal = await service.translateSQL(request);
       return response.ok({
         body: retVal,
       });
@@ -43,8 +41,7 @@ export default function translate(server: IRouter, service: TranslateService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-      const retVal = await service.translatePPL(queryString);
+      const retVal = await service.translatePPL(request);
       return response.ok({
         body: retVal,
       });
