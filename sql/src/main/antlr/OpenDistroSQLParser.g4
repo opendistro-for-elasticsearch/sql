@@ -39,7 +39,7 @@ root
 
 //    Only SELECT
 sqlStatement
-    : dmlStatement
+    : dmlStatement | adminStatement
     ;
 
 dmlStatement
@@ -55,6 +55,26 @@ selectStatement
     : querySpecification                                 #simpleSelect
     ;
 
+adminStatement
+    : showStatement
+    | describeStatement
+    ;
+
+showStatement
+    : SHOW TABLES tableFilter?
+    ;
+
+describeStatement
+    : DESCRIBE TABLES tableFilter columnFilter?
+    ;
+
+tableFilter
+    : LIKE stringLiteral
+    ;
+
+columnFilter
+    : COLUMNS LIKE stringLiteral
+    ;
 
 //    Select Statement's Details
 
