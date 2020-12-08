@@ -35,7 +35,7 @@ export class WorkbenchPlugin implements Plugin<WorkbenchPluginSetup, WorkbenchPl
   }
 
   public setup(core: CoreSetup) {
-    this.logger.debug('temp: Setup');
+    this.logger.debug('opendistroQueryWorkbench: Setup');
     const router = core.http.createRouter();
     const client: ILegacyClusterClient = core.elasticsearch.legacy.createClient(
       'query_workbench',
@@ -51,7 +51,7 @@ export class WorkbenchPlugin implements Plugin<WorkbenchPluginSetup, WorkbenchPl
   }
 
   public start(core: CoreStart) {
-    this.logger.debug('temp: Started');
+    this.logger.debug('opendistroQueryWorkbench: Started');
     return {};
   }
 

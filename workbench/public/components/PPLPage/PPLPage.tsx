@@ -69,6 +69,17 @@ export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
     const closeModal = () => this.setIsModalVisible(false);
     const showModal = () => this.setIsModalVisible(true);
 
+    const pplTranslationsNotEmpty = () => {
+      if (this.props.pplTranslations.length > 0) {
+        return this.props.pplTranslations[0].fulfilled;
+      }
+      return false;
+    }
+
+    const explainContent = pplTranslationsNotEmpty()
+      ? this.props.pplTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")
+      : 'This query is not explainable.';
+
     let modal;
 
     if (this.state.isModalVisible) {
@@ -85,7 +96,7 @@ export class PPLPage extends React.Component<PPLPageProps, PPLPageState> {
                 fontSize="m"
                 isCopyable
               >
-                {this.props.pplTranslations.map((queryTranslation: any) => JSON.stringify(queryTranslation.data, null, 2)).join("\n")}
+                {explainContent}
               </EuiCodeBlock>
             </EuiModalBody>
 

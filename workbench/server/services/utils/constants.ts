@@ -34,12 +34,3 @@ export const CLUSTER = {
   SQL: 'opendistro_sql',
   DATA: 'data',
 };
-
-export const convertQueryToString = (query: string | ParsedUrlQuery) => {
-  let index;
-  let queryString = '';
-  for (index = 0; index < Object.keys(query).length; ++index) {
-    queryString += query[index.toString()];
-  }
-  return queryString;
-};

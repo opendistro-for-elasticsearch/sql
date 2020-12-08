@@ -16,7 +16,6 @@
 import { schema } from '@kbn/config-schema';
 import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import QueryService from '../services/QueryService';
-import { convertQueryToString } from '../services/utils/constants';
 import {
   ROUTE_PATH_SQL_QUERY,
   ROUTE_PATH_PPL_QUERY,
@@ -37,9 +36,7 @@ export default function query(server: IRouter, service: QueryService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-
-      const retVal = await service.describeSQLQuery(queryString);
+      const retVal = await service.describeSQLQuery(request);
       return response.ok({
         body: retVal,
       });
@@ -54,9 +51,7 @@ export default function query(server: IRouter, service: QueryService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-
-      const retVal = await service.describePPLQuery(queryString);
+      const retVal = await service.describePPLQuery(request);
       return response.ok({
         body: retVal,
       });
@@ -71,9 +66,7 @@ export default function query(server: IRouter, service: QueryService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-
-      const retVal = await service.describeSQLCsv(queryString);
+      const retVal = await service.describeSQLCsv(request);
       return response.ok({
         body: retVal,
       });
@@ -88,9 +81,7 @@ export default function query(server: IRouter, service: QueryService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-
-      const retVal = await service.describePPLCsv(queryString);
+      const retVal = await service.describePPLCsv(request);
       return response.ok({
         body: retVal,
       });
@@ -105,9 +96,7 @@ export default function query(server: IRouter, service: QueryService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-
-      const retVal = await service.describeSQLJson(queryString);
+      const retVal = await service.describeSQLJson(request);
       return response.ok({
         body: retVal,
       });
@@ -122,9 +111,7 @@ export default function query(server: IRouter, service: QueryService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-
-      const retVal = await service.describePPLJson(queryString);
+      const retVal = await service.describePPLJson(request);
       return response.ok({
         body: retVal,
       });
@@ -139,9 +126,7 @@ export default function query(server: IRouter, service: QueryService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-
-      const retVal = await service.describeSQLText(queryString);
+      const retVal = await service.describeSQLText(request);
       return response.ok({
         body: retVal,
       });
@@ -156,9 +141,7 @@ export default function query(server: IRouter, service: QueryService) {
       },
     },
     async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
-      const queryString = convertQueryToString(request.url.query);
-
-      const retVal = await service.describePPLText(queryString);
+      const retVal = await service.describePPLText(request);
       return response.ok({
         body: retVal,
       });

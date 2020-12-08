@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.Security
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JdbcResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
@@ -124,7 +125,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     if (format.equals(Format.CSV)) {
       formatter = new CsvResponseFormatter(request.escape());
     } else {
-      formatter = new SimpleJsonResponseFormatter(PRETTY);
+      formatter = new JdbcResponseFormatter(PRETTY);
     }
 
     if (request.isExplainRequest()) {
@@ -167,7 +168,6 @@ public class RestSQLQueryAction extends BaseRestHandler {
     };
   }
 
-  // TODO: duplicate code here as in RestPPLQueryAction
   private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel) {
     return new ResponseListener<QueryResponse>() {
       @Override
