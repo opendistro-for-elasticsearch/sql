@@ -19,15 +19,13 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.KeywordsAsQualifiedNameContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QualifiedNameContext;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentsAsQualifiedNameContext;
-import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.KeywordsCanBeIdContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +52,7 @@ class AstHavingFilterBuilderTest {
 
   @Test
   void should_replace_alias_with_select_expression() {
-    IdentsAsQualifiedNameContext qualifiedName = mock(IdentsAsQualifiedNameContext.class);
+    QualifiedNameContext qualifiedName = mock(QualifiedNameContext.class);
     IdentContext identifier = mock(IdentContext.class);
     UnresolvedExpression expression = aggregate("AVG", qualifiedName("age"));
 
@@ -62,20 +60,6 @@ class AstHavingFilterBuilderTest {
     when(qualifiedName.ident()).thenReturn(ImmutableList.of(identifier));
     when(querySpec.isSelectAlias(any())).thenReturn(true);
     when(querySpec.getSelectItemByAlias(any())).thenReturn(expression);
-    assertEquals(expression, builder.visitIdentsAsQualifiedName(qualifiedName));
+    assertEquals(expression, builder.visitQualifiedName(qualifiedName));
   }
-
-  @Test
-  void should_replace_keyword_alias_with_select_expression() {
-    KeywordsAsQualifiedNameContext qualifiedName = mock(KeywordsAsQualifiedNameContext.class);
-    KeywordsCanBeIdContext keyword = mock(KeywordsCanBeIdContext.class);
-    UnresolvedExpression expression = aggregate("AVG", qualifiedName("age"));
-
-    when(keyword.getText()).thenReturn("a");
-    when(qualifiedName.keywordsCanBeId()).thenReturn(keyword);
-    when(querySpec.isSelectAlias(any())).thenReturn(true);
-    when(querySpec.getSelectItemByAlias(any())).thenReturn(expression);
-    assertEquals(expression, builder.visitKeywordsAsQualifiedName(qualifiedName));
-  }
-
 }

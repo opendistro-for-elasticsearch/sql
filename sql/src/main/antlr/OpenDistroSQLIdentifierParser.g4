@@ -40,18 +40,17 @@ columnName
 
 alias
     : ident
-    | keywordsCanBeId
     ;
 
 qualifiedName
-    : ident (DOT ident)*                                #identsAsQualifiedName
-    | keywordsCanBeId                                   #keywordsAsQualifiedName
+    : ident (DOT ident)*
     ;
 
 ident
     : DOT? ID
     | DOUBLE_QUOTE_ID
     | BACKTICK_QUOTE_ID
+    | keywordsCanBeId
     ;
 
 keywordsCanBeId

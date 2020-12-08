@@ -443,4 +443,15 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
     );
   }
 
+  @Test
+  public void canBuildKeywordsAsIdentInQualifiedName() {
+    assertEqual(
+        "source=test.timestamp | fields timestamp",
+        projectWithArg(
+            relation("test.timestamp"),
+            defaultFieldsArgs(),
+            field("timestamp")
+        )
+    );
+  }
 }
