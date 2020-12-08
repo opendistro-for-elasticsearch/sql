@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
@@ -34,6 +35,7 @@ import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectSpecContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstExpressionBuilder;
 import java.util.ArrayList;
@@ -182,6 +184,17 @@ public class QuerySpecification {
     }
 
     @Override
+    public Void visitSelectClause(SelectClauseContext ctx) {
+      super.visitSelectClause(ctx);
+
+      // SELECT DISTINCT is an equivalent and special form of GROUP BY
+      if (isDistinct(ctx.selectSpec())) {
+        groupByItems.addAll(selectItems);
+      }
+      return null;
+    }
+
+    @Override
     public Void visitSelectElement(SelectElementContext ctx) {
       UnresolvedExpression expr = visitAstExpression(ctx.expression());
       selectItems.add(expr);
@@ -213,6 +226,10 @@ public class QuerySpecification {
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
       aggregators.add(AstDSL.alias(getTextInQuery(ctx, queryString), visitAstExpression(ctx)));
       return super.visitAggregateFunctionCall(ctx);
+    }
+
+    private boolean isDistinct(SelectSpecContext ctx) {
+      return (ctx != null) && (ctx.DISTINCT() != null);
     }
 
     private SortOrder visitSortOrder(Token ctx) {
