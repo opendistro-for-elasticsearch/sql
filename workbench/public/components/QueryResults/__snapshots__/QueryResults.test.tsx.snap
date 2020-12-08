@@ -351,722 +351,409 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                   >
                     <tr>
                       <td
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 27px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
-                          >
-                            <span
-                              class="euiTableCellContent__text"
-                            />
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
-                          </span>
-                        </button>
+                            class="euiTableCellContent__text"
+                          />
+                        </div>
                       </td>
                       <th
-                        aria-live="polite"
-                        aria-sort="ascending"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton euiTableHeaderButton-isSorted"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="category"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="category; Sorted in ascending order"
-                            >
-                              category
-                            </span>
-                            EuiIconMock
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in descending order
-                            </span>
+                            category
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="currency"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="currency"
-                            >
-                              currency
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            currency
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_first_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_first_name"
-                            >
-                              customer_first_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_first_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_full_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_full_name"
-                            >
-                              customer_full_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_full_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_gender"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_gender"
-                            >
-                              customer_gender
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_gender
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_id"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_id"
-                            >
-                              customer_id
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_id
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_last_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_last_name"
-                            >
-                              customer_last_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_last_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_phone"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_phone"
-                            >
-                              customer_phone
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_phone
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="day_of_week"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="day_of_week"
-                            >
-                              day_of_week
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            day_of_week
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="day_of_week_i"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="day_of_week_i"
-                            >
-                              day_of_week_i
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            day_of_week_i
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="email"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="email"
-                            >
-                              email
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            email
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="manufacturer"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="manufacturer"
-                            >
-                              manufacturer
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            manufacturer
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="order_date"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="order_date"
-                            >
-                              order_date
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            order_date
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="order_id"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="order_id"
-                            >
-                              order_id
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            order_id
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="products"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="products"
-                            >
-                              products
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            products
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="sku"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="sku"
-                            >
-                              sku
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            sku
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="taxful_total_price"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="taxful_total_price"
-                            >
-                              taxful_total_price
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            taxful_total_price
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="taxless_total_price"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="taxless_total_price"
-                            >
-                              taxless_total_price
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            taxless_total_price
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="total_quantity"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="total_quantity"
-                            >
-                              total_quantity
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            total_quantity
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="total_unique_products"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="total_unique_products"
-                            >
-                              total_unique_products
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            total_unique_products
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="type"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="type"
-                            >
-                              type
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            type
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="user"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="user"
-                            >
-                              user
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            user
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="geoip"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="geoip"
-                            >
-                              geoip
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            geoip
                           </span>
-                        </button>
+                        </div>
                       </th>
                     </tr>
                   </thead>
@@ -5126,722 +4813,409 @@ exports[`<QueryResults with data/> spec renders the component to test tabs down 
                   >
                     <tr>
                       <td
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 27px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
-                          >
-                            <span
-                              class="euiTableCellContent__text"
-                            />
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
-                          </span>
-                        </button>
+                            class="euiTableCellContent__text"
+                          />
+                        </div>
                       </td>
                       <th
-                        aria-live="polite"
-                        aria-sort="ascending"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton euiTableHeaderButton-isSorted"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="category"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="category; Sorted in ascending order"
-                            >
-                              category
-                            </span>
-                            EuiIconMock
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in descending order
-                            </span>
+                            category
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="currency"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="currency"
-                            >
-                              currency
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            currency
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_first_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_first_name"
-                            >
-                              customer_first_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_first_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_full_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_full_name"
-                            >
-                              customer_full_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_full_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_gender"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_gender"
-                            >
-                              customer_gender
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_gender
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_id"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_id"
-                            >
-                              customer_id
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_id
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_last_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_last_name"
-                            >
-                              customer_last_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_last_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_phone"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_phone"
-                            >
-                              customer_phone
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_phone
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="day_of_week"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="day_of_week"
-                            >
-                              day_of_week
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            day_of_week
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="day_of_week_i"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="day_of_week_i"
-                            >
-                              day_of_week_i
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            day_of_week_i
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="email"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="email"
-                            >
-                              email
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            email
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="manufacturer"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="manufacturer"
-                            >
-                              manufacturer
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            manufacturer
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="order_date"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="order_date"
-                            >
-                              order_date
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            order_date
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="order_id"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="order_id"
-                            >
-                              order_id
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            order_id
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="products"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="products"
-                            >
-                              products
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            products
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="sku"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="sku"
-                            >
-                              sku
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            sku
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="taxful_total_price"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="taxful_total_price"
-                            >
-                              taxful_total_price
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            taxful_total_price
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="taxless_total_price"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="taxless_total_price"
-                            >
-                              taxless_total_price
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            taxless_total_price
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="total_quantity"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="total_quantity"
-                            >
-                              total_quantity
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            total_quantity
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="total_unique_products"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="total_unique_products"
-                            >
-                              total_unique_products
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            total_unique_products
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="type"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="type"
-                            >
-                              type
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            type
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="user"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="user"
-                            >
-                              user
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            user
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="geoip"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="geoip"
-                            >
-                              geoip
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            geoip
                           </span>
-                        </button>
+                        </div>
                       </th>
                     </tr>
                   </thead>
@@ -9994,722 +9368,409 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                   >
                     <tr>
                       <td
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 27px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
-                          >
-                            <span
-                              class="euiTableCellContent__text"
-                            />
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
-                          </span>
-                        </button>
+                            class="euiTableCellContent__text"
+                          />
+                        </div>
                       </td>
                       <th
-                        aria-live="polite"
-                        aria-sort="ascending"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton euiTableHeaderButton-isSorted"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="category"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="category; Sorted in ascending order"
-                            >
-                              category
-                            </span>
-                            EuiIconMock
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in descending order
-                            </span>
+                            category
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="currency"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="currency"
-                            >
-                              currency
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            currency
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_first_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_first_name"
-                            >
-                              customer_first_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_first_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_full_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_full_name"
-                            >
-                              customer_full_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_full_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_gender"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_gender"
-                            >
-                              customer_gender
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_gender
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_id"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_id"
-                            >
-                              customer_id
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_id
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_last_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_last_name"
-                            >
-                              customer_last_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_last_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_phone"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_phone"
-                            >
-                              customer_phone
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_phone
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="day_of_week"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="day_of_week"
-                            >
-                              day_of_week
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            day_of_week
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="day_of_week_i"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="day_of_week_i"
-                            >
-                              day_of_week_i
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            day_of_week_i
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="email"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="email"
-                            >
-                              email
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            email
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="manufacturer"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="manufacturer"
-                            >
-                              manufacturer
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            manufacturer
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="order_date"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="order_date"
-                            >
-                              order_date
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            order_date
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="order_id"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="order_id"
-                            >
-                              order_id
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            order_id
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="products"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="products"
-                            >
-                              products
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            products
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="sku"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="sku"
-                            >
-                              sku
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            sku
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="taxful_total_price"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="taxful_total_price"
-                            >
-                              taxful_total_price
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            taxful_total_price
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="taxless_total_price"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="taxless_total_price"
-                            >
-                              taxless_total_price
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            taxless_total_price
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="total_quantity"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="total_quantity"
-                            >
-                              total_quantity
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            total_quantity
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="total_unique_products"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="total_unique_products"
-                            >
-                              total_unique_products
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            total_unique_products
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="type"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="type"
-                            >
-                              type
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            type
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="user"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="user"
-                            >
-                              user
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            user
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="geoip"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="geoip"
-                            >
-                              geoip
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            geoip
                           </span>
-                        </button>
+                        </div>
                       </th>
                     </tr>
                   </thead>
@@ -14769,722 +13830,409 @@ exports[`<QueryResults with data/> spec renders the component with mock query re
                   >
                     <tr>
                       <td
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 27px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
-                          >
-                            <span
-                              class="euiTableCellContent__text"
-                            />
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
-                          </span>
-                        </button>
+                            class="euiTableCellContent__text"
+                          />
+                        </div>
                       </td>
                       <th
-                        aria-live="polite"
-                        aria-sort="ascending"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton euiTableHeaderButton-isSorted"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="category"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="category; Sorted in ascending order"
-                            >
-                              category
-                            </span>
-                            EuiIconMock
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in descending order
-                            </span>
+                            category
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="currency"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="currency"
-                            >
-                              currency
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            currency
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_first_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_first_name"
-                            >
-                              customer_first_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_first_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_full_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_full_name"
-                            >
-                              customer_full_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_full_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_gender"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_gender"
-                            >
-                              customer_gender
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_gender
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_id"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_id"
-                            >
-                              customer_id
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_id
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_last_name"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_last_name"
-                            >
-                              customer_last_name
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_last_name
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="customer_phone"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="customer_phone"
-                            >
-                              customer_phone
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            customer_phone
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="day_of_week"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="day_of_week"
-                            >
-                              day_of_week
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            day_of_week
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="day_of_week_i"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="day_of_week_i"
-                            >
-                              day_of_week_i
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            day_of_week_i
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="email"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="email"
-                            >
-                              email
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            email
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="manufacturer"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="manufacturer"
-                            >
-                              manufacturer
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            manufacturer
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="order_date"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="order_date"
-                            >
-                              order_date
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            order_date
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="order_id"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="order_id"
-                            >
-                              order_id
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            order_id
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="products"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="products"
-                            >
-                              products
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            products
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="sku"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="sku"
-                            >
-                              sku
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            sku
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="taxful_total_price"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="taxful_total_price"
-                            >
-                              taxful_total_price
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            taxful_total_price
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="taxless_total_price"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="taxless_total_price"
-                            >
-                              taxless_total_price
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            taxless_total_price
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="total_quantity"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="total_quantity"
-                            >
-                              total_quantity
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            total_quantity
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="total_unique_products"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="total_unique_products"
-                            >
-                              total_unique_products
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            total_unique_products
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="type"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="type"
-                            >
-                              type
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            type
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="user"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="user"
-                            >
-                              user
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            user
                           </span>
-                        </button>
+                        </div>
                       </th>
                       <th
-                        aria-live="polite"
-                        aria-sort="none"
                         class="euiTableHeaderCell"
                         role="columnheader"
                         scope="col"
                         style="width: 155px;"
                       >
-                        <button
-                          class="euiTableHeaderButton"
-                          data-test-subj="tableHeaderSortButton"
-                          type="button"
+                        <div
+                          class="euiTableCellContent"
                         >
                           <span
-                            class="euiTableCellContent"
+                            class="euiTableCellContent__text"
+                            title="geoip"
                           >
-                            <span
-                              class="euiTableCellContent__text"
-                              title="geoip"
-                            >
-                              geoip
-                            </span>
-                            <span
-                              class="euiScreenReaderOnly"
-                            >
-                              Click to sort in ascending order
-                            </span>
+                            geoip
                           </span>
-                        </button>
+                        </div>
                       </th>
                     </tr>
                   </thead>
