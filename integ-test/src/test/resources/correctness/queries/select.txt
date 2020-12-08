@@ -20,3 +20,8 @@ SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPr
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE ABS(AvgTicketPrice * -2) > 1000
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE 'JetBeat_'
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE '%Air%'
+SELECT ALL OriginWeather FROM kibana_sample_data_flights
+SELECT DISTINCT OriginWeather FROM kibana_sample_data_flights
+SELECT DISTINCT OriginWeather, FlightDelay FROM kibana_sample_data_flights
+SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin FROM kibana_sample_data_flights
+SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin, FlightDelay FROM kibana_sample_data_flights
