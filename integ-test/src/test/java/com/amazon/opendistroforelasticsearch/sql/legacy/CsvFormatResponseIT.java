@@ -701,19 +701,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void escapeSanitizeTest() throws IOException {
-    CSVResult csvResult = executeCsvRequestEscapeSanitize(
-        String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_CSV_SANITIZE));
-    List<String> lines = csvResult.getLines();
-    assertEquals(5, lines.size());
-    assertEquals(lines.get(0), "+Amber JOHnny,Duke Willmington+");
-    assertEquals(lines.get(1), "-Hattie,Bond-");
-    assertEquals(lines.get(2), "=Nanette,Bates=");
-    assertEquals(lines.get(3), "@Dale,Adams@");
-    assertEquals(lines.get(4), ",Elinor,Ratliff,,,");
-  }
-
-  @Test
   public void selectFunctionAsFieldTest() throws IOException {
     String query = "select log(age) from " + TEST_INDEX_ACCOUNT;
     CSVResult result = executeCsvRequest(query, false, false, false, false);
@@ -742,19 +729,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
   private void setFlatOption(boolean flat) {
 
     this.flatOption = flat;
-  }
-
-  private CSVResult executeCsvRequestEscapeSanitize(String query) throws IOException {
-    String endpoint = "/_opendistro/_sql?format=csv&escape=true";
-    Request request = new Request("POST", endpoint);
-    request.setJsonEntity(super.makeRequest(query));
-    RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
-    builder.addHeader("Content-Type", "application/json");
-    request.setOptions(builder);
-
-    Response response = client().performRequest(request);
-    assertEquals(200, response.getStatusLine().getStatusCode());
-    return csvResultFromStringResponse(TestUtils.getResponseBody(response, true));
   }
 
   private CSVResult executeCsvRequest(final String query, boolean flat) throws IOException {
