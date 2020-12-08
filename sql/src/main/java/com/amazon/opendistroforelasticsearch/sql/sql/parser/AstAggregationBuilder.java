@@ -27,7 +27,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
-import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByClauseContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.QuerySpecification;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
  * AST aggregation builder that builds AST aggregation node for the following scenarios:
  *
  *  1. Explicit GROUP BY
- *     1.1 Group by column name or scalar expression:
+ *     1.1 Group by column name or scalar expression (SELECT DISTINCT equivalent):
  *          SELECT ABS(age) FROM test GROUP BY ABS(age)
  *     1.2 Group by alias in SELECT AS clause:
  *          SELECT state AS s FROM test GROUP BY s
@@ -77,18 +76,17 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
 
   @Override
   public UnresolvedPlan visit(ParseTree groupByClause) {
-    if (groupByClause == null) {
+    if (querySpec.getGroupByItems().isEmpty()) {
       if (isAggregatorNotFoundAnywhere()) {
         // Simple select query without GROUP BY and aggregate function in SELECT
         return null;
       }
       return buildImplicitAggregation();
     }
-    return super.visit(groupByClause);
+    return buildExplicitAggregation();
   }
 
-  @Override
-  public UnresolvedPlan visitGroupByClause(GroupByClauseContext ctx) {
+  private UnresolvedPlan buildExplicitAggregation() {
     List<UnresolvedExpression> groupByItems = replaceGroupByItemIfAliasOrOrdinal();
     return new Aggregation(
         new ArrayList<>(querySpec.getAggregators()),
