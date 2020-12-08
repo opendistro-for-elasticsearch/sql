@@ -317,4 +317,5 @@ keywordsCanBeId
     : D // OD SQL and ODBC special
     | statsFunctionName
     | TIMESTAMP | DATE | TIME
+    | FIRST | LAST
     ;
