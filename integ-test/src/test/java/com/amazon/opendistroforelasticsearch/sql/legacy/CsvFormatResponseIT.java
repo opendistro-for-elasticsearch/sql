@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.legacy;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_CSV_SANITIZE;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE;
@@ -64,6 +65,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     loadIndex(Index.DOG);
     loadIndex(Index.GAME_OF_THRONES);
     loadIndex(Index.ONLINE);
+    loadIndex(Index.BANK_CSV_SANITIZE);
   }
 
   @Override
@@ -633,8 +635,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
   }
   //endregion Tests migrated from CSVResultsExtractorTests
 
-
-  @Ignore("skip this test since array is not supported in new engine")
+  @Ignore("new engine recognizes the following data as struct type")
   @Test
   public void sensitiveCharacterSanitizeTest() throws IOException {
     String requestBody =
@@ -659,7 +660,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertTrue(lines.get(0).contains("'@cmd|' /C notepad'!_xlbgnm.A1"));
   }
 
-  @Ignore("skip this test since array is not supported in new engine")
+  @Ignore("new engine recognizes the following data as struct type")
   @Test
   public void sensitiveCharacterSanitizeAndQuotedTest() throws IOException {
     String requestBody =
@@ -684,6 +685,32 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertTrue(lines.get(0).contains("\",+cmd|' /C notepad'!_xlbgnm.A1\""));
     Assert.assertTrue(lines.get(0).contains("\"'+cmd|' /C notepad,,'!_xlbgnm.A1\""));
     Assert.assertTrue(lines.get(0).contains("\",,,@cmd|' /C notepad'!_xlbgnm.A1\""));
+  }
+
+  @Test
+  public void sanitizeTest() throws IOException {
+    CSVResult csvResult = executeCsvRequest(
+        String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_CSV_SANITIZE), false);
+    List<String> lines = csvResult.getLines();
+    assertEquals(5, lines.size());
+    assertEquals(lines.get(0), "'+Amber JOHnny,Duke Willmington+");
+    assertEquals(lines.get(1), "'-Hattie,Bond-");
+    assertEquals(lines.get(2), "'=Nanette,Bates=");
+    assertEquals(lines.get(3), "'@Dale,Adams@");
+    assertEquals(lines.get(4), "\",Elinor\",\"Ratliff,,,\"");
+  }
+
+  @Test
+  public void escapeSanitizeTest() throws IOException {
+    CSVResult csvResult = executeCsvRequestEscapeSanitize(
+        String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_CSV_SANITIZE));
+    List<String> lines = csvResult.getLines();
+    assertEquals(5, lines.size());
+    assertEquals(lines.get(0), "+Amber JOHnny,Duke Willmington+");
+    assertEquals(lines.get(1), "-Hattie,Bond-");
+    assertEquals(lines.get(2), "=Nanette,Bates=");
+    assertEquals(lines.get(3), "@Dale,Adams@");
+    assertEquals(lines.get(4), ",Elinor,Ratliff,,,");
   }
 
   @Test
@@ -715,6 +742,19 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
   private void setFlatOption(boolean flat) {
 
     this.flatOption = flat;
+  }
+
+  private CSVResult executeCsvRequestEscapeSanitize(String query) throws IOException {
+    String endpoint = "/_opendistro/_sql?format=csv&escape=true";
+    Request request = new Request("POST", endpoint);
+    request.setJsonEntity(super.makeRequest(query));
+    RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
+    builder.addHeader("Content-Type", "application/json");
+    request.setOptions(builder);
+
+    Response response = client().performRequest(request);
+    assertEquals(200, response.getStatusLine().getStatusCode());
+    return csvResultFromStringResponse(TestUtils.getResponseBody(response, true));
   }
 
   private CSVResult executeCsvRequest(final String query, boolean flat) throws IOException {
