@@ -59,6 +59,14 @@ public class StatsCommandIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testStatsCountAll() throws IOException {
+    JSONObject response =
+        executeQuery(String.format("source=%s | stats count()", TEST_INDEX_ACCOUNT));
+    verifySchema(response, schema("count()", null, "integer"));
+    verifyDataRows(response, rows(1000));
+  }
+
+  @Test
   public void testStatsMin() throws IOException {
     JSONObject response = executeQuery(String.format(
         "source=%s | stats min(age)",
@@ -79,7 +87,8 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Test
   public void testStatsNested() throws IOException {
     JSONObject response =
-        executeQuery(String.format("source=%s | stats avg(abs(age)*2) as AGE", TEST_INDEX_ACCOUNT));
+        executeQuery(String.format("source=%s | stats avg(abs(age) * 2) as AGE",
+            TEST_INDEX_ACCOUNT));
     verifySchema(response, schema("AGE", null, "double"));
     verifyDataRows(response, rows(60.342));
   }
@@ -87,9 +96,9 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Test
   public void testStatsNestedDoubleValue() throws IOException {
     JSONObject response =
-        executeQuery(String.format("source=%s | stats avg(abs(age)*2.0)",
+        executeQuery(String.format("source=%s | stats avg(abs(age) * 2.0)",
             TEST_INDEX_ACCOUNT));
-    verifySchema(response, schema("avg(abs(age)*2.0)", null, "double"));
+    verifySchema(response, schema("avg(abs(age) * 2.0)", null, "double"));
     verifyDataRows(response, rows(60.342));
   }
 

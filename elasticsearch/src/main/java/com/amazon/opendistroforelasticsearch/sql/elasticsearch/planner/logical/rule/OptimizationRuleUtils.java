@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
 import lombok.experimental.UtilityClass;
@@ -33,6 +34,20 @@ public class OptimizationRuleUtils {
   public static boolean sortByFieldsOnly(LogicalSort logicalSort) {
     return logicalSort.getSortList().stream()
         .map(sort -> sort.getRight() instanceof ReferenceExpression)
+        .reduce(true, Boolean::logicalAnd);
+  }
+
+  /**
+   * Does the sort list has option other than default options.
+   * The default sort options are (ASC NULL_FIRST) or (DESC NULL LAST)
+   *
+   * @param logicalSort LogicalSort.
+   * @return true sort list only option default options, otherwise false.
+   */
+  public static boolean sortByDefaultOptionOnly(LogicalSort logicalSort) {
+    return logicalSort.getSortList().stream()
+        .map(sort -> Sort.SortOption.DEFAULT_ASC.equals(sort.getLeft())
+            || Sort.SortOption.DEFAULT_DESC.equals(sort.getLeft()))
         .reduce(true, Boolean::logicalAnd);
   }
 }

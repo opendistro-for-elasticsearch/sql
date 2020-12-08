@@ -20,10 +20,10 @@ export default class TranslateService {
     this.client = client;
   }
 
-  translateSQL = async (request: string) => {
+  translateSQL = async (request: any) => {
     try {
       const queryRequest = {
-        query: request,
+        query: request.body.query,
       };
 
       const params = {
@@ -51,10 +51,10 @@ export default class TranslateService {
     }
   };
 
-  translatePPL = async (request: string) => {
+  translatePPL = async (request: any) => {
     try {
       const queryRequest = {
-        query: request,
+        query: request.body.query,
       };
 
       const params = {
