@@ -49,6 +49,7 @@ public class MergeAggAndIndexScan implements Rule<LogicalAggregation> {
     this.capture = Capture.newCapture();
     this.pattern = typeOf(LogicalAggregation.class)
         .with(source().matching(typeOf(ElasticsearchLogicalIndexScan.class)
+            .matching(indexScan -> !hasLimitInIndexScan(indexScan))
             .capturedAs(capture)));
   }
 
@@ -63,5 +64,9 @@ public class MergeAggAndIndexScan implements Rule<LogicalAggregation> {
         .aggregatorList(aggregation.getAggregatorList())
         .groupByList(aggregation.getGroupByList())
         .build();
+  }
+
+  private boolean hasLimitInIndexScan(ElasticsearchLogicalIndexScan indexScan) {
+    return indexScan.getLimit() != null;
   }
 }

@@ -407,6 +407,30 @@ class ElasticsearchLogicOptimizerTest {
     );
   }
 
+  @Test
+  void aggregation_cant_merge_index_scan_with_limit() {
+    assertEquals(
+        project(
+            aggregation(
+                indexScan("schema", 10, 0),
+                ImmutableList
+                    .of(DSL.named("AVG(intV)",
+                        dsl.avg(DSL.ref("intV", INTEGER)))),
+                ImmutableList.of(DSL.named("longV",
+                    dsl.abs(DSL.ref("longV", LONG))))),
+            DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE))),
+        optimize(
+            project(
+                aggregation(
+                    indexScan("schema", 10, 0),
+                    ImmutableList
+                        .of(DSL.named("AVG(intV)",
+                            dsl.avg(DSL.ref("intV", INTEGER)))),
+                    ImmutableList.of(DSL.named("longV",
+                        dsl.abs(DSL.ref("longV", LONG))))),
+                DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE)))));
+  }
+
   private LogicalPlan optimize(LogicalPlan plan) {
     final LogicalPlanOptimizer optimizer = ElasticsearchLogicalPlanOptimizerFactory.create();
     final LogicalPlan optimize = optimizer.optimize(plan);

@@ -121,37 +121,6 @@ class ElasticsearchIndexScanTest {
                 .filter(QueryBuilders.rangeQuery("balance").gte(10000)));
   }
 
-
-  @Test
-  void limitRegressionShouldUpdateToLargerRequestedSize() {
-    mockResponse();
-
-    try (ElasticsearchIndexScan indexScan =
-             new ElasticsearchIndexScan(client, settings, "test", exprValueFactory)) {
-      indexScan.setRequestedSize(300);
-      indexScan.open();
-      SearchSourceBuilder source = indexScan.getRequest().getSourceBuilder();
-      assertEquals(300, source.from() + source.size());
-    }
-
-    verify(client).cleanup(any());
-  }
-
-  @Test
-  void limitRegressionShouldNotUpdateToSmallerRequestedSize() {
-    mockResponse();
-
-    try (ElasticsearchIndexScan indexScan =
-             new ElasticsearchIndexScan(client, settings, "test", exprValueFactory)) {
-      indexScan.setRequestedSize(10);
-      indexScan.open();
-      SearchSourceBuilder source = indexScan.getRequest().getSourceBuilder();
-      assertEquals(200, source.from() + source.size());
-    }
-
-    verify(client).cleanup(any());
-  }
-
   private PushDownAssertion assertThat() {
     return new PushDownAssertion(client, exprValueFactory, settings);
   }
