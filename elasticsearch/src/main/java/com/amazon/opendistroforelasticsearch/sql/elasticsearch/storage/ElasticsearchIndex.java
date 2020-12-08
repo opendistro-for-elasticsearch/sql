@@ -32,7 +32,6 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.fi
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.sort.SortQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.DefaultExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -163,9 +162,6 @@ public class ElasticsearchIndex implements Table {
 
       if (node.getLimit() != null) {
         context.pushDownLimit(node.getLimit(), node.getOffset());
-        // The value requestedSize would be changed by this method here
-        // as long as Limit plan is pushed down during optimization.
-        context.setRequestedSize(node.getLimit() + node.getOffset());
       }
       return indexScan;
     }
@@ -196,24 +192,6 @@ public class ElasticsearchIndex implements Table {
     @Override
     public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
       return indexScan;
-    }
-
-    /**
-     * This value #requestedSize in {@link ElasticsearchIndexScan}
-     * would be changed by the following method only when limit is specified in a query.
-     * Two scenarios for value requestedSize after optimization:
-     * 1) If Limit plan has been pushed down,
-     * this value should be consistent with the push-down value,
-     * aka { from + size (in source builder) = offset + limit = requestedSize}.
-     * 2) If Limit plan is ineligible to push down (far away from IndexScan),
-     * the source builder will be staying at { from = 0, size = defaultSizeLimit }
-     * but the requested size is updated to { offset + limit } because of this method.
-     * Thus it ends up inconsistency in the size in source builder and requested size.
-     */
-    @Override
-    public PhysicalPlan visitLimit(LogicalLimit node, ElasticsearchIndexScan context) {
-      context.setRequestedSize(node.getLimit() + node.getOffset());
-      return super.visitLimit(node, context);
     }
   }
 }

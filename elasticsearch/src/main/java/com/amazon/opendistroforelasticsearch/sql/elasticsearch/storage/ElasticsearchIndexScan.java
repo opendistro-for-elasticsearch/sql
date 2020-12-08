@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -63,13 +62,6 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   /** Search response for current batch. */
   private Iterator<ExprValue> iterator;
 
-  @Getter
-  private final Integer defaultSizeLimit;
-
-  /** Index scan size. */
-  @Setter
-  private Integer requestedSize;
-
   /**
    * Todo.
    */
@@ -77,15 +69,13 @@ public class ElasticsearchIndexScan extends TableScanOperator {
                                 Settings settings, String indexName,
                                 ElasticsearchExprValueFactory exprValueFactory) {
     this.client = client;
-    this.defaultSizeLimit = settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT);
-    this.request = new ElasticsearchQueryRequest(indexName, defaultSizeLimit, exprValueFactory);
-    this.requestedSize = defaultSizeLimit;
+    this.request = new ElasticsearchQueryRequest(indexName,
+            settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT), exprValueFactory);
   }
 
   @Override
   public void open() {
     super.open();
-    limitRegression();
 
     // For now pull all results immediately once open
     List<ElasticsearchResponse> responses = new ArrayList<>();
@@ -177,17 +167,4 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     return (current instanceof BoolQueryBuilder);
   }
 
-  private void limitRegression() {
-    SearchSourceBuilder source = request.getSourceBuilder();
-    // requested size is defined as { limit + offset } if limit is specified in a query.
-    // if limit plan is not pushed down
-    if (source.from() + source.size() != requestedSize) {
-      // if requested size is larger than default limit
-      // then the scan size needs to be updated to requested size
-      // to ensure a large enough result window.
-      if (requestedSize > defaultSizeLimit) {
-        source.size(requestedSize);
-      }
-    }
-  }
 }
