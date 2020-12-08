@@ -112,6 +112,19 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result,
         schema("date_add('2020-09-16', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17"));
+
+    result =
+            executeQuery(String.format("SELECT DATE_ADD(birthdate, INTERVAL 1 YEAR) FROM %s GROUP BY 1",TEST_INDEX_BANK) );
+    verifySchema(result,
+            schema("DATE_ADD(birthdate, INTERVAL 1 YEAR)", null, "datetime"));
+    verifyDataRows(result,
+            rows("2018-10-23 00:00:00"),
+            rows("2018-11-20 00:00:00"),
+            rows("2019-06-23 00:00:00"),
+            rows("2019-11-13 23:33:20"),
+            rows("2019-06-27 00:00:00"),
+            rows("2019-08-19 00:00:00"),
+            rows("2019-08-11 00:00:00"));
   }
 
   @Test
