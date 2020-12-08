@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
@@ -29,6 +30,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Logical Index Scan Aggregation Operation.
@@ -40,14 +42,29 @@ public class ElasticsearchLogicalIndexAgg extends LogicalPlan {
 
   private final String relationName;
 
+  /**
+   * Filter Condition.
+   */
   @Setter
   private Expression filter;
 
+  /**
+   * Aggregation List.
+   */
   @Setter
   private List<NamedAggregator> aggregatorList;
 
+  /**
+   * Group List.
+   */
   @Setter
   private List<NamedExpression> groupByList;
+
+  /**
+   * Sort List.
+   */
+  @Setter
+  private List<Pair<Sort.SortOption, Expression>> sortList;
 
   /**
    * ElasticsearchLogicalIndexAgg Constructor.
@@ -57,12 +74,14 @@ public class ElasticsearchLogicalIndexAgg extends LogicalPlan {
       String relationName,
       Expression filter,
       List<NamedAggregator> aggregatorList,
-      List<NamedExpression> groupByList) {
+      List<NamedExpression> groupByList,
+      List<Pair<Sort.SortOption, Expression>> sortList) {
     super(ImmutableList.of());
     this.relationName = relationName;
     this.filter = filter;
     this.aggregatorList = aggregatorList;
     this.groupByList = groupByList;
+    this.sortList = sortList;
   }
 
   @Override
