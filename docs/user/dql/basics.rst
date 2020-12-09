@@ -20,7 +20,7 @@ Syntax
 
 The syntax of ``SELECT`` statement is as follows::
 
-  SELECT [DISTINCT] (* | expression) [[AS] alias] [, ...]
+  SELECT [ALL | DISTINCT] (* | expression) [[AS] alias] [, ...]
   FROM index_name
   [WHERE predicates]
   [GROUP BY expression [, ...]
@@ -199,7 +199,7 @@ Result set:
 Example 4: Selecting Distinct Fields
 ------------------------------------
 
-``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can provide one or more field names.
+By default, ``SELECT ALL`` takes effect to return all rows. ``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can provide one or more field names ('DISTINCT *' is not supported yet).
 
 SQL query::
 
@@ -255,6 +255,17 @@ Result set:
 | 36|
 +---+
 
+In fact your can use any expression in a ``DISTINCT`` clause as follows::
+
+    od> SELECT DISTINCT SUBSTRING(lastname, 1, 1) FROM accounts;
+    fetched rows / total rows = 3/3
+    +-----------------------------+
+    | SUBSTRING(lastname, 1, 1)   |
+    |-----------------------------|
+    | A                           |
+    | B                           |
+    | D                           |
+    +-----------------------------+
 
 FROM
 ====
