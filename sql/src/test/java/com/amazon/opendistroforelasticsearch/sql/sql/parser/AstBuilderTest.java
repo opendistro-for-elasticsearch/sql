@@ -511,6 +511,17 @@ class AstBuilderTest {
     );
   }
 
+  @Test
+  public void can_build_alias_by_keywords() {
+    assertEquals(
+        project(
+            relation("test"),
+            alias("avg_age", qualifiedName("avg_age"), "avg")
+        ),
+        buildAST("SELECT avg_age AS avg FROM test")
+    );
+  }
+
   private UnresolvedPlan buildAST(String query) {
     ParseTree parseTree = parser.parse(query);
     return parseTree.accept(new AstBuilder(query));
