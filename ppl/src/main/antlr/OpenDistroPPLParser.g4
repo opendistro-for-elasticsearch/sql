@@ -311,18 +311,17 @@ valueList
 
 qualifiedName
     : ident (DOT ident)*                                            #identsAsQualifiedName
-    | keywordsCanBeId                                               #keywordsAsQualifiedName
     ;
 
 wcQualifiedName
     : wildcard (DOT wildcard)*                                      #identsAsWildcardQualifiedName
-    | keywordsCanBeId                                               #keywordsAsWildcardQualifiedName
     ;
 
 ident
     : (DOT)? ID
     | BACKTICK ident BACKTICK
     | BQUOTA_STRING
+    | keywordsCanBeId
     ;
 
 wildcard
@@ -336,4 +335,5 @@ keywordsCanBeId
     : D // OD SQL and ODBC special
     | statsFunctionName
     | TIMESTAMP | DATE | TIME
+    | FIRST | LAST
     ;
