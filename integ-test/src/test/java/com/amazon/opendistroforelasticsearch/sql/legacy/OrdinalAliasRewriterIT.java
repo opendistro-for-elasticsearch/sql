@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import java.io.IOException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
@@ -155,6 +156,7 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
   }
 
   // explain ORDER BY IS NULL/NOT NULL
+  @Ignore("inconsistent in new engine")
   @Test
   public void explainSelectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull()
       throws IOException {
