@@ -601,9 +601,9 @@ class QueryResultsBody extends React.Component<QueryResultsBodyProps, QueryResul
         <EuiTableHeaderCell
           key={label}
           width={colwidth}
-          onSort={this.onSort.bind(this, label)}
-          isSorted={this.props.sortedColumn === label}
-          isSortAscending={this.props.sortableProperties.isAscendingByName(label)}
+          // onSort={this.onSort.bind(this, label)}
+          // isSorted={this.props.sortedColumn === label}
+          // isSortAscending={this.props.sortableProperties.isAscendingByName(label)}
         >
           {label}
         </EuiTableHeaderCell>
