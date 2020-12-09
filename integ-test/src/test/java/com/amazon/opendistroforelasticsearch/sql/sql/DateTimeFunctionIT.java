@@ -20,8 +20,10 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.getResponseBody;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
@@ -39,6 +41,23 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   public void init() throws Exception {
     super.init();
     TestUtils.enableNewQueryEngine(client());
+    loadIndex(Index.BANK);
+  }
+
+  @Test
+  public void testDateInGroupBy() throws IOException{
+    JSONObject result =
+            executeQuery(String.format("SELECT DATE(birthdate) FROM %s GROUP BY DATE(birthdate)",TEST_INDEX_BANK) );
+    verifySchema(result,
+            schema("DATE(birthdate)", null, "date"));
+    verifyDataRows(result,
+            rows("2017-10-23"),
+            rows("2017-11-20"),
+            rows("2018-06-23"),
+            rows("2018-11-13"),
+            rows("2018-06-27"),
+            rows("2018-08-19"),
+            rows("2018-08-11"));
   }
 
   @Test
@@ -93,6 +112,19 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result,
         schema("date_add('2020-09-16', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17"));
+
+    result =
+            executeQuery(String.format("SELECT DATE_ADD(birthdate, INTERVAL 1 YEAR) FROM %s GROUP BY 1",TEST_INDEX_BANK) );
+    verifySchema(result,
+            schema("DATE_ADD(birthdate, INTERVAL 1 YEAR)", null, "datetime"));
+    verifyDataRows(result,
+            rows("2018-10-23 00:00:00"),
+            rows("2018-11-20 00:00:00"),
+            rows("2019-06-23 00:00:00"),
+            rows("2019-11-13 23:33:20"),
+            rows("2019-06-27 00:00:00"),
+            rows("2019-08-19 00:00:00"),
+            rows("2019-08-11 00:00:00"));
   }
 
   @Test

@@ -17,3 +17,4 @@ SELECT Origin, MIN(AvgTicketPrice) FROM (SELECT * FROM kibana_sample_data_flight
 SELECT Origin FROM (SELECT Origin, AvgTicketPrice FROM kibana_sample_data_flights) AS flights GROUP BY Origin HAVING MIN(AvgTicketPrice) > 500
 SELECT avg_price FROM (SELECT AVG(AvgTicketPrice) AS avg_price FROM kibana_sample_data_flights) AS flights
 SELECT Dest FROM (SELECT Dest, OriginWeather FROM (SELECT Dest, OriginWeather, AvgTicketPrice FROM (SELECT Dest, Origin, OriginWeather, AvgTicketPrice FROM kibana_sample_data_flights WHERE Origin = 'Zurich Airport') AS flights_data WHERE AvgTicketPrice < 10000) AS flights WHERE OriginWeather = 'Clear') AS f
+SELECT * FROM (SELECT Origin FROM kibana_sample_data_flights) AS flights
