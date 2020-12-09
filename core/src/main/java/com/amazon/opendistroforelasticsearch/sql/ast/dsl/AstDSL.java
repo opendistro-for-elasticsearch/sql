@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
@@ -261,6 +262,10 @@ public class AstDSL {
 
   public static UnresolvedArgument unresolvedArg(String argName, UnresolvedExpression argValue) {
     return new UnresolvedArgument(argName, argValue);
+  }
+
+  public AllFields allFields() {
+    return AllFields.of();
   }
 
   public Field field(UnresolvedExpression field) {
