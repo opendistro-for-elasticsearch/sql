@@ -64,7 +64,7 @@ public class CaseClause extends FunctionExpression {
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
     for (WhenClause when : whenClauses) {
-      if (when.isSatisfied(valueEnv)) {
+      if (when.isTrue(valueEnv)) {
         return when.valueOf(valueEnv);
       }
     }

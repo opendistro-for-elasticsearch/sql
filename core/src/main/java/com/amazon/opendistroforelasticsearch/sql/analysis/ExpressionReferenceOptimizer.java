@@ -89,21 +89,24 @@ public class ExpressionReferenceOptimizer
     return expressionMap.getOrDefault(node, node);
   }
 
+  /**
+   * Implement this because Case/When is not registered in function repository.
+   */
   @Override
   public Expression visitCase(CaseClause node, AnalysisContext context) {
     if (expressionMap.containsKey(node)) {
       return expressionMap.get(node);
-    } else {
-      List<WhenClause> whenClauses = node.getWhenClauses()
-          .stream()
-          .map(expr -> (WhenClause) expr.accept(this, context))
-          .collect(Collectors.toList());
-      Expression defaultResult = null;
-      if (node.getDefaultResult() != null) {
-        defaultResult = node.getDefaultResult().accept(this, context);
-      }
-      return new CaseClause(whenClauses, defaultResult);
     }
+
+    List<WhenClause> whenClauses = node.getWhenClauses()
+                                       .stream()
+                                       .map(expr -> (WhenClause) expr.accept(this, context))
+                                       .collect(Collectors.toList());
+    Expression defaultResult = null;
+    if (node.getDefaultResult() != null) {
+      defaultResult = node.getDefaultResult().accept(this, context);
+    }
+    return new CaseClause(whenClauses, defaultResult);
   }
 
   @Override

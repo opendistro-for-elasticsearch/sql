@@ -44,7 +44,7 @@ class CaseClauseTest extends ExpressionTestBase {
 
   @Test
   void should_return_when_clause_result_if_matched() {
-    when(whenClause.isSatisfied(any())).thenReturn(true);
+    when(whenClause.isTrue(any())).thenReturn(true);
     when(whenClause.valueOf(any())).thenReturn(new ExprIntegerValue(30));
 
     CaseClause caseClause = new CaseClause(ImmutableList.of(whenClause), null);
@@ -53,7 +53,7 @@ class CaseClauseTest extends ExpressionTestBase {
 
   @Test
   void should_return_default_result_if_none_matched() {
-    when(whenClause.isSatisfied(any())).thenReturn(false);
+    when(whenClause.isTrue(any())).thenReturn(false);
 
     CaseClause caseClause = new CaseClause(ImmutableList.of(whenClause), DSL.literal(50));
     assertEquals(new ExprIntegerValue(50), caseClause.valueOf(valueEnv()));
@@ -61,7 +61,7 @@ class CaseClauseTest extends ExpressionTestBase {
 
   @Test
   void should_return_default_result_if_none_matched_and_no_default() {
-    when(whenClause.isSatisfied(any())).thenReturn(false);
+    when(whenClause.isTrue(any())).thenReturn(false);
 
     CaseClause caseClause = new CaseClause(ImmutableList.of(whenClause), null);
     assertEquals(ExprNullValue.of(), caseClause.valueOf(valueEnv()));

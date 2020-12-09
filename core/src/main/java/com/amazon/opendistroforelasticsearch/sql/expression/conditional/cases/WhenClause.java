@@ -60,7 +60,7 @@ public class WhenClause extends FunctionExpression {
    * @param valueEnv  value env
    * @return          is condition satisfied
    */
-  public boolean isSatisfied(Environment<Expression, ExprValue> valueEnv) {
+  public boolean isTrue(Environment<Expression, ExprValue> valueEnv) {
     ExprValue result = condition.valueOf(valueEnv);
     if (result.isMissing() || result.isNull()) {
       return false;

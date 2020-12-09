@@ -81,6 +81,12 @@ public abstract class ExpressionNodeVisitor<T, C> {
     return visitChildren(node, context);
   }
 
+  /**
+   * Call visitFunction() by default rather than visitChildren().
+   * This makes CASE/WHEN able to be handled:
+   *  1) by visitFunction() if not overwritten: ex. FilterQueryBuilder
+   *  2) by visitCase/When() otherwise if any special logic: ex. ExprReferenceOptimizer
+   */
   public T visitCase(CaseClause node, C context) {
     return visitFunction(node, context);
   }
