@@ -5,9 +5,7 @@
 * Add like, isnull, isnotnull function in PPL ([#893](https://github.com/opendistro-for-elasticsearch/sql/pull/893))
 * Revert Error Messages for Run/Explain ([#889](https://github.com/opendistro-for-elasticsearch/sql/pull/889))
 * Extend the PPL identifier defintion ([#888](https://github.com/opendistro-for-elasticsearch/sql/pull/888))
-* Add identifier and datatype documentation for PPL ([#873](https://github.com/opendistro-for-elasticsearch/sql/pull/873))
 * Add Error Message for Explain and Run ([#872](https://github.com/opendistro-for-elasticsearch/sql/pull/872))
-* Revert java version in jdbc release workflow ([#871](https://github.com/opendistro-for-elasticsearch/sql/pull/871))
 * Remove workbench side nav logo and fix download link ([#869](https://github.com/opendistro-for-elasticsearch/sql/pull/869))
 * For ODFE 1.12 change position for sql workbench plugin (remove DEFAULT_APP_CATEGORIES) ([#857](https://github.com/opendistro-for-elasticsearch/sql/pull/857))
 * For ODFE 1.12 change position for sql workbench plugin ([#855](https://github.com/opendistro-for-elasticsearch/sql/pull/855))
@@ -41,6 +39,7 @@
 * Bug fix, using Local.Root when format the string in DateTimeFunctionIT ([#794](https://github.com/opendistro-for-elasticsearch/sql/pull/794))
 
 ### Infrastructure
+* Revert java version in jdbc release workflow ([#871](https://github.com/opendistro-for-elasticsearch/sql/pull/871))
 * fix for odbc build failure ([#885](https://github.com/opendistro-for-elasticsearch/sql/pull/885))
 * Fix release workflow for workbench ([#868](https://github.com/opendistro-for-elasticsearch/sql/pull/868))
 * Add workflow to rename and upload odbc to s3 ([#865](https://github.com/opendistro-for-elasticsearch/sql/pull/865))
@@ -52,6 +51,7 @@
 * Update cypress tests and increase delay time ([#792](https://github.com/opendistro-for-elasticsearch/sql/pull/792))
 
 ### Documentation
+* Add identifier and datatype documentation for PPL ([#873](https://github.com/opendistro-for-elasticsearch/sql/pull/873))
 * Add doc for ODFE SQL demo ([#826](https://github.com/opendistro-for-elasticsearch/sql/pull/826))
 * Update out-of-date documentation ([#820](https://github.com/opendistro-for-elasticsearch/sql/pull/820))
 * Add release notes for ODFE 1.12 ([#841](https://github.com/opendistro-for-elasticsearch/sql/pull/841))
