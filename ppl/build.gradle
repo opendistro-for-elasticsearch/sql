@@ -42,6 +42,18 @@ dependencies {
 
 }
 
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+        showStandardStreams = false
+    }
+}
+
 jacoco {
     toolVersion = "0.8.5"
 }
