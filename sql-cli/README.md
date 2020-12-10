@@ -118,6 +118,7 @@ Run single query from command line with options
 
 ## CLI Options
 
+* `-l`: Query language option. Available options are [sql, ppl]. By default it's using sql.
 * `-p`: always use pager to display output
 * `--clirc`: provide path of config file to load
 

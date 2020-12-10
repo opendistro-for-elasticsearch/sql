@@ -24,7 +24,7 @@ install_requirements = [
     "cli_helpers[styles] == 1.2.1",
     "elasticsearch == 7.5.1",
     "pyfiglet == 0.8.post1",
-    "boto3 == 1.9.181",
+    "boto3 == 1.16.29",
     "requests-aws4auth == 0.9",
 ]
 

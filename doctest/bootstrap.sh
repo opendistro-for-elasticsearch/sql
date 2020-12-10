@@ -22,4 +22,4 @@ fi
 $DIR/.venv/bin/pip install -U pip setuptools wheel
 $DIR/.venv/bin/pip install -r $DIR/requirements.txt
 # Temporary fix, add odfe-sql-cli dependency into requirements.txt once we have released cli to PyPI
-$DIR/.venv/bin/pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple odfe-sql-cli==0.0.1
+$DIR/.venv/bin/pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple odfe-sql-cli==0.0.2
