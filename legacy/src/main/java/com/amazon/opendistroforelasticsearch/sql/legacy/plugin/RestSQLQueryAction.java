@@ -29,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckExcepti
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
 import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.SqlAnalysisException;
@@ -124,15 +125,10 @@ public class RestSQLQueryAction extends BaseRestHandler {
       return NOT_SUPPORTED_YET;
     }
 
-    try {
-      if (request.isExplainRequest()) {
-        return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
-      }
-      return channel -> sqlService.execute(plan, createQueryResponseListener(channel));
-    } catch (Exception e) {
-      logAndPublishMetrics(e);
-      return channel -> reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
+    if (request.isExplainRequest()) {
+      return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
     }
+    return channel -> sqlService.execute(plan, createQueryResponseListener(channel));
   }
 
   private SQLService createSQLService(NodeClient client) {
@@ -163,6 +159,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during explain", e);
+        logAndPublishMetrics(e);
         sendResponse(channel, INTERNAL_SERVER_ERROR,
             "Failed to explain the query due to error: " + e.getMessage());
       }
@@ -181,6 +178,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during query handling", e);
+        logAndPublishMetrics(e);
         sendResponse(channel, INTERNAL_SERVER_ERROR, formatter.format(e));
       }
     };
@@ -199,33 +197,17 @@ public class RestSQLQueryAction extends BaseRestHandler {
         status, "application/json; charset=UTF-8", content));
   }
 
-  private void reportError(RestChannel channel, Exception e, RestStatus status) {
-    sendResponse(
-        channel, status, ErrorMessageFactory.createErrorMessage(e, status.getStatus()).toString());
-  }
-
   private static void logAndPublishMetrics(Exception e) {
-    if (isClientError(e)) {
-      LOG.error(LogUtils.getRequestId() + " Client side error during query execution", e);
-      Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
-    } else {
+    if (isServerError(e)) {
       LOG.error(LogUtils.getRequestId() + " Server side error during query execution", e);
       Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+    } else {
+      LOG.error(LogUtils.getRequestId() + " Client side error during query execution", e);
+      Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
     }
   }
 
-  private static boolean isClientError(Exception e) {
-    return e instanceof NullPointerException // NPE is hard to differentiate but more likely caused by bad query
-        || e instanceof SqlParseException
-        || e instanceof ParserException
-        || e instanceof SQLFeatureNotSupportedException
-        || e instanceof SQLFeatureDisabledException
-        || e instanceof IllegalArgumentException
-        || e instanceof IndexNotFoundException
-        || e instanceof VerificationException
-        || e instanceof SqlAnalysisException
-        || e instanceof SyntaxCheckException
-        || e instanceof SemanticCheckException;
+  private static boolean isServerError(Exception e) {
+    return e instanceof QueryEngineException;
   }
-
 }
