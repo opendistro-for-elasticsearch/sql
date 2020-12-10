@@ -68,12 +68,20 @@ describeStatement
     : DESCRIBE TABLES tableFilter columnFilter?
     ;
 
-tableFilter
-    : LIKE stringLiteral
+columnFilter
+    : COLUMNS LIKE showDescribePattern
     ;
 
-columnFilter
-    : COLUMNS LIKE stringLiteral
+tableFilter
+    : LIKE showDescribePattern
+    ;
+
+showDescribePattern
+    : oldID=compatibleID | stringLiteral
+    ;
+
+compatibleID
+    : (MODULE | ID)+?
     ;
 
 //    Select Statement's Details

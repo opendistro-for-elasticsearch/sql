@@ -70,7 +70,6 @@ public class SystemIndexUtils {
     final int lastDot = indexName.indexOf(".");
     String prefix = indexName.substring(0, lastDot);
     String tableName = indexName.substring(lastDot + 1)
-        .replace("_", ".")
         .replace("%", "*");
 
     if (prefix.equalsIgnoreCase(SYS_META_PREFIX)) {

@@ -493,6 +493,35 @@ class AstBuilderTest {
     );
   }
 
+  /**
+   * Todo, ideally the identifier (%) couldn't be used in LIKE operator, only the string literal
+   * is allowed.
+   */
+  @Test
+  public void show_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            filter(
+                relation(TABLE_INFO),
+                function("like", qualifiedName("TABLE_NAME"), stringLiteral("%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("SHOW TABLES LIKE %")
+    );
+  }
+
+  @Test
+  public void describe_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            relation(mappingTable("a_c%")),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE a_c%")
+    );
+  }
+
   @Test
   public void can_build_describe_selected_tables() {
     assertEquals(
@@ -505,7 +534,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_describe_selected_tables_fileld_filter() {
+  public void can_build_describe_selected_tables_field_filter() {
     assertEquals(
         project(
             filter(
@@ -515,6 +544,24 @@ class AstBuilderTest {
             AllFields.of()
         ),
         buildAST("DESCRIBE TABLES LIKE 'a_c%' COLUMNS LIKE 'name%'")
+    );
+  }
+
+  /**
+   * Todo, ideally the identifier (%) couldn't be used in LIKE operator, only the string literal
+   * is allowed.
+   */
+  @Test
+  public void describe_and_column_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            filter(
+                relation(mappingTable("a_c%")),
+                function("like", qualifiedName("COLUMN_NAME"), stringLiteral("name%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE a_c% COLUMNS LIKE name%")
     );
   }
 

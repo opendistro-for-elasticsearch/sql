@@ -20,11 +20,11 @@ import static java.util.Collections.emptyNavigableMap;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /**
  * Symbol table for symbol definition and resolution.
@@ -35,6 +35,9 @@ public class SymbolTable {
    * Two-dimension hash table to manage symbols with type in different namespace.
    */
   private Map<Namespace, NavigableMap<String, ExprType>> tableByNamespace =
+      new EnumMap<>(Namespace.class);
+
+  private Map<Namespace, LinkedHashMap<String, ExprType>> orderedTable =
       new EnumMap<>(Namespace.class);
 
   /**
@@ -48,6 +51,11 @@ public class SymbolTable {
         symbol.getNamespace(),
         ns -> new TreeMap<>()
     ).put(symbol.getName(), type);
+
+    orderedTable.computeIfAbsent(
+        symbol.getNamespace(),
+        ns -> new LinkedHashMap<>()
+    ).put(symbol.getName(), type);
   }
 
   /**
@@ -55,6 +63,13 @@ public class SymbolTable {
    */
   public void remove(Symbol symbol) {
     tableByNamespace.computeIfPresent(
+        symbol.getNamespace(),
+        (k, v) -> {
+          v.remove(symbol.getName());
+          return v;
+        }
+    );
+    orderedTable.computeIfPresent(
         symbol.getNamespace(),
         (k, v) -> {
           v.remove(symbol.getName());
@@ -106,13 +121,15 @@ public class SymbolTable {
    * @return              all symbols in the namespace map
    */
   public Map<String, ExprType> lookupAllFields(Namespace namespace) {
-    final Map<String, ExprType> allSymbols =
-        tableByNamespace.getOrDefault(namespace, emptyNavigableMap());
-    return allSymbols.entrySet().stream().filter(entry -> {
+    final LinkedHashMap<String, ExprType> allSymbols =
+        orderedTable.getOrDefault(namespace, new LinkedHashMap<>());
+    final LinkedHashMap<String, ExprType> results = new LinkedHashMap<>();
+    allSymbols.entrySet().stream().filter(entry -> {
       String symbolName = entry.getKey();
       int lastDot = symbolName.lastIndexOf(".");
       return -1 == lastDot || !allSymbols.containsKey(symbolName.substring(0, lastDot));
-    }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }).forEach(entry -> results.put(entry.getKey(), entry.getValue()));
+    return results;
   }
 
   /**

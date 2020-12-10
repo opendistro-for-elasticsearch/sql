@@ -31,7 +31,7 @@ import static java.util.Collections.emptyList;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
@@ -79,7 +79,8 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitDescribeStatement(OpenDistroSQLParser.DescribeStatementContext ctx) {
-    final Literal tableName = (Literal) visitAstExpression(ctx.tableFilter().stringLiteral());
+    final Function tableFilter = (Function) visitAstExpression(ctx.tableFilter());
+    final String tableName = tableFilter.getFuncArgs().get(1).toString();
     final Relation table = new Relation(qualifiedName(mappingTable(tableName.toString())));
     if (ctx.columnFilter() == null) {
       return new Project(Collections.singletonList(AllFields.of())).attach(table);
