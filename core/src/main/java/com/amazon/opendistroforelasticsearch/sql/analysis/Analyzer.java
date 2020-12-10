@@ -127,7 +127,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitRelationSubquery(RelationSubquery node, AnalysisContext context) {
     LogicalPlan subquery = analyze(node.getChild().get(0), context);
-    context.push();
+    // inherit the parent environment to keep the subquery fields in current environment
     TypeEnvironment curEnv = context.peek();
 
     // Put subquery alias in index namespace so the qualifier can be removed

@@ -30,12 +30,12 @@ class ESConnection:
     as well as send user's SQL query to Elasticsearch.
     """
 
-    def __init__(self, endpoint=None, http_auth=None, use_aws_authentication=False):
+    def __init__(self, endpoint=None, http_auth=None, use_aws_authentication=False, query_language="sql"):
         """Initialize an ESConnection instance.
 
         Set up client and get indices list.
 
-        :param endpoint: an url in the format of "http:localhost:9200"
+        :param endpoint: an url in the format of "http://localhost:9200"
         :param http_auth: a tuple in the format of (username, password)
         """
         self.client = None
@@ -47,6 +47,7 @@ class ESConnection:
         self.endpoint = endpoint
         self.http_auth = http_auth
         self.use_aws_authentication = use_aws_authentication
+        self.query_language = query_language
 
     def get_indices(self):
         if self.client:
@@ -80,8 +81,11 @@ class ESConnection:
         ssl_context.verify_mode = ssl.CERT_NONE
 
         open_distro_client = Elasticsearch(
-            [self.endpoint], http_auth=self.http_auth, verify_certs=False, ssl_context=ssl_context,
-            connection_class=RequestsHttpConnection
+            [self.endpoint],
+            http_auth=self.http_auth,
+            verify_certs=False,
+            ssl_context=ssl_context,
+            connection_class=RequestsHttpConnection,
         )
 
         return open_distro_client
@@ -156,12 +160,20 @@ class ESConnection:
         final_query = query.strip().strip(";")
 
         try:
-            data = self.client.transport.perform_request(
-                url="/_opendistro/_sql/_explain" if explain else "/_opendistro/_sql/",
-                method="POST",
-                params=None if explain else {"format": output_format},
-                body={"query": final_query},
-            )
+            if self.query_language == "sql":
+                data = self.client.transport.perform_request(
+                    url="/_opendistro/_sql/_explain" if explain else "/_opendistro/_sql/",
+                    method="POST",
+                    params=None if explain else {"format": output_format},
+                    body={"query": final_query},
+                )
+            else:
+                data = self.client.transport.perform_request(
+                    url="/_opendistro/_ppl/_explain" if explain else "/_opendistro/_ppl/",
+                    method="POST",
+                    params=None if explain else {"format": output_format},
+                    body={"query": final_query},
+                )
             return data
 
         # handle client lost during execution
