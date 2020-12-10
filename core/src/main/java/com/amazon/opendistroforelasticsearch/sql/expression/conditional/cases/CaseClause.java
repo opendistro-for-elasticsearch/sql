@@ -73,7 +73,10 @@ public class CaseClause extends FunctionExpression {
 
   @Override
   public ExprType type() {
-    return whenClauses.get(0).type();
+    List<ExprType> types = allResultTypes();
+
+    // Return unknown if all WHEN/ELSE return NULL
+    return types.isEmpty() ? UNKNOWN : types.get(0);
   }
 
   @Override

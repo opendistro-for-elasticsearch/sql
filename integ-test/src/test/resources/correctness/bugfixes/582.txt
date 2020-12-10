@@ -1,0 +1,2 @@
+SELECT DISTINCT CASE WHEN Carrier = 'ES-Air' Then FlightDelayMin END AS delay FROM kibana_sample_data_flights
+SELECT DISTINCT CASE WHEN FlightDelay = true Then Carrier END AS name FROM kibana_sample_data_flights
