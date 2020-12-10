@@ -264,13 +264,14 @@ class ElasticsearchNodeClientTest {
     AliasMetadata aliasMetadata = mock(AliasMetadata.class);
     ImmutableOpenMap.Builder<String, List<AliasMetadata>> builder = ImmutableOpenMap.builder();
     builder.fPut("index",Arrays.asList(aliasMetadata));
+    final ImmutableOpenMap<String, List<AliasMetadata>> openMap = builder.build();
     when(aliasMetadata.alias()).thenReturn("index_alias");
     when(nodeClient.admin().indices()
         .prepareGetIndex()
         .setLocal(true)
         .get()).thenReturn(indexResponse);
     when(indexResponse.getIndices()).thenReturn(new String[] {"index"});
-    when(indexResponse.aliases()).thenReturn(builder.build());
+    when(indexResponse.aliases()).thenReturn(openMap);
 
     ElasticsearchNodeClient client =
         new ElasticsearchNodeClient(mock(ClusterService.class), nodeClient);
