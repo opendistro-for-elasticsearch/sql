@@ -37,6 +37,11 @@ public class SymbolTable {
   private Map<Namespace, NavigableMap<String, ExprType>> tableByNamespace =
       new EnumMap<>(Namespace.class);
 
+  /**
+   * Two-dimension hash table to manage symbols with type in different namespace.
+   * Comparing with tableByNamespace, orderedTable use the LinkedHashMap to keep the order of
+   * symbol.
+   */
   private Map<Namespace, LinkedHashMap<String, ExprType>> orderedTable =
       new EnumMap<>(Namespace.class);
 
