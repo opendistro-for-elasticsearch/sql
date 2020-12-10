@@ -309,6 +309,14 @@ class AstExpressionBuilderTest {
     );
   }
 
+  @Test
+  public void canBuildKeywordsAsIdentInQualifiedName() {
+    assertEquals(
+        qualifiedName("test", "timestamp"),
+        buildExprAst("test.timestamp")
+    );
+  }
+
   private Node buildExprAst(String expr) {
     OpenDistroSQLLexer lexer = new OpenDistroSQLLexer(new CaseInsensitiveCharStream(expr));
     OpenDistroSQLParser parser = new OpenDistroSQLParser(new CommonTokenStream(lexer));

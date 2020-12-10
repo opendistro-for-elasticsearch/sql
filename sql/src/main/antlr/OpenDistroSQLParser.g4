@@ -92,7 +92,11 @@ querySpecification
     ;
 
 selectClause
-    : SELECT selectElements
+    : SELECT selectSpec? selectElements
+    ;
+
+selectSpec
+    : (ALL | DISTINCT)
     ;
 
 selectElements

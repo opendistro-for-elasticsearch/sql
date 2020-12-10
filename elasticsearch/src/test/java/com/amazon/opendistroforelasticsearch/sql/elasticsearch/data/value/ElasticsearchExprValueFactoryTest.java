@@ -29,6 +29,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -36,6 +38,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_BINARY;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_GEO_POINT;
@@ -46,6 +49,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
@@ -54,6 +59,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -71,7 +77,10 @@ class ElasticsearchExprValueFactoryTest {
           .put("floatV", FLOAT)
           .put("doubleV", DOUBLE)
           .put("stringV", STRING)
-          .put("dateV", TIMESTAMP)
+          .put("dateV", DATE)
+          .put("datetimeV", DATETIME)
+          .put("timeV", TIME)
+          .put("timestampV", TIMESTAMP)
           .put("boolV", BOOLEAN)
           .put("structV", STRUCT)
           .put("structV.id", INTEGER)
@@ -162,39 +171,48 @@ class ElasticsearchExprValueFactoryTest {
   public void constructDate() {
     assertEquals(
         new ExprTimestampValue("2015-01-01 00:00:00"),
-        tupleValue("{\"dateV\":\"2015-01-01\"}").get("dateV"));
+        tupleValue("{\"timestampV\":\"2015-01-01\"}").get("timestampV"));
     assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
-        tupleValue("{\"dateV\":\"2015-01-01T12:10:30Z\"}").get("dateV"));
+        tupleValue("{\"timestampV\":\"2015-01-01T12:10:30Z\"}").get("timestampV"));
     assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
-        tupleValue("{\"dateV\":\"2015-01-01T12:10:30\"}").get("dateV"));
+        tupleValue("{\"timestampV\":\"2015-01-01T12:10:30\"}").get("timestampV"));
     assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
-        tupleValue("{\"dateV\":\"2015-01-01 12:10:30\"}").get("dateV"));
+        tupleValue("{\"timestampV\":\"2015-01-01 12:10:30\"}").get("timestampV"));
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
-        tupleValue("{\"dateV\":1420070400001}").get("dateV"));
+        tupleValue("{\"timestampV\":1420070400001}").get("timestampV"));
     assertEquals(
         new ExprTimeValue("19:36:22"),
-        tupleValue("{\"dateV\":\"19:36:22\"}").get("dateV"));
+        tupleValue("{\"timestampV\":\"19:36:22\"}").get("timestampV"));
 
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
-        constructFromObject("dateV", 1420070400001L));
+        constructFromObject("timestampV", 1420070400001L));
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
-        constructFromObject("dateV", Instant.ofEpochMilli(1420070400001L)));
+        constructFromObject("timestampV", Instant.ofEpochMilli(1420070400001L)));
     assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
-        constructFromObject("dateV", "2015-01-01 12:10:30"));
+        constructFromObject("timestampV", "2015-01-01 12:10:30"));
+    assertEquals(
+        new ExprDateValue("2015-01-01"),
+        constructFromObject("dateV","2015-01-01"));
+    assertEquals(
+        new ExprTimeValue("12:10:30"),
+        constructFromObject("timeV","12:10:30"));
+    assertEquals(
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("datetimeV", "2015-01-01 12:10:30"));
   }
 
   @Test
   public void constructDateFromUnsupportedFormatThrowException() {
     IllegalStateException exception =
         assertThrows(
-            IllegalStateException.class, () -> tupleValue("{\"dateV\":\"2015-01-01 12:10\"}"));
+            IllegalStateException.class, () -> tupleValue("{\"timestampV\":\"2015-01-01 12:10\"}"));
     assertEquals(
         "Construct ExprTimestampValue from \"2015-01-01 12:10\" failed, "
             + "unsupported date format.",
