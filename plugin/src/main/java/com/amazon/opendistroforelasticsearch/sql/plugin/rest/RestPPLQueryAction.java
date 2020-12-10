@@ -82,7 +82,7 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
   private final Supplier<Boolean> pplEnabled;
 
-  private ResponseFormatter<QueryResult> formatter;
+  private PPLQueryRequest pplRequest;
 
   /**
    * Constructor of RestPPLQueryAction.
@@ -114,7 +114,7 @@ public class RestPPLQueryAction extends BaseRestHandler {
   @Override
   protected Set<String> responseParams() {
     Set<String> responseParams = new HashSet<>(super.responseParams());
-    responseParams.addAll(Arrays.asList("format", "escape"));
+    responseParams.addAll(Arrays.asList("format", "sanitize"));
     return responseParams;
   }
 
@@ -132,14 +132,7 @@ public class RestPPLQueryAction extends BaseRestHandler {
     }
 
     PPLService pplService = createPPLService(nodeClient);
-    PPLQueryRequest pplRequest = PPLQueryRequestFactory.getPPLRequest(request);
-    Format format = pplRequest.format();
-
-    if (format.equals(Format.CSV)) {
-      formatter = new CsvResponseFormatter(pplRequest.escape());
-    } else {
-      formatter = new SimpleJsonResponseFormatter(PRETTY);
-    }
+    pplRequest = PPLQueryRequestFactory.getPPLRequest(request);
 
     if (pplRequest.isExplainRequest()) {
       return channel -> pplService.explain(pplRequest, createExplainResponseListener(channel));
@@ -200,6 +193,13 @@ public class RestPPLQueryAction extends BaseRestHandler {
   }
 
   private ResponseListener<QueryResponse> createListener(RestChannel channel) {
+    Format format = pplRequest.format();
+    ResponseFormatter<QueryResult> formatter;
+    if (format.equals(Format.CSV)) {
+      formatter = new CsvResponseFormatter(pplRequest.sanitize());
+    } else {
+      formatter = new SimpleJsonResponseFormatter(PRETTY);
+    }
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {

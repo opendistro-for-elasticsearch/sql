@@ -108,7 +108,7 @@ public class CsvResponseFormatterTest {
 
   @Test
   void escapeSanitize() {
-    CsvResponseFormatter escapeFormatter = new CsvResponseFormatter(true);
+    CsvResponseFormatter escapeFormatter = new CsvResponseFormatter(false);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
         new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(

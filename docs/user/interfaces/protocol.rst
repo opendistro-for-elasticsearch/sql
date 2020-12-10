@@ -322,9 +322,9 @@ Result set::
     'Hattie,'@Bond,"671 Bristol Street, Dente, TN"
 
 
-To escape the sanitize and keep the csv result as the original, you can add the escape param and set it to true value. For example::
+If you prefer escaping the sanitization and keeping the original csv result, you can add a "sanitize" param and set it to false value to skip sanitizing. For example::
 
-	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=csv&escape=true -d '{
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=csv&sanitize=false -d '{
 	  "query" : "SELECT firstname, lastname, address FROM userdata"
 	}'
 

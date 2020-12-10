@@ -72,7 +72,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
    */
   private final Settings pluginSettings;
 
-  private ResponseFormatter<QueryResult> formatter;
+  private SQLQueryRequest request;
 
   /**
    * Constructor of RestSQLQueryAction.
@@ -105,6 +105,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
    * @return            channel consumer
    */
   public RestChannelConsumer prepareRequest(SQLQueryRequest request, NodeClient nodeClient) {
+    this.request = request;
     if (!request.isSupported()) {
       return NOT_SUPPORTED_YET;
     }
@@ -119,13 +120,6 @@ public class RestSQLQueryAction extends BaseRestHandler {
                     sqlService.parse(request.getQuery())));
     } catch (SyntaxCheckException e) {
       return NOT_SUPPORTED_YET;
-    }
-
-    Format format = request.format();
-    if (format.equals(Format.CSV)) {
-      formatter = new CsvResponseFormatter(request.escape());
-    } else {
-      formatter = new JdbcResponseFormatter(PRETTY);
     }
 
     if (request.isExplainRequest()) {
@@ -169,6 +163,13 @@ public class RestSQLQueryAction extends BaseRestHandler {
   }
 
   private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel) {
+    Format format = request.format();
+    ResponseFormatter<QueryResult> formatter;
+    if (format.equals(Format.CSV)) {
+      formatter = new CsvResponseFormatter(request.sanitize());
+    } else {
+      formatter = new JdbcResponseFormatter(PRETTY);
+    }
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {

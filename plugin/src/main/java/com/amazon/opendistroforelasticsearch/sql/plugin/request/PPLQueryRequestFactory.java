@@ -33,7 +33,7 @@ public class PPLQueryRequestFactory {
   private static final String PPL_URL_PARAM_KEY = "ppl";
   private static final String PPL_FIELD_NAME = "query";
   private static final String QUERY_PARAMS_FORMAT = "format";
-  private static final String QUERY_PARAMS_ESCAPE = "escape";
+  private static final String QUERY_PARAMS_SANITIZE = "sanitize";
 
   /**
    * Build {@link PPLQueryRequest} from {@link RestRequest}.
@@ -73,9 +73,9 @@ public class PPLQueryRequestFactory {
     }
     PPLQueryRequest pplRequest = new PPLQueryRequest(jsonContent.getString(PPL_FIELD_NAME),
         jsonContent, restRequest.path(), format.getFormatName());
-    // set escape option if csv format
+    // set sanitize option if csv format
     if (format.equals(Format.CSV)) {
-      pplRequest.escape(getEscapeOption(restRequest.params()));
+      pplRequest.sanitize(getSanitizeOption(restRequest.params()));
     }
     return pplRequest;
   }
@@ -97,10 +97,10 @@ public class PPLQueryRequestFactory {
     }
   }
 
-  private static boolean getEscapeOption(Map<String, String> requestParams) {
-    if (requestParams.containsKey(QUERY_PARAMS_ESCAPE)) {
-      return Boolean.parseBoolean(requestParams.get(QUERY_PARAMS_ESCAPE));
+  private static boolean getSanitizeOption(Map<String, String> requestParams) {
+    if (requestParams.containsKey(QUERY_PARAMS_SANITIZE)) {
+      return Boolean.parseBoolean(requestParams.get(QUERY_PARAMS_SANITIZE));
     }
-    return false;
+    return true;
   }
 }

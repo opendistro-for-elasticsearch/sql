@@ -31,13 +31,13 @@ import lombok.Singular;
 @RequiredArgsConstructor
 public class CsvResponseFormatter implements ResponseFormatter<QueryResult> {
   private static final String INLINE_SEPARATOR = ",";
-  private static final String INTERLINE_SEPARATOR = "\n";
+  private static final String INTERLINE_SEPARATOR = System.lineSeparator();
   private static final Set<String> SENSITIVE_CHAR = ImmutableSet.of("=", "+", "-", "@");
 
-  private final boolean escapeSanity;
+  private final boolean sanitize;
 
   public CsvResponseFormatter() {
-    this.escapeSanity = false;
+    this.sanitize = true;
   }
 
   @Override
@@ -69,7 +69,7 @@ public class CsvResponseFormatter implements ResponseFormatter<QueryResult> {
     builder.data(dataLines.build());
 
     CsvResult result = builder.build();
-    return escapeSanity ? result : result.sanitize();
+    return sanitize ? result.sanitize() : result;
   }
 
   @Builder(builderClassName = "Builder")

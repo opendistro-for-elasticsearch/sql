@@ -37,7 +37,7 @@ public class PPLQueryRequest {
   @Setter
   @Getter
   @Accessors(fluent = true)
-  private boolean escape = false;
+  private boolean sanitize = true;
 
   /**
    * Constructor of PPLQueryRequest.

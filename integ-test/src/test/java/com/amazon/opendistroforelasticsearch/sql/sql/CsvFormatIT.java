@@ -48,7 +48,7 @@ public class CsvFormatIT extends SQLIntegTestCase {
   public void escapeSanitizeTest() {
     String result = executeQuery(
         String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_CSV_SANITIZE),
-        "csv&escape=true");
+        "csv&sanitize=false");
     assertEquals(
         "firstname,lastname\n"
             + "+Amber JOHnny,Duke Willmington+\n"

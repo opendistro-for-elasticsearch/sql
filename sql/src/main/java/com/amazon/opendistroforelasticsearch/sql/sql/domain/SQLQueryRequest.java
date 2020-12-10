@@ -19,7 +19,9 @@ package com.amazon.opendistroforelasticsearch.sql.sql.domain;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
@@ -40,6 +42,8 @@ public class SQLQueryRequest {
 
   private static final Set<String> QUERY_FIELD = ImmutableSet.of("query");
   private static final Set<String> QUERY_AND_FETCH_SIZE = ImmutableSet.of("query", "fetch_size");
+  private static final String QUERY_PARAMS_FORMAT = "format";
+  private static final String QUERY_PARAMS_SANITIZE = "sanitize";
 
   /**
    * JSON payload in REST request.
@@ -62,10 +66,27 @@ public class SQLQueryRequest {
    */
   private final String format;
 
-  @Setter
+  /**
+   * Request params.
+   */
+  private Map<String, String> params = Collections.emptyMap();
+
   @Getter
   @Accessors(fluent = true)
-  private boolean escape = false;
+  private boolean sanitize = true;
+
+  /**
+   * Constructor of SQLQueryRequest that passes request params.
+   */
+  public SQLQueryRequest(
+      JSONObject jsonContent, String query, String path, Map<String, String> params) {
+    this.jsonContent = jsonContent;
+    this.query = query;
+    this.path = path;
+    this.params = params;
+    this.format = getFormat(params);
+    this.sanitize = shouldSanitize(params);
+  }
 
   /**
    * Pre-check if the request can be supported by meeting the following criteria:
@@ -114,6 +135,20 @@ public class SQLQueryRequest {
   private boolean isSupportedFormat() {
     return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format)
         || "csv".equalsIgnoreCase(format);
+  }
+
+  private String getFormat(Map<String, String> params) {
+    if (params.containsKey(QUERY_PARAMS_FORMAT)) {
+      return params.get(QUERY_PARAMS_FORMAT);
+    }
+    return "jdbc";
+  }
+
+  private boolean shouldSanitize(Map<String, String> params) {
+    if (params.containsKey(QUERY_PARAMS_SANITIZE)) {
+      return Boolean.parseBoolean(params.get(QUERY_PARAMS_SANITIZE));
+    }
+    return true;
   }
 
 }

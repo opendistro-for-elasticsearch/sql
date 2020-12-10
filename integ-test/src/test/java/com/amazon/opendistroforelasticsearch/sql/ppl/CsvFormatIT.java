@@ -45,7 +45,7 @@ public class CsvFormatIT extends PPLIntegTestCase {
   @Test
   public void escapeSanitizeTest() throws IOException {
     String result = executeCsvQuery(
-        String.format(Locale.ROOT, "source=%s | fields firstname, lastname", TEST_INDEX_BANK_CSV_SANITIZE), true);
+        String.format(Locale.ROOT, "source=%s | fields firstname, lastname", TEST_INDEX_BANK_CSV_SANITIZE), false);
     assertEquals(
         "firstname,lastname\n"
             + "+Amber JOHnny,Duke Willmington+\n"
