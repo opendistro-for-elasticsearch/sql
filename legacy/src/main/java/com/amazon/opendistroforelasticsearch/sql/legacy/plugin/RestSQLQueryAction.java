@@ -18,14 +18,27 @@ package com.amazon.opendistroforelasticsearch.sql.legacy.plugin;
 
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
+import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
+import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
+
+import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.SqlAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SQLFeatureDisabledException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.executor.format.ErrorMessageFactory;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.legacy.rewriter.matchtoterm.VerificationException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JdbcResponseFormatter;
@@ -35,11 +48,13 @@ import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.service.ClusterService;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
@@ -109,10 +124,15 @@ public class RestSQLQueryAction extends BaseRestHandler {
       return NOT_SUPPORTED_YET;
     }
 
-    if (request.isExplainRequest()) {
-      return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
+    try {
+      if (request.isExplainRequest()) {
+        return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
+      }
+      return channel -> sqlService.execute(plan, createQueryResponseListener(channel));
+    } catch (Exception e) {
+      logAndPublishMetrics(e);
+      return channel -> reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
     }
-    return channel -> sqlService.execute(plan, createQueryResponseListener(channel));
   }
 
   private SQLService createSQLService(NodeClient client) {
@@ -177,6 +197,35 @@ public class RestSQLQueryAction extends BaseRestHandler {
   private void sendResponse(RestChannel channel, RestStatus status, String content) {
     channel.sendResponse(new BytesRestResponse(
         status, "application/json; charset=UTF-8", content));
+  }
+
+  private void reportError(RestChannel channel, Exception e, RestStatus status) {
+    sendResponse(
+        channel, status, ErrorMessageFactory.createErrorMessage(e, status.getStatus()).toString());
+  }
+
+  private static void logAndPublishMetrics(Exception e) {
+    if (isClientError(e)) {
+      LOG.error(LogUtils.getRequestId() + " Client side error during query execution", e);
+      Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
+    } else {
+      LOG.error(LogUtils.getRequestId() + " Server side error during query execution", e);
+      Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+    }
+  }
+
+  private static boolean isClientError(Exception e) {
+    return e instanceof NullPointerException // NPE is hard to differentiate but more likely caused by bad query
+        || e instanceof SqlParseException
+        || e instanceof ParserException
+        || e instanceof SQLFeatureNotSupportedException
+        || e instanceof SQLFeatureDisabledException
+        || e instanceof IllegalArgumentException
+        || e instanceof IndexNotFoundException
+        || e instanceof VerificationException
+        || e instanceof SqlAnalysisException
+        || e instanceof SyntaxCheckException
+        || e instanceof SemanticCheckException;
   }
 
 }
