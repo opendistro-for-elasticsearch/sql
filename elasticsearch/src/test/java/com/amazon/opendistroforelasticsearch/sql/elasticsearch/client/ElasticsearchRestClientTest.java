@@ -261,15 +261,14 @@ class ElasticsearchRestClientTest {
 
   @Test
   void meta() throws IOException {
+    Settings defaultSettings = Settings.builder().build();
     ClusterGetSettingsResponse settingsResponse = mock(ClusterGetSettingsResponse.class);
-    Settings defaultSettings = mock(Settings.class);
     when(restClient.cluster().getSettings(any(), any(RequestOptions.class)))
         .thenReturn(settingsResponse);
     when(settingsResponse.getDefaultSettings()).thenReturn(defaultSettings);
-    when(defaultSettings.get("cluster.name", "elasticsearch")).thenReturn("cluster-name");
 
     final Map<String, String> meta = client.meta();
-    assertEquals("cluster-name", meta.get(META_CLUSTER_NAME));
+    assertEquals("elasticsearch", meta.get(META_CLUSTER_NAME));
   }
 
   @Test
