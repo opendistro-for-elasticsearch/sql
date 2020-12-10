@@ -197,20 +197,33 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_count_star_and_count_literal() {
+  public void can_build_count_literal() {
     assertEquals(
         project(
             agg(
                 relation("test"),
                 ImmutableList.of(
-                    alias("COUNT(*)", aggregate("COUNT", AllFields.of())),
                     alias("COUNT(1)", aggregate("COUNT", intLiteral(1)))),
                 emptyList(),
                 emptyList(),
                 emptyList()),
-            alias("COUNT(*)", aggregate("COUNT", AllFields.of())),
             alias("COUNT(1)", aggregate("COUNT", intLiteral(1)))),
-        buildAST("SELECT COUNT(*), COUNT(1) FROM test"));
+        buildAST("SELECT COUNT(1) FROM test"));
+  }
+
+  @Test
+  public void can_build_count_star() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(
+                    alias("COUNT(*)", aggregate("COUNT", AllFields.of()))),
+                emptyList(),
+                emptyList(),
+                emptyList()),
+            alias("COUNT(*)", aggregate("COUNT", AllFields.of()))),
+        buildAST("SELECT COUNT(*) FROM test"));
   }
 
   @Test
