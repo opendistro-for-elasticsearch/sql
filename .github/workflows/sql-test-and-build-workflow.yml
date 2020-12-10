@@ -18,6 +18,11 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build assemble
 
+    - name: Create Artifact Path
+      run: |
+        mkdir -p opendistro-sql-builds
+        cp -r ./plugin/build/distributions/*.zip opendistro-sql-builds/
+
     # This step uses the codecov-action Github action: https://github.com/codecov/codecov-action
     - name: Upload SQL Coverage Report
       uses: codecov/codecov-action@v1
