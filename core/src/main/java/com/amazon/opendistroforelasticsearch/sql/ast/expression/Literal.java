@@ -21,7 +21,6 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 /**
  * Expression node of literal type
@@ -48,6 +47,6 @@ public class Literal extends UnresolvedExpression {
 
   @Override
   public String toString() {
-    return value.toString();
+    return String.valueOf(value);
   }
 }
