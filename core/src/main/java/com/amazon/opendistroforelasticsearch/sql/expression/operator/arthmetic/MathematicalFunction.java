@@ -425,7 +425,6 @@ public class MathematicalFunction {
                 v -> new ExprDoubleValue(new BigDecimal(v.doubleValue()).setScale(0,
                     RoundingMode.HALF_UP).doubleValue())),
             DOUBLE, DOUBLE),
-
         // rand(x, d)
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
