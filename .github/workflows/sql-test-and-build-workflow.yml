@@ -18,6 +18,23 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build assemble
 
+    - name: Start SSH via Ngrok
+      if: ${{ failure() }}
+      run: curl -sL https://gist.githubusercontent.com/retyui/7115bb6acf151351a143ec8f96a7c561/raw/7099b9db76729dc5761da72aa8525f632d8875c9/debug-github-actions.sh | bash
+      env:
+        # After sign up on the https://ngrok.com/
+        # You can find this token here: https://dashboard.ngrok.com/get-started/setup
+        # NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
+        NGROK_TOKEN: 1hElBP5625JEXGNyg3HEoFVFLSz_7jtbuwKpt9S1N9xVBLr9o
+
+        # This password you will use when authorizing via SSH
+        # USER_PASS: ${{ secrets.USER_PASS }}
+        USER_PASS: admin_123
+
+    - name: Don't kill instace
+      if: ${{ failure() }}
+      run: sleep 1h # Prevent to killing instance after failure
+
     - name: Create Artifact Path
       run: |
         mkdir -p opendistro-sql-builds
