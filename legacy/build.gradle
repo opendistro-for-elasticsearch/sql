@@ -53,6 +53,15 @@ test {
     // set 'project.projectDir' property to allow unit test classes to access test resources
     // in src/test/resources in current module
     systemProperty('project.root', project.projectDir.absolutePath)
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+        showStandardStreams = false
+    }
 }
 
 dependencies {
