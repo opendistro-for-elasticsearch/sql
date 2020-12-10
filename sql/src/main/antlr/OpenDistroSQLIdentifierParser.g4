@@ -43,14 +43,14 @@ alias
     ;
 
 qualifiedName
-    : ident (DOT ident)*                                #identsAsQualifiedName
-    | keywordsCanBeId                                   #keywordsAsQualifiedName
+    : ident (DOT ident)*
     ;
 
 ident
     : DOT? ID
     | DOUBLE_QUOTE_ID
     | BACKTICK_QUOTE_ID
+    | keywordsCanBeId
     ;
 
 keywordsCanBeId
@@ -58,4 +58,5 @@ keywordsCanBeId
     | FIELD | D | T | TS // OD SQL and ODBC special
     | COUNT | SUM | AVG | MAX | MIN
     | TIMESTAMP | DATE | TIME | DAYOFWEEK
+    | FIRST | LAST
     ;
