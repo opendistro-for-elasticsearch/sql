@@ -25,3 +25,4 @@ SELECT DISTINCT OriginWeather FROM kibana_sample_data_flights
 SELECT DISTINCT OriginWeather, FlightDelay FROM kibana_sample_data_flights
 SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin FROM kibana_sample_data_flights
 SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin, FlightDelay FROM kibana_sample_data_flights
+SELECT COUNT(*) AS count FROM kibana_sample_data_flights
