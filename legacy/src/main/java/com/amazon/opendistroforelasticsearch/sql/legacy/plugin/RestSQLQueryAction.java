@@ -29,7 +29,10 @@ import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Explai
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JdbcResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
@@ -65,6 +68,9 @@ public class RestSQLQueryAction extends BaseRestHandler {
    */
   private final Settings pluginSettings;
 
+  /**
+   * Constructor of RestSQLQueryAction.
+   */
   public RestSQLQueryAction(ClusterService clusterService, Settings pluginSettings) {
     super();
     this.clusterService = clusterService;
@@ -112,7 +118,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     if (request.isExplainRequest()) {
       return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
     }
-    return channel -> sqlService.execute(plan, createQueryResponseListener(channel));
+    return channel -> sqlService.execute(plan, createQueryResponseListener(channel, request));
   }
 
   private SQLService createSQLService(NodeClient client) {
@@ -149,8 +155,14 @@ public class RestSQLQueryAction extends BaseRestHandler {
     };
   }
 
-  private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel) {
-    JdbcResponseFormatter formatter = new JdbcResponseFormatter(PRETTY);
+  private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel, SQLQueryRequest request) {
+    Format format = request.format();
+    ResponseFormatter<QueryResult> formatter;
+    if (format.equals(Format.CSV)) {
+      formatter = new CsvResponseFormatter(request.sanitize());
+    } else {
+      formatter = new JdbcResponseFormatter(PRETTY);
+    }
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {

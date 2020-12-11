@@ -151,9 +151,7 @@ public class RestSqlAction extends BaseRestHandler {
             if (isNewEngineEnabled() && isCursorDisabled()) {
                 // Route request to new query engine if it's supported already
                 SQLQueryRequest newSqlRequest = new SQLQueryRequest(sqlRequest.getJsonContent(),
-                                                                    sqlRequest.getSql(),
-                                                                    request.path(),
-                                                                    format.getFormatName());
+                    sqlRequest.getSql(), request.path(), request.params());
                 RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
                 if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
                     LOG.info("[{}] Request {} is handled by new SQL query engine",
@@ -175,7 +173,7 @@ public class RestSqlAction extends BaseRestHandler {
     @Override
     protected Set<String> responseParams() {
         Set<String> responseParams = new HashSet<>(super.responseParams());
-        responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format"));
+        responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format", "sanitize"));
         return responseParams;
     }
 

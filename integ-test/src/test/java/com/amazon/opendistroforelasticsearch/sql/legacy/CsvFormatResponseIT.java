@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.legacy;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_CSV_SANITIZE;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_TYPE;
@@ -64,6 +65,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     loadIndex(Index.DOG);
     loadIndex(Index.GAME_OF_THRONES);
     loadIndex(Index.ONLINE);
+    loadIndex(Index.BANK_CSV_SANITIZE);
   }
 
   @Override
@@ -105,6 +107,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
   }
 
+  @Ignore("skip this test since array is not supported in new engine")
   @Test
   public void nestedObjectsAndArraysAreQuoted() throws IOException {
 
@@ -121,6 +124,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertThat(result, containsString(expectedMessage));
   }
 
+  @Ignore("skip this test since array is not supported in new engine")
   @Test
   public void arraysAreQuotedInFlatMode() throws IOException {
 
@@ -141,6 +145,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     setFlatOption(false);
   }
 
+  @Ignore("skip this test since array is not supported in new engine")
   @Test
   public void doubleQuotesAreEscapedWithDoubleQuotes() throws IOException {
     final String query = "SELECT * FROM " + TEST_INDEX_NESTED_WITH_QUOTES;
@@ -315,6 +320,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         hasRow(null, null, Arrays.asList("F", "fireAndBlood", "Targaryen"), false));
   }
 
+  @Ignore("skip this test because the result should be integer type without fractional part")
   @Test
   public void simpleNumericValueAgg() throws Exception {
     String query = String.format(Locale.ROOT, "select count(*) from %s ", TEST_INDEX_DOG);
@@ -348,6 +354,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   }
 
+  @Ignore("skip this test because the result should be integer type without fractional part")
   @Test
   public void twoNumericAggWithAlias() throws Exception {
     String query =
@@ -372,6 +379,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   }
 
+  @Ignore("skip this test because the result should be integer type without fractional part")
   @Test
   public void aggAfterTermsGroupBy() throws Exception {
     String query = String.format(Locale.ROOT, "SELECT COUNT(*) FROM %s GROUP BY gender",
@@ -595,6 +603,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   }
 
+  @Ignore("skip this test since flat, socre, type, id are not applicable in new engine")
   @Test
   public void includeIdAndNotTypeOrScore() throws Exception {
     String query = String.format(Locale.ROOT,
@@ -609,6 +618,8 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertTrue(lines.get(0).contains(",437") || lines.get(0).contains("437,"));
   }
 
+
+  @Ignore("skip this test since flat, socre, type, id are not applicable in new engine")
   @Test
   public void includeIdAndTypeButNoScore() throws Exception {
     String query = String.format(Locale.ROOT,
@@ -625,6 +636,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
   }
   //endregion Tests migrated from CSVResultsExtractorTests
 
+  @Ignore("new engine recognizes the following data as struct type")
   @Test
   public void sensitiveCharacterSanitizeTest() throws IOException {
     String requestBody =
@@ -649,6 +661,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertTrue(lines.get(0).contains("'@cmd|' /C notepad'!_xlbgnm.A1"));
   }
 
+  @Ignore("new engine recognizes the following data as struct type")
   @Test
   public void sensitiveCharacterSanitizeAndQuotedTest() throws IOException {
     String requestBody =
@@ -673,6 +686,19 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     Assert.assertTrue(lines.get(0).contains("\",+cmd|' /C notepad'!_xlbgnm.A1\""));
     Assert.assertTrue(lines.get(0).contains("\"'+cmd|' /C notepad,,'!_xlbgnm.A1\""));
     Assert.assertTrue(lines.get(0).contains("\",,,@cmd|' /C notepad'!_xlbgnm.A1\""));
+  }
+
+  @Test
+  public void sanitizeTest() throws IOException {
+    CSVResult csvResult = executeCsvRequest(
+        String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_CSV_SANITIZE), false);
+    List<String> lines = csvResult.getLines();
+    assertEquals(5, lines.size());
+    assertEquals(lines.get(0), "'+Amber JOHnny,Duke Willmington+");
+    assertEquals(lines.get(1), "'-Hattie,Bond-");
+    assertEquals(lines.get(2), "'=Nanette,Bates=");
+    assertEquals(lines.get(3), "'@Dale,Adams@");
+    assertEquals(lines.get(4), "\",Elinor\",\"Ratliff,,,\"");
   }
 
   @Test
