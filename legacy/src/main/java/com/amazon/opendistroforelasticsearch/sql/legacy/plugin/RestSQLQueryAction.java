@@ -33,16 +33,12 @@ import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvRes
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -71,8 +67,6 @@ public class RestSQLQueryAction extends BaseRestHandler {
    * Settings required by been initialization.
    */
   private final Settings pluginSettings;
-
-  private SQLQueryRequest request;
 
   /**
    * Constructor of RestSQLQueryAction.
@@ -105,7 +99,6 @@ public class RestSQLQueryAction extends BaseRestHandler {
    * @return            channel consumer
    */
   public RestChannelConsumer prepareRequest(SQLQueryRequest request, NodeClient nodeClient) {
-    this.request = request;
     if (!request.isSupported()) {
       return NOT_SUPPORTED_YET;
     }
@@ -125,7 +118,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     if (request.isExplainRequest()) {
       return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
     }
-    return channel -> sqlService.execute(plan, createQueryResponseListener(channel));
+    return channel -> sqlService.execute(plan, createQueryResponseListener(channel, request));
   }
 
   private SQLService createSQLService(NodeClient client) {
@@ -162,7 +155,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     };
   }
 
-  private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel) {
+  private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel, SQLQueryRequest request) {
     Format format = request.format();
     ResponseFormatter<QueryResult> formatter;
     if (format.equals(Format.CSV)) {
