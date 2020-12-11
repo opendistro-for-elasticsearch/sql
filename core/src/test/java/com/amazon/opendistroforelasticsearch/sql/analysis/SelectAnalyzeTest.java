@@ -61,9 +61,9 @@ public class SelectAnalyzeTest extends AnalyzerTestBase {
             LogicalPlanDSL.relation("schema"),
             DSL.named("integer_value", DSL.ref("integer_value", INTEGER)),
             DSL.named("double_value", DSL.ref("double_value", DOUBLE)),
-            DSL.named("string_value", DSL.ref("string_value", STRING)),
             DSL.named("integer_value", DSL.ref("integer_value", INTEGER)),
-            DSL.named("double_value", DSL.ref("double_value", DOUBLE))
+            DSL.named("double_value", DSL.ref("double_value", DOUBLE)),
+            DSL.named("string_value", DSL.ref("string_value", STRING))
         ),
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
@@ -127,8 +127,8 @@ public class SelectAnalyzeTest extends AnalyzerTestBase {
                 ImmutableList.of(DSL
                     .named("avg(integer_value)", dsl.avg(DSL.ref("integer_value", INTEGER)))),
                 ImmutableList.of(DSL.named("string_value", DSL.ref("string_value", STRING)))),
-            DSL.named("string_value", DSL.ref("string_value", STRING)),
-            DSL.named("avg(integer_value)", DSL.ref("avg(integer_value)", DOUBLE))
+            DSL.named("avg(integer_value)", DSL.ref("avg(integer_value)", DOUBLE)),
+            DSL.named("string_value", DSL.ref("string_value", STRING))
         ),
         AstDSL.projectWithArg(
             AstDSL.agg(
@@ -148,9 +148,9 @@ public class SelectAnalyzeTest extends AnalyzerTestBase {
             LogicalPlanDSL.rename(
                 LogicalPlanDSL.relation("schema"),
                 ImmutableMap.of(DSL.ref("integer_value", INTEGER), DSL.ref("ivalue", INTEGER))),
-            DSL.named("ivalue", DSL.ref("ivalue", INTEGER)),
+            DSL.named("double_value", DSL.ref("double_value", DOUBLE)),
             DSL.named("string_value", DSL.ref("string_value", STRING)),
-            DSL.named("double_value", DSL.ref("double_value", DOUBLE))
+            DSL.named("ivalue", DSL.ref("ivalue", INTEGER))
         ),
         AstDSL.projectWithArg(
             AstDSL.rename(
