@@ -19,15 +19,26 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.admin.cluster.settings.ClusterGetSettingsRequest;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.client.indices.GetMappingsRequest;
 import org.elasticsearch.client.indices.GetMappingsResponse;
+import org.elasticsearch.cluster.metadata.AliasMetadata;
+import org.elasticsearch.common.settings.Settings;
 
 /**
  * Elasticsearch REST client to support standalone mode that runs entire engine from remote.
@@ -72,6 +83,47 @@ public class ElasticsearchRestClient implements ElasticsearchClient {
           }
         }
     );
+  }
+
+  /**
+   * Get the combination of the indices and the alias.
+   *
+   * @return the combination of the indices and the alias
+   */
+  @Override
+  public List<String> indices() {
+    try {
+      GetIndexResponse indexResponse =
+          client.indices().get(new GetIndexRequest(), RequestOptions.DEFAULT);
+      final Stream<String> aliasStream =
+          ImmutableList.copyOf(indexResponse.getAliases().values()).stream()
+              .flatMap(Collection::stream).map(AliasMetadata::alias);
+      return Stream.concat(Arrays.stream(indexResponse.getIndices()), aliasStream)
+          .collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to get indices", e);
+    }
+  }
+
+  /**
+   * Get meta info of the cluster.
+   *
+   * @return meta info of the cluster.
+   */
+  @Override
+  public Map<String, String> meta() {
+    try {
+      final ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+      ClusterGetSettingsRequest request = new ClusterGetSettingsRequest();
+      request.includeDefaults(true);
+      request.local(true);
+      final Settings defaultSettings =
+          client.cluster().getSettings(request, RequestOptions.DEFAULT).getDefaultSettings();
+      builder.put(META_CLUSTER_NAME, defaultSettings.get("cluster.name", "elasticsearch"));
+      return builder.build();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to get cluster meta info", e);
+    }
   }
 
   @Override

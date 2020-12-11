@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.HavingClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
@@ -24,10 +25,13 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TableAsRelationContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WhereClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.TABLE_INFO;
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.mappingTable;
 import static java.util.Collections.emptyList;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
@@ -37,10 +41,12 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.context.ParsingContext;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -63,6 +69,26 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
    * text without whitespaces or other characters discarded by lexer.
    */
   private final String query;
+
+  @Override
+  public UnresolvedPlan visitShowStatement(OpenDistroSQLParser.ShowStatementContext ctx) {
+    final UnresolvedExpression tableFilter = visitAstExpression(ctx.tableFilter());
+    return new Project(Collections.singletonList(AllFields.of()))
+        .attach(new Filter(tableFilter).attach(new Relation(qualifiedName(TABLE_INFO))));
+  }
+
+  @Override
+  public UnresolvedPlan visitDescribeStatement(OpenDistroSQLParser.DescribeStatementContext ctx) {
+    final Function tableFilter = (Function) visitAstExpression(ctx.tableFilter());
+    final String tableName = tableFilter.getFuncArgs().get(1).toString();
+    final Relation table = new Relation(qualifiedName(mappingTable(tableName.toString())));
+    if (ctx.columnFilter() == null) {
+      return new Project(Collections.singletonList(AllFields.of())).attach(table);
+    } else {
+      return new Project(Collections.singletonList(AllFields.of()))
+          .attach(new Filter(visitAstExpression(ctx.columnFilter())).attach(table));
+    }
+  }
 
   @Override
   public UnresolvedPlan visitQuerySpecification(QuerySpecificationContext queryContext) {

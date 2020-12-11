@@ -23,7 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
@@ -70,7 +70,7 @@ public class TypeEnvironment implements Environment<Symbol, ExprType> {
    * @return              all symbols in the namespace
    */
   public Map<String, ExprType> lookupAllFields(Namespace namespace) {
-    Map<String, ExprType> result = new HashMap<>();
+    Map<String, ExprType> result = new LinkedHashMap<>();
     symbolTable.lookupAllFields(namespace).forEach(result::putIfAbsent);
     return result;
   }
