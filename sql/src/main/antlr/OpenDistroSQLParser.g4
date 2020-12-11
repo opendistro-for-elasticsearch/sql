@@ -264,6 +264,18 @@ specificFunction
         (ELSE elseArg=functionArg)? END                               #caseFunctionCall
     | CASE caseFuncAlternative+
         (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    | CAST '(' expression AS convertedDataType ')'                    #dataTypeFunctionCall
+    ;
+
+convertedDataType
+    : typeName=DATE
+    | typeName=TIME
+    | typeName=TIMESTAMP
+    | typeName=INT
+    | typeName=DOUBLE
+    | typeName=LONG
+    | typeName=FLOAT
+    | typeName=STRING
     ;
 
 caseFuncAlternative

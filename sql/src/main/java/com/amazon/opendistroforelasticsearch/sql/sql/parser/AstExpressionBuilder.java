@@ -51,6 +51,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
@@ -61,6 +62,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpres
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.When;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AndExpressionContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ColumnNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentContext;
@@ -281,6 +283,18 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitCaseFuncAlternative(CaseFuncAlternativeContext ctx) {
     return new When(visit(ctx.condition), visit(ctx.consequent));
+  }
+
+  @Override
+  public UnresolvedExpression visitDataTypeFunctionCall(
+      OpenDistroSQLParser.DataTypeFunctionCallContext ctx) {
+    return new Cast(visit(ctx.expression()), visit(ctx.convertedDataType()));
+  }
+
+  @Override
+  public UnresolvedExpression visitConvertedDataType(
+      OpenDistroSQLParser.ConvertedDataTypeContext ctx) {
+    return AstDSL.stringLiteral(ctx.getText());
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {

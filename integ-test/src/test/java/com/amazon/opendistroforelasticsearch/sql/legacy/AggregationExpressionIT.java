@@ -261,7 +261,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         "SELECT SUM(CAST(male AS INT)) AS male_sum FROM %s",
         Index.BANK.getName()));
 
-    verifySchema(response, schema("male_sum", "male_sum", "double"));
+    verifySchema(response, schema("male_sum", "male_sum", "integer"));
     verifyDataRows(response, rows(4));
   }
 

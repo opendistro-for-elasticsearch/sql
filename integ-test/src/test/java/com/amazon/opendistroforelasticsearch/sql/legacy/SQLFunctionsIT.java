@@ -37,6 +37,7 @@ import static org.hamcrest.Matchers.hasValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 import java.util.Date;
@@ -52,6 +53,7 @@ import org.elasticsearch.search.SearchHits;
 import org.hamcrest.collection.IsMapContaining;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -370,8 +372,11 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         rows("2019-09-25T02:04:13.469Z"));
   }
 
+
   @Test
   public void castBoolFieldToNumericValueInSelectClause() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response =
         executeJdbcRequest(
             "SELECT "
@@ -392,13 +397,15 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         schema("cast_double", "double")
     );
     verifyDataRows(response,
-        rows(true, 1, 1, 1, 1),
-        rows(false, 0, 0, 0, 0)
+        rows(true, 1, 1, 1.0, 1.0),
+        rows(false, 0, 0, 0.0, 0.0)
     );
   }
 
   @Test
   public void castBoolFieldToNumericValueWithGroupByAlias() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response =
         executeJdbcRequest(
             "SELECT "
@@ -409,12 +416,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
 
     verifySchema(response,
-        schema("cast_int", "cast_int", "double"), //Type is double due to query plan fail to infer
+        schema("cast_int", "cast_int", "integer"),
         schema("COUNT(*)", "integer")
     );
     verifyDataRows(response,
-        rows("0", 3),
-        rows("1", 4)
+        rows(0, 3),
+        rows(1, 4)
     );
   }
 
