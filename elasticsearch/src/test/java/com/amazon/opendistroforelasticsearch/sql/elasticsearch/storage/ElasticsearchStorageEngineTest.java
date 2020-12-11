@@ -16,11 +16,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.TABLE_INFO;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.system.ElasticsearchSystemIndex;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,5 +41,13 @@ class ElasticsearchStorageEngineTest {
     ElasticsearchStorageEngine engine = new ElasticsearchStorageEngine(client, settings);
     Table table = engine.getTable("test");
     assertNotNull(table);
+  }
+
+  @Test
+  public void getSystemTable() {
+    ElasticsearchStorageEngine engine = new ElasticsearchStorageEngine(client, settings);
+    Table table = engine.getTable(TABLE_INFO);
+    assertNotNull(table);
+    assertTrue(table instanceof ElasticsearchSystemIndex);
   }
 }

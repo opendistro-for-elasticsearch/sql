@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient.META_CLUSTER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,14 +42,19 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.search.ClearScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.node.NodeClient;
+import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.cluster.ClusterState;
+import org.elasticsearch.cluster.metadata.AliasMetadata;
 import org.elasticsearch.cluster.metadata.IndexAbstraction;
 import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
@@ -87,6 +93,9 @@ class ElasticsearchNodeClientTest {
 
   @Mock
   private ThreadContext threadContext;
+
+  @Mock
+  private GetIndexResponse indexResponse;
 
   private ExprTupleValue exprTupleValue = ExprTupleValue.fromExprValueMap(ImmutableMap.of("id",
       new ExprIntegerValue(1)));
@@ -248,6 +257,39 @@ class ElasticsearchNodeClientTest {
     ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
     client.cleanup(request);
     verify(nodeClient, never()).prepareClearScroll();
+  }
+
+  @Test
+  void getIndices() {
+    AliasMetadata aliasMetadata = mock(AliasMetadata.class);
+    ImmutableOpenMap.Builder<String, List<AliasMetadata>> builder = ImmutableOpenMap.builder();
+    builder.fPut("index",Arrays.asList(aliasMetadata));
+    final ImmutableOpenMap<String, List<AliasMetadata>> openMap = builder.build();
+    when(aliasMetadata.alias()).thenReturn("index_alias");
+    when(nodeClient.admin().indices()
+        .prepareGetIndex()
+        .setLocal(true)
+        .get()).thenReturn(indexResponse);
+    when(indexResponse.getIndices()).thenReturn(new String[] {"index"});
+    when(indexResponse.aliases()).thenReturn(openMap);
+
+    ElasticsearchNodeClient client =
+        new ElasticsearchNodeClient(mock(ClusterService.class), nodeClient);
+    final List<String> indices = client.indices();
+    assertEquals(2, indices.size());
+  }
+
+  @Test
+  void meta() {
+    ClusterName clusterName = mock(ClusterName.class);
+    ClusterService mockService = mock(ClusterService.class);
+    when(clusterName.value()).thenReturn("cluster-name");
+    when(mockService.getClusterName()).thenReturn(clusterName);
+
+    ElasticsearchNodeClient client =
+        new ElasticsearchNodeClient(mockService, nodeClient);
+    final Map<String, String> meta = client.meta();
+    assertEquals("cluster-name", meta.get(META_CLUSTER_NAME));
   }
 
   private ElasticsearchNodeClient mockClient(String indexName, String mappings) {

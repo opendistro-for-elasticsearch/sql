@@ -20,16 +20,24 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapp
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.ThreadContext;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
+import org.elasticsearch.cluster.metadata.AliasMetadata;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.cluster.service.ClusterService;
@@ -92,13 +100,46 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
     }
   }
 
-  /** TODO: Scroll doesn't work for aggregation. Support aggregation later. */
+  /**
+   * TODO: Scroll doesn't work for aggregation. Support aggregation later.
+   */
   @Override
   public ElasticsearchResponse search(ElasticsearchRequest request) {
     return request.search(
         req -> client.search(req).actionGet(),
         req -> client.searchScroll(req).actionGet()
     );
+  }
+
+  /**
+   * Get the combination of the indices and the alias.
+   *
+   * @return the combination of the indices and the alias
+   */
+  @Override
+  public List<String> indices() {
+    final GetIndexResponse indexResponse = client.admin().indices()
+        .prepareGetIndex()
+        .setLocal(true)
+        .get();
+    final Stream<String> aliasStream =
+        ImmutableList.copyOf(indexResponse.aliases().valuesIt()).stream()
+            .flatMap(Collection::stream).map(AliasMetadata::alias);
+
+    return Stream.concat(Arrays.stream(indexResponse.getIndices()), aliasStream)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Get meta info of the cluster.
+   *
+   * @return meta info of the cluster.
+   */
+  @Override
+  public Map<String, String> meta() {
+    final ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+    builder.put(META_CLUSTER_NAME, clusterService.getClusterName().value());
+    return builder.build();
   }
 
   @Override

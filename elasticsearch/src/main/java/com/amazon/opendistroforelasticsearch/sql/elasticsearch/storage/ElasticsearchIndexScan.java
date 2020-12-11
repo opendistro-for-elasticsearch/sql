@@ -159,4 +159,8 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     return (current instanceof BoolQueryBuilder);
   }
 
+  @Override
+  public String explain() {
+    return getRequest().toString();
+  }
 }
