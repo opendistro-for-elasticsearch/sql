@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
@@ -180,6 +181,12 @@ public class QuerySpecification {
     @Override
     public Void visitSubqueryAsRelation(SubqueryAsRelationContext ctx) {
       // skip collecting subquery for current layer
+      return null;
+    }
+
+    @Override
+    public Void visitWindowFunction(WindowFunctionContext ctx) {
+      // skip collecting sort items in window functions
       return null;
     }
 
