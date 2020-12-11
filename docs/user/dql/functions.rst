@@ -25,8 +25,41 @@ CAST
 Description
 >>>>>>>>>>>
 
-Specification is undefined and type check is skipped for now
+Usage cast(expr as dateType) cast the expr to dataType. return the value has type of dataType. The following conversion rules are used:
 
+1. When converting a number to a boolean, 0 is false and every other value is true.
+2. When converting a boolean to a number, false is 0 and true is 1.
+
+Cast to string example::
+
+    od> SELECT cast(true as string) as cbool, cast(1 as string) as cint, cast(DATE '2012-08-07' as string) as cdate
+    fetched rows / total rows = 1/1
+    +---------+--------+------------+
+    | cbool   | cint   | cdate      |
+    |---------+--------+------------|
+    | true    | 1      | 2012-08-07 |
+    +---------+--------+------------+
+
+Cast to number example::
+
+    od> SELECT cast(true as int) as cbool, cast('1' as int) as cstring
+    fetched rows / total rows = 1/1
+    +---------+-----------+
+    | cbool   | cstring   |
+    |---------+-----------|
+    | 1       | 1         |
+    +---------+-----------+
+
+Cast to date example::
+
+    od> SELECT cast('2012-08-07' as date) as cdate, cast('01:01:01' as time) as ctime, cast('2012-08-07 01:01:01' as timestamp) as ctimestamp
+    fetched rows / total rows = 1/1
+    +------------+----------+---------------------+
+    | cdate      | ctime    | ctimestamp          |
+    |------------+----------+---------------------|
+    | 2012-08-07 | 01:01:01 | 2012-08-07 01:01:01 |
+    +------------+----------+---------------------+
+    
 
 Mathematical Functions
 ======================
