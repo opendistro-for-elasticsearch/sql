@@ -15,16 +15,39 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
+import com.google.common.base.Strings;
+import java.util.Locale;
+import java.util.Optional;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.json.JSONObject;
 
 @RequiredArgsConstructor
 public class PPLQueryRequest {
-  public static final PPLQueryRequest NULL = new PPLQueryRequest("", null, "");
+  public static final PPLQueryRequest NULL = new PPLQueryRequest("", null, "", "");
 
   private final String pplQuery;
   private final JSONObject jsonContent;
   private final String path;
+  private String format = "";
+
+  @Setter
+  @Getter
+  @Accessors(fluent = true)
+  private boolean sanitize = true;
+
+  /**
+   * Constructor of PPLQueryRequest.
+   */
+  public PPLQueryRequest(String pplQuery, JSONObject jsonContent, String path, String format) {
+    this.pplQuery = pplQuery;
+    this.jsonContent = jsonContent;
+    this.path = path;
+    this.format = format;
+  }
 
   public String getRequest() {
     return pplQuery;
@@ -36,6 +59,19 @@ public class PPLQueryRequest {
    */
   public boolean isExplainRequest() {
     return path.endsWith("/_explain");
+  }
+
+  /**
+   * Decide on the formatter by the requested format.
+   */
+  public Format format() {
+    Optional<Format> optionalFormat = Format.of(format);
+    if (optionalFormat.isPresent()) {
+      return optionalFormat.get();
+    } else {
+      throw new IllegalArgumentException(
+          String.format(Locale.ROOT,"response in %s format is not supported.", format));
+    }
   }
 
 }
