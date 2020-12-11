@@ -36,6 +36,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionRes
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
+import java.util.Date;
+
 import lombok.experimental.UtilityClass;
 
 /**
@@ -91,6 +93,12 @@ public class AggregatorFunction {
             .put(new FunctionSignature(functionName, Collections.singletonList(ARRAY)),
                 arguments -> new CountAggregator(arguments, INTEGER))
             .put(new FunctionSignature(functionName, Collections.singletonList(BOOLEAN)),
+                arguments -> new CountAggregator(arguments, INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DATE)),
+                arguments -> new CountAggregator(arguments, INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DATETIME)),
+                arguments -> new CountAggregator(arguments, INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(TIMESTAMP)),
                 arguments -> new CountAggregator(arguments, INTEGER))
             .build()
     );
