@@ -59,4 +59,10 @@ class ElasticsearchDescribeIndexRequestTest {
         hasEntry("TYPE_NAME", stringValue("STRING"))
     ));
   }
+
+  @Test
+  void testToString() {
+    assertEquals("ElasticsearchDescribeIndexRequest{indexName='index'}",
+        new ElasticsearchDescribeIndexRequest(client, "index").toString());
+  }
 }

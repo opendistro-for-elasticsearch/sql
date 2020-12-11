@@ -145,4 +145,11 @@ public class ElasticsearchDescribeIndexRequest implements ElasticsearchSystemReq
   private String clusterName(Map<String, String> meta) {
     return meta.getOrDefault(META_CLUSTER_NAME, DEFAULT_TABLE_CAT);
   }
+
+  @Override
+  public String toString() {
+    return "ElasticsearchDescribeIndexRequest{"
+        + "indexName='" + indexName + '\''
+        + '}';
+  }
 }

@@ -68,4 +68,9 @@ public class ElasticsearchCatIndicesRequest implements ElasticsearchSystemReques
   private String clusterName(Map<String, String> meta) {
     return meta.getOrDefault(META_CLUSTER_NAME, DEFAULT_TABLE_CAT);
   }
+
+  @Override
+  public String toString() {
+    return "ElasticsearchCatIndicesRequest{}";
+  }
 }

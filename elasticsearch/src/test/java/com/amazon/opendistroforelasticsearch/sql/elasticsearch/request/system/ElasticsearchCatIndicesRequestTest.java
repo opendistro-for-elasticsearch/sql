@@ -48,6 +48,11 @@ class ElasticsearchCatIndicesRequestTest {
     assertThat(results.get(0).tupleValue(), anyOf(
         hasEntry("TABLE_NAME", stringValue("index"))
     ));
+  }
 
+  @Test
+  void testToString() {
+    assertEquals("ElasticsearchCatIndicesRequest{}",
+        new ElasticsearchCatIndicesRequest(client).toString());
   }
 }

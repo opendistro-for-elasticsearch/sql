@@ -44,4 +44,12 @@ class ElasticsearchSystemIndexScanTest {
     assertTrue(systemIndexScan.hasNext());
     assertEquals(stringValue("text"), systemIndexScan.next());
   }
+
+  @Test
+  public void explain() {
+    when(request.toString()).thenReturn("request");
+    final ElasticsearchSystemIndexScan systemIndexScan = new ElasticsearchSystemIndexScan(request);
+
+    assertEquals("request", systemIndexScan.explain());
+  }
 }

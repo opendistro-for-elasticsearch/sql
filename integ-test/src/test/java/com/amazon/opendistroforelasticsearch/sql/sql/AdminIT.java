@@ -17,13 +17,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.assertJsonEquals;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
+import com.google.common.io.Resources;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.elasticsearch.client.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -66,7 +71,23 @@ public class AdminIT extends SQLIntegTestCase {
     assertThat(row.get(2), equalTo(alias));
   }
 
+  @Test
+  public void explainShow() throws Exception {
+    String expected = loadFromFile("expectedOutput/sql/explain_show.json");
+
+    final String actual = explainQuery("SHOW TABLES LIKE %");
+    assertJsonEquals(
+        expected,
+        explainQuery("SHOW TABLES LIKE %")
+    );
+  }
+
   private void addAlias(String index, String alias) throws IOException {
     client().performRequest(new Request("PUT", StringUtils.format("%s/_alias/%s", index, alias)));
+  }
+
+  private String loadFromFile(String filename) throws Exception {
+    URI uri = Resources.getResource(filename).toURI();
+    return new String(Files.readAllBytes(Paths.get(uri)));
   }
 }

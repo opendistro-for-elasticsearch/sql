@@ -56,4 +56,9 @@ public class ElasticsearchSystemIndexScan extends TableScanOperator {
   public ExprValue next() {
     return iterator.next();
   }
+
+  @Override
+  public String explain() {
+    return request.toString();
+  }
 }
