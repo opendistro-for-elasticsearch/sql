@@ -17,7 +17,6 @@
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
-import static org.hamcrest.Matchers.equalTo;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
@@ -45,16 +44,10 @@ public class MetricsIT extends SQLIntegTestCase {
   @Test
   public void requestCount() throws IOException, InterruptedException {
     int beforeQueries = requestTotal();
-    multiSuccessfulQueries(3);
+    executeQuery(String.format(Locale.ROOT, "select age from %s", TEST_INDEX_BANK));
     TimeUnit.SECONDS.sleep(2L);
 
-    assertThat(requestTotal(), equalTo(beforeQueries + 3));
-  }
-
-  private void multiSuccessfulQueries(int num) throws IOException {
-    for (int i = 0; i < num; ++i) {
-      executeQuery(String.format(Locale.ROOT, "select age from %s", TEST_INDEX_BANK));
-    }
+    assertEquals(beforeQueries + 1, requestTotal());
   }
 
   private Request makeStatRequest() {
