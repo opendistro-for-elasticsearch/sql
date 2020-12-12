@@ -154,8 +154,7 @@ public class RestSqlAction extends BaseRestHandler {
                     sqlRequest.getSql(), request.path(), request.params());
                 RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
                 if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
-                    LOG.info("[{}] Request {} is handled by new SQL query engine",
-                        LogUtils.getRequestId(), newSqlRequest);
+                    LOG.info("[{}] Request is handled by new SQL query engine", LogUtils.getRequestId());
                     return result;
                 }
                 LOG.debug("[{}] Request {} is not supported and falling back to old SQL engine",
