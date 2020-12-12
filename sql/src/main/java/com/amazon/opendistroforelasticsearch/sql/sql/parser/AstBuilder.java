@@ -34,6 +34,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Limit;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
@@ -111,7 +112,16 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       return project.attach(emptyValue);
     }
 
-    UnresolvedPlan result = project.attach(visit(queryContext.fromClause()));
+    // If limit (and offset) keyword exists:
+    // Add Limit node, plan structure becomes:
+    // Project -> Limit -> visit(fromClause)
+    // Else:
+    // Project -> visit(fromClause)
+    UnresolvedPlan from = visit(queryContext.fromClause());
+    if (queryContext.limitClause() != null) {
+      from = visit(queryContext.limitClause()).attach(from);
+    }
+    UnresolvedPlan result = project.attach(from);
     context.pop();
     return result;
   }
@@ -125,6 +135,14 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
     }
     ctx.selectElements().selectElement().forEach(field -> builder.add(visitSelectItem(field)));
     return new Project(builder.build());
+  }
+
+  @Override
+  public UnresolvedPlan visitLimitClause(OpenDistroSQLParser.LimitClauseContext ctx) {
+    return new Limit(
+        Integer.parseInt(ctx.limit.getText()),
+        ctx.offset == null ? 0 : Integer.parseInt(ctx.offset.getText())
+    );
   }
 
   @Override

@@ -29,6 +29,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.physical.Physica
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.head;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.remove;
@@ -241,6 +242,19 @@ class ExplainTest extends ExpressionTestBase {
                                     ImmutableMap.of("values", ImmutableList.of(values)),
                                     emptyList())))))))))))
         ),
+        explain.apply(plan)
+    );
+  }
+
+  @Test
+  void can_explain_limit() {
+    PhysicalPlan plan = limit(tableScan, 10, 5);
+    assertEquals(
+        new ExplainResponse(
+            new ExplainResponseNode(
+                "LimitOperator",
+                ImmutableMap.of("limit", 10, "offset", 5),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan)
     );
   }

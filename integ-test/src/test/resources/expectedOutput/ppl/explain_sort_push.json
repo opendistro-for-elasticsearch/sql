@@ -8,7 +8,7 @@
       {
         "name": "ElasticsearchIndexScan",
         "description": {
-          "request": "ElasticsearchQueryRequest(indexName\u003delasticsearch-sql_test_index_account, sourceBuilder\u003d{\"from\":0,\"size\":200,\"timeout\":\"1m\",\"query\":{\"range\":{\"age\":{\"from\":30,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}},\"sort\":[{\"age\":{\"order\":\"asc\",\"missing\":\"_first\"}}]}, searchDone\u003dfalse)"
+          "request": "ElasticsearchQueryRequest(indexName\u003delasticsearch-sql_test_index_account, sourceBuilder\u003d{\"from\":0,\"size\":10000,\"timeout\":\"1m\",\"query\":{\"range\":{\"age\":{\"from\":30,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}},\"sort\":[{\"age\":{\"order\":\"asc\",\"missing\":\"_first\"}}]}, searchDone\u003dfalse)"
         },
         "children": []
       }
