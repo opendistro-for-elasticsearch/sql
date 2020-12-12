@@ -89,6 +89,7 @@ compatibleID
 querySpecification
     : selectClause
       fromClause?
+      limitClause?
     ;
 
 selectClause
@@ -146,6 +147,11 @@ orderByClause
 
 orderByElement
     : expression order=(ASC | DESC)? (NULLS (FIRST | LAST))?
+    ;
+
+limitClause
+    : LIMIT (offset=decimalLiteral COMMA)? limit=decimalLiteral
+    | LIMIT limit=decimalLiteral OFFSET offset=decimalLiteral
     ;
 
 //  Window Function's Details

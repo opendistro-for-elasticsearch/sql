@@ -120,6 +120,10 @@ public class ElasticsearchIndex implements Table {
         QueryBuilder query = queryBuilder.build(node.getFilter());
         context.pushDown(query);
       }
+
+      if (node.getLimit() != null) {
+        context.pushDownLimit(node.getLimit(), node.getOffset());
+      }
       return indexScan;
     }
 

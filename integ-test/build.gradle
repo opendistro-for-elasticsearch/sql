@@ -80,6 +80,9 @@ integTest {
     systemProperty "user", System.getProperty("user")
     systemProperty "password", System.getProperty("password")
 
+    // Set default query size limit
+    systemProperty 'defaultQuerySizeLimit', '10000'
+
     // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
     // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
     doFirst { systemProperty 'cluster.debug', getDebug()}
@@ -107,6 +110,9 @@ task integTestWithNewEngine(type: RestIntegTestTask) {
 
     // Enable new SQL engine
     systemProperty 'enableNewEngine', 'true'
+
+    // Set default query size limit
+    systemProperty 'defaultQuerySizeLimit', '10000'
 
     // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
     // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.

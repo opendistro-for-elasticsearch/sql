@@ -27,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
@@ -56,13 +57,16 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
@@ -340,5 +344,73 @@ class ElasticsearchIndexTest {
 
     assertTrue(plan instanceof ProjectOperator);
     assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldImplIndexScanWithLimit() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName,
+                1, 1
+            ),
+            named));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldImplIndexScanWithSortAndLimit() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+    Expression sortExpr = ref("name", STRING);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName,
+                sortExpr,
+                1, 1
+            ),
+            named));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldNotPushDownLimitFarFromRelationButUpdateScanSize() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(index.optimize(
+        project(
+            limit(
+                sort(
+                    relation("test"),
+                    Pair.of(Sort.SortOption.DEFAULT_ASC,
+                        dsl.abs(named("intV", ref("intV", INTEGER))))
+                ),
+                300, 1
+            ),
+            named("intV", ref("intV", INTEGER))
+        )
+    ));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof LimitOperator);
   }
 }

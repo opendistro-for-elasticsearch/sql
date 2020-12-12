@@ -84,8 +84,9 @@ public class RestSQLQueryActionTest {
   @Test
   public void skipQueryThatNotSupport() {
     SQLQueryRequest request = new SQLQueryRequest(
-        new JSONObject("{\"query\": \"SELECT * FROM test WHERE age = 10 GROUP BY age LIMIT 10\"}"),
-        "SELECT * FROM test WHERE age = 10 GROUP BY age LIMIT 10",
+        new JSONObject(
+            "{\"query\": \"SELECT name FROM test1 JOIN test2 ON test1.name = test2.name\"}"),
+        "SELECT name FROM test1 JOIN test2 ON test1.name = test2.name",
         QUERY_API_ENDPOINT,
         "");
 

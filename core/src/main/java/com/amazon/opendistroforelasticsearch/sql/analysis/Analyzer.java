@@ -36,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Limit;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -59,6 +60,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
@@ -134,6 +136,12 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     // when analyzing qualified name in the subquery layer
     curEnv.define(new Symbol(Namespace.INDEX_NAME, node.getAliasAsTableName()), STRUCT);
     return subquery;
+  }
+
+  @Override
+  public LogicalPlan visitLimit(Limit node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    return new LogicalLimit(child, node.getLimit(), node.getOffset());
   }
 
   @Override
