@@ -76,7 +76,7 @@ class WindowExpressionAnalyzerTest extends AnalyzerTestBase {
                     AstDSL.function("row_number"),
                     ImmutableList.of(AstDSL.qualifiedName("string_value")),
                     ImmutableList.of(
-                        ImmutablePair.of("DESC", AstDSL.qualifiedName("integer_value"))))),
+                        ImmutablePair.of(DEFAULT_DESC, AstDSL.qualifiedName("integer_value"))))),
             analysisContext));
   }
 

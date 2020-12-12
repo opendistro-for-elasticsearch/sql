@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.createSortOption;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
@@ -29,9 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
@@ -48,9 +47,7 @@ import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
  * Query specification domain that collects basic info for a simple query.
@@ -222,10 +219,7 @@ public class QuerySpecification {
     @Override
     public Void visitOrderByElement(OrderByElementContext ctx) {
       orderByItems.add(visitAstExpression(ctx.expression()));
-      orderByOptions.add(
-          new SortOption(
-              visitSortOrder(ctx.order),
-              visitNullOrderClause(ctx.FIRST(), ctx.LAST())));
+      orderByOptions.add(createSortOption(ctx));
       return super.visitOrderByElement(ctx);
     }
 
@@ -237,23 +231,6 @@ public class QuerySpecification {
 
     private boolean isDistinct(SelectSpecContext ctx) {
       return (ctx != null) && (ctx.DISTINCT() != null);
-    }
-
-    private SortOrder visitSortOrder(Token ctx) {
-      if (ctx == null) {
-        return null;
-      }
-      return SortOrder.valueOf(ctx.getText().toUpperCase());
-    }
-
-    private NullOrder visitNullOrderClause(TerminalNode first, TerminalNode last) {
-      if (first != null) {
-        return NullOrder.NULL_FIRST;
-      } else if (last != null) {
-        return NullOrder.NULL_LAST;
-      } else {
-        return null;
-      }
     }
 
     private UnresolvedExpression visitAstExpression(ParseTree tree) {

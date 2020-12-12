@@ -16,9 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_DESC;
-
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -94,13 +91,9 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
     return node.getSortList()
                .stream()
                .map(pair -> ImmutablePair
-                   .of(getSortOption(pair.getLeft()),
+                   .of(pair.getLeft(),
                        expressionAnalyzer.analyze(pair.getRight(), context)))
                .collect(Collectors.toList());
-  }
-
-  private SortOption getSortOption(String option) {
-    return "ASC".equalsIgnoreCase(option) ? DEFAULT_ASC : DEFAULT_DESC;
   }
 
 }
