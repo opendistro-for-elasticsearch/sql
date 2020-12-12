@@ -146,10 +146,6 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     }
     if (expr instanceof Function) {
       List<? extends Node> children = expr.getChild();
-      // The base case for functions without input. e.g. PI(), NOW(), etc.
-      if (children.isEmpty()) {
-        return false;
-      }
       return children.stream().anyMatch(child ->
               isNonLiteralFunction((UnresolvedExpression) child));
     }
