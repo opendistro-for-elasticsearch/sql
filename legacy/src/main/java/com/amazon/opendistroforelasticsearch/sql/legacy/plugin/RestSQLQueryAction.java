@@ -112,6 +112,10 @@ public class RestSQLQueryAction extends BaseRestHandler {
                 sqlService.analyze(
                     sqlService.parse(request.getQuery())));
     } catch (SyntaxCheckException e) {
+      // When explain, print info log for what unsupported syntax is causing fallback to old engine
+      if (request.isExplainRequest()) {
+        LOG.info("Request is falling back to old SQL engine due to: " + e.getMessage());
+      }
       return NOT_SUPPORTED_YET;
     }
 

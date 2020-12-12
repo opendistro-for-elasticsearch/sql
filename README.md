@@ -44,6 +44,8 @@ Here is a documentation list with features only available in this improved SQL q
     * Improvement on Subqueries in FROM clause
 * [Window functions](./docs/user/dql/window.rst): ranking window function support
 
+To avoid impact on your side, normally you won't see any difference in query response. If you want to check if and why your query falls back to be handled by old SQL engine, please explain your query and check Elasticsearch log for "Request is falling back to old SQL engine due to ...".
+
 
 ## Setup
 
