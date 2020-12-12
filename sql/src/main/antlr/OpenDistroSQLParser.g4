@@ -276,6 +276,7 @@ convertedDataType
     | typeName=LONG
     | typeName=FLOAT
     | typeName=STRING
+    | typeName=BOOLEAN
     ;
 
 caseFuncAlternative

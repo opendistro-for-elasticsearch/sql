@@ -27,8 +27,23 @@ Description
 
 Usage cast(expr as dateType) cast the expr to dataType. return the value has type of dataType. The following conversion rules are used:
 
-1. When converting a number to a boolean, 0 is false and every other value is true.
-2. When converting a boolean to a number, false is 0 and true is 1.
++------------+--------+--------+---------+-------------+--------+--------+
+| Src/Target | STRING | NUMBER | BOOLEAN | TIMESTAMP   | DATE   | TIME   |
++------------+--------+--------+---------+-------------+--------+--------+
+| STRING     |        | Note1  | Note1   | TIMESTAMP() | DATE() | TIME() |
++------------+--------+--------+---------+-------------+--------+--------+
+| NUMBER     | Note1  |        | v!=0    | N/A         | N/A    | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| BOOLEAN    | Note1  | v?1:0  |         | N/A         | N/A    | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| TIMESTAMP  | Note1  | N/A    | N/A     |             | DATE() | TIME() |
++------------+--------+--------+---------+-------------+--------+--------+
+| DATE       | Note1  | N/A    | N/A     | N/A         |        | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| TIME       | Note1  | N/A    | N/A     | N/A         | N/A    |        |
++------------+--------+--------+---------+-------------+--------+--------+
+
+Note1: the conversion follow the JDK specification.
 
 Cast to string example::
 
@@ -59,7 +74,17 @@ Cast to date example::
     |------------+----------+---------------------|
     | 2012-08-07 | 01:01:01 | 2012-08-07 01:01:01 |
     +------------+----------+---------------------+
-    
+
+Cast function can be chained::
+
+    od> SELECT cast(cast(true as string) as boolean) as cbool
+    fetched rows / total rows = 1/1
+    +---------+
+    | cbool   |
+    |---------|
+    | True    |
+    +---------+
+
 
 Mathematical Functions
 ======================
