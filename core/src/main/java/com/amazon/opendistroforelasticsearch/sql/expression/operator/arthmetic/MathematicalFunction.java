@@ -422,7 +422,8 @@ public class MathematicalFunction {
             DOUBLE, FLOAT),
         FunctionDSL.impl(
             FunctionDSL.nullMissingHandling(
-                v -> new ExprDoubleValue((double) Math.round(v.doubleValue()))),
+                v -> new ExprDoubleValue(new BigDecimal(v.doubleValue()).setScale(0,
+                    RoundingMode.HALF_UP).doubleValue())),
             DOUBLE, DOUBLE),
 
         // rand(x, d)

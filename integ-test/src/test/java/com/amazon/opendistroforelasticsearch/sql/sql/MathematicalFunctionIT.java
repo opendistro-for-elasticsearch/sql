@@ -101,6 +101,14 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select round(-56, -1)");
     verifySchema(result, schema("round(-56, -1)", null, "long"));
     verifyDataRows(result, rows(-60));
+
+    result = executeQuery("select round(3.5)");
+    verifySchema(result, schema("round(3.5)", null, "double"));
+    verifyDataRows(result, rows(4.0));
+
+    result = executeQuery("select round(-3.5)");
+    verifySchema(result, schema("round(-3.5)", null, "double"));
+    verifyDataRows(result, rows(-4.0));
   }
 
   /**

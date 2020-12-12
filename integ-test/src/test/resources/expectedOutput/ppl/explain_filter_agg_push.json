@@ -2,7 +2,7 @@
   "root": {
     "name": "ProjectOperator",
     "description": {
-      "fields": "[avg_age, city, state]"
+      "fields": "[avg_age, state, city]"
     },
     "children": [
       {

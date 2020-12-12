@@ -39,7 +39,7 @@ root
 
 //    Only SELECT
 sqlStatement
-    : dmlStatement
+    : dmlStatement | adminStatement
     ;
 
 dmlStatement
@@ -55,6 +55,34 @@ selectStatement
     : querySpecification                                 #simpleSelect
     ;
 
+adminStatement
+    : showStatement
+    | describeStatement
+    ;
+
+showStatement
+    : SHOW TABLES tableFilter?
+    ;
+
+describeStatement
+    : DESCRIBE TABLES tableFilter columnFilter?
+    ;
+
+columnFilter
+    : COLUMNS LIKE showDescribePattern
+    ;
+
+tableFilter
+    : LIKE showDescribePattern
+    ;
+
+showDescribePattern
+    : oldID=compatibleID | stringLiteral
+    ;
+
+compatibleID
+    : (MODULE | ID)+?
+    ;
 
 //    Select Statement's Details
 

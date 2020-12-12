@@ -98,7 +98,7 @@ class ExplainTest extends ExpressionTestBase {
                 singletonList(new ExplainResponseNode(
                     "FilterOperator",
                     ImmutableMap.of("conditions", "and(=(balance, 10000), >(age, 30))"),
-                    singletonList(tableScan.explain()))))),
+                    singletonList(tableScan.explainNode()))))),
         explain.apply(plan));
   }
 
@@ -118,7 +118,7 @@ class ExplainTest extends ExpressionTestBase {
                 ImmutableMap.of(
                     "aggregators", "[avg(balance)]",
                     "groupBy", "[state]"),
-                singletonList(tableScan.explain()))),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan));
   }
 
@@ -136,7 +136,7 @@ class ExplainTest extends ExpressionTestBase {
                     "noOfResults", 10,
                     "fields", "[state]",
                     "groupBy", "[]"),
-                singletonList(tableScan.explain()))),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan));
   }
 
@@ -158,7 +158,7 @@ class ExplainTest extends ExpressionTestBase {
                     "keepLast", false,
                     "whileExpr", "and(=(balance, 10000), >(age, 30))",
                     "number", 5),
-                singletonList(tableScan.explain()))),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan));
   }
 
@@ -183,7 +183,7 @@ class ExplainTest extends ExpressionTestBase {
                             "age", ImmutableMap.of(
                                 "sortOrder", "ASC",
                                 "nullOrder", "NULL_FIRST")))),
-                singletonList(tableScan.explain()))),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan));
   }
 
@@ -276,11 +276,15 @@ class ExplainTest extends ExpressionTestBase {
     }
 
     /** Used to ignore table scan which is duplicate but required for each operator test. */
-    public ExplainResponseNode explain() {
+    public ExplainResponseNode explainNode() {
       return new ExplainResponseNode(
           "FakeTableScan",
           ImmutableMap.of("request", "Fake DSL request"),
           emptyList());
+    }
+
+    public String explain() {
+      return "explain";
     }
   }
 

@@ -16,12 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
-import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
-import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
-
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
@@ -78,17 +72,7 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
    * Return old type name to avoid breaking impact on client-side.
    */
   private String convertToLegacyType(ExprType type) {
-    if (type == ES_TEXT || type == ES_TEXT_KEYWORD) {
-      return "text";
-    } else if (type == STRING) {
-      return "keyword";
-    } else if (type == STRUCT) {
-      return "object";
-    } else if (type == ARRAY) {
-      return "nested";
-    } else {
-      return type.typeName().toLowerCase();
-    }
+    return type.legacyTypeName().toLowerCase();
   }
 
   private Object[][] fetchDataRows(QueryResult response) {

@@ -2,7 +2,7 @@
   "root": {
     "name": "ProjectOperator",
     "description": {
-      "fields": "[account_number, firstname, address, balance, gender, city, employer, state, age, email, lastname]"
+      "fields": "[account_number, firstname, address, gender, city, lastname, balance, employer, state, age, email]"
     },
     "children": [
       {

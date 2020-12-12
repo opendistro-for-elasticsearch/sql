@@ -391,7 +391,7 @@ class AnalyzerTest extends AnalyzerTestBase {
   /**
    * SELECT name FROM (
    *   SELECT name, age FROM test
-   * ) AS a.
+   * ) AS schema.
    */
   @Test
   public void from_subquery() {
@@ -414,6 +414,33 @@ class AnalyzerTest extends AnalyzerTestBase {
                 "schema"
             ),
             AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+        )
+    );
+  }
+
+  /**
+   * SELECT * FROM (
+   *   SELECT name FROM test
+   * ) AS schema.
+   */
+  @Test
+  public void select_all_from_subquery() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.project(
+                LogicalPlanDSL.relation("schema"),
+                DSL.named("string_value", DSL.ref("string_value", STRING))),
+            DSL.named("string_value", DSL.ref("string_value", STRING))
+        ),
+        AstDSL.project(
+            AstDSL.relationSubquery(
+                AstDSL.project(
+                    AstDSL.relation("schema"),
+                    AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+                ),
+                "schema"
+            ),
+            AstDSL.allFields()
         )
     );
   }

@@ -15,7 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin.request;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_RESPONSE_FORMAT;
+
+import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
+import java.util.Map;
+import java.util.Optional;
 import org.elasticsearch.rest.RestRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +32,8 @@ import org.json.JSONObject;
 public class PPLQueryRequestFactory {
   private static final String PPL_URL_PARAM_KEY = "ppl";
   private static final String PPL_FIELD_NAME = "query";
+  private static final String QUERY_PARAMS_FORMAT = "format";
+  private static final String QUERY_PARAMS_SANITIZE = "sanitize";
 
   /**
    * Build {@link PPLQueryRequest} from {@link RestRequest}.
@@ -57,12 +65,42 @@ public class PPLQueryRequestFactory {
   private static PPLQueryRequest parsePPLRequestFromPayload(RestRequest restRequest) {
     String content = restRequest.content().utf8ToString();
     JSONObject jsonContent;
+    Format format = getFormat(restRequest.params());
     try {
       jsonContent = new JSONObject(content);
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse request payload", e);
     }
-    return new PPLQueryRequest(jsonContent.getString(PPL_FIELD_NAME),
-        jsonContent, restRequest.path());
+    PPLQueryRequest pplRequest = new PPLQueryRequest(jsonContent.getString(PPL_FIELD_NAME),
+        jsonContent, restRequest.path(), format.getFormatName());
+    // set sanitize option if csv format
+    if (format.equals(Format.CSV)) {
+      pplRequest.sanitize(getSanitizeOption(restRequest.params()));
+    }
+    return pplRequest;
+  }
+
+  private static Format getFormat(Map<String, String> requestParams) {
+    String formatName;
+    if (requestParams.containsKey(QUERY_PARAMS_FORMAT)) {
+      formatName = requestParams.get(QUERY_PARAMS_FORMAT).toLowerCase();
+    } else {
+      LocalClusterState clusterState = LocalClusterState.state();
+      formatName = clusterState.getSettingValue(QUERY_RESPONSE_FORMAT);
+    }
+    Optional<Format> optionalFormat = Format.of(formatName);
+    if (optionalFormat.isPresent()) {
+      return optionalFormat.get();
+    } else {
+      throw new IllegalArgumentException(
+          "Failed to create executor due to unknown response format: " + formatName);
+    }
+  }
+
+  private static boolean getSanitizeOption(Map<String, String> requestParams) {
+    if (requestParams.containsKey(QUERY_PARAMS_SANITIZE)) {
+      return Boolean.parseBoolean(requestParams.get(QUERY_PARAMS_SANITIZE));
+    }
+    return true;
   }
 }
