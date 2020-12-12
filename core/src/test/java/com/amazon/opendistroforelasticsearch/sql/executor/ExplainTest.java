@@ -254,7 +254,7 @@ class ExplainTest extends ExpressionTestBase {
             new ExplainResponseNode(
                 "LimitOperator",
                 ImmutableMap.of("limit", 10, "offset", 5),
-                singletonList(tableScan.explain()))),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan)
     );
   }

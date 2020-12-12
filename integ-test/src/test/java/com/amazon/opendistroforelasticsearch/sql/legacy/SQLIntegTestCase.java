@@ -79,7 +79,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
   public static final String PERSISTENT = "persistent";
   public static final String TRANSIENT = "transient";
   public static final Integer DEFAULT_QUERY_SIZE_LIMIT =
-      Integer.parseInt(System.getProperty("defaultQuerySizeLimit", "false"));
+      Integer.parseInt(System.getProperty("defaultQuerySizeLimit", "200"));
 
   @Before
   public void setUpIndices() throws Exception {
@@ -152,6 +152,10 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     if (isEnabled) {
       com.amazon.opendistroforelasticsearch.sql.util.TestUtils.enableNewQueryEngine(client());
     }
+  }
+
+  protected boolean isNewQueryEngineEabled() {
+    return Boolean.parseBoolean(System.getProperty("enableNewEngine", "false"));
   }
 
   protected void setQuerySizeLimit(Integer limit) throws IOException {

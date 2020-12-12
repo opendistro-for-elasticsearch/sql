@@ -20,7 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
 import org.json.JSONObject;
-import org.junit.Ignore;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class TypeInformationIT extends SQLIntegTestCase {
@@ -43,9 +43,9 @@ public class TypeInformationIT extends SQLIntegTestCase {
     verifySchema(response, schema("ABS(age)", null, "long"));
   }
 
-  @Ignore
   @Test
   public void testCeilWithLongFieldReturnsLong() {
+    Assume.assumeFalse(isNewQueryEngineEabled());
     JSONObject response =
         executeJdbcRequest("SELECT CEIL(balance) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
             " ORDER BY balance LIMIT 5");
@@ -67,18 +67,18 @@ public class TypeInformationIT extends SQLIntegTestCase {
   /*
   stringOperators
    */
-  @Ignore("skip this test due to inconsistency in jdbc schema between old and new engines")
   @Test
   public void testUpperWithStringFieldReturnsString() {
+    Assume.assumeFalse(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest("SELECT UPPER(firstname) AS firstname_alias FROM " +
         TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname_alias LIMIT 2");
 
     verifySchema(response, schema("firstname_alias", null, "text"));
   }
 
-  @Ignore("skip this test due to inconsistency in jdbc schema between old and new engines")
   @Test
   public void testLowerWithTextFieldReturnsText() {
+    Assume.assumeFalse(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest("SELECT LOWER(firstname) FROM " +
         TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
@@ -127,18 +127,18 @@ public class TypeInformationIT extends SQLIntegTestCase {
   /*
   binaryOperators
    */
-  @Ignore("skip this test due to inconsistency in jdbc schema between old and new engines")
   @Test
   public void testAddWithIntReturnsInt() {
+    Assume.assumeFalse(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest("SELECT (balance + 5) AS balance_add_five FROM " +
         TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
     verifySchema(response, schema("balance_add_five", null, "integer"));
   }
 
-  @Ignore
   @Test
   public void testSubtractLongWithLongReturnsLong() {
+    Assume.assumeFalse(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest("SELECT (balance - balance) FROM " +
         TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 

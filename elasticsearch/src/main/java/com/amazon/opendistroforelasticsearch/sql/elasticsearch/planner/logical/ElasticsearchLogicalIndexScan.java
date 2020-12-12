@@ -91,4 +91,8 @@ public class ElasticsearchLogicalIndexScan extends LogicalPlan {
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
     return visitor.visitNode(this, context);
   }
+
+  public boolean hasLimit() {
+    return limit != null;
+  }
 }
