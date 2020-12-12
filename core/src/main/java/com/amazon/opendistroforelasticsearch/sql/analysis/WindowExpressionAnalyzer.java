@@ -16,6 +16,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_DESC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
+
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -74,7 +79,7 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
     WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
 
     return new LogicalWindow(
-        new LogicalSort(child,windowDefinition.getAllSortItems()),
+        new LogicalSort(child, windowDefinition.getAllSortItems()),
         windowFunction,
         windowDefinition);
   }
@@ -91,9 +96,22 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
     return node.getSortList()
                .stream()
                .map(pair -> ImmutablePair
-                   .of(pair.getLeft(),
+                   .of(analyzeSortOption(pair.getLeft()),
                        expressionAnalyzer.analyze(pair.getRight(), context)))
                .collect(Collectors.toList());
+  }
+
+  /**
+   * Frontend creates sort option from query directly which means sort or null order may be null.
+   * The final and default value for each is determined here during expression analysis.
+   */
+  private SortOption analyzeSortOption(SortOption option) {
+    if (option.getNullOrder() == null) {
+      return (option.getSortOrder() == DESC) ? DEFAULT_DESC : DEFAULT_ASC;
+    }
+    return new SortOption(
+        (option.getSortOrder() == DESC) ? DESC : ASC,
+        option.getNullOrder());
   }
 
 }
