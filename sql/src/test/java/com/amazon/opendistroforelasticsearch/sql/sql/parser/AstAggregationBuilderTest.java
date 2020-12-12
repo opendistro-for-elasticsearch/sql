@@ -114,7 +114,21 @@ class AstAggregationBuilderTest {
                 alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
 
     assertThat(
+            buildAggregation("SELECT PI() FROM test HAVING AVG(age) > 30"),
+            allOf(
+                    hasGroupByItems(),
+                    hasAggregators(
+                            alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
+
+    assertThat(
             buildAggregation("SELECT ABS(1.5) FROM test HAVING AVG(age) > 30"),
+            allOf(
+                    hasGroupByItems(),
+                    hasAggregators(
+                            alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
+
+    assertThat(
+            buildAggregation("SELECT ABS(ABS(1.5)) FROM test HAVING AVG(age) > 30"),
             allOf(
                     hasGroupByItems(),
                     hasAggregators(

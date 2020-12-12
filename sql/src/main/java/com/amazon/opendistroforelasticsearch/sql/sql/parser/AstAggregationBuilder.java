@@ -140,10 +140,18 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
   }
 
   private boolean isNonLiteralFunction(UnresolvedExpression expr) {
+    // The base case for recursion
+    if (expr instanceof Literal) {
+      return false;
+    }
     if (expr instanceof Function) {
       List<? extends Node> children = expr.getChild();
-      return children.stream()
-              .allMatch(child -> isNonLiteral((UnresolvedExpression) child));
+      // The base case for functions without input. e.g. PI(), NOW(), etc.
+      if (children.isEmpty()) {
+        return false;
+      }
+      return children.stream().anyMatch(child ->
+              isNonLiteralFunction((UnresolvedExpression) child));
     }
     return true;
   }
