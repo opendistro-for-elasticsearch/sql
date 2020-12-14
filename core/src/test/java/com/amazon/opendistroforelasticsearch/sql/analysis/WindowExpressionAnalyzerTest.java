@@ -108,8 +108,11 @@ class WindowExpressionAnalyzerTest extends AnalyzerTestBase {
             .put(new SortOption(null, null), DEFAULT_ASC)
             .put(new SortOption(ASC, null), DEFAULT_ASC)
             .put(new SortOption(DESC, null), DEFAULT_DESC)
+            .put(new SortOption(null, NULL_FIRST), DEFAULT_ASC)
             .put(new SortOption(null, NULL_LAST), new SortOption(ASC, NULL_LAST))
+            .put(new SortOption(ASC, NULL_FIRST), DEFAULT_ASC)
             .put(new SortOption(DESC, NULL_FIRST), new SortOption(DESC, NULL_FIRST))
+            .put(new SortOption(DESC, NULL_LAST), DEFAULT_DESC)
             .build();
 
     expects.forEach((option, expect) -> {
