@@ -198,16 +198,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
   }
 
   private static void logAndPublishMetrics(Exception e) {
-    if (isServerError(e)) {
-      LOG.error(LogUtils.getRequestId() + " Server side error during query execution", e);
-      Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-    } else {
-      LOG.error(LogUtils.getRequestId() + " Client side error during query execution", e);
-      Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
-    }
-  }
-
-  private static boolean isServerError(Exception e) {
-    return e instanceof QueryEngineException;
+    LOG.error(LogUtils.getRequestId() + " Server side error during query execution", e);
+    Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
   }
 }
