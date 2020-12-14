@@ -10,3 +10,6 @@ CASE ABS(-3) WHEN 1 THEN 'Absolute one' WHEN 2 THEN 'Absolute two' ELSE TRIM(' O
 CASE WHEN TRIM('test ') = TRIM(' test') THEN 'Test' END AS cases
 CASE WHEN 'test' = 'hello world' THEN 'Hello' WHEN ABS(1.0) = ABS(-1.0) THEN 'One' END AS cases
 CASE WHEN 'test' = 'hello world' THEN 'Hello' WHEN 1.0 = 2.0 THEN 'One' ELSE TRIM(' Others ') END AS cases
+CASE 1 WHEN 1 THEN 'One' ELSE NULL END AS cases
+CASE 1 WHEN 1 THEN 'One' WHEN 2 THEN 'Two' ELSE NULL END AS cases
+CASE 2 WHEN 1 THEN NULL WHEN 2 THEN 'Two' ELSE NULL END AS cases

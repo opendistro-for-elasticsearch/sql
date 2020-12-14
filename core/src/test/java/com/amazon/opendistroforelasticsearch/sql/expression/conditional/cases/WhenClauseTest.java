@@ -17,18 +17,45 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@ExtendWith(MockitoExtension.class)
 class WhenClauseTest extends ExpressionTestBase {
+
+  @Test
+  void should_not_match_if_condition_evaluated_to_null() {
+    Expression condition = mock(Expression.class);
+    when(condition.valueOf(any())).thenReturn(ExprValueUtils.nullValue());
+
+    WhenClause whenClause = new WhenClause(condition, DSL.literal(30));
+    assertFalse(whenClause.isTrue(valueEnv()));
+  }
+
+  @Test
+  void should_not_match_if_condition_evaluated_to_missing() {
+    Expression condition = mock(Expression.class);
+    when(condition.valueOf(any())).thenReturn(ExprValueUtils.missingValue());
+
+    WhenClause whenClause = new WhenClause(condition, DSL.literal(30));
+    assertFalse(whenClause.isTrue(valueEnv()));
+  }
 
   @Test
   void should_match_and_return_result_if_condition_is_true() {

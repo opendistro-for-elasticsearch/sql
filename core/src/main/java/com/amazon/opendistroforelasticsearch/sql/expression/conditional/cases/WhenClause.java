@@ -20,20 +20,21 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
  * WHEN clause that consists of a condition and a result corresponding.
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Getter
-@RequiredArgsConstructor
 @ToString
-public class WhenClause implements Expression {
+public class WhenClause extends FunctionExpression {
 
   /**
    * Condition that must be a predicate.
@@ -45,8 +46,26 @@ public class WhenClause implements Expression {
    */
   private final Expression result;
 
+  /**
+   * Initialize when clause.
+   */
+  public WhenClause(Expression condition, Expression result) {
+    super(FunctionName.of("when"), ImmutableList.of(condition, result));
+    this.condition = condition;
+    this.result = result;
+  }
+
+  /**
+   * Evaluate when condition.
+   * @param valueEnv  value env
+   * @return          is condition satisfied
+   */
   public boolean isTrue(Environment<Expression, ExprValue> valueEnv) {
-    return condition.valueOf(valueEnv).booleanValue();
+    ExprValue result = condition.valueOf(valueEnv);
+    if (result.isMissing() || result.isNull()) {
+      return false;
+    }
+    return result.booleanValue();
   }
 
   @Override

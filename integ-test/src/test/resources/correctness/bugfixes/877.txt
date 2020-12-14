@@ -1,0 +1,7 @@
+SELECT FlightNum FROM kibana_sample_data_flights WHERE FlightDelayMin >= CASE WHEN FlightDelay = true THEN 200 END
+SELECT FlightNum FROM kibana_sample_data_flights WHERE FlightDelayMin >= CASE WHEN FlightDelay = true THEN 200 ELSE 0 END
+SELECT FlightNum FROM kibana_sample_data_flights WHERE FlightDelayMin >= CASE FlightDelay WHEN true THEN 200 END
+SELECT FlightNum FROM kibana_sample_data_flights WHERE FlightDelayMin >= CASE FlightDelay WHEN true THEN 200 ELSE 0 END
+SELECT CASE WHEN FlightDelay = true THEN 1 ELSE 0 END AS bool, MAX(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY CASE WHEN FlightDelay = true THEN 1 ELSE 0 END
+SELECT CASE FlightDelay WHEN true THEN 1 WHEN false THEN 0 END AS bool, MAX(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY CASE FlightDelay WHEN true THEN 1 WHEN false THEN 0 END
+SELECT CASE WHEN FlightDelay = true THEN 'delayed' ELSE NULL END AS delay, MAX(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY CASE WHEN FlightDelay = true THEN 'delayed' ELSE NULL END
