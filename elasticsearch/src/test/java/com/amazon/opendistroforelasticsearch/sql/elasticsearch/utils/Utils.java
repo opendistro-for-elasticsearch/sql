@@ -65,6 +65,44 @@ public class Utils {
   }
 
   /**
+   * Build ElasticsearchLogicalIndexScan.
+   */
+  public static LogicalPlan indexScan(String tableName, Integer offset, Integer limit) {
+    return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
+        .offset(offset)
+        .limit(limit)
+        .build();
+  }
+
+  /**
+   * Build ElasticsearchLogicalIndexScan.
+   */
+  public static LogicalPlan indexScan(String tableName,
+                                      Expression filter,
+                                      Integer offset, Integer limit) {
+    return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
+        .filter(filter)
+        .offset(offset)
+        .limit(limit)
+        .build();
+  }
+
+  /**
+   * Build ElasticsearchLogicalIndexScan.
+   */
+  public static LogicalPlan indexScan(String tableName,
+                                      Expression filter,
+                                      Integer offset, Integer limit,
+                                      Pair<Sort.SortOption, Expression>... sorts) {
+    return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
+        .filter(filter)
+        .sortList(Arrays.asList(sorts))
+        .offset(offset)
+        .limit(limit)
+        .build();
+  }
+
+  /**
    * Build ElasticsearchLogicalIndexAgg.
    */
   public static LogicalPlan indexScanAgg(String tableName, List<NamedAggregator> aggregators,

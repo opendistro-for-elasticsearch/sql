@@ -90,6 +90,29 @@ class SQLServiceTest {
   }
 
   @Test
+  public void canExecuteCsvFormatRequest() {
+    doAnswer(invocation -> {
+      ResponseListener<QueryResponse> listener = invocation.getArgument(1);
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList()));
+      return null;
+    }).when(executionEngine).execute(any(), any());
+
+    sqlService.execute(
+        new SQLQueryRequest(new JSONObject(), "SELECT 123", "_opendistro/_sql", "csv"),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse response) {
+            assertNotNull(response);
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            fail(e);
+          }
+        });
+  }
+
+  @Test
   public void canExplainSqlQuery() {
     doAnswer(invocation -> {
       ResponseListener<ExplainResponse> listener = invocation.getArgument(1);

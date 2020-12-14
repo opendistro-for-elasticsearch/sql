@@ -31,9 +31,11 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -183,6 +185,23 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         DSL.literal("*"),
         AllFields.of());
+  }
+
+  @Test
+  public void case_clause() {
+    assertAnalyzeEqual(
+        DSL.cases(
+            DSL.literal(ExprValueUtils.nullValue()),
+            DSL.when(
+                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(30)),
+                DSL.literal("test"))),
+        AstDSL.caseWhen(
+            AstDSL.nullLiteral(),
+            AstDSL.when(
+                AstDSL.function("=",
+                    AstDSL.qualifiedName("integer_value"),
+                    AstDSL.intLiteral(30)),
+                AstDSL.stringLiteral("test"))));
   }
 
   @Test

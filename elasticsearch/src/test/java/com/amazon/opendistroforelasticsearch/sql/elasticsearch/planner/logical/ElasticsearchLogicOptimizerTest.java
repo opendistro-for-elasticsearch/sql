@@ -26,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Util
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScanAgg;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.sort;
@@ -334,6 +335,100 @@ class ElasticsearchLogicOptimizerTest {
             )
         )
     );
+  }
+
+  @Test
+  void limit_merge_with_relation() {
+    assertEquals(
+        project(
+            indexScan("schema", 1, 1),
+            DSL.named("intV", DSL.ref("intV", INTEGER))
+        ),
+        optimize(
+            project(
+                limit(
+                    relation("schema"),
+                    1, 1
+                ),
+                DSL.named("intV", DSL.ref("intV", INTEGER))
+            )
+        )
+    );
+  }
+
+  @Test
+  void limit_merge_with_index_scan() {
+    assertEquals(
+        project(
+            indexScan("schema",
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1))),
+                1, 1
+            ),
+            DSL.named("intV", DSL.ref("intV", INTEGER))
+        ),
+        optimize(
+            project(
+                limit(
+                    filter(
+                        relation("schema"),
+                        dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+                    ), 1, 1
+                ),
+            DSL.named("intV", DSL.ref("intV", INTEGER)))
+        )
+    );
+  }
+
+  @Test
+  void limit_merge_with_index_scan_sort() {
+    assertEquals(
+        project(
+            indexScan("schema",
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1))),
+                1, 1,
+                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+            ),
+            DSL.named("intV", DSL.ref("intV", INTEGER))
+        ),
+        optimize(
+            project(
+                limit(
+                    sort(
+                        filter(
+                            relation("schema"),
+                            dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+                        ),
+                        Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+                    ), 1, 1
+                ),
+                DSL.named("intV", DSL.ref("intV", INTEGER))
+            )
+        )
+    );
+  }
+
+  @Test
+  void aggregation_cant_merge_index_scan_with_limit() {
+    assertEquals(
+        project(
+            aggregation(
+                indexScan("schema", 10, 0),
+                ImmutableList
+                    .of(DSL.named("AVG(intV)",
+                        dsl.avg(DSL.ref("intV", INTEGER)))),
+                ImmutableList.of(DSL.named("longV",
+                    dsl.abs(DSL.ref("longV", LONG))))),
+            DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE))),
+        optimize(
+            project(
+                aggregation(
+                    indexScan("schema", 10, 0),
+                    ImmutableList
+                        .of(DSL.named("AVG(intV)",
+                            dsl.avg(DSL.ref("intV", INTEGER)))),
+                    ImmutableList.of(DSL.named("longV",
+                        dsl.abs(DSL.ref("longV", LONG))))),
+                DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE)))));
   }
 
   private LogicalPlan optimize(LogicalPlan plan) {

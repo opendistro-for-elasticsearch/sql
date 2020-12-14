@@ -110,4 +110,8 @@ public class PhysicalPlanDSL {
     return new ValuesOperator(Arrays.asList(values));
   }
 
+  public static LimitOperator limit(PhysicalPlan input, Integer limit, Integer offset) {
+    return new LimitOperator(input, limit, offset);
+  }
+
 }

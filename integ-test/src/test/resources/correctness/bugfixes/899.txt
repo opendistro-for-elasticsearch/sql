@@ -1,0 +1,4 @@
+SELECT 'hello' FROM kibana_sample_data_flights HAVING (COUNT(1) > 0)
+SELECT UPPER('hello') AS `literal` FROM kibana_sample_data_flights HAVING (COUNT(1) > 0)
+SELECT UPPER(UPPER('hello')) AS `literal` FROM kibana_sample_data_flights HAVING (COUNT(1) > 0)
+SELECT SUBSTRING(CONCAT(UPPER('hello'), 'world'), 1, 6) AS `literal` FROM kibana_sample_data_flights HAVING (COUNT(1) > 0)
