@@ -69,9 +69,7 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
           @Override
           public ExplainResponseNode visitTableScan(TableScanOperator node, Object context) {
             return explain(node, context, explainNode -> {
-              ElasticsearchIndexScan indexScan = (ElasticsearchIndexScan) node;
-              explainNode.setDescription(ImmutableMap.of(
-                  "request", indexScan.getRequest().toString()));
+              explainNode.setDescription(ImmutableMap.of("request", node.explain()));
             });
           }
         };

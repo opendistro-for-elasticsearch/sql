@@ -1007,7 +1007,7 @@ LIMIT
 Description
 -----------
 
-Mostly specifying maximum number of documents returned is necessary to prevent fetching large amount of data into memory. `LIMIT` clause is helpful in this case.
+Mostly specifying maximum number of documents returned is necessary to prevent fetching large amount of data into memory. `LIMIT` clause is helpful in this case. Basically the limit is set to the query planning, so different LIMIT and OFFSET might end up unpredictable subset in the results. Thus it is suggested to use order by in query with limit keyword to enforce a fixed ordering in the result set.
 
 Example 1: Limiting Result Size
 -------------------------------
@@ -1097,5 +1097,22 @@ Result set:
 +==============+
 |             6|
 +--------------+
+
+
+Offset position can be given following the OFFSET keyword as well, here is an example::
+
+    >od SELECT age FROM accounts ORDER BY age LIMIT 2 OFFSET 1
+    fetched rows / total rows = 2/2
+    +-------+
+    | age   |
+    |-------|
+    | 32    |
+    | 33    |
+    +-------+
+
+
+Limitation
+----------
+Generally, sort plan is pushed down into the Elasticsearch DSL in plan optimization, but note that if a query has complex sorting, like sort expression, which would not be pushed down during optimization (see `Optimizations <../optimization/optimization.rst>`_ for details), but computed in local memory. However, the engine fetches the index of a default size that is set in plugin setting (See `Settings <../admin/settings.rst>` opendistro.query.size_limit for details). Therefore, the result might not be absolutely correct if the index size is larger than the default size of index scan. For example, the engine has a index scan size of 200 and the index size is 500. Then a query with limit 300 can only fetch 200 rows of the index, compute and return the sorted result with 200 rows, while the rest 300 rows of the index are ignored and would not be fetched into the engine. To get an absolutely correct result, it is suggested to set the query size limit to a larger value before run the query.
 
 

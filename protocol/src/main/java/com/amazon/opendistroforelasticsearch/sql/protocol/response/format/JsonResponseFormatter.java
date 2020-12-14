@@ -16,13 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ErrorFormatter.compactFormat;
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ErrorFormatter.compactJsonify;
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ErrorFormatter.prettyFormat;
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ErrorFormatter.prettyJsonify;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -45,12 +46,6 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
    */
   private final Style style;
 
-  private static final Gson PRETTY_PRINT_GSON =
-      AccessController.doPrivileged(
-          (PrivilegedAction<Gson>) () -> new GsonBuilder().setPrettyPrinting().create());
-  private static final Gson GSON = AccessController.doPrivileged(
-      (PrivilegedAction<Gson>) () -> new GsonBuilder().create());
-
   @Override
   public String format(R response) {
     return jsonify(buildJsonObject(response));
@@ -58,9 +53,8 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
 
   @Override
   public String format(Throwable t) {
-    JsonError error = new JsonError(t.getClass().getSimpleName(),
-        t.getMessage());
-    return jsonify(error);
+    return AccessController.doPrivileged((PrivilegedAction<String>) () ->
+        (style == PRETTY) ? prettyFormat(t) : compactFormat(t));
   }
 
   /**
@@ -73,13 +67,6 @@ public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
 
   protected String jsonify(Object jsonObject) {
     return AccessController.doPrivileged((PrivilegedAction<String>) () ->
-        (style == PRETTY) ? PRETTY_PRINT_GSON.toJson(jsonObject) : GSON.toJson(jsonObject));
-  }
-
-  @RequiredArgsConstructor
-  @Getter
-  public static class JsonError {
-    private final String type;
-    private final String reason;
+        (style == PRETTY) ? prettyJsonify(jsonObject) : compactJsonify(jsonObject));
   }
 }

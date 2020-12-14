@@ -58,4 +58,11 @@ public interface ExprType {
    * Get the type name.
    */
   String typeName();
+
+  /**
+   * Get the legacy type name for old engine.
+   */
+  default String legacyTypeName() {
+    return typeName();
+  }
 }

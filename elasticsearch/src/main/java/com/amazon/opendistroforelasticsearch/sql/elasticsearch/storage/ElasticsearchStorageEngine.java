@@ -16,8 +16,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.isSystemIndex;
+
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.system.ElasticsearchSystemIndex;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,10 @@ public class ElasticsearchStorageEngine implements StorageEngine {
 
   @Override
   public Table getTable(String name) {
-    return new ElasticsearchIndex(client, settings, name);
+    if (isSystemIndex(name)) {
+      return new ElasticsearchSystemIndex(client, name);
+    } else {
+      return new ElasticsearchIndex(client, settings, name);
+    }
   }
 }

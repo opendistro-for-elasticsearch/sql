@@ -23,7 +23,10 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.executor.format.ErrorMes
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.LogUtils;
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -77,5 +80,12 @@ public class RestPPLStatsAction extends BaseRestHandler {
       return channel -> channel.sendResponse(new BytesRestResponse(SERVICE_UNAVAILABLE,
           ErrorMessageFactory.createErrorMessage(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
     }
+  }
+
+  @Override
+  protected Set<String> responseParams() {
+    Set<String> responseParams = new HashSet<>(super.responseParams());
+    responseParams.addAll(Arrays.asList("format", "sanitize"));
+    return responseParams;
   }
 }

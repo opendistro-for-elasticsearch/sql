@@ -208,5 +208,10 @@ class ElasticsearchExecutionEngineTest {
     public ExecutionEngine.Schema schema() {
       return schema;
     }
+
+    @Override
+    public String explain() {
+      return "explain";
+    }
   }
 }
