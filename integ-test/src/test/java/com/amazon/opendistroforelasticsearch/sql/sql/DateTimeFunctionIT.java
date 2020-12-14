@@ -61,6 +61,15 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void testDateWithHavingClauseOnly() throws IOException {
+    JSONObject result =
+            executeQuery(String.format("SELECT (TO_DAYS(DATE('2050-01-01')) - 693961) FROM %s HAVING (COUNT(1) > 0)",TEST_INDEX_BANK) );
+    verifySchema(result,
+            schema("(TO_DAYS(DATE('2050-01-01')) - 693961)", null, "long"));
+    verifyDataRows(result, rows(54787));
+  }
+
+  @Test
   public void testAddDate() throws IOException {
     JSONObject result =
         executeQuery("select adddate(timestamp('2020-09-16 17:30:00'), interval 1 day)");
