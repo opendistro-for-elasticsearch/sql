@@ -20,6 +20,9 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeAggAndIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeAggAndRelation;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeFilterAndRelation;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeLimitAndIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeLimitAndRelation;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeSortAndIndexAgg;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeSortAndIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule.MergeSortAndRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
@@ -41,6 +44,11 @@ public class ElasticsearchLogicalPlanOptimizerFactory {
         new MergeAggAndIndexScan(),
         new MergeAggAndRelation(),
         new MergeSortAndRelation(),
-        new MergeSortAndIndexScan()));
+        new MergeSortAndIndexScan(),
+        new MergeSortAndIndexAgg(),
+        new MergeSortAndIndexScan(),
+        new MergeLimitAndRelation(),
+        new
+            MergeLimitAndIndexScan()));
   }
 }

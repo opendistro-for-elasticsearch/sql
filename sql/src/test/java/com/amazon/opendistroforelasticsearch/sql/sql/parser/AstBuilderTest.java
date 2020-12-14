@@ -26,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
@@ -33,6 +34,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relationS
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.TABLE_INFO;
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.mappingTable;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -197,20 +200,33 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_count_star_and_count_literal() {
+  public void can_build_count_literal() {
     assertEquals(
         project(
             agg(
                 relation("test"),
                 ImmutableList.of(
-                    alias("COUNT(*)", aggregate("COUNT", AllFields.of())),
                     alias("COUNT(1)", aggregate("COUNT", intLiteral(1)))),
                 emptyList(),
                 emptyList(),
                 emptyList()),
-            alias("COUNT(*)", aggregate("COUNT", AllFields.of())),
             alias("COUNT(1)", aggregate("COUNT", intLiteral(1)))),
-        buildAST("SELECT COUNT(*), COUNT(1) FROM test"));
+        buildAST("SELECT COUNT(1) FROM test"));
+  }
+
+  @Test
+  public void can_build_count_star() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(
+                    alias("COUNT(*)", aggregate("COUNT", AllFields.of()))),
+                emptyList(),
+                emptyList(),
+                emptyList()),
+            alias("COUNT(*)", aggregate("COUNT", AllFields.of()))),
+        buildAST("SELECT COUNT(*) FROM test"));
   }
 
   @Test
@@ -403,6 +419,54 @@ class AstBuilderTest {
   }
 
   @Test
+  public void can_build_select_distinct_clause() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                emptyList(),
+                emptyList(),
+                ImmutableList.of(
+                    alias("name", qualifiedName("name")),
+                    alias("age", qualifiedName("age"))),
+                emptyList()),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT DISTINCT name, age FROM test"));
+  }
+
+  @Test
+  public void can_build_select_distinct_clause_with_function() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                emptyList(),
+                emptyList(),
+                ImmutableList.of(
+                    alias("SUBSTRING(name, 1, 2)",
+                        function(
+                            "SUBSTRING",
+                            qualifiedName("name"),
+                            intLiteral(1), intLiteral(2)))),
+                emptyList()),
+            alias("SUBSTRING(name, 1, 2)",
+                function(
+                    "SUBSTRING",
+                    qualifiedName("name"),
+                    intLiteral(1), intLiteral(2)))),
+        buildAST("SELECT DISTINCT SUBSTRING(name, 1, 2) FROM test"));
+  }
+
+  @Test
+  public void can_build_select_all_clause() {
+    assertEquals(
+        buildAST("SELECT name, age FROM test"),
+        buildAST("SELECT ALL name, age FROM test")
+    );
+  }
+
+  @Test
   public void can_build_order_by_null_option() {
     assertEquals(
         project(
@@ -461,6 +525,161 @@ class AstBuilderTest {
                 + ") AS a where age > 20"
         )
     );
+  }
+
+  @Test
+  public void can_build_show_all_tables() {
+    assertEquals(
+        project(
+            filter(
+                relation(TABLE_INFO),
+                function("like", qualifiedName("TABLE_NAME"), stringLiteral("%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("SHOW TABLES LIKE '%'")
+    );
+  }
+
+  @Test
+  public void can_build_show_selected_tables() {
+    assertEquals(
+        project(
+            filter(
+                relation(TABLE_INFO),
+                function("like", qualifiedName("TABLE_NAME"), stringLiteral("a_c%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("SHOW TABLES LIKE 'a_c%'")
+    );
+  }
+
+  /**
+   * Todo, ideally the identifier (%) couldn't be used in LIKE operator, only the string literal
+   * is allowed.
+   */
+  @Test
+  public void show_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            filter(
+                relation(TABLE_INFO),
+                function("like", qualifiedName("TABLE_NAME"), stringLiteral("%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("SHOW TABLES LIKE %")
+    );
+  }
+
+  @Test
+  public void describe_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            relation(mappingTable("a_c%")),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE a_c%")
+    );
+  }
+
+  @Test
+  public void can_build_describe_selected_tables() {
+    assertEquals(
+        project(
+            relation(mappingTable("a_c%")),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE 'a_c%'")
+    );
+  }
+
+  @Test
+  public void can_build_describe_selected_tables_field_filter() {
+    assertEquals(
+        project(
+            filter(
+                relation(mappingTable("a_c%")),
+                function("like", qualifiedName("COLUMN_NAME"), stringLiteral("name%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE 'a_c%' COLUMNS LIKE 'name%'")
+    );
+  }
+
+  /**
+   * Todo, ideally the identifier (%) couldn't be used in LIKE operator, only the string literal
+   * is allowed.
+   */
+  @Test
+  public void describe_and_column_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            filter(
+                relation(mappingTable("a_c%")),
+                function("like", qualifiedName("COLUMN_NAME"), stringLiteral("name%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE a_c% COLUMNS LIKE name%")
+    );
+  }
+
+  @Test
+  public void can_build_alias_by_keywords() {
+    assertEquals(
+        project(
+            relation("test"),
+            alias("avg_age", qualifiedName("avg_age"), "avg")
+        ),
+        buildAST("SELECT avg_age AS avg FROM test")
+    );
+  }
+
+  @Test
+  public void can_build_limit_clause() {
+    assertEquals(
+        project(
+            limit(
+                sort(
+                    relation("test"),
+                    field("age", argument("asc", booleanLiteral(true)))
+                ),
+                10,
+                0
+            ),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))
+        ),
+        buildAST("SELECT name, age FROM test ORDER BY age LIMIT 10")
+    );
+  }
+
+  @Test
+  public void can_build_limit_clause_with_offset() {
+    assertEquals(
+        project(
+            limit(
+                relation("test"),
+                10,
+                5
+            ),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test LIMIT 10 OFFSET 5"));
+
+    assertEquals(
+        project(
+            limit(
+                relation("test"),
+                10,
+                5
+            ),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test LIMIT 5, 10"));
   }
 
   private UnresolvedPlan buildAST(String query) {

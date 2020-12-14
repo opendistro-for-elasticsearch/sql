@@ -44,6 +44,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Limit;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -226,6 +227,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitUnresolvedArgument(UnresolvedArgument node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitLimit(Limit node, C context) {
     return visitChildren(node, context);
   }
 }

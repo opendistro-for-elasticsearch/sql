@@ -100,6 +100,27 @@ public class PPLServiceTest {
   }
 
   @Test
+  public void testExecuteCsvFormatShouldPass() {
+    doAnswer(invocation -> {
+      ResponseListener<QueryResponse> listener = invocation.getArgument(1);
+      listener.onResponse(new QueryResponse(schema, Collections.emptyList()));
+      return null;
+    }).when(executionEngine).execute(any(), any());
+
+    pplService.execute(new PPLQueryRequest("search source=t a=1", null, "/_opendistro/_ppl", "csv"),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse pplQueryResponse) {
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            Assert.fail();
+          }
+        });
+  }
+
+  @Test
   public void testExplainShouldPass() {
     doAnswer(invocation -> {
       ResponseListener<ExplainResponse> listener = invocation.getArgument(1);

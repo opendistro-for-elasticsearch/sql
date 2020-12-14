@@ -33,7 +33,9 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 
 
 /**
@@ -300,6 +302,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
     assertThat(row.get(5), not(equalTo(JSONObject.NULL)));
   }
 
+  @Ignore("Breaking change, the new engine will return alias instead of index name")
   @Test
   public void showSingleIndexAlias() throws IOException {
     client().performRequest(new Request("PUT",
@@ -313,6 +316,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         expected.similar(actual));
   }
 
+  @Ignore("Breaking change, the new engine will return alias instead of index name")
   @Test
   public void describeSingleIndexAlias() throws IOException {
     client().performRequest(new Request("PUT",

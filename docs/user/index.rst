@@ -49,6 +49,10 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `Full-text Search <beyond/fulltext.rst>`_
 
+* **Optimization**
+
+  - `Optimization <optimization/optimization.rst>`_
+
 * **Troubleshooting**
 
   - `Troubleshooting <dql/troubleshooting.rst>`_

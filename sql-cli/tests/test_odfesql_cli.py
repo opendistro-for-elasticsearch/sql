@@ -26,6 +26,7 @@ from src.odfe_sql_cli.esstyle import style_factory
 AUTH = None
 QUERY_WITH_CTRL_D = "select * from %s;\r\x04\r" % TEST_INDEX_NAME
 USE_AWS_CREDENTIALS = False
+QUERY_LANGUAGE = "sql"
 
 
 @pytest.fixture()
@@ -40,7 +41,7 @@ class TestOdfeSqlCli:
         ) as mock_set_connectiuon:
             cli.connect(endpoint=ENDPOINT)
 
-            mock_ESConnection.assert_called_with(ENDPOINT, AUTH, USE_AWS_CREDENTIALS)
+            mock_ESConnection.assert_called_with(ENDPOINT, AUTH, USE_AWS_CREDENTIALS, QUERY_LANGUAGE)
             mock_set_connectiuon.assert_called()
 
     @estest

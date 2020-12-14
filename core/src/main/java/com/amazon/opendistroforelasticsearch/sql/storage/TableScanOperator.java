@@ -37,4 +37,10 @@ public abstract class TableScanOperator extends PhysicalPlan {
     return Collections.emptyList();
   }
 
+  /**
+   * Explain the execution plan.
+   *
+   * @return execution plan.
+   */
+  public abstract String explain();
 }

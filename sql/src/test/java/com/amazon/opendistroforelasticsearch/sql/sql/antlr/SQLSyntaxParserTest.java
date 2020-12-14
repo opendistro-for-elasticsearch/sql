@@ -117,6 +117,12 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canParseDistinctClause() {
+    assertNotNull(parser.parse("SELECT DISTINCT name FROM test"));
+    assertNotNull(parser.parse("SELECT DISTINCT name, balance FROM test"));
+  }
+
+  @Test
   public void canParseCaseStatement() {
     assertNotNull(parser.parse("SELECT CASE WHEN age > 30 THEN 'age1' ELSE 'age2' END FROM test"));
     assertNotNull(parser.parse("SELECT CASE WHEN age > 30 THEN 'age1' "

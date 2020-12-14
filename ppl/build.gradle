@@ -42,6 +42,13 @@ dependencies {
 
 }
 
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
 jacoco {
     toolVersion = "0.8.5"
 }

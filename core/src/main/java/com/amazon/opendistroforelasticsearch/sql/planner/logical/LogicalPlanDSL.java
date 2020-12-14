@@ -111,4 +111,8 @@ public class LogicalPlanDSL {
     return new LogicalValues(Arrays.asList(values));
   }
 
+  public static LogicalPlan limit(LogicalPlan input, Integer limit, Integer offset) {
+    return new LogicalLimit(input, limit, offset);
+  }
+
 }

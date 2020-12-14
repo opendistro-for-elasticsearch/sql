@@ -16,15 +16,19 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -33,11 +37,10 @@ import lombok.ToString;
  * A CASE clause is very different from a regular function. Functions have well-defined signature,
  * though CASE clause is more like a function implementation which requires type check "manually".
  */
-@AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Getter
 @ToString
-public class CaseClause implements Expression {
+public class CaseClause extends FunctionExpression {
 
   /**
    * List of WHEN clauses.
@@ -48,6 +51,15 @@ public class CaseClause implements Expression {
    * Default result if none of WHEN conditions match.
    */
   private final Expression defaultResult;
+
+  /**
+   * Initialize case clause.
+   */
+  public CaseClause(List<WhenClause> whenClauses, Expression defaultResult) {
+    super(FunctionName.of("case"), concatArgs(whenClauses, defaultResult));
+    this.whenClauses = whenClauses;
+    this.defaultResult = defaultResult;
+  }
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
@@ -61,7 +73,10 @@ public class CaseClause implements Expression {
 
   @Override
   public ExprType type() {
-    return whenClauses.get(0).type();
+    List<ExprType> types = allResultTypes();
+
+    // Return unknown if all WHEN/ELSE return NULL
+    return types.isEmpty() ? UNKNOWN : types.get(0);
   }
 
   @Override
@@ -71,7 +86,9 @@ public class CaseClause implements Expression {
 
   /**
    * Get types of each result in WHEN clause and ELSE clause.
-   * @return all result types
+   * Exclude UNKNOWN type from NULL literal which means NULL in THEN or ELSE clause
+   * is not included in result.
+   * @return all result types. Use list so caller can generate friendly error message.
    */
   public List<ExprType> allResultTypes() {
     List<ExprType> types = whenClauses.stream()
@@ -80,7 +97,20 @@ public class CaseClause implements Expression {
     if (defaultResult != null) {
       types.add(defaultResult.type());
     }
+
+    types.removeIf(type -> (type == UNKNOWN));
     return types;
+  }
+
+  private static List<Expression> concatArgs(List<WhenClause> whenClauses,
+                                             Expression defaultResult) {
+    ImmutableList.Builder<Expression> args = ImmutableList.builder();
+    whenClauses.forEach(args::add);
+
+    if (defaultResult != null) {
+      args.add(defaultResult);
+    }
+    return args.build();
   }
 
 }

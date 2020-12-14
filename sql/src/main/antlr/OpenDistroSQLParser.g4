@@ -39,7 +39,7 @@ root
 
 //    Only SELECT
 sqlStatement
-    : dmlStatement
+    : dmlStatement | adminStatement
     ;
 
 dmlStatement
@@ -55,16 +55,49 @@ selectStatement
     : querySpecification                                 #simpleSelect
     ;
 
+adminStatement
+    : showStatement
+    | describeStatement
+    ;
+
+showStatement
+    : SHOW TABLES tableFilter?
+    ;
+
+describeStatement
+    : DESCRIBE TABLES tableFilter columnFilter?
+    ;
+
+columnFilter
+    : COLUMNS LIKE showDescribePattern
+    ;
+
+tableFilter
+    : LIKE showDescribePattern
+    ;
+
+showDescribePattern
+    : oldID=compatibleID | stringLiteral
+    ;
+
+compatibleID
+    : (MODULE | ID)+?
+    ;
 
 //    Select Statement's Details
 
 querySpecification
     : selectClause
       fromClause?
+      limitClause?
     ;
 
 selectClause
-    : SELECT selectElements
+    : SELECT selectSpec? selectElements
+    ;
+
+selectSpec
+    : (ALL | DISTINCT)
     ;
 
 selectElements
@@ -114,6 +147,11 @@ orderByClause
 
 orderByElement
     : expression order=(ASC | DESC)? (NULLS (FIRST | LAST))?
+    ;
+
+limitClause
+    : LIMIT (offset=decimalLiteral COMMA)? limit=decimalLiteral
+    | LIMIT limit=decimalLiteral OFFSET offset=decimalLiteral
     ;
 
 //  Window Function's Details

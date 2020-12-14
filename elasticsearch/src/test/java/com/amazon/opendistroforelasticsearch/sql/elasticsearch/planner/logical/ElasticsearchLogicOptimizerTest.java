@@ -21,10 +21,12 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScan;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScanAgg;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.sort;
@@ -226,6 +228,207 @@ class ElasticsearchLogicOptimizerTest {
             )
         )
     );
+  }
+
+  /**
+   * SELECT avg(intV) FROM schema GROUP BY stringV ORDER BY stringV.
+   */
+  @Test
+  void sort_merge_indexagg() {
+    assertEquals(
+        project(
+            indexScanAgg("schema",
+                ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING))),
+                ImmutableList
+                    .of(Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("stringV", STRING)))),
+            DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE))),
+        optimize(
+            project(
+                sort(
+                    aggregation(
+                        relation("schema"),
+                        ImmutableList
+                            .of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                        ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+                    Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("stringV", STRING))
+                ),
+                DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE)))
+        )
+    );
+  }
+
+  /**
+   * SELECT avg(intV) FROM schema GROUP BY stringV ORDER BY stringV.
+   */
+  @Test
+  void sort_merge_indexagg_nulls_last() {
+    assertEquals(
+        project(
+            indexScanAgg("schema",
+                ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING))),
+                ImmutableList
+                    .of(Pair.of(Sort.SortOption.DEFAULT_DESC, DSL.ref("stringV", STRING)))),
+            DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE))),
+        optimize(
+            project(
+                sort(
+                    aggregation(
+                        relation("schema"),
+                        ImmutableList
+                            .of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                        ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+                    Pair.of(Sort.SortOption.DEFAULT_DESC, DSL.ref("stringV", STRING))
+                ),
+                DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE)))
+        )
+    );
+  }
+
+
+  /**
+   * Can't Optimize the following query.
+   * SELECT avg(intV) FROM schema GROUP BY stringV ORDER BY avg(intV).
+   */
+  @Test
+  void sort_refer_to_aggregator_should_not_merge_with_indexAgg() {
+    assertEquals(
+        sort(
+            indexScanAgg("schema",
+                ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+            Pair.of(Sort.SortOption.DEFAULT_DESC, DSL.ref("AVG(intV)", INTEGER))
+        ),
+        optimize(
+            sort(
+                indexScanAgg("schema",
+                    ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                    ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+                Pair.of(Sort.SortOption.DEFAULT_DESC, DSL.ref("AVG(intV)", INTEGER))
+            )
+        )
+    );
+  }
+
+  /**
+   * Can't Optimize the following query.
+   * SELECT avg(intV) FROM schema GROUP BY stringV ORDER BY stringV ASC NULL_LAST.
+   */
+  @Test
+  void sort_with_customized_option_should_not_merge_with_indexAgg() {
+    assertEquals(
+        sort(
+            indexScanAgg("schema",
+                ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+            Pair.of(new Sort.SortOption(Sort.SortOrder.ASC, Sort.NullOrder.NULL_LAST),
+                DSL.ref("stringV", STRING))
+        ),
+        optimize(
+            sort(
+                indexScanAgg("schema",
+                    ImmutableList.of(DSL.named("AVG(intV)", dsl.avg(DSL.ref("intV", INTEGER)))),
+                    ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+                Pair.of(new Sort.SortOption(Sort.SortOrder.ASC, Sort.NullOrder.NULL_LAST),
+                    DSL.ref("stringV", STRING))
+            )
+        )
+    );
+  }
+
+  @Test
+  void limit_merge_with_relation() {
+    assertEquals(
+        project(
+            indexScan("schema", 1, 1),
+            DSL.named("intV", DSL.ref("intV", INTEGER))
+        ),
+        optimize(
+            project(
+                limit(
+                    relation("schema"),
+                    1, 1
+                ),
+                DSL.named("intV", DSL.ref("intV", INTEGER))
+            )
+        )
+    );
+  }
+
+  @Test
+  void limit_merge_with_index_scan() {
+    assertEquals(
+        project(
+            indexScan("schema",
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1))),
+                1, 1
+            ),
+            DSL.named("intV", DSL.ref("intV", INTEGER))
+        ),
+        optimize(
+            project(
+                limit(
+                    filter(
+                        relation("schema"),
+                        dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+                    ), 1, 1
+                ),
+            DSL.named("intV", DSL.ref("intV", INTEGER)))
+        )
+    );
+  }
+
+  @Test
+  void limit_merge_with_index_scan_sort() {
+    assertEquals(
+        project(
+            indexScan("schema",
+                dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1))),
+                1, 1,
+                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+            ),
+            DSL.named("intV", DSL.ref("intV", INTEGER))
+        ),
+        optimize(
+            project(
+                limit(
+                    sort(
+                        filter(
+                            relation("schema"),
+                            dsl.equal(DSL.ref("intV", INTEGER), DSL.literal(integerValue(1)))
+                        ),
+                        Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("longV", LONG))
+                    ), 1, 1
+                ),
+                DSL.named("intV", DSL.ref("intV", INTEGER))
+            )
+        )
+    );
+  }
+
+  @Test
+  void aggregation_cant_merge_index_scan_with_limit() {
+    assertEquals(
+        project(
+            aggregation(
+                indexScan("schema", 10, 0),
+                ImmutableList
+                    .of(DSL.named("AVG(intV)",
+                        dsl.avg(DSL.ref("intV", INTEGER)))),
+                ImmutableList.of(DSL.named("longV",
+                    dsl.abs(DSL.ref("longV", LONG))))),
+            DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE))),
+        optimize(
+            project(
+                aggregation(
+                    indexScan("schema", 10, 0),
+                    ImmutableList
+                        .of(DSL.named("AVG(intV)",
+                            dsl.avg(DSL.ref("intV", INTEGER)))),
+                    ImmutableList.of(DSL.named("longV",
+                        dsl.abs(DSL.ref("longV", LONG))))),
+                DSL.named("AVG(intV)", DSL.ref("AVG(intV)", DOUBLE)))));
   }
 
   private LogicalPlan optimize(LogicalPlan plan) {

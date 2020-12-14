@@ -71,8 +71,27 @@ click.disable_unicode_literals_warning = True
     default=False,
     help="Use AWS sigV4 to connect to AWS ELasticsearch domain",
 )
-def cli(endpoint, query, explain, clirc, result_format, is_vertical, username, password, always_use_pager,
-        use_aws_authentication):
+@click.option(
+    "-l",
+    "--language",
+    "query_language",
+    type=click.STRING,
+    default="sql",
+    help="SQL OR PPL",
+)
+def cli(
+    endpoint,
+    query,
+    explain,
+    clirc,
+    result_format,
+    is_vertical,
+    username,
+    password,
+    always_use_pager,
+    use_aws_authentication,
+    query_language,
+):
     """
     Provide endpoint for Elasticsearch client.
     By default, it uses http://localhost:9200 to connect.
@@ -103,7 +122,12 @@ def cli(endpoint, query, explain, clirc, result_format, is_vertical, username, p
         sys.exit(0)
 
     # use console to interact with user
-    odfesql_cli = OdfeSqlCli(clirc_file=clirc, always_use_pager=always_use_pager, use_aws_authentication=use_aws_authentication)
+    odfesql_cli = OdfeSqlCli(
+        clirc_file=clirc,
+        always_use_pager=always_use_pager,
+        use_aws_authentication=use_aws_authentication,
+        query_language=query_language,
+    )
     odfesql_cli.connect(endpoint, http_auth)
     odfesql_cli.run_cli()
 

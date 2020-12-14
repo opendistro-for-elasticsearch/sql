@@ -1,0 +1,2 @@
+SELECT customer_id, count(*) AS label_value FROM kibana_sample_data_ecommerce GROUP BY customer_id ORDER BY customer_id LIMIT 10 OFFSET 2
+SELECT Origin FROM kibana_sample_data_flights GROUP BY Origin ORDER BY Origin LIMIT 5, 10

@@ -114,65 +114,75 @@ class ElasticsearchExecutionProtectorTest {
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
         ImmutablePair.of(DEFAULT_ASC, ref("name1", STRING));
+    Integer size = 200;
+    Integer limit = 10;
+    Integer offset = 10;
 
     assertEquals(
         PhysicalPlanDSL.project(
-            PhysicalPlanDSL.dedupe(
-                PhysicalPlanDSL.rareTopN(
-                    resourceMonitor(
-                    PhysicalPlanDSL.sort(
-                        PhysicalPlanDSL.eval(
-                            PhysicalPlanDSL.remove(
-                                PhysicalPlanDSL.rename(
-                                    PhysicalPlanDSL.agg(
-                                        PhysicalPlanDSL.head(
-                                            filter(
-                                                resourceMonitor(
-                                                new ElasticsearchIndexScan(
-                                                    client, settings, indexName, exprValueFactory)),
-                                                filterExpr),
-                                            keepLast,
-                                            whileExpr,
-                                            headNumber),
-                                        aggregators,
-                                        groupByExprs),
-                                    mappings),
-                                exclude),
-                            newEvalField),
-                        sortField)),
-                    CommandType.TOP,
-                    topExprs,
-                    topField),
-                dedupeField),
-            include),
-        executionProtector.protect(
-            PhysicalPlanDSL.project(
+            PhysicalPlanDSL.limit(
                 PhysicalPlanDSL.dedupe(
                     PhysicalPlanDSL.rareTopN(
-                        PhysicalPlanDSL.sort(
-                            PhysicalPlanDSL.eval(
-                                PhysicalPlanDSL.remove(
-                                    PhysicalPlanDSL.rename(
-                                        PhysicalPlanDSL.agg(
-                                            PhysicalPlanDSL.head(
-                                                filter(
-                                                        new ElasticsearchIndexScan(
-                                                            client, settings, indexName,
-                                                            exprValueFactory),
-                                                    filterExpr),
-                                                keepLast,
-                                                whileExpr,
-                                                headNumber),
-                                            aggregators,
-                                            groupByExprs),
-                                        mappings),
-                                    exclude),
-                                newEvalField),
-                            sortField),
+                        resourceMonitor(
+                            PhysicalPlanDSL.sort(
+                                PhysicalPlanDSL.eval(
+                                    PhysicalPlanDSL.remove(
+                                        PhysicalPlanDSL.rename(
+                                            PhysicalPlanDSL.agg(
+                                                PhysicalPlanDSL.head(
+                                                    filter(
+                                                        resourceMonitor(
+                                                            new ElasticsearchIndexScan(
+                                                                client, settings, indexName,
+                                                                exprValueFactory)),
+                                                        filterExpr),
+                                                    keepLast,
+                                                    whileExpr,
+                                                    headNumber),
+                                                aggregators,
+                                                groupByExprs),
+                                            mappings),
+                                        exclude),
+                                    newEvalField),
+                                sortField)),
                         CommandType.TOP,
                         topExprs,
                         topField),
                     dedupeField),
+                limit,
+                offset),
+            include),
+        executionProtector.protect(
+            PhysicalPlanDSL.project(
+                PhysicalPlanDSL.limit(
+                    PhysicalPlanDSL.dedupe(
+                        PhysicalPlanDSL.rareTopN(
+                            PhysicalPlanDSL.sort(
+                                PhysicalPlanDSL.eval(
+                                    PhysicalPlanDSL.remove(
+                                        PhysicalPlanDSL.rename(
+                                            PhysicalPlanDSL.agg(
+                                                PhysicalPlanDSL.head(
+                                                    filter(
+                                                        new ElasticsearchIndexScan(
+                                                            client, settings, indexName,
+                                                            exprValueFactory),
+                                                        filterExpr),
+                                                    keepLast,
+                                                    whileExpr,
+                                                    headNumber),
+                                                aggregators,
+                                                groupByExprs),
+                                            mappings),
+                                        exclude),
+                                    newEvalField),
+                                sortField),
+                            CommandType.TOP,
+                            topExprs,
+                            topField),
+                        dedupeField),
+                    limit,
+                    offset),
                 include)));
   }
 
