@@ -125,7 +125,6 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
    */
   private Optional<UnresolvedExpression> findNonAggregatedItemInSelect() {
     return querySpec.getSelectItems().stream()
-                                     .filter(this::isNonLiteral)
                                      .filter(this::isNonAggregatedExpression)
                                      .filter(this::isNonLiteralFunction)
                                      .findFirst();
@@ -133,10 +132,6 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
 
   private boolean isAggregatorNotFoundAnywhere() {
     return querySpec.getAggregators().isEmpty();
-  }
-
-  private boolean isNonLiteral(UnresolvedExpression expr) {
-    return !(expr instanceof Literal);
   }
 
   private boolean isNonLiteralFunction(UnresolvedExpression expr) {
