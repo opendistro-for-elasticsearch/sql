@@ -13,56 +13,138 @@
  *   permissions and limitations under the License.
  */
 
-import { Server } from 'hapi-latest';
+import { schema } from '@kbn/config-schema';
+import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import QueryService from '../services/QueryService';
-import { ROUTE_PATH_SQL_QUERY, ROUTE_PATH_PPL_QUERY, ROUTE_PATH_SQL_CSV, ROUTE_PATH_SQL_JSON, ROUTE_PATH_SQL_TEXT, ROUTE_PATH_PPL_CSV, ROUTE_PATH_PPL_JSON, ROUTE_PATH_PPL_TEXT } from "../utils/constants";
+import {
+  ROUTE_PATH_SQL_QUERY,
+  ROUTE_PATH_PPL_QUERY,
+  ROUTE_PATH_SQL_CSV,
+  ROUTE_PATH_SQL_JSON,
+  ROUTE_PATH_SQL_TEXT,
+  ROUTE_PATH_PPL_CSV,
+  ROUTE_PATH_PPL_JSON,
+  ROUTE_PATH_PPL_TEXT,
+} from '../utils/constants';
 
-export default function query(server: Server, service: QueryService) {
-  server.route({
-    path: ROUTE_PATH_SQL_QUERY,
-    method: 'POST',
-    handler: service.describeSQLQuery
-  });
+export default function query(server: IRouter, service: QueryService) {
+  server.post(
+    {
+      path: ROUTE_PATH_SQL_QUERY,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.describeSQLQuery(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 
-  server.route({
-    path: ROUTE_PATH_PPL_QUERY,
-    method: 'POST',
-    handler: service.describePPLQuery
-  });
+  server.post(
+    {
+      path: ROUTE_PATH_PPL_QUERY,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.describePPLQuery(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 
-  server.route({
-    path: ROUTE_PATH_SQL_CSV,
-    method: 'POST',
-    handler: service.describeSQLCsv
-  });
+  server.post(
+    {
+      path: ROUTE_PATH_SQL_CSV,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.describeSQLCsv(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 
-  server.route({
-    path: ROUTE_PATH_PPL_CSV,
-    method: 'POST',
-    handler: service.describePPLCsv
-  });
+  server.post(
+    {
+      path: ROUTE_PATH_PPL_CSV,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.describePPLCsv(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 
-  server.route({
-    path: ROUTE_PATH_SQL_JSON,
-    method: 'POST',
-    handler: service.describeSQLJson
-  });
+  server.post(
+    {
+      path: ROUTE_PATH_SQL_JSON,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.describeSQLJson(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 
-  server.route({
-    path: ROUTE_PATH_PPL_JSON,
-    method: 'POST',
-    handler: service.describePPLJson
-  });
+  server.post(
+    {
+      path: ROUTE_PATH_PPL_JSON,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.describePPLJson(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 
-  server.route({
-    path: ROUTE_PATH_SQL_TEXT,
-    method: 'POST',
-    handler: service.describeSQLText
-  });
+  server.post(
+    {
+      path: ROUTE_PATH_SQL_TEXT,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.describeSQLText(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 
-  server.route({
-    path: ROUTE_PATH_PPL_TEXT,
-    method: 'POST',
-    handler: service.describePPLText
-  });
+  server.post(
+    {
+      path: ROUTE_PATH_PPL_TEXT,
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.describePPLText(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 }

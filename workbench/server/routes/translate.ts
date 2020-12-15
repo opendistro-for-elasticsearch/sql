@@ -13,19 +13,38 @@
  *   permissions and limitations under the License.
  */
 
-import { Server } from 'hapi-latest';
+import { schema } from '@kbn/config-schema';
+import { IKibanaResponse, IRouter, ResponseError } from '../../../../src/core/server';
 import TranslateService from '../services/TranslateService';
 
-export default function translate(server: Server, service: TranslateService) {
-  server.route({
-    path: '/api/sql_console/translatesql',
-    method: 'POST',
-    handler: service.translateSQL
-  });
+export default function translate(server: IRouter, service: TranslateService) {
+  server.post(
+    {
+      path: '/api/sql_console/translatesql',
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.translateSQL(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 
-  server.route({
-    path: '/api/sql_console/translateppl',
-    method: 'POST',
-    handler: service.translatePPL
-  });
+  server.post(
+    {
+      path: '/api/sql_console/translateppl',
+      validate: {
+        body: schema.any(),
+      },
+    },
+    async (context, request, response): Promise<IKibanaResponse<any | ResponseError>> => {
+      const retVal = await service.translatePPL(request);
+      return response.ok({
+        body: retVal,
+      });
+    }
+  );
 }

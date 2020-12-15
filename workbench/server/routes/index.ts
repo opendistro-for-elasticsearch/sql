@@ -13,13 +13,17 @@
  *   permissions and limitations under the License.
  */
 
-import * as ace from 'brace';
+import { ILegacyClusterClient, IRouter } from '../../../../src/core/server';
+import registerTranslateRoute from './translate';
+import registerQueryRoute from './query';
+import TranslateService from '../services/TranslateService';
+import QueryService from '../services/QueryService';
 
-ace.define('ace/theme/sql_console', ['require', 'exports', 'module', 'ace/lib/dom'], function (acequire, exports, module) {
-  exports.isDark = false;
-  exports.cssClass = 'ace-sql-console';
-  exports.cssText = require('../index.scss');
 
-  const dom = acequire('../lib/dom');
-  dom.importCssString(exports.cssText, exports.cssClass);
-});
+export default function (router: IRouter, client: ILegacyClusterClient) {
+  const translateService = new TranslateService(client);
+  registerTranslateRoute(router, translateService);
+
+  const queryService = new QueryService(client);
+  registerQueryRoute(router, queryService);
+}

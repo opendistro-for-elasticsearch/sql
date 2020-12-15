@@ -13,13 +13,5 @@
  *   permissions and limitations under the License.
  */
 
-import * as ace from 'brace';
-
-ace.define('ace/theme/sql_console', ['require', 'exports', 'module', 'ace/lib/dom'], function (acequire, exports, module) {
-  exports.isDark = false;
-  exports.cssClass = 'ace-sql-console';
-  exports.cssText = require('../index.scss');
-
-  const dom = acequire('../lib/dom');
-  dom.importCssString(exports.cssText, exports.cssClass);
-});
+export const PLUGIN_ID = 'opendistroQueryWorkbench';
+export const PLUGIN_NAME = 'Query Workbench';
