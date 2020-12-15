@@ -36,6 +36,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.window;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
@@ -314,6 +315,22 @@ class AstExpressionBuilderTest {
     assertEquals(
         qualifiedName("test", "timestamp"),
         buildExprAst("test.timestamp")
+    );
+  }
+
+  @Test
+  public void canCastFieldAsString() {
+    assertEquals(
+        AstDSL.cast(qualifiedName("state"), stringLiteral("string")),
+        buildExprAst("cast(state as string)")
+    );
+  }
+
+  @Test
+  public void canCastValueAsString() {
+    assertEquals(
+        AstDSL.cast(intLiteral(1), stringLiteral("string")),
+        buildExprAst("cast(1 as string)")
     );
   }
 

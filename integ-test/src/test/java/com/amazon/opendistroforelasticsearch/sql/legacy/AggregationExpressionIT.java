@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
 import org.json.JSONObject;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -257,11 +258,13 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
   @Test
   public void aggregateCastStatementShouldNotReturnZero() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(String.format(
         "SELECT SUM(CAST(male AS INT)) AS male_sum FROM %s",
         Index.BANK.getName()));
 
-    verifySchema(response, schema("male_sum", "male_sum", "double"));
+    verifySchema(response, schema("male_sum", "male_sum", "integer"));
     verifyDataRows(response, rows(4));
   }
 

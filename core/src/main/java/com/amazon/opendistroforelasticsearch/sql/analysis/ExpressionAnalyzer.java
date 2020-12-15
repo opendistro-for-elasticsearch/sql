@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
@@ -66,6 +67,13 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Getter
   private final BuiltinFunctionRepository repository;
   private final DSL dsl;
+
+  @Override
+  public Expression visitCast(Cast node, AnalysisContext context) {
+    final Expression expression = node.getExpression().accept(this, context);
+    return (Expression) repository
+        .compile(node.convertFunctionName(), Collections.singletonList(expression));
+  }
 
   public ExpressionAnalyzer(
       BuiltinFunctionRepository repository) {
