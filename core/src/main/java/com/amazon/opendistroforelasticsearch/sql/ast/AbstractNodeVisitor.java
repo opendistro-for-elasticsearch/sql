@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
@@ -223,6 +224,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitWhen(When node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitCast(Cast node, C context) {
     return visitChildren(node, context);
   }
 

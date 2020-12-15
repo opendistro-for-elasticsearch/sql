@@ -25,7 +25,65 @@ CAST
 Description
 >>>>>>>>>>>
 
-Specification is undefined and type check is skipped for now
+Usage: cast(expr as dateType) cast the expr to dataType. return the value of dataType. The following conversion rules are used:
+
++------------+--------+--------+---------+-------------+--------+--------+
+| Src/Target | STRING | NUMBER | BOOLEAN | TIMESTAMP   | DATE   | TIME   |
++------------+--------+--------+---------+-------------+--------+--------+
+| STRING     |        | Note1  | Note1   | TIMESTAMP() | DATE() | TIME() |
++------------+--------+--------+---------+-------------+--------+--------+
+| NUMBER     | Note1  |        | v!=0    | N/A         | N/A    | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| BOOLEAN    | Note1  | v?1:0  |         | N/A         | N/A    | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| TIMESTAMP  | Note1  | N/A    | N/A     |             | DATE() | TIME() |
++------------+--------+--------+---------+-------------+--------+--------+
+| DATE       | Note1  | N/A    | N/A     | N/A         |        | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| TIME       | Note1  | N/A    | N/A     | N/A         | N/A    |        |
++------------+--------+--------+---------+-------------+--------+--------+
+
+Note1: the conversion follow the JDK specification.
+
+Cast to string example::
+
+    od> SELECT cast(true as string) as cbool, cast(1 as string) as cint, cast(DATE '2012-08-07' as string) as cdate
+    fetched rows / total rows = 1/1
+    +---------+--------+------------+
+    | cbool   | cint   | cdate      |
+    |---------+--------+------------|
+    | true    | 1      | 2012-08-07 |
+    +---------+--------+------------+
+
+Cast to number example::
+
+    od> SELECT cast(true as int) as cbool, cast('1' as int) as cstring
+    fetched rows / total rows = 1/1
+    +---------+-----------+
+    | cbool   | cstring   |
+    |---------+-----------|
+    | 1       | 1         |
+    +---------+-----------+
+
+Cast to date example::
+
+    od> SELECT cast('2012-08-07' as date) as cdate, cast('01:01:01' as time) as ctime, cast('2012-08-07 01:01:01' as timestamp) as ctimestamp
+    fetched rows / total rows = 1/1
+    +------------+----------+---------------------+
+    | cdate      | ctime    | ctimestamp          |
+    |------------+----------+---------------------|
+    | 2012-08-07 | 01:01:01 | 2012-08-07 01:01:01 |
+    +------------+----------+---------------------+
+
+Cast function can be chained::
+
+    od> SELECT cast(cast(true as string) as boolean) as cbool
+    fetched rows / total rows = 1/1
+    +---------+
+    | cbool   |
+    |---------|
+    | True    |
+    +---------+
 
 
 Mathematical Functions

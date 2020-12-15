@@ -52,6 +52,7 @@ import org.elasticsearch.search.SearchHits;
 import org.hamcrest.collection.IsMapContaining;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -219,19 +220,23 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void castIntFieldToFloatWithoutAliasJdbcFormatTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(
-        "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        "SELECT CAST(balance AS FLOAT) AS cast_balance FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
             " ORDER BY balance DESC LIMIT 1");
 
     verifySchema(response,
         schema("cast_balance", null, "float"));
 
     verifyDataRows(response,
-        rows(49989));
+        rows(49989.0));
   }
 
   @Test
   public void castIntFieldToFloatWithAliasJdbcFormatTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(
         "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
             "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY jdbc_float_alias LIMIT 1");
@@ -240,7 +245,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         schema("jdbc_float_alias", null, "float"));
 
     verifyDataRows(response,
-        rows(1011));
+        rows(1011.0));
   }
 
   @Test
@@ -370,8 +375,11 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         rows("2019-09-25T02:04:13.469Z"));
   }
 
+
   @Test
   public void castBoolFieldToNumericValueInSelectClause() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response =
         executeJdbcRequest(
             "SELECT "
@@ -392,13 +400,15 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         schema("cast_double", "double")
     );
     verifyDataRows(response,
-        rows(true, 1, 1, 1, 1),
-        rows(false, 0, 0, 0, 0)
+        rows(true, 1, 1, 1.0, 1.0),
+        rows(false, 0, 0, 0.0, 0.0)
     );
   }
 
   @Test
   public void castBoolFieldToNumericValueWithGroupByAlias() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response =
         executeJdbcRequest(
             "SELECT "
@@ -409,12 +419,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
 
     verifySchema(response,
-        schema("cast_int", "cast_int", "double"), //Type is double due to query plan fail to infer
+        schema("cast_int", "cast_int", "integer"),
         schema("COUNT(*)", "integer")
     );
     verifyDataRows(response,
-        rows("0", 3),
-        rows("1", 4)
+        rows(0, 3),
+        rows(1, 4)
     );
   }
 

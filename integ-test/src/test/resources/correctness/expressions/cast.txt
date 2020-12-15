@@ -1,0 +1,14 @@
+cast('1' as int) as castInt
+cast(1 as int) as castInt
+cast(true as int) as castInt
+cast(false as int) as castInt
+cast('1' as double) as castDouble
+cast(1 as double) as castDouble
+cast(true as double) as castDouble
+cast(false as double) as castDouble
+cast('2012-08-07 01:01:01' as timestamp) as castTimestamp
+cast('2012-08-07' as date) as castDate
+cast('01:01:01' as time) as castTime
+cast('true' as boolean) as castBool
+cast(1 as boolean) as castBool
+cast(cast(1 as string) as int) castCombine
