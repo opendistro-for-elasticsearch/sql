@@ -1,0 +1,1 @@
+SELECT COUNT(timestamp) FROM kibana_sample_data_flights
