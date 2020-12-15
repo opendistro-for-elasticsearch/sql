@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -219,6 +220,10 @@ public class AstDSL {
                                        UnresolvedExpression elseClause,
                                        When... whenClauses) {
     return new Case(caseValueExpr, Arrays.asList(whenClauses), elseClause);
+  }
+
+  public UnresolvedExpression cast(UnresolvedExpression expr, Literal type) {
+    return new Cast(expr, type);
   }
 
   public When when(UnresolvedExpression condition, UnresolvedExpression result) {
