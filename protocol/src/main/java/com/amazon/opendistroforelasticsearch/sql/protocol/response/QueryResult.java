@@ -54,7 +54,8 @@ public class QueryResult implements Iterable<Object[]> {
   /**
    * Parse column name from results.
    *
-   * @return mapping from column names to its expression type
+   * @return mapping from column names to its expression type.
+   *        note that column name could be original name or its alias if any.
    */
   public Map<String, String> columnNameTypes() {
     Map<String, String> colNameTypes = new LinkedHashMap<>();
