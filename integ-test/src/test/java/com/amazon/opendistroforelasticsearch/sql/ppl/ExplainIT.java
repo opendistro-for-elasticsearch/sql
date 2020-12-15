@@ -60,7 +60,8 @@ public class ExplainIT extends PPLIntegTestCase {
             "source=elasticsearch-sql_test_index_account"
                 + "| where age > 30 "
                 + "| where age < 40 "
-                + "| where balance > 10000 ")
+                + "| where balance > 10000 "
+                + "| fields age")
     );
   }
 
@@ -80,12 +81,14 @@ public class ExplainIT extends PPLIntegTestCase {
   @Test
   public void testSortPushDownExplain() throws Exception {
     String expected = loadFromFile("expectedOutput/ppl/explain_sort_push.json");
+
     assertJsonEquals(
         expected,
         explainQueryToString(
             "source=elasticsearch-sql_test_index_account"
                 + "| sort age "
-                + "| where age > 30")
+                + "| where age > 30"
+                + "| fields age")
     );
   }
 

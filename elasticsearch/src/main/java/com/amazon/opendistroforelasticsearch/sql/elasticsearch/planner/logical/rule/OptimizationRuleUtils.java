@@ -18,8 +18,14 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.rule;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -49,5 +55,38 @@ public class OptimizationRuleUtils {
         .map(sort -> Sort.SortOption.DEFAULT_ASC.equals(sort.getLeft())
             || Sort.SortOption.DEFAULT_DESC.equals(sort.getLeft()))
         .reduce(true, Boolean::logicalAnd);
+  }
+
+  /**
+   * Find reference expression from expression.
+   * @param expressions a list of expression.
+   *
+   * @return a list of ReferenceExpression
+   */
+  public static Set<ReferenceExpression> findReferenceExpressions(
+      List<NamedExpression> expressions) {
+    Set<ReferenceExpression> projectList = new HashSet<>();
+    for (NamedExpression namedExpression : expressions) {
+      projectList.addAll(findReferenceExpression(namedExpression));
+    }
+    return projectList;
+  }
+
+  /**
+   * Find reference expression from expression.
+   * @param expression expression.
+   *
+   * @return a list of ReferenceExpression
+   */
+  public static List<ReferenceExpression> findReferenceExpression(
+      NamedExpression expression) {
+    List<ReferenceExpression> results = new ArrayList<>();
+    expression.accept(new ExpressionNodeVisitor<Object, Object>() {
+      @Override
+      public Object visitReference(ReferenceExpression node, Object context) {
+        return results.add(node);
+      }
+    }, null);
+    return results;
   }
 }

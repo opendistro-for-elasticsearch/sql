@@ -23,12 +23,15 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.E
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.ElasticsearchLogicalIndexScan;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -67,23 +70,12 @@ public class Utils {
   /**
    * Build ElasticsearchLogicalIndexScan.
    */
-  public static LogicalPlan indexScan(String tableName, Integer offset, Integer limit) {
+  public static LogicalPlan indexScan(String tableName, Integer offset, Integer limit,
+                                      Set<ReferenceExpression> projectList) {
     return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
         .offset(offset)
         .limit(limit)
-        .build();
-  }
-
-  /**
-   * Build ElasticsearchLogicalIndexScan.
-   */
-  public static LogicalPlan indexScan(String tableName,
-                                      Expression filter,
-                                      Integer offset, Integer limit) {
-    return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
-        .filter(filter)
-        .offset(offset)
-        .limit(limit)
+        .projectList(projectList)
         .build();
   }
 
@@ -93,12 +85,52 @@ public class Utils {
   public static LogicalPlan indexScan(String tableName,
                                       Expression filter,
                                       Integer offset, Integer limit,
-                                      Pair<Sort.SortOption, Expression>... sorts) {
+                                      Set<ReferenceExpression> projectList) {
     return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
         .filter(filter)
-        .sortList(Arrays.asList(sorts))
         .offset(offset)
         .limit(limit)
+        .projectList(projectList)
+        .build();
+  }
+
+  /**
+   * Build ElasticsearchLogicalIndexScan.
+   */
+  public static LogicalPlan indexScan(String tableName,
+                                      Expression filter,
+                                      Integer offset, Integer limit,
+                                      List<Pair<Sort.SortOption, Expression>> sorts,
+                                      Set<ReferenceExpression> projectList) {
+    return ElasticsearchLogicalIndexScan.builder().relationName(tableName)
+        .filter(filter)
+        .sortList(sorts)
+        .offset(offset)
+        .limit(limit)
+        .projectList(projectList)
+        .build();
+  }
+
+  /**
+   * Build ElasticsearchLogicalIndexScan.
+   */
+  public static LogicalPlan indexScan(String tableName,
+                                      Set<ReferenceExpression> projects) {
+    return ElasticsearchLogicalIndexScan.builder()
+        .relationName(tableName)
+        .projectList(projects)
+        .build();
+  }
+
+  /**
+   * Build ElasticsearchLogicalIndexScan.
+   */
+  public static LogicalPlan indexScan(String tableName, Expression filter,
+                                      Set<ReferenceExpression> projects) {
+    return ElasticsearchLogicalIndexScan.builder()
+        .relationName(tableName)
+        .filter(filter)
+        .projectList(projects)
         .build();
   }
 
@@ -154,5 +186,13 @@ public class Utils {
                                                              Expression expr2,
                                                              Sort.SortOption option2) {
     return Arrays.asList(Pair.of(option1, expr1), Pair.of(option2, expr2));
+  }
+
+  public static Set<ReferenceExpression> projects(ReferenceExpression... expressions) {
+    return ImmutableSet.copyOf(expressions);
+  }
+
+  public static Set<ReferenceExpression> noProjects() {
+    return null;
   }
 }

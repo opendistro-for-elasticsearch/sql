@@ -44,7 +44,7 @@ The consecutive Filter operator will be merged as one Filter operator::
           {
             "name": "ElasticsearchIndexScan",
             "description": {
-              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"query\":{\"bool\":{\"filter\":[{\"range\":{\"age\":{\"from\":null,\"to\":20,\"include_lower\":true,\"include_upper\":false,\"boost\":1.0}}},{\"range\":{\"age\":{\"from\":10,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}}],\"adjust_pure_negative\":true,\"boost\":1.0}},\"sort\":[{\"_doc\":{\"order\":\"asc\"}}]}, searchDone=false)"
+              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"query\":{\"bool\":{\"filter\":[{\"range\":{\"age\":{\"from\":null,\"to\":20,\"include_lower\":true,\"include_upper\":false,\"boost\":1.0}}},{\"range\":{\"age\":{\"from\":10,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}}],\"adjust_pure_negative\":true,\"boost\":1.0}},\"_source\":{\"includes\":[\"age\"],\"excludes\":[]},\"sort\":[{\"_doc\":{\"order\":\"asc\"}}]}, searchDone=false)"
             },
             "children": []
           }
@@ -71,7 +71,7 @@ The Filter operator should be push down under Sort operator::
           {
             "name": "ElasticsearchIndexScan",
             "description": {
-              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"query\":{\"range\":{\"age\":{\"from\":null,\"to\":20,\"include_lower\":true,\"include_upper\":false,\"boost\":1.0}}},\"sort\":[{\"age\":{\"order\":\"asc\",\"missing\":\"_first\"}}]}, searchDone=false)"
+              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"query\":{\"range\":{\"age\":{\"from\":null,\"to\":20,\"include_lower\":true,\"include_upper\":false,\"boost\":1.0}}},\"_source\":{\"includes\":[\"age\"],\"excludes\":[]},\"sort\":[{\"age\":{\"order\":\"asc\",\"missing\":\"_first\"}}]}, searchDone=false)"
             },
             "children": []
           }
@@ -84,6 +84,31 @@ Elasticsearch Specific Optimization
 ===================================
 
 The Elasticsearch `Query DSL <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html>`_ and `Aggregation <https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html>`_ also enabling the storage engine specific optimization.
+
+Push Project Into Query DSL
+---------------------------
+The Project list will push down to Query DSL to `filter the source <https://www.elastic.co/guide/en/elasticsearch/reference/7.x/search-fields.html#source-filtering>`_::
+
+    sh$ curl -sS -H 'Content-Type: application/json' \
+    ... -X POST localhost:9200/_opendistro/_sql/_explain \
+    ... -d '{"query" : "SELECT age FROM accounts"}'
+    {
+      "root": {
+        "name": "ProjectOperator",
+        "description": {
+          "fields": "[age]"
+        },
+        "children": [
+          {
+            "name": "ElasticsearchIndexScan",
+            "description": {
+              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"_source\":{\"includes\":[\"age\"],\"excludes\":[]}}, searchDone=false)"
+            },
+            "children": []
+          }
+        ]
+      }
+    }
 
 Filter Merge Into Query DSL
 ---------------------------
@@ -103,7 +128,7 @@ The Filter operator will merge into Elasticsearch Query DSL::
           {
             "name": "ElasticsearchIndexScan",
             "description": {
-              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"query\":{\"range\":{\"age\":{\"from\":30,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}},\"sort\":[{\"_doc\":{\"order\":\"asc\"}}]}, searchDone=false)"
+              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"query\":{\"range\":{\"age\":{\"from\":30,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}},\"_source\":{\"includes\":[\"age\"],\"excludes\":[]},\"sort\":[{\"_doc\":{\"order\":\"asc\"}}]}, searchDone=false)"
             },
             "children": []
           }
@@ -129,7 +154,7 @@ The Sort operator will merge into Elasticsearch Query DSL::
           {
             "name": "ElasticsearchIndexScan",
             "description": {
-              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"sort\":[{\"age\":{\"order\":\"asc\",\"missing\":\"_first\"}}]}, searchDone=false)"
+              "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\",\"_source\":{\"includes\":[\"age\"],\"excludes\":[]},\"sort\":[{\"age\":{\"order\":\"asc\",\"missing\":\"_first\"}}]}, searchDone=false)"
             },
             "children": []
           }
@@ -191,7 +216,7 @@ The Limit operator will merge in Elasticsearch Query DSL::
               {
                 "name": "ElasticsearchIndexScan",
                 "description": {
-                  "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":5,\"size\":10,\"timeout\":\"1m\"}, searchDone=false)"
+                  "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":5,\"size\":10,\"timeout\":\"1m\",\"_source\":{\"includes\":[\"age\"],\"excludes\":[]}}, searchDone=false)"
                 },
                 "children": []
               }
