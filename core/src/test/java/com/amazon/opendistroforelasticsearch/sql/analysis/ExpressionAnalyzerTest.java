@@ -37,6 +37,9 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -135,6 +138,17 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
                 AstDSL.function(">",
                     AstDSL.qualifiedName("integer_value"),
                     AstDSL.intLiteral(30)), AstDSL.stringLiteral("Thirty"))));
+  }
+
+  @Test
+  public void castAnalyzer() {
+    assertAnalyzeEqual(
+        dsl.castInt(DSL.ref("boolean_value", BOOLEAN)),
+        AstDSL.cast(AstDSL.unresolvedAttr("boolean_value"), AstDSL.stringLiteral("INT"))
+    );
+
+    assertThrows(IllegalStateException.class, () -> analyze(AstDSL.cast(AstDSL.unresolvedAttr(
+        "boolean_value"), AstDSL.stringLiteral("DATETIME"))));
   }
 
   @Test

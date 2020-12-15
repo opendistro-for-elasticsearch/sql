@@ -46,6 +46,7 @@ ALL:                                'ALL';
 AND:                                'AND';
 AS:                                 'AS';
 ASC:                                'ASC';
+BOOLEAN:                            'BOOLEAN';
 BETWEEN:                            'BETWEEN';
 BY:                                 'BY';
 CASE:                               'CASE';
