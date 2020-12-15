@@ -165,7 +165,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitWindowFunction(WindowFunction node, AnalysisContext context) {
-    return visitFunction(node.getFunction(), context);
+    Expression expr = node.getFunction().accept(this, context);
+    // Wrap regular aggregator by aggregate window function to adapt window operator use
+    if (expr instanceof Aggregator) {
+      //return new AggregateWindowFunction((Aggregator<AggregationState>) expr);
+    }
+    return expr;
   }
 
   @Override
