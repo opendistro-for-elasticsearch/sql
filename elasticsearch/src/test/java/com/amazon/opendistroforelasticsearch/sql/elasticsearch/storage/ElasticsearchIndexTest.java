@@ -21,6 +21,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.I
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScan;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScanAgg;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.noProjects;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.projects;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
@@ -36,6 +38,8 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalP
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -57,7 +61,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
@@ -66,7 +69,6 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
@@ -74,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -359,7 +362,7 @@ class ElasticsearchIndexTest {
         project(
             indexScan(
                 indexName,
-                1, 1
+                1, 1, noProjects()
             ),
             named));
 
@@ -382,7 +385,8 @@ class ElasticsearchIndexTest {
             indexScan(
                 indexName,
                 sortExpr,
-                1, 1
+                1, 1,
+                noProjects()
             ),
             named));
 
@@ -412,5 +416,28 @@ class ElasticsearchIndexTest {
 
     assertTrue(plan instanceof ProjectOperator);
     assertTrue(((ProjectOperator) plan).getInput() instanceof LimitOperator);
+  }
+
+  @Test
+  void shouldPushDownProjects() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName, projects(ref("intV", INTEGER))
+            ),
+            named("i", ref("intV", INTEGER))));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+
+    final FetchSourceContext fetchSource =
+        ((ElasticsearchIndexScan) ((ProjectOperator) plan).getInput()).getRequest()
+            .getSourceBuilder().fetchSource();
+    assertThat(fetchSource.includes(), arrayContaining("intV"));
+    assertThat(fetchSource.excludes(), emptyArray());
   }
 }
