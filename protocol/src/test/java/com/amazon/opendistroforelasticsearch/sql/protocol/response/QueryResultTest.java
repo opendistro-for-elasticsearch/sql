@@ -33,8 +33,8 @@ import org.junit.jupiter.api.Test;
 class QueryResultTest {
 
   private ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-      new ExecutionEngine.Schema.Column("name", "name", STRING),
-      new ExecutionEngine.Schema.Column("age", "age", INTEGER)));
+      new ExecutionEngine.Schema.Column("name", "n", STRING),
+      new ExecutionEngine.Schema.Column("age", null, INTEGER)));
 
 
   @Test
@@ -58,7 +58,7 @@ class QueryResultTest {
         ));
 
     assertEquals(
-        ImmutableMap.of("name", "string", "age", "integer"),
+        ImmutableMap.of("n", "string", "age", "integer"),
         response.columnNameTypes()
     );
   }
@@ -69,7 +69,7 @@ class QueryResultTest {
         schema,
         Collections.emptyList());
     assertEquals(
-        ImmutableMap.of("name", "string", "age", "integer"),
+        ImmutableMap.of("n", "string", "age", "integer"),
         response.columnNameTypes()
     );
   }
@@ -84,7 +84,7 @@ class QueryResultTest {
         ));
 
     assertEquals(
-        ImmutableMap.of("name", "string", "age", "integer"),
+        ImmutableMap.of("n", "string", "age", "integer"),
         response.columnNameTypes()
     );
   }
