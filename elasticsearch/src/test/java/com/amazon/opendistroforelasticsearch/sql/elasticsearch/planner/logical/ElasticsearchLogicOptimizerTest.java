@@ -505,6 +505,22 @@ class ElasticsearchLogicOptimizerTest {
     );
   }
 
+  @Test
+  void project_literal_no_push() {
+    assertEquals(
+        project(
+            relation("schema"),
+            DSL.named("i", DSL.literal("str"))
+        ),
+        optimize(
+            project(
+                relation("schema"),
+                DSL.named("i", DSL.literal("str"))
+            )
+        )
+    );
+  }
+
   private LogicalPlan optimize(LogicalPlan plan) {
     final LogicalPlanOptimizer optimizer = ElasticsearchLogicalPlanOptimizerFactory.create();
     final LogicalPlan optimize = optimizer.optimize(plan);

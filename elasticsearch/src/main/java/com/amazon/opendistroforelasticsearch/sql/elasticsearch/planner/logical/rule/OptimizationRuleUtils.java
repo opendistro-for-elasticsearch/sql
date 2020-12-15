@@ -82,12 +82,6 @@ public class OptimizationRuleUtils {
       NamedExpression expression) {
     List<ReferenceExpression> results = new ArrayList<>();
     expression.accept(new ExpressionNodeVisitor<Object, Object>() {
-
-      @Override
-      public Object visitNamed(NamedExpression node, Object context) {
-        return node.getDelegated().accept(this, context);
-      }
-
       @Override
       public Object visitReference(ReferenceExpression node, Object context) {
         return results.add(node);

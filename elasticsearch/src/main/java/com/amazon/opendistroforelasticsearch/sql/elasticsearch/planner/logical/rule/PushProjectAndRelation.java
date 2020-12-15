@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.optimizer.patter
 import static com.facebook.presto.matching.Pattern.typeOf;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical.ElasticsearchLogicalIndexScan;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
@@ -29,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.Rule;
 import com.facebook.presto.matching.Capture;
 import com.facebook.presto.matching.Captures;
 import com.facebook.presto.matching.Pattern;
+import java.util.Set;
 
 /**
  * Push Project list into Relation. The transformed plan is Project - IndexScan
@@ -39,12 +41,18 @@ public class PushProjectAndRelation implements Rule<LogicalProject> {
 
   private final Pattern<LogicalProject> pattern;
 
+  private Set<ReferenceExpression> pushDownProjects;
+
   /**
    * Constructor of MergeProjectAndRelation.
    */
   public PushProjectAndRelation() {
     this.relationCapture = Capture.newCapture();
     this.pattern = typeOf(LogicalProject.class)
+        .matching(project -> {
+          pushDownProjects = findReferenceExpressions(project.getProjectList());
+          return !pushDownProjects.isEmpty();
+        })
         .with(source().matching(typeOf(LogicalRelation.class).capturedAs(relationCapture)));
   }
 
