@@ -15,16 +15,27 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
+import java.io.IOException;
+import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.jupiter.api.Test;
+
 public class HeadCommandIT extends PPLIntegTestCase {
+
+  @Before
+  public void beforeTest() throws IOException {
+    setQuerySizeLimit(200);
+  }
+
+  @After
+  public void afterTest() throws IOException {
+    resetQuerySizeLimit();
+  }
 
   @Override
   public void init() throws IOException {

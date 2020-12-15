@@ -70,7 +70,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
                                 ElasticsearchExprValueFactory exprValueFactory) {
     this.client = client;
     this.request = new ElasticsearchQueryRequest(indexName,
-        settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT), exprValueFactory);
+            settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT), exprValueFactory);
   }
 
   @Override
@@ -144,6 +144,14 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     }
   }
 
+  /**
+   * Push down size (limit) and from (offset) to DSL request.
+   */
+  public void pushDownLimit(Integer limit, Integer offset) {
+    SearchSourceBuilder sourceBuilder = request.getSourceBuilder();
+    sourceBuilder.from(offset).size(limit);
+  }
+
   public void pushTypeMapping(Map<String, ExprType> typeMapping) {
     request.getExprValueFactory().setTypeMapping(typeMapping);
   }
@@ -159,4 +167,8 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     return (current instanceof BoolQueryBuilder);
   }
 
+  @Override
+  public String explain() {
+    return getRequest().toString();
+  }
 }

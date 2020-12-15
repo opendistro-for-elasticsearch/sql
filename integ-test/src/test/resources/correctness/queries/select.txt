@@ -26,3 +26,11 @@ SELECT DISTINCT OriginWeather, FlightDelay FROM kibana_sample_data_flights
 SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin FROM kibana_sample_data_flights
 SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin, FlightDelay FROM kibana_sample_data_flights
 SELECT COUNT(*) AS count FROM kibana_sample_data_flights
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 0
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10 OFFSET 5
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10 OFFSET 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 1000 OFFSET 100
+SELECT abs(AvgTicketPrice) FROM kibana_sample_data_flights ORDER BY abs(AvgTicketPrice) LIMIT 10, 10
+SELECT AvgTicketPrice - 1 FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10, 10

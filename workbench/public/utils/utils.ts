@@ -84,7 +84,7 @@ export function scrollToNode(nodeId: string): void {
 
 // Download functions
 export function onDownloadFile(data: any, fileFormat: string, fileName: string) {
-  const encodedUri = encodeURI(data);
+  const encodedUri = encodeURIComponent(data);
   const content = 'data:text/'+fileFormat+';charset=utf-8,' + encodedUri;
   const link = document.createElement("a");
   link.setAttribute('href', content);

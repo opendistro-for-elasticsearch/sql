@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,6 +27,8 @@ import java.util.Map;
  * example, implementation by node client for ES plugin or by REST client for standalone mode.
  */
 public interface ElasticsearchClient {
+
+  String META_CLUSTER_NAME = "CLUSTER_NAME";
 
   /**
    * Fetch index mapping(s) according to index expression given.
@@ -42,6 +45,20 @@ public interface ElasticsearchClient {
    * @return search response
    */
   ElasticsearchResponse search(ElasticsearchRequest request);
+
+  /**
+   * Get the combination of the indices and the alias.
+   *
+   * @return the combination of the indices and the alias
+   */
+  List<String> indices();
+
+  /**
+   * Get meta info of the cluster.
+   *
+   * @return meta info of the cluster.
+   */
+  Map<String, String> meta();
 
   /**
    * Clean up resources related to the search request, for example scroll context.

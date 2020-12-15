@@ -40,7 +40,7 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstExpressionBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,7 +82,7 @@ public class QuerySpecification {
    * Aggregate function calls that spreads in SELECT, HAVING clause. Since this is going to be
    * pushed to aggregation operator, de-duplicate is necessary to avoid duplication.
    */
-  private final Set<UnresolvedExpression> aggregators = new HashSet<>();
+  private final Set<UnresolvedExpression> aggregators = new LinkedHashSet<>();
 
   /**
    * Items in GROUP BY clause that may be:

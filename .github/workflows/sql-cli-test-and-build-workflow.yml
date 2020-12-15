@@ -32,11 +32,11 @@ jobs:
         run: |
           sudo add-apt-repository ppa:openjdk-r/ppa
           sudo apt update
-          sudo apt install openjdk-11-jdk
+          sudo apt install openjdk-13-jdk
           sudo apt install unzip
-          wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.6.1-amd64.deb
-          sudo dpkg -i elasticsearch-oss-7.6.1-amd64.deb
-          sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/opendistro-sql/opendistro_sql-1.6.0.0.zip
+          wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.10.0-amd64.deb
+          sudo dpkg -i elasticsearch-oss-7.10.0-amd64.deb
+          sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/opendistro-sql/opendistro_sql-1.12.0.0.zip
           sudo systemctl start elasticsearch.service
 
       - name: Run Tox Testing

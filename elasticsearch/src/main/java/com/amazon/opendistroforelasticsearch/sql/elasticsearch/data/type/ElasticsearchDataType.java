@@ -21,9 +21,11 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -51,6 +53,15 @@ public enum ElasticsearchDataType implements ExprType {
   ES_BINARY(Arrays.asList(UNKNOWN), "binary");
 
   /**
+   * The mapping between Type and legacy JDBC type name.
+   */
+  private static final Map<ExprType, String> LEGACY_TYPE_NAME_MAPPING =
+      new ImmutableMap.Builder<ExprType, String>()
+          .put(ES_TEXT, "text")
+          .put(ES_TEXT_KEYWORD, "text")
+          .build();
+
+  /**
    * Parent of current type.
    */
   private final List<ExprType> parents;
@@ -67,5 +78,10 @@ public enum ElasticsearchDataType implements ExprType {
   @Override
   public String typeName() {
     return jdbcType;
+  }
+
+  @Override
+  public String legacyTypeName() {
+    return LEGACY_TYPE_NAME_MAPPING.getOrDefault(this, typeName());
   }
 }

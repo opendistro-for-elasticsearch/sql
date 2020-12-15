@@ -47,6 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAct
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -77,6 +78,8 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
 
   public static final String PERSISTENT = "persistent";
   public static final String TRANSIENT = "transient";
+  public static final Integer DEFAULT_QUERY_SIZE_LIMIT =
+      Integer.parseInt(System.getProperty("defaultQuerySizeLimit", "200"));
 
   @Before
   public void setUpIndices() throws Exception {
@@ -85,6 +88,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     }
 
     enableNewQueryEngine();
+    resetQuerySizeLimit();
     init();
   }
 
@@ -152,6 +156,17 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
 
   protected boolean isNewQueryEngineEabled() {
     return Boolean.parseBoolean(System.getProperty("enableNewEngine", "false"));
+  }
+
+  protected void setQuerySizeLimit(Integer limit) throws IOException {
+    updateClusterSettings(
+        new ClusterSetting("transient", Settings.Key.QUERY_SIZE_LIMIT.getKeyValue(), limit.toString()));
+  }
+
+  protected void resetQuerySizeLimit() throws IOException {
+    updateClusterSettings(
+        new ClusterSetting("transient", Settings.Key.QUERY_SIZE_LIMIT.getKeyValue(), DEFAULT_QUERY_SIZE_LIMIT
+            .toString()));
   }
 
   protected static void wipeAllClusterSettings() throws IOException {
@@ -502,6 +517,10 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
         "strings",
         getStringIndexMapping(),
         "src/test/resources/strings.json"),
+    BANK_CSV_SANITIZE(TestsConstants.TEST_INDEX_BANK_CSV_SANITIZE,
+        "account",
+        getBankIndexMapping(),
+        "src/test/resources/bank_csv_sanitize.json"),
     ORDER(TestsConstants.TEST_INDEX_ORDER,
         "_doc",
         getOrderIndexMapping(),

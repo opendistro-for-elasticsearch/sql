@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import org.elasticsearch.client.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -292,6 +293,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void testSizeAndTotal() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +

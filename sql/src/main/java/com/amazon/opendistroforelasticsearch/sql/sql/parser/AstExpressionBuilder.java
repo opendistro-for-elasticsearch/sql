@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
@@ -133,6 +135,30 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitTableFilter(OpenDistroSQLParser.TableFilterContext ctx) {
+    return new Function(
+        LIKE.getName().getFunctionName(),
+        Arrays.asList(qualifiedName("TABLE_NAME"), visit(ctx.showDescribePattern())));
+  }
+
+  @Override
+  public UnresolvedExpression visitColumnFilter(OpenDistroSQLParser.ColumnFilterContext ctx) {
+    return new Function(
+        LIKE.getName().getFunctionName(),
+        Arrays.asList(qualifiedName("COLUMN_NAME"), visit(ctx.showDescribePattern())));
+  }
+
+  @Override
+  public UnresolvedExpression visitShowDescribePattern(
+      OpenDistroSQLParser.ShowDescribePatternContext ctx) {
+    if (ctx.compatibleID() != null) {
+      return stringLiteral(ctx.compatibleID().getText());
+    } else {
+      return visit(ctx.stringLiteral());
+    }
+  }
+
+  @Override
   public UnresolvedExpression visitWindowFunction(WindowFunctionContext ctx) {
     OverClauseContext overClause = ctx.overClause();
 
@@ -229,6 +255,11 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitBoolean(BooleanContext ctx) {
     return AstDSL.booleanLiteral(Boolean.valueOf(ctx.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitStringLiteral(OpenDistroSQLParser.StringLiteralContext ctx) {
+    return AstDSL.stringLiteral(StringUtils.unquoteText(ctx.getText()));
   }
 
   @Override

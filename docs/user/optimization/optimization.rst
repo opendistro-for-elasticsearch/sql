@@ -137,7 +137,7 @@ The Sort operator will merge into Elasticsearch Query DSL::
       }
     }
 
-Because the Elasticsearch Script Based Sorting can't handle NULL/MISSING value, there is one exception is that if the sort list include expression other than field reference, it will not been merge into Query DSL::
+Because the Elasticsearch Script Based Sorting can't handle NULL/MISSING value, there is one exception is that if the sort list include expression other than field reference, it will not be merged into Query DSL::
 
     sh$ curl -sS -H 'Content-Type: application/json' \
     ... -X POST localhost:9200/_opendistro/_sql/_explain \
@@ -172,6 +172,77 @@ Because the Elasticsearch Script Based Sorting can't handle NULL/MISSING value, 
         ]
       }
     }
+
+Limit Merge Into Query DSL
+--------------------------
+
+The Limit operator will merge in Elasticsearch Query DSL::
+
+        sh$ curl -sS -H 'Content-Type: application/json' \
+        ... -X POST localhost:9200/_opendistro/_sql/_explain \
+        ... -d '{"query" : "SELECT age FROM accounts LIMIT 10 OFFSET 5"}'
+        {
+          "root": {
+            "name": "ProjectOperator",
+            "description": {
+              "fields": "[age]"
+            },
+            "children": [
+              {
+                "name": "ElasticsearchIndexScan",
+                "description": {
+                  "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":5,\"size\":10,\"timeout\":\"1m\"}, searchDone=false)"
+                },
+                "children": []
+              }
+            ]
+          }
+        }
+
+If sort that includes expression, which cannot be merged into query DSL, also exists in the query, the Limit operator will not be merged into query DSL as well::
+
+        sh$ curl -sS -H 'Content-Type: application/json' \
+        ... -X POST localhost:9200/_opendistro/_sql/_explain \
+        ... -d '{"query" : "SELECT age FROM accounts ORDER BY abs(age) LIMIT 10"}'
+        {
+          "root": {
+            "name": "ProjectOperator",
+            "description": {
+              "fields": "[age]"
+            },
+            "children": [
+              {
+                "name": "LimitOperator",
+                "description": {
+                  "limit": 10,
+                  "offset": 0
+                },
+                "children": [
+                  {
+                    "name": "SortOperator",
+                    "description": {
+                      "sortList": {
+                        "abs(age)": {
+                          "sortOrder": "ASC",
+                          "nullOrder": "NULL_FIRST"
+                        }
+                      }
+                    },
+                    "children": [
+                      {
+                        "name": "ElasticsearchIndexScan",
+                        "description": {
+                          "request": "ElasticsearchQueryRequest(indexName=accounts, sourceBuilder={\"from\":0,\"size\":200,\"timeout\":\"1m\"}, searchDone=false)"
+                        },
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
 
 Aggregation Merge Into Elasticsearch Aggregation
 ------------------------------------------------
