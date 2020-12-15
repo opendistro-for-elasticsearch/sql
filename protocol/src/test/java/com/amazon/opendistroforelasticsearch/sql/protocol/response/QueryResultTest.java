@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 class QueryResultTest {
 
   private ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-      new ExecutionEngine.Schema.Column("name", "n", STRING),
+      new ExecutionEngine.Schema.Column("name", null, STRING),
       new ExecutionEngine.Schema.Column("age", null, INTEGER)));
 
 
@@ -58,7 +58,21 @@ class QueryResultTest {
         ));
 
     assertEquals(
-        ImmutableMap.of("n", "string", "age", "integer"),
+        ImmutableMap.of("name", "string", "age", "integer"),
+        response.columnNameTypes()
+    );
+  }
+
+  @Test
+  void columnNameTypesWithAlias() {
+    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
+        new ExecutionEngine.Schema.Column("name", "n", STRING)));
+    QueryResult response = new QueryResult(
+        schema,
+        Collections.singletonList(tupleValue(ImmutableMap.of("n", "John"))));
+
+    assertEquals(
+        ImmutableMap.of("n", "string"),
         response.columnNameTypes()
     );
   }
@@ -69,7 +83,7 @@ class QueryResultTest {
         schema,
         Collections.emptyList());
     assertEquals(
-        ImmutableMap.of("n", "string", "age", "integer"),
+        ImmutableMap.of("name", "string", "age", "integer"),
         response.columnNameTypes()
     );
   }
@@ -84,7 +98,7 @@ class QueryResultTest {
         ));
 
     assertEquals(
-        ImmutableMap.of("n", "string", "age", "integer"),
+        ImmutableMap.of("name", "string", "age", "integer"),
         response.columnNameTypes()
     );
   }
