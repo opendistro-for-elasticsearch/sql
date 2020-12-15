@@ -409,6 +409,10 @@ public class DSL {
     return function(BuiltinFunctionName.STRCMP, expressions);
   }
 
+  public FunctionExpression right(Expression... expressions) {
+    return function(BuiltinFunctionName.RIGHT, expressions);
+  }
+
   public FunctionExpression and(Expression... expressions) {
     return function(BuiltinFunctionName.AND, expressions);
   }

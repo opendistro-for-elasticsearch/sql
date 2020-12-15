@@ -131,6 +131,7 @@ public enum BuiltinFunctionName {
   CONCAT_WS(FunctionName.of("concat_ws")),
   LENGTH(FunctionName.of("length")),
   STRCMP(FunctionName.of("strcmp")),
+  RIGHT(FunctionName.of("right")),
 
   /**
    * NULL Test.
