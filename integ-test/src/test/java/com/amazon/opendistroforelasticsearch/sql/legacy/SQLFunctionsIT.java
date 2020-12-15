@@ -37,7 +37,6 @@ import static org.hamcrest.Matchers.hasValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 import java.util.Date;
@@ -221,19 +220,23 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void castIntFieldToFloatWithoutAliasJdbcFormatTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(
-        "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        "SELECT CAST(balance AS FLOAT) AS cast_balance FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
             " ORDER BY balance DESC LIMIT 1");
 
     verifySchema(response,
         schema("cast_balance", null, "float"));
 
     verifyDataRows(response,
-        rows(49989));
+        rows(49989.0));
   }
 
   @Test
   public void castIntFieldToFloatWithAliasJdbcFormatTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(
         "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
             "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY jdbc_float_alias LIMIT 1");
@@ -242,7 +245,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         schema("jdbc_float_alias", null, "float"));
 
     verifyDataRows(response,
-        rows(1011));
+        rows(1011.0));
   }
 
   @Test
