@@ -16,11 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -35,11 +37,8 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -95,7 +94,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   public void qualified_name() {
     assertAnalyzeEqual(
         DSL.ref("integer_value", INTEGER),
-        AstDSL.qualifiedName("integer_value")
+        qualifiedName("integer_value")
     );
   }
 
@@ -111,7 +110,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
                 dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(50)),
                 DSL.literal("Fifty"))),
         AstDSL.caseWhen(
-            AstDSL.qualifiedName("integer_value"),
+            qualifiedName("integer_value"),
             AstDSL.stringLiteral("Default value"),
             AstDSL.when(AstDSL.intLiteral(30), AstDSL.stringLiteral("Thirty")),
             AstDSL.when(AstDSL.intLiteral(50), AstDSL.stringLiteral("Fifty"))));
@@ -132,11 +131,11 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
             null,
             AstDSL.when(
                 AstDSL.function(">",
-                    AstDSL.qualifiedName("integer_value"),
+                    qualifiedName("integer_value"),
                     AstDSL.intLiteral(50)), AstDSL.stringLiteral("Fifty")),
             AstDSL.when(
                 AstDSL.function(">",
-                    AstDSL.qualifiedName("integer_value"),
+                    qualifiedName("integer_value"),
                     AstDSL.intLiteral(30)), AstDSL.stringLiteral("Thirty"))));
   }
 
@@ -154,7 +153,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   @Test
   public void case_with_default_result_type_different() {
     UnresolvedExpression caseWhen = AstDSL.caseWhen(
-        AstDSL.qualifiedName("integer_value"),
+        qualifiedName("integer_value"),
         AstDSL.intLiteral(60),
         AstDSL.when(AstDSL.intLiteral(30), AstDSL.stringLiteral("Thirty")),
         AstDSL.when(AstDSL.intLiteral(50), AstDSL.stringLiteral("Fifty")));
@@ -167,18 +166,36 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void scalar_window_function() {
+    assertAnalyzeEqual(
+        dsl.rank(),
+        AstDSL.window(AstDSL.function("rank"), emptyList(), emptyList()));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void aggregate_window_function() {
+    assertAnalyzeEqual(
+        new AggregateWindowFunction(dsl.avg(DSL.ref("integer_value", INTEGER))),
+        AstDSL.window(
+            AstDSL.aggregate("avg", qualifiedName("integer_value")),
+            emptyList(),
+            emptyList()));
+  }
+
+  @Test
   public void qualified_name_with_qualifier() {
     analysisContext.push();
     analysisContext.peek().define(new Symbol(Namespace.INDEX_NAME, "index_alias"), STRUCT);
     assertAnalyzeEqual(
         DSL.ref("integer_value", INTEGER),
-        AstDSL.qualifiedName("index_alias", "integer_value")
+        qualifiedName("index_alias", "integer_value")
     );
 
     analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "nested_field"), STRUCT);
     SyntaxCheckException exception =
         assertThrows(SyntaxCheckException.class,
-            () -> analyze(AstDSL.qualifiedName("nested_field", "integer_value")));
+            () -> analyze(qualifiedName("nested_field", "integer_value")));
     assertEquals(
         "The qualifier [nested_field] of qualified name [nested_field.integer_value] "
             + "must be an index name or its alias",
@@ -213,7 +230,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
             AstDSL.nullLiteral(),
             AstDSL.when(
                 AstDSL.function("=",
-                    AstDSL.qualifiedName("integer_value"),
+                    qualifiedName("integer_value"),
                     AstDSL.intLiteral(30)),
                 AstDSL.stringLiteral("test"))));
   }
@@ -222,7 +239,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   public void skip_struct_data_type() {
     SyntaxCheckException exception =
         assertThrows(SyntaxCheckException.class,
-            () -> analyze(AstDSL.qualifiedName("struct_value")));
+            () -> analyze(qualifiedName("struct_value")));
     assertEquals(
         "Identifier [struct_value] of type [STRUCT] is not supported yet",
         exception.getMessage()
@@ -233,7 +250,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   public void skip_array_data_type() {
     SyntaxCheckException exception =
         assertThrows(SyntaxCheckException.class,
-            () -> analyze(AstDSL.qualifiedName("array_value")));
+            () -> analyze(qualifiedName("array_value")));
     assertEquals(
         "Identifier [array_value] of type [ARRAY] is not supported yet",
         exception.getMessage()
