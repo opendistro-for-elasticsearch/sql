@@ -2328,10 +2328,13 @@ export const mockQueryTranslationResponse =
   }
 };
 
-export const mockNotOkQueryResultResponse =
+export const mockErrorMessageInResponse =
 {
   "data": {
-    "ok": false,
-    "resp": ""
+    "data": {
+      "body": "{\"error\": {\"reason\": \"Error occurred\",\"details\": \"IndexNotFoundException\",\"type\": \"IndexNotFoundException\"},\"status\": 404}",
+      "ok": false,
+      "resp": "Bad Request"
+    }
   }
-};
+}

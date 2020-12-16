@@ -251,7 +251,8 @@ export class Main extends React.Component<MainProps, MainState> {
     };
   }
 
-  processQueryResponse(response: IHttpResponse<ResponseData>): ResponseDetail<string> {
+  processQueryResponse(response: any): ResponseDetail<string> {
+    console.log(response)
     if (!response) {
       return {
         fulfilled: false,
@@ -260,13 +261,17 @@ export class Main extends React.Component<MainProps, MainState> {
       }
     }
     if (!response.data.ok) {
+      // Error message in JSON format from backend is wrapped in response data
+      // response.data: IHttpResponse<ResponseData> 
+      const error: IHttpResponse<ResponseData> = response.data;
       return {
         fulfilled: false,
-        errorMessage: response.data.resp,
-        data: response.data.body,
+        errorMessage: error.data.resp,
+        data: error.data.body,
       };
     }
 
+    // response: IHttpResponse<ResponseData> 
     return {
       fulfilled: true,
       data: response.data.resp
@@ -337,8 +342,9 @@ export class Main extends React.Component<MainProps, MainState> {
       );
 
       Promise.all([responsePromise]).then(([response]) => {
+        console.log(responsePromise)
         const results: ResponseDetail<string>[] = response.map(response =>
-          this.processQueryResponse(response as IHttpResponse<ResponseData>));
+          this.processQueryResponse(response));
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
         this.setState(
           {
