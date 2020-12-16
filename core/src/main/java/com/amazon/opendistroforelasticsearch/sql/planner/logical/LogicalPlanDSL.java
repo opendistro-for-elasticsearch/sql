@@ -59,7 +59,7 @@ public class LogicalPlanDSL {
   }
 
   public LogicalPlan window(LogicalPlan input,
-                            Expression windowFunction,
+                            NamedExpression windowFunction,
                             WindowDefinition windowDefinition) {
     return new LogicalWindow(input, windowFunction, windowDefinition);
   }

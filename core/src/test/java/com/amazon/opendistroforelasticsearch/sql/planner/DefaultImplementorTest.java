@@ -178,7 +178,7 @@ class DefaultImplementorTest {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void visitWindowOperatorShouldReturnPhysicalWindowOperator() {
-    Expression windowFunction = new RowNumberFunction();
+    NamedExpression windowFunction = named(new RowNumberFunction());
     WindowDefinition windowDefinition = new WindowDefinition(
         Collections.singletonList(ref("state", STRING)),
         Collections.singletonList(

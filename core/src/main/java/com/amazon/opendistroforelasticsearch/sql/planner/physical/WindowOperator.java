@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
@@ -39,7 +39,7 @@ public class WindowOperator extends PhysicalPlan {
   private final PhysicalPlan input;
 
   @Getter
-  private final Expression windowFunction;
+  private final NamedExpression windowFunction;
 
   @Getter
   private final WindowDefinition windowDefinition;
@@ -55,7 +55,7 @@ public class WindowOperator extends PhysicalPlan {
    * @param windowDefinition  window definition
    */
   public WindowOperator(PhysicalPlan input,
-                        Expression windowFunction,
+                        NamedExpression windowFunction,
                         WindowDefinition windowDefinition) {
     this.input = input;
     this.windowFunction = windowFunction;
@@ -80,25 +80,13 @@ public class WindowOperator extends PhysicalPlan {
 
   @Override
   public ExprValue next() {
-    loadRowsIntoWindowFrame();
+    windowFrame.load(input);
     return enrichCurrentRowByWindowFunctionResult();
   }
 
-  /**
-   * For now cumulative window frame is returned always. When frame definition is supported:
-   *  1. Ranking window functions: ignore frame definition and always operates on entire window.
-   *  2. Aggregate window functions: operates on cumulative or sliding window based on definition.
-   */
   private WindowFrame createWindowFrame() {
-    return ((WindowFunctionExpression) windowFunction).createWindowFrame(windowDefinition);
-  }
-
-  /**
-   * For now always load next row into window frame. In future, how/how many rows loaded
-   * should be based on window frame type.
-   */
-  private void loadRowsIntoWindowFrame() {
-    windowFrame.load(input);
+    return ((WindowFunctionExpression) windowFunction.getDelegated())
+        .createWindowFrame(windowDefinition);
   }
 
   private ExprValue enrichCurrentRowByWindowFunctionResult() {
@@ -115,7 +103,7 @@ public class WindowOperator extends PhysicalPlan {
 
   private void addWindowFunctionResultColumn(ImmutableMap.Builder<String, ExprValue> mapBuilder) {
     ExprValue exprValue = windowFunction.valueOf(windowFrame);
-    mapBuilder.put(windowFunction.toString(), exprValue);
+    mapBuilder.put(windowFunction.getName(), exprValue);
   }
 
 }
