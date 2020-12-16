@@ -19,16 +19,17 @@ import { render, fireEvent } from "@testing-library/react";
 import { httpClientMock } from "../../../test/mocks";
 import {
   mockQueryResultJDBCResponse,
-  mockNotOkQueryResultResponse,
-  mockQueryTranslationResponse
+  mockQueryTranslationResponse,
+  mockErrorMessageInResponse
 } from "../../../test/mocks/mockData";
 import Main from "./main";
 
 describe("<Main /> spec", () => {
+  const onChange = jest.fn();
 
   it("renders the component", () => {
     render(
-      <Main httpClient={httpClientMock} />
+      <Main httpClient={httpClientMock} onChange={onChange} />
     );
     expect(document.body.children[0]).toMatchSnapshot();
   });
@@ -38,7 +39,7 @@ describe("<Main /> spec", () => {
     client.post = jest.fn().mockResolvedValue(mockQueryResultJDBCResponse);
 
     const { getByText } = render(
-      <Main httpClient={client} sqlQueriesString={'test\ntest\ntest\ntest'} />
+      <Main httpClient={client} onChange={onChange} />
     );
     const onRunButton = getByText('Run');
     const asyncTest = () => {
@@ -50,10 +51,10 @@ describe("<Main /> spec", () => {
 
   it("click run button, and response causes an error", async () => {
     const client = httpClientMock;
-    client.post = jest.fn().mockRejectedValue('err');
+    client.post = jest.fn().mockRejectedValue("err");
 
     const { getByText } = render(
-      <Main httpClient={client} sqlQueriesString={'test'} />
+      <Main httpClient={client} onChange={onChange} />
     );
     const onRunButton = getByText('Run');
     const asyncTest = () => {
@@ -65,10 +66,10 @@ describe("<Main /> spec", () => {
 
   it("click run button, and response is not ok", async () => {
     const client = httpClientMock;
-    client.post = jest.fn().mockResolvedValue(mockNotOkQueryResultResponse);
+    client.post = jest.fn().mockResolvedValue(mockErrorMessageInResponse);
 
     const { getByText } = render(
-      <Main httpClient={client} sqlQueriesString={'test'} />
+      <Main httpClient={client} onChange={onChange} />
     );
     const onRunButton = getByText('Run');
     const asyncTest = () => {
@@ -82,7 +83,7 @@ describe("<Main /> spec", () => {
     const client = httpClientMock;
     client.post = jest.fn().mockResolvedValue(mockQueryTranslationResponse);
     const { getByText } = render(
-      <Main httpClient={client} sqlQueriesString={'test'} />
+      <Main httpClient={client} onChange={onChange} />
     );
     const onTranslateButton = getByText('Explain');
     const asyncTest = () => {
@@ -95,7 +96,7 @@ describe("<Main /> spec", () => {
   it("click clear button", async () => {
     const client = httpClientMock;
     const { getByText } = render(
-      <Main httpClient={client} sqlQueriesString={'test'} />
+      <Main httpClient={client} onChange={onChange} />
     );
     const onClearButton = getByText('Clear');
     const asyncTest = () => {
