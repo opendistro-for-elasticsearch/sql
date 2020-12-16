@@ -342,7 +342,6 @@ export class Main extends React.Component<MainProps, MainState> {
       );
 
       Promise.all([responsePromise]).then(([response]) => {
-        console.log(responsePromise)
         const results: ResponseDetail<string>[] = response.map(response =>
           this.processQueryResponse(response));
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
