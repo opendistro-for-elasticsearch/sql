@@ -252,7 +252,6 @@ export class Main extends React.Component<MainProps, MainState> {
   }
 
   processQueryResponse(response: any): ResponseDetail<string> {
-    console.log(response)
     if (!response) {
       return {
         fulfilled: false,
