@@ -20,6 +20,12 @@ Limitations on Identifiers
 
 Using Elasticsearch cluster name as catalog name to qualify an index name, such as ``my_cluster.my_index``, is not supported for now.
 
+Limitations on Fields
+=====================
+
+We are not supporting use `alias field type <https://www.elastic.co/guide/en/elasticsearch/reference/current/alias.html>`_ as identifier. It will throw exception ``can't resolve Symbol``.
+
+
 Limitations on Aggregations
 ===========================
 
