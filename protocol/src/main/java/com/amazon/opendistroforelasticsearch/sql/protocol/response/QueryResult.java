@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.protocol.response;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Schema.Column;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -53,11 +54,13 @@ public class QueryResult implements Iterable<Object[]> {
   /**
    * Parse column name from results.
    *
-   * @return mapping from column names to its expression type
+   * @return mapping from column names to its expression type.
+   *        note that column name could be original name or its alias if any.
    */
   public Map<String, String> columnNameTypes() {
     Map<String, String> colNameTypes = new LinkedHashMap<>();
-    schema.getColumns().forEach(column -> colNameTypes.put(column.getName(),
+    schema.getColumns().forEach(column -> colNameTypes.put(
+        getColumnName(column),
         column.getExprType().typeName().toLowerCase()));
     return colNameTypes;
   }
@@ -70,6 +73,10 @@ public class QueryResult implements Iterable<Object[]> {
         .map(Map::values)
         .map(this::convertExprValuesToValues)
         .iterator();
+  }
+
+  private String getColumnName(Column column) {
+    return (column.getAlias() != null) ? column.getAlias() : column.getName();
   }
 
   private Object[] convertExprValuesToValues(Collection<ExprValue> exprValues) {

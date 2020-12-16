@@ -227,7 +227,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
             " ORDER BY balance DESC LIMIT 1");
 
     verifySchema(response,
-        schema("cast_balance", null, "float"));
+        schema("CAST(balance AS FLOAT)", "cast_balance", "float"));
 
     verifyDataRows(response,
         rows(49989.0));
@@ -242,7 +242,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
             "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY jdbc_float_alias LIMIT 1");
 
     verifySchema(response,
-        schema("jdbc_float_alias", null, "float"));
+        schema("CAST(balance AS FLOAT)", "jdbc_float_alias", "float"));
 
     verifyDataRows(response,
         rows(1011.0));
@@ -394,10 +394,10 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     verifySchema(response,
         schema("male", "boolean"),
-        schema("cast_int", "integer"),
-        schema("cast_long", "long"),
-        schema("cast_float", "float"),
-        schema("cast_double", "double")
+        schema("CAST(male AS INT)", "cast_int", "integer"),
+        schema("CAST(male AS LONG)", "cast_long", "long"),
+        schema("CAST(male AS FLOAT)", "cast_float", "float"),
+        schema("CAST(male AS DOUBLE)", "cast_double", "double")
     );
     verifyDataRows(response,
         rows(true, 1, 1, 1.0, 1.0),
@@ -419,7 +419,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
 
     verifySchema(response,
-        schema("cast_int", "cast_int", "integer"),
+        schema("CAST(male AS INT)", "cast_int", "integer"),
         schema("COUNT(*)", "integer")
     );
     verifyDataRows(response,
