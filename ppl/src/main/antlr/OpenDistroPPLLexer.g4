@@ -228,6 +228,7 @@ CONCAT:                             'CONCAT';
 CONCAT_WS:                          'CONCAT_WS';
 LENGTH:                             'LENGTH';
 STRCMP:                             'STRCMP';
+RIGHT:                              'RIGHT';
 
 // BOOL FUNCTIONS
 LIKE:                               'LIKE';
