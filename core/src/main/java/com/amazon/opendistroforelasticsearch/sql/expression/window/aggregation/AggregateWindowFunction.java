@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -24,7 +23,11 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisito
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregationState;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.PeerWindowFrame;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -33,10 +36,15 @@ import lombok.RequiredArgsConstructor;
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class AggregateWindowFunction implements Expression {
+public class AggregateWindowFunction implements WindowFunctionExpression {
 
   private final Aggregator<AggregationState> aggregator;
   private AggregationState state;
+
+  @Override
+  public WindowFrame createWindowFrame(WindowDefinition definition) {
+    return new PeerWindowFrame(definition);
+  }
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
@@ -45,8 +53,10 @@ public class AggregateWindowFunction implements Expression {
       state = aggregator.create();
     }
 
-    ExprTupleValue row = frame.get(frame.currentIndex());
-    state = aggregator.iterate(row.bindingTuples(), state);
+    List<ExprValue> peers = frame.next();
+    for (ExprValue peer : peers) {
+      state = aggregator.iterate(peer.bindingTuples(), state);
+    }
     return state.result();
   }
 

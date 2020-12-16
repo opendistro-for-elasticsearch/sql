@@ -16,29 +16,23 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue.fromExprValueMap;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
-import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregationState;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -68,110 +62,22 @@ class AggregateWindowFunctionTest extends ExpressionTestBase {
   }
 
   @Test
-  void test_count() {
-    windowFunction(dsl.count(ref("age", INTEGER)))
-        .add("WA", 20)
-        .assertValue(1)
-        .add("WA", 25)
-        .assertValue(2)
-        .add("WA", 30)
-        .assertValue(3)
-        .add("CA", 15)
-        .assertValue(1)
-        .add("CA", 20)
-        .assertValue(2);
-  }
+  void should_accumulate_all_peer_values_and_not_reset_state_if_same_partition() {
+    WindowFrame windowFrame = mock(WindowFrame.class,
+        withSettings().extraInterfaces(Environment.class));
+    AggregateWindowFunction windowFunction =
+        new AggregateWindowFunction(dsl.sum(DSL.ref("age", INTEGER)));
 
-  @Test
-  void test_sum() {
-    windowFunction(dsl.sum(ref("age", INTEGER)))
-        .add("WA", 20)
-        .assertValue(20)
-        .add("WA", 25)
-        .assertValue(45)
-        .add("WA", 30)
-        .assertValue(75)
-        .add("CA", 15)
-        .assertValue(15)
-        .add("CA", 20)
-        .assertValue(35);
-  }
+    when(windowFrame.isNewPartition()).thenReturn(true);
+    when(windowFrame.next()).thenReturn(ImmutableList.of(
+        fromExprValueMap(ImmutableMap.of("age", new ExprIntegerValue(10))),
+        fromExprValueMap(ImmutableMap.of("age", new ExprIntegerValue(20)))));
+    assertEquals(new ExprIntegerValue(30), windowFunction.valueOf(windowFrame));
 
-  @Test
-  void test_avg() {
-    windowFunction(dsl.avg(ref("age", INTEGER)))
-        .add("WA", 20)
-        .assertValue(20.0)
-        .add("WA", 30)
-        .assertValue(25.0)
-        .add("WA", 40)
-        .assertValue(30.0)
-        .add("CA", 15)
-        .assertValue(15.0)
-        .add("CA", 25)
-        .assertValue(20.0);
-  }
-
-  @Test
-  void test_min() {
-    windowFunction(dsl.min(ref("age", INTEGER)))
-        .add("WA", 20)
-        .assertValue(20)
-        .add("WA", 25)
-        .assertValue(20)
-        .add("WA", 30)
-        .assertValue(20)
-        .add("CA", 15)
-        .assertValue(15)
-        .add("CA", 20)
-        .assertValue(15);
-  }
-
-  @Test
-  void test_max() {
-    windowFunction(dsl.max(ref("age", INTEGER)))
-        .add("WA", 20)
-        .assertValue(20)
-        .add("WA", 25)
-        .assertValue(25)
-        .add("WA", 30)
-        .assertValue(30)
-        .add("CA", 15)
-        .assertValue(15)
-        .add("CA", 20)
-        .assertValue(20);
-  }
-
-  private static AggregateWindowFunctionAssertion windowFunction(
-      Aggregator<AggregationState> func) {
-    return new AggregateWindowFunctionAssertion(func);
-  }
-
-  private static class AggregateWindowFunctionAssertion {
-    private final CumulativeWindowFrame windowFrame = new CumulativeWindowFrame(
-        new WindowDefinition(
-            ImmutableList.of(ref("state", STRING)),
-            ImmutableList.of(Pair.of(DEFAULT_ASC, ref("age", INTEGER)))));
-
-    private final Expression windowFunction;
-
-    private AggregateWindowFunctionAssertion(Aggregator<AggregationState> windowFunction) {
-      this.windowFunction = new AggregateWindowFunction(windowFunction);
-    }
-
-    AggregateWindowFunctionAssertion add(String state, int age) {
-      windowFrame.add(fromExprValueMap(ImmutableMap.of(
-          "state", new ExprStringValue(state),
-          "age", new ExprIntegerValue(age))));
-      return this;
-    }
-
-    AggregateWindowFunctionAssertion assertValue(Object expected) {
-      assertEquals(
-          ExprValueUtils.fromObjectValue(expected),
-          windowFunction.valueOf(windowFrame));
-      return this;
-    }
+    when(windowFrame.isNewPartition()).thenReturn(false);
+    when(windowFrame.next()).thenReturn(ImmutableList.of(
+        fromExprValueMap(ImmutableMap.of("age", new ExprIntegerValue(30)))));
+    assertEquals(new ExprIntegerValue(60), windowFunction.valueOf(windowFrame));
   }
 
 }

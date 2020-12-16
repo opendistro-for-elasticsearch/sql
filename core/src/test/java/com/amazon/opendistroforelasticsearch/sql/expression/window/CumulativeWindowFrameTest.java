@@ -21,61 +21,80 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.I
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CumulativeWindowFrame;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
+import java.util.Iterator;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 
 class CumulativeWindowFrameTest {
 
-  private final WindowDefinition windowDefinition = new WindowDefinition(
-      ImmutableList.of(DSL.ref("state", STRING)),
-      ImmutableList.of(ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER))));
-
-  private final WindowFrame windowFrame = new CumulativeWindowFrame(windowDefinition);
+  private final CumulativeWindowFrame windowFrame = new CumulativeWindowFrame(
+      new WindowDefinition(
+          ImmutableList.of(DSL.ref("state", STRING)),
+          ImmutableList.of(ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER)))));
 
   @Test
   void should_return_new_partition_if_partition_by_field_value_changed() {
-    ExprTupleValue tuple1 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"),
-        "age", new ExprIntegerValue(20)));
-    windowFrame.add(tuple1);
+    Iterator<ExprValue> iterator = Iterators.forArray(
+        ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"),
+            "age", new ExprIntegerValue(20))),
+        ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"),
+            "age", new ExprIntegerValue(30))),
+        ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("CA"),
+            "age", new ExprIntegerValue(18))));
+
+    windowFrame.load(iterator);
     assertTrue(windowFrame.isNewPartition());
 
-    ExprTupleValue tuple2 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"),
-        "age", new ExprIntegerValue(30)));
-    windowFrame.add(tuple2);
+    windowFrame.load(iterator);
     assertFalse(windowFrame.isNewPartition());
 
-    ExprTupleValue tuple3 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("CA"),
-        "age", new ExprIntegerValue(18)));
-    windowFrame.add(tuple3);
+    windowFrame.load(iterator);
     assertTrue(windowFrame.isNewPartition());
   }
 
   @Test
   void can_resolve_single_expression_value() {
-    windowFrame.add(ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+    windowFrame.load(Iterators.singletonIterator(
+        ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "state", new ExprStringValue("WA"),
-        "age", new ExprIntegerValue(20))));
+        "age", new ExprIntegerValue(20)))));
     assertEquals(
         new ExprIntegerValue(20),
         windowFrame.resolve(DSL.ref("age", INTEGER)));
   }
 
   @Test
-  void should_throw_exception_if_access_row_out_of_boundary() {
-    assertThrows(IndexOutOfBoundsException.class, () -> windowFrame.get(2));
+  void can_return_previous_and_current_row() {
+    ExprValue row1 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"),
+        "age", new ExprIntegerValue(20)));
+    ExprValue row2 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+        "state", new ExprStringValue("WA"),
+        "age", new ExprIntegerValue(30)));
+    Iterator<ExprValue> iterator = Iterators.forArray(row1, row2);
+
+    windowFrame.load(iterator);
+    assertNull(windowFrame.previous());
+    assertEquals(row1, windowFrame.current());
+
+    windowFrame.load(iterator);
+    assertEquals(row1, windowFrame.previous());
+    assertEquals(row2, windowFrame.current());
   }
 
 }

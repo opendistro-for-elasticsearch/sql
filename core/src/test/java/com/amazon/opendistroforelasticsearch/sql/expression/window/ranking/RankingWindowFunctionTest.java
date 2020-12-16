@@ -24,13 +24,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CumulativeWindowFrame;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
+import java.util.Iterator;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -54,12 +58,43 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
           ImmutableList.of(DSL.ref("state", STRING)),
           ImmutableList.of())); // No sort items defined
 
+  private Iterator<ExprValue> iterator1;
+  private Iterator<ExprValue> iterator2;
+
+  @BeforeEach
+  void set_up() {
+    iterator1 = Iterators.forArray(
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(40))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(20))));
+
+    iterator2 = Iterators.forArray(
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+  }
+
   @Test
   void test_value_of() {
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    Iterator<ExprValue> iterator = Iterators.singletonIterator(
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
 
     RankingWindowFunction rowNumber = dsl.rowNumber();
+
+    windowFrame1.load(iterator);
     assertEquals(new ExprIntegerValue(1), rowNumber.valueOf(windowFrame1));
   }
 
@@ -67,20 +102,16 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
   void test_row_number() {
     RankingWindowFunction rowNumber = dsl.rowNumber();
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame1.load(iterator1);
     assertEquals(1, rowNumber.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame1.load(iterator1);
     assertEquals(2, rowNumber.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(40))));
+    windowFrame1.load(iterator1);
     assertEquals(3, rowNumber.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(20))));
+    windowFrame1.load(iterator1);
     assertEquals(1, rowNumber.rank(windowFrame1));
   }
 
@@ -88,24 +119,19 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
   void test_rank() {
     RankingWindowFunction rank = dsl.rank();
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame1.load(iterator2);
     assertEquals(1, rank.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame1.load(iterator2);
     assertEquals(1, rank.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))));
+    windowFrame1.load(iterator2);
     assertEquals(3, rank.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))));
+    windowFrame1.load(iterator2);
     assertEquals(4, rank.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    windowFrame1.load(iterator2);
     assertEquals(1, rank.rank(windowFrame1));
   }
 
@@ -113,24 +139,19 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
   void test_dense_rank() {
     RankingWindowFunction denseRank = dsl.denseRank();
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame1.load(iterator2);
     assertEquals(1, denseRank.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame1.load(iterator2);
     assertEquals(1, denseRank.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))));
+    windowFrame1.load(iterator2);
     assertEquals(2, denseRank.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))));
+    windowFrame1.load(iterator2);
     assertEquals(3, denseRank.rank(windowFrame1));
 
-    windowFrame1.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    windowFrame1.load(iterator2);
     assertEquals(1, denseRank.rank(windowFrame1));
   }
 
@@ -138,45 +159,48 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
   void row_number_should_work_if_no_sort_items_defined() {
     RankingWindowFunction rowNumber = dsl.rowNumber();
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame2.load(iterator1);
     assertEquals(1, rowNumber.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame2.load(iterator1);
     assertEquals(2, rowNumber.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(40))));
+    windowFrame2.load(iterator1);
     assertEquals(3, rowNumber.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(20))));
+    windowFrame2.load(iterator1);
     assertEquals(1, rowNumber.rank(windowFrame2));
   }
 
   @Test
   void rank_should_always_return_1_if_no_sort_items_defined() {
+    Iterator<ExprValue> iterator = Iterators.forArray(
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))),
+        fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+
     RankingWindowFunction rank = dsl.rank();
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame2.load(iterator);
     assertEquals(1, rank.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame2.load(iterator);
     assertEquals(1, rank.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))));
+    windowFrame2.load(iterator);
     assertEquals(1, rank.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))));
+    windowFrame2.load(iterator);
     assertEquals(1, rank.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    windowFrame2.load(iterator);
     assertEquals(1, rank.rank(windowFrame2));
   }
 
@@ -184,24 +208,19 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
   void dense_rank_should_always_return_1_if_no_sort_items_defined() {
     RankingWindowFunction denseRank = dsl.denseRank();
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame2.load(iterator2);
     assertEquals(1, denseRank.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    windowFrame2.load(iterator2);
     assertEquals(1, denseRank.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))));
+    windowFrame2.load(iterator2);
     assertEquals(1, denseRank.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))));
+    windowFrame2.load(iterator2);
     assertEquals(1, denseRank.rank(windowFrame2));
 
-    windowFrame2.add(fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    windowFrame2.load(iterator2);
     assertEquals(1, denseRank.rank(windowFrame2));
   }
 
