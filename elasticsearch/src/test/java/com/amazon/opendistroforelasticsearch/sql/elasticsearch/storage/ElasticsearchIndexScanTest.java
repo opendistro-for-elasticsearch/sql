@@ -36,8 +36,10 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.Elasti
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
+import java.util.Set;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -155,7 +157,6 @@ class ElasticsearchIndexScanTest {
       indexScan.open();
       return this;
     }
-
   }
 
   private void mockResponse(ExprValue[]... searchHitBatches) {

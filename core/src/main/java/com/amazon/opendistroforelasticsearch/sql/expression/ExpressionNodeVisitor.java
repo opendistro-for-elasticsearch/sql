@@ -62,7 +62,7 @@ public abstract class ExpressionNodeVisitor<T, C> {
   }
 
   public T visitNamed(NamedExpression node, C context) {
-    return visitNode(node, context);
+    return node.getDelegated().accept(this, context);
   }
 
   public T visitReference(ReferenceExpression node, C context) {
