@@ -14,12 +14,12 @@
  */
 
 import React from "react";
-import "@testing-library/jest-dom/extend-expect";
 import { render, fireEvent } from "@testing-library/react";
 import { httpClientMock } from "../../../test/mocks";
 import {
   mockQueryResultJDBCResponse,
   mockQueryTranslationResponse,
+  mockResultWithNull,
   mockErrorMessageInResponse
 } from "../../../test/mocks/mockData";
 import Main from "./main";
@@ -48,6 +48,21 @@ describe("<Main /> spec", () => {
     await asyncTest();
     expect(document.body.children[0]).toMatchSnapshot();
   });
+
+  it("click run button, response fills null and missing values", async () => {
+    const client = httpClientMock;
+    client.post = jest.fn().mockResolvedValue(mockResultWithNull);
+
+    const { getByText } = render(
+      <Main httpClient={client} onChange={onChange} />
+    );
+    const onRunButton = getByText('Run');
+    const asyncTest = () => {
+      fireEvent.click(onRunButton);
+    };
+    await asyncTest();
+    expect(document.body.children[0]).toMatchSnapshot();
+  })
 
   it("click run button, and response causes an error", async () => {
     const client = httpClientMock;
