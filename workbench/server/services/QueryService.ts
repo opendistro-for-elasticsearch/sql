@@ -38,6 +38,13 @@ export default class QueryService {
       });
     } catch (err) {
       console.log(err);
+      return {
+        data: {
+          ok: false,
+          resp: err.message,
+          body: err.body
+        },
+      };
     }
     return h.response({ ok: false, resp: err.message });
   };
