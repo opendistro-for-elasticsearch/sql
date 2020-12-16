@@ -77,3 +77,7 @@ The query start with search command and then flowing a set of command delimited 
   - `Identifiers <general/identifiers.rst>`_
 
   - `Data Types <general/datatypes.rst>`_
+
+* **Limitations**
+
+  - `Limitations <limitations/limitations.rst>`_
