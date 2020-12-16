@@ -36,8 +36,8 @@ import org.junit.jupiter.api.Test;
 class SimpleJsonResponseFormatterTest {
 
   private final ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-      new ExecutionEngine.Schema.Column("firstname", "name", STRING),
-      new ExecutionEngine.Schema.Column("age", "age", INTEGER)));
+      new ExecutionEngine.Schema.Column("firstname", null, STRING),
+      new ExecutionEngine.Schema.Column("age", null, INTEGER)));
 
   @Test
   void formatResponse() {
@@ -89,6 +89,21 @@ class SimpleJsonResponseFormatterTest {
             + "  \"total\": 2,\n"
             + "  \"size\": 2\n"
             + "}",
+        formatter.format(response));
+  }
+
+  @Test
+  void formatResponseSchemaWithAlias() {
+    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
+        new ExecutionEngine.Schema.Column("firstname", "name", STRING)));
+    QueryResult response =
+        new QueryResult(
+            schema,
+            ImmutableList.of(tupleValue(ImmutableMap.of("name", "John", "age", 20))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+    assertEquals(
+        "{\"schema\":[{\"name\":\"name\",\"type\":\"string\"}],"
+            + "\"datarows\":[[\"John\",20]],\"total\":1,\"size\":1}",
         formatter.format(response));
   }
 

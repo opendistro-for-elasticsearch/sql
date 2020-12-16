@@ -53,10 +53,10 @@ public class CsvResponseFormatterTest {
   @Test
   void sanitizeHeaders() {
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-        new ExecutionEngine.Schema.Column("=firstname", "firstname", STRING),
-        new ExecutionEngine.Schema.Column("+lastname", "lastname", STRING),
-        new ExecutionEngine.Schema.Column("-city", "city", STRING),
-        new ExecutionEngine.Schema.Column("@age", "age", INTEGER)));
+        new ExecutionEngine.Schema.Column("=firstname", null, STRING),
+        new ExecutionEngine.Schema.Column("+lastname", null, STRING),
+        new ExecutionEngine.Schema.Column("-city", null, STRING),
+        new ExecutionEngine.Schema.Column("@age", null, INTEGER)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
         tupleValue(ImmutableMap.of(
             "=firstname", "John", "+lastname", "Smith", "-city", "Seattle", "@age", 20))));

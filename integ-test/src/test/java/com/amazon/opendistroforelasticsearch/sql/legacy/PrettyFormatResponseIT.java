@@ -357,6 +357,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void aggregationFunctionInSelectWithAlias() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
+
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT COUNT(*) AS total FROM %s GROUP BY age",
             TestsConstants.TEST_INDEX_ACCOUNT));
