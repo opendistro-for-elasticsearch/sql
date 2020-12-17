@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 /**
  * Named expression that represents expression with name.
@@ -33,6 +32,7 @@ import lombok.ToString;
  */
 @AllArgsConstructor
 @EqualsAndHashCode
+@Getter
 @RequiredArgsConstructor
 public class NamedExpression implements Expression {
 
@@ -44,13 +44,11 @@ public class NamedExpression implements Expression {
   /**
    * Expression that being named.
    */
-  @Getter
   private final Expression delegated;
 
   /**
    * Optional alias.
    */
-  @Getter
   private String alias;
 
   @Override
@@ -67,7 +65,7 @@ public class NamedExpression implements Expression {
    * Get expression name using name or its alias (if it's present).
    * @return  expression name
    */
-  public String getName() {
+  public String getNameOrAlias() {
     return Strings.isNullOrEmpty(alias) ? name : alias;
   }
 
@@ -78,7 +76,7 @@ public class NamedExpression implements Expression {
 
   @Override
   public String toString() {
-    return getName();
+    return getNameOrAlias();
   }
 
 }

@@ -1760,9 +1760,21 @@ RIGHT
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: right(str, len) returns the rightmost len characters from the string str, or NULL if any argument is NULL.
 
-1. RIGHT(STRING T, INTEGER) -> T
+Argument type: STRING, INTEGER
+
+Return type: STRING
+
+Example::
+
+    od> SELECT RIGHT('helloworld', 5), RIGHT('HELLOWORLD', 0)
+    fetched rows / total rows = 1/1
+    +--------------------------+--------------------------+
+    | RIGHT('helloworld', 5)   | RIGHT('HELLOWORLD', 0)   |
+    |--------------------------+--------------------------|
+    | world                    |                          |
+    +--------------------------+--------------------------+
 
 
 RTRIM

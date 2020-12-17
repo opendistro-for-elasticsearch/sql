@@ -124,6 +124,10 @@ public class ElasticsearchIndex implements Table {
       if (node.getLimit() != null) {
         context.pushDownLimit(node.getLimit(), node.getOffset());
       }
+
+      if (node.hasProjects()) {
+        context.pushDownProjects(node.getProjectList());
+      }
       return indexScan;
     }
 

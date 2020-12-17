@@ -136,7 +136,8 @@ public class ExpressionReferenceOptimizer
               new ReferenceExpression(namedAggregator.getName(), namedAggregator.type())));
       // Create the mapping for all the group by.
       plan.getGroupByList().forEach(groupBy -> expressionMap
-          .put(groupBy.getDelegated(), new ReferenceExpression(groupBy.getName(), groupBy.type())));
+          .put(groupBy.getDelegated(),
+              new ReferenceExpression(groupBy.getNameOrAlias(), groupBy.type())));
       return null;
     }
 

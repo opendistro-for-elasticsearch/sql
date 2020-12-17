@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.system;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasEntry;
@@ -25,10 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -64,5 +67,23 @@ class ElasticsearchDescribeIndexRequestTest {
   void testToString() {
     assertEquals("ElasticsearchDescribeIndexRequest{indexName='index'}",
         new ElasticsearchDescribeIndexRequest(client, "index").toString());
+  }
+
+  @Test
+  void filterOutUnknownType() {
+    when(client.getIndexMappings("index"))
+        .thenReturn(
+            ImmutableMap.of(
+                "test",
+                new IndexMapping(
+                    ImmutableMap.<String, String>builder()
+                        .put("name", "keyword")
+                        .put("@timestamp", "alias")
+                        .build())));
+
+    final Map<String, ExprType> fieldTypes =
+        new ElasticsearchDescribeIndexRequest(client, "index").getFieldTypes();
+    assertEquals(1, fieldTypes.size());
+    assertThat(fieldTypes, hasEntry("name", STRING));
   }
 }

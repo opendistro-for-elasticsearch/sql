@@ -150,6 +150,29 @@ Example::
     +---------------------+---------------------+
 
 
+RIGHT
+-----
+
+Description
+>>>>>>>>>>>
+
+Usage: right(str, len) returns the rightmost len characters from the string str, or NULL if any argument is NULL.
+
+Argument type: STRING, INTEGER
+
+Return type: STRING
+
+Example::
+
+    od> source=people | eval `RIGHT('helloworld', 5)` = RIGHT('helloworld', 5), `RIGHT('HELLOWORLD', 0)` = RIGHT('HELLOWORLD', 0) | fields `RIGHT('helloworld', 5)`, `RIGHT('HELLOWORLD', 0)`
+    fetched rows / total rows = 1/1
+    +--------------------------+--------------------------+
+    | RIGHT('helloworld', 5)   | RIGHT('HELLOWORLD', 0)   |
+    |--------------------------+--------------------------|
+    | world                    |                          |
+    +--------------------------+--------------------------+
+
+
 RTRIM
 -----
 

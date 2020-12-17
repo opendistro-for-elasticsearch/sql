@@ -52,7 +52,7 @@ public class JdbcFormatIT extends SQLIntegTestCase {
     JSONObject response = new JSONObject(executeQuery(
         "SELECT account_number AS acc FROM " + TEST_INDEX_BANK, "jdbc"));
 
-    verifySchema(response, schema("acc", "acc", "long"));
+    verifySchema(response, schema("account_number", "acc", "long"));
   }
 
 }

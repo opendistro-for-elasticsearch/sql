@@ -47,7 +47,7 @@ public class BucketAggregationBuilder {
         new ImmutableList.Builder<>();
     for (Pair<NamedExpression, SortOrder> groupPair : groupList) {
       TermsValuesSourceBuilder valuesSourceBuilder =
-          new TermsValuesSourceBuilder(groupPair.getLeft().getName())
+          new TermsValuesSourceBuilder(groupPair.getLeft().getNameOrAlias())
               .missingBucket(true)
               .order(groupPair.getRight());
       resultBuilder

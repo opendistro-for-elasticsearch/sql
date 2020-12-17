@@ -28,6 +28,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.S
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
@@ -35,7 +37,13 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionNam
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.experimental.UtilityClass;
 
 /**
@@ -73,27 +81,11 @@ public class AggregatorFunction {
 
   private static FunctionResolver count() {
     FunctionName functionName = BuiltinFunctionName.COUNT.getName();
-    return new FunctionResolver(
-        functionName,
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
-                arguments -> new CountAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(LONG)),
-                arguments -> new CountAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
-                arguments -> new CountAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
-                arguments -> new CountAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(STRING)),
-                arguments -> new CountAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(STRUCT)),
-                arguments -> new CountAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ARRAY)),
-                arguments -> new CountAggregator(arguments, INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(BOOLEAN)),
-                arguments -> new CountAggregator(arguments, INTEGER))
-            .build()
-    );
+    FunctionResolver functionResolver = new FunctionResolver(functionName,
+        ExprCoreType.coreTypes().stream().collect(Collectors.toMap(
+          type -> new FunctionSignature(functionName, Collections.singletonList(type)),
+          type -> arguments -> new CountAggregator(arguments, INTEGER))));
+    return functionResolver;
   }
 
   private static FunctionResolver sum() {
