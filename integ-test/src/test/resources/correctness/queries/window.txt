@@ -6,6 +6,11 @@ SELECT DistanceMiles, RANK() OVER (ORDER BY DistanceMiles DESC) AS rnk FROM kiba
 SELECT DistanceMiles, DENSE_RANK() OVER (ORDER BY DistanceMiles DESC) AS rnk FROM kibana_sample_data_flights
 SELECT user, RANK() OVER (ORDER BY user) AS rnk FROM kibana_sample_data_ecommerce
 SELECT user, DENSE_RANK() OVER (ORDER BY user) AS rnk FROM kibana_sample_data_ecommerce
+SELECT user, COUNT(day_of_week_i) OVER (ORDER BY user) AS cnt FROM kibana_sample_data_ecommerce
+SELECT user, SUM(day_of_week_i) OVER (ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT user, AVG(day_of_week_i) OVER (ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT user, MAX(day_of_week_i) OVER (ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT user, MIN(day_of_week_i) OVER (ORDER BY user) AS num FROM kibana_sample_data_ecommerce
 SELECT user, RANK() OVER (ORDER BY user DESC) AS rnk FROM kibana_sample_data_ecommerce
 SELECT user, DENSE_RANK() OVER (ORDER BY user DESC) AS rnk FROM kibana_sample_data_ecommerce
 SELECT customer_gender, user, ROW_NUMBER() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce
