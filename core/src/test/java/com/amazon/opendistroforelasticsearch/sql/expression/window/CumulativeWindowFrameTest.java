@@ -33,7 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.Cumulat
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import java.util.Iterator;
+import com.google.common.collect.PeekingIterator;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 
@@ -46,16 +46,17 @@ class CumulativeWindowFrameTest {
 
   @Test
   void should_return_new_partition_if_partition_by_field_value_changed() {
-    Iterator<ExprValue> iterator = Iterators.forArray(
-        ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("WA"),
-            "age", new ExprIntegerValue(20))),
-        ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("WA"),
-            "age", new ExprIntegerValue(30))),
-        ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("CA"),
-            "age", new ExprIntegerValue(18))));
+    PeekingIterator<ExprValue> iterator = Iterators.peekingIterator(
+        Iterators.forArray(
+            ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("WA"),
+                "age", new ExprIntegerValue(20))),
+            ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("WA"),
+                "age", new ExprIntegerValue(30))),
+            ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("CA"),
+                "age", new ExprIntegerValue(18)))));
 
     windowFrame.load(iterator);
     assertTrue(windowFrame.isNewPartition());
@@ -69,10 +70,11 @@ class CumulativeWindowFrameTest {
 
   @Test
   void can_resolve_single_expression_value() {
-    windowFrame.load(Iterators.singletonIterator(
-        ExprTupleValue.fromExprValueMap(ImmutableMap.of(
-        "state", new ExprStringValue("WA"),
-        "age", new ExprIntegerValue(20)))));
+    windowFrame.load(Iterators.peekingIterator(
+        Iterators.singletonIterator(
+            ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+            "state", new ExprStringValue("WA"),
+            "age", new ExprIntegerValue(20))))));
     assertEquals(
         new ExprIntegerValue(20),
         windowFrame.resolve(DSL.ref("age", INTEGER)));
@@ -86,7 +88,7 @@ class CumulativeWindowFrameTest {
     ExprValue row2 = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "state", new ExprStringValue("WA"),
         "age", new ExprIntegerValue(30)));
-    Iterator<ExprValue> iterator = Iterators.forArray(row1, row2);
+    PeekingIterator<ExprValue> iterator = Iterators.peekingIterator(Iterators.forArray(row1, row2));
 
     windowFrame.load(iterator);
     assertNull(windowFrame.previous());

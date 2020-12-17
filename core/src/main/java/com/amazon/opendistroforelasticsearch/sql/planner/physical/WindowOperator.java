@@ -23,6 +23,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinit
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -49,6 +51,12 @@ public class WindowOperator extends PhysicalPlan {
   private final WindowFrame windowFrame;
 
   /**
+   * Peeking iterator that can peek next element which is required
+   * by window frame such as peer frame.
+   */
+  private final PeekingIterator<ExprValue> peekingIterator;
+
+  /**
    * Initialize window operator.
    * @param input             child operator
    * @param windowFunction    window function
@@ -61,6 +69,7 @@ public class WindowOperator extends PhysicalPlan {
     this.windowFunction = windowFunction;
     this.windowDefinition = windowDefinition;
     this.windowFrame = createWindowFrame();
+    this.peekingIterator = Iterators.peekingIterator(input);
   }
 
   @Override
@@ -75,12 +84,12 @@ public class WindowOperator extends PhysicalPlan {
 
   @Override
   public boolean hasNext() {
-    return input.hasNext();
+    return peekingIterator.hasNext();
   }
 
   @Override
   public ExprValue next() {
-    windowFrame.load(input);
+    windowFrame.load(peekingIterator);
     return enrichCurrentRowByWindowFunctionResult();
   }
 

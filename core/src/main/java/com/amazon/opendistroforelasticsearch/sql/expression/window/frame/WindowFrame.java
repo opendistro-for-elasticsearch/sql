@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression.window.frame;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.google.common.collect.PeekingIterator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public interface WindowFrame extends Environment<Expression, ExprValue>,
    * Load any number of rows as needed.
    * @param iterator  row iterator
    */
-  void load(Iterator<ExprValue> iterator);
+  void load(PeekingIterator<ExprValue> iterator);
 
   /**
    * Get current data row.

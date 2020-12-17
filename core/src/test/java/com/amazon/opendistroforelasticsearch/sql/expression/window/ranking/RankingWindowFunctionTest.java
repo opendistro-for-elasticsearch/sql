@@ -32,7 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.Cumulat
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
-import java.util.Iterator;
+import com.google.common.collect.PeekingIterator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -58,12 +58,12 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
           ImmutableList.of(DSL.ref("state", STRING)),
           ImmutableList.of())); // No sort items defined
 
-  private Iterator<ExprValue> iterator1;
-  private Iterator<ExprValue> iterator2;
+  private PeekingIterator<ExprValue> iterator1;
+  private PeekingIterator<ExprValue> iterator2;
 
   @BeforeEach
   void set_up() {
-    iterator1 = Iterators.forArray(
+    iterator1 = Iterators.peekingIterator(Iterators.forArray(
         fromExprValueMap(ImmutableMap.of(
             "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
         fromExprValueMap(ImmutableMap.of(
@@ -71,9 +71,9 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
         fromExprValueMap(ImmutableMap.of(
             "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(40))),
         fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(20))));
+            "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(20)))));
 
-    iterator2 = Iterators.forArray(
+    iterator2 = Iterators.peekingIterator(Iterators.forArray(
         fromExprValueMap(ImmutableMap.of(
             "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
         fromExprValueMap(ImmutableMap.of(
@@ -83,14 +83,15 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
         fromExprValueMap(ImmutableMap.of(
             "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))),
         fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+            "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15)))));
   }
 
   @Test
   void test_value_of() {
-    Iterator<ExprValue> iterator = Iterators.singletonIterator(
-        fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))));
+    PeekingIterator<ExprValue> iterator = Iterators.peekingIterator(
+        Iterators.singletonIterator(
+            fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30)))));
 
     RankingWindowFunction rowNumber = dsl.rowNumber();
 
@@ -174,17 +175,18 @@ class RankingWindowFunctionTest extends ExpressionTestBase {
 
   @Test
   void rank_should_always_return_1_if_no_sort_items_defined() {
-    Iterator<ExprValue> iterator = Iterators.forArray(
-        fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
-        fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
-        fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))),
-        fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))),
-        fromExprValueMap(ImmutableMap.of(
-            "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15))));
+    PeekingIterator<ExprValue> iterator = Iterators.peekingIterator(
+        Iterators.forArray(
+            fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
+            fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(30))),
+            fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(50))),
+            fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("WA"), "age", new ExprIntegerValue(55))),
+            fromExprValueMap(ImmutableMap.of(
+                "state", new ExprStringValue("CA"), "age", new ExprIntegerValue(15)))));
 
     RankingWindowFunction rank = dsl.rank();
 

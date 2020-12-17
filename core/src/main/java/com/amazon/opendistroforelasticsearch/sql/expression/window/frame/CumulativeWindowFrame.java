@@ -21,7 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.ImmutableList;
-import java.util.Iterator;
+import com.google.common.collect.PeekingIterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -62,7 +62,7 @@ public class CumulativeWindowFrame implements WindowFrame {
   }
 
   @Override
-  public void load(Iterator<ExprValue> it) {
+  public void load(PeekingIterator<ExprValue> it) {
     previous = current;
     current = it.next();
   }

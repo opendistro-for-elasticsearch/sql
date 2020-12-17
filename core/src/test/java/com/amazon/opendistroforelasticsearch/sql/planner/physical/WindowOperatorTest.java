@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,30 @@ class WindowOperatorTest extends PhysicalPlanTestBase {
         .expectNext(ImmutableMap.of(
             "ip", "74.125.19.106", "action", "POST", "response", 500,
             "rank()", 2))
+        .done();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  void test_aggregate_window_function() {
+    window(new AggregateWindowFunction(dsl.sum(ref("response", INTEGER))))
+        .partitionBy(ref("action", STRING))
+        .sortBy(DEFAULT_ASC, ref("response", INTEGER))
+        .expectNext(ImmutableMap.of(
+            "ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com",
+            "sum(response)", 400))
+        .expectNext(ImmutableMap.of(
+            "ip", "112.111.162.4", "action", "GET", "response", 200, "referer", "www.amazon.com",
+            "sum(response)", 400))
+        .expectNext(ImmutableMap.of(
+            "ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com",
+            "sum(response)", 804))
+        .expectNext(ImmutableMap.of(
+            "ip", "74.125.19.106", "action", "POST", "response", 200, "referer", "www.google.com",
+            "sum(response)", 200))
+        .expectNext(ImmutableMap.of(
+            "ip", "74.125.19.106", "action", "POST", "response", 500,
+            "sum(response)", 700))
         .done();
   }
 
