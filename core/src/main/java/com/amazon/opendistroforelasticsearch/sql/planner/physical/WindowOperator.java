@@ -52,8 +52,11 @@ public class WindowOperator extends PhysicalPlan {
 
   /**
    * Peeking iterator that can peek next element which is required
-   * by window frame such as peer frame.
+   * by window frame such as peer frame to prefetch all rows related
+   * to same peer (of same sorting key).
    */
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private final PeekingIterator<ExprValue> peekingIterator;
 
   /**
