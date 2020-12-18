@@ -50,7 +50,7 @@ class PeerRowsWindowFrameTest {
           ImmutableList.of(Pair.of(DEFAULT_ASC, DSL.ref("age", INTEGER)))));
 
   @Test
-  void single_row_test() {
+  void test_single_row() {
     PeekingIterator<ExprValue> tuples = Iterators.peekingIterator(
         Iterators.singletonIterator(tuple("WA", 10, 100)));
     windowFrame.load(tuples);
@@ -59,7 +59,7 @@ class PeerRowsWindowFrameTest {
   }
 
   @Test
-  void single_partition_test1() {
+  void test_single_partition_with_no_more_rows_after_peers() {
     PeekingIterator<ExprValue> tuples = Iterators.peekingIterator(
         Iterators.forArray(
             tuple("WA", 10, 100),
@@ -84,7 +84,7 @@ class PeerRowsWindowFrameTest {
   }
 
   @Test
-  void single_partition_test2() {
+  void test_single_partition_with_more_rows_after_peers() {
     PeekingIterator<ExprValue> tuples = Iterators.peekingIterator(
         Iterators.forArray(
             tuple("WA", 10, 100),
@@ -122,7 +122,7 @@ class PeerRowsWindowFrameTest {
   }
 
   @Test
-  void two_partitions_test1() {
+  void test_two_partitions_with_all_same_peers_in_second_partition() {
     PeekingIterator<ExprValue> tuples = Iterators.peekingIterator(
         Iterators.forArray(
             tuple("WA", 10, 100),
@@ -152,7 +152,7 @@ class PeerRowsWindowFrameTest {
   }
 
   @Test
-  void two_partitions_test2() {
+  void test_two_partitions_with_single_row_in_each_partition() {
     PeekingIterator<ExprValue> tuples = Iterators.peekingIterator(
         Iterators.forArray(
             tuple("WA", 10, 100),
@@ -170,6 +170,87 @@ class PeerRowsWindowFrameTest {
     assertEquals(
         ImmutableList.of(
             tuple("CA", 30, 200)),
+        windowFrame.next());
+  }
+
+  @Test
+  void test_window_definition_with_no_partition_by() {
+    PeerRowsWindowFrame windowFrame = new PeerRowsWindowFrame(
+        new WindowDefinition(
+            ImmutableList.of(),
+            ImmutableList.of(Pair.of(DEFAULT_ASC, DSL.ref("age", INTEGER)))));
+
+    PeekingIterator<ExprValue> tuples = Iterators.peekingIterator(
+        Iterators.forArray(
+            tuple("WA", 10, 100),
+            tuple("CA", 30, 200)));
+
+    windowFrame.load(tuples);
+    assertTrue(windowFrame.isNewPartition());
+    assertEquals(
+        ImmutableList.of(
+            tuple("WA", 10, 100)),
+        windowFrame.next());
+
+    windowFrame.load(tuples);
+    assertFalse(windowFrame.isNewPartition());
+    assertEquals(
+        ImmutableList.of(
+            tuple("CA", 30, 200)),
+        windowFrame.next());
+  }
+
+  @Test
+  void test_window_definition_with_no_order_by() {
+    PeerRowsWindowFrame windowFrame = new PeerRowsWindowFrame(
+        new WindowDefinition(
+            ImmutableList.of(DSL.ref("state", STRING)),
+            ImmutableList.of()));
+
+    PeekingIterator<ExprValue> tuples = Iterators.peekingIterator(
+        Iterators.forArray(
+            tuple("WA", 10, 100),
+            tuple("CA", 30, 200)));
+
+    windowFrame.load(tuples);
+    assertTrue(windowFrame.isNewPartition());
+    assertEquals(
+        ImmutableList.of(
+            tuple("WA", 10, 100)),
+        windowFrame.next());
+
+    windowFrame.load(tuples);
+    assertTrue(windowFrame.isNewPartition());
+    assertEquals(
+        ImmutableList.of(
+            tuple("CA", 30, 200)),
+        windowFrame.next());
+  }
+
+  @Test
+  void test_window_definition_with_no_partition_by_and_order_by() {
+    PeerRowsWindowFrame windowFrame = new PeerRowsWindowFrame(
+        new WindowDefinition(
+            ImmutableList.of(),
+            ImmutableList.of()));
+
+    PeekingIterator<ExprValue> tuples = Iterators.peekingIterator(
+        Iterators.forArray(
+            tuple("WA", 10, 100),
+            tuple("CA", 30, 200)));
+
+    windowFrame.load(tuples);
+    assertTrue(windowFrame.isNewPartition());
+    assertEquals(
+        ImmutableList.of(
+            tuple("WA", 10, 100),
+            tuple("CA", 30, 200)),
+        windowFrame.next());
+
+    windowFrame.load(tuples);
+    assertFalse(windowFrame.isNewPartition());
+    assertEquals(
+        ImmutableList.of(),
         windowFrame.next());
   }
 

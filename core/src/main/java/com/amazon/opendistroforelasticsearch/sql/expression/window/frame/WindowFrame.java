@@ -44,13 +44,13 @@ public interface WindowFrame extends Environment<Expression, ExprValue> {
   boolean isNewPartition();
 
   /**
-   * Load any number of rows as needed.
-   * @param iterator  row iterator
+   * Load one or more rows as window function calculation needed.
+   * @param iterator  peeking iterator that can peek next element without moving iterator
    */
   void load(PeekingIterator<ExprValue> iterator);
 
   /**
-   * Get current data row.
+   * Get current data row for giving window operator chance to get rows preloaded into frame.
    * @return data row
    */
   ExprValue current();
