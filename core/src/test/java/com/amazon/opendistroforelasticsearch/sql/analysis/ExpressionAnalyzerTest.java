@@ -31,10 +31,15 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
@@ -136,6 +141,17 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void castAnalyzer() {
+    assertAnalyzeEqual(
+        dsl.castInt(DSL.ref("boolean_value", BOOLEAN)),
+        AstDSL.cast(AstDSL.unresolvedAttr("boolean_value"), AstDSL.stringLiteral("INT"))
+    );
+
+    assertThrows(IllegalStateException.class, () -> analyze(AstDSL.cast(AstDSL.unresolvedAttr(
+        "boolean_value"), AstDSL.stringLiteral("DATETIME"))));
+  }
+
+  @Test
   public void case_with_default_result_type_different() {
     UnresolvedExpression caseWhen = AstDSL.caseWhen(
         AstDSL.qualifiedName("integer_value"),
@@ -183,6 +199,23 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         DSL.literal("*"),
         AllFields.of());
+  }
+
+  @Test
+  public void case_clause() {
+    assertAnalyzeEqual(
+        DSL.cases(
+            DSL.literal(ExprValueUtils.nullValue()),
+            DSL.when(
+                dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(30)),
+                DSL.literal("test"))),
+        AstDSL.caseWhen(
+            AstDSL.nullLiteral(),
+            AstDSL.when(
+                AstDSL.function("=",
+                    AstDSL.qualifiedName("integer_value"),
+                    AstDSL.intLiteral(30)),
+                AstDSL.stringLiteral("test"))));
   }
 
   @Test

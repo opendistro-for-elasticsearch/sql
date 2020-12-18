@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
@@ -27,15 +29,14 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CaseFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CountStarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.DateLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentsAsQualifiedNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IsNullPredicateContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.KeywordsAsQualifiedNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.LikePredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.MathExpressionAtomContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NotExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NullLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OverClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QualifiedNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.RankingWindowFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.RegexpPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.RegularAggregateFunctionCallContext;
@@ -52,6 +53,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
@@ -100,13 +102,8 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitIdentsAsQualifiedName(IdentsAsQualifiedNameContext ctx) {
+  public UnresolvedExpression visitQualifiedName(QualifiedNameContext ctx) {
     return visitIdentifiers(ctx.ident());
-  }
-
-  @Override
-  public UnresolvedExpression visitKeywordsAsQualifiedName(KeywordsAsQualifiedNameContext ctx) {
-    return new QualifiedName(ctx.keywordsCanBeId().getText());
   }
 
   @Override
@@ -135,6 +132,30 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
            .map(this::visitFunctionArg)
            .collect(Collectors.toList())
     );
+  }
+
+  @Override
+  public UnresolvedExpression visitTableFilter(OpenDistroSQLParser.TableFilterContext ctx) {
+    return new Function(
+        LIKE.getName().getFunctionName(),
+        Arrays.asList(qualifiedName("TABLE_NAME"), visit(ctx.showDescribePattern())));
+  }
+
+  @Override
+  public UnresolvedExpression visitColumnFilter(OpenDistroSQLParser.ColumnFilterContext ctx) {
+    return new Function(
+        LIKE.getName().getFunctionName(),
+        Arrays.asList(qualifiedName("COLUMN_NAME"), visit(ctx.showDescribePattern())));
+  }
+
+  @Override
+  public UnresolvedExpression visitShowDescribePattern(
+      OpenDistroSQLParser.ShowDescribePatternContext ctx) {
+    if (ctx.compatibleID() != null) {
+      return stringLiteral(ctx.compatibleID().getText());
+    } else {
+      return visit(ctx.stringLiteral());
+    }
   }
 
   @Override
@@ -249,6 +270,11 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitStringLiteral(OpenDistroSQLParser.StringLiteralContext ctx) {
+    return AstDSL.stringLiteral(StringUtils.unquoteText(ctx.getText()));
+  }
+
+  @Override
   public UnresolvedExpression visitNullLiteral(NullLiteralContext ctx) {
     return AstDSL.nullLiteral();
   }
@@ -300,6 +326,18 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitCaseFuncAlternative(CaseFuncAlternativeContext ctx) {
     return new When(visit(ctx.condition), visit(ctx.consequent));
+  }
+
+  @Override
+  public UnresolvedExpression visitDataTypeFunctionCall(
+      OpenDistroSQLParser.DataTypeFunctionCallContext ctx) {
+    return new Cast(visit(ctx.expression()), visit(ctx.convertedDataType()));
+  }
+
+  @Override
+  public UnresolvedExpression visitConvertedDataType(
+      OpenDistroSQLParser.ConvertedDataTypeContext ctx) {
+    return AstDSL.stringLiteral(ctx.getText());
   }
 
   private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {

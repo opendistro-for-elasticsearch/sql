@@ -391,7 +391,7 @@ class AnalyzerTest extends AnalyzerTestBase {
   /**
    * SELECT name FROM (
    *   SELECT name, age FROM test
-   * ) AS a.
+   * ) AS schema.
    */
   @Test
   public void from_subquery() {
@@ -414,6 +414,33 @@ class AnalyzerTest extends AnalyzerTestBase {
                 "schema"
             ),
             AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+        )
+    );
+  }
+
+  /**
+   * SELECT * FROM (
+   *   SELECT name FROM test
+   * ) AS schema.
+   */
+  @Test
+  public void select_all_from_subquery() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.project(
+                LogicalPlanDSL.relation("schema"),
+                DSL.named("string_value", DSL.ref("string_value", STRING))),
+            DSL.named("string_value", DSL.ref("string_value", STRING))
+        ),
+        AstDSL.project(
+            AstDSL.relationSubquery(
+                AstDSL.project(
+                    AstDSL.relation("schema"),
+                    AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+                ),
+                "schema"
+            ),
+            AstDSL.allFields()
         )
     );
   }
@@ -571,6 +598,26 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.alias("sum(integer_value)-avg(integer_value)",
                 function("-", aggregate("sum", qualifiedName("integer_value")),
                     aggregate("avg", qualifiedName("integer_value")))))
+    );
+  }
+
+  @Test
+  public void limit_offset() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.limit(
+                LogicalPlanDSL.relation("schema"),
+                1, 1
+            ),
+            DSL.named("integer_value", DSL.ref("integer_value", INTEGER))
+        ),
+        AstDSL.project(
+            AstDSL.limit(
+                AstDSL.relation("schema"),
+                1, 1
+            ),
+            AstDSL.alias("integer_value", qualifiedName("integer_value"))
+        )
     );
   }
 }

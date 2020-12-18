@@ -1,0 +1,4 @@
+SELECT * FROM (SELECT Origin, Dest, AvgTicketPrice FROM kibana_sample_data_flights) AS flights
+SELECT * FROM (SELECT Origin AS origin FROM kibana_sample_data_flights) AS flights
+SELECT * FROM (SELECT * FROM (SELECT Origin FROM kibana_sample_data_flights) AS flights) AS f
+SELECT Origin FROM (SELECT * FROM kibana_sample_data_flights) AS flights

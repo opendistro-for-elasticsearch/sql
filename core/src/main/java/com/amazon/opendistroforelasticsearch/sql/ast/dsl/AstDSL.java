@@ -17,9 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -44,6 +46,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Limit;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
@@ -219,6 +222,10 @@ public class AstDSL {
     return new Case(caseValueExpr, Arrays.asList(whenClauses), elseClause);
   }
 
+  public UnresolvedExpression cast(UnresolvedExpression expr, Literal type) {
+    return new Cast(expr, type);
+  }
+
   public When when(UnresolvedExpression condition, UnresolvedExpression result) {
     return new When(condition, result);
   }
@@ -261,6 +268,10 @@ public class AstDSL {
 
   public static UnresolvedArgument unresolvedArg(String argName, UnresolvedExpression argValue) {
     return new UnresolvedArgument(argName, argValue);
+  }
+
+  public AllFields allFields() {
+    return AllFields.of();
   }
 
   public Field field(UnresolvedExpression field) {
@@ -370,5 +381,9 @@ public class AstDSL {
       List<Argument> noOfResults, List<UnresolvedExpression> groupList, Field... fields) {
     return new RareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupList)
         .attach(input);
+  }
+
+  public static Limit limit(UnresolvedPlan input, Integer limit, Integer offset) {
+    return new Limit(limit, offset).attach(input);
   }
 }

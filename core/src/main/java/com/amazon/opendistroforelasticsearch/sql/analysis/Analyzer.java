@@ -36,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Limit;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -59,6 +60,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
@@ -127,13 +129,19 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitRelationSubquery(RelationSubquery node, AnalysisContext context) {
     LogicalPlan subquery = analyze(node.getChild().get(0), context);
-    context.push();
+    // inherit the parent environment to keep the subquery fields in current environment
     TypeEnvironment curEnv = context.peek();
 
     // Put subquery alias in index namespace so the qualifier can be removed
     // when analyzing qualified name in the subquery layer
     curEnv.define(new Symbol(Namespace.INDEX_NAME, node.getAliasAsTableName()), STRUCT);
     return subquery;
+  }
+
+  @Override
+  public LogicalPlan visitLimit(Limit node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    return new LogicalLimit(child, node.getLimit(), node.getOffset());
   }
 
   @Override
@@ -186,7 +194,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     for (UnresolvedExpression expr : node.getAggExprList()) {
       NamedExpression aggExpr = namedExpressionAnalyzer.analyze(expr, context);
       aggregatorBuilder
-          .add(new NamedAggregator(aggExpr.getName(), (Aggregator) aggExpr.getDelegated()));
+          .add(new NamedAggregator(aggExpr.getNameOrAlias(), (Aggregator) aggExpr.getDelegated()));
     }
     ImmutableList<NamedAggregator> aggregators = aggregatorBuilder.build();
 
@@ -202,7 +210,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     aggregators.forEach(aggregator -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
         aggregator.getName()), aggregator.type()));
     groupBys.forEach(group -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
-        group.getName()), group.type()));
+        group.getNameOrAlias()), group.type()));
     return new LogicalAggregation(child, aggregators, groupBys);
   }
 
@@ -283,7 +291,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     context.push();
     TypeEnvironment newEnv = context.peek();
     namedExpressions.forEach(expr -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
-        expr.getName()), expr.type()));
+        expr.getNameOrAlias()), expr.type()));
     return new LogicalProject(child, namedExpressions);
   }
 

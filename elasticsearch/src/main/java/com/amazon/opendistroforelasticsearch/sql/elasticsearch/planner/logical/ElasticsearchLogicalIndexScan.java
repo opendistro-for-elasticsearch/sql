@@ -20,10 +20,12 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Set;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -54,13 +56,19 @@ public class ElasticsearchLogicalIndexScan extends LogicalPlan {
    * Projection List.
    */
   @Setter
-  private List<NamedExpression> projectList;
+  private Set<ReferenceExpression> projectList;
 
   /**
    * Sort List.
    */
   @Setter
   private List<Pair<Sort.SortOption, Expression>> sortList;
+
+  @Setter
+  private Integer offset;
+
+  @Setter
+  private Integer limit;
 
   /**
    * ElasticsearchLogicalIndexScan Constructor.
@@ -69,17 +77,33 @@ public class ElasticsearchLogicalIndexScan extends LogicalPlan {
   public ElasticsearchLogicalIndexScan(
       String relationName,
       Expression filter,
-      List<NamedExpression> projectList,
-      List<Pair<Sort.SortOption, Expression>> sortList) {
+      Set<ReferenceExpression> projectList,
+      List<Pair<Sort.SortOption, Expression>> sortList,
+      Integer limit, Integer offset) {
     super(ImmutableList.of());
     this.relationName = relationName;
     this.filter = filter;
     this.projectList = projectList;
     this.sortList = sortList;
+    this.limit = limit;
+    this.offset = offset;
   }
 
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
     return visitor.visitNode(this, context);
+  }
+
+  public boolean hasLimit() {
+    return limit != null;
+  }
+
+  /**
+   * Test has projects or not.
+   *
+   * @return true for has projects, otherwise false.
+   */
+  public boolean hasProjects() {
+    return projectList != null && !projectList.isEmpty();
   }
 }

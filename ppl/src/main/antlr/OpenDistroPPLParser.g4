@@ -258,6 +258,7 @@ conditionFunctionBase
 
 textFunctionBase
     : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER | CONCAT | CONCAT_WS | LENGTH | STRCMP
+    | RIGHT
     ;
 
 /** operators */
@@ -311,18 +312,17 @@ valueList
 
 qualifiedName
     : ident (DOT ident)*                                            #identsAsQualifiedName
-    | keywordsCanBeId                                               #keywordsAsQualifiedName
     ;
 
 wcQualifiedName
     : wildcard (DOT wildcard)*                                      #identsAsWildcardQualifiedName
-    | keywordsCanBeId                                               #keywordsAsWildcardQualifiedName
     ;
 
 ident
     : (DOT)? ID
     | BACKTICK ident BACKTICK
     | BQUOTA_STRING
+    | keywordsCanBeId
     ;
 
 wildcard
@@ -336,4 +336,5 @@ keywordsCanBeId
     : D // OD SQL and ODBC special
     | statsFunctionName
     | TIMESTAMP | DATE | TIME
+    | FIRST | LAST
     ;

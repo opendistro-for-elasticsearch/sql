@@ -17,12 +17,16 @@ package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -55,6 +59,24 @@ class CountAggregatorTest extends AggregationTest {
   @Test
   public void count_double_field_expression() {
     ExprValue result = aggregation(dsl.count(DSL.ref("double_value", DOUBLE)), tuples);
+    assertEquals(4, result.value());
+  }
+
+  @Test
+  public void count_date_field_expression() {
+    ExprValue result = aggregation(dsl.count(DSL.ref("date_value", DATE)), tuples);
+    assertEquals(4, result.value());
+  }
+
+  @Test
+  public void count_timestamp_field_expression() {
+    ExprValue result = aggregation(dsl.count(DSL.ref("timestamp_value", TIMESTAMP)), tuples);
+    assertEquals(4, result.value());
+  }
+
+  @Test
+  public void count_datetime_field_expression() {
+    ExprValue result = aggregation(dsl.count(DSL.ref("datetime_value", DATETIME)), tuples);
     assertEquals(4, result.value());
   }
 

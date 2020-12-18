@@ -29,8 +29,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.InExprContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntervalLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.KeywordsAsQualifiedNameContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.KeywordsAsWildcardQualifiedNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalAndContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalNotContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalOrContext;
@@ -242,11 +240,6 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitKeywordsAsQualifiedName(KeywordsAsQualifiedNameContext ctx) {
-    return new QualifiedName(ctx.keywordsCanBeId().getText());
-  }
-
-  @Override
   public UnresolvedExpression visitIdentsAsWildcardQualifiedName(
       IdentsAsWildcardQualifiedNameContext ctx) {
     return new QualifiedName(
@@ -256,12 +249,6 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
             .map(StringUtils::unquoteText)
             .collect(Collectors.toList())
     );
-  }
-
-  @Override
-  public UnresolvedExpression visitKeywordsAsWildcardQualifiedName(
-      KeywordsAsWildcardQualifiedNameContext ctx) {
-    return new QualifiedName(ctx.keywordsCanBeId().getText());
   }
 
   @Override

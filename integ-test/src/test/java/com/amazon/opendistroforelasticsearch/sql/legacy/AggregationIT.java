@@ -45,6 +45,7 @@ import java.util.stream.IntStream;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -470,10 +471,12 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Test
   public void orderByAliasAscTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) as count FROM %s " +
         "GROUP BY gender ORDER BY count", TEST_INDEX_ACCOUNT));
 
-    verifySchema(response, schema("count", "count", "integer"));
+    verifySchema(response, schema("COUNT(*)", "count", "integer"));
     verifyDataRowsInOrder(response,
         rows(493),
         rows(507));
@@ -492,10 +495,12 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Test
   public void orderByAliasDescTest() throws IOException {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) as count FROM %s " +
         "GROUP BY gender ORDER BY count DESC", TEST_INDEX_ACCOUNT));
 
-    verifySchema(response, schema("count", "count", "integer"));
+    verifySchema(response, schema("COUNT(*)", "count", "integer"));
     verifyDataRowsInOrder(response,
         rows(507),
         rows(493));
@@ -503,13 +508,15 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Test
   public void orderByGroupFieldWithAlias() throws IOException {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     // ORDER BY field name
     JSONObject response = executeJdbcRequest(String.format("SELECT gender as g, COUNT(*) as count "
         + "FROM %s GROUP BY gender ORDER BY gender", TEST_INDEX_ACCOUNT));
 
     verifySchema(response,
-        schema("g", "g", "text"),
-        schema("count", "count", "integer"));
+        schema("gender", "g", "text"),
+        schema("COUNT(*)", "count", "integer"));
     verifyDataRowsInOrder(response,
         rows("f", 493),
         rows("m", 507));
@@ -519,8 +526,8 @@ public class AggregationIT extends SQLIntegTestCase {
         + "FROM %s GROUP BY gender ORDER BY g", TEST_INDEX_ACCOUNT));
 
     verifySchema(response,
-        schema("g", "g", "text"),
-        schema("count", "count", "integer"));
+        schema("gender", "g", "text"),
+        schema("COUNT(*)", "count", "integer"));
     verifyDataRowsInOrder(response,
         rows("f", 493),
         rows("m", 507));

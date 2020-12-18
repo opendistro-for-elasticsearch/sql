@@ -21,6 +21,7 @@ import static java.util.Collections.emptyList;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
@@ -124,8 +125,8 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
    */
   private Optional<UnresolvedExpression> findNonAggregatedItemInSelect() {
     return querySpec.getSelectItems().stream()
-                                     .filter(this::isNonLiteral)
                                      .filter(this::isNonAggregatedExpression)
+                                     .filter(this::isNonLiteralFunction)
                                      .findFirst();
   }
 
@@ -133,8 +134,17 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     return querySpec.getAggregators().isEmpty();
   }
 
-  private boolean isNonLiteral(UnresolvedExpression expr) {
-    return !(expr instanceof Literal);
+  private boolean isNonLiteralFunction(UnresolvedExpression expr) {
+    // The base case for recursion
+    if (expr instanceof Literal) {
+      return false;
+    }
+    if (expr instanceof Function) {
+      List<? extends Node> children = expr.getChild();
+      return children.stream().anyMatch(child ->
+              isNonLiteralFunction((UnresolvedExpression) child));
+    }
+    return true;
   }
 
   private boolean isNonAggregatedExpression(UnresolvedExpression expr) {

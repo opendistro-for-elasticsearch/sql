@@ -302,7 +302,9 @@ Result set::
 
 
 The formatter sanitizes the csv result with the following rules:
+
 1. If a header cell or data cell is starting with special character including '+', '-', '=' , '@', the sanitizer will insert a single-quote at the start of the cell.
+
 2. If there exists one or more commas (','), the sanitizer will quote the cell with double quotes.
 
 For example::

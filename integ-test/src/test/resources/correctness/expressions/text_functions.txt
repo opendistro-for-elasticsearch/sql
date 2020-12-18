@@ -1,0 +1,1 @@
+RIGHT('Hello World', 5) as column
