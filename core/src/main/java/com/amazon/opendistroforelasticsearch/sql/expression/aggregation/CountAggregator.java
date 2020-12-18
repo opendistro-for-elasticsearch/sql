@@ -42,7 +42,7 @@ public class CountAggregator extends Aggregator<CountState> {
   public CountState iterate(BindingTuple tuple, CountState state) {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
-    if (!(value.isNull() || value.isMissing())) {
+    if (!(value.isNull() || value.isMissing()) && condition(tuple)) {
       state.count++;
     }
     return state;

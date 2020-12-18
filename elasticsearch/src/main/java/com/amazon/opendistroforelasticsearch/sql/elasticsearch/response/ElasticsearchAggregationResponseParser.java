@@ -26,6 +26,7 @@ import java.util.Map;
 import lombok.experimental.UtilityClass;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.InternalSingleBucketAggregation;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregation;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 
@@ -82,6 +83,11 @@ public class ElasticsearchAggregationResponseParser {
       resultMap.put(
           aggregation.getName(),
           handleNanValue(((NumericMetricsAggregation.SingleValue) aggregation).value()));
+    } else if (aggregation instanceof InternalSingleBucketAggregation) {
+      Aggregation internalAgg =
+          ((InternalSingleBucketAggregation) aggregation).getAggregations().asList().get(0);
+      Map<String, Object> intermediateMap = parseInternal(internalAgg);
+      resultMap.put(internalAgg.getName(), intermediateMap.get(internalAgg.getName()));
     } else {
       throw new IllegalStateException("unsupported aggregation type " + aggregation.getType());
     }

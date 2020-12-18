@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.a
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
@@ -26,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import java.util.List;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.AggregatorFactories;
@@ -38,10 +40,12 @@ public class MetricAggregationBuilder
     extends ExpressionNodeVisitor<AggregationBuilder, Object> {
 
   private final AggregationBuilderHelper<ValuesSourceAggregationBuilder<?>> helper;
+  private final ExpressionSerializer serializer;
 
   public MetricAggregationBuilder(
       ExpressionSerializer serializer) {
     this.helper = new AggregationBuilderHelper<>(serializer);
+    this.serializer = serializer;
   }
 
   /**
@@ -62,28 +66,39 @@ public class MetricAggregationBuilder
   public AggregationBuilder visitNamedAggregator(NamedAggregator node,
                                                  Object context) {
     Expression expression = node.getArguments().get(0);
+    Expression condition = node.getDelegated().getCondition();
     String name = node.getName();
 
     switch (node.getFunctionName().getFunctionName()) {
       case "avg":
-        return make(AggregationBuilders.avg(name), expression);
+        return make(AggregationBuilders.avg(name), expression, condition, name);
       case "sum":
-        return make(AggregationBuilders.sum(name), expression);
+        return make(AggregationBuilders.sum(name), expression, condition, name);
       case "count":
-        return make(AggregationBuilders.count(name), replaceStarOrLiteral(expression));
+        return make(
+            AggregationBuilders.count(name), replaceStarOrLiteral(expression), condition, name);
       case "min":
-        return make(AggregationBuilders.min(name), expression);
+        return make(AggregationBuilders.min(name), expression, condition, name);
       case "max":
-        return make(AggregationBuilders.max(name), expression);
+        return make(AggregationBuilders.max(name), expression, condition, name);
       default:
         throw new IllegalStateException(
             String.format("unsupported aggregator %s", node.getFunctionName().getFunctionName()));
     }
   }
 
-  private ValuesSourceAggregationBuilder<?> make(ValuesSourceAggregationBuilder<?> builder,
-                                                  Expression expression) {
-    return helper.build(expression, builder::field, builder::script);
+  private QueryBuilder makeFilter(Expression condition) {
+    return new FilterQueryBuilder(serializer).build(condition);
+  }
+
+  private AggregationBuilder make(ValuesSourceAggregationBuilder<?> builder,
+                                  Expression expression, Expression condition, String name) {
+    ValuesSourceAggregationBuilder aggBuilder =
+        helper.build(expression, builder::field, builder::script);
+    if (condition == null) {
+      return aggBuilder;
+    }
+    return AggregationBuilders.filter(name, makeFilter(condition)).subAggregation(aggBuilder);
   }
 
   /**

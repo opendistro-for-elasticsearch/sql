@@ -34,6 +34,7 @@ public class AggregateFunction extends UnresolvedExpression {
   private final String funcName;
   private final UnresolvedExpression field;
   private final List<UnresolvedExpression> argList;
+  private UnresolvedExpression condition;
 
   /**
    * Constructor.
@@ -44,6 +45,20 @@ public class AggregateFunction extends UnresolvedExpression {
     this.funcName = funcName;
     this.field = field;
     this.argList = Collections.emptyList();
+  }
+
+  /**
+   * Constructor.
+   * @param funcName function name.
+   * @param field {@link UnresolvedExpression}.
+   * @param condition condition in aggregation filter.
+   */
+  public AggregateFunction(String funcName, UnresolvedExpression field,
+                           UnresolvedExpression condition) {
+    this.funcName = funcName;
+    this.field = field;
+    this.argList = Collections.emptyList();
+    this.condition = condition;
   }
 
   @Override

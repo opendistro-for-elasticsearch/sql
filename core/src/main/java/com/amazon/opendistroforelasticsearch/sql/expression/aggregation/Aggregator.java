@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.ExpressionAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -30,6 +31,7 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * Aggregator which will iterate on the {@link BindingTuple}s to aggregate the result.
@@ -46,6 +48,9 @@ public abstract class Aggregator<S extends AggregationState>
   @Getter
   private final List<Expression> arguments;
   protected final ExprCoreType returnType;
+  @Setter
+  @Getter
+  protected Expression condition;
 
   /**
    * Create an {@link AggregationState} which will be used for aggregation.
@@ -75,6 +80,16 @@ public abstract class Aggregator<S extends AggregationState>
   @Override
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
     return visitor.visitAggregator(this, context);
+  }
+
+  /**
+   * Util method to get value of condition in aggregation filter.
+   */
+  public boolean condition(BindingTuple tuple) {
+    if (condition == null) {
+      return true;
+    }
+    return ExprValueUtils.getBooleanValue(condition.valueOf(tuple));
   }
 
 }

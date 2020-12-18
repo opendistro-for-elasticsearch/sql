@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FilteredAggregationFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
@@ -226,6 +227,14 @@ public class QuerySpecification {
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
       aggregators.add(AstDSL.alias(getTextInQuery(ctx, queryString), visitAstExpression(ctx)));
       return super.visitAggregateFunctionCall(ctx);
+    }
+
+    @Override
+    public Void visitFilteredAggregationFunctionCall(FilteredAggregationFunctionCallContext ctx) {
+      UnresolvedExpression aggregateFunction = visitAstExpression(ctx);
+      aggregators.add(
+          AstDSL.alias(getTextInQuery(ctx, queryString), aggregateFunction));
+      return super.visitFilteredAggregationFunctionCall(ctx);
     }
 
     private boolean isDistinct(SelectSpecContext ctx) {
