@@ -23,14 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.PeerRowsWindowFrame;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -63,8 +61,7 @@ class AggregateWindowFunctionTest extends ExpressionTestBase {
 
   @Test
   void should_accumulate_all_peer_values_and_not_reset_state_if_same_partition() {
-    WindowFrame windowFrame = mock(WindowFrame.class,
-        withSettings().extraInterfaces(Environment.class));
+    PeerRowsWindowFrame windowFrame = mock(PeerRowsWindowFrame.class);
     AggregateWindowFunction windowFunction =
         new AggregateWindowFunction(dsl.sum(DSL.ref("age", INTEGER)));
 

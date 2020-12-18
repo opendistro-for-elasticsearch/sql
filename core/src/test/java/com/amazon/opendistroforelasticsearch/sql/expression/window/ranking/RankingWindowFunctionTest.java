@@ -28,7 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CurrentRowWindowFrame;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
@@ -48,12 +48,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RankingWindowFunctionTest extends ExpressionTestBase {
 
-  private final CumulativeWindowFrame windowFrame1 = new CumulativeWindowFrame(
+  private final CurrentRowWindowFrame windowFrame1 = new CurrentRowWindowFrame(
       new WindowDefinition(
           ImmutableList.of(DSL.ref("state", STRING)),
           ImmutableList.of(Pair.of(DEFAULT_ASC, DSL.ref("age", INTEGER)))));
 
-  private final CumulativeWindowFrame windowFrame2 = new CumulativeWindowFrame(
+  private final CurrentRowWindowFrame windowFrame2 = new CurrentRowWindowFrame(
       new WindowDefinition(
           ImmutableList.of(DSL.ref("state", STRING)),
           ImmutableList.of())); // No sort items defined

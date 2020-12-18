@@ -29,7 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CurrentRowWindowFrame;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
@@ -37,9 +37,9 @@ import com.google.common.collect.PeekingIterator;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 
-class CumulativeWindowFrameTest {
+class CurrentRowWindowFrameTest {
 
-  private final CumulativeWindowFrame windowFrame = new CumulativeWindowFrame(
+  private final CurrentRowWindowFrame windowFrame = new CurrentRowWindowFrame(
       new WindowDefinition(
           ImmutableList.of(DSL.ref("state", STRING)),
           ImmutableList.of(ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER)))));

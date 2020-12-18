@@ -20,8 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.google.common.collect.PeekingIterator;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Window frame that represents a subset of a window which is all data accessible to
@@ -32,8 +30,7 @@ import java.util.List;
  * Note that which type of window frame is used is determined by both window function itself
  * and frame definition in a window definition.
  */
-public interface WindowFrame extends Environment<Expression, ExprValue>,
-                                     Iterator<List<ExprValue>> {
+public interface WindowFrame extends Environment<Expression, ExprValue> {
 
   @Override
   default ExprValue resolve(Expression var) {

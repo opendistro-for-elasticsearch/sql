@@ -25,7 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregat
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.PeerWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.PeerRowsWindowFrame;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -43,12 +43,12 @@ public class AggregateWindowFunction implements WindowFunctionExpression {
 
   @Override
   public WindowFrame createWindowFrame(WindowDefinition definition) {
-    return new PeerWindowFrame(definition);
+    return new PeerRowsWindowFrame(definition);
   }
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    WindowFrame frame = (WindowFrame) valueEnv;
+    PeerRowsWindowFrame frame = (PeerRowsWindowFrame) valueEnv;
     if (frame.isNewPartition()) {
       state = aggregator.create();
     }

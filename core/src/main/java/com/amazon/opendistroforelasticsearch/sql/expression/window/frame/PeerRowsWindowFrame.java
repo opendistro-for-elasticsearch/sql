@@ -30,15 +30,16 @@ import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Window frame that only keep peers (tuples with same value of fields specified in sort list
- * in window definition).
+ * in window definition). See PeerWindowFrameTest for details about how this window frame
+ * interacts with window operator and window function.
  */
 @RequiredArgsConstructor
-public class PeerWindowFrame implements WindowFrame {
+public class PeerRowsWindowFrame implements WindowFrame {
 
   private final WindowDefinition windowDefinition;
 
   /**
-   * All peer rows (peer means rows in a partition that share same sorting key
+   * All peer rows (peer means rows in a partition that share same sort key
    * based on sort list in window definition.
    */
   private final List<ExprValue> peers = new ArrayList<>();
@@ -54,15 +55,6 @@ public class PeerWindowFrame implements WindowFrame {
   private boolean isNewPartition = true;
 
   /**
-   * Is any pre-fetched row not consumed by window function yet.
-   * @return true if still have rows waiting to be consumed
-   */
-  @Override
-  public boolean hasNext() {
-    return position < peers.size();
-  }
-
-  /**
    * Move position and clear new partition flag.
    * Note that because all peer rows have same result from window function,
    * this is only returned at first time to change window function state.
@@ -70,7 +62,6 @@ public class PeerWindowFrame implements WindowFrame {
    *
    * @return all rows for the peer
    */
-  @Override
   public List<ExprValue> next() {
     isNewPartition = false;
     if (position++ == 0) {
@@ -89,21 +80,26 @@ public class PeerWindowFrame implements WindowFrame {
     return peers.get(position);
   }
 
+  /**
+   * Preload all peer rows if last peer rows done. This is called only
+   * when there are more rows in the given iterator.
+   * Load until:
+   *  1. Different peer found (row with different sort key)
+   *  2. Or new partition (row with different partition key)
+   *  3. Or no more rows
+   * @param it  rows iterator
+   */
   @Override
   public void load(PeekingIterator<ExprValue> it) {
-    if (hasNext()) {
+    if (position < peers.size()) {
       return;
     }
 
-    // Reset state: check if new partition before clear
-    isNewPartition = it.hasNext() && !isSamePartition(it.peek());
+    // Reset state: reset new partition before clearing peers
+    isNewPartition = !isSamePartition(it.peek());
     position = 0;
     peers.clear();
 
-    // Load until:
-    //  1) sort key different (different peer);
-    //  2) or new partition
-    //  3) or no more data
     while (it.hasNext()) {
       ExprValue next = it.peek();
       if (peers.isEmpty()) {

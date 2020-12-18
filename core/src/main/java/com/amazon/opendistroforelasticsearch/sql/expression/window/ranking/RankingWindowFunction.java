@@ -28,7 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CurrentRowWindowFrame;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import java.util.List;
@@ -58,12 +58,12 @@ public abstract class RankingWindowFunction extends FunctionExpression
 
   @Override
   public WindowFrame createWindowFrame(WindowDefinition definition) {
-    return new CumulativeWindowFrame(definition);
+    return new CurrentRowWindowFrame(definition);
   }
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    return new ExprIntegerValue(rank((CumulativeWindowFrame) valueEnv));
+    return new ExprIntegerValue(rank((CurrentRowWindowFrame) valueEnv));
   }
 
   /**
@@ -71,14 +71,14 @@ public abstract class RankingWindowFunction extends FunctionExpression
    * @param frame   window frame
    * @return        rank number
    */
-  protected abstract int rank(CumulativeWindowFrame frame);
+  protected abstract int rank(CurrentRowWindowFrame frame);
 
   /**
    * Check sort field to see if current value is different from previous.
    * @param frame   window frame
    * @return        true if different, false if same or no sort list defined
    */
-  protected boolean isSortFieldValueDifferent(CumulativeWindowFrame frame) {
+  protected boolean isSortFieldValueDifferent(CurrentRowWindowFrame frame) {
     if (isSortItemsNotDefined(frame)) {
       return false;
     }
@@ -94,7 +94,7 @@ public abstract class RankingWindowFunction extends FunctionExpression
     return !current.equals(previous);
   }
 
-  private boolean isSortItemsNotDefined(CumulativeWindowFrame frame) {
+  private boolean isSortItemsNotDefined(CurrentRowWindowFrame frame) {
     return frame.getWindowDefinition().getSortList().isEmpty();
   }
 

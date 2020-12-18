@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.PeekingIterator;
 import java.util.List;
 import java.util.Objects;
@@ -31,8 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Cumulative window frame that accumulates data row incrementally as window operator iterates
- * input rows. Conceptually, cumulative window frame should hold all seen rows till next partition.
+ * Conceptually, cumulative window frame should hold all seen rows till next partition.
  * This class is actually an optimized version that only hold previous and current row. This is
  * efficient and sufficient for ranking and aggregate window function support for now, though need
  * to add "real" cumulative frame implementation in future as needed.
@@ -40,7 +38,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 @ToString
-public class CumulativeWindowFrame implements WindowFrame {
+public class CurrentRowWindowFrame implements WindowFrame {
 
   @Getter
   private final WindowDefinition windowDefinition;
@@ -65,16 +63,6 @@ public class CumulativeWindowFrame implements WindowFrame {
   public void load(PeekingIterator<ExprValue> it) {
     previous = current;
     current = it.next();
-  }
-
-  @Override
-  public boolean hasNext() {
-    return false;
-  }
-
-  @Override
-  public List<ExprValue> next() {
-    return ImmutableList.of(current);
   }
 
   @Override
