@@ -22,6 +22,8 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * Expression node of aggregate functions.
@@ -35,6 +37,10 @@ public class AggregateFunction extends UnresolvedExpression {
   private final UnresolvedExpression field;
   private final List<UnresolvedExpression> argList;
 
+  @Setter
+  @Accessors(fluent = true)
+  private UnresolvedExpression condition;
+
   /**
    * Constructor.
    * @param funcName function name.
@@ -44,6 +50,13 @@ public class AggregateFunction extends UnresolvedExpression {
     this.funcName = funcName;
     this.field = field;
     this.argList = Collections.emptyList();
+  }
+
+  public AggregateFunction(String funcName, UnresolvedExpression field, UnresolvedExpression condition) {
+    this.funcName = funcName;
+    this.field = field;
+    this.argList = Collections.emptyList();
+    this.condition = condition;
   }
 
   @Override

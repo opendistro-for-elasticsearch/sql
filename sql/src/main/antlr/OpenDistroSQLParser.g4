@@ -251,6 +251,7 @@ functionCall
     | specificFunction                                              #specificFunctionCall
     | windowFunction                                                #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
+    | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
     ;
 
 scalarFunctionName
@@ -269,6 +270,10 @@ specificFunction
 caseFuncAlternative
     : WHEN condition=functionArg
       THEN consequent=functionArg
+    ;
+
+filterClause
+    : FILTER LR_BRACKET WHERE expression RR_BRACKET
     ;
 
 aggregateFunction

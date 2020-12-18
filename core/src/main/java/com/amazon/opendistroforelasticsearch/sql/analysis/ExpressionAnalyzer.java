@@ -137,9 +137,13 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Optional<BuiltinFunctionName> builtinFunctionName = BuiltinFunctionName.of(node.getFuncName());
     if (builtinFunctionName.isPresent()) {
       Expression arg = node.getField().accept(this, context);
-      return (Aggregator)
+      Aggregator aggregator = (Aggregator)
           repository.compile(
               builtinFunctionName.get().getName(), Collections.singletonList(arg));
+      if (node.condition() != null) {
+        aggregator.condition(analyze(node.condition(), context));
+      }
+      return aggregator;
     } else {
       throw new SemanticCheckException("Unsupported aggregation function " + node.getFuncName());
     }

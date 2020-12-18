@@ -47,7 +47,7 @@ public class MergeAggAndIndexScan implements Rule<LogicalAggregation> {
    */
   public MergeAggAndIndexScan() {
     this.capture = Capture.newCapture();
-    this.pattern = typeOf(LogicalAggregation.class)
+    this.pattern = typeOf(LogicalAggregation.class).matching(plan -> !plan.hasFilterFunction())
         .with(source().matching(typeOf(ElasticsearchLogicalIndexScan.class)
             .capturedAs(capture)));
   }

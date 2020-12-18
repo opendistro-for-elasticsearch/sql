@@ -19,9 +19,9 @@ import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -52,5 +52,15 @@ public class LogicalAggregation extends LogicalPlan {
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
     return visitor.visitAggregation(this, context);
+  }
+
+  public boolean hasFilterFunction() {
+    AtomicBoolean result = new AtomicBoolean(false);
+    aggregatorList.forEach(agg -> {
+      if (agg.getDelegated().condition() != null) {
+        result.set(true);
+      }
+    });
+    return result.get();
   }
 }

@@ -46,7 +46,7 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
   public AvgState iterate(BindingTuple tuple, AvgState state) {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
-    if (!(value.isNull() || value.isMissing())) {
+    if (!(value.isNull() || value.isMissing()) && getCondition(tuple)) {
       state.count++;
       state.total += ExprValueUtils.getDoubleValue(value);
     }
@@ -56,6 +56,13 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
   @Override
   public String toString() {
     return String.format(Locale.ROOT, "avg(%s)", format(getArguments()));
+  }
+
+  private boolean getCondition(BindingTuple tuple) {
+    if (condition() == null) {
+      return true;
+    }
+    return ExprValueUtils.getBooleanValue(condition().valueOf(tuple));
   }
 
   /**

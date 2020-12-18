@@ -30,6 +30,8 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * Aggregator which will iterate on the {@link BindingTuple}s to aggregate the result.
@@ -46,6 +48,11 @@ public abstract class Aggregator<S extends AggregationState>
   @Getter
   private final List<Expression> arguments;
   protected final ExprCoreType returnType;
+
+  @Getter
+  @Setter
+  @Accessors(fluent = true)
+  private Expression condition;
 
   /**
    * Create an {@link AggregationState} which will be used for aggregation.

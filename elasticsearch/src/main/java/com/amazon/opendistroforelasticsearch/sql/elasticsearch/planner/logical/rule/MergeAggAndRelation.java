@@ -47,7 +47,7 @@ public class MergeAggAndRelation implements Rule<LogicalAggregation> {
    */
   public MergeAggAndRelation() {
     this.relationCapture = Capture.newCapture();
-    this.pattern = typeOf(LogicalAggregation.class)
+    this.pattern = typeOf(LogicalAggregation.class).matching(agg -> !agg.hasFilterFunction())
         .with(source().matching(typeOf(LogicalRelation.class).capturedAs(relationCapture)));
   }
 
