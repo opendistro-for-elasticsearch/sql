@@ -95,6 +95,28 @@ class WindowOperatorTest extends PhysicalPlanTestBase {
         .done();
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  void test_aggregate_window_function_without_sort_key() {
+    window(new AggregateWindowFunction(dsl.sum(ref("response", INTEGER))))
+        .expectNext(ImmutableMap.of(
+            "ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com",
+            "sum(response)", 1504))
+        .expectNext(ImmutableMap.of(
+            "ip", "74.125.19.106", "action", "POST", "response", 500,
+            "sum(response)", 1504))
+        .expectNext(ImmutableMap.of(
+            "ip", "74.125.19.106", "action", "POST", "response", 200, "referer", "www.google.com",
+            "sum(response)", 1504))
+        .expectNext(ImmutableMap.of(
+            "ip", "112.111.162.4", "action", "GET", "response", 200, "referer", "www.amazon.com",
+            "sum(response)", 1504))
+        .expectNext(ImmutableMap.of(
+            "ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com",
+            "sum(response)", 1504))
+        .done();
+  }
+
   private WindowOperatorAssertion window(Expression windowFunction) {
     return new WindowOperatorAssertion(windowFunction);
   }

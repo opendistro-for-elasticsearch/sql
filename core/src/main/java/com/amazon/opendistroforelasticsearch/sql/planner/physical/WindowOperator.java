@@ -87,7 +87,7 @@ public class WindowOperator extends PhysicalPlan {
 
   @Override
   public boolean hasNext() {
-    return peekingIterator.hasNext();
+    return peekingIterator.hasNext() || windowFrame.hasNext();
   }
 
   @Override

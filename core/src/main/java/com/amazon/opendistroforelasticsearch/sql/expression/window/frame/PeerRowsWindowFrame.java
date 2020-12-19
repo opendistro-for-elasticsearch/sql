@@ -55,6 +55,14 @@ public class PeerRowsWindowFrame implements WindowFrame {
   private boolean isNewPartition = true;
 
   /**
+   * If any more pre-fetched rows not returned to window operator yet.
+   */
+  @Override
+  public boolean hasNext() {
+    return position < peers.size();
+  }
+
+  /**
    * Move position and clear new partition flag.
    * Note that because all peer rows have same result from window function,
    * this is only returned at first time to change window function state.
@@ -62,6 +70,7 @@ public class PeerRowsWindowFrame implements WindowFrame {
    *
    * @return all rows for the peer
    */
+  @Override
   public List<ExprValue> next() {
     isNewPartition = false;
     if (position++ == 0) {
@@ -81,8 +90,8 @@ public class PeerRowsWindowFrame implements WindowFrame {
   }
 
   /**
-   * Preload all peer rows if last peer rows done. This is called only
-   * when there are more rows in the given iterator.
+   * Preload all peer rows if last peer rows done. Note that when no more data in peeking iterator,
+   * there must be rows in frame (hasNext()=true), so no need to check it.hasNext() in this method.
    * Load until:
    *  1. Different peer found (row with different sort key)
    *  2. Or new partition (row with different partition key)
@@ -91,7 +100,7 @@ public class PeerRowsWindowFrame implements WindowFrame {
    */
   @Override
   public void load(PeekingIterator<ExprValue> it) {
-    if (position < peers.size()) {
+    if (hasNext()) {
       return;
     }
 

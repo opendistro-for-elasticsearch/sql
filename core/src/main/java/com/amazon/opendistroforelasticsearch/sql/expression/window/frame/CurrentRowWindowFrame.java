@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.PeekingIterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -79,6 +80,20 @@ public class CurrentRowWindowFrame implements WindowFrame {
     return expressions.stream()
                       .map(expr -> expr.valueOf(valueEnv))
                       .collect(Collectors.toList());
+  }
+
+  /**
+   * Current row window frame won't pre-fetch any row ahead.
+   * So always return false as nothing "cached" in frame.
+   */
+  @Override
+  public boolean hasNext() {
+    return false;
+  }
+
+  @Override
+  public List<ExprValue> next() {
+    return Collections.emptyList();
   }
 
 }

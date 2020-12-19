@@ -45,6 +45,12 @@ class CurrentRowWindowFrameTest {
           ImmutableList.of(ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER)))));
 
   @Test
+  void test_iterator_methods() {
+    assertFalse(windowFrame.hasNext());
+    assertTrue(windowFrame.next().isEmpty());
+  }
+
+  @Test
   void should_return_new_partition_if_partition_by_field_value_changed() {
     PeekingIterator<ExprValue> iterator = Iterators.peekingIterator(
         Iterators.forArray(

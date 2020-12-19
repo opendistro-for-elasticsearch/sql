@@ -66,6 +66,16 @@ For now, only the field defined in index is allowed, all the other calculated fi
 
 Another limitation is that currently window function cannot be nested in another expression, for example, ``CASE WHEN RANK() OVER(...) THEN ...``.
 
+Workaround for both limitations mentioned above is using a sub-query in FROM clause::
+
+    SELECT
+      SUM(t.avg_flight_time) OVER(...)
+    FROM (
+        SELECT OriginCountry, AVG(FlightTimeMin) AS avg_flight_time,
+        FROM kibana_sample_data_flights
+        GROUP BY OriginCountry
+    ) AS t
+
 Limitations on Pagination
 =========================
 

@@ -75,11 +75,18 @@ public class WindowExpressionAnalyzer extends AbstractNodeVisitor<LogicalPlan, A
     Expression windowFunction = expressionAnalyzer.analyze(unresolved, context);
     List<Expression> partitionByList = analyzePartitionList(unresolved, context);
     List<Pair<SortOption, Expression>> sortList = analyzeSortList(unresolved, context);
-    WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
 
+    WindowDefinition windowDefinition = new WindowDefinition(partitionByList, sortList);
+    NamedExpression namedWindowFunction =
+        new NamedExpression(node.getName(), windowFunction, node.getAlias());
+    List<Pair<SortOption, Expression>> allSortItems = windowDefinition.getAllSortItems();
+
+    if (allSortItems.isEmpty()) {
+      return new LogicalWindow(child, namedWindowFunction, windowDefinition);
+    }
     return new LogicalWindow(
-        new LogicalSort(child,windowDefinition.getAllSortItems()),
-        new NamedExpression(node.getName(), windowFunction, node.getAlias()),
+        new LogicalSort(child, allSortItems),
+        namedWindowFunction,
         windowDefinition);
   }
 
