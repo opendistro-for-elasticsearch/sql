@@ -45,9 +45,9 @@ jobs:
           version_new=v`echo ${basename_new} | grep -oE '[0-9.]*'`
 
           # Inject the build number before the suffix
-          zip_outfile=${basename_new}-${version_new}-build-${GITHUB_RUN_NUMBER}.zip`
-          rpm_outfile=${basename_new}-${version_new}-build-${GITHUB_RUN_NUMBER}.rpm`
-          deb_outfile=${basename_new}-${version_new}-build-${GITHUB_RUN_NUMBER}.deb`
+          zip_outfile=${basename_new}-${version_new}-build-${GITHUB_RUN_NUMBER}.zip
+          rpm_outfile=${basename_new}-${version_new}-build-${GITHUB_RUN_NUMBER}.rpm
+          deb_outfile=${basename_new}-${version_new}-build-${GITHUB_RUN_NUMBER}.deb
 
           s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshot/elasticsearch-plugins/sql/"
 
