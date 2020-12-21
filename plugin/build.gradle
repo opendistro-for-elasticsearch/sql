@@ -15,7 +15,7 @@ repositories {
 }
 
 esplugin {
-    name 'opendistro-sql'
+    name 'opendistro_sql'
     description 'Open Distro for Elasticsearch SQL'
     classname 'com.amazon.opendistroforelasticsearch.sql.plugin.SQLPlugin'
     licenseFile rootProject.file("LICENSE.txt")
@@ -124,7 +124,7 @@ afterEvaluate {
     }
 
     buildDeb {
-        arch = 'all'
+        arch = 'amd64'
         archiveName "${packageName}-${version}.deb"
         dependsOn 'assemble'
     }
