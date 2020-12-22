@@ -41,7 +41,7 @@ jobs:
           rpm=`ls plugin/build/distributions/*.rpm`
           deb=`ls plugin/build/distributions/*.deb`
           
-          version_final=v`basename ${zip%.zip} | grep -oE '[0-9.]*'` # v1.12.0.0
+          version_final=v`basename ${zip%.zip} | grep -oE '[0-9.]+'` # v1.12.0.0
           basename_final=`basename ${zip%%[0-9.]*.zip}` # opendistro-sql-
 
           # Inject the build number before the suffix
