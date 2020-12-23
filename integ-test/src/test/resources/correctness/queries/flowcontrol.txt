@@ -1,0 +1,4 @@
+SELECT ifnull(AvgTicketPrice/0, AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT ifnull(AvgTicketPrice/0, AvgTicketPrice/100) FROM kibana_sample_data_flights
+SELECT ifnull(AvgTicketPrice, AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT ifnull(FlightNum, FlightNum) FROM kibana_sample_data_flights

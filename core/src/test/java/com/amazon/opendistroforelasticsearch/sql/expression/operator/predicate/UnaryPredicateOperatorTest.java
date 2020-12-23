@@ -17,11 +17,14 @@ package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_NULL_VALUE_FIELD;
+
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
+
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,6 +36,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.internal.matchers.Null;
 
 class UnaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "not({0})")
@@ -78,5 +82,34 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     expression = dsl.isnotnull(DSL.literal(ExprNullValue.of()));
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void if_null_predicate() {
+    FunctionExpression expression = dsl.ifnull(DSL.literal(100), DSL.literal(200));
+    assertEquals(100, expression.valueOf(valueEnv()).integerValue());
+    expression = dsl.ifnull(DSL.literal(ExprNullValue.of()), DSL.literal(200));
+    assertEquals(200, expression.valueOf(valueEnv()).integerValue());
+  }
+
+  @Test
+  public void null_if_predicate() {
+    FunctionExpression expression = dsl.nullif(DSL.literal(100), DSL.literal(100));
+    assertEquals(nullValue(), expression.valueOf(valueEnv()));
+
+    expression = dsl.nullif(DSL.literal(1.1), DSL.literal(1.1));
+    assertEquals(nullValue(), expression.valueOf(valueEnv()));
+
+    expression = dsl.nullif(DSL.literal("test"), DSL.literal("test"));
+    assertEquals(nullValue(), expression.valueOf(valueEnv()));
+
+    expression = dsl.nullif(DSL.literal(ExprNullValue.of()), DSL.literal(ExprNullValue.of()));
+    assertEquals(nullValue(), expression.valueOf(valueEnv()));
+
+    expression = dsl.nullif(DSL.literal(ExprNullValue.of()), DSL.literal(100));
+    assertEquals(nullValue(), expression.valueOf(valueEnv()));
+
+    expression = dsl.nullif(DSL.literal(100), DSL.literal(200));
+    assertEquals(100, expression.valueOf(valueEnv()).integerValue());
   }
 }
