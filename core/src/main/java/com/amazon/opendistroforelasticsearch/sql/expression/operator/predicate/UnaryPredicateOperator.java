@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.impl;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -23,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -41,6 +45,8 @@ public class UnaryPredicateOperator {
     repository.register(not());
     repository.register(isNull());
     repository.register(isNotNull());
+    repository.register(nullIf());
+    repository.register(ifNull());
   }
 
   private static FunctionResolver not() {
@@ -82,4 +88,33 @@ public class UnaryPredicateOperator {
             .collect(
                 Collectors.toList()));
   }
+
+  private static FunctionResolver ifNull() {
+    FunctionName functionName = BuiltinFunctionName.IF_NULL.getName();
+    FunctionResolver functionResolver =
+        FunctionDSL.define(functionName, ExprCoreType.coreTypes()
+            .stream().map(v ->
+                impl(nullMissingHandling(UnaryPredicateOperator::exprIfNull), v, v, v))
+            .collect(Collectors.toList()));
+    return functionResolver;
+  }
+
+  private static FunctionResolver nullIf() {
+    FunctionName functionName = BuiltinFunctionName.NULL_IF.getName();
+    FunctionResolver functionResolver =
+        FunctionDSL.define(functionName, ExprCoreType.coreTypes()
+            .stream().map(v ->
+                impl(nullMissingHandling(UnaryPredicateOperator::exprNullIf), v, v, v))
+            .collect(Collectors.toList()));
+    return functionResolver;
+  }
+
+  private static ExprValue exprIfNull(ExprValue v1, ExprValue v2) {
+    return (v1.isNull() || v1.isMissing()) ? v2 : v1;
+  }
+
+  private static ExprValue exprNullIf(ExprValue v1, ExprValue v2) {
+    return (!v1.isNull() && !v2.isMissing() && v1.value() == v2.value()) ? LITERAL_NULL : v1;
+  }
+
 }
