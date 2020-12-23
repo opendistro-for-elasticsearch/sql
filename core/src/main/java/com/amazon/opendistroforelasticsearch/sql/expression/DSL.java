@@ -514,6 +514,14 @@ public class DSL {
     return function(BuiltinFunctionName.IS_NOT_NULL, expressions);
   }
 
+  public FunctionExpression ifnull(Expression... expressions) {
+    return function(BuiltinFunctionName.IF_NULL, expressions);
+  }
+
+  public FunctionExpression nullif(Expression... expressions) {
+    return function(BuiltinFunctionName.NULL_IF, expressions);
+  }
+
   public static Expression cases(Expression defaultResult,
                                  WhenClause... whenClauses) {
     return new CaseClause(Arrays.asList(whenClauses), defaultResult);
