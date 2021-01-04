@@ -58,13 +58,6 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
     return String.format(Locale.ROOT, "avg(%s)", format(getArguments()));
   }
 
-  private boolean getCondition(BindingTuple tuple) {
-    if (condition() == null) {
-      return true;
-    }
-    return ExprValueUtils.getBooleanValue(condition().valueOf(tuple));
-  }
-
   /**
    * Average State.
    */

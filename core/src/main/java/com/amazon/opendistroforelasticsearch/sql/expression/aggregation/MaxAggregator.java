@@ -40,7 +40,7 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
   public MaxState iterate(BindingTuple tuple, MaxState state) {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
-    if (!(value.isNull() || value.isMissing())) {
+    if (!(value.isNull() || value.isMissing()) && getCondition(tuple)) {
       state.max(value);
     }
     return state;

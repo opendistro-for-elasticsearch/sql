@@ -521,6 +521,39 @@ class ElasticsearchLogicOptimizerTest {
     );
   }
 
+  /**
+   * SELECT AVG(intV) FILTER(WHERE intV > 2) FROM schema GROUP BY longV.
+   */
+  @Test
+  void filtered_aggregation_should_not_push_down() {
+    assertEquals(
+        project(
+            aggregation(
+                relation("schema"),
+                ImmutableList
+                    .of(DSL.named("AVG(intV)",
+                        dsl.avg(DSL.ref("intV", INTEGER))
+                            .condition(dsl.greater(DSL.ref("intV", INTEGER), DSL.literal(2))))),
+                ImmutableList.of(DSL.named("longV",
+                    dsl.abs(DSL.ref("longV", LONG))))),
+            DSL.named("AVG(intV) FILTER(WHERE intV > 2)",
+                DSL.ref("AVG(intV) FILTER(WHERE intV > 2)", DOUBLE))),
+        optimize(
+            project(
+                aggregation(
+                    relation("schema"),
+                    ImmutableList
+                        .of(DSL.named("AVG(intV)",
+                            dsl.avg(DSL.ref("intV", INTEGER))
+                                .condition(dsl.greater(DSL.ref("intV", INTEGER), DSL.literal(2))))),
+                    ImmutableList.of(DSL.named("longV",
+                        dsl.abs(DSL.ref("longV", LONG))))),
+                DSL.named("AVG(intV) FILTER(WHERE intV > 2)",
+                    DSL.ref("AVG(intV) FILTER(WHERE intV > 2)", DOUBLE)))
+        )
+    );
+  }
+
   private LogicalPlan optimize(LogicalPlan plan) {
     final LogicalPlanOptimizer optimizer = ElasticsearchLogicalPlanOptimizerFactory.create();
     final LogicalPlan optimize = optimizer.optimize(plan);

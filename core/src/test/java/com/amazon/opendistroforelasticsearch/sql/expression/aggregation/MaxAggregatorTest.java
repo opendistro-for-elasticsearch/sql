@@ -102,6 +102,14 @@ public class MaxAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void test_filter() {
+    Aggregator max = dsl.max(DSL.ref("integer_value", INTEGER))
+        .condition(dsl.less(DSL.ref("integer_value", INTEGER), DSL.literal(4)));
+    ExprValue result = aggregation(max, tuples);
+    assertEquals(3, result.value());
+  }
+
+  @Test
   public void test_max_null() {
     ExprValue result =
         aggregation(dsl.max(DSL.ref("double_value", DOUBLE)), tuples_with_null_and_missing);

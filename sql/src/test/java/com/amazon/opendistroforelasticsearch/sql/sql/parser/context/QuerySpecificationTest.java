@@ -18,7 +18,9 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filteredAggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
@@ -123,6 +125,20 @@ class QuerySpecificationTest {
     assertEquals(
         ImmutableList.of(new SortOption(SortOrder.DESC, NullOrder.NULL_FIRST)),
         collect("SELECT name FROM test ORDER BY name DESC NULLS FIRST").getOrderByOptions());
+  }
+
+  @Test
+  void can_collect_filtered_aggregation() {
+    QuerySpecification querySpec = collect("SELECT AVG(age) FILTER(WHERE age > 20) FROM test");
+
+    assertEquals(
+        ImmutableSet.of(
+            alias("AVG(age) FILTER(WHERE age > 20)",
+                filteredAggregate("AVG", qualifiedName("age"),
+                    function(">", qualifiedName("age"), intLiteral(20))))
+        ),
+        querySpec.getAggregators()
+    );
   }
 
   private QuerySpecification collect(String query) {

@@ -54,6 +54,7 @@ public class LogicalAggregation extends LogicalPlan {
     return visitor.visitAggregation(this, context);
   }
 
+  /** Util method to judge if aggregator filter is present. */
   public boolean hasFilterFunction() {
     AtomicBoolean result = new AtomicBoolean(false);
     aggregatorList.forEach(agg -> {

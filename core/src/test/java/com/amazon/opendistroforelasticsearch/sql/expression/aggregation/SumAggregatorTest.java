@@ -83,6 +83,14 @@ class SumAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void test_filter() {
+    Aggregator sum = dsl.sum(DSL.ref("integer_value", INTEGER))
+        .condition(dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(1)));
+    ExprValue result = aggregation(sum, tuples);
+    assertEquals(9, result.value());
+  }
+
+  @Test
   public void sum_with_missing() {
     ExprValue result =
         aggregation(dsl.sum(DSL.ref("integer_value", INTEGER)), tuples_with_null_and_missing);

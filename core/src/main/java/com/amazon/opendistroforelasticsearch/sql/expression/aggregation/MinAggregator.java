@@ -45,7 +45,7 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
   public MinState iterate(BindingTuple tuple, MinState state) {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
-    if (!(value.isNull() || value.isMissing())) {
+    if (!(value.isNull() || value.isMissing()) && getCondition(tuple)) {
       state.min(value);
     }
     return state;

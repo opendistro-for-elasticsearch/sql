@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.ExpressionAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -82,6 +83,14 @@ public abstract class Aggregator<S extends AggregationState>
   @Override
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
     return visitor.visitAggregator(this, context);
+  }
+
+  /** Util method to get filter condition for aggregator. */
+  protected boolean getCondition(BindingTuple tuple) {
+    if (condition() == null) {
+      return true;
+    }
+    return ExprValueUtils.getBooleanValue(condition().valueOf(tuple));
   }
 
 }
