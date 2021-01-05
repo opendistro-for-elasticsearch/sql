@@ -347,7 +347,7 @@ dateTimeFunctionName
 
 textFunctionName
     : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
-    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP
+    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP | RIGHT
     ;
 
 functionArgs

@@ -387,7 +387,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                     AstDSL.function("row_number"),
                     Collections.singletonList(AstDSL.qualifiedName("string_value")),
                     Collections.singletonList(
-                        ImmutablePair.of("ASC", AstDSL.qualifiedName("integer_value")))))));
+                        ImmutablePair.of(DEFAULT_ASC, AstDSL.qualifiedName("integer_value")))))));
   }
 
   /**

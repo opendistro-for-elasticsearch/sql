@@ -83,6 +83,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
   @Test
   public void hasGroupKeyAvgOnIntegerShouldPass() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(String.format(
         "SELECT gender, AVG(age) as avg " +
             "FROM %s " +
@@ -91,7 +92,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
     verifySchema(response,
         schema("gender", null, "text"),
-        schema("avg", "avg", "double"));
+        schema("AVG(age)", "avg", "double"));
     verifyDataRows(response,
         rows("m", 34.25),
         rows("f", 33.666666666666664d));
@@ -181,6 +182,8 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
   @Test
   public void logWithAddLiteralOnGroupKeyShouldPass() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(String.format(
         "SELECT gender, Log(age+10) as logAge, max(balance) as max " +
             "FROM %s " +
@@ -191,8 +194,8 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
     verifySchema(response,
         schema("gender", null, "text"),
-        schema("logAge", "logAge", "double"),
-        schema("max", "max", "long"));
+        schema("Log(age+10)", "logAge", "double"),
+        schema("max(balance)", "max", "long"));
     verifyDataRows(response,
         rows("m", 3.4011973816621555d, 49568),
         rows("m", 3.4339872044851463d, 49433));
@@ -264,7 +267,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         "SELECT SUM(CAST(male AS INT)) AS male_sum FROM %s",
         Index.BANK.getName()));
 
-    verifySchema(response, schema("male_sum", "male_sum", "integer"));
+    verifySchema(response, schema("SUM(CAST(male AS INT))", "male_sum", "integer"));
     verifyDataRows(response, rows(4));
   }
 

@@ -32,7 +32,7 @@ The syntax of a window function is as follows in which both ``PARTITION BY`` and
   function_name (expression [, expression...])
   OVER (
     PARTITION BY expression [, expression...]
-    ORDER BY expression [ASC | DESC] [, ...]
+    ORDER BY expression [ASC | DESC] [NULLS {FIRST | LAST}] [, ...]
   )
 
 
@@ -173,6 +173,24 @@ ROW_NUMBER
     | M        | 39225     | 3     |
     +----------+-----------+-------+
 
+Similarly as regular ``ORDER BY`` clause, you can specify null ordering by ``NULLS FIRST`` or ``NULLS LAST`` which has exactly same behavior::
+
+    od> SELECT
+    ...  employer,
+    ...  ROW_NUMBER() OVER(
+    ...   ORDER BY employer NULLS LAST
+    ... ) AS num
+    ... FROM accounts
+    ... ORDER BY employer NULLS LAST;
+    fetched rows / total rows = 4/4
+    +------------+-------+
+    | employer   | num   |
+    |------------+-------|
+    | Netagy     | 1     |
+    | Pyrami     | 2     |
+    | Quility    | 3     |
+    | null       | 4     |
+    +------------+-------+
 
 RANK
 ----

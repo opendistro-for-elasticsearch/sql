@@ -172,7 +172,7 @@ export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]):
               let row: { [key: string]: any } = {};
               for (const index of schema.keys()) {
                 const fieldname = fields[index];
-                row[fieldname] = data[index];
+                row[fieldname] = _.isNull(data[index]) ? '-' : data[index];
               }
               let dataRow: DataRow = {
                 rowId: id,

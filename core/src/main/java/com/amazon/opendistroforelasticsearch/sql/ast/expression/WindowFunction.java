@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -36,7 +37,7 @@ public class WindowFunction extends UnresolvedExpression {
 
   private final UnresolvedExpression function;
   private List<UnresolvedExpression> partitionByList;
-  private List<Pair<String, UnresolvedExpression>> sortList;
+  private List<Pair<SortOption, UnresolvedExpression>> sortList;
 
   @Override
   public List<? extends Node> getChild() {
