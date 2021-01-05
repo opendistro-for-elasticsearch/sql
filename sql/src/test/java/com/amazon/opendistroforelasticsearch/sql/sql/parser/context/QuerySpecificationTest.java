@@ -125,6 +125,14 @@ class QuerySpecificationTest {
         collect("SELECT name FROM test ORDER BY name DESC NULLS FIRST").getOrderByOptions());
   }
 
+  @Test
+  void should_skip_sort_items_in_window_function() {
+    assertEquals(1,
+        collect("SELECT name, RANK() OVER(ORDER BY age) "
+            + "FROM test ORDER BY name"
+        ).getOrderByOptions().size());
+  }
+
   private QuerySpecification collect(String query) {
     QuerySpecification querySpec = new QuerySpecification();
     querySpec.collect(parse(query), query);

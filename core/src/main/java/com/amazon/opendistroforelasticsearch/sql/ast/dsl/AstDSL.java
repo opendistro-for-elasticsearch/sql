@@ -54,6 +54,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import java.util.Arrays;
@@ -232,7 +233,7 @@ public class AstDSL {
 
   public UnresolvedExpression window(Function function,
                                      List<UnresolvedExpression> partitionByList,
-                                     List<Pair<String, UnresolvedExpression>> sortList) {
+                                     List<Pair<SortOption, UnresolvedExpression>> sortList) {
     return new WindowFunction(function, partitionByList, sortList);
   }
 
