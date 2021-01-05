@@ -102,6 +102,13 @@ public class MinAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void filtered_min() {
+    ExprValue result = aggregation(dsl.min(DSL.ref("integer_value", INTEGER))
+        .condition(dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(1))), tuples);
+    assertEquals(2, result.value());
+  }
+
+  @Test
   public void test_min_null() {
     ExprValue result =
         aggregation(dsl.min(DSL.ref("double_value", DOUBLE)), tuples_with_null_and_missing);

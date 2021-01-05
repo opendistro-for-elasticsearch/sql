@@ -334,6 +334,15 @@ class AstExpressionBuilderTest {
     );
   }
 
+  @Test
+  public void filteredAggregation() {
+    assertEquals(
+        AstDSL.filteredAggregate("avg", qualifiedName("age"),
+            function(">", qualifiedName("age"), intLiteral(20))),
+        buildExprAst("avg(age) filter(where age > 20)")
+    );
+  }
+
   private Node buildExprAst(String expr) {
     OpenDistroSQLLexer lexer = new OpenDistroSQLLexer(new CaseInsensitiveCharStream(expr));
     OpenDistroSQLParser parser = new OpenDistroSQLParser(new CommonTokenStream(lexer));

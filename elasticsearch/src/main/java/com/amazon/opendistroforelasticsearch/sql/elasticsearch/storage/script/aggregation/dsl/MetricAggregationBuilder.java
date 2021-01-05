@@ -66,7 +66,7 @@ public class MetricAggregationBuilder
   public AggregationBuilder visitNamedAggregator(NamedAggregator node,
                                                  Object context) {
     Expression expression = node.getArguments().get(0);
-    Expression condition = node.getDelegated().getCondition();
+    Expression condition = node.getDelegated().condition();
     String name = node.getName();
 
     switch (node.getFunctionName().getFunctionName()) {

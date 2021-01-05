@@ -32,6 +32,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * Aggregator which will iterate on the {@link BindingTuple}s to aggregate the result.
@@ -50,6 +51,7 @@ public abstract class Aggregator<S extends AggregationState>
   protected final ExprCoreType returnType;
   @Setter
   @Getter
+  @Accessors(fluent = true)
   protected Expression condition;
 
   /**
@@ -85,7 +87,7 @@ public abstract class Aggregator<S extends AggregationState>
   /**
    * Util method to get value of condition in aggregation filter.
    */
-  public boolean condition(BindingTuple tuple) {
+  public boolean conditionValue(BindingTuple tuple) {
     if (condition == null) {
       return true;
     }
