@@ -74,7 +74,7 @@ class Formatter:
 
         # get header and type as lists, for future usage
         for i in schema:
-            fields.append(i["name"])
+            fields.append(i.get("alias", i["name"]))
             types.append(i["type"])
 
         output = formatter.format_output(datarows, fields, **self.output_kwargs)

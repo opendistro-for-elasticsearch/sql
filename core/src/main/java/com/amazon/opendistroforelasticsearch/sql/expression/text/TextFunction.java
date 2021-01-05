@@ -60,6 +60,7 @@ public class TextFunction {
     repository.register(concat_ws());
     repository.register(length());
     repository.register(strcmp());
+    repository.register(right());
   }
 
   /**
@@ -194,6 +195,16 @@ public class TextFunction {
             INTEGER, STRING, STRING));
   }
 
+  /**
+   * Returns the rightmost len characters from the string str, or NULL if any argument is NULL.
+   * Supports following signatures:
+   * (STRING, INTEGER) -> STRING
+   */
+  private FunctionResolver right() {
+    return define(BuiltinFunctionName.RIGHT.getName(),
+            impl(nullMissingHandling(TextFunction::exprRight), STRING, STRING, INTEGER));
+  }
+
   private static ExprValue exprSubstrStart(ExprValue exprValue, ExprValue start) {
     int startIdx = start.integerValue();
     if (startIdx == 0) {
@@ -224,6 +235,11 @@ public class TextFunction {
       return new ExprStringValue(str.substring(start));
     }
     return new ExprStringValue(str.substring(start, start + len));
+  }
+
+  private static ExprValue exprRight(ExprValue str, ExprValue len) {
+    return new ExprStringValue(str.stringValue().substring(
+            str.stringValue().length() - len.integerValue()));
   }
 }
 

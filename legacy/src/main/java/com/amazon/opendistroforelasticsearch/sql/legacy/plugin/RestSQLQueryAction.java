@@ -18,14 +18,28 @@ package com.amazon.opendistroforelasticsearch.sql.legacy.plugin;
 
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
+import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
+import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
+
+import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.SqlAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SQLFeatureDisabledException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.executor.format.ErrorMessageFactory;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.legacy.rewriter.matchtoterm.VerificationException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JdbcResponseFormatter;
@@ -38,11 +52,13 @@ import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.service.ClusterService;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
@@ -153,6 +169,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during explain", e);
+        logAndPublishMetrics(e);
         sendResponse(channel, INTERNAL_SERVER_ERROR,
             "Failed to explain the query due to error: " + e.getMessage());
       }
@@ -177,6 +194,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during query handling", e);
+        logAndPublishMetrics(e);
         sendResponse(channel, INTERNAL_SERVER_ERROR, formatter.format(e));
       }
     };
@@ -195,4 +213,8 @@ public class RestSQLQueryAction extends BaseRestHandler {
         status, "application/json; charset=UTF-8", content));
   }
 
+  private static void logAndPublishMetrics(Exception e) {
+    LOG.error(LogUtils.getRequestId() + " Server side error during query execution", e);
+    Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+  }
 }

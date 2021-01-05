@@ -101,7 +101,7 @@ public class AggregationQueryBuilder extends ExpressionNodeVisitor<AggregationBu
       List<NamedExpression> groupByList) {
     ImmutableMap.Builder<String, ExprType> builder = new ImmutableMap.Builder<>();
     namedAggregatorList.forEach(agg -> builder.put(agg.getName(), agg.type()));
-    groupByList.forEach(group -> builder.put(group.getName(), group.type()));
+    groupByList.forEach(group -> builder.put(group.getNameOrAlias(), group.type()));
     return builder.build();
   }
 

@@ -298,6 +298,19 @@ specificFunction
         (ELSE elseArg=functionArg)? END                               #caseFunctionCall
     | CASE caseFuncAlternative+
         (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    | CAST '(' expression AS convertedDataType ')'                    #dataTypeFunctionCall
+    ;
+
+convertedDataType
+    : typeName=DATE
+    | typeName=TIME
+    | typeName=TIMESTAMP
+    | typeName=INT
+    | typeName=DOUBLE
+    | typeName=LONG
+    | typeName=FLOAT
+    | typeName=STRING
+    | typeName=BOOLEAN
     ;
 
 caseFuncAlternative
@@ -332,7 +345,7 @@ dateTimeFunctionName
 
 textFunctionName
     : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
-    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP
+    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP | RIGHT
     ;
 
 functionArgs
