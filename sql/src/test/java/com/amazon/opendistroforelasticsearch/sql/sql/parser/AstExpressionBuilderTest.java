@@ -33,11 +33,15 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiter
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.when;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.window;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
@@ -255,7 +259,7 @@ class AstExpressionBuilderTest {
         window(
             function("RANK"),
             ImmutableList.of(qualifiedName("state")),
-            ImmutableList.of(ImmutablePair.of("ASC", qualifiedName("age")))),
+            ImmutableList.of(ImmutablePair.of(new SortOption(null, null), qualifiedName("age")))),
         buildExprAst("RANK() OVER (PARTITION BY state ORDER BY age)"));
   }
 
@@ -265,8 +269,19 @@ class AstExpressionBuilderTest {
         window(
             function("DENSE_RANK"),
             ImmutableList.of(),
-            ImmutableList.of(ImmutablePair.of("DESC", qualifiedName("age")))),
+            ImmutableList.of(ImmutablePair.of(new SortOption(DESC, null), qualifiedName("age")))),
         buildExprAst("DENSE_RANK() OVER (ORDER BY age DESC)"));
+  }
+
+  @Test
+  public void canBuildWindowFunctionWithNullOrderSpecified() {
+    assertEquals(
+        window(
+            function("DENSE_RANK"),
+            ImmutableList.of(),
+            ImmutableList.of(ImmutablePair.of(
+                new SortOption(ASC, NULL_LAST), qualifiedName("age")))),
+        buildExprAst("DENSE_RANK() OVER (ORDER BY age ASC NULLS LAST)"));
   }
 
   @Test

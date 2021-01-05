@@ -128,6 +128,14 @@ class QuerySpecificationTest {
   }
 
   @Test
+  void should_skip_sort_items_in_window_function() {
+    assertEquals(1,
+        collect("SELECT name, RANK() OVER(ORDER BY age) "
+            + "FROM test ORDER BY name"
+        ).getOrderByOptions().size());
+  }
+
+  @Test
   void can_collect_filtered_aggregation() {
     assertEquals(
         ImmutableSet.of(alias("AVG(age) FILTER(WHERE age > 20)",
