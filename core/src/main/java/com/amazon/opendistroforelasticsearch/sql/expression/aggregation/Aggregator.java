@@ -60,13 +60,29 @@ public abstract class Aggregator<S extends AggregationState>
   public abstract S create();
 
   /**
-   * Iterate on the {@link BindingTuple}.
+   * Iterate on {@link ExprValue}.
+   * @param value {@link ExprValue}
+   * @param state {@link AggregationState}
+   * @return {@link AggregationState}
+   */
+  protected abstract S iterate(ExprValue value, S state);
+
+  /**
+   * Let the aggregator iterate on the {@link BindingTuple}
+   * To filter out ExprValues that are missing, null or cannot satisfy {@link #condition}
+   * Before the specific aggregator iterating ExprValue in the tuple.
    *
    * @param tuple {@link BindingTuple}
    * @param state {@link AggregationState}
    * @return {@link AggregationState}
    */
-  public abstract S iterate(BindingTuple tuple, S state);
+  public S iterate(BindingTuple tuple, S state) {
+    ExprValue value = getArguments().get(0).valueOf(tuple);
+    if (value.isNull() || value.isMissing() || !conditionValue(tuple)) {
+      return state;
+    }
+    return iterate(value, state);
+  }
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
