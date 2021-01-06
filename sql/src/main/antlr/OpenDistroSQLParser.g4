@@ -194,6 +194,7 @@ decimalLiteral
 
 stringLiteral
     : STRING_LITERAL
+    | DOUBLE_QUOTE_ID
     ;
 
 booleanLiteral

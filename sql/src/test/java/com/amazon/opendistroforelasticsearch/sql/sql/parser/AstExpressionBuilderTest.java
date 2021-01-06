@@ -61,6 +61,10 @@ class AstExpressionBuilderTest {
         stringLiteral("hello"),
         buildExprAst("'hello'")
     );
+    assertEquals(
+        stringLiteral("hello"),
+        buildExprAst("\"hello\"")
+    );
   }
 
   @Test
