@@ -26,10 +26,13 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.B
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -78,5 +81,87 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     expression = dsl.isnotnull(DSL.literal(ExprNullValue.of()));
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void test_if_null_predicate() {
+    Expression v1 = dsl.literal(100);
+    Expression v2 = dsl.literal(200);
+
+    FunctionExpression result = dsl.ifnull(v1, v2);
+    assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
+
+    v1 = DSL.literal(ExprNullValue.of());
+    result = dsl.ifnull(v1, v2);
+    assertEquals(v2.valueOf(valueEnv()), result.valueOf(valueEnv()));
+
+    v1 = dsl.literal(100);
+    v2 = DSL.literal(ExprNullValue.of());
+    result = dsl.ifnull(v1, v2);
+    assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
+
+    v1 = DSL.literal(ExprNullValue.of());
+    v2 = DSL.literal(ExprNullValue.of());
+    result = dsl.ifnull(v1, v2);
+    assertEquals(v2.valueOf(valueEnv()), result.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void test_null_if_predicate() {
+    Expression v1 = dsl.literal(100);
+    Expression v2 = dsl.literal(100);
+
+    FunctionExpression result = dsl.nullif(v1, v2);
+
+    v1 = DSL.literal(ExprNullValue.of());
+    v2 = DSL.literal(ExprNullValue.of());
+    result = dsl.nullif(v1, v2);
+
+    assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
+
+    v1 = dsl.literal(100);
+    v2 = dsl.literal(200);
+    result = dsl.nullif(v1, v2);
+    assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void test_exprIfNull() {
+    ExprValue result = UnaryPredicateOperator.exprIfNull(LITERAL_NULL,
+            ExprValueUtils.integerValue(200));
+    assertEquals(ExprValueUtils.integerValue(200).value(), result.value());
+
+    result = UnaryPredicateOperator.exprIfNull(LITERAL_MISSING,
+            ExprValueUtils.integerValue(200));
+    assertEquals(ExprValueUtils.integerValue(200).value(), result.value());
+
+    result = UnaryPredicateOperator.exprIfNull(LITERAL_NULL,
+            LITERAL_MISSING);
+    assertEquals(LITERAL_MISSING.value(), result.value());
+
+    result = UnaryPredicateOperator.exprIfNull(LITERAL_MISSING,
+            LITERAL_NULL);
+    assertEquals(LITERAL_NULL.value(), result.value());
+  }
+
+  @Test
+  public void test_exprNullIf() {
+    ExprValue result = UnaryPredicateOperator.exprNullIf(LITERAL_NULL,
+            ExprValueUtils.integerValue(200));
+    assertEquals(LITERAL_NULL.value(), result.value());
+
+    result = UnaryPredicateOperator.exprNullIf(LITERAL_MISSING,
+            ExprValueUtils.integerValue(200));
+    assertEquals(LITERAL_MISSING.value(), result.value());
+
+    result = UnaryPredicateOperator.exprNullIf(ExprValueUtils.integerValue(200), LITERAL_NULL);
+    assertEquals(ExprValueUtils.integerValue(200).value(), result.value());
+
+    result = UnaryPredicateOperator.exprNullIf(ExprValueUtils.integerValue(200), LITERAL_MISSING);
+    assertEquals(ExprValueUtils.integerValue(200).value(), result.value());
+
+    result = UnaryPredicateOperator.exprNullIf(ExprValueUtils.integerValue(150),
+            ExprValueUtils.integerValue(150));
+    assertEquals(LITERAL_NULL.value(), result.value());
   }
 }
