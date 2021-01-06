@@ -27,10 +27,10 @@ import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import java.util.List;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.AggregatorFactories;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 
 /**
@@ -40,12 +40,12 @@ public class MetricAggregationBuilder
     extends ExpressionNodeVisitor<AggregationBuilder, Object> {
 
   private final AggregationBuilderHelper<ValuesSourceAggregationBuilder<?>> helper;
-  private final ExpressionSerializer serializer;
+  private final FilterQueryBuilder filterBuilder;
 
   public MetricAggregationBuilder(
       ExpressionSerializer serializer) {
     this.helper = new AggregationBuilderHelper<>(serializer);
-    this.serializer = serializer;
+    this.filterBuilder = new FilterQueryBuilder(serializer);
   }
 
   /**
@@ -87,18 +87,14 @@ public class MetricAggregationBuilder
     }
   }
 
-  private QueryBuilder makeFilter(Expression condition) {
-    return new FilterQueryBuilder(serializer).build(condition);
-  }
-
   private AggregationBuilder make(ValuesSourceAggregationBuilder<?> builder,
                                   Expression expression, Expression condition, String name) {
-    ValuesSourceAggregationBuilder aggBuilder =
+    ValuesSourceAggregationBuilder aggregationBuilder =
         helper.build(expression, builder::field, builder::script);
-    if (condition == null) {
-      return aggBuilder;
+    if (condition != null) {
+      return makeFilterAggregation(aggregationBuilder, condition, name);
     }
-    return AggregationBuilders.filter(name, makeFilter(condition)).subAggregation(aggBuilder);
+    return aggregationBuilder;
   }
 
   /**
@@ -115,6 +111,20 @@ public class MetricAggregationBuilder
       return new ReferenceExpression("_index", INTEGER);
     }
     return countArg;
+  }
+
+  /**
+   * Make builder to build FilterAggregation for aggregations with filter in the bucket.
+   * @param subAggBuilder AggregationBuilder instance which the filter is applied to.
+   * @param condition Condition expression in the filter.
+   * @param name Name of the FilterAggregation instance to build.
+   * @return {@link FilterAggregationBuilder}.
+   */
+  private FilterAggregationBuilder makeFilterAggregation(AggregationBuilder subAggBuilder,
+                                                         Expression condition, String name) {
+    return AggregationBuilders
+        .filter(name, filterBuilder.build(condition))
+        .subAggregation(subAggBuilder);
   }
 
 }
