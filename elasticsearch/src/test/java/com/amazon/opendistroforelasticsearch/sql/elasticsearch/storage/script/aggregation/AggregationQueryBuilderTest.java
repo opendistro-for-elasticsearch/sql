@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Util
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.avg;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.group;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.sort;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -34,13 +35,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
@@ -312,6 +311,86 @@ class AggregationQueryBuilderTest {
                 named("avg(balance)", new AvgAggregator(
                     Arrays.asList(ref("balance", INTEGER)), INTEGER))),
             Collections.emptyList()));
+  }
+
+  @Test
+  void should_build_filter_aggregation() {
+    assertEquals(
+        "{\n" 
+            + "  \"avg(age) filter(where age > 34)\" : {\n"
+            + "    \"filter\" : {\n" 
+            + "      \"range\" : {\n" 
+            + "        \"age\" : {\n" 
+            + "          \"from\" : 20,\n" 
+            + "          \"to\" : null,\n" 
+            + "          \"include_lower\" : false,\n" 
+            + "          \"include_upper\" : true,\n" 
+            + "          \"boost\" : 1.0\n" 
+            + "        }\n" 
+            + "      }\n" 
+            + "    },\n" 
+            + "    \"aggregations\" : {\n" 
+            + "      \"avg(age) filter(where age > 34)\" : {\n" 
+            + "        \"avg\" : {\n" 
+            + "          \"field\" : \"age\"\n" 
+            + "        }\n" 
+            + "      }\n" 
+            + "    }\n" 
+            + "  }\n" 
+            + "}",
+        buildQuery(
+            Arrays.asList(named("avg(age) filter(where age > 34)",
+                new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)
+                    .condition(dsl.greater(ref("age", INTEGER), literal(20))))),
+            Collections.emptyList()));
+  }
+
+  @Test
+  void should_build_filter_aggregation_group_by() {
+    assertEquals(
+        "{\n" 
+            + "  \"composite_buckets\" : {\n" 
+            + "    \"composite\" : {\n" 
+            + "      \"size\" : 1000,\n" 
+            + "      \"sources\" : [ {\n" 
+            + "        \"gender\" : {\n" 
+            + "          \"terms\" : {\n" 
+            + "            \"field\" : \"gender\",\n" 
+            + "            \"missing_bucket\" : true,\n" 
+            + "            \"order\" : \"asc\"\n" 
+            + "          }\n" 
+            + "        }\n" 
+            + "      } ]\n" 
+            + "    },\n" 
+            + "    \"aggregations\" : {\n" 
+            + "      \"avg(age) filter(where age > 34)\" : {\n" 
+            + "        \"filter\" : {\n" 
+            + "          \"range\" : {\n" 
+            + "            \"age\" : {\n" 
+            + "              \"from\" : 20,\n" 
+            + "              \"to\" : null,\n" 
+            + "              \"include_lower\" : false,\n" 
+            + "              \"include_upper\" : true,\n" 
+            + "              \"boost\" : 1.0\n" 
+            + "            }\n" 
+            + "          }\n" 
+            + "        },\n" 
+            + "        \"aggregations\" : {\n" 
+            + "          \"avg(age) filter(where age > 34)\" : {\n" 
+            + "            \"avg\" : {\n" 
+            + "              \"field\" : \"age\"\n" 
+            + "            }\n" 
+            + "          }\n" 
+            + "        }\n" 
+            + "      }\n" 
+            + "    }\n" 
+            + "  }\n" 
+            + "}",
+        buildQuery(
+            Arrays.asList(named("avg(age) filter(where age > 34)",
+                new AvgAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)
+                    .condition(dsl.greater(ref("age", INTEGER), literal(20))))),
+            Arrays.asList(named(ref("gender", STRING)))));
   }
 
   @Test

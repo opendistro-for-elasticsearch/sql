@@ -160,6 +160,13 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitFilteredAggregationFunctionCall(
+      OpenDistroSQLParser.FilteredAggregationFunctionCallContext ctx) {
+    AggregateFunction agg = (AggregateFunction) visit(ctx.aggregateFunction());
+    return new AggregateFunction(agg.getFuncName(), agg.getField(), visit(ctx.filterClause()));
+  }
+
+  @Override
   public UnresolvedExpression visitWindowFunction(WindowFunctionContext ctx) {
     OverClauseContext overClause = ctx.overClause();
 
@@ -200,6 +207,11 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitCountStarFunctionCall(CountStarFunctionCallContext ctx) {
     return new AggregateFunction("COUNT", AllFields.of());
+  }
+
+  @Override
+  public UnresolvedExpression visitFilterClause(OpenDistroSQLParser.FilterClauseContext ctx) {
+    return visit(ctx.expression());
   }
 
   @Override

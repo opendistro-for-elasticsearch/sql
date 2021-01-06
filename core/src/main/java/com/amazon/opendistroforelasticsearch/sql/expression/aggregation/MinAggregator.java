@@ -42,12 +42,8 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
   }
 
   @Override
-  public MinState iterate(BindingTuple tuple, MinState state) {
-    Expression expression = getArguments().get(0);
-    ExprValue value = expression.valueOf(tuple);
-    if (!(value.isNull() || value.isMissing())) {
-      state.min(value);
-    }
+  protected MinState iterate(ExprValue value, MinState state) {
+    state.min(value);
     return state;
   }
 

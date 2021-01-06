@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.a
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.FilterQueryBuilder;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
@@ -29,6 +30,7 @@ import java.util.List;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.AggregatorFactories;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 
 /**
@@ -38,10 +40,12 @@ public class MetricAggregationBuilder
     extends ExpressionNodeVisitor<AggregationBuilder, Object> {
 
   private final AggregationBuilderHelper<ValuesSourceAggregationBuilder<?>> helper;
+  private final FilterQueryBuilder filterBuilder;
 
   public MetricAggregationBuilder(
       ExpressionSerializer serializer) {
     this.helper = new AggregationBuilderHelper<>(serializer);
+    this.filterBuilder = new FilterQueryBuilder(serializer);
   }
 
   /**
@@ -62,28 +66,35 @@ public class MetricAggregationBuilder
   public AggregationBuilder visitNamedAggregator(NamedAggregator node,
                                                  Object context) {
     Expression expression = node.getArguments().get(0);
+    Expression condition = node.getDelegated().condition();
     String name = node.getName();
 
     switch (node.getFunctionName().getFunctionName()) {
       case "avg":
-        return make(AggregationBuilders.avg(name), expression);
+        return make(AggregationBuilders.avg(name), expression, condition, name);
       case "sum":
-        return make(AggregationBuilders.sum(name), expression);
+        return make(AggregationBuilders.sum(name), expression, condition, name);
       case "count":
-        return make(AggregationBuilders.count(name), replaceStarOrLiteral(expression));
+        return make(
+            AggregationBuilders.count(name), replaceStarOrLiteral(expression), condition, name);
       case "min":
-        return make(AggregationBuilders.min(name), expression);
+        return make(AggregationBuilders.min(name), expression, condition, name);
       case "max":
-        return make(AggregationBuilders.max(name), expression);
+        return make(AggregationBuilders.max(name), expression, condition, name);
       default:
         throw new IllegalStateException(
             String.format("unsupported aggregator %s", node.getFunctionName().getFunctionName()));
     }
   }
 
-  private ValuesSourceAggregationBuilder<?> make(ValuesSourceAggregationBuilder<?> builder,
-                                                  Expression expression) {
-    return helper.build(expression, builder::field, builder::script);
+  private AggregationBuilder make(ValuesSourceAggregationBuilder<?> builder,
+                                  Expression expression, Expression condition, String name) {
+    ValuesSourceAggregationBuilder aggregationBuilder =
+        helper.build(expression, builder::field, builder::script);
+    if (condition != null) {
+      return makeFilterAggregation(aggregationBuilder, condition, name);
+    }
+    return aggregationBuilder;
   }
 
   /**
@@ -100,6 +111,20 @@ public class MetricAggregationBuilder
       return new ReferenceExpression("_index", INTEGER);
     }
     return countArg;
+  }
+
+  /**
+   * Make builder to build FilterAggregation for aggregations with filter in the bucket.
+   * @param subAggBuilder AggregationBuilder instance which the filter is applied to.
+   * @param condition Condition expression in the filter.
+   * @param name Name of the FilterAggregation instance to build.
+   * @return {@link FilterAggregationBuilder}.
+   */
+  private FilterAggregationBuilder makeFilterAggregation(AggregationBuilder subAggBuilder,
+                                                         Expression condition, String name) {
+    return AggregationBuilders
+        .filter(name, filterBuilder.build(condition))
+        .subAggregation(subAggBuilder);
   }
 
 }
