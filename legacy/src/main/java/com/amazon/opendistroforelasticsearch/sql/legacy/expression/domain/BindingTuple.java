@@ -46,7 +46,7 @@ public class BindingTuple {
      * @return binding value.
      */
     public ExprValue resolve(String bindingName) {
-        return bindingMap.getOrDefault(bindingName, new ExprMissingValue());
+        return bindingMap.getOrDefault(bindingName, new ExprMissingValue(bindingName, bindingMap.keySet()));
     }
 
     @Override
