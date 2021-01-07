@@ -507,6 +507,10 @@ public class DSL {
   }
 
   public FunctionExpression isnull(Expression... expressions) {
+    return function(BuiltinFunctionName.ISNULL, expressions);
+  }
+
+  public FunctionExpression is_null(Expression... expressions) {
     return function(BuiltinFunctionName.IS_NULL, expressions);
   }
 

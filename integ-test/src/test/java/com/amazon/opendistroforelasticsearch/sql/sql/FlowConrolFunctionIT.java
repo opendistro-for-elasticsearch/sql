@@ -36,6 +36,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 
@@ -82,6 +83,26 @@ public class FlowConrolFunctionIT extends SQLIntegTestCase {
         executeQuery("SELECT IFNULL('', 10) AS ifnull FROM " + TEST_INDEX_ACCOUNT),
         hitAny(kvString("/fields/ifnull/0", equalTo("")))
     );
+  }
+
+  @Test
+  public void nullifShouldPassJDBC() throws IOException {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+    JSONObject response = executeJdbcRequest(
+            "SELECT NULLIF(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT);
+    assertEquals("NULLIF(lastname, \'unknown\')", response.query("/schema/0/name"));
+    assertEquals("name", response.query("/schema/0/alias"));
+    assertEquals("keyword", response.query("/schema/0/type"));
+  }
+
+  @Test
+  public void isnullShouldPassJDBC() throws IOException {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+    JSONObject response = executeJdbcRequest(
+            "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT);
+    assertEquals("ISNULL(lastname)", response.query("/schema/0/name"));
+    assertEquals("name", response.query("/schema/0/alias"));
+    assertEquals("boolean", response.query("/schema/0/type"));
   }
 
   private SearchHits query(String query) throws IOException {

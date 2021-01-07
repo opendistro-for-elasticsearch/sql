@@ -50,8 +50,9 @@ public class UnaryPredicateOperator {
     repository.register(not());
     repository.register(isNull());
     repository.register(isNotNull());
-    repository.register(nullIf());
     repository.register(ifNull());
+    repository.register(nullIf());
+    repository.register(is_Null());
   }
 
   private static FunctionResolver not() {
@@ -75,13 +76,22 @@ public class UnaryPredicateOperator {
     }
   }
 
-  private static FunctionResolver isNull() {
+  private static FunctionResolver is_Null() {
     return FunctionDSL
         .define(BuiltinFunctionName.IS_NULL.getName(), Arrays.stream(ExprCoreType.values())
             .map(type -> FunctionDSL
                 .impl((v) -> ExprBooleanValue.of(v.isNull()), BOOLEAN, type))
             .collect(
                 Collectors.toList()));
+  }
+
+  private static FunctionResolver isNull() {
+    return FunctionDSL
+            .define(BuiltinFunctionName.ISNULL.getName(), Arrays.stream(ExprCoreType.values())
+                    .map(type -> FunctionDSL
+                            .impl((v) -> ExprBooleanValue.of(v.isNull()), BOOLEAN, type))
+                    .collect(
+                            Collectors.toList()));
   }
 
   private static FunctionResolver isNotNull() {

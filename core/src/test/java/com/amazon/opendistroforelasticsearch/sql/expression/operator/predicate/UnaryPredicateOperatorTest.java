@@ -62,7 +62,29 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   @Test
+  public void isnull_predicate() {
+    FunctionExpression expression = dsl.is_null(DSL.literal(1));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
+
+    expression = dsl.isnull(DSL.literal(ExprNullValue.of()));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
+  }
+
+  @Test
   public void is_null_predicate() {
+    FunctionExpression expression = dsl.is_null(DSL.literal(1));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
+
+    expression = dsl.isnull(DSL.literal(ExprNullValue.of()));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void test_isnull_predicate() {
     FunctionExpression expression = dsl.isnull(DSL.literal(1));
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
@@ -73,7 +95,7 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   @Test
-  public void is_not_null_predicate() {
+  public void test_is_not_null_predicate() {
     FunctionExpression expression = dsl.isnotnull(DSL.literal(1));
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
@@ -109,9 +131,16 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   @Test
   public void test_null_if_predicate() {
     Expression v1 = dsl.literal(100);
-    Expression v2 = dsl.literal(100);
-
+    Expression v2 = dsl.literal(200);
     FunctionExpression result = dsl.nullif(v1, v2);
+    assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
+
+    System.out.println("debug : " + result.valueOf(valueEnv()));
+
+    v1 = dsl.literal(100);
+    v2 = dsl.literal(100);
+
+    result = dsl.nullif(v1, v2);
 
     v1 = DSL.literal(ExprNullValue.of());
     v2 = DSL.literal(ExprNullValue.of());

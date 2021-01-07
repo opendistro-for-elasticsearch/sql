@@ -783,12 +783,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void isnullShouldPassJDBC() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response =
         executeJdbcRequest(
-            "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name");
-    assertEquals("name", response.query("/schema/0/name"));
+            "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT);
+    assertEquals("ISNULL(lastname)", response.query("/schema/0/name"));
     assertEquals("name", response.query("/schema/0/alias"));
-    assertEquals("integer", response.query("/schema/0/type"));
+    assertEquals("boolean", response.query("/schema/0/type"));
   }
 
   @Test
