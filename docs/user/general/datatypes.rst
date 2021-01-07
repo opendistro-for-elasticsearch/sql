@@ -226,11 +226,11 @@ A string is a sequence of characters enclosed in either single or double quotes.
 
     od> SELECT 'hello', "world", '"hello"', "'world'"
     fetched rows / total rows = 1/1
-    +-----------+---------+-------------+-----------+
-    | 'hello'   | world   | '"hello"'   | 'world'   |
-    |-----------+---------+-------------+-----------|
-    | hello     | world   | "hello"     | 'world'   |
-    +-----------+---------+-------------+-----------+
+    +-----------+-----------+-------------+-------------+
+    | 'hello'   | "world"   | '"hello"'   | "'world'"   |
+    |-----------+-----------+-------------+-------------|
+    | hello     | world     | "hello"     | 'world'     |
+    +-----------+-----------+-------------+-------------+
 
 
 
