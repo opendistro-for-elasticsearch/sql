@@ -62,23 +62,12 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   @Test
-  public void isnull_predicate() {
+  public void test_is_null_predicate() {
     FunctionExpression expression = dsl.is_null(DSL.literal(1));
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
 
-    expression = dsl.isnull(DSL.literal(ExprNullValue.of()));
-    assertEquals(BOOLEAN, expression.type());
-    assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
-  }
-
-  @Test
-  public void is_null_predicate() {
-    FunctionExpression expression = dsl.is_null(DSL.literal(1));
-    assertEquals(BOOLEAN, expression.type());
-    assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
-
-    expression = dsl.isnull(DSL.literal(ExprNullValue.of()));
+    expression = dsl.is_null(DSL.literal(ExprNullValue.of()));
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
   }
@@ -106,7 +95,7 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   @Test
-  public void test_if_null_predicate() {
+  public void test_ifnull_predicate() {
     Expression v1 = dsl.literal(100);
     Expression v2 = dsl.literal(200);
 
@@ -129,7 +118,7 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   @Test
-  public void test_null_if_predicate() {
+  public void test_nullif_predicate() {
     Expression v1 = dsl.literal(100);
     Expression v2 = dsl.literal(200);
     FunctionExpression result = dsl.nullif(v1, v2);

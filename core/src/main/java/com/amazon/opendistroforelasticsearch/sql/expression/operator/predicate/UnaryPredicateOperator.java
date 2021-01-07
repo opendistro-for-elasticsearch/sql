@@ -86,8 +86,11 @@ public class UnaryPredicateOperator {
   }
 
   private static FunctionResolver isNull() {
+    FunctionName functionName = BuiltinFunctionName.ISNULL.getName();
+    List<ExprType> typeList = ExprCoreType.coreTypes();
+    typeList.add(UNKNOWN);
     return FunctionDSL
-            .define(BuiltinFunctionName.ISNULL.getName(), Arrays.stream(ExprCoreType.values())
+            .define(functionName, typeList.stream()
                     .map(type -> FunctionDSL
                             .impl((v) -> ExprBooleanValue.of(v.isNull()), BOOLEAN, type))
                     .collect(
