@@ -194,6 +194,11 @@ public class AstDSL {
     return new AggregateFunction(func, field, Arrays.asList(args));
   }
 
+  public static UnresolvedExpression filteredAggregate(
+      String func, UnresolvedExpression field, UnresolvedExpression condition) {
+    return new AggregateFunction(func, field, condition);
+  }
+
   public static Function function(String funcName, UnresolvedExpression... funcArgs) {
     return new Function(funcName, Arrays.asList(funcArgs));
   }

@@ -195,3 +195,42 @@ Additionally, a ``HAVING`` clause can work without ``GROUP BY`` clause. This is 
     | Total of age > 100     |
     +------------------------+
 
+
+FILTER Clause
+=============
+
+Description
+-----------
+
+A ``FILTER`` clause can set specific condition for the current aggregation bucket, following the syntax ``aggregation_function(expr) FILTER(WHERE condition_expr)``. If a filter is specified, then only the input rows for which the condition in the filter clause evaluates to true are fed to the aggregate function; other rows are discarded. The aggregation with filter clause can be use in ``SELECT`` clause only.
+
+FILTER with GROUP BY
+--------------------
+
+The group by aggregation with ``FILTER`` clause can set different conditions for each aggregation bucket. Here is an example to use ``FILTER`` in group by aggregation::
+
+    od> SELECT avg(age) FILTER(WHERE balance > 10000) AS filtered, gender FROM accounts GROUP BY gender
+    fetched rows / total rows = 2/2
+    +------------+----------+
+    | filtered   | gender   |
+    |------------+----------|
+    | 28.0       | F        |
+    | 32.0       | M        |
+    +------------+----------+
+
+FILTER without GROUP BY
+-----------------------
+
+The ``FILTER`` clause can be used in aggregation functions without GROUP BY as well. For example::
+
+    od> SELECT
+    ...   count(*) AS unfiltered,
+    ...   count(*) FILTER(WHERE age > 34) AS filtered
+    ... FROM accounts
+    fetched rows / total rows = 1/1
+    +--------------+------------+
+    | unfiltered   | filtered   |
+    |--------------+------------|
+    | 4            | 1          |
+    +--------------+------------+
+

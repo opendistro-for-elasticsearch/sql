@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.planner.logical;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
@@ -517,6 +518,61 @@ class ElasticsearchLogicOptimizerTest {
                 relation("schema"),
                 DSL.named("i", DSL.literal("str"))
             )
+        )
+    );
+  }
+
+  /**
+   * SELECT AVG(intV) FILTER(WHERE intV > 1) FROM schema GROUP BY stringV.
+   */
+  @Test
+  void filter_aggregation_merge_relation() {
+    assertEquals(
+        project(
+            indexScanAgg("schema", ImmutableList.of(DSL.named("AVG(intV)",
+                dsl.avg(DSL.ref("intV", INTEGER))
+                    .condition(dsl.greater(DSL.ref("intV", INTEGER), DSL.literal(1))))),
+                ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+            DSL.named("avg(intV) filter(where intV > 1)", DSL.ref("avg(intV)", DOUBLE))),
+        optimize(
+            project(
+                aggregation(
+                    relation("schema"),
+                    ImmutableList.of(DSL.named("AVG(intV)",
+                        dsl.avg(DSL.ref("intV", INTEGER))
+                            .condition(dsl.greater(DSL.ref("intV", INTEGER), DSL.literal(1))))),
+                    ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+                DSL.named("avg(intV) filter(where intV > 1)", DSL.ref("avg(intV)", DOUBLE)))
+        )
+    );
+  }
+
+  /**
+   * SELECT AVG(intV) FILTER(WHERE intV > 1) FROM schema WHERE longV < 1 GROUP BY stringV.
+   */
+  @Test
+  void filter_aggregation_merge_filter_relation() {
+    assertEquals(
+        project(
+            indexScanAgg("schema",
+                dsl.less(DSL.ref("longV", LONG), DSL.literal(1)),
+                ImmutableList.of(DSL.named("avg(intV)",
+                        dsl.avg(DSL.ref("intV", INTEGER))
+                            .condition(dsl.greater(DSL.ref("intV", INTEGER), DSL.literal(1))))),
+                ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+            DSL.named("avg(intV) filter(where intV > 1)", DSL.ref("avg(intV)", DOUBLE))),
+        optimize(
+            project(
+                aggregation(
+                    filter(
+                        relation("schema"),
+                        dsl.less(DSL.ref("longV", LONG), DSL.literal(1))
+                    ),
+                    ImmutableList.of(DSL.named("avg(intV)",
+                        dsl.avg(DSL.ref("intV", INTEGER))
+                            .condition(dsl.greater(DSL.ref("intV", INTEGER), DSL.literal(1))))),
+                    ImmutableList.of(DSL.named("stringV", DSL.ref("stringV", STRING)))),
+                DSL.named("avg(intV) filter(where intV > 1)", DSL.ref("avg(intV)", DOUBLE)))
         )
     );
   }

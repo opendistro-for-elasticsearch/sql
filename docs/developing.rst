@@ -32,7 +32,7 @@ Here are the official instructions on how to set ``JAVA_HOME`` for different pla
 Elasticsearch & Kibana
 ----------------------
 
-For convenience, we recommend installing Elasticsearch and Kibana on your local machine. You can download the open source ZIP for each and extract them to a folder.
+For convenience, we recommend installing `Elasticsearch <https://www.elastic.co/downloads/past-releases#elasticsearch-oss>`_ and `Kibana <https://www.elastic.co/downloads/past-releases#kibana-oss>`_ on your local machine. You can download the open source ZIP for each and extract them to a folder.
 
 If you just want to have a quick look, you can also get an Elasticsearch running with plugin installed by ``./gradlew :plugin:run``.
 
@@ -217,7 +217,7 @@ Most of the time you just need to run ./gradlew build which will make sure you p
      - Run all checks according to Checkstyle configuration.
    * - ./gradlew test
      - Run all unit tests.
-   * - ./gradlew :integ-test:integTestRunner
+   * - ./gradlew :integ-test:integTest
      - Run all integration test (this takes time).
    * - ./gradlew build
      - Build plugin by run all tasks above (this takes time).

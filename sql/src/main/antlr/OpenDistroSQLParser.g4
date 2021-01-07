@@ -287,6 +287,7 @@ functionCall
     | specificFunction                                              #specificFunctionCall
     | windowFunctionClause                                          #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
+    | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
     ;
 
 scalarFunctionName
@@ -323,6 +324,10 @@ caseFuncAlternative
 aggregateFunction
     : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET #regularAggregateFunctionCall
     | COUNT LR_BRACKET STAR RR_BRACKET                                       #countStarFunctionCall
+    ;
+
+filterClause
+    : FILTER LR_BRACKET WHERE expression RR_BRACKET
     ;
 
 aggregationFunctionName

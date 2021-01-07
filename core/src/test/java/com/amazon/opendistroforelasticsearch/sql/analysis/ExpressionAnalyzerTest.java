@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
@@ -271,6 +273,16 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     SemanticCheckException exception = assertThrows(SemanticCheckException.class,
         () -> analyze(AstDSL.aggregate("ESTDC_ERROR", field("integer_value"))));
     assertEquals("Unsupported aggregation function ESTDC_ERROR", exception.getMessage());
+  }
+
+  @Test
+  public void aggregation_filter() {
+    assertAnalyzeEqual(
+        dsl.avg(DSL.ref("integer_value", INTEGER))
+            .condition(dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(1))),
+        AstDSL.filteredAggregate("avg", qualifiedName("integer_value"),
+            function(">", qualifiedName("integer_value"), intLiteral(1)))
+    );
   }
 
   protected Expression analyze(UnresolvedExpression unresolvedExpression) {
