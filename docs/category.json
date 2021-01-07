@@ -22,6 +22,7 @@
   ],
   "sql_cli": [
     "user/dql/expressions.rst",
+    "user/general/datatypes.rst",
     "user/general/identifiers.rst",
     "user/general/values.rst",
     "user/dql/basics.rst",
