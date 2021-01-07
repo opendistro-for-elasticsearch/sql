@@ -90,11 +90,11 @@ public class UnaryPredicateOperator {
     List<ExprType> typeList = ExprCoreType.coreTypes();
     typeList.add(UNKNOWN);
     return FunctionDSL
-            .define(functionName, typeList.stream()
-                    .map(type -> FunctionDSL
-                            .impl((v) -> ExprBooleanValue.of(v.isNull()), BOOLEAN, type))
-                    .collect(
-                            Collectors.toList()));
+        .define(functionName, typeList.stream()
+            .map(type -> FunctionDSL
+                .impl((v) -> ExprBooleanValue.of(v.isNull()), BOOLEAN, type))
+            .collect(
+                Collectors.toList()));
   }
 
   private static FunctionResolver isNotNull() {
@@ -137,13 +137,7 @@ public class UnaryPredicateOperator {
    * @return v2 if v1 is null
    */
   public static ExprValue exprIfNull(ExprValue v1, ExprValue v2) {
-    if (v1.isNull()) {
-      return v2;
-    } else if (v1.isMissing()) {
-      return v2;
-    } else {
-      return v1;
-    }
+    return (v1.isNull() || v1.isMissing()) ? v2 : v1;
   }
 
   /** null if v1 equls to v2.
@@ -152,13 +146,7 @@ public class UnaryPredicateOperator {
    * @return null if v1 equls to v2
    */
   public static ExprValue exprNullIf(ExprValue v1, ExprValue v2) {
-    if (v1.isNull()) {
-      return v1;
-    } else if (v1.isMissing()) {
-      return v1;
-    } else if (v2.isNull()) {
-      return v1;
-    } else if (v2.isMissing()) {
+    if (v1.isNull() || v1.isMissing() || v2.isNull() || v2.isMissing()) {
       return v1;
     } else if (v1.value().equals(v2.value())) {
       return LITERAL_NULL;

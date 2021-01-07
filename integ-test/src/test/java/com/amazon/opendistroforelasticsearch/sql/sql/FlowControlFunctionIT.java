@@ -43,16 +43,13 @@ import org.junit.Test;
 /**
  * Created by allwefantasy on 8/25/16.
  */
-public class FlowConrolFunctionIT extends SQLIntegTestCase {
+public class FlowControlFunctionIT extends SQLIntegTestCase {
 
   @Override
   public void init() throws Exception {
     super.init();
     TestUtils.enableNewQueryEngine(client());
-    loadIndex(Index.BANK);
     loadIndex(Index.ACCOUNT);
-    loadIndex(Index.ONLINE);
-    loadIndex(Index.DATE);
   }
 
   @Test
@@ -103,6 +100,38 @@ public class FlowConrolFunctionIT extends SQLIntegTestCase {
     assertEquals("ISNULL(lastname)", response.query("/schema/0/name"));
     assertEquals("name", response.query("/schema/0/alias"));
     assertEquals("boolean", response.query("/schema/0/type"));
+  }
+
+  @Test
+  public void isnullWithNotNullInputTest() throws IOException {
+    assertThat(
+            executeQuery("SELECT ISNULL('elastic') AS isnull FROM " + TEST_INDEX_ACCOUNT),
+            hitAny(kvInt("/fields/isnull/0", equalTo(0)))
+    );
+    assertThat(
+            executeQuery("SELECT ISNULL('') AS isnull FROM " + TEST_INDEX_ACCOUNT),
+            hitAny(kvInt("/fields/isnull/0", equalTo(0)))
+    );
+  }
+
+  @Test
+  public void isnullWithNullInputTest() throws IOException {
+    assertThat(
+            executeQuery("SELECT ISNULL(null) AS isnull FROM " + TEST_INDEX_ACCOUNT),
+            hitAny(kvInt("/fields/isnull/0", equalTo(1)))
+    );
+  }
+
+  @Test
+  public void isnullWithMathExpr() throws IOException{
+    assertThat(
+            executeQuery("SELECT ISNULL(1+1) AS isnull FROM " + TEST_INDEX_ACCOUNT),
+            hitAny(kvInt("/fields/isnull/0", equalTo(0)))
+    );
+    assertThat(
+            executeQuery("SELECT ISNULL(1+1*1/0) AS isnull FROM " + TEST_INDEX_ACCOUNT),
+            hitAny(kvInt("/fields/isnull/0", equalTo(1)))
+    );
   }
 
   private SearchHits query(String query) throws IOException {

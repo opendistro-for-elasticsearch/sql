@@ -52,7 +52,8 @@ import org.junit.Test;
  * Correctness integration test by performing comparison test with other databases.
  */
 @ESIntegTestCase.SuiteScopeTestCase
-@ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE, numDataNodes = 3, supportsDedicatedMasters = false, transportClientRatio = 1)
+@ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE, numDataNodes = 3,
+        supportsDedicatedMasters = false, transportClientRatio = 1)
 @ThreadLeakScope(ThreadLeakScope.Scope.NONE)
 public class CorrectnessIT extends ESIntegTestCase {
 

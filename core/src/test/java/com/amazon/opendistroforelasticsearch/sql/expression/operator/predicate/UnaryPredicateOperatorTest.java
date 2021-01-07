@@ -81,6 +81,10 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     expression = dsl.isnull(DSL.literal(ExprNullValue.of()));
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
+
+    expression = dsl.isnull(DSL.literal("test"));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
   }
 
   @Test
@@ -124,23 +128,15 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression result = dsl.nullif(v1, v2);
     assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
 
-    System.out.println("debug : " + result.valueOf(valueEnv()));
-
     v1 = dsl.literal(100);
     v2 = dsl.literal(100);
-
     result = dsl.nullif(v1, v2);
+    assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
 
     v1 = DSL.literal(ExprNullValue.of());
     v2 = DSL.literal(ExprNullValue.of());
     result = dsl.nullif(v1, v2);
-
     assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
-
-    v1 = dsl.literal(100);
-    v2 = dsl.literal(200);
-    result = dsl.nullif(v1, v2);
-    assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
   }
 
   @Test
