@@ -236,7 +236,7 @@ public class AstDSL {
     return new When(condition, result);
   }
 
-  public UnresolvedExpression window(Function function,
+  public UnresolvedExpression window(UnresolvedExpression function,
                                      List<UnresolvedExpression> partitionByList,
                                      List<Pair<SortOption, UnresolvedExpression>> sortList) {
     return new WindowFunction(function, partitionByList, sortList);

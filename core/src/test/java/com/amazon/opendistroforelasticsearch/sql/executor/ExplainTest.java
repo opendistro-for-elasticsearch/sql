@@ -168,7 +168,7 @@ class ExplainTest extends ExpressionTestBase {
     List<Pair<Sort.SortOption, Expression>> sortList = ImmutableList.of(
         ImmutablePair.of(DEFAULT_ASC, ref("age", INTEGER)));
 
-    PhysicalPlan plan = window(tableScan, dsl.rank(),
+    PhysicalPlan plan = window(tableScan, named(dsl.rank()),
         new WindowDefinition(partitionByList, sortList));
 
     assertEquals(

@@ -112,7 +112,8 @@ public class SelectExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   protected List<NamedExpression> analyze(UnresolvedExpression unresolvedExpression) {
-    doAnswer(returnsFirstArg()).when(optimizer).optimize(any(), any());
+    doAnswer(invocation -> ((NamedExpression) invocation.getArgument(0))
+        .getDelegated()).when(optimizer).optimize(any(), any());
     return new SelectExpressionAnalyzer(expressionAnalyzer)
         .analyze(Arrays.asList(unresolvedExpression),
             analysisContext, optimizer);

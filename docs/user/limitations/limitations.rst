@@ -63,13 +63,24 @@ Here's a link to the Github issue - `Issue 110 <https://github.com/opendistro-fo
 Limitations on Window Functions
 ===============================
 
-For now, only the field defined in index is allowed, all the other calculated fields (calculated by scalar or aggregated functions) is not allowed. For example, ``avg_flight_time`` is not accessible to the rank window definition as follows::
+For now, only the field defined in index is allowed, all the other calculated fields (calculated by scalar or aggregated functions) is not allowed. For example, either ``avg_flight_time`` or ``AVG(FlightTimeMin)`` is not accessible to the rank window definition as follows::
 
     SELECT OriginCountry, AVG(FlightTimeMin) AS avg_flight_time,
            RANK() OVER (ORDER BY avg_flight_time) AS rnk
     FROM kibana_sample_data_flights
     GROUP BY OriginCountry
 
+Another limitation is that currently window function cannot be nested in another expression, for example, ``CASE WHEN RANK() OVER(...) THEN ...``.
+
+Workaround for both limitations mentioned above is using a sub-query in FROM clause::
+
+    SELECT
+      SUM(t.avg_flight_time) OVER(...)
+    FROM (
+        SELECT OriginCountry, AVG(FlightTimeMin) AS avg_flight_time,
+        FROM kibana_sample_data_flights
+        GROUP BY OriginCountry
+    ) AS t
 
 Limitations on Pagination
 =========================

@@ -42,7 +42,7 @@ Here is a documentation list with features only available in this improved SQL q
 * [Aggregations](./docs/user/dql/aggregations.rst): aggregation over expression and more other features
 * [Complex queries](./docs/user/dql/complex.rst)
     * Improvement on Subqueries in FROM clause
-* [Window functions](./docs/user/dql/window.rst): ranking window function support
+* [Window functions](./docs/user/dql/window.rst): ranking and aggregate window function support
 
 To avoid impact on your side, normally you won't see any difference in query response. If you want to check if and why your query falls back to be handled by old SQL engine, please explain your query and check Elasticsearch log for "Request is falling back to old SQL engine due to ...".
 

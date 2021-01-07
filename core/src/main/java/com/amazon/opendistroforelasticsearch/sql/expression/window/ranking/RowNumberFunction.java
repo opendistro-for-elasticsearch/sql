@@ -17,7 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CurrentRowWindowFrame;
 
 /**
  * Row number window function that assigns row number starting from 1 to each row in a partition.
@@ -29,7 +29,7 @@ public class RowNumberFunction extends RankingWindowFunction {
   }
 
   @Override
-  protected int rank(CumulativeWindowFrame frame) {
+  protected int rank(CurrentRowWindowFrame frame) {
     if (frame.isNewPartition()) {
       rank = 1;
     }

@@ -91,7 +91,15 @@ public class SelectExpressionAnalyzer
   private Expression referenceIfSymbolDefined(Alias expr,
                                               AnalysisContext context) {
     UnresolvedExpression delegatedExpr = expr.getDelegated();
-    return optimizer.optimize(delegatedExpr.accept(expressionAnalyzer, context), context);
+
+    // Pass named expression because expression like window function loses full name
+    // (OVER clause) and thus depends on name in alias to be replaced correctly
+    return optimizer.optimize(
+        DSL.named(
+            expr.getName(),
+            delegatedExpr.accept(expressionAnalyzer, context),
+            expr.getAlias()),
+        context);
   }
 
   @Override
