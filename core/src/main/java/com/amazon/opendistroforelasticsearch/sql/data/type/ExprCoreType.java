@@ -32,6 +32,12 @@ public enum ExprCoreType implements ExprType {
    * UNKNOWN.
    */
   UNKNOWN,
+  UNDEFINED {
+    @Override
+    public boolean isCompatible(ExprType other) {
+      return true;
+    }
+  },
 
   /**
    * Numbers.

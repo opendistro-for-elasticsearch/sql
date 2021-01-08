@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.type;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNDEFINED;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -54,6 +55,8 @@ public class WideningTypeRule {
   private static int distance(ExprType type1, ExprType type2, int distance) {
     if (type1 == type2) {
       return distance;
+    } else if (type1 == UNDEFINED) {
+      return distance + 100;
     } else if (type1 == UNKNOWN) {
       return IMPOSSIBLE_WIDENING;
     } else {
