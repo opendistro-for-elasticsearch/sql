@@ -171,7 +171,6 @@ MONTH:                              'MONTH';
 MONTHNAME:                          'MONTHNAME';
 MULTIPLY:                           'MULTIPLY';
 NOW:                                'NOW';
-NULLIF:                             'NULLIF';
 PI:                                 'PI';
 POW:                                'POW';
 POWER:                              'POWER';

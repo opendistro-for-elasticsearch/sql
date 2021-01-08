@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.impl;
@@ -27,10 +26,12 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
-import com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.SerializableFunction;
 
 import java.util.Arrays;
 import java.util.List;
@@ -110,12 +111,19 @@ public class UnaryPredicateOperator {
     FunctionName functionName = BuiltinFunctionName.IFNULL.getName();
     List<ExprType> typeList = ExprCoreType.coreTypes();
     typeList.add(UNKNOWN);
-    FunctionResolver functionResolver =
-        FunctionDSL.define(functionName,
-            typeList.stream().map(v ->
-              impl((UnaryPredicateOperator::exprIfNull), v, v, v))
-              .collect(Collectors.toList())
-        );
+
+    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
+            FunctionBuilder>>> functionsOne = typeList.stream().map(v ->
+            impl((UnaryPredicateOperator::exprIfNull), v, v, v))
+            .collect(Collectors.toList());
+
+    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
+            FunctionBuilder>>> functionsTwo = typeList.stream().map(v ->
+            impl((UnaryPredicateOperator::exprIfNull), v, UNKNOWN, v))
+            .collect(Collectors.toList());
+
+    functionsOne.addAll(functionsTwo);
+    FunctionResolver functionResolver = FunctionDSL.define(functionName, functionsOne);
     return functionResolver;
   }
 
@@ -123,6 +131,7 @@ public class UnaryPredicateOperator {
     FunctionName functionName = BuiltinFunctionName.NULLIF.getName();
     List<ExprType> typeList = ExprCoreType.coreTypes();
     typeList.add(UNKNOWN);
+
     FunctionResolver functionResolver =
         FunctionDSL.define(functionName,
             typeList.stream().map(v ->

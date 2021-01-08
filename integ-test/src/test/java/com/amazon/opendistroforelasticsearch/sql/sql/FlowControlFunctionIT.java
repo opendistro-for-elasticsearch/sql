@@ -23,9 +23,11 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvStri
 import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
+import java.util.Locale;
 
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
+import com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
@@ -39,10 +41,6 @@ import org.json.JSONObject;
 import org.junit.Assume;
 import org.junit.Test;
 
-
-/**
- * Created by allwefantasy on 8/25/16.
- */
 public class FlowControlFunctionIT extends SQLIntegTestCase {
 
   @Override
@@ -90,6 +88,15 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
     assertEquals("NULLIF(lastname, \'unknown\')", response.query("/schema/0/name"));
     assertEquals("name", response.query("/schema/0/alias"));
     assertEquals("keyword", response.query("/schema/0/type"));
+  }
+
+  @Test
+  public void nullifWithNotNullInputTest() throws IOException {
+    System.out.println("TEST_INDEX_ACCOUNT :" + TEST_INDEX_ACCOUNT);
+    assertThat(
+            executeQuery("SELECT NULLIF(lastname, lastname) as nullif from " + TEST_INDEX_ACCOUNT),
+            hitAny(kvString("/fields/nullif/0", equalTo("sample")))
+    );
   }
 
   @Test

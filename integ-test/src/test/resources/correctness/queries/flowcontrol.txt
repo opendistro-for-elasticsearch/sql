@@ -1,8 +1,0 @@
-SELECT IFNULL(AvgTicketPrice, AvgTicketPrice * 2.0) FROM kibana_sample_data_flights
-SELECT IFNULL(1/0, AvgTicketPrice) FROM kibana_sample_data_flights
-SELECT IFNULL(AvgTicketPrice, 1/0) FROM kibana_sample_data_flights
-SELECT NULLIF(AvgTicketPrice, AvgTicketPrice) FROM kibana_sample_data_flights
-SELECT NULLIF(AvgTicketPrice, 1.0/0) FROM kibana_sample_data_flights limit 2
-SELECT NULLIF(1/0, AvgTicketPrice) FROM kibana_sample_data_flights limit 2
-SELECT ISNULL(AvgTicketPrice) FROM kibana_sample_data_flights
-SELECT ISNULL(1/0) FROM kibana_sample_data_flights
