@@ -92,10 +92,10 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
 
   @Test
   public void nullifWithNotNullInputTest() throws IOException {
-    System.out.println("TEST_INDEX_ACCOUNT :" + TEST_INDEX_ACCOUNT);
+    Assume.assumeTrue(isNewQueryEngineEabled());
     assertThat(
-            executeQuery("SELECT NULLIF(lastname, lastname) as nullif from " + TEST_INDEX_ACCOUNT),
-            hitAny(kvString("/fields/nullif/0", equalTo("sample")))
+            executeQuery("SELECT NULLIF(lastname, lastname) as test from " + TEST_INDEX_ACCOUNT),
+            hitAny(kvString("/fields/test/0", equalTo("sample")))
     );
   }
 
