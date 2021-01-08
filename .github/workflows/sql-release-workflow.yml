@@ -41,13 +41,10 @@ jobs:
           rpm=`ls plugin/build/distributions/*.rpm`
           deb=`ls plugin/build/distributions/*.deb`
           
-          version_final=v`basename ${zip%.zip} | grep -oE '[0-9.]+'` # v1.12.0.0
-          basename_final=`basename ${zip%%[0-9.]*.zip}` # opendistro-sql-
-
           # Inject the build number before the suffix
-          zip_outfile=${basename_final}${version_final}-build-${GITHUB_RUN_NUMBER}.zip
-          rpm_outfile=${basename_final}${version_final}-build-${GITHUB_RUN_NUMBER}.rpm
-          deb_outfile=${basename_final}${version_final}-build-${GITHUB_RUN_NUMBER}.deb
+          zip_outfile=`basename ${zip%.zip}-build-${GITHUB_RUN_NUMBER}.zip`
+          rpm_outfile=`basename ${rpm%.rpm}-build-${GITHUB_RUN_NUMBER}.rpm`
+          deb_outfile=`basename ${deb%.deb}-build-${GITHUB_RUN_NUMBER}.deb`
 
           s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-plugins/sql/"
 
