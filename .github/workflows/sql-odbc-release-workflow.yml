@@ -27,8 +27,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: upload-cppcheck-results
         if: failure()
@@ -84,7 +84,7 @@ jobs:
           # Inject the build number before the suffix
           pkg_outfile=`basename ${pkg%.pkg}-build-${GITHUB_RUN_NUMBER}.pkg`
 
-          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshot/elasticsearch-clients/sql-odbc/"
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-clients/sql-odbc/"
 
           echo "Copying ${pkg} to ${s3_prefix}${pkg_outfile}"
           aws s3 cp --quiet $pkg ${s3_prefix}${pkg_outfile}
@@ -101,8 +101,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: configure-and-build-driver
         run: |
@@ -137,7 +137,7 @@ jobs:
           # Inject the build number before the suffix
           msi_outfile=`basename ${msi%.msi}-build-${GITHUB_RUN_NUMBER}.msi`
 
-          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshot/elasticsearch-clients/sql-odbc/"
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-clients/sql-odbc/"
 
           echo "Copying ${msi} to ${s3_prefix}${msi_outfile}"
           aws s3 cp --quiet $msi ${s3_prefix}${msi_outfile}
@@ -154,8 +154,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: configure-and-build-driver
         run: |
@@ -190,7 +190,7 @@ jobs:
           # Inject the build number before the suffix
           msi_outfile=`basename ${msi%.msi}-build-${GITHUB_RUN_NUMBER}.msi`
 
-          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshot/elasticsearch-clients/sql-odbc/"
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-clients/sql-odbc/"
 
           echo "Copying ${msi} to ${s3_prefix}${msi_outfile}"
           aws s3 cp --quiet $msi ${s3_prefix}${msi_outfile}

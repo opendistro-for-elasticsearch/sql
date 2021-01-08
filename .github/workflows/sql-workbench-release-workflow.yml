@@ -16,8 +16,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Checkout Plugin
@@ -61,7 +61,7 @@ jobs:
           # Inject the build number before the suffix
           zip_outfile=`basename ${zip%.zip}-build-${GITHUB_RUN_NUMBER}.zip`
 
-          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshot/kibana-plugins/sql-workbench/"
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/kibana-plugins/sql-workbench/"
 
           echo "Copying ${zip} to ${s3_prefix}${zip_outfile}"
           aws s3 cp --quiet $zip ${s3_prefix}${zip_outfile}
