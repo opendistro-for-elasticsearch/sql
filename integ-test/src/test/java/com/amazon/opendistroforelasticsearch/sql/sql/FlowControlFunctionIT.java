@@ -17,9 +17,8 @@
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.*;
 import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
@@ -48,6 +47,7 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
     super.init();
     TestUtils.enableNewQueryEngine(client());
     loadIndex(Index.ACCOUNT);
+    loadIndex(Index.BANK_WITH_NULL_VALUES);
   }
 
   @Test
@@ -91,13 +91,68 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void nullifWithNotNullInputTest() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
-    assertThat(
-            executeQuery("SELECT NULLIF(lastname, lastname) as test from " + TEST_INDEX_ACCOUNT),
-            hitAny(kvString("/fields/test/0", equalTo("sample")))
-    );
+  public void nullifWithNotNullInputTest() {
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT NULLIF(lastname, lastname) as testnullif "
+                    + "FROM " + TEST_INDEX_ACCOUNT, "jdbc"));
+    verifySchema(response,
+            schema("NULLIF(lastname, lastname)", "testnullif", "keyword"));
   }
+
+  @Test
+  public void nullifWithNullInputTestOne() {
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT NULLIF(1/0, lastname) as testnullif "
+                    + "FROM " + TEST_INDEX_ACCOUNT, "jdbc"));
+    verifySchema(response,
+            schema("NULLIF(1/0, lastname)", "testnullif", "unknown"));
+  }
+
+  @Test
+  public void nullifWithNullInputTestTwo() {
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT NULLIF(lastname, 1/0) as testnullif "
+                    + "FROM " + TEST_INDEX_ACCOUNT, "jdbc"));
+    verifySchema(response,
+            schema("NULLIF(lastname, 1/0)", "testnullif", "unknown"));
+  }
+
+  @Test
+  public void nullifWithNullInputTestThree() {
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT NULLIF(1/0, 1/0) as testnullif "
+                    + "FROM " + TEST_INDEX_ACCOUNT, "jdbc"));
+    verifySchema(response,
+            schema("NULLIF(1/0, 1/0)", "testnullif", "integer"));
+  }
+
+  @Test
+  public void nullifWithMissingInputTestOne() {
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT NULLIF(balance, balance) as testnullif "
+                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc"));
+    verifySchema(response,
+            schema("NULLIF(balance, balance)", "testnullif", "long"));
+  }
+
+  @Test
+  public void nullifWithMissingInputTestTwo() {
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT NULLIF(balance, age) as testnullif "
+                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc"));
+    verifySchema(response,
+            schema("NULLIF(balance, age)", "testnullif", "long"));
+  }
+
+  @Test
+  public void nullifWithMissingInputTestThree() {
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT NULLIF(age, balance) as testnullif "
+                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc"));
+    verifySchema(response,
+            schema("NULLIF(age, balance)", "testnullif", "long"));
+  }
+
 
   @Test
   public void isnullShouldPassJDBC() throws IOException {
