@@ -24,7 +24,6 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.getResponseBody;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.IOException;
 import java.util.Locale;
 import org.elasticsearch.client.Request;
@@ -38,7 +37,6 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   @Override
   public void init() throws Exception {
     super.init();
-    TestUtils.enableNewQueryEngine(client());
     loadIndex(Index.BANK);
   }
 

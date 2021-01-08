@@ -471,7 +471,7 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Test
   public void orderByAliasAscTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
+    Assume.assumeTrue(isNewQueryEngineDisabled());
 
     JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) as count FROM %s " +
         "GROUP BY gender ORDER BY count", TEST_INDEX_ACCOUNT));
@@ -495,7 +495,7 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Test
   public void orderByAliasDescTest() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
+    Assume.assumeTrue(isNewQueryEngineDisabled());
 
     JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) as count FROM %s " +
         "GROUP BY gender ORDER BY count DESC", TEST_INDEX_ACCOUNT));
@@ -508,7 +508,7 @@ public class AggregationIT extends SQLIntegTestCase {
 
   @Test
   public void orderByGroupFieldWithAlias() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
+    Assume.assumeTrue(isNewQueryEngineDisabled());
 
     // ORDER BY field name
     JSONObject response = executeJdbcRequest(String.format("SELECT gender as g, COUNT(*) as count "

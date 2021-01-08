@@ -110,7 +110,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void nestedObjectsAndArraysAreQuoted() throws IOException {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     final String query = String.format(Locale.ROOT, "SELECT * FROM %s WHERE _id = 5",
         TEST_INDEX_NESTED_TYPE);
     final String result = executeQueryWithStringOutput(query);
@@ -126,7 +126,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void arraysAreQuotedInFlatMode() throws IOException {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     setFlatOption(true);
 
     final String query = String.format(Locale.ROOT, "SELECT * FROM %s WHERE _id = 5",
@@ -146,7 +146,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void doubleQuotesAreEscapedWithDoubleQuotes() throws IOException {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     final String query = "SELECT * FROM " + TEST_INDEX_NESTED_WITH_QUOTES;
 
     final CSVResult csvResult = executeCsvRequest(query, false);
@@ -321,7 +321,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void simpleNumericValueAgg() throws Exception {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String query = String.format(Locale.ROOT, "select count(*) from %s ", TEST_INDEX_DOG);
     CSVResult csvResult = executeCsvRequest(query, false);
 
@@ -355,7 +355,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void twoNumericAggWithAlias() throws Exception {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String query =
         String.format(Locale.ROOT, "select count(*) as count, avg(age) as myAlias from %s ",
             TEST_INDEX_DOG);
@@ -380,7 +380,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void aggAfterTermsGroupBy() throws Exception {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String query = String.format(Locale.ROOT, "SELECT COUNT(*) FROM %s GROUP BY gender",
         TEST_INDEX_ACCOUNT);
     CSVResult csvResult = executeCsvRequest(query, false);
@@ -513,7 +513,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void includeTypeAndNotScore() throws Exception {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String query =
         String.format(Locale.ROOT, "select age , firstname from %s where age > 31 limit 2",
             TEST_INDEX_ACCOUNT);
@@ -530,7 +530,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void includeScoreAndNotType() throws Exception {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String query = String.format(Locale.ROOT,
         "select age , firstname from %s where age > 31 order by _score desc limit 2 ",
         TEST_INDEX_ACCOUNT);
@@ -547,7 +547,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void includeScoreAndType() throws Exception {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String query = String.format(Locale.ROOT,
         "select age , firstname from %s where age > 31 order by _score desc limit 2 ",
         TEST_INDEX_ACCOUNT);
@@ -607,7 +607,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void includeIdAndNotTypeOrScore() throws Exception {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String query = String.format(Locale.ROOT,
         "select age , firstname from %s where lastname = 'Marquez' ", TEST_INDEX_ACCOUNT);
     CSVResult csvResult = executeCsvRequest(query, false, false, false, true);
@@ -622,7 +622,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void includeIdAndTypeButNoScore() throws Exception {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String query = String.format(Locale.ROOT,
         "select age , firstname from %s where lastname = 'Marquez' ", TEST_INDEX_ACCOUNT);
     CSVResult csvResult = executeCsvRequest(query, false, false, true, true);
@@ -639,7 +639,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void sensitiveCharacterSanitizeTest() throws IOException {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String requestBody =
         "{" +
             "  \"=cmd|' /C notepad'!_xlbgnm.A1\": \"+cmd|' /C notepad'!_xlbgnm.A1\",\n" +
@@ -664,7 +664,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void sensitiveCharacterSanitizeAndQuotedTest() throws IOException {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String requestBody =
         "{" +
             "  \"=cmd|' /C notepad'!_xlbgnm.A1,,\": \",+cmd|' /C notepad'!_xlbgnm.A1\",\n" +

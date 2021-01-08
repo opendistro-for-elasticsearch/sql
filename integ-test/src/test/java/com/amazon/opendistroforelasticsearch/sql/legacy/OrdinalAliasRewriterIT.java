@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.equalTo;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import java.io.IOException;
 import org.junit.Assume;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
@@ -160,7 +159,7 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
   @Test
   public void explainSelectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull()
       throws IOException {
-    Assume.assumeFalse(isNewQueryEngineEabled());
+    Assume.assumeFalse(isNewQueryEngineDisabled());
     String expected = explainQuery(StringUtils.format(
         "SELECT `b`.`lastname`, age FROM %s AS b ORDER BY `b`.`lastname` IS NOT NULL DESC, age is NULL LIMIT 3",
         TestsConstants.TEST_INDEX_ACCOUNT));

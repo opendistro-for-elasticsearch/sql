@@ -220,7 +220,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void castIntFieldToFloatWithoutAliasJdbcFormatTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
+    Assume.assumeTrue(isNewQueryEngineDisabled());
 
     JSONObject response = executeJdbcRequest(
         "SELECT CAST(balance AS FLOAT) AS cast_balance FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
@@ -235,7 +235,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void castIntFieldToFloatWithAliasJdbcFormatTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
+    Assume.assumeTrue(isNewQueryEngineDisabled());
 
     JSONObject response = executeJdbcRequest(
         "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
@@ -378,7 +378,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void castBoolFieldToNumericValueInSelectClause() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
+    Assume.assumeTrue(isNewQueryEngineDisabled());
 
     JSONObject response =
         executeJdbcRequest(
@@ -407,7 +407,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void castBoolFieldToNumericValueWithGroupByAlias() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
+    Assume.assumeTrue(isNewQueryEngineDisabled());
 
     JSONObject response =
         executeJdbcRequest(
