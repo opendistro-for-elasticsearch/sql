@@ -11,7 +11,7 @@ Data Types
 
 NULL and MISSING Values
 =======================
-ODFE SQL has two ways to represent missing information. (1) The presence of the field with a NULL for its value. and (2) the absence of the filed.
+ODFE SQL has two ways to represent missing information. (1) The presence of the field with a NULL for its value. and (2) the absence of the field.
 
 Please note, when response is in table format, the MISSING value is translate to NULL value.
 
@@ -31,7 +31,7 @@ Here is an example, Nanette doesn't have email field and Dail has employer filed
 
 General NULL and MISSING Values Handling
 ----------------------------------------
-In general, if any operand evaluates to a MISSING value, the enclosing operator will return MISSING; if none of operands evaluates to a MISSING value but there is an operand evaluates to a NULL value, the enclosing operator will return NULL.
+In general, if any operand evaluates to a MISSING value, the enclosing operator will return MISSING; if none of operands evaluates to a MISSING value but there is an operand evaluates to a NULL value, the enclosing operator will return NULL. To handle null value properly, you can use special operators such as ``IS (NOT) NULL`` or conditional functions such as ``IFNULL``. Please find more details in their docs.
 
 Here is an example::
 
@@ -45,6 +45,21 @@ Here is an example::
     | Nanette     | True                      | null                |
     | Dale        | null                      | True                |
     +-------------+---------------------------+---------------------+
+
+
+NULL Literal Handling
+---------------------
+
+Because the type of a null literal is unknown, a special data type ``UNDEFINED`` is reserved to allow it be accepted as a valid function argument::
+
+    od> SELECT NULL, NULL = NULL, 1 + NULL, LENGTH(NULL);
+    fetched rows / total rows = 1/1
+    +--------+---------------+------------+----------------+
+    | NULL   | NULL = NULL   | 1 + NULL   | LENGTH(NULL)   |
+    |--------+---------------+------------+----------------|
+    | null   | null          | null       | null           |
+    +--------+---------------+------------+----------------+
+
 
 Special NULL and MISSING Values Handling
 ----------------------------------------
