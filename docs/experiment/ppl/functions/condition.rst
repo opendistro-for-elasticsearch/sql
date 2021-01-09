@@ -67,3 +67,78 @@ Example, the account 13 doesn't have email field::
     | 13               | null    |
     +------------------+---------+
 
+IFNULL
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: ifnull(field1, field2) return field2 if field1 is null.
+
+Argument type: all the supported data type, (NOTE : if two parametershas different type, return result is correct, but return type could be wrong)
+
+Return type: any
+
+Example::
+
+    od> source=accounts | eval result = ifnull(employer, 'default') | fields result, employer, firstname
+    fetched rows / total rows = 4/4
+    +----------+------------+-------------+
+    | result   | employer   | firstname   |
+    |----------+------------+-------------|
+    | Pyrami   | Pyrami     | Amber       |
+    | Netagy   | Netagy     | Hattie      |
+    | Quility  | Quility    | Nanette     |
+    | default  | null       | Dale        |
+    +----------+------------+-------------+
+
+NULLIF
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: nullif(field1, field2) return null if two parameters are same, otherwiser return field1.
+
+Argument type: all the supported data type, (NOTE : if two parametershas different type, return result is correct, but return type could be wrong)
+
+Return type: any
+
+Example::
+
+    od> source=accounts | eval result = nullif(employer, 'Pyrami') | fields result, employer, firstname
+    fetched rows / total rows = 4/4
+    +----------+------------+-------------+
+    | result   | employer   | firstname   |
+    |----------+------------+-------------|
+    | null     | Pyrami     | Amber       |
+    | Netagy   | Netagy     | Hattie      |
+    | Quility  | Quility    | Nanette     |
+    | null     | null       | Dale        |
+    +----------+------------+-------------+
+
+
+ISNULL
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: nullif(field1, field2) return null if two parameters are same, otherwiser return field1.
+
+Argument type: all the supported data type
+
+Return type: any
+
+Example::
+
+    od> source=accounts | eval result = isnull(employer) | fields result, employer, firstname
+    fetched rows / total rows = 4/4
+    +----------+------------+-------------+
+    | result   | employer   | firstname   |
+    |----------+------------+-------------|
+    | False    | Pyrami     | Amber       |
+    | False    | Netagy     | Hattie      |
+    | False    | Quility    | Nanette     |
+    | True     | null       | Dale        |
+    +----------+------------+-------------+

@@ -1892,6 +1892,69 @@ Specifications:
 
 1. IFNULL(ES_TYPE, ES_TYPE) -> ES_TYPE
 
+Usage: return parameter2 if parameter1 is null, otherwise return parameter1
+
+Argument type: Any
+
+Return type: Any (NOTE : if two parameters has different type, return result is correct, but return type could be wrong)
+
+Example One::
+
+    od> SELECT IFNULL(123, 321), IFNULL(321, 123)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | IFNULL(123, 321)   | IFNULL(321, 123)   |
+    |--------------------+--------------------|
+    | 123                | 321                |
+    +--------------------+--------------------+
+
+Example Two::
+
+    od> SELECT IFNULL(321, 1/0), IFNULL(1/0, 123)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | IFNULL(321, 1/0)   | IFNULL(1/0, 123)   |
+    |--------------------+--------------------|
+    | 321                | 123                |
+    +--------------------+--------------------+
+
+Example Three::
+
+    od> SELECT IFNULL(1/0, 1/0)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | IFNULL(1/0, 1/0)   |
+    |--------------------|
+    | null               |
+    +--------------------+
+
+
+NULLIF
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. NULLIF(ES_TYPE, ES_TYPE) -> ES_TYPE
+
+Usage: return null if two parameters are same, otherwise return parameer1
+
+Argument type: Any
+
+Return type: Any (NOTE : if two parametershas different type, return result is correct, but return type could be wrong)
+
+Example::
+
+    od> SELECT NULLIF(123, 123), NULLIF(321, 123), NULLIF(1/0, 321), NULLIF(321, 1/0), NULLIF(1/0, 1/0)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+--------------------+--------------------+--------------------+
+    | NULLIF(123, 123)   | NULLIF(321, 123)   | NULLIF(1/0, 321)   | NULLIF(321, 1/0)   | NULLIF(1/0, 1/0)   |
+    |--------------------+--------------------+--------------------+--------------------+--------------------|
+    | null               | 321                | null               | 321                | null               |
+    +--------------------+--------------------+--------------------+--------------------+--------------------+
+
 
 ISNULL
 ------
@@ -1903,6 +1966,21 @@ Specifications:
 
 1. ISNULL(ES_TYPE) -> INTEGER
 
+Usage: return true if parameter is null, otherwise return false
+
+Argument type: Any
+
+Return type: boolean
+
+Example::
+
+    od> SELECT ISNULL(1/0), ISNULL(123)
+    fetched rows / total rows = 1/1
+    +---------------+---------------+
+    | ISNULL(1/0)   | ISNULL(123)   |
+    |---------------+---------------|
+    | True          | False         |
+    +---------------+---------------+
 
 CASE
 ----
