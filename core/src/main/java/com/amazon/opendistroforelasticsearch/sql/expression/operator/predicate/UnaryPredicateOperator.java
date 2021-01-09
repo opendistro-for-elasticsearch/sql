@@ -155,13 +155,7 @@ public class UnaryPredicateOperator {
    * @return null if v1 equls to v2
    */
   public static ExprValue exprNullIf(ExprValue v1, ExprValue v2) {
-    if (v1.isNull() || v1.isMissing() || v2.isNull() || v2.isMissing()) {
-      return v1;
-    } else if (v1.value().equals(v2.value())) {
-      return LITERAL_NULL;
-    } else {
-      return v1;
-    }
+    return v1.isNull() || v1.equals(v2) ? LITERAL_NULL : v1;
   }
 
 }
