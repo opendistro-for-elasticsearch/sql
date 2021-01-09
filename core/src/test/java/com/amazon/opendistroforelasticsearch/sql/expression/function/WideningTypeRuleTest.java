@@ -21,7 +21,6 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.F
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule.IMPOSSIBLE_WIDENING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule.TYPE_EQUAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,9 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationE
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -63,9 +60,7 @@ class WideningTypeRuleTest {
           .build();
 
   private static Stream<Arguments> distanceArguments() {
-    List<ExprCoreType> exprTypes =
-        Arrays.asList(ExprCoreType.values()).stream().filter(type -> type != UNKNOWN).collect(
-            Collectors.toList());
+    List<ExprCoreType> exprTypes = ExprCoreType.coreTypes();
     return Lists.cartesianProduct(exprTypes, exprTypes).stream()
         .map(list -> {
           ExprCoreType type1 = list.get(0);
@@ -81,9 +76,7 @@ class WideningTypeRuleTest {
   }
 
   private static Stream<Arguments> validMaxTypes() {
-    List<ExprCoreType> exprTypes =
-        Arrays.asList(ExprCoreType.values()).stream().filter(type -> type != UNKNOWN).collect(
-            Collectors.toList());
+    List<ExprCoreType> exprTypes = ExprCoreType.coreTypes();
     return Lists.cartesianProduct(exprTypes, exprTypes).stream()
         .map(list -> {
           ExprCoreType type1 = list.get(0);

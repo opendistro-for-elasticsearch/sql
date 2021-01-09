@@ -118,9 +118,11 @@ public enum ExprCoreType implements ExprType {
   /**
    * Return all the valid ExprCoreType.
    */
-  public static List<ExprType> coreTypes() {
-    return Arrays.stream(ExprCoreType.values()).filter(type -> type != UNKNOWN)
-        .collect(Collectors.toList());
+  public static List<ExprCoreType> coreTypes() {
+    return Arrays.stream(ExprCoreType.values())
+                 .filter(type -> type != UNKNOWN)
+                 .filter(type -> type != UNDEFINED)
+                 .collect(Collectors.toList());
   }
 
   public static List<ExprType> numberTypes() {
