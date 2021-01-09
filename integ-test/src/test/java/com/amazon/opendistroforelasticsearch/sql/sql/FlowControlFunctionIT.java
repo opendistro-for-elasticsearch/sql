@@ -16,6 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.*;
@@ -61,22 +64,40 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void ifnullWithNotNullInputTest() throws IOException {
-    assertThat(
-        executeQuery("SELECT IFNULL('sample', 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/ifnull/0", equalTo("sample")))
+  public void ifnullWithNullInputTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT IFNULL(1/0, firstname) as IFNULL1 ,"
+                    + " IFNULL(firstname, 1/0) as IFNULL2 ,"
+                    + " IFNULL(1/0, 1/0) as IFNULL3 "
+                    + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                    + " WHERE balance is null limit 2", "jdbc"));
+    verifySchema(response,
+            schema("IFNULL(1/0, firstname)", "IFNULL1", "keyword"),
+            schema("IFNULL(firstname, 1/0)", "IFNULL2", "integer"),
+            schema("IFNULL(1/0, 1/0)", "IFNULL3", "integer"));
+    verifyDataRows(response,
+            rows("Hattie", "Hattie", LITERAL_NULL.value()),
+            rows( "Elinor", "Elinor", LITERAL_NULL.value())
     );
   }
 
   @Test
-  public void ifnullWithNullInputTest() throws IOException {
-    assertThat(
-        executeQuery("SELECT IFNULL(null, 10) AS ifnull FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvInt("/fields/ifnull/0", equalTo(10)))
-    );
-    assertThat(
-        executeQuery("SELECT IFNULL('', 10) AS ifnull FROM " + TEST_INDEX_ACCOUNT),
-        hitAny(kvString("/fields/ifnull/0", equalTo("")))
+  public void ifnullWithMissingInputTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT IFNULL(balance, firstname) as IFNULL1 ,"
+                    + " IFNULL(firstname, balance) as IFNULL2 ,"
+                    + " IFNULL(balance, balance) as IFNULL3 "
+                    + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                    + " WHERE balance is null limit 2", "jdbc"));
+    verifySchema(response,
+            schema("IFNULL(balance, firstname)", "IFNULL1", "keyword"),
+            schema("IFNULL(firstname, balance)", "IFNULL2", "long"),
+            schema("IFNULL(balance, balance)", "IFNULL3", "long"));
+    verifyDataRows(response,
+            rows("Hattie", "Hattie", LITERAL_NULL.value()),
+            rows( "Elinor", "Elinor", LITERAL_NULL.value())
     );
   }
 
@@ -91,68 +112,58 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void nullifWithNotNullInputTest() {
+  public void nullifWithNotNullInputTestOne(){
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(lastname, lastname) as testnullif "
-                    + "FROM " + TEST_INDEX_ACCOUNT, "jdbc"));
+            "SELECT NULLIF(firstname, 'Amber JOHnny') as testnullif "
+                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                    + " limit 2 ", "jdbc"));
     verifySchema(response,
-            schema("NULLIF(lastname, lastname)", "testnullif", "keyword"));
+            schema("NULLIF(firstname, 'Amber JOHnny')", "testnullif", "keyword"));
+    verifyDataRows(response,
+            rows(LITERAL_NULL.value()),
+            rows("Hattie")
+            );
   }
 
   @Test
-  public void nullifWithNullInputTestOne() {
+  public void nullifWithNullInputTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(1/0, lastname) as testnullif "
-                    + "FROM " + TEST_INDEX_ACCOUNT, "jdbc"));
+            "SELECT NULLIF(1/0, firstname) as nullif1 ,"
+                    + " NULLIF(firstname, 1/0) as nullif2 ,"
+                    + " NULLIF(1/0, 1/0) as nullif3 "
+                    + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                    + " WHERE balance is null limit 2", "jdbc"));
     verifySchema(response,
-            schema("NULLIF(1/0, lastname)", "testnullif", "unknown"));
+            schema("NULLIF(1/0, firstname)", "nullif1", "unknown"),
+            schema("NULLIF(firstname, 1/0)", "nullif2", "unknown"),
+            schema("NULLIF(1/0, 1/0)", "nullif3", "integer"));
+    verifyDataRows(response,
+            rows(LITERAL_NULL.value(), "Hattie", LITERAL_NULL.value()),
+            rows(LITERAL_NULL.value(), "Elinor", LITERAL_NULL.value())
+    );
   }
 
   @Test
-  public void nullifWithNullInputTestTwo() {
+  public void nullifWithMissingInputTest(){
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(lastname, 1/0) as testnullif "
-                    + "FROM " + TEST_INDEX_ACCOUNT, "jdbc"));
+            "SELECT NULLIF(balance, firstname) as nullif1 ,"
+                    + " NULLIF(firstname, balance) as nullif2 ,"
+                    + " NULLIF(balance, balance) as nullif3 "
+                    + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                    + " WHERE balance is null limit 2", "jdbc"));
     verifySchema(response,
-            schema("NULLIF(lastname, 1/0)", "testnullif", "unknown"));
-  }
+            schema("NULLIF(balance, firstname)", "nullif1", "unknown"),
+            schema("NULLIF(firstname, balance)", "nullif2", "unknown"),
+            schema("NULLIF(balance, balance)", "nullif3", "long"));
+    verifyDataRows(response,
+            rows(LITERAL_NULL.value(), "Hattie", LITERAL_NULL.value()),
+            rows(LITERAL_NULL.value(), "Elinor", LITERAL_NULL.value())
+    );
 
-  @Test
-  public void nullifWithNullInputTestThree() {
-    JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(1/0, 1/0) as testnullif "
-                    + "FROM " + TEST_INDEX_ACCOUNT, "jdbc"));
-    verifySchema(response,
-            schema("NULLIF(1/0, 1/0)", "testnullif", "integer"));
   }
-
-  @Test
-  public void nullifWithMissingInputTestOne() {
-    JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(balance, balance) as testnullif "
-                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc"));
-    verifySchema(response,
-            schema("NULLIF(balance, balance)", "testnullif", "long"));
-  }
-
-  @Test
-  public void nullifWithMissingInputTestTwo() {
-    JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(balance, age) as testnullif "
-                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc"));
-    verifySchema(response,
-            schema("NULLIF(balance, age)", "testnullif", "long"));
-  }
-
-  @Test
-  public void nullifWithMissingInputTestThree() {
-    JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(age, balance) as testnullif "
-                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc"));
-    verifySchema(response,
-            schema("NULLIF(age, balance)", "testnullif", "long"));
-  }
-
 
   @Test
   public void isnullShouldPassJDBC() throws IOException {
@@ -177,11 +188,38 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void isnullWithNullInputTest() throws IOException {
-    assertThat(
-            executeQuery("SELECT ISNULL(null) AS isnull FROM " + TEST_INDEX_ACCOUNT),
-            hitAny(kvInt("/fields/isnull/0", equalTo(1)))
+  public void isnullWithNullInputTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT ISNULL(1/0) as ISNULL1 ,"
+                    + " ISNULL(firstname) as ISNULL2 "
+                    + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                    + " WHERE balance is null limit 2", "jdbc"));
+    verifySchema(response,
+            schema("ISNULL(1/0)", "ISNULL1", "boolean"),
+            schema("ISNULL(firstname)", "ISNULL2", "boolean"));
+    verifyDataRows(response,
+            rows(LITERAL_TRUE.value(), LITERAL_FALSE.value()),
+            rows(LITERAL_TRUE.value(), LITERAL_FALSE.value())
     );
+  }
+
+  @Test
+  public void isnullWithMissingInputTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT ISNULL(balance) as ISNULL1 ,"
+                    + " ISNULL(firstname) as ISNULL2 "
+                    + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                    + " WHERE balance is null limit 2", "jdbc"));
+    verifySchema(response,
+            schema("ISNULL(balance)", "ISNULL1", "boolean"),
+            schema("ISNULL(firstname)", "ISNULL2", "boolean"));
+    verifyDataRows(response,
+            rows(LITERAL_TRUE.value(), LITERAL_FALSE.value()),
+            rows(LITERAL_TRUE.value(), LITERAL_FALSE.value())
+    );
+
   }
 
   @Test

@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
@@ -82,6 +83,10 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
 
+    expression = dsl.isnull(DSL.literal(ExprMissingValue.of()));
+    assertEquals(BOOLEAN, expression.type());
+    assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
+
     expression = dsl.isnull(DSL.literal("test"));
     assertEquals(BOOLEAN, expression.type());
     assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
@@ -119,6 +124,12 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     v2 = DSL.literal(ExprNullValue.of());
     result = dsl.ifnull(v1, v2);
     assertEquals(v2.valueOf(valueEnv()), result.valueOf(valueEnv()));
+
+    v1 = DSL.literal(ExprMissingValue.of());
+    v2 = v2 = dsl.literal(200);
+    result = dsl.ifnull(v1, v2);
+    assertEquals(v2.valueOf(valueEnv()), result.valueOf(valueEnv()));
+
   }
 
   @Test
@@ -137,6 +148,12 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     v2 = DSL.literal(ExprNullValue.of());
     result = dsl.nullif(v1, v2);
     assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
+
+    v1 = DSL.literal(ExprMissingValue.of());
+    v2 = DSL.literal(ExprMissingValue.of());
+    result = dsl.nullif(v1, v2);
+    assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
+
   }
 
   @Test
