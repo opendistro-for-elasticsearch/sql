@@ -381,6 +381,7 @@ public class AstBuilderTest {
   @Test
   public void testIdentifierAsIndexNameWithDotInTheMiddle() {
     assertEqual("source=log.2020.10.10", relation("log.2020.10.10"));
+    assertEqual("source=log-7.10-2020.10.10", relation("log-7.10-2020.10.10"));
   }
 
   @Test
