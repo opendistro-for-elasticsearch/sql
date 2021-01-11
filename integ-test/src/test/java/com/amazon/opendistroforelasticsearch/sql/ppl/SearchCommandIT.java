@@ -53,10 +53,10 @@ public class SearchCommandIT extends PPLIntegTestCase {
   @Test
   public void testSearchCommandWithSpecialIndexName() throws IOException {
     executeRequest(new Request("PUT", "/logs-2021.01.11"));
-    executeQuery("search source=logs-2021.01.11");
+    verifyDataRows(executeQuery("search source=logs-2021.01.11"));
 
     executeRequest(new Request("PUT", "/logs-7.10.0-2021.01.11"));
-    executeQuery("search source=logs-7.10.0-2021.01.11");
+    verifyDataRows(executeQuery("search source=logs-7.10.0-2021.01.11"));
   }
 
   @Test
