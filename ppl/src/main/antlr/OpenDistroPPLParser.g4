@@ -178,7 +178,7 @@ booleanExpression
 /** tables */
 tableSource
     : qualifiedName
-    | ID_DOT
+    | ID_DATE_SUFFIX
     ;
 
 /** fields */
@@ -312,11 +312,11 @@ valueList
     ;
 
 qualifiedName
-    : ident (DOT ident)*                                            #identsAsQualifiedName
+    : ident /* (DOT ident)* */                                           #identsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard (DOT wildcard)*                                      #identsAsWildcardQualifiedName
+    : wildcard /*(DOT wildcard)* */                                      #identsAsWildcardQualifiedName
     ;
 
 ident

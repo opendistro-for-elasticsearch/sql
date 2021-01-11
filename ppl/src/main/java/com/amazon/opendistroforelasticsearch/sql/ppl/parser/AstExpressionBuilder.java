@@ -227,8 +227,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitTableSource(TableSourceContext ctx) {
-    return new QualifiedName(Collections.singletonList(
-        StringUtils.unquoteIdentifier(ctx.getText())));
+    return visitIdentifier(ctx);
   }
 
   /**
@@ -236,25 +235,13 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
    */
   @Override
   public UnresolvedExpression visitIdentsAsQualifiedName(IdentsAsQualifiedNameContext ctx) {
-    return new QualifiedName(
-        ctx.ident()
-            .stream()
-            .map(ParserRuleContext::getText)
-            .map(StringUtils::unquoteText)
-            .collect(Collectors.toList())
-    );
+    return visitIdentifier(ctx.ident());
   }
 
   @Override
   public UnresolvedExpression visitIdentsAsWildcardQualifiedName(
       IdentsAsWildcardQualifiedNameContext ctx) {
-    return new QualifiedName(
-        ctx.wildcard()
-            .stream()
-            .map(ParserRuleContext::getText)
-            .map(StringUtils::unquoteText)
-            .collect(Collectors.toList())
-    );
+    return visitIdentifier(ctx.wildcard());
   }
 
   @Override
@@ -281,6 +268,11 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitBooleanLiteral(BooleanLiteralContext ctx) {
     return new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN);
+  }
+
+  private UnresolvedExpression visitIdentifier(ParserRuleContext ctx) {
+    return new QualifiedName(Collections.singletonList(
+        StringUtils.unquoteIdentifier(ctx.getText())));
   }
 
 }
