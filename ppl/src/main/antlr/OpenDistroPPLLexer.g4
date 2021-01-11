@@ -242,7 +242,7 @@ INTEGER_LITERAL:                    DEC_DIGIT+;
 DECIMAL_LITERAL:                    (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
 fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
-ID_DOT:                             ID_LITERAL ([\-.][0-9]+)*;
+ID_DOT:                             ID_LITERAL ([\-.][*0-9]+)*;
 DQUOTA_STRING:                      '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 SQUOTA_STRING:                      '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 BQUOTA_STRING:                      '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
