@@ -18,8 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BinaryArithmeticContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CompareExprContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CountAllFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalFunctionCallContext;
@@ -38,6 +40,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StringLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.TableSourceContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldExpressionContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
@@ -59,7 +62,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 import com.google.common.collect.ImmutableMap;
@@ -183,8 +185,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitCountAllFunctionCall(
-      OpenDistroPPLParser.CountAllFunctionCallContext ctx) {
+  public UnresolvedExpression visitCountAllFunctionCall(CountAllFunctionCallContext ctx) {
     return new AggregateFunction("count", AllFields.of());
   }
 
@@ -198,8 +199,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
    * Eval function.
    */
   @Override
-  public UnresolvedExpression visitBooleanFunctionCall(
-      OpenDistroPPLParser.BooleanFunctionCallContext ctx) {
+  public UnresolvedExpression visitBooleanFunctionCall(BooleanFunctionCallContext ctx) {
     final String functionName = ctx.conditionFunctionBase().getText();
 
     return new Function(
@@ -223,6 +223,12 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
             .stream()
             .map(this::visitFunctionArg)
             .collect(Collectors.toList()));
+  }
+
+  @Override
+  public UnresolvedExpression visitTableSource(TableSourceContext ctx) {
+    return new QualifiedName(Collections.singletonList(
+        StringUtils.unquoteIdentifier(ctx.getText())));
   }
 
   /**

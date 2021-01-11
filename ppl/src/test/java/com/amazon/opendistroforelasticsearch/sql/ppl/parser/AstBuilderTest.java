@@ -379,9 +379,8 @@ public class AstBuilderTest {
   }
 
   @Test
-  public void identifierAsIndexNameWithDotInTheMiddleThrowException() {
-    exceptionRule.expect(SyntaxCheckException.class);
-    plan("source=log.2020.10.10");
+  public void testIdentifierAsIndexNameWithDotInTheMiddle() {
+    assertEqual("source=log.2020.10.10", relation("log.2020.10.10"));
   }
 
   @Test

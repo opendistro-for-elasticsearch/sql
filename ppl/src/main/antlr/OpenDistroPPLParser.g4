@@ -178,6 +178,7 @@ booleanExpression
 /** tables */
 tableSource
     : qualifiedName
+    | ID_DOT
     ;
 
 /** fields */
