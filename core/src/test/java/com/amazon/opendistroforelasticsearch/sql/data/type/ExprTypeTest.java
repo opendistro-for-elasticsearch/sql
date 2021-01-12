@@ -43,16 +43,19 @@ class ExprTypeTest {
     assertTrue(DOUBLE.isCompatible(LONG));
     assertTrue(DOUBLE.isCompatible(INTEGER));
     assertTrue(DOUBLE.isCompatible(SHORT));
-    assertTrue(DOUBLE.isCompatible(UNDEFINED));
     assertTrue(FLOAT.isCompatible(FLOAT));
     assertTrue(FLOAT.isCompatible(LONG));
     assertTrue(FLOAT.isCompatible(INTEGER));
     assertTrue(FLOAT.isCompatible(SHORT));
-    assertTrue(FLOAT.isCompatible(UNDEFINED));
     assertFalse(INTEGER.isCompatible(DOUBLE));
     assertFalse(STRING.isCompatible(DOUBLE));
     assertFalse(INTEGER.isCompatible(UNKNOWN));
-    assertFalse(UNDEFINED.isCompatible(DOUBLE));
+  }
+
+  @Test
+  public void isCompatibleWithUndefined() {
+    ExprCoreType.coreTypes().forEach(type -> assertTrue(type.isCompatible(UNDEFINED)));
+    ExprCoreType.coreTypes().forEach(type -> assertFalse(UNDEFINED.isCompatible(type)));
   }
 
   @Test

@@ -76,7 +76,7 @@ public class CaseClause extends FunctionExpression {
   public ExprType type() {
     List<ExprType> types = allResultTypes();
 
-    // Return unknown if all WHEN/ELSE return NULL
+    // Return undefined if all WHEN/ELSE return NULL
     return types.isEmpty() ? UNDEFINED : types.get(0);
   }
 
