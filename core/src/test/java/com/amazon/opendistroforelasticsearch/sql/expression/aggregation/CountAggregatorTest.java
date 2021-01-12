@@ -113,6 +113,13 @@ class CountAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void filtered_count() {
+    ExprValue result = aggregation(dsl.count(DSL.ref("integer_value", INTEGER))
+        .condition(dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(1))), tuples);
+    assertEquals(3, result.value());
+  }
+
+  @Test
   public void count_with_missing() {
     ExprValue result = aggregation(dsl.count(DSL.ref("integer_value", INTEGER)),
         tuples_with_null_and_missing);

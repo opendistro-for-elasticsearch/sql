@@ -150,6 +150,65 @@ class ElasticsearchAggregationResponseParserTest {
     assertNull(ElasticsearchAggregationResponseParser.handleNanValue(Double.NaN));
   }
 
+  /**
+   * SELECT AVG(age) FILTER(WHERE age > 37) as filtered FROM accounts.
+   */
+  @Test
+  void filter_aggregation_should_pass() {
+    String response = "{\n" 
+            +     "    \"filter#filtered\" : {\n" 
+            +     "      \"doc_count\" : 3,\n" 
+            +     "      \"avg#filtered\" : {\n" 
+            +     "        \"value\" : 37.0\n" 
+            +     "      }\n" 
+            +     "    }\n" 
+            +     "  }";
+    assertThat(parse(response), contains(entry("filtered", 37.0)));
+  }
+
+  /**
+   * SELECT AVG(age) FILTER(WHERE age > 37) as filtered FROM accounts GROUP BY gender.
+   */
+  @Test
+  void filter_aggregation_group_by_should_pass() {
+    String response = "{\n" 
+            + "  \"composite#composite_buckets\":{\n" 
+            + "    \"after_key\":{\n" 
+            + "      \"gender\":\"m\"\n" 
+            + "    },\n" 
+            + "    \"buckets\":[\n" 
+            + "      {\n" 
+            + "        \"key\":{\n" 
+            + "          \"gender\":\"f\"\n" 
+            + "        },\n" 
+            + "        \"doc_count\":3,\n" 
+            + "        \"filter#filter\":{\n" 
+            + "          \"doc_count\":1,\n" 
+            + "          \"avg#avg\":{\n" 
+            + "            \"value\":39.0\n" 
+            + "          }\n" 
+            + "        }\n" 
+            + "      },\n" 
+            + "      {\n" 
+            + "        \"key\":{\n" 
+            + "          \"gender\":\"m\"\n" 
+            + "        },\n" 
+            + "        \"doc_count\":4,\n" 
+            + "        \"filter#filter\":{\n" 
+            + "          \"doc_count\":2,\n" 
+            + "          \"avg#avg\":{\n" 
+            + "            \"value\":36.0\n" 
+            + "          }\n" 
+            + "        }\n" 
+            + "      }\n" 
+            + "    ]\n" 
+            + "  }\n" 
+            + "}";
+    assertThat(parse(response), containsInAnyOrder(
+        entry("gender", "f", "avg", 39.0),
+        entry("gender", "m", "avg", 36.0)));
+  }
+
   public List<Map<String, Object>> parse(String json) {
     return ElasticsearchAggregationResponseParser.parse(AggregationResponseUtils.fromJson(json));
   }

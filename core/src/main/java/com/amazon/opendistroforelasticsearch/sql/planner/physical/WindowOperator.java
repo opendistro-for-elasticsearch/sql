@@ -18,11 +18,13 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.PeekingIterator;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -39,7 +41,7 @@ public class WindowOperator extends PhysicalPlan {
   private final PhysicalPlan input;
 
   @Getter
-  private final Expression windowFunction;
+  private final NamedExpression windowFunction;
 
   @Getter
   private final WindowDefinition windowDefinition;
@@ -49,18 +51,28 @@ public class WindowOperator extends PhysicalPlan {
   private final WindowFrame windowFrame;
 
   /**
+   * Peeking iterator that can peek next element which is required
+   * by window frame such as peer frame to prefetch all rows related
+   * to same peer (of same sorting key).
+   */
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private final PeekingIterator<ExprValue> peekingIterator;
+
+  /**
    * Initialize window operator.
    * @param input             child operator
    * @param windowFunction    window function
    * @param windowDefinition  window definition
    */
   public WindowOperator(PhysicalPlan input,
-                        Expression windowFunction,
+                        NamedExpression windowFunction,
                         WindowDefinition windowDefinition) {
     this.input = input;
     this.windowFunction = windowFunction;
     this.windowDefinition = windowDefinition;
     this.windowFrame = createWindowFrame();
+    this.peekingIterator = Iterators.peekingIterator(input);
   }
 
   @Override
@@ -75,30 +87,18 @@ public class WindowOperator extends PhysicalPlan {
 
   @Override
   public boolean hasNext() {
-    return input.hasNext();
+    return peekingIterator.hasNext() || windowFrame.hasNext();
   }
 
   @Override
   public ExprValue next() {
-    loadRowsIntoWindowFrame();
+    windowFrame.load(peekingIterator);
     return enrichCurrentRowByWindowFunctionResult();
   }
 
-  /**
-   * For now cumulative window frame is returned always. When frame definition is supported:
-   *  1. Ranking window functions: ignore frame definition and always operates on entire window.
-   *  2. Aggregate window functions: operates on cumulative or sliding window based on definition.
-   */
   private WindowFrame createWindowFrame() {
-    return new CumulativeWindowFrame(windowDefinition);
-  }
-
-  /**
-   * For now always load next row into window frame. In future, how/how many rows loaded
-   * should be based on window frame type.
-   */
-  private void loadRowsIntoWindowFrame() {
-    windowFrame.add((ExprTupleValue) input.next());
+    return ((WindowFunctionExpression) windowFunction.getDelegated())
+        .createWindowFrame(windowDefinition);
   }
 
   private ExprValue enrichCurrentRowByWindowFunctionResult() {
@@ -109,13 +109,13 @@ public class WindowOperator extends PhysicalPlan {
   }
 
   private void preserveAllOriginalColumns(ImmutableMap.Builder<String, ExprValue> mapBuilder) {
-    ExprTupleValue inputValue = windowFrame.get(windowFrame.currentIndex());
+    ExprValue inputValue = windowFrame.current();
     inputValue.tupleValue().forEach(mapBuilder::put);
   }
 
   private void addWindowFunctionResultColumn(ImmutableMap.Builder<String, ExprValue> mapBuilder) {
     ExprValue exprValue = windowFunction.valueOf(windowFrame);
-    mapBuilder.put(windowFunction.toString(), exprValue);
+    mapBuilder.put(windowFunction.getName(), exprValue);
   }
 
 }

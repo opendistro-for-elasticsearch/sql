@@ -149,9 +149,9 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
         LogicalPlanDSL.window(
             LogicalPlanDSL.window(
                 LogicalPlanDSL.relation("test"),
-                dsl.rank(),
+                DSL.named(dsl.rank()),
                 new WindowDefinition(emptyList(), emptyList())),
-            dsl.denseRank(),
+            DSL.named(dsl.denseRank()),
             new WindowDefinition(emptyList(), emptyList()));
 
     assertEquals(
@@ -169,7 +169,7 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
   Expression optimize(Expression expression, LogicalPlan logicalPlan) {
     final ExpressionReferenceOptimizer optimizer =
         new ExpressionReferenceOptimizer(functionRepository, logicalPlan);
-    return optimizer.optimize(expression, new AnalysisContext());
+    return optimizer.optimize(DSL.named(expression), new AnalysisContext());
   }
 
   LogicalPlan logicalPlan() {

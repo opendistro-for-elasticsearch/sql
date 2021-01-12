@@ -155,12 +155,14 @@ limitClause
     ;
 
 //  Window Function's Details
-windowFunction
-    : function=rankingWindowFunction overClause
+windowFunctionClause
+    : function=windowFunction overClause
     ;
 
-rankingWindowFunction
-    : functionName=(ROW_NUMBER | RANK | DENSE_RANK) LR_BRACKET RR_BRACKET
+windowFunction
+    : functionName=(ROW_NUMBER | RANK | DENSE_RANK)
+        LR_BRACKET functionArgs? RR_BRACKET              #scalarWindowFunction
+    | aggregateFunction                                  #aggregateWindowFunction
     ;
 
 overClause
@@ -284,8 +286,9 @@ nullNotnull
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
     | specificFunction                                              #specificFunctionCall
-    | windowFunction                                                #windowFunctionCall
+    | windowFunctionClause                                          #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
+    | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
     ;
 
 scalarFunctionName
@@ -322,6 +325,10 @@ caseFuncAlternative
 aggregateFunction
     : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET #regularAggregateFunctionCall
     | COUNT LR_BRACKET STAR RR_BRACKET                                       #countStarFunctionCall
+    ;
+
+filterClause
+    : FILTER LR_BRACKET WHERE expression RR_BRACKET
     ;
 
 aggregationFunctionName

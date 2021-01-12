@@ -16,12 +16,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FilteredAggregationFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.createSortOption;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 
@@ -182,7 +183,7 @@ public class QuerySpecification {
     }
 
     @Override
-    public Void visitWindowFunction(WindowFunctionContext ctx) {
+    public Void visitWindowFunctionClause(WindowFunctionClauseContext ctx) {
       // skip collecting sort items in window functions
       return null;
     }
@@ -227,6 +228,14 @@ public class QuerySpecification {
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
       aggregators.add(AstDSL.alias(getTextInQuery(ctx, queryString), visitAstExpression(ctx)));
       return super.visitAggregateFunctionCall(ctx);
+    }
+
+    @Override
+    public Void visitFilteredAggregationFunctionCall(FilteredAggregationFunctionCallContext ctx) {
+      UnresolvedExpression aggregateFunction = visitAstExpression(ctx);
+      aggregators.add(
+          AstDSL.alias(getTextInQuery(ctx, queryString), aggregateFunction));
+      return super.visitFilteredAggregationFunctionCall(ctx);
     }
 
     private boolean isDistinct(SelectSpecContext ctx) {

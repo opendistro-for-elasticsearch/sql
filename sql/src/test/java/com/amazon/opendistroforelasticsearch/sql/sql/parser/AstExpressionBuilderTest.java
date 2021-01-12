@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
@@ -299,6 +300,17 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildAggregateWindowFunction() {
+    assertEquals(
+        window(
+            aggregate("AVG", qualifiedName("age")),
+            ImmutableList.of(qualifiedName("state")),
+            ImmutableList.of(ImmutablePair.of(
+                new SortOption(null, null), qualifiedName("age")))),
+        buildExprAst("AVG(age) OVER (PARTITION BY state ORDER BY age)"));
+  }
+
+  @Test
   public void canBuildCaseConditionStatement() {
     assertEquals(
         caseWhen(
@@ -350,6 +362,15 @@ class AstExpressionBuilderTest {
     assertEquals(
         AstDSL.cast(intLiteral(1), stringLiteral("string")),
         buildExprAst("cast(1 as string)")
+    );
+  }
+
+  @Test
+  public void filteredAggregation() {
+    assertEquals(
+        AstDSL.filteredAggregate("avg", qualifiedName("age"),
+            function(">", qualifiedName("age"), intLiteral(20))),
+        buildExprAst("avg(age) filter(where age > 20)")
     );
   }
 

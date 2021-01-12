@@ -194,6 +194,11 @@ public class AstDSL {
     return new AggregateFunction(func, field, Arrays.asList(args));
   }
 
+  public static UnresolvedExpression filteredAggregate(
+      String func, UnresolvedExpression field, UnresolvedExpression condition) {
+    return new AggregateFunction(func, field, condition);
+  }
+
   public static Function function(String funcName, UnresolvedExpression... funcArgs) {
     return new Function(funcName, Arrays.asList(funcArgs));
   }
@@ -231,7 +236,7 @@ public class AstDSL {
     return new When(condition, result);
   }
 
-  public UnresolvedExpression window(Function function,
+  public UnresolvedExpression window(UnresolvedExpression function,
                                      List<UnresolvedExpression> partitionByList,
                                      List<Pair<SortOption, UnresolvedExpression>> sortList) {
     return new WindowFunction(function, partitionByList, sortList);
