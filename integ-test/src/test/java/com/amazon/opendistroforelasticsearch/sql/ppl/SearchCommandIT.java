@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.ResponseException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,15 @@ public class SearchCommandIT extends PPLIntegTestCase {
     assertEquals(
         executeQueryToString(String.format("search source=%s", TEST_INDEX_BANK)),
         executeQueryToString(String.format("source=%s", TEST_INDEX_BANK)));
+  }
+
+  @Test
+  public void testSearchCommandWithSpecialIndexName() throws IOException {
+    executeRequest(new Request("PUT", "/logs-2021.01.11"));
+    verifyDataRows(executeQuery("search source=logs-2021.01.11"));
+
+    executeRequest(new Request("PUT", "/logs-7.10.0-2021.01.11"));
+    verifyDataRows(executeQuery("search source=logs-7.10.0-2021.01.11"));
   }
 
   @Test

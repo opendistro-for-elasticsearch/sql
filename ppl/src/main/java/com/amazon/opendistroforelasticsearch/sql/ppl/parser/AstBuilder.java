@@ -267,7 +267,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
    */
   @Override
   public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
-    return new Relation(visitExpression(ctx.tableSource().qualifiedName()));
+    return new Relation(visitExpression(ctx.tableSource()));
   }
 
   /**

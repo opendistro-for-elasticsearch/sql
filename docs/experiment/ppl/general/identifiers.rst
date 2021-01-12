@@ -30,6 +30,8 @@ For Elasticsearch, the following identifiers are supported extensionally:
 3. Identifiers with ``-`` in the middle: this is mostly the case for index name with date information.
 4. Identifiers with star ``*`` present: this is mostly an index pattern for wildcard match.
 
+Index name with date suffix separated by dash or dots, such as ``cwl-2020.01.11`` or ``logs-7.0-2020.01.11``, is common for those created by Logstash or FileBeat ingestion. So, this kind of identifier used as index name is also supported without the need of being quoted for user convenience. In this case, wildcard within date pattern is also allowed to search for data across indices of different date range. For example, you can use ``logs-2020.1*`` to search in indices for October, November and December 2020.
+
 Examples
 --------
 
