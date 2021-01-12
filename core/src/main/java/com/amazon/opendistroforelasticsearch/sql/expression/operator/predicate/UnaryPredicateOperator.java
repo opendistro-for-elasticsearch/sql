@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 
@@ -53,11 +54,11 @@ public class UnaryPredicateOperator {
    */
   public static void register(BuiltinFunctionRepository repository) {
     repository.register(not());
-    repository.register(isNull());
     repository.register(isNotNull());
     repository.register(ifNull());
     repository.register(nullIf());
-    repository.register(is_Null());
+    repository.register(is_Null(BuiltinFunctionName.IS_NULL));
+    repository.register(is_Null(BuiltinFunctionName.ISNULL));
   }
 
   private static FunctionResolver not() {
@@ -81,27 +82,13 @@ public class UnaryPredicateOperator {
     }
   }
 
-  private static FunctionResolver is_Null() {
+  private static FunctionResolver is_Null(BuiltinFunctionName funcName) {
     return FunctionDSL
-        .define(BuiltinFunctionName.IS_NULL.getName(), Arrays.stream(ExprCoreType.values())
+        .define(funcName.getName(), Arrays.stream(ExprCoreType.values())
             .map(type -> FunctionDSL
                 .impl((v) -> ExprBooleanValue.of(v.isNull()), BOOLEAN, type))
             .collect(
                 Collectors.toList()));
-  }
-
-  private static FunctionResolver isNull() {
-    FunctionName functionName = BuiltinFunctionName.ISNULL.getName();
-    List<ExprType> typeList = ExprCoreType.coreTypes();
-    typeList.add(UNKNOWN);
-
-    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
-            FunctionBuilder>>> functionsOne = typeList.stream().map(v ->
-            impl((UnaryPredicateOperator::exprIsNull), BOOLEAN, v))
-            .collect(Collectors.toList());
-
-    FunctionResolver functionResolver = FunctionDSL.define(functionName, functionsOne);
-    return functionResolver;
   }
 
   private static FunctionResolver isNotNull() {
@@ -116,7 +103,6 @@ public class UnaryPredicateOperator {
   private static FunctionResolver ifNull() {
     FunctionName functionName = BuiltinFunctionName.IFNULL.getName();
     List<ExprType> typeList = ExprCoreType.coreTypes();
-    typeList.add(UNKNOWN);
 
     List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
             FunctionBuilder>>> functionsOne = typeList.stream().map(v ->
@@ -136,7 +122,6 @@ public class UnaryPredicateOperator {
   private static FunctionResolver nullIf() {
     FunctionName functionName = BuiltinFunctionName.NULLIF.getName();
     List<ExprType> typeList = ExprCoreType.coreTypes();
-    typeList.add(UNKNOWN);
 
     FunctionResolver functionResolver =
         FunctionDSL.define(functionName,
@@ -161,15 +146,7 @@ public class UnaryPredicateOperator {
    * @return null if v1 equls to v2
    */
   public static ExprValue exprNullIf(ExprValue v1, ExprValue v2) {
-    return v1.isNull() || v1.equals(v2) ? LITERAL_NULL : v1;
-  }
-
-  /*** return true if input is null or missing.
-   * @param v varable
-   * @return
-   */
-  public static ExprValue exprIsNull(ExprValue v) {
-    return v.isNull() || v.isMissing() ? LITERAL_TRUE : LITERAL_FALSE;
+    return v1.equals(v2) ? LITERAL_NULL : v1;
   }
 
 }

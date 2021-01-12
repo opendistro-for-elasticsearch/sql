@@ -25,11 +25,8 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.*;
 import static org.hamcrest.Matchers.equalTo;
 
 import java.io.IOException;
-import java.util.Locale;
-
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
@@ -130,39 +127,19 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
   public void nullifWithNullInputTest() {
     Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(1/0, firstname) as nullif1 ,"
-                    + " NULLIF(firstname, 1/0) as nullif2 ,"
+            "SELECT NULLIF(1/0, 123) as nullif1 ,"
+                    + " NULLIF(123, 1/0) as nullif2 ,"
                     + " NULLIF(1/0, 1/0) as nullif3 "
                     + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
-                    + " WHERE balance is null limit 2", "jdbc"));
+                    + " WHERE balance is null limit 1", "jdbc"));
     verifySchema(response,
-            schema("NULLIF(1/0, firstname)", "nullif1", "unknown"),
-            schema("NULLIF(firstname, 1/0)", "nullif2", "unknown"),
+            schema("NULLIF(1/0, 123)", "nullif1", "integer"),
+            schema("NULLIF(123, 1/0)", "nullif2", "integer"),
             schema("NULLIF(1/0, 1/0)", "nullif3", "integer"));
     verifyDataRows(response,
-            rows(LITERAL_NULL.value(), "Hattie", LITERAL_NULL.value()),
-            rows(LITERAL_NULL.value(), "Elinor", LITERAL_NULL.value())
+            rows(LITERAL_NULL.value(), 123, LITERAL_NULL.value()
+            )
     );
-  }
-
-  @Test
-  public void nullifWithMissingInputTest(){
-    Assume.assumeTrue(isNewQueryEngineEabled());
-    JSONObject response = new JSONObject(executeQuery(
-            "SELECT NULLIF(balance, firstname) as nullif1 ,"
-                    + " NULLIF(firstname, balance) as nullif2 ,"
-                    + " NULLIF(balance, balance) as nullif3 "
-                    + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
-                    + " WHERE balance is null limit 2", "jdbc"));
-    verifySchema(response,
-            schema("NULLIF(balance, firstname)", "nullif1", "unknown"),
-            schema("NULLIF(firstname, balance)", "nullif2", "unknown"),
-            schema("NULLIF(balance, balance)", "nullif3", "long"));
-    verifyDataRows(response,
-            rows(LITERAL_NULL.value(), "Hattie", LITERAL_NULL.value()),
-            rows(LITERAL_NULL.value(), "Elinor", LITERAL_NULL.value())
-    );
-
   }
 
   @Test
@@ -202,24 +179,6 @@ public class FlowControlFunctionIT extends SQLIntegTestCase {
             rows(LITERAL_TRUE.value(), LITERAL_FALSE.value()),
             rows(LITERAL_TRUE.value(), LITERAL_FALSE.value())
     );
-  }
-
-  @Test
-  public void isnullWithMissingInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
-    JSONObject response = new JSONObject(executeQuery(
-            "SELECT ISNULL(balance) as ISNULL1 ,"
-                    + " ISNULL(firstname) as ISNULL2 "
-                    + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
-                    + " WHERE balance is null limit 2", "jdbc"));
-    verifySchema(response,
-            schema("ISNULL(balance)", "ISNULL1", "boolean"),
-            schema("ISNULL(firstname)", "ISNULL2", "boolean"));
-    verifyDataRows(response,
-            rows(LITERAL_TRUE.value(), LITERAL_FALSE.value()),
-            rows(LITERAL_TRUE.value(), LITERAL_FALSE.value())
-    );
-
   }
 
   @Test

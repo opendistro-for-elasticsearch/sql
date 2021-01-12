@@ -25,7 +25,6 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
@@ -33,7 +32,10 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import lombok.val;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -75,21 +77,21 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
 
   @Test
   public void test_isnull_predicate() {
-    FunctionExpression expression = dsl.isnull(DSL.literal(1));
-    assertEquals(BOOLEAN, expression.type());
-    assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
+    ArrayList<Expression> exprValueArrayList = new ArrayList<>();
+    exprValueArrayList.add(dsl.literal("test"));
+    exprValueArrayList.add(dsl.literal(100));
+    exprValueArrayList.add(dsl.literal(""));
 
-    expression = dsl.isnull(DSL.literal(ExprNullValue.of()));
-    assertEquals(BOOLEAN, expression.type());
-    assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
-
-    expression = dsl.isnull(DSL.literal(ExprMissingValue.of()));
-    assertEquals(BOOLEAN, expression.type());
-    assertEquals(LITERAL_TRUE, expression.valueOf(valueEnv()));
-
-    expression = dsl.isnull(DSL.literal("test"));
-    assertEquals(BOOLEAN, expression.type());
-    assertEquals(LITERAL_FALSE, expression.valueOf(valueEnv()));
+    for (Expression expression : exprValueArrayList) {
+      FunctionExpression functionExpression = dsl.isnull(expression);
+      assertEquals(BOOLEAN, functionExpression.type());
+      if (expression.valueOf(valueEnv()) == LITERAL_NULL
+              || expression.valueOf(valueEnv()) == LITERAL_MISSING) {
+        assertEquals(LITERAL_TRUE, functionExpression.valueOf(valueEnv()));
+      } else {
+        assertEquals(LITERAL_FALSE, functionExpression.valueOf(valueEnv()));
+      }
+    }
   }
 
   @Test
@@ -105,94 +107,79 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
 
   @Test
   public void test_ifnull_predicate() {
-    Expression v1 = dsl.literal(100);
-    Expression v2 = dsl.literal(200);
+    ArrayList<Expression> exprValueArrayList = new ArrayList<>();
+    exprValueArrayList.add(dsl.literal(100));
+    exprValueArrayList.add(dsl.literal(200));
 
-    FunctionExpression result = dsl.ifnull(v1, v2);
-    assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
-
-    v1 = DSL.literal(ExprNullValue.of());
-    result = dsl.ifnull(v1, v2);
-    assertEquals(v2.valueOf(valueEnv()), result.valueOf(valueEnv()));
-
-    v1 = dsl.literal(100);
-    v2 = DSL.literal(ExprNullValue.of());
-    result = dsl.ifnull(v1, v2);
-    assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
-
-    v1 = DSL.literal(ExprNullValue.of());
-    v2 = DSL.literal(ExprNullValue.of());
-    result = dsl.ifnull(v1, v2);
-    assertEquals(v2.valueOf(valueEnv()), result.valueOf(valueEnv()));
-
-    v1 = DSL.literal(ExprMissingValue.of());
-    v2 = v2 = dsl.literal(200);
-    result = dsl.ifnull(v1, v2);
-    assertEquals(v2.valueOf(valueEnv()), result.valueOf(valueEnv()));
+    for (Expression expressionOne : exprValueArrayList) {
+      for (Expression expressionTwo : exprValueArrayList) {
+        FunctionExpression functionExpression = dsl.ifnull(expressionOne, expressionTwo);
+        if (expressionOne.valueOf(valueEnv()) == LITERAL_NULL
+                || expressionOne.valueOf(valueEnv()) == LITERAL_MISSING) {
+          assertEquals(expressionTwo.valueOf(valueEnv()), functionExpression.valueOf(valueEnv()));
+        } else {
+          assertEquals(expressionOne.valueOf(valueEnv()), functionExpression.valueOf(valueEnv()));
+        }
+      }
+    }
 
   }
 
   @Test
   public void test_nullif_predicate() {
-    Expression v1 = dsl.literal(100);
-    Expression v2 = dsl.literal(200);
-    FunctionExpression result = dsl.nullif(v1, v2);
-    assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
+    ArrayList<Expression> exprValueArrayList = new ArrayList<>();
+    exprValueArrayList.add(DSL.literal(123));
+    exprValueArrayList.add(DSL.literal(321));
 
-    v1 = dsl.literal(100);
-    v2 = dsl.literal(100);
-    result = dsl.nullif(v1, v2);
-    assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
-
-    v1 = DSL.literal(ExprNullValue.of());
-    v2 = DSL.literal(ExprNullValue.of());
-    result = dsl.nullif(v1, v2);
-    assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
-
-    v1 = DSL.literal(ExprMissingValue.of());
-    v2 = DSL.literal(ExprMissingValue.of());
-    result = dsl.nullif(v1, v2);
-    assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
-
+    for (Expression v1 : exprValueArrayList) {
+      for (Expression v2 : exprValueArrayList) {
+        FunctionExpression result = dsl.nullif(v1, v2);
+        if (v1.valueOf(valueEnv()) == v2.valueOf(valueEnv())) {
+          assertEquals(LITERAL_NULL, result.valueOf(valueEnv()));
+        } else {
+          assertEquals(v1.valueOf(valueEnv()), result.valueOf(valueEnv()));
+        }
+      }
+    }
   }
 
   @Test
   public void test_exprIfNull() {
-    ExprValue result = UnaryPredicateOperator.exprIfNull(LITERAL_NULL,
-            ExprValueUtils.integerValue(200));
-    assertEquals(ExprValueUtils.integerValue(200).value(), result.value());
+    ArrayList<ExprValue> exprValues = new ArrayList<>();
+    exprValues.add(LITERAL_NULL);
+    exprValues.add(LITERAL_MISSING);
+    exprValues.add(ExprValueUtils.integerValue(123));
+    exprValues.add(ExprValueUtils.stringValue("test"));
 
-    result = UnaryPredicateOperator.exprIfNull(LITERAL_MISSING,
-            ExprValueUtils.integerValue(200));
-    assertEquals(ExprValueUtils.integerValue(200).value(), result.value());
-
-    result = UnaryPredicateOperator.exprIfNull(LITERAL_NULL,
-            LITERAL_MISSING);
-    assertEquals(LITERAL_MISSING.value(), result.value());
-
-    result = UnaryPredicateOperator.exprIfNull(LITERAL_MISSING,
-            LITERAL_NULL);
-    assertEquals(LITERAL_NULL.value(), result.value());
+    for (ExprValue exprValueOne : exprValues) {
+      for (ExprValue exprValueTwo : exprValues) {
+        ExprValue result = UnaryPredicateOperator.exprIfNull(exprValueOne, exprValueTwo);
+        if (exprValueOne.isNull() || exprValueOne.isMissing()) {
+          assertEquals(exprValueTwo.value(), result.value());
+        } else {
+          assertEquals(exprValueOne.value(), result.value());
+        }
+      }
+    }
   }
 
   @Test
   public void test_exprNullIf() {
-    ExprValue result = UnaryPredicateOperator.exprNullIf(LITERAL_NULL,
-            ExprValueUtils.integerValue(200));
-    assertEquals(LITERAL_NULL.value(), result.value());
+    ArrayList<ExprValue> exprValues = new ArrayList<>();
+    exprValues.add(LITERAL_NULL);
+    exprValues.add(LITERAL_MISSING);
+    exprValues.add(ExprValueUtils.integerValue(123));
+    exprValues.add(ExprValueUtils.integerValue(456));
 
-    result = UnaryPredicateOperator.exprNullIf(LITERAL_MISSING,
-            ExprValueUtils.integerValue(200));
-    assertEquals(LITERAL_MISSING.value(), result.value());
-
-    result = UnaryPredicateOperator.exprNullIf(ExprValueUtils.integerValue(200), LITERAL_NULL);
-    assertEquals(ExprValueUtils.integerValue(200).value(), result.value());
-
-    result = UnaryPredicateOperator.exprNullIf(ExprValueUtils.integerValue(200), LITERAL_MISSING);
-    assertEquals(ExprValueUtils.integerValue(200).value(), result.value());
-
-    result = UnaryPredicateOperator.exprNullIf(ExprValueUtils.integerValue(150),
-            ExprValueUtils.integerValue(150));
-    assertEquals(LITERAL_NULL.value(), result.value());
+    for (ExprValue exprValueOne : exprValues) {
+      for (ExprValue exprValueTwo : exprValues) {
+        ExprValue result = UnaryPredicateOperator.exprNullIf(exprValueOne, exprValueTwo);
+        if (exprValueOne.equals(exprValueTwo)) {
+          assertEquals(LITERAL_NULL.value(), result.value());
+        } else {
+          assertEquals(exprValueOne.value(), result.value());
+        }
+      }
+    }
   }
 }
