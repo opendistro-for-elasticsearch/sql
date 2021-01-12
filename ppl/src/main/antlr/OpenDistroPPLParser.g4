@@ -312,11 +312,11 @@ valueList
     ;
 
 qualifiedName
-    : ident /* (DOT ident)* */                                           #identsAsQualifiedName
+    : ident                                          #identsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard /*(DOT wildcard)* */                                      #identsAsWildcardQualifiedName
+    : wildcard                                       #identsAsWildcardQualifiedName
     ;
 
 ident
