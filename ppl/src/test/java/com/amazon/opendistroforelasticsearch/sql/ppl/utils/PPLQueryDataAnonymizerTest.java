@@ -151,8 +151,8 @@ public class PPLQueryDataAnonymizerTest {
 
   @Test
   public void testQualifiedName() {
-    assertEquals("source=t | fields + field0.field1",
-        anonymize("source=t | fields field0.field1")
+    assertEquals("source=t | fields + field0",
+        anonymize("source=t | fields field0")
     );
   }
 

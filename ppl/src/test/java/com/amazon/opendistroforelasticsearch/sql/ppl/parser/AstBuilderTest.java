@@ -50,7 +50,6 @@ import static org.junit.Assert.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
-import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -379,9 +378,9 @@ public class AstBuilderTest {
   }
 
   @Test
-  public void identifierAsIndexNameWithDotInTheMiddleThrowException() {
-    exceptionRule.expect(SyntaxCheckException.class);
-    plan("source=log.2020.10.10");
+  public void testIdentifierAsIndexNameWithDotInTheMiddle() {
+    assertEqual("source=log.2020.10.10", relation("log.2020.10.10"));
+    assertEqual("source=log-7.10-2020.10.10", relation("log-7.10-2020.10.10"));
   }
 
   @Test
@@ -394,6 +393,13 @@ public class AstBuilderTest {
   public void testIdentifierAsIndexNameContainStar() {
     assertEqual("source=log-2020-10-*",
         relation("log-2020-10-*"));
+  }
+
+  @Test
+  public void testIdentifierAsIndexNameContainStarAndDots() {
+    assertEqual("source=log-2020.10.*", relation("log-2020.10.*"));
+    assertEqual("source=log-2020.*.01", relation("log-2020.*.01"));
+    assertEqual("source=log-2020.*.*", relation("log-2020.*.*"));
   }
 
   @Test
