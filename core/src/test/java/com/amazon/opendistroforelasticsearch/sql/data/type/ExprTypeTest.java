@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNDEFINED;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,13 +43,16 @@ class ExprTypeTest {
     assertTrue(DOUBLE.isCompatible(LONG));
     assertTrue(DOUBLE.isCompatible(INTEGER));
     assertTrue(DOUBLE.isCompatible(SHORT));
+    assertTrue(DOUBLE.isCompatible(UNDEFINED));
     assertTrue(FLOAT.isCompatible(FLOAT));
     assertTrue(FLOAT.isCompatible(LONG));
     assertTrue(FLOAT.isCompatible(INTEGER));
     assertTrue(FLOAT.isCompatible(SHORT));
+    assertTrue(FLOAT.isCompatible(UNDEFINED));
     assertFalse(INTEGER.isCompatible(DOUBLE));
     assertFalse(STRING.isCompatible(DOUBLE));
     assertFalse(INTEGER.isCompatible(UNKNOWN));
+    assertFalse(UNDEFINED.isCompatible(DOUBLE));
   }
 
   @Test

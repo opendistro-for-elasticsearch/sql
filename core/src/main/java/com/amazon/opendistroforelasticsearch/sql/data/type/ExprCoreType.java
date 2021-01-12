@@ -36,19 +36,15 @@ public enum ExprCoreType implements ExprType {
 
   /**
    * Undefined type for special literal such as NULL.
-   * As the root of data type tree, this is compatible with any other type.
+   * As the root of data type tree, it is compatible with any other type.
+   * In other word, undefined type is the "narrowest" type.
    */
-  UNDEFINED {
-    @Override
-    public boolean isCompatible(ExprType other) {
-      return true;
-    }
-  },
+  UNDEFINED,
 
   /**
    * Numbers.
    */
-  BYTE,
+  BYTE(UNDEFINED),
   SHORT(BYTE),
   INTEGER(SHORT),
   LONG(INTEGER),
@@ -58,38 +54,38 @@ public enum ExprCoreType implements ExprType {
   /**
    * Boolean.
    */
-  BOOLEAN,
+  BOOLEAN(UNDEFINED),
 
   /**
    * String.
    */
-  STRING,
+  STRING(UNDEFINED),
 
 
   /**
    * Date.
    * Todo. compatible relationship.
    */
-  TIMESTAMP,
-  DATE,
-  TIME,
-  DATETIME,
-  INTERVAL,
+  TIMESTAMP(UNDEFINED),
+  DATE(UNDEFINED),
+  TIME(UNDEFINED),
+  DATETIME(UNDEFINED),
+  INTERVAL(UNDEFINED),
 
   /**
    * Struct.
    */
-  STRUCT,
+  STRUCT(UNDEFINED),
 
   /**
    * Array.
    */
-  ARRAY;
+  ARRAY(UNDEFINED);
 
   /**
-   * Parent of current base type.
+   * Parents (wider/compatible types) of current base type.
    */
-  private ExprCoreType parent;
+  private final List<ExprType> parents = new ArrayList<>();
 
   /**
    * The mapping between Type and legacy JDBC type name.
@@ -103,13 +99,13 @@ public enum ExprCoreType implements ExprType {
 
   ExprCoreType(ExprCoreType... compatibleTypes) {
     for (ExprCoreType subType : compatibleTypes) {
-      subType.parent = this;
+      subType.parents.add(this);
     }
   }
 
   @Override
   public List<ExprType> getParent() {
-    return Arrays.asList(parent == null ? UNKNOWN : parent);
+    return parents.isEmpty() ? ExprType.super.getParent() : parents;
   }
 
   @Override
