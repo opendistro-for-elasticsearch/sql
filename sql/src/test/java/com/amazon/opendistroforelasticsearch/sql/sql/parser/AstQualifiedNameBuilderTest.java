@@ -49,7 +49,6 @@ public class AstQualifiedNameBuilderTest {
 
   @Test
   public void canBuildDelimitedIdentifier() {
-    buildFromIdentifier("\"hello$world\"").expectQualifiedName("hello$world");
     buildFromIdentifier("`logs.2020.01`").expectQualifiedName("logs.2020.01");
   }
 

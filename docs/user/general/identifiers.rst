@@ -56,7 +56,7 @@ Delimited Identifiers
 Description
 -----------
 
-A delimited identifier is an identifier enclosed in back ticks ````` or double quotation marks ``"``. In this case, the identifier enclosed is not necessarily a regular identifier. In other words, it can contain any special character not allowed by regular identifier.
+A delimited identifier is an identifier enclosed in back ticks `````. In this case, the identifier enclosed is not necessarily a regular identifier. In other words, it can contain any special character not allowed by regular identifier.
 
 Please note the difference between single quote and double quotes in SQL syntax. Single quote is used to enclose a string literal while double quotes have same purpose as back ticks to escape special characters in an identifier.
 

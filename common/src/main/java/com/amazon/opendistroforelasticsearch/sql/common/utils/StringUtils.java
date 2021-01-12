@@ -49,13 +49,13 @@ public class StringUtils {
   }
 
   /**
-   * Unquote Identifier which has " or ` as mark.
+   * Unquote Identifier which has ` as mark.
    * @param identifier identifier that possibly enclosed by double quotes or back ticks
    * @return An unquoted string whose outer pair of (double/back-tick) quotes have been
    *     removed
    */
   public static String unquoteIdentifier(String identifier) {
-    if (isQuoted(identifier, "\"") || isQuoted(identifier, "`")) {
+    if (isQuoted(identifier, "`")) {
       return identifier.substring(1, identifier.length() - 1);
     } else {
       return identifier;
