@@ -222,5 +222,5 @@ Conversion from TIMESTAMP
 String Data Types
 =================
 
-TODO
+A string is a sequence of characters enclosed in either single or double quotes. For example, both 'text' and "text" will be treated as string literal.
 
