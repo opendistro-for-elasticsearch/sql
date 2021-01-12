@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.data.type;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,14 +30,20 @@ import java.util.stream.Collectors;
  */
 public enum ExprCoreType implements ExprType {
   /**
-   * UNKNOWN.
+   * Unknown due to unsupported data type.
    */
   UNKNOWN,
 
   /**
    * Undefined type for special literal such as NULL.
+   * As the root of data type tree, this is compatible with any other type.
    */
-  UNDEFINED,
+  UNDEFINED {
+    @Override
+    public boolean isCompatible(ExprType other) {
+      return true;
+    }
+  },
 
   /**
    * Numbers.
