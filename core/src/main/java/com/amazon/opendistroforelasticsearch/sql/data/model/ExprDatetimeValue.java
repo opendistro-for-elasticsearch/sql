@@ -27,12 +27,13 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ExprDatetimeValue extends AbstractExprValue {
   private static final DateTimeFormatter formatter = DateTimeFormatter
-      .ofPattern("yyyy-MM-dd HH:mm:ss");
+      .ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS]");
   private final LocalDateTime datetime;
 
   /**
@@ -43,7 +44,7 @@ public class ExprDatetimeValue extends AbstractExprValue {
       this.datetime = LocalDateTime.parse(datetime, formatter);
     } catch (DateTimeParseException e) {
       throw new SemanticCheckException(String.format("datetime:%s in unsupported format, please "
-          + "use yyyy-MM-dd HH:mm:ss", datetime));
+          + "use yyyy-MM-dd HH:mm:ss[.SSSSSS]", datetime));
     }
   }
 
@@ -80,7 +81,8 @@ public class ExprDatetimeValue extends AbstractExprValue {
   @Override
   public String value() {
     return String.format("%s %s", DateTimeFormatter.ISO_DATE.format(datetime),
-        DateTimeFormatter.ISO_TIME.format(datetime));
+        DateTimeFormatter.ISO_TIME.format((datetime.getNano() == 0)
+            ? datetime.truncatedTo(ChronoUnit.SECONDS) : datetime));
   }
 
   @Override

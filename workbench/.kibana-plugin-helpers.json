@@ -1,0 +1,11 @@
+{
+  "serverSourcePatterns": [
+    "package.json",
+    "tsconfig.json",
+    "yarn.lock",
+    ".yarnrc",
+    "index.js",
+    "{lib,public,server,test}/**/*",
+    "!__tests__"
+  ]
+}

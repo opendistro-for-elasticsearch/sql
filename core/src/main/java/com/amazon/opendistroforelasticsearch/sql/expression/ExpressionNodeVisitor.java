@@ -18,6 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
 
 /**
@@ -60,7 +62,7 @@ public abstract class ExpressionNodeVisitor<T, C> {
   }
 
   public T visitNamed(NamedExpression node, C context) {
-    return visitNode(node, context);
+    return node.getDelegated().accept(this, context);
   }
 
   public T visitReference(ReferenceExpression node, C context) {
@@ -78,4 +80,19 @@ public abstract class ExpressionNodeVisitor<T, C> {
   public T visitNamedAggregator(NamedAggregator node, C context) {
     return visitChildren(node, context);
   }
+
+  /**
+   * Call visitFunction() by default rather than visitChildren().
+   * This makes CASE/WHEN able to be handled:
+   *  1) by visitFunction() if not overwritten: ex. FilterQueryBuilder
+   *  2) by visitCase/When() otherwise if any special logic: ex. ExprReferenceOptimizer
+   */
+  public T visitCase(CaseClause node, C context) {
+    return visitFunction(node, context);
+  }
+
+  public T visitWhen(WhenClause node, C context) {
+    return visitFunction(node, context);
+  }
+
 }

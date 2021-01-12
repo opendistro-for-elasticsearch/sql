@@ -3,7 +3,7 @@ name: Build and Release SQL-JDBC
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   Release-SQL-JDBC:
@@ -33,7 +33,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
 
-      - name: Build
+      - name: Run build
         run: |
           ./gradlew publishShadowPublicationToInternal-releasesRepository '-Dorg.gradle.jvmargs=--add-modules java.xml.bind' -Dbuild.snapshot=false
 

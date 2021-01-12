@@ -20,27 +20,39 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_BINARY;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_GEO_POINT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_IP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.STRICT_HOUR_MINUTE_SECOND_FORMATTER;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -72,6 +84,7 @@ public class ElasticsearchExprValueFactory {
       new DateTimeFormatterBuilder()
           .appendOptional(SQL_LITERAL_DATE_TIME_FORMAT)
           .appendOptional(STRICT_DATE_OPTIONAL_TIME_FORMATTER)
+          .appendOptional(STRICT_HOUR_MINUTE_SECOND_FORMATTER)
           .toFormatter();
 
   private static final String TOP_PATH = "";
@@ -103,6 +116,10 @@ public class ElasticsearchExprValueFactory {
       return constructInteger(value.intValue());
     } else if (type.equals(LONG)) {
       return constructLong(value.longValue());
+    } else if (type.equals(SHORT)) {
+      return constructShort(value.shortValue());
+    } else if (type.equals(BYTE)) {
+      return constructByte(((byte)value.shortValue()));
     } else if (type.equals(FLOAT)) {
       return constructFloat(value.floatValue());
     } else if (type.equals(DOUBLE)) {
@@ -130,6 +147,8 @@ public class ElasticsearchExprValueFactory {
     } else if (type.equals(ES_GEO_POINT)) {
       return new ElasticsearchExprGeoPointValue(value.get("lat").doubleValue(),
           value.get("lon").doubleValue());
+    } else if (type.equals(ES_BINARY)) {
+      return new ElasticsearchExprBinaryValue(value.textValue());
     } else {
       throw new IllegalStateException(
           String.format(
@@ -164,14 +183,22 @@ public class ElasticsearchExprValueFactory {
       return constructString((String) value);
     } else if (type.equals(BOOLEAN)) {
       return constructBoolean((Boolean) value);
-    } else if (type.equals(TIMESTAMP)) {
+    } else if (type.equals(TIMESTAMP) || type.equals(DATE) || type.equals(TIME)
+            || type.equals(DATETIME)) {
+      ExprValue exprValue;
       if (value instanceof Number) {
-        return constructTimestamp((Long) value);
+        exprValue = constructTimestamp(((Number) value).longValue());
       } else if (value instanceof Instant) {
-        return constructTimestamp((Instant) value);
+        exprValue = constructTimestamp((Instant) value);
       } else {
-        return constructTimestamp(String.valueOf(value));
+        exprValue = constructTimestamp(String.valueOf(value));
       }
+      if (type.equals(DATE)) {
+        return new ExprDateValue(exprValue.dateValue().toString());
+      } else if (type.equals(TIME)) {
+        return new ExprTimeValue(exprValue.timeValue().toString());
+      }
+      return exprValue;
     } else if (type.equals(ES_TEXT)) {
       return new ElasticsearchExprTextValue((String) value);
     } else if (type.equals(ES_TEXT_KEYWORD)) {
@@ -209,6 +236,14 @@ public class ElasticsearchExprValueFactory {
 
   private ExprLongValue constructLong(Long value) {
     return new ExprLongValue(value);
+  }
+
+  private ExprShortValue constructShort(Short value) {
+    return new ExprShortValue(value);
+  }
+
+  private ExprByteValue constructByte(Byte value) {
+    return new ExprByteValue(value);
   }
 
   private ExprFloatValue constructFloat(Float value) {

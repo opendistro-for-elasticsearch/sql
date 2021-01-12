@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
@@ -38,16 +39,26 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   public void init() throws Exception {
     super.init();
     TestUtils.enableNewQueryEngine(client());
+    loadIndex(Index.BANK);
+  }
+
+  @Test
+  public void testPI() throws IOException {
+    JSONObject result =
+            executeQuery(String.format("SELECT PI() FROM %s HAVING (COUNT(1) > 0)",TEST_INDEX_BANK) );
+    verifySchema(result,
+            schema("PI()", null, "double"));
+    verifyDataRows(result, rows(3.141592653589793));
   }
 
   @Test
   public void testConv() throws IOException {
     JSONObject result = executeQuery("select conv(11, 10, 16)");
-    verifySchema(result, schema("conv(11, 10, 16)", null, "string"));
+    verifySchema(result, schema("conv(11, 10, 16)", null, "keyword"));
     verifyDataRows(result, rows("b"));
 
     result = executeQuery("select conv(11, 16, 10)");
-    verifySchema(result, schema("conv(11, 16, 10)", null, "string"));
+    verifySchema(result, schema("conv(11, 16, 10)", null, "keyword"));
     verifyDataRows(result, rows("17"));
   }
 
@@ -101,6 +112,14 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     result = executeQuery("select round(-56, -1)");
     verifySchema(result, schema("round(-56, -1)", null, "long"));
     verifyDataRows(result, rows(-60));
+
+    result = executeQuery("select round(3.5)");
+    verifySchema(result, schema("round(3.5)", null, "double"));
+    verifyDataRows(result, rows(4.0));
+
+    result = executeQuery("select round(-3.5)");
+    verifySchema(result, schema("round(-3.5)", null, "double"));
+    verifyDataRows(result, rows(-4.0));
   }
 
   /**

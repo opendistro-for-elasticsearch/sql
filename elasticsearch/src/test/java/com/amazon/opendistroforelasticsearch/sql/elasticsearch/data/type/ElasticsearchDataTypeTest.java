@@ -41,4 +41,10 @@ class ElasticsearchDataTypeTest {
     assertEquals("string", ES_TEXT.typeName());
     assertEquals("string", ES_TEXT_KEYWORD.typeName());
   }
+
+  @Test
+  public void legacyTypeName() {
+    assertEquals("text", ES_TEXT.legacyTypeName());
+    assertEquals("text", ES_TEXT_KEYWORD.legacyTypeName());
+  }
 }

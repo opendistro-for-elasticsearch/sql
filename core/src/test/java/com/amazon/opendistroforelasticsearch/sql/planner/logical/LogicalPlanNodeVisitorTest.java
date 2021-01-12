@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.stream.Collectors;
@@ -52,17 +53,19 @@ class LogicalPlanNodeVisitorTest {
     LogicalPlan logicalPlan =
         LogicalPlanDSL.rename(
             LogicalPlanDSL.aggregation(
-                LogicalPlanDSL.rareTopN(
-                    LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
-                    CommandType.TOP,
-                    ImmutableList.of(expression),
-                    expression),
+                LogicalPlanDSL.head(
+                    LogicalPlanDSL.rareTopN(
+                        LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
+                        CommandType.TOP,
+                        ImmutableList.of(expression),
+                        expression),
+                    false, expression, 10),
                 ImmutableList.of(DSL.named("avg", aggregator)),
                 ImmutableList.of(DSL.named("group", expression))),
             ImmutableMap.of(ref, ref));
 
     Integer result = logicalPlan.accept(new NodesCount(), null);
-    assertEquals(5, result);
+    assertEquals(6, result);
   }
 
   @Test
@@ -73,6 +76,10 @@ class LogicalPlanNodeVisitorTest {
 
     LogicalPlan filter = LogicalPlanDSL.filter(relation, expression);
     assertNull(filter.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    LogicalPlan head = LogicalPlanDSL.head(relation, false, expression, 10);
+    assertNull(head.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     LogicalPlan aggregation =
@@ -98,12 +105,18 @@ class LogicalPlanNodeVisitorTest {
     assertNull(eval.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    LogicalPlan sort = LogicalPlanDSL.sort(relation, 100, Pair.of(SortOption.PPL_ASC, expression));
+    LogicalPlan sort = LogicalPlanDSL.sort(relation,
+        Pair.of(SortOption.DEFAULT_ASC, expression));
     assertNull(sort.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     LogicalPlan dedup = LogicalPlanDSL.dedupe(relation, 1, false, false, expression);
     assertNull(dedup.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    LogicalPlan window = LogicalPlanDSL.window(relation, named(expression), new WindowDefinition(
+        ImmutableList.of(ref), ImmutableList.of(Pair.of(SortOption.DEFAULT_ASC, expression))));
+    assertNull(window.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     LogicalPlan rareTopN = LogicalPlanDSL.rareTopN(
@@ -120,6 +133,14 @@ class LogicalPlanNodeVisitorTest {
 
     @Override
     public Integer visitFilter(LogicalFilter plan, Object context) {
+      return 1
+          + plan.getChild().stream()
+          .map(child -> child.accept(this, context))
+          .collect(Collectors.summingInt(Integer::intValue));
+    }
+
+    @Override
+    public Integer visitHead(LogicalHead plan, Object context) {
       return 1
           + plan.getChild().stream()
           .map(child -> child.accept(this, context))

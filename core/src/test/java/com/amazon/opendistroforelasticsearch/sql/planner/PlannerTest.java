@@ -19,20 +19,25 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.D
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
+import com.amazon.opendistroforelasticsearch.sql.planner.optimizer.LogicalPlanOptimizer;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanTestBase;
@@ -57,6 +62,9 @@ public class PlannerTest extends PhysicalPlanTestBase {
   @Mock
   private StorageEngine storageEngine;
 
+  @Mock
+  private LogicalPlanOptimizer optimizer;
+
   @BeforeEach
   public void setUp() {
     when(storageEngine.getTable(any())).thenReturn(new MockTable());
@@ -64,6 +72,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
 
   @Test
   public void planner_test() {
+    doAnswer(returnsFirstArg()).when(optimizer).optimize(any());
     assertPhysicalPlan(
         PhysicalPlanDSL.rename(
             PhysicalPlanDSL.agg(
@@ -116,7 +125,7 @@ public class PlannerTest extends PhysicalPlanTestBase {
   }
 
   protected PhysicalPlan analyze(LogicalPlan logicalPlan) {
-    return new Planner(storageEngine).plan(logicalPlan);
+    return new Planner(storageEngine, optimizer).plan(logicalPlan);
   }
 
   protected class MockTable extends LogicalPlanNodeVisitor<PhysicalPlan, Object> implements Table {

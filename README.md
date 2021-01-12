@@ -1,4 +1,6 @@
+
 [![Test and Build Workflow](https://github.com/opendistro-for-elasticsearch/sql/workflows/Java%20CI/badge.svg)](https://github.com/opendistro-for-elasticsearch/sql/actions)
+[![codecov](https://codecov.io/gh/opendistro-for-elasticsearch/sql/branch/develop/graph/badge.svg)](https://codecov.io/gh/opendistro-for-elasticsearch/sql)
 [![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/endpoints/)
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/sql/)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
@@ -16,12 +18,33 @@ The following projects have been merged into this repository as separate folders
 * [SQL CLI](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-cli)
 * [SQL JDBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-jdbc)
 * [SQL ODBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc)
-* [SQL Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-workbench)
+* [SQL Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench)
 
 
 ## Documentation
 
-Please refer to the [reference manual](./docs/user/index.rst) and [technical documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!
+Please refer to the [SQL Language Reference Manual](./docs/user/index.rst), [Piped Processing Language (PPL) Reference Manual](./docs/experiment/ppl/index.rst) and [Technical Documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!
+
+
+## Experimental
+
+Recently we have been actively improving our query engine primarily for better correctness and extensibility. The new enhanced query engine has been already supporting the new released Piped Processing Language query processing behind the scene. Meanwhile, the integration with SQL language is also under way. To try out the power of the new query engine with SQL, simply run the command to enable it by [plugin setting](https://github.com/opendistro-for-elasticsearch/sql/blob/develop/docs/user/admin/settings.rst#opendistro-sql-engine-new-enabled). In future release, this will be enabled by default and nothing required to do from your side. Please stay tuned for updates on our progress and its new exciting features.
+
+Here is a documentation list with features only available in this improved SQL query engine. Please follow the instruction above to enable it before trying out example queries in these docs:
+
+* [Identifiers](./docs/user/general/identifiers.rst): support for identifier names with special characters
+* [Data types](./docs/user/general/datatypes.rst): new data types such as date time and interval
+* [Expressions](./docs/user/dql/expressions.rst): new expression system that can represent and evaluate complex expressions
+* [SQL functions](./docs/user/dql/functions.rst): many more string and date functions added
+* [Basic queries](./docs/user/dql/basics.rst)
+    * Ordering by Aggregate Functions section
+    * NULLS FIRST/LAST in section Specifying Order for Null
+* [Aggregations](./docs/user/dql/aggregations.rst): aggregation over expression and more other features
+* [Complex queries](./docs/user/dql/complex.rst)
+    * Improvement on Subqueries in FROM clause
+* [Window functions](./docs/user/dql/window.rst): ranking and aggregate window function support
+
+To avoid impact on your side, normally you won't see any difference in query response. If you want to check if and why your query falls back to be handled by old SQL engine, please explain your query and check Elasticsearch log for "Request is falling back to old SQL engine due to ...".
 
 
 ## Setup
@@ -36,7 +59,7 @@ After doing this, you need to restart the Elasticsearch server. Otherwise you ma
 The package uses the [Gradle](https://docs.gradle.org/4.10.2/userguide/userguide.html) build system.
 
 1. Checkout this package from version control.
-2. To build from command line set `JAVA_HOME` to point to a JDK >=12
+2. To build from command line set `JAVA_HOME` to point to a JDK >=14
 3. Run `./gradlew build`
 
 
@@ -106,7 +129,15 @@ curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin -k -d '{"quer
 
 * Nested Field
 
-        SELECT address FROM bank b, b.nestedField e WHERE b.state = 'WA' and e.name = 'test'
+	+ 
+        
+			SELECT address FROM bank b, b.nestedField e WHERE b.state = 'WA' and e.name = 'test'
+	 
+	+ 
+			SELECT address, nested(nestedField.name)
+			FROM bank
+			WHERE nested(nestedField, nestedField.state = 'WA' AND nestedField.name = 'test')
+			   OR nested(nestedField.state) = 'CA'
 
 * Aggregations
 

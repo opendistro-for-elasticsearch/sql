@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import org.elasticsearch.client.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -292,6 +293,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void testSizeAndTotal() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
@@ -334,6 +336,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     }
   }
 
+  @Ignore("In MySQL and our new engine, the original text in SELECT is used as final column name")
   @Test
   public void aggregationFunctionInSelectCaseCheck() throws IOException {
     JSONObject response = executeQuery(
@@ -354,6 +357,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void aggregationFunctionInSelectWithAlias() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
+
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT COUNT(*) AS total FROM %s GROUP BY age",
             TestsConstants.TEST_INDEX_ACCOUNT));

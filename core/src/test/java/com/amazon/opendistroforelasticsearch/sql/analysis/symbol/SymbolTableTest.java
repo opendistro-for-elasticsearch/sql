@@ -31,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
@@ -79,10 +80,11 @@ public class SymbolTableTest {
   }
 
   @Test
-  public void lookupAllFieldsReturnFieldsWithoutDot() {
+  public void lookupAllFieldsReturnUnnestedFields() {
     symbolTable.store(new Symbol(Namespace.FIELD_NAME, "active"), BOOLEAN);
-    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.address"), STRING);
-    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.manager.name"), STRING);
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "active.manager"), STRING);
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "active.manager.name"), STRING);
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.address"), BOOLEAN);
 
     Map<String, ExprType> typeByName =
         symbolTable.lookupAllFields(Namespace.FIELD_NAME);
@@ -90,8 +92,9 @@ public class SymbolTableTest {
     assertThat(
         typeByName,
         allOf(
-            aMapWithSize(1),
-            hasEntry("active", BOOLEAN)
+            aMapWithSize(2),
+            hasEntry("active", BOOLEAN),
+            hasEntry("s.address", BOOLEAN)
         )
     );
   }

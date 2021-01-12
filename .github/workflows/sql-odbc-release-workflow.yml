@@ -96,8 +96,10 @@ jobs:
         working-directory: sql-odbc
     steps:
       - uses: actions/checkout@v1
+      - name: Get specific version CMake, v3.18.3
+        uses: lukka/get-cmake@v3.18.3
       - name: add-msbuild-to-path
-        uses: microsoft/setup-msbuild@v1.0.0
+        uses: microsoft/setup-msbuild@v1.0.2
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -149,8 +151,10 @@ jobs:
         working-directory: sql-odbc
     steps:
       - uses: actions/checkout@v1
+      - name: Get specific version CMake, v3.18.3
+        uses: lukka/get-cmake@v3.18.3
       - name: add-msbuild-to-path
-        uses: microsoft/setup-msbuild@v1.0.0
+        uses: microsoft/setup-msbuild@v1.0.2
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

@@ -17,12 +17,16 @@ package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -59,6 +63,24 @@ class CountAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void count_date_field_expression() {
+    ExprValue result = aggregation(dsl.count(DSL.ref("date_value", DATE)), tuples);
+    assertEquals(4, result.value());
+  }
+
+  @Test
+  public void count_timestamp_field_expression() {
+    ExprValue result = aggregation(dsl.count(DSL.ref("timestamp_value", TIMESTAMP)), tuples);
+    assertEquals(4, result.value());
+  }
+
+  @Test
+  public void count_datetime_field_expression() {
+    ExprValue result = aggregation(dsl.count(DSL.ref("datetime_value", DATETIME)), tuples);
+    assertEquals(4, result.value());
+  }
+
+  @Test
   public void count_arithmetic_expression() {
     ExprValue result = aggregation(dsl.count(
         dsl.multiply(DSL.ref("integer_value", INTEGER),
@@ -91,6 +113,13 @@ class CountAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void filtered_count() {
+    ExprValue result = aggregation(dsl.count(DSL.ref("integer_value", INTEGER))
+        .condition(dsl.greater(DSL.ref("integer_value", INTEGER), DSL.literal(1))), tuples);
+    assertEquals(3, result.value());
+  }
+
+  @Test
   public void count_with_missing() {
     ExprValue result = aggregation(dsl.count(DSL.ref("integer_value", INTEGER)),
         tuples_with_null_and_missing);
@@ -102,6 +131,18 @@ class CountAggregatorTest extends AggregationTest {
     ExprValue result = aggregation(dsl.count(DSL.ref("double_value", DOUBLE)),
         tuples_with_null_and_missing);
     assertEquals(2, result.value());
+  }
+
+  @Test
+  public void count_star_with_null_and_missing() {
+    ExprValue result = aggregation(dsl.count(DSL.literal("*")), tuples_with_null_and_missing);
+    assertEquals(3, result.value());
+  }
+
+  @Test
+  public void count_literal_with_null_and_missing() {
+    ExprValue result = aggregation(dsl.count(DSL.literal(1)), tuples_with_null_and_missing);
+    assertEquals(3, result.value());
   }
 
   @Test

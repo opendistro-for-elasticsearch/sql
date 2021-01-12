@@ -17,8 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -26,31 +29,38 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.When;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.WindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Limit;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import java.util.Arrays;
 import java.util.List;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Class of static methods to create specific node instances.
@@ -119,6 +129,10 @@ public class AstDSL {
     return new UnresolvedAttribute(attr);
   }
 
+  public static UnresolvedPlan relationSubquery(UnresolvedPlan subquery, String subqueryAlias) {
+    return new RelationSubquery(subquery, subqueryAlias);
+  }
+
   private static Literal literal(Object value, DataType type) {
     return new Literal(value, type);
   }
@@ -180,8 +194,52 @@ public class AstDSL {
     return new AggregateFunction(func, field, Arrays.asList(args));
   }
 
-  public static UnresolvedExpression function(String funcName, UnresolvedExpression... funcArgs) {
+  public static UnresolvedExpression filteredAggregate(
+      String func, UnresolvedExpression field, UnresolvedExpression condition) {
+    return new AggregateFunction(func, field, condition);
+  }
+
+  public static Function function(String funcName, UnresolvedExpression... funcArgs) {
     return new Function(funcName, Arrays.asList(funcArgs));
+  }
+
+  /**
+   * CASE
+   *     WHEN search_condition THEN result_expr
+   *     [WHEN search_condition THEN result_expr] ...
+   *     [ELSE result_expr]
+   * END
+   */
+  public UnresolvedExpression caseWhen(UnresolvedExpression elseClause,
+                                       When... whenClauses) {
+    return caseWhen(null, elseClause, whenClauses);
+  }
+
+  /**
+   * CASE case_value_expr
+   *     WHEN compare_expr THEN result_expr
+   *     [WHEN compare_expr THEN result_expr] ...
+   *     [ELSE result_expr]
+   * END
+   */
+  public UnresolvedExpression caseWhen(UnresolvedExpression caseValueExpr,
+                                       UnresolvedExpression elseClause,
+                                       When... whenClauses) {
+    return new Case(caseValueExpr, Arrays.asList(whenClauses), elseClause);
+  }
+
+  public UnresolvedExpression cast(UnresolvedExpression expr, Literal type) {
+    return new Cast(expr, type);
+  }
+
+  public When when(UnresolvedExpression condition, UnresolvedExpression result) {
+    return new When(condition, result);
+  }
+
+  public UnresolvedExpression window(UnresolvedExpression function,
+                                     List<UnresolvedExpression> partitionByList,
+                                     List<Pair<SortOption, UnresolvedExpression>> sortList) {
+    return new WindowFunction(function, partitionByList, sortList);
   }
 
   public static UnresolvedExpression not(UnresolvedExpression expression) {
@@ -214,27 +272,35 @@ public class AstDSL {
     return new Argument(argName, argValue);
   }
 
-  public static UnresolvedExpression field(UnresolvedExpression field) {
+  public static UnresolvedArgument unresolvedArg(String argName, UnresolvedExpression argValue) {
+    return new UnresolvedArgument(argName, argValue);
+  }
+
+  public AllFields allFields() {
+    return AllFields.of();
+  }
+
+  public Field field(UnresolvedExpression field) {
     return new Field((QualifiedName) field);
   }
 
-  public static Field field(String field) {
+  public Field field(String field) {
     return new Field(field);
   }
 
-  public static UnresolvedExpression field(UnresolvedExpression field, Argument... fieldArgs) {
-    return new Field((QualifiedName) field, Arrays.asList(fieldArgs));
-  }
-
-  public static Field field(String field, Argument... fieldArgs) {
+  public Field field(UnresolvedExpression field, Argument... fieldArgs) {
     return new Field(field, Arrays.asList(fieldArgs));
   }
 
-  public static UnresolvedExpression field(UnresolvedExpression field, List<Argument> fieldArgs) {
-    return new Field((QualifiedName) field, fieldArgs);
+  public Field field(String field, Argument... fieldArgs) {
+    return new Field(field, Arrays.asList(fieldArgs));
   }
 
-  public static Field field(String field, List<Argument> fieldArgs) {
+  public Field field(UnresolvedExpression field, List<Argument> fieldArgs) {
+    return new Field(field, fieldArgs);
+  }
+
+  public Field field(String field, List<Argument> fieldArgs) {
     return new Field(field, fieldArgs);
   }
 
@@ -251,6 +317,10 @@ public class AstDSL {
   }
 
   public static List<Argument> exprList(Argument... exprList) {
+    return Arrays.asList(exprList);
+  }
+
+  public static List<UnresolvedArgument> unresolvedArgList(UnresolvedArgument... exprList) {
     return Arrays.asList(exprList);
   }
 
@@ -279,24 +349,34 @@ public class AstDSL {
         argument("consecutive", booleanLiteral(false)));
   }
 
-  public static List<Argument> defaultSortOptions() {
-    return exprList(argument("count", intLiteral(1000)), argument("desc", booleanLiteral(false)));
-  }
-
-  public static List<Argument> sortOptions(int count) {
-    return exprList(argument("count", intLiteral(count)), argument("desc", booleanLiteral(false)));
+  public static List<Argument> sortOptions() {
+    return exprList(argument("desc", booleanLiteral(false)));
   }
 
   public static List<Argument> defaultSortFieldArgs() {
     return exprList(argument("asc", booleanLiteral(true)), argument("type", nullLiteral()));
   }
 
-  public static Sort sort(UnresolvedPlan input, List<Argument> options, Field... sorts) {
-    return new Sort(input, options, Arrays.asList(sorts));
+  public static Sort sort(UnresolvedPlan input, Field... sorts) {
+    return new Sort(input, Arrays.asList(sorts));
   }
 
   public static Dedupe dedupe(UnresolvedPlan input, List<Argument> options, Field... fields) {
     return new Dedupe(input, options, Arrays.asList(fields));
+  }
+
+  public static Head head(UnresolvedPlan input, List<UnresolvedArgument> options) {
+    return new Head(input, options);
+  }
+
+  /**
+   * Default Head Command Args.
+   */
+  public static List<UnresolvedArgument> defaultHeadArgs() {
+    return unresolvedArgList(
+            unresolvedArg("keeplast", booleanLiteral(true)),
+            unresolvedArg("whileExpr", booleanLiteral(true)),
+            unresolvedArg("number", intLiteral(10)));
   }
 
   public static List<Argument> defaultTopArgs() {
@@ -307,5 +387,9 @@ public class AstDSL {
       List<Argument> noOfResults, List<UnresolvedExpression> groupList, Field... fields) {
     return new RareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupList)
         .attach(input);
+  }
+
+  public static Limit limit(UnresolvedPlan input, Integer limit, Integer offset) {
+    return new Limit(limit, offset).attach(input);
   }
 }

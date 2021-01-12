@@ -18,11 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.google.common.base.Objects;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -34,7 +33,11 @@ public class ExprCollectionValue extends AbstractExprValue {
 
   @Override
   public Object value() {
-    return valueList;
+    List<Object> results = new ArrayList<>();
+    for (ExprValue exprValue : valueList) {
+      results.add(exprValue.value());
+    }
+    return results;
   }
 
   @Override

@@ -20,6 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregat
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
@@ -29,10 +31,13 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalValues;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalWindow;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
@@ -40,6 +45,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.WindowOperator;
 
 /**
  * Default implementor for implementing logical to physical translation. "Default" here means all
@@ -75,8 +81,25 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   }
 
   @Override
+  public PhysicalPlan visitHead(LogicalHead node, C context) {
+    return new HeadOperator(
+            visitChild(node, context),
+            node.getKeeplast(),
+            node.getWhileExpr(),
+            node.getNumber());
+  }
+
+  @Override
   public PhysicalPlan visitProject(LogicalProject node, C context) {
     return new ProjectOperator(visitChild(node, context), node.getProjectList());
+  }
+
+  @Override
+  public PhysicalPlan visitWindow(LogicalWindow node, C context) {
+    return new WindowOperator(
+        visitChild(node, context),
+        node.getWindowFunction(),
+        node.getWindowDefinition());
   }
 
   @Override
@@ -91,7 +114,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
 
   @Override
   public PhysicalPlan visitSort(LogicalSort node, C context) {
-    return new SortOperator(visitChild(node, context), node.getCount(), node.getSortList());
+    return new SortOperator(visitChild(node, context), node.getSortList());
   }
 
   @Override
@@ -113,6 +136,11 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   @Override
   public PhysicalPlan visitValues(LogicalValues node, C context) {
     return new ValuesOperator(node.getValues());
+  }
+
+  @Override
+  public PhysicalPlan visitLimit(LogicalLimit node, C context) {
+    return new LimitOperator(visitChild(node, context), node.getLimit(), node.getOffset());
   }
 
   @Override

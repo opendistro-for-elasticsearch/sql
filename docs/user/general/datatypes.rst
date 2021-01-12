@@ -23,6 +23,10 @@ The ODFE SQL Engine support the following data types.
 +===============+
 | boolean       |
 +---------------+
+| byte          |
++---------------+
+| short         |
++---------------+
 | integer       |
 +---------------+
 | long          |
@@ -49,6 +53,8 @@ The ODFE SQL Engine support the following data types.
 +---------------+
 | geo_point     |
 +---------------+
+| binary        |
++---------------+
 | struct        |
 +---------------+
 | array         |
@@ -64,13 +70,19 @@ The table below list the mapping between Elasticsearch Data Type, ODFE SQL Data 
 +====================+===============+===========+
 | boolean            | boolean       | BOOLEAN   |
 +--------------------+---------------+-----------+
+| byte               | byte          | TINYINT   |
++--------------------+---------------+-----------+
+| short              | byte          | SMALLINT  |
++--------------------+---------------+-----------+
 | integer            | integer       | INTEGER   |
 +--------------------+---------------+-----------+
-| long               | long          | LONG      |
+| long               | long          | BIGINT    |
 +--------------------+---------------+-----------+
-| float              | float         | FLOAT     |
+| float              | float         | REAL      |
 +--------------------+---------------+-----------+
 | half_float         | float         | FLOAT     |
++--------------------+---------------+-----------+
+| scaled_float       | float         | DOUBLE    |
 +--------------------+---------------+-----------+
 | double             | double        | DOUBLE    |
 +--------------------+---------------+-----------+
@@ -80,13 +92,15 @@ The table below list the mapping between Elasticsearch Data Type, ODFE SQL Data 
 +--------------------+---------------+-----------+
 | date               | timestamp     | TIMESTAMP |
 +--------------------+---------------+-----------+
-| ip                 | ip            | IP        |
+| ip                 | ip            | VARCHAR   |
 +--------------------+---------------+-----------+
 | date               | timestamp     | TIMESTAMP |
 +--------------------+---------------+-----------+
+| binary             | binary        | VARBINARY |
++--------------------+---------------+-----------+
 | object             | struct        | STRUCT    |
 +--------------------+---------------+-----------+
-| nested             | array         | TBD       |
+| nested             | array         | STRUCT    |
 +--------------------+---------------+-----------+
 
 Notes: Not all the ODFE SQL Type has correspond Elasticsearch Type. e.g. data and time. To use function which required such data type, user should explict convert the data type.
@@ -208,7 +222,16 @@ Conversion from TIMESTAMP
 String Data Types
 =================
 
-TODO
+A string is a sequence of characters enclosed in either single or double quotes. For example, both 'text' and "text" will be treated as string literal. To use quote characters in a string literal, you can include double quotes within single quoted string or single quotes within double quoted string::
+
+    od> SELECT 'hello', "world", '"hello"', "'world'"
+    fetched rows / total rows = 1/1
+    +-----------+-----------+-------------+-------------+
+    | 'hello'   | "world"   | '"hello"'   | "'world'"   |
+    |-----------+-----------+-------------+-------------|
+    | hello     | world     | "hello"     | 'world'     |
+    +-----------+-----------+-------------+-------------+
+
 
 
 

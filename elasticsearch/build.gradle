@@ -28,6 +28,7 @@ test {
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat "full"
     }
 }
 
@@ -37,6 +38,7 @@ jacoco {
 jacocoTestReport {
     reports {
         html.enabled true
+        xml.enabled true
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
@@ -54,9 +56,13 @@ jacocoTestCoverageVerification {
                     'com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess'
             ]
             limit {
+                counter = 'LINE'
                 minimum = 1.0
             }
-
+            limit {
+                counter = 'BRANCH'
+                minimum = 1.0
+            }
         }
     }
     afterEvaluate {

@@ -28,12 +28,16 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.google.common.base.Strings;
+import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.hamcrest.Description;
@@ -44,6 +48,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MatcherUtils {
+
+  private static final Logger LOG = LogManager.getLogger();
 
   /**
    * Assert field value in object by a custom matcher and getter to access the field.
@@ -134,7 +140,12 @@ public class MatcherUtils {
 
   @SafeVarargs
   public static void verifySchema(JSONObject response, Matcher<JSONObject>... matchers) {
-    verify(response.getJSONArray("schema"), matchers);
+    try {
+      verify(response.getJSONArray("schema"), matchers);
+    } catch (Exception e) {
+      LOG.error(String.format("verify schema failed, response: %s", response.toString()), e);
+      throw e;
+    }
   }
 
   @SafeVarargs
@@ -215,8 +226,7 @@ public class MatcherUtils {
         String actualAlias = (String) jsonObject.query("/alias");
         String actualType = (String) jsonObject.query("/type");
         return expectedName.equals(actualName) &&
-            (Strings.isNullOrEmpty(actualAlias) && Strings.isNullOrEmpty(expectedAlias) ||
-                expectedAlias.equals(actualAlias)) &&
+            (Strings.isNullOrEmpty(expectedAlias) || expectedAlias.equals(actualAlias)) &&
             expectedType.equals(actualType);
       }
     };
@@ -352,5 +362,17 @@ public class MatcherUtils {
     public static Matcher<String> equalToIgnoreCaseAndWhiteSpace(String expectedString) {
       return new IsEqualIgnoreCaseAndWhiteSpace(expectedString);
     }
+  }
+
+  /**
+   * Compare two JSON string are equals.
+   * @param expected expected JSON string.
+   * @param actual actual JSON string.
+   */
+  public static void assertJsonEquals(String expected, String actual) {
+    assertEquals(
+        JsonParser.parseString(expected),
+        JsonParser.parseString(actual)
+    );
   }
 }

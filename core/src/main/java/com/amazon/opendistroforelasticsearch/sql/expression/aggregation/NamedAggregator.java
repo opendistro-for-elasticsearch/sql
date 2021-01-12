@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.base.Strings;
@@ -29,8 +30,7 @@ import lombok.ToString;
  * Please see more details in associated unresolved expression operator
  * {@link com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias}.
  */
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(callSuper = false)
 public class NamedAggregator extends Aggregator<AggregationState> {
 
   /**
@@ -41,6 +41,7 @@ public class NamedAggregator extends Aggregator<AggregationState> {
   /**
    * Aggregator that being named.
    */
+  @Getter
   private final Aggregator<AggregationState> delegated;
 
   /**
@@ -63,8 +64,8 @@ public class NamedAggregator extends Aggregator<AggregationState> {
   }
 
   @Override
-  public AggregationState iterate(BindingTuple tuple, AggregationState state) {
-    return delegated.iterate(tuple, state);
+  protected AggregationState iterate(ExprValue value, AggregationState state) {
+    return delegated.iterate(value, state);
   }
 
   /**
@@ -79,4 +80,10 @@ public class NamedAggregator extends Aggregator<AggregationState> {
   public <T, C> T accept(ExpressionNodeVisitor<T, C> visitor, C context) {
     return visitor.visitNamedAggregator(this, context);
   }
+
+  @Override
+  public String toString() {
+    return getName();
+  }
+
 }

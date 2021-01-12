@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient.META_CLUSTER_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,15 +41,21 @@ import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.admin.cluster.settings.ClusterGetSettingsResponse;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.client.indices.GetMappingsRequest;
 import org.elasticsearch.client.indices.GetMappingsResponse;
 import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
@@ -76,6 +83,9 @@ class ElasticsearchRestClientTest {
 
   @Mock
   private SearchHit searchHit;
+
+  @Mock
+  private GetIndexResponse getIndexResponse;
 
   private ExprTupleValue exprTupleValue = ExprTupleValue.fromExprValueMap(ImmutableMap.of("id",
       new ExprIntegerValue(1)));
@@ -230,6 +240,43 @@ class ElasticsearchRestClientTest {
     ElasticsearchScrollRequest request = new ElasticsearchScrollRequest("test", factory);
     request.setScrollId("scroll123");
     assertThrows(IllegalStateException.class, () -> client.cleanup(request));
+  }
+
+  @Test
+  void getIndices() throws IOException {
+    when(restClient.indices().get(any(GetIndexRequest.class), any(RequestOptions.class)))
+        .thenReturn(getIndexResponse);
+    when(getIndexResponse.getIndices()).thenReturn(new String[] {"index"});
+
+    final List<String> indices = client.indices();
+    assertFalse(indices.isEmpty());
+  }
+
+  @Test
+  void getIndicesWithIOException() throws IOException {
+    when(restClient.indices().get(any(GetIndexRequest.class), any(RequestOptions.class)))
+        .thenThrow(new IOException());
+    assertThrows(IllegalStateException.class, () -> client.indices());
+  }
+
+  @Test
+  void meta() throws IOException {
+    Settings defaultSettings = Settings.builder().build();
+    ClusterGetSettingsResponse settingsResponse = mock(ClusterGetSettingsResponse.class);
+    when(restClient.cluster().getSettings(any(), any(RequestOptions.class)))
+        .thenReturn(settingsResponse);
+    when(settingsResponse.getDefaultSettings()).thenReturn(defaultSettings);
+
+    final Map<String, String> meta = client.meta();
+    assertEquals("elasticsearch", meta.get(META_CLUSTER_NAME));
+  }
+
+  @Test
+  void metaWithIOException() throws IOException {
+    when(restClient.cluster().getSettings(any(), any(RequestOptions.class)))
+        .thenThrow(new IOException());
+
+    assertThrows(IllegalStateException.class, () -> client.meta());
   }
 
   private Map<String, MappingMetadata> mockFieldMappings(String indexName, String mappings)

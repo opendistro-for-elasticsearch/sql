@@ -22,8 +22,11 @@ import com.amazon.opendistroforelasticsearch.sql.expression.datetime.IntervalCla
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic.ArithmeticFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic.MathematicalFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.operator.convert.TypeCastOperator;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate.BinaryPredicateOperator;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate.UnaryPredicateOperator;
+import com.amazon.opendistroforelasticsearch.sql.expression.text.TextFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFunctions;
 import java.util.HashMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,6 +50,9 @@ public class ExpressionConfig {
     AggregatorFunction.register(builtinFunctionRepository);
     DateTimeFunction.register(builtinFunctionRepository);
     IntervalClause.register(builtinFunctionRepository);
+    WindowFunctions.register(builtinFunctionRepository);
+    TextFunction.register(builtinFunctionRepository);
+    TypeCastOperator.register(builtinFunctionRepository);
     return builtinFunctionRepository;
   }
 

@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.aggregation.dsl;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.when;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.CountAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.MaxAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.MinAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.SumAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
@@ -108,14 +111,78 @@ class MetricAggregationBuilderTest {
   }
 
   @Test
+  void should_build_count_star_aggregation() {
+    assertEquals(
+        "{\n"
+            + "  \"count(*)\" : {\n"
+            + "    \"value_count\" : {\n"
+            + "      \"field\" : \"_index\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("count(*)",
+                    new CountAggregator(Arrays.asList(literal("*")), INTEGER)))));
+  }
+
+  @Test
+  void should_build_count_other_literal_aggregation() {
+    assertEquals(
+        "{\n"
+            + "  \"count(1)\" : {\n"
+            + "    \"value_count\" : {\n"
+            + "      \"field\" : \"_index\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("count(1)",
+                    new CountAggregator(Arrays.asList(literal(1)), INTEGER)))));
+  }
+
+  @Test
+  void should_build_min_aggregation() {
+    assertEquals(
+        "{\n"
+            + "  \"min(age)\" : {\n"
+            + "    \"min\" : {\n"
+            + "      \"field\" : \"age\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("min(age)",
+                    new MinAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)))));
+  }
+
+  @Test
+  void should_build_max_aggregation() {
+    assertEquals(
+        "{\n"
+            + "  \"max(age)\" : {\n"
+            + "    \"max\" : {\n"
+            + "      \"field\" : \"age\"\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(
+            Arrays.asList(
+                named("max(age)",
+                    new MaxAggregator(Arrays.asList(ref("age", INTEGER)), INTEGER)))));
+  }
+
+  @Test
   void should_throw_exception_for_unsupported_aggregator() {
-    when(aggregator.getFunctionName()).thenReturn(new FunctionName("max"));
+    when(aggregator.getFunctionName()).thenReturn(new FunctionName("unsupported_agg"));
     when(aggregator.getArguments()).thenReturn(Arrays.asList(ref("age", INTEGER)));
 
     IllegalStateException exception =
-        assertThrows(IllegalStateException.class, () -> buildQuery(Arrays.asList(named("count(age)",
-            aggregator))));
-    assertEquals("unsupported aggregator max", exception.getMessage());
+        assertThrows(IllegalStateException.class,
+            () -> buildQuery(Arrays.asList(named("unsupported_agg(age)", aggregator))));
+    assertEquals("unsupported aggregator unsupported_agg", exception.getMessage());
   }
 
   @Test
@@ -125,8 +192,7 @@ class MetricAggregationBuilderTest {
             named("count(age)",
                 new CountAggregator(Arrays.asList(named("age", ref("age", INTEGER))), INTEGER)))));
     assertEquals(
-        "metric aggregation doesn't support expression "
-            + "NamedExpression(name=age, delegated=age, alias=null)",
+        "metric aggregation doesn't support expression age",
         exception.getMessage());
   }
 

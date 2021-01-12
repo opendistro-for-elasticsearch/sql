@@ -2,7 +2,8 @@
   "bash": [
     "experiment/ppl/interfaces/endpoint.rst",
     "experiment/ppl/interfaces/protocol.rst",
-    "experiment/ppl/admin/settings.rst"
+    "experiment/ppl/admin/settings.rst",
+    "user/optimization/optimization.rst"
   ],
   "ppl_cli": [
     "experiment/ppl/cmd/dedup.rst",
@@ -12,13 +13,23 @@
     "experiment/ppl/cmd/search.rst",
     "experiment/ppl/cmd/sort.rst",
     "experiment/ppl/cmd/stats.rst",
-    "experiment/ppl/cmd/where.rst"
+    "experiment/ppl/cmd/where.rst",
+    "experiment/ppl/general/identifiers.rst",
+    "experiment/ppl/functions/math.rst",
+    "experiment/ppl/functions/datetime.rst",
+    "experiment/ppl/functions/string.rst",
+    "experiment/ppl/functions/condition.rst"
   ],
   "sql_cli": [
     "user/dql/expressions.rst",
+    "user/general/datatypes.rst",
     "user/general/identifiers.rst",
     "user/general/values.rst",
+    "user/dql/basics.rst",
     "user/dql/functions.rst",
-    "user/beyond/partiql.rst"
+    "user/dql/window.rst",
+    "user/beyond/partiql.rst",
+    "user/dql/aggregations.rst",
+    "user/dql/complex.rst"
   ]
 }

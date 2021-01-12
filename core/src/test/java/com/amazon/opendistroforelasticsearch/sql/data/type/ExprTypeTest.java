@@ -17,14 +17,17 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.type;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -51,5 +54,20 @@ class ExprTypeTest {
   @Test
   public void getParent() {
     assertThat(((ExprType) () -> "test").getParent(), Matchers.contains(UNKNOWN));
+  }
+
+  @Test
+  void legacyName() {
+    assertEquals("keyword", STRING.legacyTypeName());
+    assertEquals("nested", ARRAY.legacyTypeName());
+    assertEquals("object", STRUCT.legacyTypeName());
+    assertEquals("integer", INTEGER.legacyTypeName().toLowerCase());
+  }
+
+  // for test coverage.
+  @Test
+  void defaultLegacyTypeName() {
+    final ExprType exprType = () -> "dummy";
+    assertEquals("dummy", exprType.legacyTypeName());
   }
 }

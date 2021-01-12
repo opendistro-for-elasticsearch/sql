@@ -17,11 +17,10 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -30,16 +29,19 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalSort extends LogicalPlan {
-  private final LogicalPlan child;
-  private final Integer count;
+
   private final List<Pair<SortOption, Expression>> sortList;
 
-  @Override
-  public List<LogicalPlan> getChild() {
-    return Arrays.asList(child);
+  /**
+   * Constructor of LogicalSort.
+   */
+  public LogicalSort(
+      LogicalPlan child,
+      List<Pair<SortOption, Expression>> sortList) {
+    super(Collections.singletonList(child));
+    this.sortList = sortList;
   }
 
   @Override

@@ -554,3 +554,32 @@ Result set::
 	  }
 	}
 
+
+opendistro.query.size_limit
+===========================
+
+Description
+-----------
+
+The new engine fetches a default size of index from Elasticsearch set by this setting, the default value is 200. You can change the value to any value not greater than the max result window value in index level (10000 by default), here is an example::
+
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	  "transient" : {
+	    "opendistro.query.size_limit" : 500
+	  }
+	}'
+
+Result set::
+
+    {
+      "acknowledged" : true,
+      "persistent" : { },
+      "transient" : {
+        "opendistro" : {
+          "query" : {
+            "size_limit" : "500"
+          }
+        }
+      }
+    }
+

@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_FIRST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
@@ -25,14 +29,18 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Limit;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
@@ -51,6 +59,8 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregat
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
@@ -67,6 +77,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -116,10 +127,32 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   }
 
   @Override
+  public LogicalPlan visitRelationSubquery(RelationSubquery node, AnalysisContext context) {
+    LogicalPlan subquery = analyze(node.getChild().get(0), context);
+    // inherit the parent environment to keep the subquery fields in current environment
+    TypeEnvironment curEnv = context.peek();
+
+    // Put subquery alias in index namespace so the qualifier can be removed
+    // when analyzing qualified name in the subquery layer
+    curEnv.define(new Symbol(Namespace.INDEX_NAME, node.getAliasAsTableName()), STRUCT);
+    return subquery;
+  }
+
+  @Override
+  public LogicalPlan visitLimit(Limit node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    return new LogicalLimit(child, node.getLimit(), node.getOffset());
+  }
+
+  @Override
   public LogicalPlan visitFilter(Filter node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
     Expression condition = expressionAnalyzer.analyze(node.getCondition(), context);
-    return new LogicalFilter(child, condition);
+
+    ExpressionReferenceOptimizer optimizer =
+        new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child);
+    Expression optimized = optimizer.optimize(condition, context);
+    return new LogicalFilter(child, optimized);
   }
 
   /**
@@ -161,7 +194,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     for (UnresolvedExpression expr : node.getAggExprList()) {
       NamedExpression aggExpr = namedExpressionAnalyzer.analyze(expr, context);
       aggregatorBuilder
-          .add(new NamedAggregator(aggExpr.getName(), (Aggregator) aggExpr.getDelegated()));
+          .add(new NamedAggregator(aggExpr.getNameOrAlias(), (Aggregator) aggExpr.getDelegated()));
     }
     ImmutableList<NamedAggregator> aggregators = aggregatorBuilder.build();
 
@@ -177,7 +210,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     aggregators.forEach(aggregator -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
         aggregator.getName()), aggregator.type()));
     groupBys.forEach(group -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
-        group.getName()), group.type()));
+        group.getNameOrAlias()), group.type()));
     return new LogicalAggregation(child, aggregators, groupBys);
   }
 
@@ -243,13 +276,22 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       }
     }
 
+    // For each unresolved window function, analyze it by "insert" a window and sort operator
+    // between project and its child.
+    for (UnresolvedExpression expr : node.getProjectList()) {
+      WindowExpressionAnalyzer windowAnalyzer =
+          new WindowExpressionAnalyzer(expressionAnalyzer, child);
+      child = windowAnalyzer.analyze(expr, context);
+    }
+
     List<NamedExpression> namedExpressions =
-        selectExpressionAnalyzer.analyze(node.getProjectList(), context);
+        selectExpressionAnalyzer.analyze(node.getProjectList(), context,
+            new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child));
     // new context
     context.push();
     TypeEnvironment newEnv = context.peek();
     namedExpressions.forEach(expr -> newEnv.define(new Symbol(Namespace.FIELD_NAME,
-        expr.getName()), expr.type()));
+        expr.getNameOrAlias()), expr.type()));
     return new LogicalProject(child, namedExpressions);
   }
 
@@ -278,21 +320,19 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitSort(Sort node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
-    // the first options is {"count": "integer"}
-    Integer count = (Integer) node.getOptions().get(0).getValue().getValue();
+    ExpressionReferenceOptimizer optimizer =
+        new ExpressionReferenceOptimizer(expressionAnalyzer.getRepository(), child);
+
     List<Pair<SortOption, Expression>> sortList =
         node.getSortList().stream()
             .map(
                 sortField -> {
-                  // the first options is {"asc": "true/false"}
-                  Boolean asc = (Boolean) sortField.getFieldArgs().get(0).getValue().getValue();
-                  Expression expression = expressionAnalyzer.analyze(sortField, context);
-                  return ImmutablePair.of(
-                      asc ? SortOption.PPL_ASC : SortOption.PPL_DESC, expression);
+                  Expression expression = optimizer.optimize(
+                      expressionAnalyzer.analyze(sortField.getField(), context), context);
+                  return ImmutablePair.of(analyzeSortOption(sortField.getFieldArgs()), expression);
                 })
             .collect(Collectors.toList());
-
-    return new LogicalSort(child, count, sortList);
+    return new LogicalSort(child, sortList);
   }
 
   /**
@@ -317,6 +357,23 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
         consecutive);
   }
 
+  /**
+   * Build {@link LogicalHead}.
+   */
+  public LogicalPlan visitHead(Head node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    List<UnresolvedArgument> options = node.getOptions();
+    Boolean keeplast = (Boolean) getOptionAsLiteral(options, 0).getValue();
+    Expression whileExpr = expressionAnalyzer.analyze(options.get(1).getValue(), context);
+    Integer number = (Integer) getOptionAsLiteral(options, 2).getValue();
+
+    return new LogicalHead(child, keeplast, whileExpr, number);
+  }
+
+  private static Literal getOptionAsLiteral(List<UnresolvedArgument> options, int optionIdx) {
+    return (Literal) options.get(optionIdx).getValue();
+  }
+
   @Override
   public LogicalPlan visitValues(Values node, AnalysisContext context) {
     List<List<Literal>> values = node.getValues();
@@ -327,6 +384,22 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
           .collect(Collectors.toList()));
     }
     return new LogicalValues(valueExprs);
+  }
+
+  /**
+   * The first argument is always "asc", others are optional.
+   * Given nullFirst argument, use its value. Otherwise just use DEFAULT_ASC/DESC.
+   */
+  private SortOption analyzeSortOption(List<Argument> fieldArgs) {
+    Boolean asc = (Boolean) fieldArgs.get(0).getValue().getValue();
+    Optional<Argument> nullFirst = fieldArgs.stream()
+        .filter(option -> "nullFirst".equals(option.getArgName())).findFirst();
+
+    if (nullFirst.isPresent()) {
+      Boolean isNullFirst = (Boolean) nullFirst.get().getValue().getValue();
+      return new SortOption((asc ? ASC : DESC), (isNullFirst ? NULL_FIRST : NULL_LAST));
+    }
+    return asc ? SortOption.DEFAULT_ASC : SortOption.DEFAULT_DESC;
   }
 
 }

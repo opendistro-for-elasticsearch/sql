@@ -1,0 +1,62 @@
+{
+  "name": "opendistro-query-workbench",
+  "version": "1.12.0.0",
+  "description": "Query Workbench",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench",
+  "kibana": {
+    "version": "7.10.0",
+    "templateVersion": "6.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench"
+  },
+  "scripts": {
+    "kbn": "node ../../scripts/kbn",
+    "lint": "tslint .",
+    "start": "plugin-helpers start",
+    "test:server": "plugin-helpers test:server",
+    "test:browser": "plugin-helpers test:browser",
+    "test:jest": "NODE_PATH=../../node_modules ../../node_modules/.bin/jest --config ./test/jest.config.js",
+    "build": "yarn plugin_helpers build",
+    "plugin_helpers": "node ../../scripts/plugin_helpers"
+  },
+  "dependencies": {
+    "brace": "0.11.1",
+    "react-double-scrollbar": "^0.0.15"
+  },
+  "devDependencies": {
+    "@elastic/eslint-import-resolver-kibana": "link:../../packages/kbn-eslint-import-resolver-kibana",
+    "@types/hapi-latest": "npm:@types/hapi@18.0.3",
+    "@types/react-router-dom": "^5.1.5",
+    "cypress": "^5.0.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-no-unsanitized": "^3.0.2",
+    "eslint-plugin-prefer-object-spread": "^1.2.1",
+    "husky": "^4.2.5",
+    "jest-raw-loader": "^1.0.1",
+    "lint-staged": "^10.2.0",
+    "mutationobserver-shim": "^0.3.3",
+    "ts-jest": "^26.1.0",
+    "ts-node": "^8.9.1",
+    "tslint": "^6.1.2",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-plugin-prettier": "^2.0.1"
+  },
+  "engines": {
+    "node": "10.22.1",
+    "yarn": "^1.21.1"
+  },
+  "resolutions": {
+    "**/@types/node": "10.12.27",
+    "@types/react": "16.3.14",
+    "**/@types/angular": "1.6.50",
+    "**/@types/jest": "^24.0.9",
+    "**/@types/react-dom": "^16.0.5",
+    "**/@types/react-router-dom": "^4.3.1",
+    "eslint-utils": "^2.0.0",
+    "**/@types/react": "16.3.14"
+  }
+}
