@@ -1,3 +1,5 @@
+null
+NULL
 1
 true
 -4.567
