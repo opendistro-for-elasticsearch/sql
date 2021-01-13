@@ -57,8 +57,8 @@ public class UnaryPredicateOperator {
     repository.register(isNotNull());
     repository.register(ifNull());
     repository.register(nullIf());
-    repository.register(is_Null(BuiltinFunctionName.IS_NULL));
-    repository.register(is_Null(BuiltinFunctionName.ISNULL));
+    repository.register(isNull(BuiltinFunctionName.IS_NULL));
+    repository.register(isNull(BuiltinFunctionName.ISNULL));
   }
 
   private static FunctionResolver not() {
@@ -82,7 +82,7 @@ public class UnaryPredicateOperator {
     }
   }
 
-  private static FunctionResolver is_Null(BuiltinFunctionName funcName) {
+  private static FunctionResolver isNull(BuiltinFunctionName funcName) {
     return FunctionDSL
         .define(funcName.getName(), Arrays.stream(ExprCoreType.values())
             .map(type -> FunctionDSL

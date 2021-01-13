@@ -40,7 +40,7 @@ import org.json.JSONObject;
 import org.junit.Assume;
 import org.junit.Test;
 
-public class FlowControlFunctionIT extends SQLIntegTestCase {
+public class ConditionalIT extends SQLIntegTestCase {
 
   @Override
   public void init() throws Exception {

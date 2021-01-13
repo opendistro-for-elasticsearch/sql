@@ -1896,7 +1896,7 @@ Usage: return parameter2 if parameter1 is null, otherwise return parameter1
 
 Argument type: Any
 
-Return type: Any (NOTE : if two parameters has different type, return result is correct, but return type could be wrong)
+Return type: Any (NOTE : if two parameters has different type, you will fail semantic check"
 
 Example One::
 
@@ -1943,7 +1943,7 @@ Usage: return null if two parameters are same, otherwise return parameer1
 
 Argument type: Any
 
-Return type: Any (NOTE : if two parametershas different type, return result is correct, but return type could be wrong)
+Return type: Any (NOTE : if two parametershas different type, you will fail semantic check")
 
 Example::
 
