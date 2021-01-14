@@ -235,13 +235,19 @@ LIKE:                               'LIKE';
 ISNULL:                             'ISNULL';
 ISNOTNULL:                          'ISNOTNULL';
 
+// FLOWCONTROL FUNCTIONS
+IFNULL:                             'IFNULL';
+NULLIF:                             'NULLIF';
+
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;
 INTEGER_LITERAL:                    DEC_DIGIT+;
 DECIMAL_LITERAL:                    (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
+fragment DATE_SUFFIX:               ([\-.][*0-9]+)*;
 fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
+ID_DATE_SUFFIX:                     ID_LITERAL DATE_SUFFIX;
 DQUOTA_STRING:                      '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 SQUOTA_STRING:                      '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 BQUOTA_STRING:                      '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';

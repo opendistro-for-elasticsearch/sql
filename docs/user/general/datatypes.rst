@@ -222,7 +222,16 @@ Conversion from TIMESTAMP
 String Data Types
 =================
 
-TODO
+A string is a sequence of characters enclosed in either single or double quotes. For example, both 'text' and "text" will be treated as string literal. To use quote characters in a string literal, you can include double quotes within single quoted string or single quotes within double quoted string::
+
+    od> SELECT 'hello', "world", '"hello"', "'world'"
+    fetched rows / total rows = 1/1
+    +-----------+-----------+-------------+-------------+
+    | 'hello'   | "world"   | '"hello"'   | "'world'"   |
+    |-----------+-----------+-------------+-------------|
+    | hello     | world     | "hello"     | 'world'     |
+    +-----------+-----------+-------------+-------------+
+
 
 
 

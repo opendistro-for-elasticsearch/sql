@@ -138,6 +138,9 @@ public enum BuiltinFunctionName {
    */
   IS_NULL(FunctionName.of("is null")),
   IS_NOT_NULL(FunctionName.of("is not null")),
+  IFNULL(FunctionName.of("ifnull")),
+  NULLIF(FunctionName.of("nullif")),
+  ISNULL(FunctionName.of("isnull")),
 
   ROW_NUMBER(FunctionName.of("row_number")),
   RANK(FunctionName.of("rank")),
