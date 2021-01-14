@@ -235,6 +235,10 @@ LIKE:                               'LIKE';
 ISNULL:                             'ISNULL';
 ISNOTNULL:                          'ISNOTNULL';
 
+// FLOWCONTROL FUNCTIONS
+IFNULL:                             'IFNULL';
+NULLIF:                             'NULLIF';
+
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;

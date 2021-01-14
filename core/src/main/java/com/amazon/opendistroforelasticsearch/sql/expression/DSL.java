@@ -507,11 +507,23 @@ public class DSL {
   }
 
   public FunctionExpression isnull(Expression... expressions) {
+    return function(BuiltinFunctionName.ISNULL, expressions);
+  }
+
+  public FunctionExpression is_null(Expression... expressions) {
     return function(BuiltinFunctionName.IS_NULL, expressions);
   }
 
   public FunctionExpression isnotnull(Expression... expressions) {
     return function(BuiltinFunctionName.IS_NOT_NULL, expressions);
+  }
+
+  public FunctionExpression ifnull(Expression... expressions) {
+    return function(BuiltinFunctionName.IFNULL, expressions);
+  }
+
+  public FunctionExpression nullif(Expression... expressions) {
+    return function(BuiltinFunctionName.NULLIF, expressions);
   }
 
   public static Expression cases(Expression defaultResult,
