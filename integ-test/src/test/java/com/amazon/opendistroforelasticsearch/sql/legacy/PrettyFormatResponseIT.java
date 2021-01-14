@@ -293,7 +293,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void testSizeAndTotal() throws IOException {
-    Assume.assumeFalse(isNewQueryEngineDisabled());
+    Assume.assumeFalse(isNewQueryEngineEnabled());
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
@@ -357,7 +357,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void aggregationFunctionInSelectWithAlias() throws IOException {
-    Assume.assumeFalse(isNewQueryEngineDisabled());
+    Assume.assumeFalse(isNewQueryEngineEnabled());
 
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT COUNT(*) AS total FROM %s GROUP BY age",
