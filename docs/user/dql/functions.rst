@@ -1982,6 +1982,40 @@ Example::
     | True          | False         |
     +---------------+---------------+
 
+IF
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. IF(ES_TYPE0, ES_TYPE1, ES_TYPE1) -> ES_TYPE1
+
+Usage: return first parameter is true, return second parameter, otherwise return third one.
+
+Argument type: as same as second parameter
+
+Return type: as same as second parameter
+
+Example::
+
+    od> SELECT IF(100 > 200, '100', '200')
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | IF(100 > 200, '100', '200')   |
+    |-------------------------------|
+    | 200                           |
+    +-------------------------------+
+
+    od> SELECT IF(200 > 100, '100', '200')
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | IF(200 > 100, '100', '200')   |
+    |-------------------------------|
+    | 100                           |
+    +-------------------------------+
+
 CASE
 ----
 
