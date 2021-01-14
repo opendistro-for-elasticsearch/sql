@@ -1990,7 +1990,7 @@ Description
 
 Specifications:
 
-1. IF(ES_TYPE0, ES_TYPE1, ES_TYPE1) -> ES_TYPE1
+1. IF(ES_TYPE0, ES_TYPE1, ES_TYPE2) -> ES_TYPE1 or ES_TYPE2
 
 Usage: return first parameter is true, return second parameter, otherwise return third one.
 

@@ -127,7 +127,7 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
           if (e1.valueOf(valueEnv()).value() == LITERAL_TRUE.value()) {
             return Arguments.of(e1, DSL.literal("123"), DSL.literal("321"), DSL.literal("123"));
           } else {
-            return Arguments.of(e1, DSL.literal("321"), DSL.literal("321"), DSL.literal("321"));
+            return Arguments.of(e1, DSL.literal("123"), DSL.literal("321"), DSL.literal("321"));
           }
         });
   }

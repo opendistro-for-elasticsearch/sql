@@ -714,6 +714,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void ifFuncShouldPassJDBC() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
         "SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
             + " WHERE age IS NOT NULL GROUP BY Ages");
