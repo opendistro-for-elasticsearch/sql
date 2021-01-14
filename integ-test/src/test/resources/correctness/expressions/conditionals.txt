@@ -16,3 +16,5 @@ CASE 2 WHEN 1 THEN NULL WHEN 2 THEN 'Two' ELSE NULL END AS cases
 IFNULL(1/0, AvgTicketPrice) from kibana_sample_data_flights
 IFNULL(FlightTimeHour, AvgTicketPrice) from kibana_sample_data_flights
 IFNULL(AvgTicketPrice, 1/0) from kibana_sample_data_flights
+IF(2 > 0, firstname, lastname) from kibana_sample_data_flights
+iF(2 < 0, firstname, lastname) from kibana_sample_data_flights

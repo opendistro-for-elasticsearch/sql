@@ -164,7 +164,7 @@ public class UnaryPredicateOperator {
   }
 
   public static ExprValue exprIf(ExprValue v1, ExprValue v2, ExprValue v3) {
-    return v1.value() == LITERAL_TRUE.value() ? v2 : v3;
+    return v1.value().equals(LITERAL_TRUE.value()) ? v2 : v3;
   }
 
 }
