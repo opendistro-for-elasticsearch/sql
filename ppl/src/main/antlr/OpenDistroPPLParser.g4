@@ -254,7 +254,7 @@ dateAndTimeFunctionBase
 /** condition function return boolean value */
 conditionFunctionBase
     : LIKE
-    | ISNULL | ISNOTNULL | IFNULL | NULLIF
+    | IF | ISNULL | ISNOTNULL | IFNULL | NULLIF
     ;
 
 textFunctionBase

@@ -59,6 +59,7 @@ public class UnaryPredicateOperator {
     repository.register(nullIf());
     repository.register(isNull(BuiltinFunctionName.IS_NULL));
     repository.register(isNull(BuiltinFunctionName.ISNULL));
+    repository.register(ifFunction());
   }
 
   private static FunctionResolver not() {
@@ -98,6 +99,19 @@ public class UnaryPredicateOperator {
                 .impl((v) -> ExprBooleanValue.of(!v.isNull()), BOOLEAN, type))
             .collect(
                 Collectors.toList()));
+  }
+
+  private static FunctionResolver ifFunction() {
+    FunctionName functionName = BuiltinFunctionName.IF.getName();
+    List<ExprType> typeList = ExprCoreType.coreTypes();
+
+    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
+            FunctionBuilder>>> functionsOne = typeList.stream().map(v ->
+            impl((UnaryPredicateOperator::exprIf), v, BOOLEAN, v, v))
+            .collect(Collectors.toList());
+
+    FunctionResolver functionResolver = FunctionDSL.define(functionName, functionsOne);
+    return functionResolver;
   }
 
   private static FunctionResolver ifNull() {
@@ -147,6 +161,10 @@ public class UnaryPredicateOperator {
    */
   public static ExprValue exprNullIf(ExprValue v1, ExprValue v2) {
     return v1.equals(v2) ? LITERAL_NULL : v1;
+  }
+
+  public static ExprValue exprIf(ExprValue v1, ExprValue v2, ExprValue v3) {
+    return v1.value() == LITERAL_TRUE.value() ? v2 : v3;
   }
 
 }
