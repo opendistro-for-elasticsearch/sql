@@ -309,8 +309,9 @@ public class TypeConverters {
     public static class NullTypeConverter implements TypeConverter {
 
         @Override
-        public <T> T convert(Object value, Class<T> clazz, Map<String, Object> conversionParams)
-            throws SQLException {
+        public <T> T convert(Object value, Class<T> clazz, Map<String, Object> conversionParams) {
+            // As Javadoc for ResultSet.getObject() API, a SQL NULL needs to be converted to
+            // a JAVA null here
             return null;
         }
     }
