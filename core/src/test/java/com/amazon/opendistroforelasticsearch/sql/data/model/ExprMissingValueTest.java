@@ -43,7 +43,7 @@ class ExprMissingValueTest {
 
   @Test
   public void getType() {
-    assertEquals(ExprCoreType.UNKNOWN, LITERAL_MISSING.type());
+    assertEquals(ExprCoreType.UNDEFINED, LITERAL_MISSING.type());
   }
 
   @Test

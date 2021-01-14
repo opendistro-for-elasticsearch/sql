@@ -17,7 +17,6 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNDEFINED;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
