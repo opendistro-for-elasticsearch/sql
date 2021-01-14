@@ -21,13 +21,11 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.util.Objects;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -51,6 +49,7 @@ public class ExprTimeValue extends AbstractExprValue {
                     true)
             .toFormatter();
   }
+
   /**
    * Constructor.
    */

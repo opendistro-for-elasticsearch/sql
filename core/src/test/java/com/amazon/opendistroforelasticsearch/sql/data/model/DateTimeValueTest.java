@@ -263,6 +263,7 @@ public class DateTimeValueTest {
         assertThrows(SemanticCheckException.class,
             () -> new ExprTimeValue("01:01:01.1234567"));
     assertEquals(
-        "time:01:01:01.1234567 in unsupported format, please use HH:mm:ss[.SSSSSS]", exception.getMessage());
+        "time:01:01:01.1234567 in unsupported format, please use HH:mm:ss[.SSSSSS]",
+        exception.getMessage());
   }
 }
