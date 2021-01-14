@@ -11,7 +11,7 @@ Data Types
 
 NULL and MISSING Values
 =======================
-ODFE SQL has two ways to represent missing information. (1) The presence of the field with a NULL for its value. and (2) the absence of the field.
+ODFE SQL has two ways to represent missing information. (1) The presence of the field with a NULL for its value. and (2) the absence of the filed.
 
 Please note, when response is in table format, the MISSING value is translate to NULL value.
 
@@ -29,27 +29,9 @@ Here is an example, Nanette doesn't have email field and Dail has employer filed
     +-------------+------------+-----------------------+
 
 
-NULL Literals
--------------
-
-The type of a null literal is special and different from any existing one. In this case, an ``UNDEFINED`` type is in use when the type cannot be inferred at "compile time" (during query parsing and analyzing). Because this undefined type is compatible with any other type by design, a null literal can be accepted as a valid operand or function argument.
-
-Here are examples for NULL literal and expressions with NULL literal involved::
-
-    od> SELECT NULL, NULL = NULL, 1 + NULL, LENGTH(NULL);
-    fetched rows / total rows = 1/1
-    +--------+---------------+------------+----------------+
-    | NULL   | NULL = NULL   | 1 + NULL   | LENGTH(NULL)   |
-    |--------+---------------+------------+----------------|
-    | null   | null          | null       | null           |
-    +--------+---------------+------------+----------------+
-
-
 General NULL and MISSING Values Handling
 ----------------------------------------
 In general, if any operand evaluates to a MISSING value, the enclosing operator will return MISSING; if none of operands evaluates to a MISSING value but there is an operand evaluates to a NULL value, the enclosing operator will return NULL.
-
-To handle null value properly, you can use special operators such as ``IS (NOT) NULL`` or conditional functions such as ``IFNULL``. Please find more details in the SQL function documentation.
 
 Here is an example::
 
@@ -63,7 +45,6 @@ Here is an example::
     | Nanette     | True                      | null                |
     | Dale        | null                      | True                |
     +-------------+---------------------------+---------------------+
-
 
 Special NULL and MISSING Values Handling
 ----------------------------------------
