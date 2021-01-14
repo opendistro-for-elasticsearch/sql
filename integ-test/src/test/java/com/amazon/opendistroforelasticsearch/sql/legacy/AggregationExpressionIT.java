@@ -83,7 +83,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
   @Test
   public void hasGroupKeyAvgOnIntegerShouldPass() {
-    Assume.assumeTrue(isNewQueryEngineEnabled());
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(String.format(
         "SELECT gender, AVG(age) as avg " +
             "FROM %s " +
@@ -182,7 +182,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
   @Test
   public void logWithAddLiteralOnGroupKeyShouldPass() {
-    Assume.assumeTrue(isNewQueryEngineEnabled());
+    Assume.assumeTrue(isNewQueryEngineEabled());
 
     JSONObject response = executeJdbcRequest(String.format(
         "SELECT gender, Log(age+10) as logAge, max(balance) as max " +
@@ -261,7 +261,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
   @Test
   public void aggregateCastStatementShouldNotReturnZero() {
-    Assume.assumeTrue(isNewQueryEngineEnabled());
+    Assume.assumeTrue(isNewQueryEngineEabled());
 
     JSONObject response = executeJdbcRequest(String.format(
         "SELECT SUM(CAST(male AS INT)) AS male_sum FROM %s",

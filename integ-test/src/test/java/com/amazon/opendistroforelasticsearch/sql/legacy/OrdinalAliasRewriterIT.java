@@ -159,7 +159,7 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
   @Test
   public void explainSelectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull()
       throws IOException {
-    Assume.assumeFalse(isNewQueryEngineEnabled());
+    Assume.assumeFalse(isNewQueryEngineEabled());
     String expected = explainQuery(StringUtils.format(
         "SELECT `b`.`lastname`, age FROM %s AS b ORDER BY `b`.`lastname` IS NOT NULL DESC, age is NULL LIMIT 3",
         TestsConstants.TEST_INDEX_ACCOUNT));

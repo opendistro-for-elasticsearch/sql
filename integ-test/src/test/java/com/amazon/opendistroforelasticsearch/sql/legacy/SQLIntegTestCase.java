@@ -148,13 +148,13 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
   }
 
   private void configureNewQueryEngine() throws IOException {
-    boolean isEnabled = isNewQueryEngineEnabled();
+    boolean isEnabled = isNewQueryEngineEabled();
     if (!isEnabled) {
       com.amazon.opendistroforelasticsearch.sql.util.TestUtils.disableNewQueryEngine(client());
     }
   }
 
-  protected boolean isNewQueryEngineEnabled() {
+  protected boolean isNewQueryEngineEabled() {
     return Boolean.parseBoolean(System.getProperty("enableNewEngine", "true"));
   }
 
