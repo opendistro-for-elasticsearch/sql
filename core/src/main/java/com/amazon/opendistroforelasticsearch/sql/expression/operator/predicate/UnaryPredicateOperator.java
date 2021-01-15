@@ -101,7 +101,7 @@ public class UnaryPredicateOperator {
 
   private static FunctionResolver ifFunction() {
     FunctionName functionName = BuiltinFunctionName.IF.getName();
-    List<ExprType> typeList = ExprCoreType.coreTypes();
+    List<ExprCoreType> typeList = ExprCoreType.coreTypes();
 
     List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
             FunctionBuilder>>> functionsOne = typeList.stream().map(v ->
