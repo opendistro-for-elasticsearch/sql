@@ -1992,7 +1992,7 @@ Specifications:
 
 1. IF(ES_TYPE0, ES_TYPE1, ES_TYPE2) -> ES_TYPE1 or ES_TYPE2
 
-Usage: return first parameter is true, return second parameter, otherwise return third one.
+Usage: if first parameter is true, return second parameter, otherwise return third one.
 
 Argument type: as same as second parameter
 

@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 
@@ -110,6 +108,12 @@ public class UnaryPredicateOperator {
             impl((UnaryPredicateOperator::exprIf), v, BOOLEAN, v, v))
             .collect(Collectors.toList());
 
+    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
+            FunctionBuilder>>> functionsTwo = typeList.stream().map(v ->
+            impl((UnaryPredicateOperator::exprIf), v, UNKNOWN, v, v))
+            .collect(Collectors.toList());
+
+    functionsOne.addAll(functionsTwo);
     FunctionResolver functionResolver = FunctionDSL.define(functionName, functionsOne);
     return functionResolver;
   }
@@ -164,7 +168,7 @@ public class UnaryPredicateOperator {
   }
 
   public static ExprValue exprIf(ExprValue v1, ExprValue v2, ExprValue v3) {
-    return v1.value().equals(LITERAL_TRUE.value()) ? v2 : v3;
+    return !v1.isNull() && !v1.isMissing() && LITERAL_TRUE.equals(v1) ? v2 : v3;
   }
 
 }

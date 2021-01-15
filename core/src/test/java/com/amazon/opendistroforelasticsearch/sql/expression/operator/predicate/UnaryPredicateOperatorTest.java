@@ -119,11 +119,12 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     ArrayList<Expression> exprValueArrayList = new ArrayList<>();
     exprValueArrayList.add(DSL.literal(LITERAL_TRUE));
     exprValueArrayList.add(DSL.literal(LITERAL_FALSE));
+    exprValueArrayList.add(DSL.literal(LITERAL_NULL));
+    exprValueArrayList.add(DSL.literal(LITERAL_MISSING));
 
     return Lists.cartesianProduct(exprValueArrayList, exprValueArrayList).stream()
         .map(list -> {
           Expression e1 = list.get(0);
-
           if (e1.valueOf(valueEnv()).value() == LITERAL_TRUE.value()) {
             return Arguments.of(e1, DSL.literal("123"), DSL.literal("321"), DSL.literal("123"));
           } else {
