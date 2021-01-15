@@ -63,7 +63,7 @@ public class ExpressionTestBase {
   protected Environment<Expression, ExprType> typeEnv;
 
   @Bean
-  protected Environment<Expression, ExprValue> valueEnv() {
+  protected static Environment<Expression, ExprValue> valueEnv() {
     return var -> {
       if (var instanceof ReferenceExpression) {
         switch (((ReferenceExpression) var).getAttr()) {
