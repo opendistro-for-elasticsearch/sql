@@ -77,7 +77,7 @@ class CaseClauseTest extends ExpressionTestBase {
 
   @Test
   void should_use_type_of_nonnull_when_or_else_clause() {
-    when(whenClause.type()).thenReturn(ExprCoreType.UNKNOWN);
+    when(whenClause.type()).thenReturn(ExprCoreType.UNDEFINED);
     Expression defaultResult = mock(Expression.class);
     when(defaultResult.type()).thenReturn(ExprCoreType.STRING);
 
@@ -87,12 +87,12 @@ class CaseClauseTest extends ExpressionTestBase {
 
   @Test
   void should_use_unknown_type_of_if_all_when_and_else_return_null() {
-    when(whenClause.type()).thenReturn(ExprCoreType.UNKNOWN);
+    when(whenClause.type()).thenReturn(ExprCoreType.UNDEFINED);
     Expression defaultResult = mock(Expression.class);
-    when(defaultResult.type()).thenReturn(ExprCoreType.UNKNOWN);
+    when(defaultResult.type()).thenReturn(ExprCoreType.UNDEFINED);
 
     CaseClause caseClause = new CaseClause(ImmutableList.of(whenClause), defaultResult);
-    assertEquals(ExprCoreType.UNKNOWN, caseClause.type());
+    assertEquals(ExprCoreType.UNDEFINED, caseClause.type());
   }
 
   @Test
@@ -109,9 +109,9 @@ class CaseClauseTest extends ExpressionTestBase {
 
   @Test
   void should_return_all_result_types_excluding_null_result() {
-    when(whenClause.type()).thenReturn(ExprCoreType.UNKNOWN);
+    when(whenClause.type()).thenReturn(ExprCoreType.UNDEFINED);
     Expression defaultResult = mock(Expression.class);
-    when(defaultResult.type()).thenReturn(ExprCoreType.UNKNOWN);
+    when(defaultResult.type()).thenReturn(ExprCoreType.UNDEFINED);
 
     CaseClause caseClause = new CaseClause(ImmutableList.of(whenClause), defaultResult);
     assertEquals(
