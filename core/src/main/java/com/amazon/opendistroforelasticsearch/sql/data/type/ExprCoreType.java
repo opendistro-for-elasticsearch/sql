@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.data.type;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,14 +30,21 @@ import java.util.stream.Collectors;
  */
 public enum ExprCoreType implements ExprType {
   /**
-   * UNKNOWN.
+   * Unknown due to unsupported data type.
    */
   UNKNOWN,
 
   /**
+   * Undefined type for special literal such as NULL.
+   * As the root of data type tree, it is compatible with any other type.
+   * In other word, undefined type is the "narrowest" type.
+   */
+  UNDEFINED,
+
+  /**
    * Numbers.
    */
-  BYTE,
+  BYTE(UNDEFINED),
   SHORT(BYTE),
   INTEGER(SHORT),
   LONG(INTEGER),
@@ -46,38 +54,38 @@ public enum ExprCoreType implements ExprType {
   /**
    * Boolean.
    */
-  BOOLEAN,
+  BOOLEAN(UNDEFINED),
 
   /**
    * String.
    */
-  STRING,
+  STRING(UNDEFINED),
 
 
   /**
    * Date.
    * Todo. compatible relationship.
    */
-  TIMESTAMP,
-  DATE,
-  TIME,
-  DATETIME,
-  INTERVAL,
+  TIMESTAMP(UNDEFINED),
+  DATE(UNDEFINED),
+  TIME(UNDEFINED),
+  DATETIME(UNDEFINED),
+  INTERVAL(UNDEFINED),
 
   /**
    * Struct.
    */
-  STRUCT,
+  STRUCT(UNDEFINED),
 
   /**
    * Array.
    */
-  ARRAY;
+  ARRAY(UNDEFINED);
 
   /**
-   * Parent of current base type.
+   * Parents (wider/compatible types) of current base type.
    */
-  private ExprCoreType parent;
+  private final List<ExprType> parents = new ArrayList<>();
 
   /**
    * The mapping between Type and legacy JDBC type name.
@@ -91,13 +99,13 @@ public enum ExprCoreType implements ExprType {
 
   ExprCoreType(ExprCoreType... compatibleTypes) {
     for (ExprCoreType subType : compatibleTypes) {
-      subType.parent = this;
+      subType.parents.add(this);
     }
   }
 
   @Override
   public List<ExprType> getParent() {
-    return Arrays.asList(parent == null ? UNKNOWN : parent);
+    return parents.isEmpty() ? ExprType.super.getParent() : parents;
   }
 
   @Override
@@ -113,9 +121,11 @@ public enum ExprCoreType implements ExprType {
   /**
    * Return all the valid ExprCoreType.
    */
-  public static List<ExprType> coreTypes() {
-    return Arrays.stream(ExprCoreType.values()).filter(type -> type != UNKNOWN)
-        .collect(Collectors.toList());
+  public static List<ExprCoreType> coreTypes() {
+    return Arrays.stream(ExprCoreType.values())
+                 .filter(type -> type != UNKNOWN)
+                 .filter(type -> type != UNDEFINED)
+                 .collect(Collectors.toList());
   }
 
   public static List<ExprType> numberTypes() {

@@ -23,6 +23,8 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `Data Types <general/datatypes.rst>`_
 
+  - `Values <general/values.rst>`_
+
 * **Data Query Language**
 
   - `Expressions <dql/expressions.rst>`_

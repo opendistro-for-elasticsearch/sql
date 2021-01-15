@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import java.util.Objects;
 
 /**
@@ -40,7 +39,7 @@ public class ExprMissingValue extends AbstractExprValue {
 
   @Override
   public ExprType type() {
-    return ExprCoreType.UNKNOWN;
+    return ExprCoreType.UNDEFINED;
   }
 
   @Override

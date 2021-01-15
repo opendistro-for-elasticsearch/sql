@@ -77,6 +77,7 @@ public enum ElasticsearchType {
     TIMESTAMP(JDBCType.TIMESTAMP, Timestamp.class, 24, 24, false),
     BINARY(JDBCType.VARBINARY, String.class, Integer.MAX_VALUE, 0, false),
     NULL(JDBCType.NULL, null, 0, 0, false),
+    UNDEFINED(JDBCType.NULL, null, 0, 0, false),
     UNSUPPORTED(JDBCType.OTHER, null, 0, 0, false);
 
     private static final Map<JDBCType, ElasticsearchType> jdbcTypeToESTypeMap;
@@ -84,7 +85,7 @@ public enum ElasticsearchType {
     static {
         // Map JDBCType to corresponding ElasticsearchType
         jdbcTypeToESTypeMap = new HashMap<>();
-        jdbcTypeToESTypeMap.put(JDBCType.NULL, NULL);
+        jdbcTypeToESTypeMap.put(JDBCType.NULL, UNDEFINED);
         jdbcTypeToESTypeMap.put(JDBCType.BOOLEAN, BOOLEAN);
         jdbcTypeToESTypeMap.put(JDBCType.TINYINT, BYTE);
         jdbcTypeToESTypeMap.put(JDBCType.SMALLINT, SHORT);

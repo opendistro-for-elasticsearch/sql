@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.jdbc.types;
 
 import java.sql.Date;
 import java.sql.JDBCType;
+import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -63,6 +64,8 @@ public class TypeConverters {
         tcMap.put(JDBCType.BIGINT, new BigIntTypeConverter());
 
         tcMap.put(JDBCType.BINARY, new BinaryTypeConverter());
+
+        tcMap.put(JDBCType.NULL, new NullTypeConverter());
     }
 
     public static TypeConverter getInstance(JDBCType jdbcType) {
@@ -300,6 +303,16 @@ public class TypeConverters {
         @Override
         public Class getDefaultJavaClass() {
             return Short.class;
+        }
+    }
+
+    public static class NullTypeConverter implements TypeConverter {
+
+        @Override
+        public <T> T convert(Object value, Class<T> clazz, Map<String, Object> conversionParams) {
+            // As Javadoc for ResultSet.getObject() API, a SQL NULL needs to be converted to
+            // a JAVA null here
+            return null;
         }
     }
 }
