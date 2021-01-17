@@ -80,9 +80,9 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   private static Stream<Arguments> ifNullArguments() {
     ArrayList<Expression> exprValueArrayList = new ArrayList<>();
     exprValueArrayList.add(DSL.literal(123));
-    exprValueArrayList.add(DSL.literal("test"));
+    exprValueArrayList.add(DSL.literal(LITERAL_NULL));
     exprValueArrayList.add(DSL.literal(321));
-    exprValueArrayList.add(DSL.literal(""));
+    exprValueArrayList.add(DSL.literal(LITERAL_NULL));
 
     return Lists.cartesianProduct(exprValueArrayList, exprValueArrayList).stream()
         .map(list -> {
@@ -138,7 +138,7 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
     exprValues.add(LITERAL_NULL);
     exprValues.add(LITERAL_MISSING);
     exprValues.add(ExprValueUtils.integerValue(123));
-    exprValues.add(ExprValueUtils.stringValue("test"));
+    exprValues.add(ExprValueUtils.integerValue(456));
 
     return Lists.cartesianProduct(exprValues, exprValues).stream()
         .map(list -> {

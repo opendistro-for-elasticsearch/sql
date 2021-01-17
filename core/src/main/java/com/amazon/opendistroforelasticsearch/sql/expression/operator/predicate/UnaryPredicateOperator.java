@@ -108,12 +108,6 @@ public class UnaryPredicateOperator {
             impl((UnaryPredicateOperator::exprIf), v, BOOLEAN, v, v))
             .collect(Collectors.toList());
 
-    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
-            FunctionBuilder>>> functionsTwo = typeList.stream().map(v ->
-            impl((UnaryPredicateOperator::exprIf), v, UNKNOWN, v, v))
-            .collect(Collectors.toList());
-
-    functionsOne.addAll(functionsTwo);
     FunctionResolver functionResolver = FunctionDSL.define(functionName, functionsOne);
     return functionResolver;
   }
@@ -127,12 +121,6 @@ public class UnaryPredicateOperator {
             impl((UnaryPredicateOperator::exprIfNull), v, v, v))
             .collect(Collectors.toList());
 
-    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
-            FunctionBuilder>>> functionsTwo = typeList.stream().map(v ->
-            impl((UnaryPredicateOperator::exprIfNull), v, UNKNOWN, v))
-            .collect(Collectors.toList());
-
-    functionsOne.addAll(functionsTwo);
     FunctionResolver functionResolver = FunctionDSL.define(functionName, functionsOne);
     return functionResolver;
   }

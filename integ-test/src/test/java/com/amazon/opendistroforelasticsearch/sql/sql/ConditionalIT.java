@@ -63,16 +63,18 @@ public class ConditionalIT extends SQLIntegTestCase {
   @Test
   public void ifnullWithNullInputTest() {
     Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT IFNULL(1/0, firstname) as IFNULL1 ,"
-                    + " IFNULL(firstname, 1/0) as IFNULL2 ,"
-                    + " IFNULL(1/0, 1/0) as IFNULL3 "
+            "SELECT IFNULL(null, firstname) as IFNULL1 ,"
+                    + " IFNULL(firstname, null) as IFNULL2 ,"
+                    + " IFNULL(null, null) as IFNULL3 "
                     + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
                     + " WHERE balance is null limit 2", "jdbc"));
+
     verifySchema(response,
-            schema("IFNULL(1/0, firstname)", "IFNULL1", "keyword"),
-            schema("IFNULL(firstname, 1/0)", "IFNULL2", "integer"),
-            schema("IFNULL(1/0, 1/0)", "IFNULL3", "integer"));
+            schema("IFNULL(null, firstname)", "IFNULL1", "keyword"),
+            schema("IFNULL(firstname, null)", "IFNULL2", "keyword"),
+            schema("IFNULL(null, null)", "IFNULL3", "byte"));
     verifyDataRows(response,
             rows("Hattie", "Hattie", LITERAL_NULL.value()),
             rows( "Elinor", "Elinor", LITERAL_NULL.value())
@@ -83,18 +85,19 @@ public class ConditionalIT extends SQLIntegTestCase {
   public void ifnullWithMissingInputTest() {
     Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT IFNULL(balance, firstname) as IFNULL1 ,"
-                    + " IFNULL(firstname, balance) as IFNULL2 ,"
+            "SELECT IFNULL(balance, 100) as IFNULL1, "
+                    + " IFNULL(200, balance) as IFNULL2, "
                     + " IFNULL(balance, balance) as IFNULL3 "
                     + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
-                    + " WHERE balance is null limit 2", "jdbc"));
+                    + " WHERE balance is null limit 3", "jdbc"));
     verifySchema(response,
-            schema("IFNULL(balance, firstname)", "IFNULL1", "keyword"),
-            schema("IFNULL(firstname, balance)", "IFNULL2", "long"),
+            schema("IFNULL(balance, 100)", "IFNULL1", "long"),
+            schema("IFNULL(200, balance)", "IFNULL2", "long"),
             schema("IFNULL(balance, balance)", "IFNULL3", "long"));
     verifyDataRows(response,
-            rows("Hattie", "Hattie", LITERAL_NULL.value()),
-            rows( "Elinor", "Elinor", LITERAL_NULL.value())
+            rows(100, 200, null),
+            rows(100, 200, null),
+            rows(100, 200, null)
     );
   }
 
