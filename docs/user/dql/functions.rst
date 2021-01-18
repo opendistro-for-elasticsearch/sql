@@ -1990,13 +1990,13 @@ Description
 
 Specifications:
 
-1. IF(ES_TYPE0, ES_TYPE1, ES_TYPE2) -> ES_TYPE1 or ES_TYPE2
+1. IF(condition, ES_TYPE1, ES_TYPE2) -> ES_TYPE1 or ES_TYPE2
 
 Usage: if first parameter is true, return second parameter, otherwise return third one.
 
-Argument type: as same as second parameter
+Argument type: condition as BOOLEAN, second and third can by any type
 
-Return type: as same as second parameter
+Return type: Any (NOTE : if parameters #2 and #3 has different type, you will fail semantic check"
 
 Example::
 
