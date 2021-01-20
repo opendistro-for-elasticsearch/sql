@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNDEFINED;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,6 +50,12 @@ class ExprTypeTest {
     assertFalse(INTEGER.isCompatible(DOUBLE));
     assertFalse(STRING.isCompatible(DOUBLE));
     assertFalse(INTEGER.isCompatible(UNKNOWN));
+  }
+
+  @Test
+  public void isCompatibleWithUndefined() {
+    ExprCoreType.coreTypes().forEach(type -> assertTrue(type.isCompatible(UNDEFINED)));
+    ExprCoreType.coreTypes().forEach(type -> assertFalse(UNDEFINED.isCompatible(type)));
   }
 
   @Test

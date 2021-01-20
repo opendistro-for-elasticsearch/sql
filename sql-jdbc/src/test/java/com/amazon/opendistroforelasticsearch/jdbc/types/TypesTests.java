@@ -16,9 +16,18 @@
 
 package com.amazon.opendistroforelasticsearch.jdbc.types;
 
+import static java.util.Collections.emptyMap;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.sql.JDBCType;
+import java.sql.SQLException;
+import org.junit.jupiter.api.Test;
+
 public class TypesTests {
-    
-    public void testIntegerTypeConverter() {
-        TypeConverters.IntegerTypeConverter tc = new TypeConverters.IntegerTypeConverter();
+
+    @Test
+    public void testNullTypeConverter() throws SQLException {
+        TypeConverter tc = TypeConverters.getInstance(JDBCType.NULL);
+        assertNull(tc.convert(null, Object.class, emptyMap()));
     }
 }

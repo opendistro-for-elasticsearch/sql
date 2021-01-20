@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNDEFINED;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -75,8 +75,8 @@ public class CaseClause extends FunctionExpression {
   public ExprType type() {
     List<ExprType> types = allResultTypes();
 
-    // Return unknown if all WHEN/ELSE return NULL
-    return types.isEmpty() ? UNKNOWN : types.get(0);
+    // Return undefined if all WHEN/ELSE return NULL
+    return types.isEmpty() ? UNDEFINED : types.get(0);
   }
 
   @Override
@@ -98,7 +98,7 @@ public class CaseClause extends FunctionExpression {
       types.add(defaultResult.type());
     }
 
-    types.removeIf(type -> (type == UNKNOWN));
+    types.removeIf(type -> (type == UNDEFINED));
     return types;
   }
 

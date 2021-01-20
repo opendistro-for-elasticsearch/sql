@@ -553,7 +553,7 @@ class DateTimeFunctionTest extends ExpressionTestBase {
     expression = dsl.microsecond(DSL.literal(new ExprTimestampValue("2020-08-17 01:02:03.000010")));
     assertEquals(INTEGER, expression.type());
     assertEquals(integerValue(10), expression.valueOf(env));
-    assertEquals("microsecond(TIMESTAMP '2020-08-17 01:02:03.000010')", expression.toString());
+    assertEquals("microsecond(TIMESTAMP '2020-08-17 01:02:03.00001')", expression.toString());
   }
 
   @Test
