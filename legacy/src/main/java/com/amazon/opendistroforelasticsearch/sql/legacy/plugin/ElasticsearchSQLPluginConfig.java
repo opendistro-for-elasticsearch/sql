@@ -23,20 +23,27 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.Elasticsea
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.function.ElasticsearchMetricFunctions;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchMemoryHealthy;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Elasticsearch Plugin Config for SQL.
  */
+@Configuration
+@Import({ExpressionConfig.class})
 public class ElasticsearchSQLPluginConfig {
   @Autowired
   private ClusterService clusterService;
@@ -47,6 +54,9 @@ public class ElasticsearchSQLPluginConfig {
   @Autowired
   private Settings settings;
 
+  @Autowired
+  private BuiltinFunctionRepository functionRepository;
+
   @Bean
   public ElasticsearchClient client() {
     return new ElasticsearchNodeClient(clusterService, nodeClient);
@@ -54,6 +64,7 @@ public class ElasticsearchSQLPluginConfig {
 
   @Bean
   public StorageEngine storageEngine() {
+    ElasticsearchMetricFunctions.register(functionRepository); //TODO
     return new ElasticsearchStorageEngine(client(), settings);
   }
 

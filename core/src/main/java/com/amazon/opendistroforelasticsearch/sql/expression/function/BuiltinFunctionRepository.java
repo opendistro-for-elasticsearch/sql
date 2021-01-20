@@ -24,6 +24,15 @@ public class BuiltinFunctionRepository {
   }
 
   /**
+   * Check if a function name is already registered in the repository.
+   * @param functionName function name
+   * @return true if found registered, otherwise false.
+   */
+  public boolean isRegistered(FunctionName functionName) {
+    return functionResolverMap.containsKey(functionName);
+  }
+
+  /**
    * Compile FunctionExpression.
    */
   public FunctionImplementation compile(FunctionName functionName, List<Expression> expressions) {

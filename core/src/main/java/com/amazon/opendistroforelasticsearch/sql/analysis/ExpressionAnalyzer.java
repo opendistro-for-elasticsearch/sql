@@ -48,17 +48,14 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregat
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Getter;
 
@@ -145,11 +142,11 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitAggregateFunction(AggregateFunction node, AnalysisContext context) {
-    Optional<BuiltinFunctionName> builtinFunctionName = BuiltinFunctionName.of(node.getFuncName());
-    if (builtinFunctionName.isPresent()) {
+    FunctionName functionName = new FunctionName(node.getFuncName());
+    if (repository.isRegistered(functionName)) {
       Expression arg = node.getField().accept(this, context);
       Aggregator aggregator = (Aggregator) repository.compile(
-              builtinFunctionName.get().getName(), Collections.singletonList(arg));
+              functionName, Collections.singletonList(arg));
       if (node.getCondition() != null) {
         aggregator.condition(analyze(node.getCondition(), context));
       }

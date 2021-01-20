@@ -45,7 +45,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
@@ -56,6 +55,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -183,6 +183,8 @@ public class ElasticsearchExprValueFactory {
       return constructString((String) value);
     } else if (type.equals(BOOLEAN)) {
       return constructBoolean((Boolean) value);
+    } else if (type.equals(STRUCT)) {
+      return constructStruct((Map<String, Object>) value);
     } else if (type.equals(TIMESTAMP) || type.equals(DATE) || type.equals(TIME)
             || type.equals(DATETIME)) {
       ExprValue exprValue;
@@ -260,6 +262,10 @@ public class ElasticsearchExprValueFactory {
 
   private ExprBooleanValue constructBoolean(Boolean value) {
     return ExprBooleanValue.of(value);
+  }
+
+  private ExprValue constructStruct(Map<String, Object> value) {
+    return ExprValueUtils.tupleValue(value);
   }
 
   private ExprValue constructTimestamp(Long value) {

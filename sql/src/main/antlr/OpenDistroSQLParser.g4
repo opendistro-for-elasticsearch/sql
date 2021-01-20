@@ -289,6 +289,7 @@ functionCall
     | windowFunctionClause                                          #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
     | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
+    | udfFuncName=ident LR_BRACKET functionArgs? RR_BRACKET         #udfFunctionCall
     ;
 
 scalarFunctionName
@@ -333,7 +334,7 @@ filterClause
     ;
 
 aggregationFunctionName
-    : AVG | COUNT | SUM | MIN | MAX
+    : AVG | COUNT | SUM | MIN | MAX | STATS | PERCENTILES
     ;
 
 mathematicalFunctionName

@@ -19,16 +19,20 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregation;
 import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
+import org.elasticsearch.search.aggregations.metrics.Percentile;
+import org.elasticsearch.search.aggregations.metrics.Percentiles;
 
 /**
  * AggregationResponseParser.
@@ -83,6 +87,13 @@ public class ElasticsearchAggregationResponseParser {
       resultMap.put(
           aggregation.getName(),
           handleNanValue(((NumericMetricsAggregation.SingleValue) aggregation).value()));
+    } else if (aggregation instanceof Percentiles) {
+      resultMap.put(
+          aggregation.getName(),
+          Streams.stream(((Percentiles) aggregation))
+                 .collect(Collectors.toMap(
+                     percentile -> String.valueOf(percentile.getPercent()),
+                     Percentile::getValue)));
     } else if (aggregation instanceof Filter) {
       // parse sub-aggregations for FilterAggregation response
       List<Aggregation> aggList = ((Filter) aggregation).getAggregations().asList();
