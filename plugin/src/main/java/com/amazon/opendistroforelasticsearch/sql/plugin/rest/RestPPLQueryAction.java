@@ -39,7 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.FlatResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
@@ -196,7 +196,9 @@ public class RestPPLQueryAction extends BaseRestHandler {
     Format format = pplRequest.format();
     ResponseFormatter<QueryResult> formatter;
     if (format.equals(Format.CSV)) {
-      formatter = new CsvResponseFormatter(pplRequest.sanitize());
+      formatter = new FlatResponseFormatter(",", pplRequest.sanitize());
+    } else if (format.equals(Format.RAW)) {
+      formatter = new FlatResponseFormatter("|", pplRequest.sanitize());
     } else {
       formatter = new SimpleJsonResponseFormatter(PRETTY);
     }

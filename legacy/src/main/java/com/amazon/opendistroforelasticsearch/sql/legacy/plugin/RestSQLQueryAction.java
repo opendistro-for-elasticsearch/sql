@@ -42,11 +42,8 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.rewriter.matchtoterm.Ver
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JdbcResponseFormatter;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.*;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.FlatResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
@@ -180,7 +177,9 @@ public class RestSQLQueryAction extends BaseRestHandler {
     Format format = request.format();
     ResponseFormatter<QueryResult> formatter;
     if (format.equals(Format.CSV)) {
-      formatter = new CsvResponseFormatter(request.sanitize());
+      formatter = new FlatResponseFormatter(",", request.sanitize());
+    } else if (format.equals(Format.RAW)) {
+      formatter = new FlatResponseFormatter("|", request.sanitize());
     } else {
       formatter = new JdbcResponseFormatter(PRETTY);
     }
