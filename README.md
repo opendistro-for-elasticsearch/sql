@@ -26,27 +26,6 @@ The following projects have been merged into this repository as separate folders
 Please refer to the [SQL Language Reference Manual](./docs/user/index.rst), [Piped Processing Language (PPL) Reference Manual](./docs/experiment/ppl/index.rst) and [Technical Documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!
 
 
-## Experimental
-
-Recently we have been actively improving our query engine primarily for better correctness and extensibility. The new enhanced query engine has been already supporting the new released Piped Processing Language query processing behind the scene. Meanwhile, the integration with SQL language is also under way. To try out the power of the new query engine with SQL, simply run the command to enable it by [plugin setting](https://github.com/opendistro-for-elasticsearch/sql/blob/develop/docs/user/admin/settings.rst#opendistro-sql-engine-new-enabled). In future release, this will be enabled by default and nothing required to do from your side. Please stay tuned for updates on our progress and its new exciting features.
-
-Here is a documentation list with features only available in this improved SQL query engine. Please follow the instruction above to enable it before trying out example queries in these docs:
-
-* [Identifiers](./docs/user/general/identifiers.rst): support for identifier names with special characters
-* [Data types](./docs/user/general/datatypes.rst): new data types such as date time and interval
-* [Expressions](./docs/user/dql/expressions.rst): new expression system that can represent and evaluate complex expressions
-* [SQL functions](./docs/user/dql/functions.rst): many more string and date functions added
-* [Basic queries](./docs/user/dql/basics.rst)
-    * Ordering by Aggregate Functions section
-    * NULLS FIRST/LAST in section Specifying Order for Null
-* [Aggregations](./docs/user/dql/aggregations.rst): aggregation over expression and more other features
-* [Complex queries](./docs/user/dql/complex.rst)
-    * Improvement on Subqueries in FROM clause
-* [Window functions](./docs/user/dql/window.rst): ranking and aggregate window function support
-
-To avoid impact on your side, normally you won't see any difference in query response. If you want to check if and why your query falls back to be handled by old SQL engine, please explain your query and check Elasticsearch log for "Request is falling back to old SQL engine due to ...".
-
-
 ## Setup
 
 Install as plugin: build plugin from source code by following the instruction in Build section and install it to your Elasticsearch.
