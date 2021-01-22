@@ -28,17 +28,16 @@ public class ErrorMessage {
 
   protected Throwable exception;
 
-  @Getter
-  private int status;
+  private final int status;
 
   @Getter
-  private String type;
+  private final String type;
 
   @Getter
-  private String reason;
+  private final String reason;
 
   @Getter
-  private String details;
+  private final String details;
 
   /**
    * Error Message Constructor.

@@ -58,13 +58,13 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
   @Override
   public String format(Throwable t) {
-    ErrorMessage message = ErrorMessageFactory.createErrorMessage(t, getStatus(t));
-
+    int status = getStatus(t);
+    ErrorMessage message = ErrorMessageFactory.createErrorMessage(t, status);
     Error error = new Error(
         message.getType(),
         message.getReason(),
         message.getDetails());
-    return jsonify(new JdbcErrorResponse(error, message.getStatus()));
+    return jsonify(new JdbcErrorResponse(error, status));
   }
 
   private Column fetchColumn(Schema.Column col) {
