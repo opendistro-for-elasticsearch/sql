@@ -126,9 +126,8 @@ public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
     private String sanitizeCell(String cell) {
       if (isStartWithSensitiveChar(cell)) {
         return "'" + cell;
-      } else {
-        return cell;
       }
+      return cell;
     }
 
     private String quoteIfRequired(String separator, String cell) {

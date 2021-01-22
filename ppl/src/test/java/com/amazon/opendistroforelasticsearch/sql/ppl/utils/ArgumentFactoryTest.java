@@ -29,7 +29,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.parser.AstBuilderTest;
 import org.junit.Test;
@@ -125,15 +124,6 @@ public class ArgumentFactoryTest extends AstBuilderTest {
         ));
   }
 
-  /*
-  @Test
-  public void testHeadCommandWithWhileExpr() {
-    assertEqual(
-        "source=t | head  while(a < 5) 5",
-        "source=t | head while(a < 5) 5");
-  }
-   */
-  
   @Test
   public void testNoArgConstructorForArgumentFactoryShouldPass() {
     new ArgumentFactory();
