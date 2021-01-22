@@ -32,14 +32,13 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit test for {@link FlatResponseFormatter}.
+ * Unit test for {@link CsvResponseFormatter}.
  */
-public class FlatResponseFormatterTest {
-  private static FlatResponseFormatter csvFormater = new FlatResponseFormatter(",", true);
+public class CsvResponseFormatterTest {
+  private static final FlatResponseFormatter csvFormater = new FlatResponseFormatter(",", true);
 
   @Test
   void formatResponse() {
-    csvFormater = new FlatResponseFormatter(",", true);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
         new ExecutionEngine.Schema.Column("name", "name", STRING),
         new ExecutionEngine.Schema.Column("age", "age", INTEGER)));
@@ -52,7 +51,6 @@ public class FlatResponseFormatterTest {
 
   @Test
   void sanitizeHeaders() {
-    csvFormater = new FlatResponseFormatter(",", true);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
         new ExecutionEngine.Schema.Column("=firstname", null, STRING),
         new ExecutionEngine.Schema.Column("+lastname", null, STRING),
@@ -68,7 +66,6 @@ public class FlatResponseFormatterTest {
 
   @Test
   void sanitizeData() {
-    csvFormater = new FlatResponseFormatter(",", true);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
         new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
@@ -90,7 +87,6 @@ public class FlatResponseFormatterTest {
 
   @Test
   void quoteIfRequired() {
-    csvFormater = new FlatResponseFormatter(",", true);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
         new ExecutionEngine.Schema.Column("na,me", "na,me", STRING),
         new ExecutionEngine.Schema.Column(",,age", ",,age", INTEGER)));
@@ -125,7 +121,6 @@ public class FlatResponseFormatterTest {
 
   @Test
   void senstiveCharater() {
-    csvFormater = new FlatResponseFormatter(",", true);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
             new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
@@ -139,8 +134,7 @@ public class FlatResponseFormatterTest {
 
   @Test
   void senstiveCharaterNotSanitize() {
-    FlatResponseFormatter flatResponseFormatter =
-            new FlatResponseFormatter(",", false);
+    FlatResponseFormatter escapeFormatter = new FlatResponseFormatter(",", false);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
             new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
@@ -149,12 +143,11 @@ public class FlatResponseFormatterTest {
     String expected = "city\n"
             + "@Seattle\n"
             + "++Seattle";
-    assertEquals(expected, flatResponseFormatter.format(response));
+    assertEquals(expected, escapeFormatter.format(response));
   }
 
   @Test
   void replaceNullValues() {
-    csvFormater = new FlatResponseFormatter(",", true);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
         new ExecutionEngine.Schema.Column("name", "name", STRING),
         new ExecutionEngine.Schema.Column("city", "city", STRING)));
