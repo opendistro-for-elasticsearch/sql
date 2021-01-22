@@ -18,6 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.error.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.error.ErrorMessageFactory;
 import com.amazon.opendistroforelasticsearch.sql.exception.QueryEngineException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Schema;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
@@ -56,11 +58,13 @@ public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
   @Override
   public String format(Throwable t) {
+    ErrorMessage message = ErrorMessageFactory.createErrorMessage(t, getStatus(t));
+
     Error error = new Error(
-        t.getClass().getSimpleName(),
-        t.getMessage(),
-        t.getMessage());
-    return jsonify(new JdbcErrorResponse(error, getStatus(t)));
+        message.getType(),
+        message.getReason(),
+        message.getDetails());
+    return jsonify(new JdbcErrorResponse(error, message.getStatus()));
   }
 
   private Column fetchColumn(Schema.Column col) {

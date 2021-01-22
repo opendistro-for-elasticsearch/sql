@@ -118,7 +118,7 @@ class JdbcResponseFormatterTest {
         "{\"error\":"
             + "{\""
             + "type\":\"SyntaxCheckException\","
-            + "\"reason\":\"Invalid query syntax\","
+            + "\"reason\":\"Invalid Query\","
             + "\"details\":\"Invalid query syntax\""
             + "},"
             + "\"status\":400}",
@@ -132,7 +132,7 @@ class JdbcResponseFormatterTest {
         "{\"error\":"
             + "{\""
             + "type\":\"SemanticCheckException\","
-            + "\"reason\":\"Invalid query semantics\","
+            + "\"reason\":\"Invalid Query\","
             + "\"details\":\"Invalid query semantics\""
             + "},"
             + "\"status\":400}",
@@ -146,7 +146,7 @@ class JdbcResponseFormatterTest {
         "{\"error\":"
             + "{\""
             + "type\":\"IllegalStateException\","
-            + "\"reason\":\"Execution error\","
+            + "\"reason\":\"There was internal problem at backend\","
             + "\"details\":\"Execution error\""
             + "},"
             + "\"status\":503}",
