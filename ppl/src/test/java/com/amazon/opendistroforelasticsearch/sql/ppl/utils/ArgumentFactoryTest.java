@@ -125,13 +125,15 @@ public class ArgumentFactoryTest extends AstBuilderTest {
         ));
   }
 
+  /*
   @Test
   public void testHeadCommandWithWhileExpr() {
     assertEqual(
         "source=t | head  while(a < 5) 5",
         "source=t | head while(a < 5) 5");
   }
-
+   */
+  
   @Test
   public void testNoArgConstructorForArgumentFactoryShouldPass() {
     new ArgumentFactory();
