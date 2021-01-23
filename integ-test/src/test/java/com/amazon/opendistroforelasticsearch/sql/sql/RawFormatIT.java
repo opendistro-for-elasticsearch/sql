@@ -41,7 +41,7 @@ public class RawFormatIT extends SQLIntegTestCase {
             + "'-Hattie|Bond-\n"
             + "'=Nanette|Bates=\n"
             + "'@Dale|Adams@\n"
-            + "\"|Elinor\"|\"Ratliff|||\"\n",
+            + "\'@Elinor|\"Ratliff|||\"\n",
         result);
   }
 
