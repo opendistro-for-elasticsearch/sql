@@ -1982,6 +1982,40 @@ Example::
     | True          | False         |
     +---------------+---------------+
 
+IF
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. IF(condition, ES_TYPE1, ES_TYPE2) -> ES_TYPE1 or ES_TYPE2
+
+Usage: if first parameter is true, return second parameter, otherwise return third one.
+
+Argument type: condition as BOOLEAN, second and third can by any type
+
+Return type: Any (NOTE : if parameters #2 and #3 has different type, you will fail semantic check"
+
+Example::
+
+    od> SELECT IF(100 > 200, '100', '200')
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | IF(100 > 200, '100', '200')   |
+    |-------------------------------|
+    | 200                           |
+    +-------------------------------+
+
+    od> SELECT IF(200 > 100, '100', '200')
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | IF(200 > 100, '100', '200')   |
+    |-------------------------------|
+    | 100                           |
+    +-------------------------------+
+
 CASE
 ----
 

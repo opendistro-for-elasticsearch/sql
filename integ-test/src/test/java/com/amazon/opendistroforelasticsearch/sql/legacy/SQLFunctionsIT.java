@@ -714,12 +714,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void ifFuncShouldPassJDBC() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
         "SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
             + " WHERE age IS NOT NULL GROUP BY Ages");
-    assertEquals("Ages", response.query("/schema/0/name"));
+    assertEquals("IF(age > 30, \'True\', \'False\')", response.query("/schema/0/name"));
     assertEquals("Ages", response.query("/schema/0/alias"));
-    assertEquals("double", response.query("/schema/0/type"));
+    assertEquals("keyword", response.query("/schema/0/type"));
   }
 
   @Test
