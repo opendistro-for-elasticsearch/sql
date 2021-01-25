@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 
@@ -59,6 +57,7 @@ public class UnaryPredicateOperator {
     repository.register(nullIf());
     repository.register(isNull(BuiltinFunctionName.IS_NULL));
     repository.register(isNull(BuiltinFunctionName.ISNULL));
+    repository.register(ifFunction());
   }
 
   private static FunctionResolver not() {
@@ -100,6 +99,19 @@ public class UnaryPredicateOperator {
                 Collectors.toList()));
   }
 
+  private static FunctionResolver ifFunction() {
+    FunctionName functionName = BuiltinFunctionName.IF.getName();
+    List<ExprCoreType> typeList = ExprCoreType.coreTypes();
+
+    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
+            FunctionBuilder>>> functionsOne = typeList.stream().map(v ->
+            impl((UnaryPredicateOperator::exprIf), v, BOOLEAN, v, v))
+            .collect(Collectors.toList());
+
+    FunctionResolver functionResolver = FunctionDSL.define(functionName, functionsOne);
+    return functionResolver;
+  }
+
   private static FunctionResolver ifNull() {
     FunctionName functionName = BuiltinFunctionName.IFNULL.getName();
     List<ExprCoreType> typeList = ExprCoreType.coreTypes();
@@ -109,12 +121,6 @@ public class UnaryPredicateOperator {
             impl((UnaryPredicateOperator::exprIfNull), v, v, v))
             .collect(Collectors.toList());
 
-    List<SerializableFunction<FunctionName, org.apache.commons.lang3.tuple.Pair<FunctionSignature,
-            FunctionBuilder>>> functionsTwo = typeList.stream().map(v ->
-            impl((UnaryPredicateOperator::exprIfNull), v, UNKNOWN, v))
-            .collect(Collectors.toList());
-
-    functionsOne.addAll(functionsTwo);
     FunctionResolver functionResolver = FunctionDSL.define(functionName, functionsOne);
     return functionResolver;
   }
@@ -147,6 +153,10 @@ public class UnaryPredicateOperator {
    */
   public static ExprValue exprNullIf(ExprValue v1, ExprValue v2) {
     return v1.equals(v2) ? LITERAL_NULL : v1;
+  }
+
+  public static ExprValue exprIf(ExprValue v1, ExprValue v2, ExprValue v3) {
+    return !v1.isNull() && !v1.isMissing() && LITERAL_TRUE.equals(v1) ? v2 : v3;
   }
 
 }

@@ -358,7 +358,7 @@ textFunctionName
     ;
 
 flowControlFunctionName
-    : IFNULL | NULLIF | ISNULL
+    : IF | IFNULL | NULLIF | ISNULL
     ;
 
 functionArgs

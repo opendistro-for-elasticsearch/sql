@@ -526,6 +526,10 @@ public class DSL {
     return function(BuiltinFunctionName.NULLIF, expressions);
   }
 
+  public FunctionExpression iffunction(Expression... expressions) {
+    return function(BuiltinFunctionName.IF, expressions);
+  }
+
   public static Expression cases(Expression defaultResult,
                                  WhenClause... whenClauses) {
     return new CaseClause(Arrays.asList(whenClauses), defaultResult);

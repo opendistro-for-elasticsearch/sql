@@ -80,9 +80,9 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   private static Stream<Arguments> ifNullArguments() {
     ArrayList<Expression> exprValueArrayList = new ArrayList<>();
     exprValueArrayList.add(DSL.literal(123));
-    exprValueArrayList.add(DSL.literal("test"));
+    exprValueArrayList.add(DSL.literal(LITERAL_NULL));
     exprValueArrayList.add(DSL.literal(321));
-    exprValueArrayList.add(DSL.literal(""));
+    exprValueArrayList.add(DSL.literal(LITERAL_NULL));
 
     return Lists.cartesianProduct(exprValueArrayList, exprValueArrayList).stream()
         .map(list -> {
@@ -115,12 +115,30 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
         });
   }
 
+  private static Stream<Arguments> ifArguments() {
+    ArrayList<Expression> exprValueArrayList = new ArrayList<>();
+    exprValueArrayList.add(DSL.literal(LITERAL_TRUE));
+    exprValueArrayList.add(DSL.literal(LITERAL_FALSE));
+    exprValueArrayList.add(DSL.literal(LITERAL_NULL));
+    exprValueArrayList.add(DSL.literal(LITERAL_MISSING));
+
+    return Lists.cartesianProduct(exprValueArrayList, exprValueArrayList).stream()
+        .map(list -> {
+          Expression e1 = list.get(0);
+          if (e1.valueOf(valueEnv()).value() == LITERAL_TRUE.value()) {
+            return Arguments.of(e1, DSL.literal("123"), DSL.literal("321"), DSL.literal("123"));
+          } else {
+            return Arguments.of(e1, DSL.literal("123"), DSL.literal("321"), DSL.literal("321"));
+          }
+        });
+  }
+
   private static Stream<Arguments> exprIfNullArguments() {
     ArrayList<ExprValue> exprValues = new ArrayList<>();
     exprValues.add(LITERAL_NULL);
     exprValues.add(LITERAL_MISSING);
     exprValues.add(ExprValueUtils.integerValue(123));
-    exprValues.add(ExprValueUtils.stringValue("test"));
+    exprValues.add(ExprValueUtils.integerValue(456));
 
     return Lists.cartesianProduct(exprValues, exprValues).stream()
         .map(list -> {
@@ -201,15 +219,21 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   @ParameterizedTest
-  @MethodSource("exprIfNullArguments")
-  public void test_exprIfNull_predicate(ExprValue v1, ExprValue v2, ExprValue expected) {
-    assertEquals(expected.value(), UnaryPredicateOperator.exprIfNull(v1, v2).value());
-  }
-
-  @ParameterizedTest
   @MethodSource("nullIfArguments")
   public void test_nullif_predicate(Expression v1, Expression v2, Expression expected) {
     assertEquals(expected.valueOf(valueEnv()), dsl.nullif(v1, v2).valueOf(valueEnv()));
+  }
+
+  @ParameterizedTest
+  @MethodSource("ifArguments")
+  public void test_if_predicate(Expression v1, Expression v2, Expression v3, Expression expected) {
+    assertEquals(expected.valueOf(valueEnv()), dsl.iffunction(v1, v2, v3).valueOf(valueEnv()));
+  }
+
+  @ParameterizedTest
+  @MethodSource("exprIfNullArguments")
+  public void test_exprIfNull_predicate(ExprValue v1, ExprValue v2, ExprValue expected) {
+    assertEquals(expected.value(), UnaryPredicateOperator.exprIfNull(v1, v2).value());
   }
 
   @ParameterizedTest

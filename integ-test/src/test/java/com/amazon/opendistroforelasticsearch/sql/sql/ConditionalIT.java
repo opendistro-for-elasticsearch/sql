@@ -63,16 +63,18 @@ public class ConditionalIT extends SQLIntegTestCase {
   @Test
   public void ifnullWithNullInputTest() {
     Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT IFNULL(1/0, firstname) as IFNULL1 ,"
-                    + " IFNULL(firstname, 1/0) as IFNULL2 ,"
-                    + " IFNULL(1/0, 1/0) as IFNULL3 "
+            "SELECT IFNULL(null, firstname) as IFNULL1 ,"
+                    + " IFNULL(firstname, null) as IFNULL2 ,"
+                    + " IFNULL(null, null) as IFNULL3 "
                     + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
                     + " WHERE balance is null limit 2", "jdbc"));
+
     verifySchema(response,
-            schema("IFNULL(1/0, firstname)", "IFNULL1", "keyword"),
-            schema("IFNULL(firstname, 1/0)", "IFNULL2", "integer"),
-            schema("IFNULL(1/0, 1/0)", "IFNULL3", "integer"));
+            schema("IFNULL(null, firstname)", "IFNULL1", "keyword"),
+            schema("IFNULL(firstname, null)", "IFNULL2", "keyword"),
+            schema("IFNULL(null, null)", "IFNULL3", "byte"));
     verifyDataRows(response,
             rows("Hattie", "Hattie", LITERAL_NULL.value()),
             rows( "Elinor", "Elinor", LITERAL_NULL.value())
@@ -83,18 +85,19 @@ public class ConditionalIT extends SQLIntegTestCase {
   public void ifnullWithMissingInputTest() {
     Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT IFNULL(balance, firstname) as IFNULL1 ,"
-                    + " IFNULL(firstname, balance) as IFNULL2 ,"
+            "SELECT IFNULL(balance, 100) as IFNULL1, "
+                    + " IFNULL(200, balance) as IFNULL2, "
                     + " IFNULL(balance, balance) as IFNULL3 "
                     + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
-                    + " WHERE balance is null limit 2", "jdbc"));
+                    + " WHERE balance is null limit 3", "jdbc"));
     verifySchema(response,
-            schema("IFNULL(balance, firstname)", "IFNULL1", "keyword"),
-            schema("IFNULL(firstname, balance)", "IFNULL2", "long"),
+            schema("IFNULL(balance, 100)", "IFNULL1", "long"),
+            schema("IFNULL(200, balance)", "IFNULL2", "long"),
             schema("IFNULL(balance, balance)", "IFNULL3", "long"));
     verifyDataRows(response,
-            rows("Hattie", "Hattie", LITERAL_NULL.value()),
-            rows( "Elinor", "Elinor", LITERAL_NULL.value())
+            rows(100, 200, null),
+            rows(100, 200, null),
+            rows(100, 200, null)
     );
   }
 
@@ -113,8 +116,8 @@ public class ConditionalIT extends SQLIntegTestCase {
     Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT NULLIF(firstname, 'Amber JOHnny') as testnullif "
-                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
-                    + " limit 2 ", "jdbc"));
+                  + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                  + " limit 2 ", "jdbc"));
     verifySchema(response,
             schema("NULLIF(firstname, 'Amber JOHnny')", "testnullif", "keyword"));
     verifyDataRows(response,
@@ -191,6 +194,39 @@ public class ConditionalIT extends SQLIntegTestCase {
             executeQuery("SELECT ISNULL(1+1*1/0) AS isnull FROM " + TEST_INDEX_ACCOUNT),
             hitAny(kvInt("/fields/isnull/0", equalTo(1)))
     );
+  }
+
+  @Test
+  public void ifShouldPassJDBC() throws IOException {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+    JSONObject response = executeJdbcRequest(
+            "SELECT IF(2 > 0, \'hello\', \'world\') AS name FROM " + TEST_INDEX_ACCOUNT);
+    assertEquals("IF(2 > 0, \'hello\', \'world\')", response.query("/schema/0/name"));
+    assertEquals("name", response.query("/schema/0/alias"));
+    assertEquals("keyword", response.query("/schema/0/type"));
+  }
+
+  @Test
+  public void ifWithTrueAndFalseCondition() throws IOException {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT IF(2 < 0, firstname, lastname) as IF0, "
+            + " IF(2 > 0, firstname, lastname) as IF1, "
+            + " firstname as IF2, "
+            + " lastname as IF3 "
+            + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+            + " limit 2 ", "jdbc" ));
+    verifySchema(response,
+            schema("IF(2 < 0, firstname, lastname)", "IF0", "keyword"),
+            schema("IF(2 > 0, firstname, lastname)", "IF1", "keyword"),
+            schema("firstname", "IF2", "text"),
+            schema("lastname", "IF3", "keyword")
+            );
+    verifyDataRows(response,
+            rows("Duke Willmington", "Amber JOHnny", "Amber JOHnny", "Duke Willmington"),
+            rows("Bond", "Hattie", "Hattie", "Bond")
+    );
+
   }
 
   private SearchHits query(String query) throws IOException {
