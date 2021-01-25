@@ -281,7 +281,7 @@ CSV Format
 Description
 -----------
 
-You can also use CSV format to download result set as CSV.
+You can also use CSV format to download result set as CSV
 
 Example
 -------
@@ -343,7 +343,7 @@ Description
 -----------
 
 Additionally raw format can be used to pipe the result to other command line tool for post processing, fields are delimited by pipe
-character '|'
+character '|' vs common charactoer used in CSV format
 
 Example
 -------
