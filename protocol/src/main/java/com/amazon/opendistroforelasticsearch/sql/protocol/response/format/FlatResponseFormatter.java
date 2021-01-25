@@ -26,14 +26,23 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Response formatter to format response to csv or raw format.
+ */
 //@RequiredArgsConstructor
 public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
-  private static String separator = ",";
+  private String separator = ",";
   private boolean sanitize = false;
 
   private static final String INTERLINE_SEPARATOR = System.lineSeparator();
   private static final Set<String> SENSITIVE_CHAR = ImmutableSet.of("=", "+", "-", "@");
 
+  /**
+   * FlatResponseFormatter to support csv and raw format.
+   *
+   * @param separator ',' -> csv format, '|' -> raw format
+   * @param sanitize sanitize flag
+   */
   public FlatResponseFormatter(String separator, Boolean sanitize) {
     this.separator = separator;
     this.sanitize = sanitize;
@@ -59,7 +68,7 @@ public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
    */
   @Getter
   @RequiredArgsConstructor
-  static class Result {
+  class Result {
     private final QueryResult response;
     private final boolean sanitize;
 
