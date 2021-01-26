@@ -853,11 +853,11 @@ public class TestUtils {
   }
 
   /**
-   * Enable new query engine which is disabled by default for now.
+   * Disable new query engine which is enabled by default.
    */
-  public static void enableNewQueryEngine(RestClient client) throws IOException {
+  public static void disableNewQueryEngine(RestClient client) throws IOException {
     Request request = new Request("PUT", SETTINGS_API_ENDPOINT);
-    request.setJsonEntity("{\"transient\" : {\"opendistro.sql.engine.new.enabled\" : \"true\"}}");
+    request.setJsonEntity("{\"transient\" : {\"opendistro.sql.engine.new.enabled\" : \"false\"}}");
 
     RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
     restOptionsBuilder.addHeader("Content-Type", "application/json");

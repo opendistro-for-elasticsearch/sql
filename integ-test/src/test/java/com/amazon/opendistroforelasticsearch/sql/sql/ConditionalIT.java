@@ -21,13 +21,16 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.*;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.equalTo;
 
-import java.io.IOException;
-
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
+import java.io.IOException;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -36,8 +39,6 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
-
-import org.junit.Assume;
 import org.junit.Test;
 
 public class ConditionalIT extends SQLIntegTestCase {
@@ -45,7 +46,6 @@ public class ConditionalIT extends SQLIntegTestCase {
   @Override
   public void init() throws Exception {
     super.init();
-    TestUtils.enableNewQueryEngine(client());
     loadIndex(Index.ACCOUNT);
     loadIndex(Index.BANK_WITH_NULL_VALUES);
   }
@@ -62,8 +62,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void ifnullWithNullInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
-
     JSONObject response = new JSONObject(executeQuery(
             "SELECT IFNULL(null, firstname) as IFNULL1 ,"
                     + " IFNULL(firstname, null) as IFNULL2 ,"
@@ -83,7 +81,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void ifnullWithMissingInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT IFNULL(balance, 100) as IFNULL1, "
                     + " IFNULL(200, balance) as IFNULL2, "
@@ -103,7 +100,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void nullifShouldPassJDBC() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
             "SELECT NULLIF(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT);
     assertEquals("NULLIF(lastname, \'unknown\')", response.query("/schema/0/name"));
@@ -113,7 +109,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void nullifWithNotNullInputTestOne(){
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT NULLIF(firstname, 'Amber JOHnny') as testnullif "
                   + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
@@ -128,7 +123,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void nullifWithNullInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT NULLIF(1/0, 123) as nullif1 ,"
                     + " NULLIF(123, 1/0) as nullif2 ,"
@@ -147,7 +141,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void isnullShouldPassJDBC() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
             "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT);
     assertEquals("ISNULL(lastname)", response.query("/schema/0/name"));
@@ -169,7 +162,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void isnullWithNullInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT ISNULL(1/0) as ISNULL1 ,"
                     + " ISNULL(firstname) as ISNULL2 "
@@ -198,7 +190,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void ifShouldPassJDBC() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
             "SELECT IF(2 > 0, \'hello\', \'world\') AS name FROM " + TEST_INDEX_ACCOUNT);
     assertEquals("IF(2 > 0, \'hello\', \'world\')", response.query("/schema/0/name"));
@@ -208,7 +199,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void ifWithTrueAndFalseCondition() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT IF(2 < 0, firstname, lastname) as IF0, "
             + " IF(2 > 0, firstname, lastname) as IF1, "

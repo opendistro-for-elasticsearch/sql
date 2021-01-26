@@ -87,7 +87,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
       initClient();
     }
 
-    enableNewQueryEngine();
+    configureNewQueryEngine();
     resetQuerySizeLimit();
     init();
   }
@@ -147,15 +147,15 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     wipeAllClusterSettings();
   }
 
-  private void enableNewQueryEngine() throws IOException {
+  private void configureNewQueryEngine() throws IOException {
     boolean isEnabled = isNewQueryEngineEabled();
-    if (isEnabled) {
-      com.amazon.opendistroforelasticsearch.sql.util.TestUtils.enableNewQueryEngine(client());
+    if (!isEnabled) {
+      com.amazon.opendistroforelasticsearch.sql.util.TestUtils.disableNewQueryEngine(client());
     }
   }
 
   protected boolean isNewQueryEngineEabled() {
-    return Boolean.parseBoolean(System.getProperty("enableNewEngine", "false"));
+    return Boolean.parseBoolean(System.getProperty("enableNewEngine", "true"));
   }
 
   protected void setQuerySizeLimit(Integer limit) throws IOException {
