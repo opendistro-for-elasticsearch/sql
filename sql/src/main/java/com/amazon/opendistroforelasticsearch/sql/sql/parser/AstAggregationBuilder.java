@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
@@ -136,7 +137,8 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
 
   private boolean isNonLiteralFunction(UnresolvedExpression expr) {
     // The base case for recursion
-    if (expr instanceof Literal) {
+    // Interval is included since it is a special case of literal
+    if (expr instanceof Literal || expr instanceof Interval) {
       return false;
     }
     if (expr instanceof Function) {

@@ -133,6 +133,13 @@ class AstAggregationBuilderTest {
                     hasGroupByItems(),
                     hasAggregators(
                             alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
+
+    assertThat(
+        buildAggregation("SELECT INTERVAL 1 DAY FROM test HAVING AVG(age) > 30"),
+        allOf(
+            hasGroupByItems(),
+            hasAggregators(
+                alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
   }
 
   @Test
