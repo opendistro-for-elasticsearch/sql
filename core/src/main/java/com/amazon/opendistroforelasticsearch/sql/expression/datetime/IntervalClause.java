@@ -26,7 +26,6 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Func
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.impl;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
-
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntervalValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;

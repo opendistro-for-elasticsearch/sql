@@ -22,9 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.I
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -35,7 +33,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import java.time.Duration;
 import java.time.Period;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
