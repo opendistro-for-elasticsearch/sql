@@ -20,7 +20,6 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TE
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +37,6 @@ public class MetricsIT extends SQLIntegTestCase {
   @Override
   protected void init() throws Exception {
     loadIndex(Index.BANK);
-    TestUtils.enableNewQueryEngine(client());
   }
 
   @Test

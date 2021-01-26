@@ -13,6 +13,6 @@ CASE WHEN 'test' = 'hello world' THEN 'Hello' WHEN 1.0 = 2.0 THEN 'One' ELSE TRI
 CASE 1 WHEN 1 THEN 'One' ELSE NULL END AS cases
 CASE 1 WHEN 1 THEN 'One' WHEN 2 THEN 'Two' ELSE NULL END AS cases
 CASE 2 WHEN 1 THEN NULL WHEN 2 THEN 'Two' ELSE NULL END AS cases
-IFNULL(1/0, AvgTicketPrice) from kibana_sample_data_flights
-IFNULL(FlightTimeHour, AvgTicketPrice) from kibana_sample_data_flights
-IFNULL(AvgTicketPrice, 1/0) from kibana_sample_data_flights
+IFNULL(null, AvgTicketPrice) from kibana_sample_data_flights
+IFNULL(AvgTicketPrice, 100) from kibana_sample_data_flights
+IFNULL(AvgTicketPrice, null) from kibana_sample_data_flights

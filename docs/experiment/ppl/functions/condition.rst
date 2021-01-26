@@ -145,3 +145,39 @@ Example::
     | False    | Quility    | Nanette     |
     | True     | null       | Dale        |
     +----------+------------+-------------+
+
+IF
+------
+
+Description
+>>>>>>>>>>>
+
+Usage: if(condition, expr1, expr2) return expr1 if condition is true, otherwiser return expr2.
+
+Argument type: all the supported data type, (NOTE : if expr1 and expr2 are different type,  you will fail semantic check
+
+Return type: any
+
+Example::
+
+    od> source=accounts | eval result = if(true, firstname, lastname) | fields result, firstname, lastname
+    fetched rows / total rows = 4/4
+    +----------+-------------+------------+
+    | result   | firstname   | lastname   |
+    |----------+-------------+------------|
+    | Amber    | Amber       | Duke       |
+    | Hattie   | Hattie      | Bond       |
+    | Nanette  | Nanette     | Bates      |
+    | Dale     | Dale        | Adams      |
+    +----------+-------------+------------+
+
+    od> source=accounts | eval result = if(false, firstname, lastname) | fields result, firstname, lastname
+    fetched rows / total rows = 4/4
+    +----------+-------------+------------+
+    | result   | firstname   | lastname   |
+    |----------+-------------+------------|
+    | Duke     | Amber       | Duke       |
+    | Bond     | Hattie      | Bond       |
+    | Bates    | Nanette     | Bates      |
+    | Adams    | Dale        | Adams      |
+    +----------+-------------+------------+

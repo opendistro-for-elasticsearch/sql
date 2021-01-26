@@ -23,7 +23,6 @@ import static org.hamcrest.Matchers.equalTo;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants;
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URI;
@@ -39,7 +38,6 @@ public class AdminIT extends SQLIntegTestCase {
   @Override
   public void init() throws Exception {
     super.init();
-    TestUtils.enableNewQueryEngine(client());
     loadIndex(Index.ACCOUNT);
   }
 
