@@ -45,6 +45,8 @@ build
 
 ### Packaging
 
+**Note:** If you make changes to the driver code or CMake project files, re-run the `build_windows_<config><bitness>.sh` script before running the following command.
+
 ```
 msbuild .\build\odbc\PACKAGE.vcxproj -p:Configuration=Release
 ```
@@ -86,6 +88,8 @@ build
 * Test binaries folder: `./build/odbc/bin/`
 
 ### Packaging
+
+**Note:** If you make changes to the driver code or CMake project files, re-run the `build_mac_<config><bitness>.sh` script before running the following command.
 
 ```
 cd cmake-build64/
