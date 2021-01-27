@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.sc
 import static java.util.Collections.emptyMap;
 import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_TYPE;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.function.ElasticsearchPredicateFunctions.ElasticsearchPredicate;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.LuceneQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery.Comparison;
@@ -40,9 +41,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.ScriptQueryBuilder;
 import org.elasticsearch.script.Script;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
 
 @RequiredArgsConstructor
 public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Object> {
@@ -85,6 +83,10 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
       case "not":
         return buildBoolQuery(func, context, BoolQueryBuilder::mustNot);
       default: {
+        if (func instanceof ElasticsearchPredicate) {
+          return ((ElasticsearchPredicate) func).query();
+        }
+
         LuceneQuery query = luceneQueries.get(name);
         if (query != null && query.canSupport(func)) {
           return query.build(func);

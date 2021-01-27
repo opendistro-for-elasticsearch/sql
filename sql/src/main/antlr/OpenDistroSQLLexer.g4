@@ -77,7 +77,6 @@ LEFT:                               'LEFT';
 LIKE:                               'LIKE';
 LIMIT:                              'LIMIT';
 LONG:                               'LONG';
-MATCH:                              'MATCH';
 NATURAL:                            'NATURAL';
 MISSING_LITERAL:                    'MISSING';
 NOT:                                'NOT';

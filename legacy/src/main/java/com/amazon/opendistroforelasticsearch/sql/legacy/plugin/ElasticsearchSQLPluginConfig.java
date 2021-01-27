@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.Elastics
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.function.ElasticsearchMetricFunctions;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.function.ElasticsearchPredicateFunctions;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchMemoryHealthy;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
@@ -65,6 +66,7 @@ public class ElasticsearchSQLPluginConfig {
   @Bean
   public StorageEngine storageEngine() {
     ElasticsearchMetricFunctions.register(functionRepository); //TODO
+    ElasticsearchPredicateFunctions.register(functionRepository);
     return new ElasticsearchStorageEngine(client(), settings);
   }
 
