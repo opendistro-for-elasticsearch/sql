@@ -21,9 +21,7 @@ import static java.util.Collections.emptyList;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
@@ -126,8 +124,7 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
    */
   private Optional<UnresolvedExpression> findNonAggregatedItemInSelect() {
     return querySpec.getSelectItems().stream()
-                                     .filter(this::isNonAggregatedExpression)
-                                     .filter(this::isNonLiteralFunction)
+                                     .filter(this::isNonAggregateOrLiteralExpression)
                                      .findFirst();
   }
 
@@ -135,28 +132,18 @@ public class AstAggregationBuilder extends OpenDistroSQLParserBaseVisitor<Unreso
     return querySpec.getAggregators().isEmpty();
   }
 
-  private boolean isNonLiteralFunction(UnresolvedExpression expr) {
-    // The base case for recursion
-    // Interval is included since it is a special case of literal
-    if (expr instanceof Literal || expr instanceof Interval) {
-      return false;
-    }
-    if (expr instanceof Function) {
-      List<? extends Node> children = expr.getChild();
-      return children.stream().anyMatch(child ->
-              isNonLiteralFunction((UnresolvedExpression) child));
-    }
-    return true;
-  }
-
-  private boolean isNonAggregatedExpression(UnresolvedExpression expr) {
+  private boolean isNonAggregateOrLiteralExpression(UnresolvedExpression expr) {
     if (expr instanceof AggregateFunction) {
       return false;
     }
 
+    if (expr instanceof QualifiedName) {
+      return true;
+    }
+
     List<? extends Node> children = expr.getChild();
-    return children.stream()
-                   .allMatch(child -> isNonAggregatedExpression((UnresolvedExpression) child));
+    return children.stream().anyMatch(child ->
+        isNonAggregateOrLiteralExpression((UnresolvedExpression) child));
   }
 
 }

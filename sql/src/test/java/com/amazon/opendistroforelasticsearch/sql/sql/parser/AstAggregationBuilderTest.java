@@ -140,6 +140,20 @@ class AstAggregationBuilderTest {
             hasGroupByItems(),
             hasAggregators(
                 alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
+
+    assertThat(
+        buildAggregation("SELECT CAST(1 AS LONG) FROM test HAVING AVG(age) > 30"),
+        allOf(
+            hasGroupByItems(),
+            hasAggregators(
+                alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
+
+    assertThat(
+        buildAggregation("SELECT CASE WHEN true THEN 1 ELSE 2 END FROM test HAVING AVG(age) > 30"),
+        allOf(
+            hasGroupByItems(),
+            hasAggregators(
+                alias("AVG(age)", aggregate("AVG", qualifiedName("age"))))));
   }
 
   @Test
