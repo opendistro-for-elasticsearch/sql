@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * Unit test for {@link CsvResponseFormatter}.
  */
 public class CsvResponseFormatterTest {
-  private static final FlatResponseFormatter csvFormater = new FlatResponseFormatter(",", true);
+  private static final CsvResponseFormatter formatter = new CsvResponseFormatter();
 
   @Test
   void formatResponse() {
@@ -45,8 +45,9 @@ public class CsvResponseFormatterTest {
     QueryResult response = new QueryResult(schema, Arrays.asList(
         tupleValue(ImmutableMap.of("name", "John", "age", 20)),
         tupleValue(ImmutableMap.of("name", "Smith", "age", 30))));
+    CsvResponseFormatter formatter = new CsvResponseFormatter();
     String expected = "name,age\nJohn,20\nSmith,30";
-    assertEquals(expected, csvFormater.format(response));
+    assertEquals(expected, formatter.format(response));
   }
 
   @Test
@@ -61,7 +62,7 @@ public class CsvResponseFormatterTest {
             "=firstname", "John", "+lastname", "Smith", "-city", "Seattle", "@age", 20))));
     String expected = "'=firstname,'+lastname,'-city,'@age\n"
         + "John,Smith,Seattle,20";
-    assertEquals(expected, csvFormater.format(response));
+    assertEquals(expected, formatter.format(response));
   }
 
   @Test
@@ -82,7 +83,7 @@ public class CsvResponseFormatterTest {
         + "'-Seattle\n"
         + "'@Seattle\n"
         + "Seattle=";
-    assertEquals(expected, csvFormater.format(response));
+    assertEquals(expected, formatter.format(response));
   }
 
   @Test
@@ -94,7 +95,7 @@ public class CsvResponseFormatterTest {
         tupleValue(ImmutableMap.of("na,me", "John,Smith", ",,age", "30,,,"))));
     String expected = "\"na,me\",\",,age\"\n"
         + "\"John,Smith\",\"30,,,\"";
-    assertEquals(expected, csvFormater.format(response));
+    assertEquals(expected, formatter.format(response));
   }
 
   @Test
@@ -102,47 +103,20 @@ public class CsvResponseFormatterTest {
     Throwable t = new RuntimeException("This is an exception");
     String expected =
         "{\n  \"type\": \"RuntimeException\",\n  \"reason\": \"This is an exception\"\n}";
-    assertEquals(expected, csvFormater.format(t));
+    assertEquals(expected, formatter.format(t));
   }
 
   @Test
   void escapeSanitize() {
-    FlatResponseFormatter escapeFormatter = new FlatResponseFormatter(",", false);
+    CsvResponseFormatter escapeFormatter = new CsvResponseFormatter(false);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-            new ExecutionEngine.Schema.Column("city", "city", STRING)));
+        new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
-            tupleValue(ImmutableMap.of("city", "=Seattle")),
-            tupleValue(ImmutableMap.of("city", ",,Seattle"))));
+        tupleValue(ImmutableMap.of("city", "=Seattle")),
+        tupleValue(ImmutableMap.of("city", ",,Seattle"))));
     String expected = "city\n"
-            + "=Seattle\n"
-            + ",,Seattle";
-    assertEquals(expected, escapeFormatter.format(response));
-  }
-
-  @Test
-  void senstiveCharater() {
-    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-            new ExecutionEngine.Schema.Column("city", "city", STRING)));
-    QueryResult response = new QueryResult(schema, Arrays.asList(
-            tupleValue(ImmutableMap.of("city", "@Seattle")),
-            tupleValue(ImmutableMap.of("city", "++Seattle"))));
-    String expected = "city\n"
-            + "'@Seattle\n"
-            + "'++Seattle";
-    assertEquals(expected, csvFormater.format(response));
-  }
-
-  @Test
-  void senstiveCharaterNotSanitize() {
-    FlatResponseFormatter escapeFormatter = new FlatResponseFormatter(",", false);
-    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-            new ExecutionEngine.Schema.Column("city", "city", STRING)));
-    QueryResult response = new QueryResult(schema, Arrays.asList(
-            tupleValue(ImmutableMap.of("city", "@Seattle")),
-            tupleValue(ImmutableMap.of("city", "++Seattle"))));
-    String expected = "city\n"
-            + "@Seattle\n"
-            + "++Seattle";
+        + "=Seattle\n"
+        + ",,Seattle";
     assertEquals(expected, escapeFormatter.format(response));
   }
 
@@ -161,7 +135,7 @@ public class CsvResponseFormatterTest {
         + "John,Seattle\n"
         + ",Seattle\n"
         + "John,";
-    assertEquals(expected, csvFormater.format(response));
+    assertEquals(expected, formatter.format(response));
   }
 
 }

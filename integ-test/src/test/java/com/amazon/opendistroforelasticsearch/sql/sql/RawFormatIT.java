@@ -37,11 +37,11 @@ public class RawFormatIT extends SQLIntegTestCase {
         String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_RAW_SANITIZE), "raw");
     assertEquals(
         "firstname|lastname\n"
-            + "'+Amber JOHnny|Duke Willmington+\n"
-            + "'-Hattie|Bond-\n"
-            + "'=Nanette|Bates=\n"
-            + "'@Dale|Adams@\n"
-            + "\'@Elinor|\"Ratliff|||\"\n",
+            + "+Amber JOHnny|Duke Willmington+\n"
+            + "-Hattie|Bond-\n"
+            + "=Nanette|Bates=\n"
+            + "@Dale|Adams@\n"
+            + "@Elinor|\"Ratliff|||\"\n",
         result);
   }
 
@@ -59,4 +59,20 @@ public class RawFormatIT extends SQLIntegTestCase {
             + "@Elinor|Ratliff|||\n",
         result);
   }
+
+  @Test
+  public void enforceSanitizeFieldWithDelimitterTest() {
+    String result = executeQuery(
+            String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_RAW_SANITIZE),
+            "raw&sanitize=true");
+    assertEquals(
+            "firstname|lastname\n"
+                    + "+Amber JOHnny|Duke Willmington+\n"
+                    + "-Hattie|Bond-\n"
+                    + "=Nanette|Bates=\n"
+                    + "@Dale|Adams@\n"
+                    + "@Elinor|\"Ratliff|||\"\n",
+            result);
+  }
+
 }

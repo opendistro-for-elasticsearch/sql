@@ -26,32 +26,22 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Response formatter to format response to csv or raw format.
- */
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
-  private String separator = ",";
-  private boolean sanitize = false;
-
+  private static String INLINE_SEPARATOR = ",";
   private static final String INTERLINE_SEPARATOR = System.lineSeparator();
-  private static final Set<String> SENSITIVE_CHAR = ImmutableSet.of("=", "+", "-", "@");
 
-  /**
-   * FlatResponseFormatter to support csv and raw format.
-   *
-   * @param separator ',' -> csv format, '|' -> raw format
-   * @param sanitize sanitize flag
-   */
-  public FlatResponseFormatter(String separator, Boolean sanitize) {
-    this.separator = separator;
+  private boolean sanitize = true;
+
+  public FlatResponseFormatter(String seperator, Boolean sanitize) {
+    this.INLINE_SEPARATOR = seperator;
     this.sanitize = sanitize;
   }
 
   @Override
   public String format(QueryResult response) {
-    Result result = new Result(response, sanitize);
-    return result.getResult();
+    FlatResult result = new FlatResult(response, sanitize);
+    return result.getFlat();
   }
 
   @Override
@@ -60,19 +50,17 @@ public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
   }
 
   /**
-   * Sanitize methods are migrated from legacy CSV result, this applies to CSV and RAW format
-   * To deal with special character in column name and to avoid csv injection.
+   * Sanitize methods are migrated from legacy CSV result.
    * Sanitize both headers and data lines by:
-   *  1) First prepend single quote at the start if first char is sensitive (= - + @);
-   *  2) Second double quote entire cell if any comma is found.
+   *  1) Second double quote entire cell if any comma is found.
    */
   @Getter
   @RequiredArgsConstructor
-  class Result {
+  static class FlatResult {
     private final QueryResult response;
     private final boolean sanitize;
 
-    public String getResult() {
+    public String getFlat() {
       List<String> headersAndData = new ArrayList<>();
       headersAndData.add(getHeaderLine(response, sanitize));
       headersAndData.addAll(getDataLines(response, sanitize));
@@ -81,12 +69,12 @@ public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
 
     private String getHeaderLine(QueryResult response, boolean sanitize) {
       List<String> headers = getHeaders(response, sanitize);
-      return String.join(separator, headers);
+      return String.join(INLINE_SEPARATOR, headers);
     }
 
     private List<String> getDataLines(QueryResult response, boolean sanitize) {
       List<List<String>> data = getData(response, sanitize);
-      return data.stream().map(v -> String.join(separator, v)).collect(Collectors.toList());
+      return data.stream().map(v -> String.join(INLINE_SEPARATOR, v)).collect(Collectors.toList());
     }
 
     private List<String> getHeaders(QueryResult response, boolean sanitize) {
@@ -113,9 +101,8 @@ public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
      */
     private List<String> sanitizeHeaders(List<String> headers) {
       return headers.stream()
-          .map(this::sanitizeCell)
-          .map(cell -> quoteIfRequired(separator, cell))
-          .collect(Collectors.toList());
+              .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+              .collect(Collectors.toList());
     }
 
     /**
@@ -125,29 +112,18 @@ public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
       List<List<String>> result = new ArrayList<>();
       for (List<String> line : lines) {
         result.add(line.stream()
-            .map(this::sanitizeCell)
-            .map(cell -> quoteIfRequired(separator, cell))
-            .collect(Collectors.toList()));
+                .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+                .collect(Collectors.toList()));
       }
       return result;
-    }
-
-    private String sanitizeCell(String cell) {
-      if (isStartWithSensitiveChar(cell)) {
-        return "'" + cell;
-      }
-      return cell;
     }
 
     private String quoteIfRequired(String separator, String cell) {
       final String quote = "\"";
       return cell.contains(separator)
-          ? quote + cell.replaceAll("\"", "\"\"") + quote : cell;
+              ? quote + cell.replaceAll("\"", "\"\"") + quote : cell;
     }
 
-    private boolean isStartWithSensitiveChar(String cell) {
-      return SENSITIVE_CHAR.stream().anyMatch(cell::startsWith);
-    }
   }
 
 }

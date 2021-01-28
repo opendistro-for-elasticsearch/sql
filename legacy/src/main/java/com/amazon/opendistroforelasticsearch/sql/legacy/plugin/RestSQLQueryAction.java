@@ -177,9 +177,9 @@ public class RestSQLQueryAction extends BaseRestHandler {
     Format format = request.format();
     ResponseFormatter<QueryResult> formatter;
     if (format.equals(Format.CSV)) {
-      formatter = new FlatResponseFormatter(",", request.sanitize());
+      formatter = new CsvResponseFormatter(request.sanitize());
     } else if (format.equals(Format.RAW)) {
-      formatter = new FlatResponseFormatter("|", request.sanitize());
+      formatter = new RawResponseFormatter(request.sanitize());
     } else {
       formatter = new JdbcResponseFormatter(PRETTY);
     }

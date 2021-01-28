@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * Unit test for {@link FlatResponseFormatter}.
  */
 public class RawResponseFormatterTest {
-  private FlatResponseFormatter rawFormater = new FlatResponseFormatter("|", true);
+  private FlatResponseFormatter rawFormater = new RawResponseFormatter(true);
 
   @Test
   void formatResponse() {
@@ -59,7 +59,7 @@ public class RawResponseFormatterTest {
     QueryResult response = new QueryResult(schema, Arrays.asList(
         tupleValue(ImmutableMap.of(
             "=firstname", "John", "+lastname", "Smith", "-city", "Seattle", "@age", 20))));
-    String expected = "'=firstname|'+lastname|'-city|'@age\n"
+    String expected = "=firstname|+lastname|-city|@age\n"
         + "John|Smith|Seattle|20";
     assertEquals(expected, rawFormater.format(response));
   }
@@ -77,10 +77,10 @@ public class RawResponseFormatterTest {
         tupleValue(ImmutableMap.of("city", "Seattle="))));
     String expected = "city\n"
         + "Seattle\n"
-        + "'=Seattle\n"
-        + "'+Seattle\n"
-        + "'-Seattle\n"
-        + "'@Seattle\n"
+        + "=Seattle\n"
+        + "+Seattle\n"
+        + "-Seattle\n"
+        + "@Seattle\n"
         + "Seattle=";
     assertEquals(expected, rawFormater.format(response));
   }
@@ -112,10 +112,10 @@ public class RawResponseFormatterTest {
             new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
             tupleValue(ImmutableMap.of("city", "=Seattle")),
-            tupleValue(ImmutableMap.of("city", ",,Seattle"))));
+            tupleValue(ImmutableMap.of("city", "||Seattle"))));
     String expected = "city\n"
             + "=Seattle\n"
-            + ",,Seattle";
+            + "||Seattle";
     assertEquals(expected, escapeFormatter.format(response));
   }
 
@@ -127,22 +127,22 @@ public class RawResponseFormatterTest {
             tupleValue(ImmutableMap.of("city", "@Seattle")),
             tupleValue(ImmutableMap.of("city", "++Seattle"))));
     String expected = "city\n"
-            + "'@Seattle\n"
-            + "'++Seattle";
+            + "@Seattle\n"
+            + "++Seattle";
     assertEquals(expected, rawFormater.format(response));
   }
 
   @Test
-  void senstiveCharaterNotSanitize() {
-    FlatResponseFormatter testFormater = new FlatResponseFormatter("|", false);
+  void senstiveCharaterWithSanitize() {
+    FlatResponseFormatter testFormater = new RawResponseFormatter(true);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
             new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
             tupleValue(ImmutableMap.of("city", "@Seattle")),
-            tupleValue(ImmutableMap.of("city", "++Seattle"))));
+            tupleValue(ImmutableMap.of("city", "++Seattle|||"))));
     String expected = "city\n"
             + "@Seattle\n"
-            + "++Seattle";
+            + "\"++Seattle|||\"";
     assertEquals(expected, testFormater.format(response));
   }
 
