@@ -126,7 +126,7 @@ class ElasticsearchExecutionProtectorTest {
                                     PhysicalPlanDSL.remove(
                                         PhysicalPlanDSL.rename(
                                             PhysicalPlanDSL.agg(
-                                                PhysicalPlanDSL.head(
+                                                PhysicalPlanDSL.truncate(
                                                     filter(
                                                         resourceMonitor(
                                                             new ElasticsearchIndexScan(
@@ -158,7 +158,7 @@ class ElasticsearchExecutionProtectorTest {
                                     PhysicalPlanDSL.remove(
                                         PhysicalPlanDSL.rename(
                                             PhysicalPlanDSL.agg(
-                                                PhysicalPlanDSL.head(
+                                                PhysicalPlanDSL.truncate(
                                                     filter(
                                                         new ElasticsearchIndexScan(
                                                             client, settings, indexName,

@@ -24,7 +24,6 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOpe
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
@@ -33,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperat
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.TruncateOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.WindowOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
@@ -142,7 +142,7 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   }
 
   @Override
-  public ExplainResponseNode visitHead(HeadOperator node, Object context) {
+  public ExplainResponseNode visitHead(TruncateOperator node, Object context) {
     return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
         "keepLast", node.getKeepLast(),
         "whileExpr", node.getWhileExpr().toString()

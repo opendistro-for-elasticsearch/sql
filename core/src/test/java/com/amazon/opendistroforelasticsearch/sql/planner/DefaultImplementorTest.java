@@ -24,7 +24,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.head;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.truncate;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.rareTopN;
@@ -109,7 +109,7 @@ class DefaultImplementorTest {
         project(
             limit(
                 LogicalPlanDSL.dedupe(
-                    head(
+                    truncate(
                         rareTopN(
                             sort(
                                 eval(
@@ -139,7 +139,7 @@ class DefaultImplementorTest {
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.limit(
                 PhysicalPlanDSL.dedupe(
-                    PhysicalPlanDSL.head(
+                    PhysicalPlanDSL.truncate(
                         PhysicalPlanDSL.rareTopN(
                             PhysicalPlanDSL.sort(
                                 PhysicalPlanDSL.eval(

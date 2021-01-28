@@ -80,7 +80,7 @@ class AnalyzerTest extends AnalyzerTestBase {
   @Test
   public void head_relation() {
     assertAnalyzeEqual(
-        LogicalPlanDSL.head(
+        LogicalPlanDSL.truncate(
             LogicalPlanDSL.limit(
                 LogicalPlanDSL.relation("schema"), 10, 0),
             false, dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1)))),

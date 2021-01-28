@@ -53,7 +53,7 @@ class LogicalPlanNodeVisitorTest {
     LogicalPlan logicalPlan =
         LogicalPlanDSL.rename(
             LogicalPlanDSL.aggregation(
-                LogicalPlanDSL.head(
+                LogicalPlanDSL.truncate(
                     LogicalPlanDSL.rareTopN(
                         LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
                         CommandType.TOP,
@@ -78,7 +78,7 @@ class LogicalPlanNodeVisitorTest {
     assertNull(filter.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    LogicalPlan head = LogicalPlanDSL.head(relation, false, expression);
+    LogicalPlan head = LogicalPlanDSL.truncate(relation, false, expression);
     assertNull(head.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
@@ -140,7 +140,7 @@ class LogicalPlanNodeVisitorTest {
     }
 
     @Override
-    public Integer visitHead(LogicalHead plan, Object context) {
+    public Integer visitHead(LogicalTruncate plan, Object context) {
       return 1
           + plan.getChild().stream()
           .map(child -> child.accept(this, context))

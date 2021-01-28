@@ -24,7 +24,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = true)
-public class LogicalHead extends LogicalPlan {
+public class LogicalTruncate extends LogicalPlan {
 
   private final Boolean keeplast;
   private final Expression whileExpr;
@@ -32,7 +32,7 @@ public class LogicalHead extends LogicalPlan {
   /**
    * Constructor of LogicalHead.
    */
-  public LogicalHead(LogicalPlan child, Boolean keeplast, Expression whileExpr) {
+  public LogicalTruncate(LogicalPlan child, Boolean keeplast, Expression whileExpr) {
     super(Collections.singletonList(child));
     this.keeplast = keeplast;
     this.whileExpr = whileExpr;

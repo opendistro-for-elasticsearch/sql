@@ -30,21 +30,20 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class HeadOperatorTest extends PhysicalPlanTestBase {
+class TruncateOperatorTest extends PhysicalPlanTestBase {
 
   @Mock
   private PhysicalPlan inputPlan;
 
   @Test
   public void headTest_InputEnd() {
-    HeadOperator plan = new HeadOperator(new CountTestScan(),
+    TruncateOperator plan = new TruncateOperator(new CountTestScan(),
         false, DSL.literal(true));
     List<ExprValue> result = execute(plan);
     assertEquals(11, result.size());
@@ -65,7 +64,7 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void headTest_keepLastTrue() {
-    HeadOperator plan = new HeadOperator(new CountTestScan(),
+    TruncateOperator plan = new TruncateOperator(new CountTestScan(),
         true, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)));
     List<ExprValue> result = execute(plan);
     assertEquals(5, result.size());
@@ -80,7 +79,7 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void headTest_keepLastFalse() {
-    HeadOperator plan = new HeadOperator(new CountTestScan(),
+    TruncateOperator plan = new TruncateOperator(new CountTestScan(),
         false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)));
     List<ExprValue> result = execute(plan);
     assertEquals(4, result.size());
@@ -99,7 +98,7 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next()).thenReturn(new ExprTupleValue(value));
 
-    HeadOperator plan = new HeadOperator(inputPlan,
+    TruncateOperator plan = new TruncateOperator(inputPlan,
         false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)));
     List<ExprValue> result = execute(plan);
     assertEquals(0, result.size());
@@ -112,7 +111,7 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next()).thenReturn(new ExprTupleValue(value));
 
-    HeadOperator plan = new HeadOperator(inputPlan,
+    TruncateOperator plan = new TruncateOperator(inputPlan,
         false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)));
     List<ExprValue> result = execute(plan);
     assertEquals(0, result.size());

@@ -73,7 +73,7 @@ public abstract class PhysicalPlanNodeVisitor<R, C> {
     return visitNode(node, context);
   }
 
-  public R visitHead(HeadOperator node, C context) {
+  public R visitHead(TruncateOperator node, C context) {
     return visitNode(node, context);
   }
   

@@ -53,7 +53,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
             PhysicalPlanDSL.project(
                 PhysicalPlanDSL.rename(
                     PhysicalPlanDSL.agg(
-                        PhysicalPlanDSL.head(
+                        PhysicalPlanDSL.truncate(
                             PhysicalPlanDSL.rareTopN(
                                 PhysicalPlanDSL.filter(
                                     PhysicalPlanDSL.limit(
@@ -79,7 +79,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
             + "\tProject->\n"
             + "\t\tRename->\n"
             + "\t\t\tAggregation->\n"
-            + "\t\t\t\tHead->\n"
+            + "\t\t\t\tTruncate->\n"
             + "\t\t\t\t\tRareTopN->\n"
             + "\t\t\t\t\t\tFilter->\n"
             + "\t\t\t\t\t\t\tLimit->",
@@ -94,9 +94,9 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    PhysicalPlan head = PhysicalPlanDSL.head(
+    PhysicalPlan truncate = PhysicalPlanDSL.truncate(
         new TestScan(), false, dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10)));
-    assertNull(head.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    assertNull(truncate.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     PhysicalPlan aggregation =
@@ -164,8 +164,8 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     }
 
     @Override
-    public String visitHead(HeadOperator node, Integer tabs) {
-      return name(node, "Head->", tabs);
+    public String visitHead(TruncateOperator node, Integer tabs) {
+      return name(node, "Truncate->", tabs);
     }
 
     @Override

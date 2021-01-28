@@ -91,8 +91,8 @@ public class LogicalPlanDSL {
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
   }
 
-  public static LogicalPlan head(LogicalPlan input, boolean keeplast, Expression whileExpr) {
-    return new LogicalHead(input, keeplast, whileExpr);
+  public static LogicalPlan truncate(LogicalPlan input, boolean keeplast, Expression whileExpr) {
+    return new LogicalTruncate(input, keeplast, whileExpr);
   }
   
   public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType,

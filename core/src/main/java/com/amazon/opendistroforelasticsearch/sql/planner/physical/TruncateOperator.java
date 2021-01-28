@@ -27,13 +27,14 @@ import lombok.NonNull;
 /**
  * The Head operator, combined with {@link LimitOperator} as limit to constrain the result size,
  * returns the leading results of size no larger than the limit size until the
- * {@link HeadOperator#whileExpr} evaluates to false. If {@link HeadOperator#keepLast} is true then
- * first result which evaluates {@link HeadOperator#whileExpr} to false is also returned.
+ * {@link TruncateOperator#whileExpr} evaluates to false. If {@link TruncateOperator#keepLast} is
+ * true then first result which evaluates {@link TruncateOperator#whileExpr} to false is also
+ * returned.
  * The NULL and MISSING are handled by the logic defined in {@link BinaryPredicateOperator}.
  */
 @Getter
 @EqualsAndHashCode
-public class HeadOperator extends PhysicalPlan {
+public class TruncateOperator extends PhysicalPlan {
 
   @Getter
   private final PhysicalPlan input;
@@ -61,7 +62,7 @@ public class HeadOperator extends PhysicalPlan {
    * @param whileExpr The search returns results until this expression evaluates to false
    */
   @NonNull
-  public HeadOperator(PhysicalPlan input, Boolean keepLast, Expression whileExpr) {
+  public TruncateOperator(PhysicalPlan input, Boolean keepLast, Expression whileExpr) {
     this.input = input;
     this.keepLast = keepLast;
     this.whileExpr = whileExpr;

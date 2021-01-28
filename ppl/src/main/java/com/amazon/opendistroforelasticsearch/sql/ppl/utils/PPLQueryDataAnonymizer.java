@@ -49,12 +49,12 @@ import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalTruncate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -209,7 +209,7 @@ public class PPLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
   }
 
   /**
-   * Build {@link LogicalHead}.
+   * Build {@link LogicalTruncate}.
    */
   @Override
   public String visitHead(Head node, String context) {

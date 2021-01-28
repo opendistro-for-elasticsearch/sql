@@ -59,7 +59,6 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregat
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
@@ -68,6 +67,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalTruncate;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalValues;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
@@ -358,7 +358,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   }
 
   /**
-   * Build {@link LogicalHead}.
+   * Build {@link LogicalTruncate}.
    */
   public LogicalPlan visitHead(Head node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
@@ -367,7 +367,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     Expression whileExpr = expressionAnalyzer.analyze(options.get(1).getValue(), context);
     Integer number = (Integer) getOptionAsLiteral(options, 2).getValue();
 
-    return new LogicalHead(new LogicalLimit(child, number, 0), keeplast, whileExpr);
+    return new LogicalTruncate(new LogicalLimit(child, number, 0), keeplast, whileExpr);
   }
 
   private static Literal getOptionAsLiteral(List<UnresolvedArgument> options, int optionIdx) {
