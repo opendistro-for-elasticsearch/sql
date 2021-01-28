@@ -25,11 +25,10 @@ import lombok.Getter;
 import lombok.NonNull;
 
 /**
- * The Head operator, combined with {@link LimitOperator} as limit to constrain the result size,
- * returns the leading results of size no larger than the limit size until the
- * {@link TruncateOperator#whileExpr} evaluates to false. If {@link TruncateOperator#keepLast} is
- * true then first result which evaluates {@link TruncateOperator#whileExpr} to false is also
- * returned.
+ * The Truncate operator truncates the result set to the place where it finds the first row that
+ * evaluates condition {@link TruncateOperator#whileExpr} to false.
+ * If {@link TruncateOperator#keepLast} is true then first result which evaluates the condition to
+ * false is also returned.
  * The NULL and MISSING are handled by the logic defined in {@link BinaryPredicateOperator}.
  */
 @Getter
@@ -53,7 +52,7 @@ public class TruncateOperator extends PhysicalPlan {
   private ExprValue next;
 
   /**
-   * HeadOperator Constructor.
+   * TruncateOperator Constructor.
    *
    * @param input     Input {@link PhysicalPlan}
    * @param keepLast  Controls whether the last result in the result set is retained. The last

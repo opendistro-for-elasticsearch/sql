@@ -30,7 +30,7 @@ public class LogicalTruncate extends LogicalPlan {
   private final Expression whileExpr;
 
   /**
-   * Constructor of LogicalHead.
+   * Constructor of LogicalTruncate.
    */
   public LogicalTruncate(LogicalPlan child, Boolean keeplast, Expression whileExpr) {
     super(Collections.singletonList(child));
