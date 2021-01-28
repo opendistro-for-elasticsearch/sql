@@ -104,9 +104,9 @@ public class CsvResponseFormatter implements ResponseFormatter<QueryResult> {
      */
     private List<String> sanitizeHeaders(List<String> headers) {
       return headers.stream()
-              .map(this::sanitizeCell)
-              .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
-              .collect(Collectors.toList());
+          .map(this::sanitizeCell)
+          .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+          .collect(Collectors.toList());
     }
 
     /**
@@ -116,9 +116,9 @@ public class CsvResponseFormatter implements ResponseFormatter<QueryResult> {
       List<List<String>> result = new ArrayList<>();
       for (List<String> line : lines) {
         result.add(line.stream()
-                .map(this::sanitizeCell)
-                .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
-                .collect(Collectors.toList()));
+            .map(this::sanitizeCell)
+            .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+            .collect(Collectors.toList()));
       }
       return result;
     }
@@ -133,7 +133,7 @@ public class CsvResponseFormatter implements ResponseFormatter<QueryResult> {
     private String quoteIfRequired(String separator, String cell) {
       final String quote = "\"";
       return cell.contains(separator)
-              ? quote + cell.replaceAll("\"", "\"\"") + quote : cell;
+          ? quote + cell.replaceAll("\"", "\"\"") + quote : cell;
     }
 
     private boolean isStartWithSensitiveChar(String cell) {
