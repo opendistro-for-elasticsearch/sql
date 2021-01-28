@@ -15,6 +15,7 @@
     "experiment/ppl/cmd/stats.rst",
     "experiment/ppl/cmd/where.rst",
     "experiment/ppl/general/identifiers.rst",
+    "experiment/ppl/general/datatypes.rst",
     "experiment/ppl/functions/math.rst",
     "experiment/ppl/functions/datetime.rst",
     "experiment/ppl/functions/string.rst",

@@ -224,3 +224,186 @@ String Data Types
 
 A string is a sequence of characters enclosed in either single or double quotes. For example, both 'text' and "text" will be treated as string literal.
 
+
+Query Struct Data Types
+=======================
+
+In PPL, the Struct Data Types corresponding to the `Object field type in Elasticsearch <https://www.elastic.co/guide/en/elasticsearch/reference/current/object.html>`_. The "." is used as the path selector when access the inner attribute of the struct data.
+
+Example: People
+---------------
+
+There are three fields in test index ``people``: 1) deep nested object field ``city``; 2) object field of array value ``account``; 3) nested field ``projects``::
+
+    {
+      "mappings": {
+        "properties": {
+          "city": {
+            "properties": {
+              "name": {
+                "type": "keyword"
+              },
+              "location": {
+                "properties": {
+                  "latitude": {
+                    "type": "double"
+                  }
+                }
+              }
+            }
+          },
+          "account": {
+            "properties": {
+              "id": {
+                "type": "keyword"
+              }
+            }
+          },
+          "projects": {
+            "type": "nested",
+            "properties": {
+              "name": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      }
+    }
+
+Example: Employees
+------------------
+
+Here is the mapping for test index ``employees_nested``. Note that field ``projects`` is a nested field::
+
+    {
+      "mappings": {
+        "properties": {
+          "id": {
+            "type": "long"
+          },
+          "name": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "projects": {
+            "type": "nested",
+            "properties": {
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword"
+                  }
+                },
+                "fielddata": true
+              },
+              "started_year": {
+                "type": "long"
+              }
+            }
+          },
+          "title": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
+
+
+Result set::
+
+	{
+	  "employees_nested" : [
+	    {
+	      "id" : 3,
+	      "name" : "Bob Smith",
+	      "title" : null,
+	      "projects" : [
+	        {
+	          "name" : "AWS Redshift Spectrum querying",
+	          "started_year" : 1990
+	        },
+	        {
+	          "name" : "AWS Redshift security",
+	          "started_year" : 1999
+	        },
+	        {
+	          "name" : "AWS Aurora security",
+	          "started_year" : 2015
+	        }
+	      ]
+	    },
+	    {
+	      "id" : 4,
+	      "name" : "Susan Smith",
+	      "title" : "Dev Mgr",
+	      "projects" : [ ]
+	    },
+	    {
+	      "id" : 6,
+	      "name" : "Jane Smith",
+	      "title" : "Software Eng 2",
+	      "projects" : [
+	        {
+	          "name" : "AWS Redshift security",
+	          "started_year" : 1998
+	        },
+	        {
+	          "name" : "AWS Hello security",
+	          "started_year" : 2015,
+	          "address" : [
+	            {
+	              "city" : "Dallas",
+	              "state" : "TX"
+	            }
+	          ]
+	        }
+	      ]
+	    }
+	  ]
+	}
+
+
+Example 1: Select struct inner attribute
+----------------------------------------
+
+The example show fetch city (top level), city.name (second level), city.location.latitude (deeper level) struct type data from people results.
+
+PPL query::
+
+    od> source=people | fields city, city.name, city.location.latitude;
+    fetched rows / total rows = 1/1
+    +-----------------------------------------------------+-------------+--------------------------+
+    | city                                                | city.name   | city.location.latitude   |
+    |-----------------------------------------------------+-------------+--------------------------|
+    | {'name': 'Seattle', 'location': {'latitude': 10.5}} | Seattle     | 10.5                     |
+    +-----------------------------------------------------+-------------+--------------------------+
+
+
+Example 2: Group by struct inner attribute
+------------------------------------------
+
+The example show group by object field inner attribute.
+
+PPL query::
+
+    od> source=people | stats count() by city.name;
+    fetched rows / total rows = 1/1
+    +-----------+-------------+
+    | count()   | city.name   |
+    |-----------+-------------|
+    | 1         | Seattle     |
+    +-----------+-------------+
+

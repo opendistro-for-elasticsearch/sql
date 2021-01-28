@@ -95,8 +95,8 @@ public class ObjectFieldSelectIT extends SQLIntegTestCase {
     );
   }
 
-  @Ignore("Issue track the multiple values for a field. Actually we should not expected return a "
-      + "array for object field")
+  @Ignore("Issue 1017 track the multiple values for a field. Actually we should not expected "
+      + "return a array for object field")
   @Test
   public void testSelectObjectFieldOfArrayValuesItself() {
     JSONObject response = new JSONObject(query("SELECT accounts FROM %s"));
