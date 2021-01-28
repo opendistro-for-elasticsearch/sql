@@ -280,28 +280,28 @@ public class AstDSL {
     return AllFields.of();
   }
 
-  public Field field(QualifiedName field) {
+  public Field field(UnresolvedExpression field) {
     return new Field(field);
   }
 
+  public Field field(UnresolvedExpression field, Argument... fieldArgs) {
+    return field(field, Arrays.asList(fieldArgs));
+  }
+
   public Field field(String field) {
-    return new Field(qualifiedName(field));
+    return field(qualifiedName(field));
   }
 
   public Field field(String field, Argument... fieldArgs) {
     return field(field, Arrays.asList(fieldArgs));
   }
-//
-//  public Field field(String field, Argument... fieldArgs) {
-//    return new Field(field, Arrays.asList(fieldArgs));
-//  }
-//
-//  public Field field(UnresolvedExpression field, List<Argument> fieldArgs) {
-//    return new Field(field, fieldArgs);
-//  }
+
+  public Field field(UnresolvedExpression field, List<Argument> fieldArgs) {
+    return new Field(field, fieldArgs);
+  }
 
   public Field field(String field, List<Argument> fieldArgs) {
-    return new Field(qualifiedName(field), fieldArgs);
+    return field(qualifiedName(field), fieldArgs);
   }
 
   public Alias alias(String name, UnresolvedExpression expr) {

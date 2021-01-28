@@ -38,6 +38,7 @@ public class ExprNumberValueTest {
 
     ExpressionEvaluationException exception = Assertions
         .assertThrows(ExpressionEvaluationException.class, () -> value.keyValue("path"));
-    assertEquals("invalid to get keyValue by key: path from value of type: INTEGER", exception.getMessage());
+    assertEquals("invalid to get keyValue by key: path from value of type: INTEGER",
+        exception.getMessage());
   }
 }
