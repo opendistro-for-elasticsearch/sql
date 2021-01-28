@@ -35,11 +35,15 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.I
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -76,5 +80,60 @@ class ReferenceExpressionTest extends ExpressionTestBase {
     assertEquals(ExprCoreType.STRING, DSL.ref("string_value", STRING).type());
     assertEquals(ExprCoreType.STRUCT, DSL.ref("struct_value", STRUCT).type());
     assertEquals(ExprCoreType.ARRAY, DSL.ref("array_value", ARRAY).type());
+  }
+
+  @Test
+  public void path_as_whole_has_highest_priority() {
+    ReferenceExpression expr = new ReferenceExpression("name.nick", STRING);
+    ExprValue actualValue = expr.resolve(tuple());
+
+    assertEquals(STRING, actualValue.type());
+    assertEquals("bob", actualValue.stringValue());
+  }
+
+  @Test
+  public void one_path_value() {
+    ReferenceExpression expr = ref("name", STRING);
+    ExprValue actualValue = expr.resolve(tuple());
+
+    assertEquals(STRING, actualValue.type());
+    assertEquals("bob smith", actualValue.stringValue());
+  }
+
+  @Test
+  public void multiple_path_value() {
+    ReferenceExpression expr = new ReferenceExpression("address.state", STRING);
+    ExprValue actualValue = expr.resolve(tuple());
+
+    assertEquals(STRING, actualValue.type());
+    assertEquals("WA", actualValue.stringValue());
+  }
+
+  @Test
+  public void not_exist_path() {
+    ReferenceExpression expr = new ReferenceExpression("missing_field", STRING);
+    ExprValue actualValue = expr.resolve(tuple());
+
+    assertTrue(actualValue.isMissing());
+  }
+
+  /**
+   * {
+   *   "name": "bob smith"
+   *   "name.nick": "bob",
+   *   "address": {
+   *     "state": "WA",
+   *     "city": "seattle"
+   *   }
+   * }
+   */
+  private ExprTupleValue tuple() {
+    ExprValue address =
+        ExprValueUtils.tupleValue(ImmutableMap.of("state", "WA", "city", "seattle"));
+    ExprTupleValue tuple = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
+        "name", new ExprStringValue("bob smith"),
+        "name.nick", new ExprStringValue("bob"),
+        "address", address));
+    return tuple;
   }
 }

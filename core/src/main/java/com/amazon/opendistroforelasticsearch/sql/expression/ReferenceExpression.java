@@ -15,9 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.PATH_SEP;
+
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import java.util.Arrays;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +33,22 @@ public class ReferenceExpression implements Expression {
   @Getter
   private final String attr;
 
+  @Getter
+  private final List<String> paths;
+
   private final ExprType type;
+
+  /**
+   * Constructor of ReferenceExpression.
+   * @param ref the field name. e.g. addr.state/addr.
+   * @param type type.
+   */
+  public ReferenceExpression(String ref, ExprType type) {
+    this.attr = ref;
+    // Todo. the define of paths need to be redefined after adding multiple index/variable support.
+    this.paths = Arrays.asList(ref.split("\\."));
+    this.type = type;
+  }
 
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> env) {
@@ -48,5 +68,23 @@ public class ReferenceExpression implements Expression {
   @Override
   public String toString() {
     return attr;
+  }
+
+  /**
+   * Resolve the ExprValue from {@link ExprTupleValue}.
+   * @param value {@link ExprTupleValue}.
+   * @return {@link ExprTupleValue}.
+   */
+  public ExprValue resolve(ExprTupleValue value) {
+    return resolve(value, paths);
+  }
+
+  private ExprValue resolve(ExprValue value, List<String> paths) {
+    final ExprValue wholePathValue = value.keyValue(String.join(PATH_SEP, paths));
+    if (!wholePathValue.isMissing() || paths.size() == 1) {
+      return wholePathValue;
+    } else {
+      return resolve(value.keyValue(paths.get(0)), paths.subList(1, paths.size()));
+    }
   }
 }

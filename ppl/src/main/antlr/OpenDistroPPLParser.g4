@@ -42,7 +42,7 @@ whereCommand
     ;
 
 fieldsCommand
-    : FIELDS (PLUS | MINUS)? wcFieldList
+    : FIELDS (PLUS | MINUS)? fieldList
     ;
 
 renameCommand
@@ -312,11 +312,11 @@ valueList
     ;
 
 qualifiedName
-    : ident                                          #identsAsQualifiedName
+    : ident (DOT ident)*                             #identsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard                                       #identsAsWildcardQualifiedName
+    : wildcard (DOT wildcard)*                       #identsAsWildcardQualifiedName
     ;
 
 ident

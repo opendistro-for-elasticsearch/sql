@@ -31,4 +31,13 @@ public class ExprNumberValueTest {
         .assertThrows(ExpressionEvaluationException.class, () -> booleanValue.shortValue());
     assertEquals("invalid to get shortValue from value of type BOOLEAN", exception.getMessage());
   }
+
+  @Test
+  public void key_value() {
+    final ExprIntegerValue value = new ExprIntegerValue(1);
+
+    ExpressionEvaluationException exception = Assertions
+        .assertThrows(ExpressionEvaluationException.class, () -> value.keyValue("path"));
+    assertEquals("invalid to get keyValue by key: path from value of type: INTEGER", exception.getMessage());
+  }
 }

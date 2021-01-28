@@ -26,6 +26,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ExpressionUtils {
 
+  public static String PATH_SEP = ".";
+
   /**
    * Format the list of {@link Expression}.
    */

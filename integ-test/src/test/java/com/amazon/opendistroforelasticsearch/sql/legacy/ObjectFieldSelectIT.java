@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -94,6 +95,8 @@ public class ObjectFieldSelectIT extends SQLIntegTestCase {
     );
   }
 
+  @Ignore("Issue track the multiple values for a field. Actually we should not expected return a "
+      + "array for object field")
   @Test
   public void testSelectObjectFieldOfArrayValuesItself() {
     JSONObject response = new JSONObject(query("SELECT accounts FROM %s"));
