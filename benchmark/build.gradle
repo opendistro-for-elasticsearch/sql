@@ -40,8 +40,10 @@ test {
     testLogging {
         showStandardStreams = true
     }
-    // Exclude for general test runs; can still be run with specific command.
-    exclude '**/BenchmarkService.class'
+    onlyIf {
+        // Only run these tests if specifically requested.
+        project.hasProperty('benchmark')
+    }
 }
 
 clean.doFirst {

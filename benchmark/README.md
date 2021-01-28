@@ -23,7 +23,7 @@ mysql -u root -p
 ```
 * Run BenchmarkServiceTest: (`clean` ensures that the tests are run with a fresh environment)
 ```
-./gradlew clean benchmark:test --tests BenchmarkServiceTest.runbenchmarkService
+./gradlew -Pbenchmark clean benchmark:test --tests BenchmarkServiceTest.runbenchmarkService
 ```
 
 ## Run the configuration script
