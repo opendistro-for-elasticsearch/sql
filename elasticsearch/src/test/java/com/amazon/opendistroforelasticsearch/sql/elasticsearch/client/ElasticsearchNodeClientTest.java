@@ -92,9 +92,6 @@ class ElasticsearchNodeClientTest {
   private SearchHit searchHit;
 
   @Mock
-  private ThreadContext threadContext;
-
-  @Mock
   private GetIndexResponse indexResponse;
 
   private ExprTupleValue exprTupleValue = ExprTupleValue.fromExprValueMap(ImmutableMap.of("id",
@@ -211,7 +208,6 @@ class ElasticsearchNodeClientTest {
   void schedule() {
     ThreadPool threadPool = mock(ThreadPool.class);
     when(nodeClient.threadPool()).thenReturn(threadPool);
-    when(threadPool.getThreadContext()).thenReturn(threadContext);
 
     doAnswer(
         invocation -> {

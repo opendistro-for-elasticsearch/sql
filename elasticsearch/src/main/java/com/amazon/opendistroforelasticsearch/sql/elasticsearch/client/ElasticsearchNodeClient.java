@@ -72,7 +72,7 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
                                  NodeClient client) {
     this.clusterService = clusterService;
     this.client = client;
-    this.resolver = new IndexNameExpressionResolver(client.threadPool().getThreadContext());
+    this.resolver = new IndexNameExpressionResolver();
   }
 
   /**
