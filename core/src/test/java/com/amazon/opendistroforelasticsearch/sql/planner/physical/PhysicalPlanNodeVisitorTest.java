@@ -65,8 +65,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
                                 ImmutableList.of(),
                                 DSL.ref("response", INTEGER)),
                             false,
-                            DSL.literal(false),
-                            10),
+                            DSL.literal(false)),
                         ImmutableList
                             .of(DSL.named("avg(response)", dsl.avg(DSL.ref("response", INTEGER)))),
                         ImmutableList.of()),
@@ -96,7 +95,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     }, null));
 
     PhysicalPlan head = PhysicalPlanDSL.head(
-        new TestScan(), false, dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10)), 10);
+        new TestScan(), false, dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10)));
     assertNull(head.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

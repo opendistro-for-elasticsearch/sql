@@ -102,7 +102,6 @@ class ElasticsearchExecutionProtectorTest {
     Expression filterExpr = literal(ExprBooleanValue.of(true));
     Expression whileExpr = literal(ExprBooleanValue.of(true));
     Boolean keepLast = false;
-    Integer headNumber = 5;
     List<NamedExpression> groupByExprs = Arrays.asList(named("age", ref("age", INTEGER)));
     List<NamedAggregator> aggregators =
         Arrays.asList(named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)),
@@ -111,10 +110,8 @@ class ElasticsearchExecutionProtectorTest {
         ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
-    Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
         ImmutablePair.of(DEFAULT_ASC, ref("name1", STRING));
-    Integer size = 200;
     Integer limit = 10;
     Integer offset = 10;
 
@@ -137,8 +134,7 @@ class ElasticsearchExecutionProtectorTest {
                                                                 exprValueFactory)),
                                                         filterExpr),
                                                     keepLast,
-                                                    whileExpr,
-                                                    headNumber),
+                                                    whileExpr),
                                                 aggregators,
                                                 groupByExprs),
                                             mappings),
@@ -169,8 +165,7 @@ class ElasticsearchExecutionProtectorTest {
                                                             exprValueFactory),
                                                         filterExpr),
                                                     keepLast,
-                                                    whileExpr,
-                                                    headNumber),
+                                                    whileExpr),
                                                 aggregators,
                                                 groupByExprs),
                                             mappings),

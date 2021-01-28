@@ -367,7 +367,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     Expression whileExpr = expressionAnalyzer.analyze(options.get(1).getValue(), context);
     Integer number = (Integer) getOptionAsLiteral(options, 2).getValue();
 
-    return new LogicalHead(child, keeplast, whileExpr, number);
+    return new LogicalHead(new LogicalLimit(child, number, 0), keeplast, whileExpr);
   }
 
   private static Literal getOptionAsLiteral(List<UnresolvedArgument> options, int optionIdx) {

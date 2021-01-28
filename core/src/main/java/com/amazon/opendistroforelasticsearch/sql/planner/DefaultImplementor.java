@@ -85,8 +85,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
     return new HeadOperator(
             visitChild(node, context),
             node.getKeeplast(),
-            node.getWhileExpr(),
-            node.getNumber());
+            node.getWhileExpr());
   }
 
   @Override

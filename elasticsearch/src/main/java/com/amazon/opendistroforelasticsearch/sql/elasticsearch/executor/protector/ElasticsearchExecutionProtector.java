@@ -106,8 +106,7 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
     return new HeadOperator(
             visitInput(node.getInput(), context),
             node.getKeepLast(),
-            node.getWhileExpr(),
-            node.getNumber()
+            node.getWhileExpr()
     );
   }
 

@@ -59,7 +59,7 @@ class LogicalPlanNodeVisitorTest {
                         CommandType.TOP,
                         ImmutableList.of(expression),
                         expression),
-                    false, expression, 10),
+                    false, expression),
                 ImmutableList.of(DSL.named("avg", aggregator)),
                 ImmutableList.of(DSL.named("group", expression))),
             ImmutableMap.of(ref, ref));
@@ -78,7 +78,7 @@ class LogicalPlanNodeVisitorTest {
     assertNull(filter.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    LogicalPlan head = LogicalPlanDSL.head(relation, false, expression, 10);
+    LogicalPlan head = LogicalPlanDSL.head(relation, false, expression);
     assertNull(head.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

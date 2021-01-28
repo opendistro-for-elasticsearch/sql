@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.google.common.collect.ImmutableMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -41,43 +42,10 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
   @Mock
   private PhysicalPlan inputPlan;
 
-  private final int defaultResultCount = 10;
-
-  @Test
-  public void headTest() {
-    HeadOperator plan = new HeadOperator(new CountTestScan());
-    List<ExprValue> result = execute(plan);
-    assertEquals(defaultResultCount, result.size());
-    assertThat(result, containsInAnyOrder(
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 1, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 2, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 3, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 4, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 5, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 6, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 7, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 8, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 9, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 10, "testString", "asdf"))
-    ));
-  }
-
-  @Test
-  public void headTest_Number() {
-    HeadOperator plan = new HeadOperator(new CountTestScan(),
-        false, DSL.literal(true), 2);
-    List<ExprValue> result = execute(plan);
-    assertEquals(2, result.size());
-    assertThat(result, containsInAnyOrder(
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 1, "testString", "asdf")),
-        ExprValueUtils.tupleValue(ImmutableMap.of("id", 2, "testString", "asdf"))
-    ));
-  }
-
   @Test
   public void headTest_InputEnd() {
     HeadOperator plan = new HeadOperator(new CountTestScan(),
-        false, DSL.literal(true), 12);
+        false, DSL.literal(true));
     List<ExprValue> result = execute(plan);
     assertEquals(11, result.size());
     assertThat(result, containsInAnyOrder(
@@ -98,7 +66,7 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void headTest_keepLastTrue() {
     HeadOperator plan = new HeadOperator(new CountTestScan(),
-        true, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)), defaultResultCount);
+        true, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)));
     List<ExprValue> result = execute(plan);
     assertEquals(5, result.size());
     assertThat(result, containsInAnyOrder(
@@ -113,7 +81,7 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void headTest_keepLastFalse() {
     HeadOperator plan = new HeadOperator(new CountTestScan(),
-        false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)), defaultResultCount);
+        false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)));
     List<ExprValue> result = execute(plan);
     assertEquals(4, result.size());
     assertThat(result, containsInAnyOrder(
@@ -132,7 +100,7 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.next()).thenReturn(new ExprTupleValue(value));
 
     HeadOperator plan = new HeadOperator(inputPlan,
-        false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)), defaultResultCount);
+        false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)));
     List<ExprValue> result = execute(plan);
     assertEquals(0, result.size());
   }
@@ -145,7 +113,7 @@ class HeadOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.next()).thenReturn(new ExprTupleValue(value));
 
     HeadOperator plan = new HeadOperator(inputPlan,
-        false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)), defaultResultCount);
+        false, dsl.less(DSL.ref("id", INTEGER), DSL.literal(5)));
     List<ExprValue> result = execute(plan);
     assertEquals(0, result.size());
   }

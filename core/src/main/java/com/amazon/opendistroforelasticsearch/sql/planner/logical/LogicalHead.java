@@ -16,14 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
 
 @Getter
 @ToString
@@ -32,20 +28,15 @@ public class LogicalHead extends LogicalPlan {
 
   private final Boolean keeplast;
   private final Expression whileExpr;
-  private final Integer number;
 
   /**
    * Constructor of LogicalHead.
    */
-  public LogicalHead(
-      LogicalPlan child, Boolean keeplast,
-      Expression whileExpr, Integer number) {
+  public LogicalHead(LogicalPlan child, Boolean keeplast, Expression whileExpr) {
     super(Collections.singletonList(child));
     this.keeplast = keeplast;
     this.whileExpr = whileExpr;
-    this.number = number;
   }
-
 
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {

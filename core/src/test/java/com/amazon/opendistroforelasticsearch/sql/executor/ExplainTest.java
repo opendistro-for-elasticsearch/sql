@@ -146,9 +146,8 @@ class ExplainTest extends ExpressionTestBase {
     Expression whileExpr = dsl.and(
         dsl.equal(ref("balance", INTEGER), literal(10000)),
         dsl.greater(ref("age", INTEGER), literal(30)));
-    Integer number = 5;
 
-    PhysicalPlan plan = head(tableScan, keepLast, whileExpr, number);
+    PhysicalPlan plan = head(tableScan, keepLast, whileExpr);
 
     assertEquals(
         new ExplainResponse(
@@ -156,8 +155,7 @@ class ExplainTest extends ExpressionTestBase {
                 "HeadOperator",
                 ImmutableMap.of(
                     "keepLast", false,
-                    "whileExpr", "and(=(balance, 10000), >(age, 30))",
-                    "number", 5),
+                    "whileExpr", "and(=(balance, 10000), >(age, 30))"),
                 singletonList(tableScan.explainNode()))),
         explain.apply(plan));
   }

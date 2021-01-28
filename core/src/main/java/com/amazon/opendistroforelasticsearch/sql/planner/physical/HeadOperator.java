@@ -15,10 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate.BinaryPredicateOperator;
 import java.util.Collections;
 import java.util.List;
@@ -27,9 +25,10 @@ import lombok.Getter;
 import lombok.NonNull;
 
 /**
- * The Head operator returns the first {@link HeadOperator#number} number of results until the
- * {@link HeadOperator#whileExpr} evaluates to true. If {@link HeadOperator#keepLast} is true then
- * first result which evalutes {@link HeadOperator#whileExpr} to false is also returned.
+ * The Head operator, combined with {@link LimitOperator} as limit to constrain the result size,
+ * returns the leading results of size no larger than the limit size until the
+ * {@link HeadOperator#whileExpr} evaluates to false. If {@link HeadOperator#keepLast} is true then
+ * first result which evaluates {@link HeadOperator#whileExpr} to false is also returned.
  * The NULL and MISSING are handled by the logic defined in {@link BinaryPredicateOperator}.
  */
 @Getter
@@ -42,10 +41,7 @@ public class HeadOperator extends PhysicalPlan {
   private final Boolean keepLast;
   @Getter
   private final Expression whileExpr;
-  @Getter
-  private final Integer number;
 
-  private static final Integer DEFAULT_LIMIT = 10;
   private static final Boolean IGNORE_LAST = false;
 
   @EqualsAndHashCode.Exclude
@@ -55,11 +51,6 @@ public class HeadOperator extends PhysicalPlan {
   @EqualsAndHashCode.Exclude
   private ExprValue next;
 
-  @NonNull
-  public HeadOperator(PhysicalPlan input) {
-    this(input, IGNORE_LAST, new LiteralExpression(ExprBooleanValue.of(true)), DEFAULT_LIMIT);
-  }
-
   /**
    * HeadOperator Constructor.
    *
@@ -68,14 +59,12 @@ public class HeadOperator extends PhysicalPlan {
    *                  result returned is the result that caused the whileExpr to evaluate to false
    *                  or NULL.
    * @param whileExpr The search returns results until this expression evaluates to false
-   * @param number    Number of specified results
    */
   @NonNull
-  public HeadOperator(PhysicalPlan input, Boolean keepLast, Expression whileExpr, Integer number) {
+  public HeadOperator(PhysicalPlan input, Boolean keepLast, Expression whileExpr) {
     this.input = input;
     this.keepLast = keepLast;
     this.whileExpr = whileExpr;
-    this.number = number;
   }
 
   @Override
@@ -90,7 +79,7 @@ public class HeadOperator extends PhysicalPlan {
 
   @Override
   public boolean hasNext() {
-    if (!input.hasNext() || foundFirstFalse || (recordCount >= number)) {
+    if (!input.hasNext() || foundFirstFalse) {
       return false;
     }
     ExprValue inputVal = input.next();

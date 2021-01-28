@@ -145,8 +145,7 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   public ExplainResponseNode visitHead(HeadOperator node, Object context) {
     return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
         "keepLast", node.getKeepLast(),
-        "whileExpr", node.getWhileExpr().toString(),
-        "number", node.getNumber()
+        "whileExpr", node.getWhileExpr().toString()
     )));
   }
 
