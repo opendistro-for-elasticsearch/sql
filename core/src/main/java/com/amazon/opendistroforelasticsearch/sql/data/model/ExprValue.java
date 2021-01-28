@@ -202,8 +202,6 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
    * This method only be implemented in {@link ExprTupleValue}.
    */
   default ExprValue keyValue(String key) {
-    throw new ExpressionEvaluationException(
-        String.format("invalid to get keyValue by key: %s from value of type: %s", key,
-            type()));
+    return ExprMissingValue.of();
   }
 }

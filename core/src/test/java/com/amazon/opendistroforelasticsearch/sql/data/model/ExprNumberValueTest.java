@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import org.junit.jupiter.api.Assertions;
@@ -34,11 +35,6 @@ public class ExprNumberValueTest {
 
   @Test
   public void key_value() {
-    final ExprIntegerValue value = new ExprIntegerValue(1);
-
-    ExpressionEvaluationException exception = Assertions
-        .assertThrows(ExpressionEvaluationException.class, () -> value.keyValue("path"));
-    assertEquals("invalid to get keyValue by key: path from value of type: INTEGER",
-        exception.getMessage());
+    assertTrue(new ExprIntegerValue(1).keyValue("path").isMissing());
   }
 }
