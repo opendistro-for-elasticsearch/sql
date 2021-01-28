@@ -71,8 +71,7 @@ public class ReferenceExpression implements Expression {
   }
 
   /**
-   * Resolve the ExprValue from {@link ExprTupleValue} using paths.
-   *
+   * Resolve the ExprValue from {@link ExprTupleValue} using paths.*
    * Considering the following sample data.
    * {
    *   "name": "bob smith"
@@ -91,7 +90,6 @@ public class ReferenceExpression implements Expression {
    * 3. special case, the "." is the path separator, but it is possible that the path include
    * ".", for handling this use case, we define the resolve rule as bellow, e.g. "project.year" is
    * resolved as 1990 instead of 2020.
-   *
    * Resolved Rule
    * 1. Resolve the full name by combine the paths("x"."y"."z") as whole ("x.y.z").
    * 2. Resolve the path recursively through ExprValue.
