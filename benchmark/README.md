@@ -21,19 +21,20 @@ git clone https://github.com/opendistro-for-elasticsearch/sql.git
 ```
 mysql -u root -p 
 ```
-* Run BenchmarkServiceTest.
+* Run BenchmarkServiceTest: (`clean` ensures that the tests are run with a fresh environment)
 ```
-gradle test --tests BenchmarkServiceTest.runbenchmarkService
+./gradlew clean benchmark:test --tests BenchmarkServiceTest.runbenchmarkService
 ```
 
 ## Run the configuration script
 
 The script will install Open Distro for Elasticsearch, MySQL, Cassandra, and all prerequisites.
 
-* Open the benchmark folder in the terminal and run the configuration script.
+* Open the benchmark folder in the terminal and run the configuration script, providing the Elasticsearch version
+  you want to test as an argument. 
 
 ```
-bash scripts/configure-environment.sh
+bash scripts/configure-environment.sh <elasticsearch-version>
 ```
 
 * Follow the guidelines until installation is complete. 
@@ -54,6 +55,9 @@ bash scripts/configure-environment.sh
 **NOTE**: Default username and password `admin` is used for connecting to Open Distro For Elasticsearch SQL.
 
 ## Troubleshooting
+
+* "Cannot set maxParallelForks to a value less than 1."
+  * Add `-Dtests.jvms=n` to the test command (where n is 1 ≤ n ≤ # of processor cores.) 
 
 * If you get NoHostAvailableException for Cassandra, rerun the test.
 

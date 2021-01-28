@@ -79,6 +79,7 @@ public class MysqlDataLoader implements DataLoader {
 
   private void createDatabase() throws Exception {
     statement.executeUpdate("SET GLOBAL local_infile=1;");
+    statement.executeUpdate("drop database " + MysqlTpchSchema.databaseName);
     statement.executeUpdate("create database " + MysqlTpchSchema.databaseName);
   }
 

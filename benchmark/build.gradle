@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id "io.freefair.lombok"
+    id 'jacoco'
 }
 
 repositories {
@@ -32,7 +33,6 @@ dependencies {
     testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.5.0'
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.5.0'
-    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: "${es_version}"
 }
 
 test {
@@ -41,3 +41,33 @@ test {
         showStandardStreams = true
     }
 }
+
+clean.doFirst {
+    // Clear data directory for future runs
+    file('data').deleteDir()
+}
+
+jacoco {
+    toolVersion = "0.8.5"
+}
+jacocoTestReport {
+    reports {
+        html.enabled true
+    }
+}
+test.finalizedBy(project.tasks.jacocoTestReport)
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                minimum = 1.0
+            }
+            limit {
+                counter = 'BRANCH'
+                minimum = 1.0
+            }
+        }
+    }
+}
+check.dependsOn jacocoTestCoverageVerification

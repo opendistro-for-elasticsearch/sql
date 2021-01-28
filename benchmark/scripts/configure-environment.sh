@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Get Elasticsearch version as an argument.
+if (( $# != 1 ))
+then
+    echo "Usage: configure-environment.sh [elasticsearch-version]"
+    exit 1
+fi
+ES_VERSION=$1
+
 # Install Prerequisites
 sudo add-apt-repository ppa:openjdk-r/ppa
 sudo apt-get update
@@ -12,8 +20,8 @@ sudo apt-get -y install cmake
 # Setup Elasticsearch
 wget -qO - https://d3g5vo6xdbdb9a.cloudfront.net/GPG-KEY-opendistroforelasticsearch | sudo apt-key add -
 echo "deb https://d3g5vo6xdbdb9a.cloudfront.net/apt stable main" | sudo tee -a   /etc/apt/sources.list.d/opendistroforelasticsearch.list
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.9.1-amd64.deb
-sudo dpkg -i elasticsearch-oss-7.9.1-amd64.deb
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ES_VERSION}-amd64.deb
+sudo dpkg -i elasticsearch-oss-${ES_VERSION}-amd64.deb
 sudo apt-get update
 sudo apt-get install opendistroforelasticsearch
 

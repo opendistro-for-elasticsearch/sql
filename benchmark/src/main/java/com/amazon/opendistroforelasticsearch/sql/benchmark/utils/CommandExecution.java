@@ -33,6 +33,7 @@ public class CommandExecution {
       throws IOException, InterruptedException {
     String[] executeCommands = {"/bin/bash", "-c", commands};
     ProcessBuilder processBuilder = new ProcessBuilder(executeCommands);
+    processBuilder.redirectErrorStream(true);
     Process process = processBuilder.start();
     if (process != null) {
       process.waitFor();

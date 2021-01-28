@@ -46,6 +46,8 @@ public class CassandraDatabaseLauncher implements DatabaseLauncher {
         "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl stop cassandra.service");
     executeCommand(
         "echo " + BenchmarkService.systemPassword + " | sudo -S systemctl status cassandra");
-
+    // Make sure JDK is set to 11 after finishing with Cassandra.
+    executeCommand("echo " + BenchmarkService.systemPassword + " | sudo -S "
+        + "update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java");
   }
 }
