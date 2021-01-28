@@ -71,7 +71,31 @@ public class ReferenceExpression implements Expression {
   }
 
   /**
-   * Resolve the ExprValue from {@link ExprTupleValue}.
+   * Resolve the ExprValue from {@link ExprTupleValue} using paths.
+   *
+   * Considering the following sample data.
+   * {
+   *   "name": "bob smith"
+   *   "project.year": 1990,
+   *   "project": {
+   *     "year": "2020"
+   *   }
+   *   "address": {
+   *     "state": "WA",
+   *     "city": "seattle"
+   *   }
+   * }
+   * The paths could be
+   * 1. top level, e.g. "name", which will be resolved as "bob smith"
+   * 2. multiple paths, e.g. "name.address.state", which will be resolved as "WA"
+   * 3. special case, the "." is the path separator, but it is possible that the path include
+   * ".", for handling this use case, we define the resolve rule as bellow, e.g. "project.year" is
+   * resolved as 1990 instead of 2020.
+   *
+   * Resolved Rule
+   * 1. Resolve the full name by combine the paths("x"."y"."z") as whole ("x.y.z").
+   * 2. Resolve the path recursively through ExprValue.
+   *
    * @param value {@link ExprTupleValue}.
    * @return {@link ExprTupleValue}.
    */

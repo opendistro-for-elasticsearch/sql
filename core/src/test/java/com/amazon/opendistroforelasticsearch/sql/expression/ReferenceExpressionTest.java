@@ -39,6 +39,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -84,11 +85,11 @@ class ReferenceExpressionTest extends ExpressionTestBase {
 
   @Test
   public void path_as_whole_has_highest_priority() {
-    ReferenceExpression expr = new ReferenceExpression("name.nick", STRING);
+    ReferenceExpression expr = new ReferenceExpression("project.year", INTEGER);
     ExprValue actualValue = expr.resolve(tuple());
 
-    assertEquals(STRING, actualValue.type());
-    assertEquals("bob", actualValue.stringValue());
+    assertEquals(INTEGER, actualValue.type());
+    assertEquals(1990, actualValue.integerValue());
   }
 
   @Test
@@ -120,7 +121,10 @@ class ReferenceExpressionTest extends ExpressionTestBase {
   /**
    * {
    *   "name": "bob smith"
-   *   "name.nick": "bob",
+   *   "project.year": 1990,
+   *   "project": {
+   *     "year": 2020
+   *   },
    *   "address": {
    *     "state": "WA",
    *     "city": "seattle"
@@ -130,9 +134,12 @@ class ReferenceExpressionTest extends ExpressionTestBase {
   private ExprTupleValue tuple() {
     ExprValue address =
         ExprValueUtils.tupleValue(ImmutableMap.of("state", "WA", "city", "seattle"));
+    ExprValue project =
+        ExprValueUtils.tupleValue(ImmutableMap.of("year", 2020));
     ExprTupleValue tuple = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "name", new ExprStringValue("bob smith"),
-        "name.nick", new ExprStringValue("bob"),
+        "project.year", new ExprIntegerValue(1990),
+        "project", project,
         "address", address));
     return tuple;
   }
