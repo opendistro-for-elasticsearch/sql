@@ -28,13 +28,13 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.physical.Physica
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.dedupe;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.truncate;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.remove;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.sort;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.truncate;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.values;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.window;
 import static java.util.Collections.emptyList;
