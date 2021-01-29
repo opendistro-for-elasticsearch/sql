@@ -16,9 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.datetime;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.intervalValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.missingValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTERVAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -38,6 +42,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class IntervalClauseTest extends ExpressionTestBase {
   @Mock
   Environment<Expression, ExprValue> env;
+
+  @Mock
+  Expression nullRef;
+
+  @Mock
+  Expression missingRef;
 
   @Test
   public void microsecond() {
@@ -113,5 +123,23 @@ public class IntervalClauseTest extends ExpressionTestBase {
   public void to_string() {
     FunctionExpression expr = dsl.interval(DSL.literal(1), DSL.literal("day"));
     assertEquals("interval(1, \"day\")", expr.toString());
+  }
+
+  @Test
+  public void null_value() {
+    when(nullRef.type()).thenReturn(INTEGER);
+    when(nullRef.valueOf(env)).thenReturn(nullValue());
+    FunctionExpression expr = dsl.interval(nullRef, DSL.literal("day"));
+    assertEquals(INTERVAL, expr.type());
+    assertEquals(nullValue(), expr.valueOf(env));
+  }
+
+  @Test
+  public void missing_value() {
+    when(missingRef.type()).thenReturn(INTEGER);
+    when(missingRef.valueOf(env)).thenReturn(missingValue());
+    FunctionExpression expr = dsl.interval(missingRef, DSL.literal("day"));
+    assertEquals(INTERVAL, expr.type());
+    assertEquals(missingValue(), expr.valueOf(env));
   }
 }

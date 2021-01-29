@@ -81,6 +81,9 @@ integTest {
     systemProperty "user", System.getProperty("user")
     systemProperty "password", System.getProperty("password")
 
+    // Enable new SQL engine
+    systemProperty 'enableNewEngine', 'false'
+
     // Set default query size limit
     systemProperty 'defaultQuerySizeLimit', '10000'
 
@@ -108,9 +111,6 @@ task integTestWithNewEngine(type: RestIntegTestTask) {
     systemProperty "https", System.getProperty("https")
     systemProperty "user", System.getProperty("user")
     systemProperty "password", System.getProperty("password")
-
-    // Enable new SQL engine
-    systemProperty 'enableNewEngine', 'true'
 
     // Set default query size limit
     systemProperty 'defaultQuerySizeLimit', '10000'

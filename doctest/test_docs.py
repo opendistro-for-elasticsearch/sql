@@ -203,7 +203,4 @@ def load_tests(loader, suite, ignore):
     # randomize order of tests to make sure they don't depend on each other
     random.shuffle(tests)
 
-    # prepend a temporary doc to enable new engine so new SQL docs followed can pass
-    tests.insert(0, doc_suite('../docs/user/dql/newsql.rst'))
-
     return DocTests(tests)
