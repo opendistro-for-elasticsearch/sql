@@ -365,18 +365,8 @@ public class AstDSL {
     return new Dedupe(input, options, Arrays.asList(fields));
   }
 
-  public static Head head(UnresolvedPlan input, List<UnresolvedArgument> options) {
-    return new Head(input, options);
-  }
-
-  /**
-   * Default Head Command Args.
-   */
-  public static List<UnresolvedArgument> defaultHeadArgs() {
-    return unresolvedArgList(
-            unresolvedArg("keeplast", booleanLiteral(true)),
-            unresolvedArg("whileExpr", booleanLiteral(true)),
-            unresolvedArg("number", intLiteral(10)));
+  public static Head head(UnresolvedPlan input, Integer size) {
+    return new Head(input, size);
   }
 
   public static List<Argument> defaultTopArgs() {
