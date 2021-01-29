@@ -118,6 +118,23 @@ class ReferenceExpressionTest extends ExpressionTestBase {
     assertTrue(actualValue.isMissing());
   }
 
+  @Test
+  public void object_field_contain_dot() {
+    ReferenceExpression expr = new ReferenceExpression("address.local.state", STRING);
+    ExprValue actualValue = expr.resolve(tuple());
+
+    assertTrue(actualValue.isMissing());
+  }
+
+  @Test
+  public void innner_none_object_field_contain_dot() {
+    ReferenceExpression expr = new ReferenceExpression("address.project.year", INTEGER);
+    ExprValue actualValue = expr.resolve(tuple());
+
+    assertEquals(INTEGER, actualValue.type());
+    assertEquals(1990, actualValue.integerValue());
+  }
+
   /**
    * {
    *   "name": "bob smith"
@@ -128,19 +145,28 @@ class ReferenceExpressionTest extends ExpressionTestBase {
    *   "address": {
    *     "state": "WA",
    *     "city": "seattle"
+   *     "project.year": 1990
+   *   },
+   *   "address.local": {
+   *     "state": "WA",
    *   }
    * }
    */
   private ExprTupleValue tuple() {
     ExprValue address =
-        ExprValueUtils.tupleValue(ImmutableMap.of("state", "WA", "city", "seattle"));
+        ExprValueUtils.tupleValue(ImmutableMap.of("state", "WA", "city", "seattle", "project"
+            + ".year", 1990));
     ExprValue project =
         ExprValueUtils.tupleValue(ImmutableMap.of("year", 2020));
+    ExprValue addressLocal =
+        ExprValueUtils.tupleValue(ImmutableMap.of("state", "WA"));
     ExprTupleValue tuple = ExprTupleValue.fromExprValueMap(ImmutableMap.of(
         "name", new ExprStringValue("bob smith"),
         "project.year", new ExprIntegerValue(1990),
         "project", project,
-        "address", address));
+        "address", address,
+        "address.local", addressLocal
+        ));
     return tuple;
   }
 }

@@ -71,7 +71,7 @@ public class ReferenceExpression implements Expression {
   }
 
   /**
-   * Resolve the ExprValue from {@link ExprTupleValue} using paths.*
+   * Resolve the ExprValue from {@link ExprTupleValue} using paths.
    * Considering the following sample data.
    * {
    *   "name": "bob smith"
@@ -81,7 +81,11 @@ public class ReferenceExpression implements Expression {
    *   }
    *   "address": {
    *     "state": "WA",
-   *     "city": "seattle"
+   *     "city": "seattle",
+   *     "project.year": 1990
+   *   }
+   *   "address.local": {
+   *     "state": "WA",
    *   }
    * }
    * The paths could be
@@ -89,7 +93,10 @@ public class ReferenceExpression implements Expression {
    * 2. multiple paths, e.g. "name.address.state", which will be resolved as "WA"
    * 3. special case, the "." is the path separator, but it is possible that the path include
    * ".", for handling this use case, we define the resolve rule as bellow, e.g. "project.year" is
-   * resolved as 1990 instead of 2020.
+   * resolved as 1990 instead of 2020. Note. This logic only applied top level none object field.
+   * e.g. "address.local.state" been resolved to Missing. but "address.project.year" could been
+   * resolved as 1990.
+   *
    * Resolved Rule
    * 1. Resolve the full name by combine the paths("x"."y"."z") as whole ("x.y.z").
    * 2. Resolve the path recursively through ExprValue.
