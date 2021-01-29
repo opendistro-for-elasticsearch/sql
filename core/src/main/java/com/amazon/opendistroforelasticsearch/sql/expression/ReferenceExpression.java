@@ -96,8 +96,8 @@ public class ReferenceExpression implements Expression {
    * resolved as 1990 instead of 2020. Note. This logic only applied top level none object field.
    * e.g. "address.local.state" been resolved to Missing. but "address.project.year" could been
    * resolved as 1990.
-   * <p>
-   * Resolve Rule
+   *
+   * <p>Resolve Rule
    * 1. Resolve the full name by combine the paths("x"."y"."z") as whole ("x.y.z").
    * 2. Resolve the path recursively through ExprValue.
    *
