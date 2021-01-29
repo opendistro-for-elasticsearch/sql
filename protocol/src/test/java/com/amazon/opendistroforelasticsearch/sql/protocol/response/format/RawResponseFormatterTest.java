@@ -107,7 +107,7 @@ public class RawResponseFormatterTest {
 
   @Test
   void escapeSanitize() {
-    FlatResponseFormatter escapeFormatter = new FlatResponseFormatter("|", false);
+    FlatResponseFormatter escapeFormatter = new RawResponseFormatter(false);
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
             new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(

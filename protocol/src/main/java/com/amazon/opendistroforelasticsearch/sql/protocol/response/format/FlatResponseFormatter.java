@@ -27,7 +27,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
+public abstract class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
   private static String INLINE_SEPARATOR = ",";
   private static final String INTERLINE_SEPARATOR = System.lineSeparator();
 

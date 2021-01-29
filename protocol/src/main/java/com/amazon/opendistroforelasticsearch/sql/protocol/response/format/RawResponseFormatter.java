@@ -33,12 +33,6 @@ import lombok.RequiredArgsConstructor;
 public class RawResponseFormatter extends FlatResponseFormatter {
   private boolean sanitize = false;
 
-  /**
-   * FlatResponseFormatter to support csv and raw format.
-   *
-   * @param sanitize sanitize flag
-   */
-
   public RawResponseFormatter(Boolean sanitize) {
     super("|", sanitize);
   }

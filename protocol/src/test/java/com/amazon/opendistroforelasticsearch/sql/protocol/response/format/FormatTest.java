@@ -48,7 +48,6 @@ public class FormatTest {
     assertEquals(Format.CSV, format.get());
   }
 
-  /*
   @Test
   void raw() {
     Optional<Format> format = Format.of("raw");
@@ -56,7 +55,6 @@ public class FormatTest {
     assertEquals(Format.RAW, format.get());
   }
 
-   */
   @Test
   void caseSensitive() {
     Optional<Format> format = Format.of("JDBC");
