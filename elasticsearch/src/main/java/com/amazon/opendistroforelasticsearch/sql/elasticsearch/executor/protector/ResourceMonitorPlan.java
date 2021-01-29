@@ -33,6 +33,12 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class ResourceMonitorPlan extends PhysicalPlan {
+
+  /**
+   * How many method calls to delegate's next() to perform resource check once.
+   */
+  public static final long NUMBER_OF_NEXT_CALL_TO_CHECK = 1000;
+
   /**
    * Delegated PhysicalPlan.
    */
@@ -43,6 +49,13 @@ public class ResourceMonitorPlan extends PhysicalPlan {
    */
   @ToString.Exclude
   private final ResourceMonitor monitor;
+
+  /**
+   * Count how many calls to delegate's next() already.
+   */
+  @EqualsAndHashCode.Exclude
+  private long nextCallCount = 0L;
+
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
@@ -74,6 +87,10 @@ public class ResourceMonitorPlan extends PhysicalPlan {
 
   @Override
   public ExprValue next() {
+    boolean shouldCheck = (++nextCallCount % NUMBER_OF_NEXT_CALL_TO_CHECK == 0);
+    if (shouldCheck && !this.monitor.isHealthy()) {
+      throw new IllegalStateException("resource is not enough to load next row, quit.");
+    }
     return delegate.next();
   }
 }
