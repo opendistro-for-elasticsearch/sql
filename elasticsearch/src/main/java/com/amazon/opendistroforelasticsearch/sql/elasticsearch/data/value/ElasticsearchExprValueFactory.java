@@ -57,6 +57,10 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.JsonContent;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.ObjectContent;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.Parser;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.TypeMapping;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,16 +73,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.AllArgsConstructor;
 import lombok.Setter;
 import org.elasticsearch.common.time.DateFormatters;
 
 /** Construct ExprValue from Elasticsearch response. */
-@AllArgsConstructor
 public class ElasticsearchExprValueFactory {
   /** The Mapping of Field and ExprType. */
   @Setter
   private Map<String, ExprType> typeMapping;
+
+  private Parser parser;
 
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
@@ -91,15 +95,25 @@ public class ElasticsearchExprValueFactory {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+  public ElasticsearchExprValueFactory(
+      Map<String, ExprType> typeMapping) {
+    this.typeMapping = typeMapping;
+    this.parser = new Parser(new TypeMapping.DefaultTypeMapping(typeMapping));
+  }
+
   /**
    * The struct construction has the following assumption. 1. The field has Elasticsearch Object
    * data type. https://www.elastic.co/guide/en/elasticsearch/reference/current/object.html 2. The
    * deeper field is flattened in the typeMapping. e.g. {"employ", "STRUCT"} {"employ.id",
    * "INTEGER"} {"employ.state", "STRING"}
    */
-  public ExprTupleValue construct(String jsonString) {
+  public ExprValue construct(String jsonString) {
     try {
-      return constructStruct(OBJECT_MAPPER.readTree(jsonString), TOP_PATH);
+//      return constructStruct(OBJECT_MAPPER.readTree(jsonString), TOP_PATH);
+
+      final JsonNode value = OBJECT_MAPPER.readTree(jsonString);
+
+      return parser.parse(new JsonContent(value), STRUCT);
     } catch (JsonProcessingException e) {
       throw new IllegalStateException(String.format("invalid json: %s.", jsonString), e);
     }
@@ -111,49 +125,7 @@ public class ElasticsearchExprValueFactory {
       return nullValue();
     }
 
-    ExprType type = type(field);
-    if (type.equals(INTEGER)) {
-      return constructInteger(value.intValue());
-    } else if (type.equals(LONG)) {
-      return constructLong(value.longValue());
-    } else if (type.equals(SHORT)) {
-      return constructShort(value.shortValue());
-    } else if (type.equals(BYTE)) {
-      return constructByte(((byte)value.shortValue()));
-    } else if (type.equals(FLOAT)) {
-      return constructFloat(value.floatValue());
-    } else if (type.equals(DOUBLE)) {
-      return constructDouble(value.doubleValue());
-    } else if (type.equals(STRING)) {
-      return constructString(value.textValue());
-    } else if (type.equals(BOOLEAN)) {
-      return constructBoolean(value.booleanValue());
-    } else if (type.equals(STRUCT)) {
-      return constructStruct(value, field);
-    } else if (type.equals(ARRAY)) {
-      return constructArray(value, field);
-    } else if (type.equals(TIMESTAMP)) {
-      if (value.isNumber()) {
-        return constructTimestamp(value.longValue());
-      } else {
-        return constructTimestamp(value.asText());
-      }
-    } else if (type.equals(ES_TEXT)) {
-      return new ElasticsearchExprTextValue(value.asText());
-    } else if (type.equals(ES_TEXT_KEYWORD)) {
-      return new ElasticsearchExprTextKeywordValue(value.asText());
-    } else if (type.equals(ES_IP)) {
-      return new ElasticsearchExprIpValue(value.asText());
-    } else if (type.equals(ES_GEO_POINT)) {
-      return new ElasticsearchExprGeoPointValue(value.get("lat").doubleValue(),
-          value.get("lon").doubleValue());
-    } else if (type.equals(ES_BINARY)) {
-      return new ElasticsearchExprBinaryValue(value.textValue());
-    } else {
-      throw new IllegalStateException(
-          String.format(
-              "Unsupported type: %s for field: %s, value: %s.", type.typeName(), field, value));
-    }
+    return parser.parse(new JsonContent(value), STRUCT);
   }
 
   /**
@@ -170,44 +142,7 @@ public class ElasticsearchExprValueFactory {
       return nullValue();
     }
 
-    ExprType type = type(field);
-    if (type.equals(INTEGER)) {
-      return constructInteger(parseNumberValue(value, Integer::valueOf, Number::intValue));
-    } else if (type.equals(LONG)) {
-      return constructLong(parseNumberValue(value, Long::valueOf, Number::longValue));
-    } else if (type.equals(FLOAT)) {
-      return constructFloat(parseNumberValue(value, Float::valueOf, Number::floatValue));
-    } else if (type.equals(DOUBLE)) {
-      return constructDouble(parseNumberValue(value, Double::valueOf, Number::doubleValue));
-    } else if (type.equals(STRING)) {
-      return constructString((String) value);
-    } else if (type.equals(BOOLEAN)) {
-      return constructBoolean((Boolean) value);
-    } else if (type.equals(TIMESTAMP) || type.equals(DATE) || type.equals(TIME)
-            || type.equals(DATETIME)) {
-      ExprValue exprValue;
-      if (value instanceof Number) {
-        exprValue = constructTimestamp(((Number) value).longValue());
-      } else if (value instanceof Instant) {
-        exprValue = constructTimestamp((Instant) value);
-      } else {
-        exprValue = constructTimestamp(String.valueOf(value));
-      }
-      if (type.equals(DATE)) {
-        return new ExprDateValue(exprValue.dateValue().toString());
-      } else if (type.equals(TIME)) {
-        return new ExprTimeValue(exprValue.timeValue().toString());
-      }
-      return exprValue;
-    } else if (type.equals(ES_TEXT)) {
-      return new ElasticsearchExprTextValue((String) value);
-    } else if (type.equals(ES_TEXT_KEYWORD)) {
-      return new ElasticsearchExprTextKeywordValue((String) value);
-    } else {
-      throw new IllegalStateException(String.format(
-          "Unsupported type %s to construct expression value from object for "
-              + "field: %s, value: %s.", type.typeName(), field, value));
-    }
+    return parser.parse(new ObjectContent(value), field);
   }
 
   /**
