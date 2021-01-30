@@ -56,6 +56,14 @@ public class NullLiteralIT extends SQLIntegTestCase {
         rows(null, null));
   }
 
+  @Test
+  public void testNullLiteralInInterval() {
+    verifyDataRows(
+        query("SELECT INTERVAL NULL DAY, INTERVAL 60 * 60 * 24 * (NULL - FLOOR(NULL)) SECOND"),
+        rows(null, null)
+    );
+  }
+
   private JSONObject query(String sql) {
     return new JSONObject(executeQuery(sql, "jdbc"));
   }
