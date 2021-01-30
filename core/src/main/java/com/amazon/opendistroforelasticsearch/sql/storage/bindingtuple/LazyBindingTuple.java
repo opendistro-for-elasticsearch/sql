@@ -15,9 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -25,10 +26,10 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class LazyBindingTuple extends BindingTuple {
-  private final Function<String, ExprValue> lazyBinding;
+  private final Supplier<ExprTupleValue> lazyBinding;
 
   @Override
   public ExprValue resolve(ReferenceExpression ref) {
-    return lazyBinding.apply(ref.getAttr());
+    return ref.resolve(lazyBinding.get());
   }
 }

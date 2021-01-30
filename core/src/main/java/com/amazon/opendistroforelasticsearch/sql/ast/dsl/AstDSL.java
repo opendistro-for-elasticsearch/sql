@@ -116,7 +116,7 @@ public class AstDSL {
     return new Values(Arrays.asList(values));
   }
 
-  public static UnresolvedExpression qualifiedName(String... parts) {
+  public static QualifiedName qualifiedName(String... parts) {
     return new QualifiedName(Arrays.asList(parts));
   }
 
@@ -178,7 +178,7 @@ public class AstDSL {
   }
 
   public static Map map(String origin, String target) {
-    return new Map(new Field(origin), new Field(target));
+    return new Map(field(origin), field(target));
   }
 
   public static Map map(UnresolvedExpression origin, UnresolvedExpression target) {
@@ -281,19 +281,19 @@ public class AstDSL {
   }
 
   public Field field(UnresolvedExpression field) {
-    return new Field((QualifiedName) field);
-  }
-
-  public Field field(String field) {
     return new Field(field);
   }
 
   public Field field(UnresolvedExpression field, Argument... fieldArgs) {
-    return new Field(field, Arrays.asList(fieldArgs));
+    return field(field, Arrays.asList(fieldArgs));
+  }
+
+  public Field field(String field) {
+    return field(qualifiedName(field));
   }
 
   public Field field(String field, Argument... fieldArgs) {
-    return new Field(field, Arrays.asList(fieldArgs));
+    return field(field, Arrays.asList(fieldArgs));
   }
 
   public Field field(UnresolvedExpression field, List<Argument> fieldArgs) {
@@ -301,7 +301,7 @@ public class AstDSL {
   }
 
   public Field field(String field, List<Argument> fieldArgs) {
-    return new Field(field, fieldArgs);
+    return field(qualifiedName(field), fieldArgs);
   }
 
   public Alias alias(String name, UnresolvedExpression expr) {

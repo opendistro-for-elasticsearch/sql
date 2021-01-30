@@ -119,8 +119,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitFieldsCommand(FieldsCommandContext ctx) {
     return new Project(
-        ctx.wcFieldList()
-            .wcFieldExpression()
+        ctx.fieldList()
+            .fieldExpression()
             .stream()
             .map(this::visitExpression)
             .collect(Collectors.toList()),
