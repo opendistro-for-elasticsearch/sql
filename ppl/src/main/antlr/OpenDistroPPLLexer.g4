@@ -51,13 +51,11 @@ NUM:                                'NUM';
 
 // ARGUMENT KEYWORDS
 KEEPEMPTY:                          'KEEPEMPTY';
-KEEPLAST:                           'KEEPLAST';
 CONSECUTIVE:                        'CONSECUTIVE';
 DEDUP_SPLITVALUES:                  'DEDUP_SPLITVALUES';
 PARTITIONS:                         'PARTITIONS';
 ALLNUM:                             'ALLNUM';
 DELIM:                              'DELIM';
-WHILE:                              'WHILE';
 
 // COMPARISON FUNCTION KEYWORDS
 CASE:                               'CASE';
