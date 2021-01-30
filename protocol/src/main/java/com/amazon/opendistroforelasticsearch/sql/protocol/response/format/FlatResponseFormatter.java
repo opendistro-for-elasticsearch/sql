@@ -30,12 +30,12 @@ import lombok.RequiredArgsConstructor;
 public abstract class FlatResponseFormatter implements ResponseFormatter<QueryResult> {
   private static String INLINE_SEPARATOR = ",";
   private static final String INTERLINE_SEPARATOR = System.lineSeparator();
+  private static final Set<String> SENSITIVE_CHAR = ImmutableSet.of("=", "+", "-", "@");
 
-  private boolean sanitize = true;
+  private boolean sanitize = false;
 
-  public FlatResponseFormatter(String seperator, Boolean sanitize) {
+  public FlatResponseFormatter(String seperator) {
     this.INLINE_SEPARATOR = seperator;
-    this.sanitize = sanitize;
   }
 
   @Override
@@ -81,7 +81,7 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
       ImmutableList.Builder<String> headers = ImmutableList.builder();
       response.columnNameTypes().forEach((column, type) -> headers.add(column));
       List<String> result = headers.build();
-      return sanitize ? sanitizeHeaders(result) : result;
+      return sanitizeHeaders(result);
     }
 
     private List<List<String>> getData(QueryResult response, boolean sanitize) {
@@ -93,7 +93,7 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
         dataLines.add(line.build());
       });
       List<List<String>> result = dataLines.build();
-      return sanitize ? sanitizeData(result) : result;
+      return sanitizeData(result);
     }
 
     /**
@@ -101,19 +101,16 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
      */
     private List<String> sanitizeHeaders(List<String> headers) {
       return headers.stream()
-              .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
-              .collect(Collectors.toList());
+          .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+          .collect(Collectors.toList());
     }
 
-    /**
-     * Sanitize CSV lines in which each cell is sanitized to avoid CSV injection.
-     */
     private List<List<String>> sanitizeData(List<List<String>> lines) {
       List<List<String>> result = new ArrayList<>();
       for (List<String> line : lines) {
         result.add(line.stream()
-                .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
-                .collect(Collectors.toList()));
+            .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+            .collect(Collectors.toList()));
       }
       return result;
     }

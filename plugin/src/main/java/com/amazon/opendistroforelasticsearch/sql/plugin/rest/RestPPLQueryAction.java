@@ -199,7 +199,7 @@ public class RestPPLQueryAction extends BaseRestHandler {
     if (format.equals(Format.CSV)) {
       formatter = new CsvResponseFormatter(pplRequest.sanitize());
     } else if (format.equals(Format.RAW)) {
-      formatter = new RawResponseFormatter(pplRequest.sanitize());
+      formatter = new RawResponseFormatter();
     } else {
       formatter = new SimpleJsonResponseFormatter(PRETTY);
     }

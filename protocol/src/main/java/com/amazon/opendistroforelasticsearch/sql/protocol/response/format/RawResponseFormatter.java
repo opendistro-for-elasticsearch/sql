@@ -31,10 +31,8 @@ import lombok.RequiredArgsConstructor;
  */
 //@RequiredArgsConstructor
 public class RawResponseFormatter extends FlatResponseFormatter {
-  private boolean sanitize = false;
-
-  public RawResponseFormatter(Boolean sanitize) {
-    super("|", sanitize);
+  public RawResponseFormatter() {
+    super("|");
   }
 
 }

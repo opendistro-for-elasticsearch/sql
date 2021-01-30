@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * Unit test for {@link FlatResponseFormatter}.
  */
 public class RawResponseFormatterTest {
-  private FlatResponseFormatter rawFormater = new RawResponseFormatter(true);
+  private FlatResponseFormatter rawFormater = new RawResponseFormatter();
 
   @Test
   void formatResponse() {
@@ -107,7 +107,7 @@ public class RawResponseFormatterTest {
 
   @Test
   void escapeSanitize() {
-    FlatResponseFormatter escapeFormatter = new RawResponseFormatter(false);
+    FlatResponseFormatter escapeFormatter = new RawResponseFormatter();
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
             new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
@@ -115,7 +115,7 @@ public class RawResponseFormatterTest {
             tupleValue(ImmutableMap.of("city", "||Seattle"))));
     String expected = "city\n"
             + "=Seattle\n"
-            + "||Seattle";
+            + "\"||Seattle\"";
     assertEquals(expected, escapeFormatter.format(response));
   }
 
@@ -134,7 +134,7 @@ public class RawResponseFormatterTest {
 
   @Test
   void senstiveCharaterWithSanitize() {
-    FlatResponseFormatter testFormater = new RawResponseFormatter(true);
+    FlatResponseFormatter testFormater = new RawResponseFormatter();
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
             new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
