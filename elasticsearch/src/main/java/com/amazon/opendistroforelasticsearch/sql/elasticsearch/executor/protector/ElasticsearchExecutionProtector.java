@@ -77,7 +77,7 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
    */
   @Override
   public PhysicalPlan visitTableScan(TableScanOperator node, Object context) {
-    return new ResourceMonitorPlan(node, resourceMonitor);
+    return doProtect(node);
   }
 
   @Override
@@ -111,10 +111,14 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
     );
   }
 
+  /**
+   * Decorate input node with {@link ResourceMonitorPlan} to avoid aggregate
+   * window function pre-loads too many data into memory in worst case.
+   */
   @Override
   public PhysicalPlan visitWindow(WindowOperator node, Object context) {
     return new WindowOperator(
-        visitInput(node.getInput(), context),
+        doProtect(visitInput(node.getInput(), context)),
         node.getWindowFunction(),
         node.getWindowDefinition());
   }
@@ -124,11 +128,10 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
    */
   @Override
   public PhysicalPlan visitSort(SortOperator node, Object context) {
-    return new ResourceMonitorPlan(
+    return doProtect(
         new SortOperator(
             visitInput(node.getInput(), context),
-            node.getSortList()),
-        resourceMonitor);
+            node.getSortList()));
   }
 
   /**
@@ -155,4 +158,16 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
       return node.accept(this, context);
     }
   }
+
+  private PhysicalPlan doProtect(PhysicalPlan node) {
+    if (isProtected(node)) {
+      return node;
+    }
+    return new ResourceMonitorPlan(node, resourceMonitor);
+  }
+
+  private boolean isProtected(PhysicalPlan node) {
+    return (node instanceof ResourceMonitorPlan);
+  }
+
 }

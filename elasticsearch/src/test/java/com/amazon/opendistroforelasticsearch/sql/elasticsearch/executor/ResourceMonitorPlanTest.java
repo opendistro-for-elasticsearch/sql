@@ -73,8 +73,26 @@ class ResourceMonitorPlanTest {
 
   @Test
   void nextSuccess() {
-    monitorPlan.next();
-    verify(plan, times(1)).next();
+    when(resourceMonitor.isHealthy()).thenReturn(true);
+
+    for (int i = 1; i <= 1000; i++) {
+      monitorPlan.next();
+    }
+    verify(resourceMonitor, times(1)).isHealthy();
+    verify(plan, times(1000)).next();
+  }
+
+  @Test
+  void nextExceedResourceLimit() {
+    when(resourceMonitor.isHealthy()).thenReturn(false);
+
+    for (int i = 1; i < 1000; i++) {
+      monitorPlan.next();
+    }
+
+    IllegalStateException exception =
+        assertThrows(IllegalStateException.class, () -> monitorPlan.next());
+    assertEquals("resource is not enough to load next row, quit.", exception.getMessage());
   }
 
   @Test

@@ -50,6 +50,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankFunction;
 import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -210,6 +211,50 @@ class ElasticsearchExecutionProtectorTest {
                     sortItem
                 ),
                 rank,
+                windowDefinition)));
+  }
+
+  @Test
+  public void testProtectWindowOperatorInput() {
+    NamedExpression avg = named(mock(AggregateWindowFunction.class));
+    WindowDefinition windowDefinition = mock(WindowDefinition.class);
+
+    assertEquals(
+        window(
+            resourceMonitor(
+                values()),
+            avg,
+            windowDefinition),
+        executionProtector.protect(
+            window(
+                values(),
+                avg,
+                windowDefinition)));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testNotProtectWindowOperatorInputIfAlreadyProtected() {
+    NamedExpression avg = named(mock(AggregateWindowFunction.class));
+    Pair<Sort.SortOption, Expression> sortItem =
+        ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER));
+    WindowDefinition windowDefinition =
+        new WindowDefinition(emptyList(), ImmutableList.of(sortItem));
+
+    assertEquals(
+        window(
+            resourceMonitor(
+                sort(
+                    values(emptyList()),
+                    sortItem)),
+            avg,
+            windowDefinition),
+        executionProtector.protect(
+            window(
+                sort(
+                    values(emptyList()),
+                    sortItem),
+                avg,
                 windowDefinition)));
   }
 

@@ -24,6 +24,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.define;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.impl;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL.nullMissingHandling;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntervalValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -54,8 +55,8 @@ public class IntervalClause {
 
   private FunctionResolver interval() {
     return define(BuiltinFunctionName.INTERVAL.getName(),
-        impl(IntervalClause::interval, INTERVAL, INTEGER, STRING),
-        impl(IntervalClause::interval, INTERVAL, LONG, STRING));
+        impl(nullMissingHandling(IntervalClause::interval), INTERVAL, INTEGER, STRING),
+        impl(nullMissingHandling(IntervalClause::interval), INTERVAL, LONG, STRING));
   }
 
   private ExprValue interval(ExprValue value, ExprValue unit) {

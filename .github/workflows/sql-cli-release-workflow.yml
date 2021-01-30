@@ -42,9 +42,11 @@ jobs:
           python setup.py sdist bdist_wheel
           artifact=`ls ./dist/*.tar.gz`
           wheel_artifact=`ls ./dist/*.whl`
+          renamed_wheel_artifact=`echo $wheel_artifact | sed 's/_/-/g'`
+          mv "$wheel_artifact" "$renamed_wheel_artifact"
 
           aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-cli/
-          aws s3 cp $wheel_artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-cli/
+          aws s3 cp $renamed_wheel_artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-cli/
 
         # aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/downloads/*"
 
