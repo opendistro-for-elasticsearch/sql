@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.A
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -42,6 +43,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
@@ -98,6 +100,7 @@ public class Parser {
           .put(TIMESTAMP, this::parseTimestamp)
           .put(DATE, c -> new ExprDateValue(parseTimestamp(c).dateValue().toString()))
           .put(TIME, c -> new ExprTimeValue(parseTimestamp(c).timeValue().toString()))
+          .put(DATETIME, c -> new ExprDatetimeValue(parseTimestamp(c).datetimeValue()))
           .put(ES_TEXT, c -> new ElasticsearchExprTextValue(c.stringValue()))
           .put(ES_TEXT_KEYWORD, c -> new ElasticsearchExprTextKeywordValue(c.stringValue()))
           .put(ES_IP, c -> new ElasticsearchExprIpValue(c.stringValue()))
@@ -114,7 +117,7 @@ public class Parser {
     } else {
       throw new IllegalStateException(
           String.format(
-              "Unsupported type: %s for value: %s.", type.typeName(), content));
+              "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));
     }
   }
 

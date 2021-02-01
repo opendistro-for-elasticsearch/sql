@@ -307,13 +307,12 @@ class ElasticsearchExprValueFactoryTest {
         new ElasticsearchExprValueFactory(ImmutableMap.of("type", new TestType()));
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("{\"type\":1}"));
-    assertEquals("Unsupported type: TEST_TYPE for field: type, value: 1.", exception.getMessage());
+    assertEquals("Unsupported type: TEST_TYPE for value: 1.", exception.getMessage());
 
     exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("type", 1));
     assertEquals(
-        "Unsupported type TEST_TYPE to construct expression value "
-            + "from object for field: type, value: 1.",
+        "Unsupported type: TEST_TYPE for value: 1.",
         exception.getMessage());
   }
 
