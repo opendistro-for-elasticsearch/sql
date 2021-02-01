@@ -79,7 +79,6 @@ import org.elasticsearch.common.time.DateFormatters;
 /** Construct ExprValue from Elasticsearch response. */
 public class ElasticsearchExprValueFactory {
   /** The Mapping of Field and ExprType. */
-  @Setter
   private Map<String, ExprType> typeMapping;
 
   private Parser parser;
@@ -99,6 +98,10 @@ public class ElasticsearchExprValueFactory {
       Map<String, ExprType> typeMapping) {
     this.typeMapping = typeMapping;
     this.parser = new Parser(new TypeMapping.DefaultTypeMapping(typeMapping));
+  }
+
+  public void setTypeMapping(Map<String, ExprType> typeMapping) {
+    parser = new Parser(new TypeMapping.DefaultTypeMapping(typeMapping));
   }
 
   /**
