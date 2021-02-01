@@ -194,13 +194,20 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         qualifiedName("index_alias", "integer_value")
     );
 
-    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "nested_field"), STRUCT);
+    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "object_field"), STRUCT);
+    analysisContext.peek().define(new Symbol(Namespace.FIELD_NAME, "object_field.integer_value"),
+        INTEGER);
+    assertAnalyzeEqual(
+        DSL.ref("object_field.integer_value", INTEGER),
+        qualifiedName("object_field", "integer_value")
+    );
+
     SyntaxCheckException exception =
         assertThrows(SyntaxCheckException.class,
             () -> analyze(qualifiedName("nested_field", "integer_value")));
     assertEquals(
         "The qualifier [nested_field] of qualified name [nested_field.integer_value] "
-            + "must be an index name or its alias",
+            + "must be an field name, index name or its alias",
         exception.getMessage()
     );
     analysisContext.pop();
@@ -235,17 +242,6 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
                     qualifiedName("integer_value"),
                     AstDSL.intLiteral(30)),
                 AstDSL.stringLiteral("test"))));
-  }
-
-  @Test
-  public void skip_struct_data_type() {
-    SyntaxCheckException exception =
-        assertThrows(SyntaxCheckException.class,
-            () -> analyze(qualifiedName("struct_value")));
-    assertEquals(
-        "Identifier [struct_value] of type [STRUCT] is not supported yet",
-        exception.getMessage()
-    );
   }
 
   @Test

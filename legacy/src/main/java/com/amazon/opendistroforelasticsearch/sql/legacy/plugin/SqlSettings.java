@@ -57,7 +57,7 @@ public class SqlSettings {
     public SqlSettings() {
         Map<String, Setting<?>> settings = new HashMap<>();
         settings.put(SQL_ENABLED, Setting.boolSetting(SQL_ENABLED, true, NodeScope, Dynamic));
-        settings.put(SQL_NEW_ENGINE_ENABLED, Setting.boolSetting(SQL_NEW_ENGINE_ENABLED, false, NodeScope, Dynamic));
+        settings.put(SQL_NEW_ENGINE_ENABLED, Setting.boolSetting(SQL_NEW_ENGINE_ENABLED, true, NodeScope, Dynamic));
         settings.put(QUERY_SLOWLOG, Setting.intSetting(QUERY_SLOWLOG, 2, NodeScope, Dynamic));
         settings.put(QUERY_RESPONSE_FORMAT, Setting.simpleString(QUERY_RESPONSE_FORMAT, Format.JDBC.getFormatName(),
                                                                  NodeScope, Dynamic));

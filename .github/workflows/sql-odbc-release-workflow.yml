@@ -11,6 +11,8 @@ env:
   ODBC_BIN_PATH: "./build/odbc/bin"
   ODBC_BUILD_PATH: "./build/odbc/build"
   AWS_SDK_INSTALL_PATH: "./build/aws-sdk/install"
+  PLUGIN_NAME: opendistro-sql-odbc
+  OD_VERSION: 1.12.0.0
 
 jobs:
   build-mac:
@@ -79,7 +81,10 @@ jobs:
         if: success()
         run: |
           cd installer
-          pkg=`ls -1t *.pkg | grep "macos" | head -1`
+
+          pkg=`ls -1t *.pkg | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          mv "$pkg" "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-macos-x64.pkg"
+          pkg=`ls -1t *.pkg | grep "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-macos-x64.pkg" | head -1`
 
           # Inject the build number before the suffix
           pkg_outfile=`basename ${pkg%.pkg}-build-${GITHUB_RUN_NUMBER}.pkg`
@@ -134,7 +139,10 @@ jobs:
         shell: bash
         run: |
           cd ci-output/installer
-          msi=`ls -1t *.msi | grep "x86" | head -1`
+          
+          msi=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          mv "$msi" "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-windows-x86.msi"
+          msi=`ls -1t *.msi | grep "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-windows-x86.msi" | head -1`
 
           # Inject the build number before the suffix
           msi_outfile=`basename ${msi%.msi}-build-${GITHUB_RUN_NUMBER}.msi`
@@ -189,8 +197,11 @@ jobs:
         shell: bash
         run: |
           cd ci-output/installer
-          msi=`ls -1t *.msi | grep "x64" | head -1`
-
+          
+          msi=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          mv "$msi" "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-windows-x64.msi"
+          msi=`ls -1t *.msi | grep "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-windows-x64.msi" | head -1`
+          
           # Inject the build number before the suffix
           msi_outfile=`basename ${msi%.msi}-build-${GITHUB_RUN_NUMBER}.msi`
 
@@ -198,3 +209,4 @@ jobs:
 
           echo "Copying ${msi} to ${s3_prefix}${msi_outfile}"
           aws s3 cp --quiet $msi ${s3_prefix}${msi_outfile}
+

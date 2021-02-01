@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.equalTo;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import java.io.IOException;
 import org.junit.Assume;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class OrdinalAliasRewriterIT extends SQLIntegTestCase {

@@ -52,7 +52,7 @@ repositories {
 
 dependencies {
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.5'
     implementation group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.11.452'
 
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.1')

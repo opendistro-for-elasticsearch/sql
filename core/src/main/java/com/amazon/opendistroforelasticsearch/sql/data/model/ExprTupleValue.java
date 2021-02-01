@@ -64,13 +64,17 @@ public class ExprTupleValue extends AbstractExprValue {
 
   @Override
   public BindingTuple bindingTuples() {
-    return new LazyBindingTuple(
-        bindingName -> valueMap.getOrDefault(bindingName, ExprMissingValue.of()));
+    return new LazyBindingTuple(() -> this);
   }
 
   @Override
   public Map<String, ExprValue> tupleValue() {
     return valueMap;
+  }
+
+  @Override
+  public ExprValue keyValue(String key) {
+    return valueMap.getOrDefault(key, ExprMissingValue.of());
   }
 
   /**

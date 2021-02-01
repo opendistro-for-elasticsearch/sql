@@ -15,18 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.getResponseBody;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.IOException;
 import java.util.Locale;
 import org.elasticsearch.client.Request;
@@ -40,7 +38,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Override
   public void init() throws Exception {
     super.init();
-    TestUtils.enableNewQueryEngine(client());
     loadIndex(Index.BANK);
   }
 
@@ -251,17 +248,38 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("microsecond(timestamp('2020-09-16 17:30:00.123456'))", null, "integer"));
     verifyDataRows(result, rows(123456));
 
+    // Explicit timestamp value with less than 6 microsecond digits
+    result = executeQuery("select microsecond(timestamp('2020-09-16 17:30:00.1234'))");
+    verifySchema(result,
+        schema("microsecond(timestamp('2020-09-16 17:30:00.1234'))", null, "integer"));
+    verifyDataRows(result, rows(123400));
+
     result = executeQuery("select microsecond(time('17:30:00.000010'))");
     verifySchema(result, schema("microsecond(time('17:30:00.000010'))", null, "integer"));
     verifyDataRows(result, rows(10));
+
+    // Explicit time value with less than 6 microsecond digits
+    result = executeQuery("select microsecond(time('17:30:00.1234'))");
+    verifySchema(result, schema("microsecond(time('17:30:00.1234'))", null, "integer"));
+    verifyDataRows(result, rows(123400));
 
     result = executeQuery("select microsecond('2020-09-16 17:30:00.123456')");
     verifySchema(result, schema("microsecond('2020-09-16 17:30:00.123456')", null, "integer"));
     verifyDataRows(result, rows(123456));
 
+    // Implicit timestamp value with less than 6 microsecond digits
+    result = executeQuery("select microsecond('2020-09-16 17:30:00.1234')");
+    verifySchema(result, schema("microsecond('2020-09-16 17:30:00.1234')", null, "integer"));
+    verifyDataRows(result, rows(123400));
+
     result = executeQuery("select microsecond('17:30:00.000010')");
     verifySchema(result, schema("microsecond('17:30:00.000010')", null, "integer"));
     verifyDataRows(result, rows(10));
+
+    // Implicit time value with less than 6 microsecond digits
+    result = executeQuery("select microsecond('17:30:00.1234')");
+    verifySchema(result, schema("microsecond('17:30:00.1234')", null, "integer"));
+    verifyDataRows(result, rows(123400));
   }
 
   @Test

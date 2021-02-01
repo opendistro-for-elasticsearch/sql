@@ -47,6 +47,9 @@ jobs:
           tarball=`ls ./dist/*.tar.gz`
           wheel=`ls ./dist/*.whl`
 
+          renamed_wheel=`echo $wheel | sed 's/_/-/g'`
+          mv "$wheel" "$renamed_wheel"
+
           # Inject the build number before the suffix
           tarball_outfile=`basename ${tarball%.tar.gz}-build-${GITHUB_RUN_NUMBER}.tar.gz`
           wheel_outfile=`basename ${wheel%.whl}-build-${GITHUB_RUN_NUMBER}.whl`

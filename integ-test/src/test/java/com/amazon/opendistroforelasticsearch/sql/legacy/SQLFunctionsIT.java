@@ -714,12 +714,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void ifFuncShouldPassJDBC() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
         "SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
             + " WHERE age IS NOT NULL GROUP BY Ages");
-    assertEquals("Ages", response.query("/schema/0/name"));
+    assertEquals("IF(age > 30, \'True\', \'False\')", response.query("/schema/0/name"));
     assertEquals("Ages", response.query("/schema/0/alias"));
-    assertEquals("double", response.query("/schema/0/type"));
+    assertEquals("keyword", response.query("/schema/0/type"));
   }
 
   @Test
@@ -752,12 +753,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void ifnullShouldPassJDBC() throws IOException {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
         "SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
             + " GROUP BY name");
-    assertEquals("name", response.query("/schema/0/name"));
+    assertEquals("IFNULL(lastname, \'unknown\')", response.query("/schema/0/name"));
     assertEquals("name", response.query("/schema/0/alias"));
-    assertEquals("double", response.query("/schema/0/type"));
+    assertEquals("keyword", response.query("/schema/0/type"));
   }
 
   @Test
@@ -782,12 +784,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void isnullShouldPassJDBC() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response =
         executeJdbcRequest(
-            "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name");
-    assertEquals("name", response.query("/schema/0/name"));
+            "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT);
+    assertEquals("ISNULL(lastname)", response.query("/schema/0/name"));
     assertEquals("name", response.query("/schema/0/alias"));
-    assertEquals("integer", response.query("/schema/0/type"));
+    assertEquals("boolean", response.query("/schema/0/type"));
   }
 
   @Test

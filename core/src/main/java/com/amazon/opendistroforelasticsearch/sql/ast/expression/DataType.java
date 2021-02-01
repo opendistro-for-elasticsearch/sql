@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DataType {
   TYPE_ERROR(ExprCoreType.UNKNOWN),
-  NULL(ExprCoreType.UNKNOWN),
+  NULL(ExprCoreType.UNDEFINED),
 
   INTEGER(ExprCoreType.INTEGER),
   LONG(ExprCoreType.LONG),

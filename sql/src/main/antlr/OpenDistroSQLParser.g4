@@ -295,6 +295,7 @@ scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
     | textFunctionName
+    | flowControlFunctionName
     ;
 
 specificFunction
@@ -354,6 +355,10 @@ dateTimeFunctionName
 textFunctionName
     : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
     | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP | RIGHT
+    ;
+
+flowControlFunctionName
+    : IF | IFNULL | NULLIF | ISNULL
     ;
 
 functionArgs

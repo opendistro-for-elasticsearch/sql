@@ -26,7 +26,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -43,18 +45,33 @@ public class ExprTimestampValue extends AbstractExprValue {
   /**
    * todo. only support timestamp in format yyyy-MM-dd HH:mm:ss.
    */
-  private static final DateTimeFormatter FORMATTER = DateTimeFormatter
-      .ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS]");
   private static final DateTimeFormatter FORMATTER_WITNOUT_NANO = DateTimeFormatter
       .ofPattern("yyyy-MM-dd HH:mm:ss");
   private final Instant timestamp;
+
+  private static final DateTimeFormatter FORMATTER_VARIABLE_MICROS;
+  private static final int MIN_FRACTION_SECONDS = 0;
+  private static final int MAX_FRACTION_SECONDS = 6;
+
+  static {
+    FORMATTER_VARIABLE_MICROS = new DateTimeFormatterBuilder()
+        .appendPattern("yyyy-MM-dd HH:mm:ss")
+        .appendFraction(
+                ChronoField.MICRO_OF_SECOND,
+                MIN_FRACTION_SECONDS,
+                MAX_FRACTION_SECONDS,
+                true)
+        .toFormatter();
+  }
 
   /**
    * Constructor.
    */
   public ExprTimestampValue(String timestamp) {
     try {
-      this.timestamp = LocalDateTime.parse(timestamp, FORMATTER).atZone(ZONE).toInstant();
+      this.timestamp = LocalDateTime.parse(timestamp, FORMATTER_VARIABLE_MICROS)
+          .atZone(ZONE)
+          .toInstant();
     } catch (DateTimeParseException e) {
       throw new SemanticCheckException(String.format("timestamp:%s in unsupported format, please "
           + "use yyyy-MM-dd HH:mm:ss[.SSSSSS]", timestamp));
@@ -66,7 +83,7 @@ public class ExprTimestampValue extends AbstractExprValue {
   public String value() {
     return timestamp.getNano() == 0 ? FORMATTER_WITNOUT_NANO.withZone(ZONE)
         .format(timestamp.truncatedTo(ChronoUnit.SECONDS))
-        : FORMATTER.withZone(ZONE).format(timestamp);
+        : FORMATTER_VARIABLE_MICROS.withZone(ZONE).format(timestamp);
   }
 
   @Override

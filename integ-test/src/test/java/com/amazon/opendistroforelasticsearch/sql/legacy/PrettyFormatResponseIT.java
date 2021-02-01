@@ -136,6 +136,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     assertThat(getDataRows(response).length(), equalTo(RESPONSE_DEFAULT_MAX_SIZE));
   }
 
+  @Ignore("Issue 1019, Breaking Change, the keyword should not been allowed, semantic exception "
+      + "is expected")
   @Test
   public void selectKeyword() throws IOException {
     JSONObject response = executeQuery(

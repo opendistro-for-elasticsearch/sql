@@ -38,6 +38,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
@@ -113,6 +114,16 @@ public class AstBuilderTest {
   }
 
   @Test
+  public void testWhereCommandWithQualifiedName() {
+    assertEqual("search source=t | where a.v=1",
+        filter(
+            relation("t"),
+            compare("=", field(qualifiedName("a", "v")), intLiteral(1))
+        )
+    );
+  }
+
+  @Test
   public void testFieldsCommandWithoutArguments() {
     assertEqual("source=t | fields f, g",
         projectWithArg(
@@ -139,6 +150,16 @@ public class AstBuilderTest {
             relation("t"),
             exprList(argument("exclude", booleanLiteral(true))),
             field("f"), field("g")
+        ));
+  }
+
+  @Test
+  public void testSearchCommandWithQualifiedName() {
+    assertEqual("source=t | fields f.v, g.v",
+        projectWithArg(
+            relation("t"),
+            defaultFieldsArgs(),
+            field(qualifiedName("f", "v")), field(qualifiedName("g", "v"))
         ));
   }
 

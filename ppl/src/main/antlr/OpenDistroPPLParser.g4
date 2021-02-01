@@ -42,7 +42,7 @@ whereCommand
     ;
 
 fieldsCommand
-    : FIELDS (PLUS | MINUS)? wcFieldList
+    : FIELDS (PLUS | MINUS)? fieldList
     ;
 
 renameCommand
@@ -254,7 +254,7 @@ dateAndTimeFunctionBase
 /** condition function return boolean value */
 conditionFunctionBase
     : LIKE
-    | ISNULL | ISNOTNULL
+    | IF | ISNULL | ISNOTNULL | IFNULL | NULLIF
     ;
 
 textFunctionBase
@@ -312,11 +312,11 @@ valueList
     ;
 
 qualifiedName
-    : ident                                          #identsAsQualifiedName
+    : ident (DOT ident)*                             #identsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard                                       #identsAsWildcardQualifiedName
+    : wildcard (DOT wildcard)*                       #identsAsWildcardQualifiedName
     ;
 
 ident

@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.error;
 
+import lombok.Getter;
 import org.elasticsearch.rest.RestStatus;
 import org.json.JSONObject;
 
@@ -25,17 +26,23 @@ import org.json.JSONObject;
  */
 public class ErrorMessage {
 
-  protected Exception exception;
+  protected Throwable exception;
 
-  private int status;
-  private String type;
-  private String reason;
-  private String details;
+  private final int status;
+
+  @Getter
+  private final String type;
+
+  @Getter
+  private final String reason;
+
+  @Getter
+  private final String details;
 
   /**
    * Error Message Constructor.
    */
-  public ErrorMessage(Exception exception, int status) {
+  public ErrorMessage(Throwable exception, int status) {
     this.exception = exception;
     this.status = status;
 
