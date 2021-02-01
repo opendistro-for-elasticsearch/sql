@@ -25,6 +25,12 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public interface Content {
 
+  boolean isNull();
+
+  boolean isNumber();
+
+  boolean isString();
+
   Integer intValue();
 
   Long longValue();
@@ -49,8 +55,4 @@ public interface Content {
 
   // Todo
   Object objectValue();
-
-  boolean isNumber();
-
-  boolean isString();
 }

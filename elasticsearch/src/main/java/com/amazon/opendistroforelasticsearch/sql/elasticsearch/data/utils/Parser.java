@@ -48,6 +48,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
@@ -113,7 +114,7 @@ public class Parser {
 
   public ExprValue parse(Content content, ExprType type) {
     if (map.containsKey(type)) {
-      return map.get(type).apply(content);
+      return parse(content, map.get(type));
     } else {
       throw new IllegalStateException(
           String.format(
@@ -133,6 +134,10 @@ public class Parser {
               typeMapping.type(entry.getKey())));
     }
     return new ExprTupleValue(result);
+  }
+
+  private ExprValue parse(Content content, Function<Content, ExprValue> function) {
+    return content.isNull() ? ExprNullValue.of() : function.apply(content);
   }
 
   private ExprValue parseArray(Content content) {

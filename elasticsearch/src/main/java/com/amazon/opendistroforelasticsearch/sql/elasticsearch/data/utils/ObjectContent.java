@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils;
 
-import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +85,11 @@ public class ObjectContent implements Content {
   @Override
   public Iterator<? extends Content> array() {
     return ((List<Object>)value).stream().map(ObjectContent::new).iterator();
+  }
+
+  @Override
+  public boolean isNull() {
+    return value == null;
   }
 
   @Override

@@ -84,6 +84,11 @@ public class JsonContent implements Content {
   }
 
   @Override
+  public boolean isNull() {
+    return value.isNull();
+  }
+
+  @Override
   public boolean isNumber() {
     return value.isNumber();
   }
