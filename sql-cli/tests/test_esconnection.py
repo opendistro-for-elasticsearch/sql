@@ -130,7 +130,8 @@ class TestExecutor:
             od_test_executor.get_open_distro_client()
 
             mock_es.assert_called_with(
-                [OPEN_DISTRO_ENDPOINT], http_auth=AUTH, verify_certs=False, ssl_context=od_test_executor.ssl_context
+                [OPEN_DISTRO_ENDPOINT], http_auth=AUTH, verify_certs=False, ssl_context=od_test_executor.ssl_context,
+                connection_class=RequestsHttpConnection
             )
 
     def test_get_aes_client(self):

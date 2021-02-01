@@ -40,14 +40,14 @@ Here are examples for using index pattern directly without quotes::
 
     od> SELECT * FROM *cc*nt*;
     fetched rows / total rows = 4/4
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
-    | account_number   | firstname   | address              | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
-    |------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
-    | 1                | Amber       | 880 Holmes Lane      | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
-    | 6                | Hattie      | 671 Bristol Street   | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
-    | 13               | Nanette     | 789 Madison Street   | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                  | Bates      |
-    | 18               | Dale        | 467 Hutchinson Court | 4180      | M        | Orick  | null       | MD      | 33    | daleadams@boink.com   | Adams      |
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    +------------------+-------------+----------------------+----------+--------+------------+-----------+------------+---------+-------+-----------------------+
+    | account_number   | firstname   | address              | gender   | city   | lastname   | balance   | employer   | state   | age   | email                 |
+    |------------------+-------------+----------------------+----------+--------+------------+-----------+------------+---------+-------+-----------------------|
+    | 1                | Amber       | 880 Holmes Lane      | M        | Brogan | Duke       | 39225     | Pyrami     | IL      | 32    | amberduke@pyrami.com  |
+    | 6                | Hattie      | 671 Bristol Street   | M        | Dante  | Bond       | 5686      | Netagy     | TN      | 36    | hattiebond@netagy.com |
+    | 13               | Nanette     | 789 Madison Street   | F        | Nogal  | Bates      | 32838     | Quility    | VA      | 28    | null                  |
+    | 18               | Dale        | 467 Hutchinson Court | M        | Orick  | Adams      | 4180      | null       | MD      | 33    | daleadams@boink.com   |
+    +------------------+-------------+----------------------+----------+--------+------------+-----------+------------+---------+-------+-----------------------+
 
 
 Delimited Identifiers
@@ -56,7 +56,7 @@ Delimited Identifiers
 Description
 -----------
 
-A delimited identifier is an identifier enclosed in back ticks ````` or double quotation marks ``"``. In this case, the identifier enclosed is not necessarily a regular identifier. In other words, it can contain any special character not allowed by regular identifier.
+A delimited identifier is an identifier enclosed in back ticks `````. In this case, the identifier enclosed is not necessarily a regular identifier. In other words, it can contain any special character not allowed by regular identifier.
 
 Please note the difference between single quote and double quotes in SQL syntax. Single quote is used to enclose a string literal while double quotes have same purpose as back ticks to escape special characters in an identifier.
 
@@ -76,14 +76,14 @@ Here are examples for quoting an index name by back ticks::
 
     od> SELECT * FROM `accounts`;
     fetched rows / total rows = 4/4
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
-    | account_number   | firstname   | address              | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
-    |------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
-    | 1                | Amber       | 880 Holmes Lane      | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
-    | 6                | Hattie      | 671 Bristol Street   | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
-    | 13               | Nanette     | 789 Madison Street   | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                  | Bates      |
-    | 18               | Dale        | 467 Hutchinson Court | 4180      | M        | Orick  | null       | MD      | 33    | daleadams@boink.com   | Adams      |
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    +------------------+-------------+----------------------+----------+--------+------------+-----------+------------+---------+-------+-----------------------+
+    | account_number   | firstname   | address              | gender   | city   | lastname   | balance   | employer   | state   | age   | email                 |
+    |------------------+-------------+----------------------+----------+--------+------------+-----------+------------+---------+-------+-----------------------|
+    | 1                | Amber       | 880 Holmes Lane      | M        | Brogan | Duke       | 39225     | Pyrami     | IL      | 32    | amberduke@pyrami.com  |
+    | 6                | Hattie      | 671 Bristol Street   | M        | Dante  | Bond       | 5686      | Netagy     | TN      | 36    | hattiebond@netagy.com |
+    | 13               | Nanette     | 789 Madison Street   | F        | Nogal  | Bates      | 32838     | Quility    | VA      | 28    | null                  |
+    | 18               | Dale        | 467 Hutchinson Court | M        | Orick  | Adams      | 4180      | null       | MD      | 33    | daleadams@boink.com   |
+    +------------------+-------------+----------------------+----------+--------+------------+-----------+------------+---------+-------+-----------------------+
 
 
 Case Sensitivity

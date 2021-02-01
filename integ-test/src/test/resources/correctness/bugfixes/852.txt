@@ -1,0 +1,6 @@
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice DESC
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice desc
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice DeSc
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice ASC
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice asc
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice AsC

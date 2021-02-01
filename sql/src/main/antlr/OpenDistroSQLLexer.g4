@@ -46,11 +46,13 @@ ALL:                                'ALL';
 AND:                                'AND';
 AS:                                 'AS';
 ASC:                                'ASC';
+BOOLEAN:                            'BOOLEAN';
 BETWEEN:                            'BETWEEN';
 BY:                                 'BY';
 CASE:                               'CASE';
 CAST:                               'CAST';
 CROSS:                              'CROSS';
+COLUMNS:                            'COLUMNS';
 DATETIME:                           'DATETIME';
 DELETE:                             'DELETE';
 DESC:                               'DESC';
@@ -61,6 +63,7 @@ ELSE:                               'ELSE';
 EXISTS:                             'EXISTS';
 FALSE:                              'FALSE';
 FLOAT:                              'FLOAT';
+FIRST:                              'FIRST';
 FROM:                               'FROM';
 GROUP:                              'GROUP';
 HAVING:                             'HAVING';
@@ -69,6 +72,7 @@ INNER:                              'INNER';
 INT:                                'INT';
 IS:                                 'IS';
 JOIN:                               'JOIN';
+LAST:                               'LAST';
 LEFT:                               'LEFT';
 LIKE:                               'LIKE';
 LIMIT:                              'LIMIT';
@@ -78,10 +82,13 @@ NATURAL:                            'NATURAL';
 MISSING_LITERAL:                    'MISSING';
 NOT:                                'NOT';
 NULL_LITERAL:                       'NULL';
+NULLS:                              'NULLS';
 ON:                                 'ON';
 OR:                                 'OR';
 ORDER:                              'ORDER';
 OUTER:                              'OUTER';
+OVER:                               'OVER';
+PARTITION:                          'PARTITION';
 REGEXP:                             'REGEXP';
 RIGHT:                              'RIGHT';
 SELECT:                             'SELECT';
@@ -173,12 +180,18 @@ CRC32:                              'CRC32';
 CURDATE:                            'CURDATE';
 DATE:                               'DATE';
 DATE_FORMAT:                        'DATE_FORMAT';
+DATE_ADD:                           'DATE_ADD';
+DATE_SUB:                           'DATE_SUB';
 DAYOFMONTH:                         'DAYOFMONTH';
+DAYOFWEEK:                          'DAYOFWEEK';
+DAYOFYEAR:                          'DAYOFYEAR';
+DAYNAME:                            'DAYNAME';
 DEGREES:                            'DEGREES';
 E:                                  'E';
 EXP:                                'EXP';
 EXPM1:                              'EXPM1';
 FLOOR:                              'FLOOR';
+FROM_DAYS:                          'FROM_DAYS';
 IF:                                 'IF';
 IFNULL:                             'IFNULL';
 ISNULL:                             'ISNULL';
@@ -195,6 +208,7 @@ MODULUS:                            'MODULUS';
 MONTHNAME:                          'MONTHNAME';
 MULTIPLY:                           'MULTIPLY';
 NOW:                                'NOW';
+NULLIF:                             'NULLIF';
 PI:                                 'PI';
 POW:                                'POW';
 POWER:                              'POWER';
@@ -209,11 +223,14 @@ SIGNUM:                             'SIGNUM';
 SIN:                                'SIN';
 SINH:                               'SINH';
 SQRT:                               'SQRT';
+SUBDATE:                            'SUBDATE';
 SUBTRACT:                           'SUBTRACT';
 TAN:                                'TAN';
 TIME:                               'TIME';
+TIME_TO_SEC:                        'TIME_TO_SEC';
 TIMESTAMP:                          'TIMESTAMP';
 TRUNCATE:                           'TRUNCATE';
+TO_DAYS:                            'TO_DAYS';
 UPPER:                              'UPPER';
 
 D:                                  'D';
@@ -222,6 +239,11 @@ TS:                                 'TS';
 LEFT_BRACE:                         '{';
 RIGHT_BRACE:                        '}';
 
+
+// Window function names
+DENSE_RANK:                         'DENSE_RANK';
+RANK:                               'RANK';
+ROW_NUMBER:                         'ROW_NUMBER';
 
 // OD SQL special functions
 DATE_HISTOGRAM:                     'DATE_HISTOGRAM';
@@ -267,6 +289,12 @@ WEEK_OF_YEAR:                       'WEEK_OF_YEAR';
 WILDCARDQUERY:                      'WILDCARDQUERY';
 WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
+// TEXT FUNCTIONS
+SUBSTR:                             'SUBSTR';
+STRCMP:                             'STRCMP';
+
+// DATE AND TIME FUNCTIONS
+ADDDATE:                            'ADDDATE';
 
 // Operators
 
@@ -339,7 +367,6 @@ BACKTICK_QUOTE_ID:                  BQUOTA_STRING;
 
 
 // Fragments for Literal primitives
-
 fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
 fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
@@ -348,8 +375,6 @@ fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment HEX_DIGIT:                 [0-9A-F];
 fragment DEC_DIGIT:                 [0-9];
 fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
-
-
 
 // Last tokens must generate Errors
 

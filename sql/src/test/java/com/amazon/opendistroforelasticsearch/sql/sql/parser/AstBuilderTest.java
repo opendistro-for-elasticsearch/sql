@@ -19,16 +19,23 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relationSubquery;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.TABLE_INFO;
+import static com.amazon.opendistroforelasticsearch.sql.utils.SystemIndexUtils.mappingTable;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -55,10 +62,11 @@ class AstBuilderTest {
             values(emptyList()),
             alias("123", intLiteral(123)),
             alias("'hello'", stringLiteral("hello")),
+            alias("\"world\"", stringLiteral("world")),
             alias("false", booleanLiteral(false)),
             alias("-4.567", doubleLiteral(-4.567))
         ),
-        buildAST("SELECT 123, 'hello', false, -4.567")
+        buildAST("SELECT 123, 'hello', \"world\", false, -4.567")
     );
   }
 
@@ -131,18 +139,12 @@ class AstBuilderTest {
         project(
             relation("test"),
             alias(
-                "name",
-                qualifiedName("name"),
-                "first name"
-            ),
-            alias(
                 "(age + 10)",
                 function("+", qualifiedName("age"), intLiteral(10)),
                 "Age_Expr"
             )
         ),
         buildAST("SELECT"
-                + " name AS \"first name\", "
                 + " (age + 10) AS `Age_Expr` "
                 + "FROM test"
         )
@@ -193,7 +195,37 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_clause() {
+  public void can_build_count_literal() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(
+                    alias("COUNT(1)", aggregate("COUNT", intLiteral(1)))),
+                emptyList(),
+                emptyList(),
+                emptyList()),
+            alias("COUNT(1)", aggregate("COUNT", intLiteral(1)))),
+        buildAST("SELECT COUNT(1) FROM test"));
+  }
+
+  @Test
+  public void can_build_count_star() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                ImmutableList.of(
+                    alias("COUNT(*)", aggregate("COUNT", AllFields.of()))),
+                emptyList(),
+                emptyList(),
+                emptyList()),
+            alias("COUNT(*)", aggregate("COUNT", AllFields.of()))),
+        buildAST("SELECT COUNT(*) FROM test"));
+  }
+
+  @Test
+  public void can_build_group_by_field_name() {
     assertEquals(
         project(
             agg(
@@ -208,7 +240,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_with_function() {
+  public void can_build_group_by_function() {
     assertEquals(
         project(
             agg(
@@ -223,7 +255,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_with_uppercase_function() {
+  public void can_build_group_by_uppercase_function() {
     assertEquals(
         project(
             agg(
@@ -238,7 +270,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_with_alias() {
+  public void can_build_group_by_alias() {
     assertEquals(
         project(
             agg(
@@ -253,7 +285,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void can_build_group_by_with_ordinal() {
+  public void can_build_group_by_ordinal() {
     assertEquals(
         project(
             agg(
@@ -279,6 +311,370 @@ class AstBuilderTest {
                 emptyList()),
             alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
         buildAST("SELECT AVG(age) FROM test"));
+  }
+
+  @Test
+  public void can_build_having_clause() {
+    assertEquals(
+        project(
+            filter(
+                agg(
+                    relation("test"),
+                    ImmutableList.of(
+                        alias("AVG(age)", aggregate("AVG", qualifiedName("age"))),
+                        alias("MIN(balance)", aggregate("MIN", qualifiedName("balance")))),
+                    emptyList(),
+                    ImmutableList.of(alias("name", qualifiedName("name"))),
+                    emptyList()),
+                function(">",
+                    aggregate("MIN", qualifiedName("balance")),
+                    intLiteral(1000))),
+            alias("name", qualifiedName("name")),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+        buildAST("SELECT name, AVG(age) FROM test GROUP BY name HAVING MIN(balance) > 1000"));
+  }
+
+  @Test
+  public void can_build_having_condition_using_alias() {
+    assertEquals(
+        project(
+            filter(
+                agg(
+                    relation("test"),
+                    ImmutableList.of(
+                        alias("AVG(age)", aggregate("AVG", qualifiedName("age")))),
+                    emptyList(),
+                    ImmutableList.of(alias("name", qualifiedName("name"))),
+                    emptyList()),
+                function(">",
+                    aggregate("AVG", qualifiedName("age")),
+                    intLiteral(1000))),
+            alias("name", qualifiedName("name")),
+            alias("AVG(age)", aggregate("AVG", qualifiedName("age")), "a")),
+        buildAST("SELECT name, AVG(age) AS a FROM test GROUP BY name HAVING a > 1000"));
+  }
+
+  @Test
+  public void can_build_order_by_field_name() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("name", argument("asc", booleanLiteral(true)))),
+            alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY name"));
+  }
+
+  @Test
+  public void can_build_order_by_function() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field(
+                    function("ABS", qualifiedName("name")),
+                    argument("asc", booleanLiteral(true)))),
+            alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY ABS(name)"));
+  }
+
+  @Test
+  public void can_build_order_by_alias() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("name", argument("asc", booleanLiteral(true)))),
+            alias("name", qualifiedName("name"), "n")),
+        buildAST("SELECT name AS n FROM test ORDER BY n ASC"));
+  }
+
+  @Test
+  public void can_build_order_by_ordinal() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("name", argument("asc", booleanLiteral(false)))),
+            alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY 1 DESC"));
+  }
+
+  @Test
+  public void can_build_order_by_multiple_field_names() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("name", argument("asc", booleanLiteral(true))),
+                field("age", argument("asc", booleanLiteral(false)))),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT name, age FROM test ORDER BY name, age DESC"));
+  }
+
+  @Test
+  public void can_build_select_distinct_clause() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                emptyList(),
+                emptyList(),
+                ImmutableList.of(
+                    alias("name", qualifiedName("name")),
+                    alias("age", qualifiedName("age"))),
+                emptyList()),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT DISTINCT name, age FROM test"));
+  }
+
+  @Test
+  public void can_build_select_distinct_clause_with_function() {
+    assertEquals(
+        project(
+            agg(
+                relation("test"),
+                emptyList(),
+                emptyList(),
+                ImmutableList.of(
+                    alias("SUBSTRING(name, 1, 2)",
+                        function(
+                            "SUBSTRING",
+                            qualifiedName("name"),
+                            intLiteral(1), intLiteral(2)))),
+                emptyList()),
+            alias("SUBSTRING(name, 1, 2)",
+                function(
+                    "SUBSTRING",
+                    qualifiedName("name"),
+                    intLiteral(1), intLiteral(2)))),
+        buildAST("SELECT DISTINCT SUBSTRING(name, 1, 2) FROM test"));
+  }
+
+  @Test
+  public void can_build_select_all_clause() {
+    assertEquals(
+        buildAST("SELECT name, age FROM test"),
+        buildAST("SELECT ALL name, age FROM test")
+    );
+  }
+
+  @Test
+  public void can_build_order_by_null_option() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("name",
+                    argument("asc", booleanLiteral(true)),
+                    argument("nullFirst", booleanLiteral(false)))),
+        alias("name", qualifiedName("name"))),
+        buildAST("SELECT name FROM test ORDER BY name NULLS LAST"));
+  }
+
+  @Test
+  public void can_build_order_by_sort_order_keyword_insensitive() {
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("age",
+                    argument("asc", booleanLiteral(true)))),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT age FROM test ORDER BY age ASC")
+    );
+
+    assertEquals(
+        project(
+            sort(
+                relation("test"),
+                field("age",
+                    argument("asc", booleanLiteral(true)))),
+            alias("age", qualifiedName("age"))),
+        buildAST("SELECT age FROM test ORDER BY age asc")
+    );
+  }
+
+  @Test
+  public void can_build_from_subquery() {
+    assertEquals(
+        project(
+            filter(
+                relationSubquery(
+                    project(
+                        relation("test"),
+                        alias("firstname", qualifiedName("firstname"), "firstName"),
+                        alias("lastname", qualifiedName("lastname"), "lastName")
+                    ),
+                    "a"
+                ),
+                function(">", qualifiedName("age"), intLiteral(20))
+            ),
+            alias("a.firstName", qualifiedName("a", "firstName")),
+            alias("lastName", qualifiedName("lastName"))),
+        buildAST(
+            "SELECT a.firstName, lastName FROM ("
+                + "SELECT firstname AS firstName, lastname AS lastName FROM test"
+                + ") AS a where age > 20"
+        )
+    );
+  }
+
+  @Test
+  public void can_build_show_all_tables() {
+    assertEquals(
+        project(
+            filter(
+                relation(TABLE_INFO),
+                function("like", qualifiedName("TABLE_NAME"), stringLiteral("%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("SHOW TABLES LIKE '%'")
+    );
+  }
+
+  @Test
+  public void can_build_show_selected_tables() {
+    assertEquals(
+        project(
+            filter(
+                relation(TABLE_INFO),
+                function("like", qualifiedName("TABLE_NAME"), stringLiteral("a_c%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("SHOW TABLES LIKE 'a_c%'")
+    );
+  }
+
+  /**
+   * Todo, ideally the identifier (%) couldn't be used in LIKE operator, only the string literal
+   * is allowed.
+   */
+  @Test
+  public void show_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            filter(
+                relation(TABLE_INFO),
+                function("like", qualifiedName("TABLE_NAME"), stringLiteral("%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("SHOW TABLES LIKE %")
+    );
+  }
+
+  @Test
+  public void describe_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            relation(mappingTable("a_c%")),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE a_c%")
+    );
+  }
+
+  @Test
+  public void can_build_describe_selected_tables() {
+    assertEquals(
+        project(
+            relation(mappingTable("a_c%")),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE 'a_c%'")
+    );
+  }
+
+  @Test
+  public void can_build_describe_selected_tables_field_filter() {
+    assertEquals(
+        project(
+            filter(
+                relation(mappingTable("a_c%")),
+                function("like", qualifiedName("COLUMN_NAME"), stringLiteral("name%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE 'a_c%' COLUMNS LIKE 'name%'")
+    );
+  }
+
+  /**
+   * Todo, ideally the identifier (%) couldn't be used in LIKE operator, only the string literal
+   * is allowed.
+   */
+  @Test
+  public void describe_and_column_compatible_with_old_engine_syntax() {
+    assertEquals(
+        project(
+            filter(
+                relation(mappingTable("a_c%")),
+                function("like", qualifiedName("COLUMN_NAME"), stringLiteral("name%"))
+            ),
+            AllFields.of()
+        ),
+        buildAST("DESCRIBE TABLES LIKE a_c% COLUMNS LIKE name%")
+    );
+  }
+
+  @Test
+  public void can_build_alias_by_keywords() {
+    assertEquals(
+        project(
+            relation("test"),
+            alias("avg_age", qualifiedName("avg_age"), "avg")
+        ),
+        buildAST("SELECT avg_age AS avg FROM test")
+    );
+  }
+
+  @Test
+  public void can_build_limit_clause() {
+    assertEquals(
+        project(
+            limit(
+                sort(
+                    relation("test"),
+                    field("age", argument("asc", booleanLiteral(true)))
+                ),
+                10,
+                0
+            ),
+            alias("name", qualifiedName("name")),
+            alias("age", qualifiedName("age"))
+        ),
+        buildAST("SELECT name, age FROM test ORDER BY age LIMIT 10")
+    );
+  }
+
+  @Test
+  public void can_build_limit_clause_with_offset() {
+    assertEquals(
+        project(
+            limit(
+                relation("test"),
+                10,
+                5
+            ),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test LIMIT 10 OFFSET 5"));
+
+    assertEquals(
+        project(
+            limit(
+                relation("test"),
+                10,
+                5
+            ),
+            alias("name", qualifiedName("name"))
+        ),
+        buildAST("SELECT name FROM test LIMIT 5, 10"));
   }
 
   private UnresolvedPlan buildAST(String query) {

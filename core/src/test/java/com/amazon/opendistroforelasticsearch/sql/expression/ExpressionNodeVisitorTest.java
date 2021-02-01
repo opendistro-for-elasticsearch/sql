@@ -26,10 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,8 @@ class ExpressionNodeVisitorTest {
     assertNull(dsl.sum(literal(10)).accept(visitor, null));
     assertNull(named("avg", new AvgAggregator(Collections.singletonList(ref("age", INTEGER)),
         INTEGER)).accept(visitor, null));
+    assertNull(new CaseClause(ImmutableList.of(), null).accept(visitor, null));
+    assertNull(new WhenClause(literal("test"), literal(10)).accept(visitor, null));
   }
 
   @Test

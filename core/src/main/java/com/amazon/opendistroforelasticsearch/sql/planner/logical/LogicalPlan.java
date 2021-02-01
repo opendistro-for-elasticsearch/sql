@@ -16,11 +16,22 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
+import java.util.Collections;
+import java.util.List;
+import lombok.EqualsAndHashCode;
 
 /**
  * The abstract base class for all the Logical Plan node.
  */
+@EqualsAndHashCode(callSuper = false)
 public abstract class LogicalPlan implements PlanNode<LogicalPlan> {
+
+  private List<LogicalPlan> childPlans;
+
+  public LogicalPlan(List<LogicalPlan> childPlans) {
+    this.childPlans = childPlans;
+  }
+
   /**
    * Accept the {@link LogicalPlanNodeVisitor}.
    *
@@ -31,4 +42,15 @@ public abstract class LogicalPlan implements PlanNode<LogicalPlan> {
    * @return returned object.
    */
   public abstract <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context);
+
+  public LogicalPlan replaceChildPlans(List<LogicalPlan> childPlans) {
+    this.childPlans = childPlans;
+    return this;
+  }
+
+
+  @Override
+  public List<LogicalPlan> getChild() {
+    return childPlans;
+  }
 }

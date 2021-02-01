@@ -48,7 +48,8 @@ public class PPLServiceConfig {
 
   @Bean
   public PPLService pplService() {
-    return new PPLService(new PPLSyntaxParser(), analyzer(), storageEngine, executionEngine);
+    return new PPLService(new PPLSyntaxParser(), analyzer(), storageEngine, executionEngine,
+        functionRepository);
   }
 
 }

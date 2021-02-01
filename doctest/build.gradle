@@ -1,12 +1,16 @@
+import org.elasticsearch.gradle.testclusters.RunTask
+
 plugins {
     id "com.wiredforcode.spawn" version "0.8.2"
     id 'base'
 }
 
+apply plugin: 'elasticsearch.testclusters'
+
 def path = project(':').projectDir
 // temporary fix, because currently we are under migration to new architecture. Need to run ./gradlew run from
 // plugin module, and will only build ppl in it.
-def plugin_path = project(':plugin').projectDir
+def plugin_path = project(':doctest').projectDir
 
 task bootstrap(type: Exec) {
     inputs.file "$projectDir/bootstrap.sh"
@@ -17,7 +21,7 @@ task bootstrap(type: Exec) {
 
 //evaluationDependsOn(':')
 task startES(type: SpawnProcessTask) {
-    command "${path}/gradlew -p ${plugin_path} run"
+    command "${path}/gradlew -p ${plugin_path} runRestTestCluster"
     ready 'started'
 }
 
@@ -37,3 +41,14 @@ doctest.finalizedBy stopES
 
 build.dependsOn doctest
 clean.dependsOn(cleanBootstrap)
+
+testClusters {
+    docTestCluster {
+        plugin ':plugin'
+        testDistribution = 'oss'
+    }
+}
+tasks.register("runRestTestCluster", RunTask) {
+    description = 'Runs elasticsearch ODFE SQL plugin'
+    useCluster testClusters.docTestCluster;
+}

@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -39,7 +40,7 @@ public class ESConnection implements DBConnection {
   private final RestClient client;
 
   public ESConnection(String connectionUrl, RestClient client) {
-    this.connection = new JDBCConnection("Elasticsearch", connectionUrl);
+    this.connection = new JDBCConnection("Elasticsearch", connectionUrl, populateProperties());
     this.client = client;
   }
 
@@ -84,6 +85,20 @@ public class ESConnection implements DBConnection {
     connection.close();
   }
 
+  private Properties populateProperties() {
+    Properties properties = new Properties();
+    if (Boolean.parseBoolean(System.getProperty("https", "false"))) {
+      properties.put("useSSL", "true");
+    }
+    if (!System.getProperty("user", "").isEmpty()) {
+      properties.put("user", System.getProperty("user"));
+      properties.put("password", System.getProperty("password", ""));
+      properties.put("trustSelfSigned", "true");
+      properties.put("hostnameVerification", "false");
+    }
+    return properties;
+  }
+
   private void performRequest(Request request) {
     try {
       Response response = client.performRequest(request);
@@ -101,7 +116,9 @@ public class ESConnection implements DBConnection {
     for (Object[] fieldValues : batch) {
       JSONObject json = new JSONObject();
       for (int i = 0; i < columnNames.length; i++) {
-        json.put(columnNames[i], fieldValues[i]);
+        if (fieldValues[i] != null) {
+          json.put(columnNames[i], fieldValues[i]);
+        }
       }
 
       body.append("{\"index\":{}}\n").

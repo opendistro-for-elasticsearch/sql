@@ -16,8 +16,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
@@ -26,18 +28,28 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intervalL
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.when;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.window;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder.NULL_LAST;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder.DESC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
+import com.google.common.collect.ImmutableList;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 
 class AstExpressionBuilderTest {
@@ -49,6 +61,10 @@ class AstExpressionBuilderTest {
     assertEquals(
         stringLiteral("hello"),
         buildExprAst("'hello'")
+    );
+    assertEquals(
+        stringLiteral("hello"),
+        buildExprAst("\"hello\"")
     );
   }
 
@@ -217,6 +233,14 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildRegexpExpression() {
+    assertEquals(
+        function("regexp", stringLiteral("str"), stringLiteral(".*")),
+        buildExprAst("'str' regexp '.*'")
+    );
+  }
+
+  @Test
   public void canBuildLogicalExpression() {
     assertEquals(
         and(booleanLiteral(true), booleanLiteral(false)),
@@ -231,6 +255,122 @@ class AstExpressionBuilderTest {
     assertEquals(
         not(booleanLiteral(false)),
         buildExprAst("NOT false")
+    );
+  }
+
+  @Test
+  public void canBuildWindowFunction() {
+    assertEquals(
+        window(
+            function("RANK"),
+            ImmutableList.of(qualifiedName("state")),
+            ImmutableList.of(ImmutablePair.of(new SortOption(null, null), qualifiedName("age")))),
+        buildExprAst("RANK() OVER (PARTITION BY state ORDER BY age)"));
+  }
+
+  @Test
+  public void canBuildWindowFunctionWithoutPartitionBy() {
+    assertEquals(
+        window(
+            function("DENSE_RANK"),
+            ImmutableList.of(),
+            ImmutableList.of(ImmutablePair.of(new SortOption(DESC, null), qualifiedName("age")))),
+        buildExprAst("DENSE_RANK() OVER (ORDER BY age DESC)"));
+  }
+
+  @Test
+  public void canBuildWindowFunctionWithNullOrderSpecified() {
+    assertEquals(
+        window(
+            function("DENSE_RANK"),
+            ImmutableList.of(),
+            ImmutableList.of(ImmutablePair.of(
+                new SortOption(ASC, NULL_LAST), qualifiedName("age")))),
+        buildExprAst("DENSE_RANK() OVER (ORDER BY age ASC NULLS LAST)"));
+  }
+
+  @Test
+  public void canBuildWindowFunctionWithoutOrderBy() {
+    assertEquals(
+        window(
+            function("RANK"),
+            ImmutableList.of(qualifiedName("state")),
+            ImmutableList.of()),
+        buildExprAst("RANK() OVER (PARTITION BY state)"));
+  }
+
+  @Test
+  public void canBuildAggregateWindowFunction() {
+    assertEquals(
+        window(
+            aggregate("AVG", qualifiedName("age")),
+            ImmutableList.of(qualifiedName("state")),
+            ImmutableList.of(ImmutablePair.of(
+                new SortOption(null, null), qualifiedName("age")))),
+        buildExprAst("AVG(age) OVER (PARTITION BY state ORDER BY age)"));
+  }
+
+  @Test
+  public void canBuildCaseConditionStatement() {
+    assertEquals(
+        caseWhen(
+            null, // no else statement
+            when(
+                function(">", qualifiedName("age"), intLiteral(30)),
+                stringLiteral("age1"))),
+        buildExprAst("CASE WHEN age > 30 THEN 'age1' END")
+    );
+  }
+
+  @Test
+  public void canBuildCaseValueStatement() {
+    assertEquals(
+        caseWhen(
+            qualifiedName("age"),
+            stringLiteral("age2"),
+            when(intLiteral(30), stringLiteral("age1"))),
+        buildExprAst("CASE age WHEN 30 THEN 'age1' ELSE 'age2' END")
+    );
+  }
+
+  @Test
+  public void canBuildKeywordsAsIdentifiers() {
+    assertEquals(
+        qualifiedName("timestamp"),
+        buildExprAst("timestamp")
+    );
+  }
+
+  @Test
+  public void canBuildKeywordsAsIdentInQualifiedName() {
+    assertEquals(
+        qualifiedName("test", "timestamp"),
+        buildExprAst("test.timestamp")
+    );
+  }
+
+  @Test
+  public void canCastFieldAsString() {
+    assertEquals(
+        AstDSL.cast(qualifiedName("state"), stringLiteral("string")),
+        buildExprAst("cast(state as string)")
+    );
+  }
+
+  @Test
+  public void canCastValueAsString() {
+    assertEquals(
+        AstDSL.cast(intLiteral(1), stringLiteral("string")),
+        buildExprAst("cast(1 as string)")
+    );
+  }
+
+  @Test
+  public void filteredAggregation() {
+    assertEquals(
+        AstDSL.filteredAggregate("avg", qualifiedName("age"),
+            function(">", qualifiedName("age"), intLiteral(20))),
+        buildExprAst("avg(age) filter(where age > 20)")
     );
   }
 

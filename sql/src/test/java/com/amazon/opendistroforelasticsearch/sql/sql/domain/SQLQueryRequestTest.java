@@ -16,9 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.domain;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +41,16 @@ public class SQLQueryRequestTest {
                                                     .format("jdbc")
                                                     .build();
     assertTrue(request.isSupported());
+    assertEquals(request.format(), Format.JDBC);
+  }
+
+  @Test
+  public void shouldSupportQueryWithQueryFieldOnly() {
+    SQLQueryRequest request =
+        SQLQueryRequestBuilder.request("SELECT 1")
+                              .jsonContent("{\"query\": \"SELECT 1\"}")
+                              .build();
+    assertTrue(request.isSupported());
   }
 
   @Test
@@ -48,12 +63,13 @@ public class SQLQueryRequestTest {
   }
 
   @Test
-  public void shouldNotSupportExplain() {
+  public void shouldSupportExplain() {
     SQLQueryRequest explainRequest =
         SQLQueryRequestBuilder.request("SELECT 1")
                               .path("_opendistro/_sql/_explain")
                               .build();
-    assertFalse(explainRequest.isSupported());
+    assertTrue(explainRequest.isExplainRequest());
+    assertTrue(explainRequest.isSupported());
   }
 
   @Test
@@ -72,12 +88,41 @@ public class SQLQueryRequestTest {
   }
 
   @Test
-  public void shouldNotSupportCSVFormat() {
+  public void shouldUseJDBCFormatByDefault() {
+    SQLQueryRequest request =
+        SQLQueryRequestBuilder.request("SELECT 1").params(ImmutableMap.of()).build();
+    assertEquals(request.format(), Format.JDBC);
+  }
+
+  @Test
+  public void shouldSupportCSVFormatAndSanitize() {
     SQLQueryRequest csvRequest =
         SQLQueryRequestBuilder.request("SELECT 1")
                               .format("csv")
                               .build();
+    assertTrue(csvRequest.isSupported());
+    assertEquals(csvRequest.format(), Format.CSV);
+    assertTrue(csvRequest.sanitize());
+  }
+
+  @Test
+  public void shouldSkipSanitizeIfSetFalse() {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    Map<String, String> params = builder.put("format", "csv").put("sanitize", "false").build();
+    SQLQueryRequest csvRequest = SQLQueryRequestBuilder.request("SELECT 1").params(params).build();
+    assertEquals(csvRequest.format(), Format.CSV);
+    assertFalse(csvRequest.sanitize());
+  }
+
+  @Test
+  public void shouldNotSupportRawFormat() {
+    SQLQueryRequest csvRequest =
+        SQLQueryRequestBuilder.request("SELECT 1")
+            .format("raw")
+            .build();
     assertFalse(csvRequest.isSupported());
+    assertThrows(IllegalArgumentException.class, csvRequest::format,
+        "response in raw format is not supported.");
   }
 
   /**
@@ -88,6 +133,7 @@ public class SQLQueryRequestTest {
     private String query;
     private String path = "_/opendistro/_sql";
     private String format;
+    private Map<String, String> params;
 
     static SQLQueryRequestBuilder request(String query) {
       SQLQueryRequestBuilder builder = new SQLQueryRequestBuilder();
@@ -110,9 +156,17 @@ public class SQLQueryRequestTest {
       return this;
     }
 
+    SQLQueryRequestBuilder params(Map<String, String> params) {
+      this.params = params;
+      return this;
+    }
+
     SQLQueryRequest build() {
       if (jsonContent == null) {
         jsonContent = "{\"query\": \"" + query + "\"}";
+      }
+      if (params != null) {
+        return new SQLQueryRequest(new JSONObject(jsonContent), query, path, params);
       }
       return new SQLQueryRequest(new JSONObject(jsonContent), query, path, format);
     }

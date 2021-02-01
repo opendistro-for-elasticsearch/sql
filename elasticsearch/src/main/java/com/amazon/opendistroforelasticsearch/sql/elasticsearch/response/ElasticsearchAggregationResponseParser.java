@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import lombok.experimental.UtilityClass;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregation;
+import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 
 /**
@@ -43,6 +45,7 @@ public class ElasticsearchAggregationResponseParser {
   public static List<Map<String, Object>> parse(Aggregations aggregations) {
     List<Aggregation> aggregationList = aggregations.asList();
     ImmutableList.Builder<Map<String, Object>> builder = new ImmutableList.Builder<>();
+    Map<String, Object> noBucketMap = new HashMap<>();
 
     for (Aggregation aggregation : aggregationList) {
       if (aggregation instanceof CompositeAggregation) {
@@ -51,11 +54,12 @@ public class ElasticsearchAggregationResponseParser {
           builder.add(parse(bucket));
         }
       } else {
-        builder.add(parseInternal(aggregation));
+        noBucketMap.putAll(parseInternal(aggregation));
       }
 
     }
-    return builder.build();
+    // Todo, there is no better way to difference the with/without bucket from aggregations result.
+    return noBucketMap.isEmpty() ? builder.build() : Collections.singletonList(noBucketMap);
   }
 
   private static Map<String, Object> parse(CompositeAggregation.Bucket bucket) {
@@ -79,6 +83,13 @@ public class ElasticsearchAggregationResponseParser {
       resultMap.put(
           aggregation.getName(),
           handleNanValue(((NumericMetricsAggregation.SingleValue) aggregation).value()));
+    } else if (aggregation instanceof Filter) {
+      // parse sub-aggregations for FilterAggregation response
+      List<Aggregation> aggList = ((Filter) aggregation).getAggregations().asList();
+      aggList.forEach(internalAgg -> {
+        Map<String, Object> intermediateMap = parseInternal(internalAgg);
+        resultMap.put(internalAgg.getName(), intermediateMap.get(internalAgg.getName()));
+      });
     } else {
       throw new IllegalStateException("unsupported aggregation type " + aggregation.getType());
     }

@@ -51,10 +51,31 @@ public enum BuiltinFunctionName {
   /**
    * Date and Time Functions.
    */
+  ADDDATE(FunctionName.of("adddate")),
   DATE(FunctionName.of("date")),
+  DATE_ADD(FunctionName.of("date_add")),
+  DATE_SUB(FunctionName.of("date_sub")),
+  DAY(FunctionName.of("day")),
+  DAYNAME(FunctionName.of("dayname")),
   DAYOFMONTH(FunctionName.of("dayofmonth")),
+  DAYOFWEEK(FunctionName.of("dayofweek")),
+  DAYOFYEAR(FunctionName.of("dayofyear")),
+  FROM_DAYS(FunctionName.of("from_days")),
+  HOUR(FunctionName.of("hour")),
+  MICROSECOND(FunctionName.of("microsecond")),
+  MINUTE(FunctionName.of("minute")),
+  MONTH(FunctionName.of("month")),
+  MONTHNAME(FunctionName.of("monthname")),
+  QUARTER(FunctionName.of("quarter")),
+  SECOND(FunctionName.of("second")),
+  SUBDATE(FunctionName.of("subdate")),
   TIME(FunctionName.of("time")),
+  TIME_TO_SEC(FunctionName.of("time_to_sec")),
   TIMESTAMP(FunctionName.of("timestamp")),
+  DATE_FORMAT(FunctionName.of("date_format")),
+  TO_DAYS(FunctionName.of("to_days")),
+  WEEK(FunctionName.of("week")),
+  YEAR(FunctionName.of("year")),
 
   /**
    * Text Functions.
@@ -92,14 +113,54 @@ public enum BuiltinFunctionName {
   AVG(FunctionName.of("avg")),
   SUM(FunctionName.of("sum")),
   COUNT(FunctionName.of("count")),
+  MIN(FunctionName.of("min")),
+  MAX(FunctionName.of("max")),
+
+  /**
+   * Text Functions.
+   */
+  SUBSTR(FunctionName.of("substr")),
+  SUBSTRING(FunctionName.of("substring")),
+  RTRIM(FunctionName.of("rtrim")),
+  LTRIM(FunctionName.of("ltrim")),
+  TRIM(FunctionName.of("trim")),
+  UPPER(FunctionName.of("upper")),
+  LOWER(FunctionName.of("lower")),
+  REGEXP(FunctionName.of("regexp")),
+  CONCAT(FunctionName.of("concat")),
+  CONCAT_WS(FunctionName.of("concat_ws")),
+  LENGTH(FunctionName.of("length")),
+  STRCMP(FunctionName.of("strcmp")),
+  RIGHT(FunctionName.of("right")),
 
   /**
    * NULL Test.
    */
   IS_NULL(FunctionName.of("is null")),
   IS_NOT_NULL(FunctionName.of("is not null")),
+  IFNULL(FunctionName.of("ifnull")),
+  IF(FunctionName.of("if")),
+  NULLIF(FunctionName.of("nullif")),
+  ISNULL(FunctionName.of("isnull")),
 
-  INTERVAL(FunctionName.of("interval"));
+  ROW_NUMBER(FunctionName.of("row_number")),
+  RANK(FunctionName.of("rank")),
+  DENSE_RANK(FunctionName.of("dense_rank")),
+
+  INTERVAL(FunctionName.of("interval")),
+
+  /**
+   * Data Type Convert Function.
+   */
+  CAST_TO_STRING(FunctionName.of("cast_to_string")),
+  CAST_TO_INT(FunctionName.of("cast_to_int")),
+  CAST_TO_LONG(FunctionName.of("cast_to_long")),
+  CAST_TO_FLOAT(FunctionName.of("cast_to_float")),
+  CAST_TO_DOUBLE(FunctionName.of("cast_to_double")),
+  CAST_TO_BOOLEAN(FunctionName.of("cast_to_boolean")),
+  CAST_TO_DATE(FunctionName.of("cast_to_date")),
+  CAST_TO_TIME(FunctionName.of("cast_to_time")),
+  CAST_TO_TIMESTAMP(FunctionName.of("cast_to_timestamp"));
 
   private final FunctionName name;
 

@@ -17,9 +17,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
+
 import lombok.experimental.UtilityClass;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
  * Parser Utils Class.
@@ -35,4 +41,37 @@ public class ParserUtils {
     Token stop = ctx.getStop();
     return queryString.substring(start.getStartIndex(), stop.getStopIndex() + 1);
   }
+
+  /**
+   * Create sort option from syntax tree node.
+   */
+  public static SortOption createSortOption(OrderByElementContext orderBy) {
+    return new SortOption(
+        createSortOrder(orderBy.order),
+        createNullOrder(orderBy.FIRST(), orderBy.LAST()));
+  }
+
+  /**
+   * Create sort order for sort option use from ASC/DESC token.
+   */
+  public static SortOrder createSortOrder(Token ctx) {
+    if (ctx == null) {
+      return null;
+    }
+    return SortOrder.valueOf(ctx.getText().toUpperCase());
+  }
+
+  /**
+   * Create null order for sort option use from FIRST/LAST token.
+   */
+  public static NullOrder createNullOrder(TerminalNode first, TerminalNode last) {
+    if (first != null) {
+      return NullOrder.NULL_FIRST;
+    } else if (last != null) {
+      return NullOrder.NULL_LAST;
+    } else {
+      return null;
+    }
+  }
+
 }

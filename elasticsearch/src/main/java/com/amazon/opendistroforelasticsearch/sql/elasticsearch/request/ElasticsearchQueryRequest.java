@@ -64,6 +64,7 @@ public class ElasticsearchQueryRequest implements ElasticsearchRequest {
    * ElasticsearchExprValueFactory.
    */
   @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private final ElasticsearchExprValueFactory exprValueFactory;
 
   /**

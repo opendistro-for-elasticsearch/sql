@@ -347,6 +347,14 @@ public class FieldMaker {
                 methodParameters.add(new KVValue(((SQLCastExpr) object).getExpr().toString()));
                 String castType = ((SQLCastExpr) object).getDataType().getName();
                 String scriptCode = sqlFunctions.getCastScriptStatement(castName, castType, methodParameters);
+
+                // Parameter "first" indicates if return statement is required. Take CAST statement nested in
+                // aggregate function SUM(CAST...) for example, return statement is required in this case.
+                // Otherwise DSL with metric aggregation always returns 0 as result. And this works also because
+                // the caller makeFieldImpl(SQLExpr("SUM...")) does pass first=true to here.
+                if (first) {
+                    scriptCode += "; return " + castName;
+                }
                 methodParameters.add(new KVValue(scriptCode));
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
             } else if (object instanceof SQLAggregateExpr) {

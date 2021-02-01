@@ -22,12 +22,16 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOpe
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.WindowOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import lombok.RequiredArgsConstructor;
 
@@ -73,7 +77,7 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
    */
   @Override
   public PhysicalPlan visitTableScan(TableScanOperator node, Object context) {
-    return new ResourceMonitorPlan(node, resourceMonitor);
+    return doProtect(node);
   }
 
   @Override
@@ -98,9 +102,53 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
   }
 
   @Override
+  public PhysicalPlan visitHead(HeadOperator node, Object context) {
+    return new HeadOperator(
+            visitInput(node.getInput(), context),
+            node.getKeepLast(),
+            node.getWhileExpr(),
+            node.getNumber()
+    );
+  }
+
+  /**
+   * Decorate input node with {@link ResourceMonitorPlan} to avoid aggregate
+   * window function pre-loads too many data into memory in worst case.
+   */
+  @Override
+  public PhysicalPlan visitWindow(WindowOperator node, Object context) {
+    return new WindowOperator(
+        doProtect(visitInput(node.getInput(), context)),
+        node.getWindowFunction(),
+        node.getWindowDefinition());
+  }
+
+  /**
+   * Decorate with {@link ResourceMonitorPlan}.
+   */
+  @Override
   public PhysicalPlan visitSort(SortOperator node, Object context) {
-    return new SortOperator(visitInput(node.getInput(), context), node.getCount(),
-        node.getSortList());
+    return doProtect(
+        new SortOperator(
+            visitInput(node.getInput(), context),
+            node.getSortList()));
+  }
+
+  /**
+   * Values are a sequence of rows of literal value in memory
+   * which doesn't need memory protection.
+   */
+  @Override
+  public PhysicalPlan visitValues(ValuesOperator node, Object context) {
+    return node;
+  }
+
+  @Override
+  public PhysicalPlan visitLimit(LimitOperator node, Object context) {
+    return new LimitOperator(
+        visitInput(node.getInput(), context),
+        node.getLimit(),
+        node.getOffset());
   }
 
   PhysicalPlan visitInput(PhysicalPlan node, Object context) {
@@ -110,4 +158,16 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
       return node.accept(this, context);
     }
   }
+
+  private PhysicalPlan doProtect(PhysicalPlan node) {
+    if (isProtected(node)) {
+      return node;
+    }
+    return new ResourceMonitorPlan(node, resourceMonitor);
+  }
+
+  private boolean isProtected(PhysicalPlan node) {
+    return (node instanceof ResourceMonitorPlan);
+  }
+
 }

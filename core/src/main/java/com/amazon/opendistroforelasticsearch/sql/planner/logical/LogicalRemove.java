@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
@@ -28,16 +29,20 @@ import lombok.ToString;
  * Remove field specified by the {@link LogicalRemove#removeList}.
  */
 @ToString
-@EqualsAndHashCode
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalRemove extends LogicalPlan {
-  private final LogicalPlan child;
+
   @Getter
   private final Set<ReferenceExpression> removeList;
 
-  @Override
-  public List<LogicalPlan> getChild() {
-    return Arrays.asList(child);
+  /**
+   * Constructor of LogicalRemove.
+   */
+  public LogicalRemove(
+      LogicalPlan child,
+      Set<ReferenceExpression> removeList) {
+    super(Collections.singletonList(child));
+    this.removeList = removeList;
   }
 
   @Override

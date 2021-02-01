@@ -23,6 +23,10 @@ The ODFE SQL Engine support the following data types.
 +===============+
 | boolean       |
 +---------------+
+| byte          |
++---------------+
+| short         |
++---------------+
 | integer       |
 +---------------+
 | long          |
@@ -49,6 +53,8 @@ The ODFE SQL Engine support the following data types.
 +---------------+
 | geo_point     |
 +---------------+
+| binary        |
++---------------+
 | struct        |
 +---------------+
 | array         |
@@ -64,13 +70,19 @@ The table below list the mapping between Elasticsearch Data Type, ODFE SQL Data 
 +====================+===============+===========+
 | boolean            | boolean       | BOOLEAN   |
 +--------------------+---------------+-----------+
+| byte               | byte          | TINYINT   |
++--------------------+---------------+-----------+
+| short              | byte          | SMALLINT  |
++--------------------+---------------+-----------+
 | integer            | integer       | INTEGER   |
 +--------------------+---------------+-----------+
-| long               | long          | LONG      |
+| long               | long          | BIGINT    |
 +--------------------+---------------+-----------+
-| float              | float         | FLOAT     |
+| float              | float         | REAL      |
 +--------------------+---------------+-----------+
 | half_float         | float         | FLOAT     |
++--------------------+---------------+-----------+
+| scaled_float       | float         | DOUBLE    |
 +--------------------+---------------+-----------+
 | double             | double        | DOUBLE    |
 +--------------------+---------------+-----------+
@@ -80,17 +92,34 @@ The table below list the mapping between Elasticsearch Data Type, ODFE SQL Data 
 +--------------------+---------------+-----------+
 | date               | timestamp     | TIMESTAMP |
 +--------------------+---------------+-----------+
-| ip                 | ip            | IP        |
+| ip                 | ip            | VARCHAR   |
 +--------------------+---------------+-----------+
 | date               | timestamp     | TIMESTAMP |
 +--------------------+---------------+-----------+
+| binary             | binary        | VARBINARY |
++--------------------+---------------+-----------+
 | object             | struct        | STRUCT    |
 +--------------------+---------------+-----------+
-| nested             | array         | TBD       |
+| nested             | array         | STRUCT    |
 +--------------------+---------------+-----------+
 
-Notes: Not all the ODFE SQL Type has correspond Elasticsearch Type. e.g. data and time. To use function which required such data type, user should explict convert the data type.
+Notes: Not all the ODFE SQL Type has correspond Elasticsearch Type. e.g. data and time. To use function which required such data type, user should explicitly convert the data type.
 
+
+Undefined Data Type
+===================
+
+The type of a null literal is special and different from any existing one. In this case, an ``UNDEFINED`` type is in use when the type cannot be inferred at "compile time" (during query parsing and analyzing). The corresponding SQL type is NULL according to JDBC specification. Because this undefined type is compatible with any other type by design, a null literal can be accepted as a valid operand or function argument.
+
+Here are examples for NULL literal and expressions with NULL literal involved::
+
+    od> SELECT NULL, NULL = NULL, 1 + NULL, LENGTH(NULL);
+    fetched rows / total rows = 1/1
+    +--------+---------------+------------+----------------+
+    | NULL   | NULL = NULL   | 1 + NULL   | LENGTH(NULL)   |
+    |--------+---------------+------------+----------------|
+    | null   | null          | null       | null           |
+    +--------+---------------+------------+----------------+
 
 
 Numeric Data Types
@@ -208,7 +237,16 @@ Conversion from TIMESTAMP
 String Data Types
 =================
 
-TODO
+A string is a sequence of characters enclosed in either single or double quotes. For example, both 'text' and "text" will be treated as string literal. To use quote characters in a string literal, you can include double quotes within single quoted string or single quotes within double quoted string::
+
+    od> SELECT 'hello', "world", '"hello"', "'world'"
+    fetched rows / total rows = 1/1
+    +-----------+-----------+-------------+-------------+
+    | 'hello'   | "world"   | '"hello"'   | "'world'"   |
+    |-----------+-----------+-------------+-------------|
+    | hello     | world     | "hello"     | 'world'     |
+    +-----------+-----------+-------------+-------------+
+
 
 
 

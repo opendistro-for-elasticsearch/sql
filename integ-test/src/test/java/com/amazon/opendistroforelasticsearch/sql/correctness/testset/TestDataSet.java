@@ -114,10 +114,16 @@ public class TestDataSet {
   }
 
   private Object convertStringToObject(String type, String str) {
+    if (str.isEmpty()) {
+      return null;
+    }
+
     switch (type.toLowerCase()) {
       case "text":
       case "keyword":
       case "date":
+      case "time":
+      case "timestamp":
         return str;
       case "integer":
         return Integer.valueOf(str);

@@ -78,6 +78,14 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
   }
 
   /**
+   * Get byte value.
+   */
+  default Byte byteValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get byteValue from value of type " + type());
+  }
+
+  /**
    * Get short value.
    */
   default Short shortValue() {
@@ -187,5 +195,13 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
   default List<ExprValue> collectionValue() {
     throw new ExpressionEvaluationException(
         "invalid to get collectionValue from value of type " + type());
+  }
+
+  /**
+   * Get the value specified by key from {@link ExprTupleValue}.
+   * This method only be implemented in {@link ExprTupleValue}.
+   */
+  default ExprValue keyValue(String key) {
+    return ExprMissingValue.of();
   }
 }

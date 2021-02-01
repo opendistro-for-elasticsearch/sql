@@ -50,14 +50,13 @@ class ExpressionFilterScript extends FilterScript {
 
   @Override
   public boolean execute() {
-    return (Boolean) expressionScript.execute(this::getDoc, this::evaluateExpression);
+    return expressionScript.execute(this::getDoc, this::evaluateExpression).booleanValue();
   }
-
 
   private ExprValue evaluateExpression(Expression expression,
                                        Environment<Expression, ExprValue> valueEnv) {
     ExprValue result = expression.valueOf(valueEnv);
-    if (result.isNull() || result.isMissing()) {
+    if (result.isNull()) {
       return ExprBooleanValue.of(false);
     }
 

@@ -16,7 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.jdbc.types;
 
+import java.sql.Date;
 import java.sql.JDBCType;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Locale;
@@ -70,8 +72,12 @@ public enum ElasticsearchType {
     IP(JDBCType.VARCHAR, String.class, 15, 0, false),
     NESTED(JDBCType.STRUCT, null, 0, 0, false),
     OBJECT(JDBCType.STRUCT, null, 0, 0, false),
-    DATE(JDBCType.TIMESTAMP, Timestamp.class, 24, 24, false),
+    DATE(JDBCType.DATE, Date.class, 24, 24, false),
+    TIME(JDBCType.TIME, Time.class, 24, 24, false),
+    TIMESTAMP(JDBCType.TIMESTAMP, Timestamp.class, 24, 24, false),
+    BINARY(JDBCType.VARBINARY, String.class, Integer.MAX_VALUE, 0, false),
     NULL(JDBCType.NULL, null, 0, 0, false),
+    UNDEFINED(JDBCType.NULL, null, 0, 0, false),
     UNSUPPORTED(JDBCType.OTHER, null, 0, 0, false);
 
     private static final Map<JDBCType, ElasticsearchType> jdbcTypeToESTypeMap;
@@ -79,7 +85,7 @@ public enum ElasticsearchType {
     static {
         // Map JDBCType to corresponding ElasticsearchType
         jdbcTypeToESTypeMap = new HashMap<>();
-        jdbcTypeToESTypeMap.put(JDBCType.NULL, NULL);
+        jdbcTypeToESTypeMap.put(JDBCType.NULL, UNDEFINED);
         jdbcTypeToESTypeMap.put(JDBCType.BOOLEAN, BOOLEAN);
         jdbcTypeToESTypeMap.put(JDBCType.TINYINT, BYTE);
         jdbcTypeToESTypeMap.put(JDBCType.SMALLINT, SHORT);
@@ -89,8 +95,10 @@ public enum ElasticsearchType {
         jdbcTypeToESTypeMap.put(JDBCType.REAL, FLOAT);
         jdbcTypeToESTypeMap.put(JDBCType.FLOAT, DOUBLE);
         jdbcTypeToESTypeMap.put(JDBCType.VARCHAR, KEYWORD);
-        jdbcTypeToESTypeMap.put(JDBCType.TIMESTAMP, DATE);
+        jdbcTypeToESTypeMap.put(JDBCType.TIMESTAMP, TIMESTAMP);
+        jdbcTypeToESTypeMap.put(JDBCType.TIME, TIME);
         jdbcTypeToESTypeMap.put(JDBCType.DATE, DATE);
+        jdbcTypeToESTypeMap.put(JDBCType.VARBINARY, BINARY);
     }
 
     /**

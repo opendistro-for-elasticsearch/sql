@@ -208,6 +208,11 @@ public class TestUtils {
     return getMappingFile(mappingFile);
   }
 
+  public static String getStringIndexMapping() {
+    String mappingFile = "string_index_mapping.json";
+    return getMappingFile(mappingFile);
+  }
+
   public static String getOrderIndexMapping() {
     String mappingFile = "order_index_mapping.json";
     return getMappingFile(mappingFile);
@@ -235,6 +240,16 @@ public class TestUtils {
 
   public static String getDeepNestedIndexMapping() {
     String mappingFile = "deep_nested_index_mapping.json";
+    return getMappingFile(mappingFile);
+  }
+
+  public static String getDataTypeNumericIndexMapping() {
+    String mappingFile = "datatypes_numeric_index_mapping.json";
+    return getMappingFile(mappingFile);
+  }
+
+  public static String getDataTypeNonnumericIndexMapping() {
+    String mappingFile = "datatypes_index_mapping.json";
     return getMappingFile(mappingFile);
   }
 

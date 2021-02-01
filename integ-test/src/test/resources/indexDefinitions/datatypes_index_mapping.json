@@ -1,0 +1,37 @@
+{
+  "mappings": {
+    "properties": {
+      "boolean_value": {
+        "type": "boolean"
+      },
+      "keyword_value": {
+        "type": "keyword"
+      },
+      "text_value": {
+        "type": "text"
+      },
+      "binary_value": {
+        "type": "binary"
+      },
+      "date_value": {
+        "type": "date"
+      },
+      "ip_value": {
+        "type": "ip"
+      },
+      "object_value": {
+        "properties": {
+          "first": {
+            "type": "text"
+          },
+          "last": {
+            "type": "text"
+          }
+        }
+      },
+      "nested_value": {
+        "type": "nested"
+      }
+    }
+  }
+}

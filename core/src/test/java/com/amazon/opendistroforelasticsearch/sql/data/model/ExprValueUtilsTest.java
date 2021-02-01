@@ -68,7 +68,7 @@ public class ExprValueUtilsTest {
     testTuple.put("1", new ExprIntegerValue(1));
   }
 
-  private static List<ExprValue> numberValues = Stream.of(1, 1L, 1f, 1D)
+  private static List<ExprValue> numberValues = Stream.of((byte) 1, (short) 1, 1, 1L, 1f, 1D)
       .map(ExprValueUtils::fromObjectValue).collect(Collectors.toList());
 
   private static List<ExprValue> nonNumberValues = Arrays.asList(
@@ -86,6 +86,8 @@ public class ExprValueUtilsTest {
       Lists.newArrayList(Iterables.concat(numberValues, nonNumberValues));
 
   private static List<Function<ExprValue, Object>> numberValueExtractor = Arrays.asList(
+      ExprValue::byteValue,
+      ExprValue::shortValue,
       ExprValueUtils::getIntegerValue,
       ExprValueUtils::getLongValue,
       ExprValueUtils::getFloatValue,
@@ -106,8 +108,8 @@ public class ExprValueUtilsTest {
       Iterables.concat(numberValueExtractor, nonNumberValueExtractor, dateAndTimeValueExtractor));
 
   private static List<ExprCoreType> numberTypes =
-      Arrays.asList(ExprCoreType.INTEGER, ExprCoreType.LONG, ExprCoreType.FLOAT,
-          ExprCoreType.DOUBLE);
+      Arrays.asList(ExprCoreType.BYTE, ExprCoreType.SHORT, ExprCoreType.INTEGER, ExprCoreType.LONG,
+          ExprCoreType.FLOAT, ExprCoreType.DOUBLE);
   private static List<ExprCoreType> nonNumberTypes =
       Arrays.asList(STRING, BOOLEAN, ARRAY, STRUCT);
   private static List<ExprCoreType> dateAndTimeTypes =
@@ -116,7 +118,7 @@ public class ExprValueUtilsTest {
       Lists.newArrayList(Iterables.concat(numberTypes, nonNumberTypes, dateAndTimeTypes));
 
   private static Stream<Arguments> getValueTestArgumentStream() {
-    List<Object> expectedValues = Arrays.asList(1, 1L, 1f, 1D, "1", true,
+    List<Object> expectedValues = Arrays.asList((byte) 1, (short) 1, 1, 1L, 1f, 1D, "1", true,
         Arrays.asList(integerValue(1)),
         ImmutableMap.of("1", integerValue(1)),
         LocalDate.parse("2012-08-07"),
@@ -248,6 +250,8 @@ public class ExprValueUtilsTest {
 
   @Test
   public void hashCodeTest() {
+    assertEquals(new ExprByteValue(1).hashCode(), new ExprByteValue(1).hashCode());
+    assertEquals(new ExprShortValue(1).hashCode(), new ExprShortValue(1).hashCode());
     assertEquals(new ExprIntegerValue(1).hashCode(), new ExprIntegerValue(1).hashCode());
     assertEquals(new ExprStringValue("1").hashCode(), new ExprStringValue("1").hashCode());
     assertEquals(new ExprCollectionValue(ImmutableList.of(new ExprIntegerValue(1))).hashCode(),

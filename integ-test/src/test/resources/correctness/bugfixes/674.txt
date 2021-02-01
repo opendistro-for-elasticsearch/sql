@@ -1,0 +1,2 @@
+SELECT OriginCountry, OriginCityName FROM kibana_sample_data_flights GROUP BY OriginCountry, OriginCityName ORDER BY OriginCityName DESC
+SELECT FlightDelay, OriginCountry, OriginCityName FROM kibana_sample_data_flights GROUP BY FlightDelay, OriginCountry, OriginCityName ORDER BY OriginCityName DESC, OriginCountry

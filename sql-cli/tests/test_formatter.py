@@ -79,6 +79,29 @@ class TestFormatter:
         ]
         assert list(results) == expected
 
+    def test_format_alias_output(self):
+        settings = OutputSettings(table_format="psql")
+        formatter = Formatter(settings)
+        data = {
+            "schema": [{"name": "name", "alias": "n", "type": "text"}],
+            "total": 1,
+            "datarows": [["Tim"]],
+            "size": 1,
+            "status": 200,
+        }
+
+        results = formatter.format_output(data)
+
+        expected = [
+            "fetched rows / total rows = 1/1",
+            "+-----+",
+            "| n   |",
+            "|-----|",
+            "| Tim |",
+            "+-----+",
+        ]
+        assert list(results) == expected
+
     def test_format_array_output(self):
         settings = OutputSettings(table_format="psql")
         formatter = Formatter(settings)

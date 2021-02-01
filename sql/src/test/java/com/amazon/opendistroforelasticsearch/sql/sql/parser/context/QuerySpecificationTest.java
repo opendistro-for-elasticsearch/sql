@@ -18,10 +18,15 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.alias;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filteredAggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
@@ -105,6 +110,39 @@ class QuerySpecificationTest {
             alias("AVG(age)", aggregate("AVG", qualifiedName("age"))),
             alias("AVG(balance)", aggregate("AVG", qualifiedName("balance")))),
         querySpec.getAggregators());
+  }
+
+  @Test
+  void can_collect_sort_options_in_order_by_clause() {
+    assertEquals(
+        ImmutableList.of(new SortOption(null, null)),
+        collect("SELECT name FROM test ORDER BY name").getOrderByOptions());
+
+    assertEquals(
+        ImmutableList.of(new SortOption(SortOrder.ASC, NullOrder.NULL_LAST)),
+        collect("SELECT name FROM test ORDER BY name ASC NULLS LAST").getOrderByOptions());
+
+    assertEquals(
+        ImmutableList.of(new SortOption(SortOrder.DESC, NullOrder.NULL_FIRST)),
+        collect("SELECT name FROM test ORDER BY name DESC NULLS FIRST").getOrderByOptions());
+  }
+
+  @Test
+  void should_skip_sort_items_in_window_function() {
+    assertEquals(1,
+        collect("SELECT name, RANK() OVER(ORDER BY age) "
+            + "FROM test ORDER BY name"
+        ).getOrderByOptions().size());
+  }
+
+  @Test
+  void can_collect_filtered_aggregation() {
+    assertEquals(
+        ImmutableSet.of(alias("AVG(age) FILTER(WHERE age > 20)",
+            filteredAggregate("AVG", qualifiedName("age"),
+                function(">", qualifiedName("age"), intLiteral(20))))),
+        collect("SELECT AVG(age) FILTER(WHERE age > 20) FROM test").getAggregators()
+    );
   }
 
   private QuerySpecification collect(String query) {

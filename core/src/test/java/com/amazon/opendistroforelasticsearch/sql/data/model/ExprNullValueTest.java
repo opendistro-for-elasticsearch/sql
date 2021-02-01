@@ -42,7 +42,7 @@ public class ExprNullValueTest {
 
   @Test
   public void getType() {
-    assertEquals(ExprCoreType.UNKNOWN, LITERAL_NULL.type());
+    assertEquals(ExprCoreType.UNDEFINED, LITERAL_NULL.type());
   }
 
   @Test

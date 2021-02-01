@@ -16,28 +16,38 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FilteredAggregationFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.createSortOption;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectSpecContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstExpressionBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
@@ -71,12 +81,22 @@ public class QuerySpecification {
    * Aggregate function calls that spreads in SELECT, HAVING clause. Since this is going to be
    * pushed to aggregation operator, de-duplicate is necessary to avoid duplication.
    */
-  private final Set<UnresolvedExpression> aggregators = new HashSet<>();
+  private final Set<UnresolvedExpression> aggregators = new LinkedHashSet<>();
 
   /**
-   * Items in GROUP BY clause that may be simple field name or nested in scalar function call.
+   * Items in GROUP BY clause that may be:
+   *  1) Simple field name
+   *  2) Field nested in scalar function call
+   *  3) Ordinal that points to expression in SELECT
+   *  4) Alias that points to expression in SELECT.
    */
   private final List<UnresolvedExpression> groupByItems = new ArrayList<>();
+
+  /**
+   * Items in ORDER BY clause that may be different forms as above and its options.
+   */
+  private final List<UnresolvedExpression> orderByItems = new ArrayList<>();
+  private final List<SortOption> orderByOptions = new ArrayList<>();
 
   /**
    * Collect all query information in the parse tree excluding info in sub-query).
@@ -84,6 +104,62 @@ public class QuerySpecification {
    */
   public void collect(QuerySpecificationContext query, String queryString) {
     query.accept(new QuerySpecificationCollector(queryString));
+  }
+
+  /**
+   * Replace unresolved expression if it's an alias or ordinal that represents
+   * an actual expression in SELECT list.
+   * @param expr item to be replaced
+   * @return select item that the given expr represents
+   */
+  public UnresolvedExpression replaceIfAliasOrOrdinal(UnresolvedExpression expr) {
+    if (isIntegerLiteral(expr)) {
+      return getSelectItemByOrdinal(expr);
+    } else if (isSelectAlias(expr)) {
+      return getSelectItemByAlias(expr);
+    } else {
+      return expr;
+    }
+  }
+
+  private boolean isIntegerLiteral(UnresolvedExpression expr) {
+    if (!(expr instanceof Literal)) {
+      return false;
+    }
+
+    if (((Literal) expr).getType() != DataType.INTEGER) {
+      throw new SemanticCheckException(StringUtils.format(
+          "Non-integer constant [%s] found in ordinal", expr));
+    }
+    return true;
+  }
+
+  private UnresolvedExpression getSelectItemByOrdinal(UnresolvedExpression expr) {
+    int ordinal = (Integer) ((Literal) expr).getValue();
+    if (ordinal <= 0 || ordinal > selectItems.size()) {
+      throw new SemanticCheckException(StringUtils.format(
+          "Ordinal [%d] is out of bound of select item list", ordinal));
+    }
+    return selectItems.get(ordinal - 1);
+  }
+
+  /**
+   * Check if an expression is a select alias.
+   * @param expr  expression
+   * @return true if it's an alias
+   */
+  public boolean isSelectAlias(UnresolvedExpression expr) {
+    return (expr instanceof QualifiedName)
+        && (selectItemsByAlias.containsKey(expr.toString()));
+  }
+
+  /**
+   * Get original expression aliased in SELECT clause.
+   * @param expr  alias
+   * @return expression in SELECT
+   */
+  public UnresolvedExpression getSelectItemByAlias(UnresolvedExpression expr) {
+    return selectItemsByAlias.get(expr.toString());
   }
 
   /*
@@ -101,9 +177,26 @@ public class QuerySpecification {
     }
 
     @Override
-    public Void visitQuerySpecification(QuerySpecificationContext ctx) {
-      // TODO: avoid collect sub-query
-      return super.visitQuerySpecification(ctx);
+    public Void visitSubqueryAsRelation(SubqueryAsRelationContext ctx) {
+      // skip collecting subquery for current layer
+      return null;
+    }
+
+    @Override
+    public Void visitWindowFunctionClause(WindowFunctionClauseContext ctx) {
+      // skip collecting sort items in window functions
+      return null;
+    }
+
+    @Override
+    public Void visitSelectClause(SelectClauseContext ctx) {
+      super.visitSelectClause(ctx);
+
+      // SELECT DISTINCT is an equivalent and special form of GROUP BY
+      if (isDistinct(ctx.selectSpec())) {
+        groupByItems.addAll(selectItems);
+      }
+      return null;
     }
 
     @Override
@@ -125,9 +218,28 @@ public class QuerySpecification {
     }
 
     @Override
+    public Void visitOrderByElement(OrderByElementContext ctx) {
+      orderByItems.add(visitAstExpression(ctx.expression()));
+      orderByOptions.add(createSortOption(ctx));
+      return super.visitOrderByElement(ctx);
+    }
+
+    @Override
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
       aggregators.add(AstDSL.alias(getTextInQuery(ctx, queryString), visitAstExpression(ctx)));
       return super.visitAggregateFunctionCall(ctx);
+    }
+
+    @Override
+    public Void visitFilteredAggregationFunctionCall(FilteredAggregationFunctionCallContext ctx) {
+      UnresolvedExpression aggregateFunction = visitAstExpression(ctx);
+      aggregators.add(
+          AstDSL.alias(getTextInQuery(ctx, queryString), aggregateFunction));
+      return super.visitFilteredAggregationFunctionCall(ctx);
+    }
+
+    private boolean isDistinct(SelectSpecContext ctx) {
+      return (ctx != null) && (ctx.DISTINCT() != null);
     }
 
     private UnresolvedExpression visitAstExpression(ParseTree tree) {

@@ -31,16 +31,20 @@ import org.apache.commons.lang3.tuple.Pair;
  * distance/speed).
  */
 @ToString
-@EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LogicalEval extends LogicalPlan {
-  private final LogicalPlan child;
+
   @Getter
   private final List<Pair<ReferenceExpression, Expression>> expressions;
 
-  @Override
-  public List<LogicalPlan> getChild() {
-    return Collections.singletonList(child);
+  /**
+   * Constructor of LogicalEval.
+   */
+  public LogicalEval(
+      LogicalPlan child,
+      List<Pair<ReferenceExpression, Expression>> expressions) {
+    super(Collections.singletonList(child));
+    this.expressions = expressions;
   }
 
   @Override

@@ -19,11 +19,8 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.c
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
-import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toMap;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
@@ -86,15 +83,15 @@ public class ExpressionScript {
    * @param evaluator evaluator
    * @return
    */
-  public Object execute(Supplier<Map<String, ScriptDocValues<?>>> docProvider,
+  public ExprValue execute(Supplier<Map<String, ScriptDocValues<?>>> docProvider,
                          BiFunction<Expression,
                              Environment<Expression,
                                  ExprValue>, ExprValue> evaluator) {
-    return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+    return AccessController.doPrivileged((PrivilegedAction<ExprValue>) () -> {
       Environment<Expression, ExprValue> valueEnv =
           buildValueEnv(fields, valueFactory, docProvider);
       ExprValue result = evaluator.apply(expression, valueEnv);
-      return result.value();
+      return result;
     });
   }
 
@@ -137,7 +134,7 @@ public class ExpressionScript {
     String fieldName = getDocValueName(field);
     ScriptDocValues<?> docValue = docProvider.get().get(fieldName);
     if (docValue == null || docValue.isEmpty()) {
-      return null;
+      return null; // No way to differentiate null and missing from doc value
     }
 
     Object value = docValue.get(0);
