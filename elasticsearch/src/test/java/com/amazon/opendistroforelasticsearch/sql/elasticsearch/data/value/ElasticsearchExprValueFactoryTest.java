@@ -55,18 +55,10 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.Content;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.JsonContent;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.Parser;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.TypeMapping;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -104,23 +96,6 @@ class ElasticsearchExprValueFactoryTest {
   private ElasticsearchExprValueFactory exprValueFactory =
       new ElasticsearchExprValueFactory(MAPPING);
 
-
-
-  @Test
-  public void parserTest() throws Exception {
-    final Parser parser = new Parser(new TypeMapping.DefaultTypeMapping(MAPPING));
-    final ExprValue value = parser.parse(jsonContent("{\"intV\":1}"), STRUCT);
-
-    assertEquals(integerValue(1), value.keyValue("intV"));
-  }
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-  public Content jsonContent(String json) throws Exception {
-    return new JsonContent(OBJECT_MAPPER.readTree(json));
-  }
-
-
-
   @Test
   public void constructNullValue() {
     assertEquals(nullValue(), tupleValue("{\"intV\":null}").get("intV"));
@@ -130,11 +105,13 @@ class ElasticsearchExprValueFactoryTest {
   @Test
   public void constructByte() {
     assertEquals(byteValue((byte) 1), tupleValue("{\"byteV\":1}").get("byteV"));
+    assertEquals(byteValue((byte) 1), constructFromObject("byteV", 1));
   }
 
   @Test
   public void constructShort() {
     assertEquals(shortValue((short) 1), tupleValue("{\"shortV\":1}").get("shortV"));
+    assertEquals(shortValue((short) 1), constructFromObject("shortV", 1));
   }
 
   @Test
@@ -254,6 +231,16 @@ class ElasticsearchExprValueFactoryTest {
               }
             }))),
         tupleValue("{\"arrayV\":[{\"info\":\"zz\",\"author\":\"au\"}]}").get("arrayV"));
+    assertEquals(
+        new ExprCollectionValue(ImmutableList.of(new ExprTupleValue(
+            new LinkedHashMap<String, ExprValue>() {
+              {
+                put("info", stringValue("zz"));
+                put("author", stringValue("au"));
+              }
+            }))),
+        constructFromObject("arrayV", ImmutableList.of(
+            ImmutableMap.of("info", "zz", "author", "au"))));
   }
 
   @Test
@@ -267,6 +254,15 @@ class ElasticsearchExprValueFactoryTest {
               }
             }),
         tupleValue("{\"structV\":{\"id\":1,\"state\":\"WA\"}}").get("structV"));
+    assertEquals(
+        new ExprTupleValue(
+            new LinkedHashMap<String, ExprValue>() {
+              {
+                put("id", integerValue(1));
+                put("state", stringValue("WA"));
+              }
+            }),
+        constructFromObject("structV", ImmutableMap.of("id", 1, "state", "WA")));
   }
 
   @Test
@@ -279,12 +275,31 @@ class ElasticsearchExprValueFactoryTest {
   public void constructGeoPoint() {
     assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
         tupleValue("{\"geoV\":{\"lat\":42.60355556,\"lon\":-97.25263889}}").get("geoV"));
+    assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
+        constructFromObject("geoV", "42.60355556,-97.25263889"));
   }
 
   @Test
   public void constructBinary() {
     assertEquals(new ElasticsearchExprBinaryValue("U29tZSBiaW5hcnkgYmxvYg=="),
         tupleValue("{\"binaryV\":\"U29tZSBiaW5hcnkgYmxvYg==\"}").get("binaryV"));
+  }
+
+  /**
+   * Return the first element if is Elasticsearch Array.
+   * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html.
+   */
+  @Test
+  public void constructFromElasticsearcyArrayReturnFirstElement() {
+    assertEquals(integerValue(1), tupleValue("{\"intV\":[1, 2, 3]}").get("intV"));
+    assertEquals(new ExprTupleValue(
+        new LinkedHashMap<String, ExprValue>() {
+          {
+            put("id", integerValue(1));
+            put("state", stringValue("WA"));
+          }
+        }), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
+        .get("structV"));
   }
 
   @Test

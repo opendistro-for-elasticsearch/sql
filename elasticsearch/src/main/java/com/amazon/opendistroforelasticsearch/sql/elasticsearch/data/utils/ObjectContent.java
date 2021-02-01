@@ -16,14 +16,17 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils;
 
+import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 
+/**
+ * The Implementation of Content to represent {@link Object}.
+ */
 @RequiredArgsConstructor
 public class ObjectContent implements Content {
 
@@ -76,15 +79,18 @@ public class ObjectContent implements Content {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<String, Content> map() {
-    return ((Map<String, Object>) value).entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
-        e -> new ObjectContent(e.getValue())));
+  public Iterator<Map.Entry<String, Content>> map() {
+    return ((Map<String, Object>) value).entrySet().stream()
+        .map(entry -> (Map.Entry<String, Content>) new AbstractMap.SimpleEntry<String, Content>(
+            entry.getKey(),
+            new ObjectContent(entry.getValue())))
+        .iterator();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Iterator<? extends Content> array() {
-    return ((List<Object>)value).stream().map(ObjectContent::new).iterator();
+    return ((List<Object>) value).stream().map(ObjectContent::new).iterator();
   }
 
   @Override

@@ -24,87 +24,100 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 
+/**
+ * The Implementation of Content to represent {@link JsonNode}.
+ */
 @RequiredArgsConstructor
-public class JsonContent implements Content {
+public class ElasticsearchJsonContent implements Content {
 
   private final JsonNode value;
 
   @Override
   public Integer intValue() {
-    return value.intValue();
+    return value().intValue();
   }
 
   @Override
   public Long longValue() {
-    return value.longValue();
+    return value().longValue();
   }
 
   @Override
   public Short shortValue() {
-    return value.shortValue();
+    return value().shortValue();
   }
 
   @Override
   public Byte byteValue() {
-    return (byte) value.shortValue();
+    return (byte) value().shortValue();
   }
 
   @Override
   public Float floatValue() {
-    return value.floatValue();
+    return value().floatValue();
   }
 
   @Override
   public Double doubleValue() {
-    return value.doubleValue();
+    return value().doubleValue();
   }
 
   @Override
   public String stringValue() {
-    return value.asText();
+    return value().asText();
   }
 
   @Override
   public Boolean booleanValue() {
-    return value.booleanValue();
+    return value().booleanValue();
   }
 
   @Override
-  public Map<String, Content> map() {
+  public Iterator<Map.Entry<String, Content>> map() {
     LinkedHashMap<String, Content> map = new LinkedHashMap<>();
-    value
+    final JsonNode mapValue = value();
+    mapValue
         .fieldNames()
-        .forEachRemaining(field -> map.put(field, new JsonContent(value.get(field))));
-    return map;
+        .forEachRemaining(
+            field -> map.put(field, new ElasticsearchJsonContent(mapValue.get(field))));
+    return map.entrySet().iterator();
   }
 
   @Override
   public Iterator<? extends Content> array() {
-    return Iterators.transform(value.elements(), JsonContent::new);
+    return Iterators.transform(value.elements(), ElasticsearchJsonContent::new);
   }
 
   @Override
   public boolean isNull() {
-    return value.isNull();
+    return value == null || value.isNull();
   }
 
   @Override
   public boolean isNumber() {
-    return value.isNumber();
+    return value().isNumber();
   }
 
   @Override
   public boolean isString() {
-    return value.isTextual();
+    return value().isTextual();
   }
 
   @Override
   public Object objectValue() {
-    return value;
+    return value();
   }
 
   @Override
   public Pair<Double, Double> geoValue() {
-    return Pair.of(value.get("lat").doubleValue(), value.get("lon").doubleValue());
+    return Pair.of(value().get("lat").doubleValue(), value().get("lon").doubleValue());
+  }
+
+  /**
+   * Return the first element if is Elasticsearch Array.
+   * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html.
+   */
+  private JsonNode value() {
+    return value.isArray() ? value.get(0) : value;
   }
 }

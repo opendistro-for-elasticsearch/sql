@@ -17,7 +17,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.nullValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
@@ -50,6 +49,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
@@ -57,13 +57,12 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.JsonContent;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.Content;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.ElasticsearchJsonContent;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.ObjectContent;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.Parser;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.TypeMapping;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -73,15 +72,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import org.elasticsearch.common.time.DateFormatters;
 
-/** Construct ExprValue from Elasticsearch response. */
+/**
+ * Construct ExprValue from Elasticsearch response.
+ */
+@AllArgsConstructor
 public class ElasticsearchExprValueFactory {
-  /** The Mapping of Field and ExprType. */
+  /**
+   * The Mapping of Field and ExprType.
+   */
+  @Setter
   private Map<String, ExprType> typeMapping;
-
-  private Parser parser;
 
   private static final DateTimeFormatter DATE_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
@@ -94,15 +98,27 @@ public class ElasticsearchExprValueFactory {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  public ElasticsearchExprValueFactory(
-      Map<String, ExprType> typeMapping) {
-    this.typeMapping = typeMapping;
-    this.parser = new Parser(new TypeMapping.DefaultTypeMapping(typeMapping));
-  }
-
-  public void setTypeMapping(Map<String, ExprType> typeMapping) {
-    parser = new Parser(new TypeMapping.DefaultTypeMapping(typeMapping));
-  }
+  private final Map<ExprType, Function<Content, ExprValue>> typeActionMap =
+      new ImmutableMap.Builder<ExprType, Function<Content, ExprValue>>()
+          .put(INTEGER, c -> new ExprIntegerValue(c.intValue()))
+          .put(LONG, c -> new ExprLongValue(c.longValue()))
+          .put(SHORT, c -> new ExprShortValue(c.shortValue()))
+          .put(BYTE, c -> new ExprByteValue(c.byteValue()))
+          .put(FLOAT, c -> new ExprFloatValue(c.floatValue()))
+          .put(DOUBLE, c -> new ExprDoubleValue(c.doubleValue()))
+          .put(STRING, c -> new ExprStringValue(c.stringValue()))
+          .put(BOOLEAN, c -> ExprBooleanValue.of(c.booleanValue()))
+          .put(TIMESTAMP, this::parseTimestamp)
+          .put(DATE, c -> new ExprDateValue(parseTimestamp(c).dateValue().toString()))
+          .put(TIME, c -> new ExprTimeValue(parseTimestamp(c).timeValue().toString()))
+          .put(DATETIME, c -> new ExprDatetimeValue(parseTimestamp(c).datetimeValue()))
+          .put(ES_TEXT, c -> new ElasticsearchExprTextValue(c.stringValue()))
+          .put(ES_TEXT_KEYWORD, c -> new ElasticsearchExprTextKeywordValue(c.stringValue()))
+          .put(ES_IP, c -> new ElasticsearchExprIpValue(c.stringValue()))
+          .put(ES_GEO_POINT, c -> new ElasticsearchExprGeoPointValue(c.geoValue().getLeft(),
+              c.geoValue().getRight()))
+          .put(ES_BINARY, c -> new ElasticsearchExprBinaryValue(c.stringValue()))
+          .build();
 
   /**
    * The struct construction has the following assumption. 1. The field has Elasticsearch Object
@@ -112,23 +128,11 @@ public class ElasticsearchExprValueFactory {
    */
   public ExprValue construct(String jsonString) {
     try {
-//      return constructStruct(OBJECT_MAPPER.readTree(jsonString), TOP_PATH);
-
-      final JsonNode value = OBJECT_MAPPER.readTree(jsonString);
-
-      return parser.parse(new JsonContent(value), STRUCT);
+      return parse(new ElasticsearchJsonContent(OBJECT_MAPPER.readTree(jsonString)), TOP_PATH,
+          STRUCT);
     } catch (JsonProcessingException e) {
       throw new IllegalStateException(String.format("invalid json: %s.", jsonString), e);
     }
-  }
-
-  /** Construct ExprValue from field and value pair. */
-  private ExprValue construct(String field, JsonNode value) {
-    if (value.isNull()) {
-      return nullValue();
-    }
-
-    return parser.parse(new JsonContent(value), STRUCT);
   }
 
   /**
@@ -136,27 +140,31 @@ public class ElasticsearchExprValueFactory {
    * to construct from field of unsupported type.
    * Todo, add IP, GeoPoint support after we have function implementation around it.
    *
-   * @param field   field name
-   * @param value   value object
-   * @return        ExprValue
+   * @param field field name
+   * @param value value object
+   * @return ExprValue
    */
   public ExprValue construct(String field, Object value) {
-    if (value == null) {
-      return nullValue();
-    }
-
-    return parser.parse(new ObjectContent(value), field);
+    return parse(new ObjectContent(value), field, type(field));
   }
 
-  /**
-   * Elastisearch could return value String value even the type is Number.
-   */
-  private <T> T parseNumberValue(Object value, Function<String, T> stringTFunction,
-                                 Function<Number, T> numberTFunction) {
-    if (value instanceof String) {
-      return stringTFunction.apply((String) value);
+  private ExprValue parse(Content content, String field, ExprType type) {
+    if (content.isNull()) {
+      return ExprNullValue.of();
+    }
+
+    if (type == STRUCT) {
+      return parseStruct(content, field);
+    } else if (type == ARRAY) {
+      return parseArray(content, field);
     } else {
-      return numberTFunction.apply((Number) value);
+      if (typeActionMap.containsKey(type)) {
+        return typeActionMap.get(type).apply(content);
+      } else {
+        throw new IllegalStateException(
+            String.format(
+                "Unsupported type: %s for value: %s.", type.typeName(), content.objectValue()));
+      }
     }
   }
 
@@ -166,46 +174,6 @@ public class ElasticsearchExprValueFactory {
     } else {
       throw new IllegalStateException(String.format("No type found for field: %s.", field));
     }
-  }
-
-  private ExprIntegerValue constructInteger(Integer value) {
-    return new ExprIntegerValue(value);
-  }
-
-  private ExprLongValue constructLong(Long value) {
-    return new ExprLongValue(value);
-  }
-
-  private ExprShortValue constructShort(Short value) {
-    return new ExprShortValue(value);
-  }
-
-  private ExprByteValue constructByte(Byte value) {
-    return new ExprByteValue(value);
-  }
-
-  private ExprFloatValue constructFloat(Float value) {
-    return new ExprFloatValue(value);
-  }
-
-  private ExprDoubleValue constructDouble(Double value) {
-    return new ExprDoubleValue(value);
-  }
-
-  private ExprStringValue constructString(String value) {
-    return new ExprStringValue(value);
-  }
-
-  private ExprBooleanValue constructBoolean(Boolean value) {
-    return ExprBooleanValue.of(value);
-  }
-
-  private ExprValue constructTimestamp(Long value) {
-    return constructTimestamp(Instant.ofEpochMilli(value));
-  }
-
-  private ExprValue constructTimestamp(Instant instant) {
-    return new ExprTimestampValue(instant);
   }
 
   /**
@@ -226,13 +194,23 @@ public class ElasticsearchExprValueFactory {
     }
   }
 
-  private ExprTupleValue constructStruct(JsonNode value, String path) {
-    LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
-    value
-        .fieldNames()
-        .forEachRemaining(
-            field -> map.put(field, construct(makeField(path, field), value.get(field))));
-    return new ExprTupleValue(map);
+  private ExprValue parseTimestamp(Content value) {
+    if (value.isNumber()) {
+      return new ExprTimestampValue(Instant.ofEpochMilli(value.longValue()));
+    } else if (value.isString()) {
+      return constructTimestamp(value.stringValue());
+    } else {
+      return new ExprTimestampValue((Instant) value.objectValue());
+    }
+  }
+
+  private ExprValue parseStruct(Content content, String prefix) {
+    LinkedHashMap<String, ExprValue> result = new LinkedHashMap<>();
+    content.map().forEachRemaining(entry -> result.put(entry.getKey(),
+        parse(entry.getValue(),
+            makeField(prefix, entry.getKey()),
+            type(makeField(prefix, entry.getKey())))));
+    return new ExprTupleValue(result);
   }
 
   /**
@@ -240,15 +218,10 @@ public class ElasticsearchExprValueFactory {
    * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html. The similar data
    * type is nested, but it can only allow a list of objects.
    */
-  private ExprCollectionValue constructArray(JsonNode value, String path) {
-    List<ExprValue> list = new ArrayList<>();
-    value
-        .elements()
-        .forEachRemaining(
-            node -> {
-              list.add(constructStruct(node, path));
-            });
-    return new ExprCollectionValue(list);
+  private ExprValue parseArray(Content content, String prefix) {
+    List<ExprValue> result = new ArrayList<>();
+    content.array().forEachRemaining(v -> result.add(parse(v, prefix, STRUCT)));
+    return new ExprCollectionValue(result);
   }
 
   private String makeField(String path, String field) {

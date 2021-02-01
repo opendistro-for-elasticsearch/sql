@@ -25,34 +25,78 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public interface Content {
 
+  /**
+   * Is null value.
+   */
   boolean isNull();
 
+  /**
+   * Is number value.
+   */
   boolean isNumber();
 
+  /**
+   * Is string value.
+   */
   boolean isString();
 
+  /**
+   * Get integer value.
+   */
   Integer intValue();
 
+  /**
+   * Get long value.
+   */
   Long longValue();
 
+  /**
+   * Get short value.
+   */
   Short shortValue();
 
+  /**
+   * Get byte value.
+   */
   Byte byteValue();
 
+  /**
+   * Get float value.
+   */
   Float floatValue();
 
+  /**
+   * Get double value.
+   */
   Double doubleValue();
 
+  /**
+   * Get string value.
+   */
   String stringValue();
 
+  /**
+   * Get boolean value.
+   */
   Boolean booleanValue();
 
-  Map<String, Content> map();
+  /**
+   * Get map of {@link Content} value.
+   */
+  Iterator<Map.Entry<String, Content>> map();
 
+  /**
+   * Get array of {@link Content} value.
+   */
   Iterator<? extends Content> array();
 
+  /**
+   * Get geo point value.
+   */
   Pair<Double, Double> geoValue();
 
-  // Todo
+  /**
+   * Get {@link Object} value.
+   */
   Object objectValue();
 }
