@@ -47,6 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
@@ -56,6 +57,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.ElasticsearchJsonContent;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
@@ -100,6 +102,7 @@ class ElasticsearchExprValueFactoryTest {
   public void constructNullValue() {
     assertEquals(nullValue(), tupleValue("{\"intV\":null}").get("intV"));
     assertEquals(nullValue(), constructFromObject("intV",  null));
+    assertTrue(new ElasticsearchJsonContent(null).isNull());
   }
 
   @Test
