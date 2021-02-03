@@ -35,10 +35,16 @@ As for correctness, besides full coverage of unit and integration test, we devel
 
 ### 3.1 Breaking Changes
 
+#### 3.1.1 Response
 Because of implementation changed internally, you can expect Explain output in a different format. For query protocol, there are slightly changes on two fields' value in the default response format:
 
 * **Schema**: Previously the `name` and `alias` value differed for different queries. For consistency, name is always the original text now and alias is its alias defined in SELECT clause or absent if none.
 * **Total**: The `total` field represented how many documents matched in total no matter how many returned (indicated by `size` field). However, this field becomes meaningless because of post processing on DSL response in the new query engine. Thus, for now the total number is always same as size field.
+
+#### 3.1.2 Syntax and Semantic
+
+* **field.keyword**: In Elasticsearch, user could assign different type for one field. The most common use case is assign `text` and `keyword` type for string field. In the legacy engine, user could select the `field.keyword` from the index. e.g. `SELECT addr.state FROM account WHERE addr.state = 'WA' `. In the new engine, user don't have access the to the `addr.state` field, instead, the query engine will handle it automatically. 
+
 
 ### 3.2 Limitations
 

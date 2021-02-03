@@ -136,26 +136,6 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     assertThat(getDataRows(response).length(), equalTo(RESPONSE_DEFAULT_MAX_SIZE));
   }
 
-  @Ignore("Issue 1019, Breaking Change, the keyword should not been allowed, semantic exception "
-      + "is expected")
-  @Test
-  public void selectKeyword() throws IOException {
-    JSONObject response = executeQuery(
-        String.format(Locale.ROOT, "SELECT firstname.keyword FROM %s",
-            TestsConstants.TEST_INDEX_ACCOUNT));
-
-    List<String> fields = Collections.singletonList("firstname.keyword");
-    assertContainsColumns(getSchema(response), fields);
-
-    /*
-     * firstname.keyword will appear in Schema but because there is no 'firstname.keyword' in SearchHits source
-     * the DataRows will output null.
-     *
-     * Looks like x-pack adds this keyword field to "docvalue_fields", this is likely how it ends up in SearchHits
-     */
-    // assertContainsData(getDataRows(protocol), fields);
-  }
-
   @Test
   public void selectScore() throws IOException {
     JSONObject response = executeQuery(
@@ -375,17 +355,6 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
       assertThat(countVal, greaterThan((long) 0));
     }
-  }
-
-  @Test
-  public void aggregationFunctionInSelectGroupByMultipleFields() throws IOException {
-    JSONObject response = executeQuery(
-        String.format(Locale.ROOT, "SELECT SUM(age) FROM %s GROUP BY age, state.keyword",
-            TestsConstants.TEST_INDEX_ACCOUNT));
-
-    List<String> fields = Arrays.asList("SUM(age)");
-    assertContainsColumns(getSchema(response), fields);
-    assertContainsData(getDataRows(response), fields);
   }
 
   @Test
