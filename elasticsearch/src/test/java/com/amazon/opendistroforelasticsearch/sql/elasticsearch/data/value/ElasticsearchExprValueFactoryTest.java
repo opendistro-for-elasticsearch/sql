@@ -47,6 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
@@ -56,10 +57,10 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.ElasticsearchJsonContent;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -101,16 +102,19 @@ class ElasticsearchExprValueFactoryTest {
   public void constructNullValue() {
     assertEquals(nullValue(), tupleValue("{\"intV\":null}").get("intV"));
     assertEquals(nullValue(), constructFromObject("intV",  null));
+    assertTrue(new ElasticsearchJsonContent(null).isNull());
   }
 
   @Test
   public void constructByte() {
     assertEquals(byteValue((byte) 1), tupleValue("{\"byteV\":1}").get("byteV"));
+    assertEquals(byteValue((byte) 1), constructFromObject("byteV", 1));
   }
 
   @Test
   public void constructShort() {
     assertEquals(shortValue((short) 1), tupleValue("{\"shortV\":1}").get("shortV"));
+    assertEquals(shortValue((short) 1), constructFromObject("shortV", 1));
   }
 
   @Test
@@ -230,6 +234,16 @@ class ElasticsearchExprValueFactoryTest {
               }
             }))),
         tupleValue("{\"arrayV\":[{\"info\":\"zz\",\"author\":\"au\"}]}").get("arrayV"));
+    assertEquals(
+        new ExprCollectionValue(ImmutableList.of(new ExprTupleValue(
+            new LinkedHashMap<String, ExprValue>() {
+              {
+                put("info", stringValue("zz"));
+                put("author", stringValue("au"));
+              }
+            }))),
+        constructFromObject("arrayV", ImmutableList.of(
+            ImmutableMap.of("info", "zz", "author", "au"))));
   }
 
   @Test
@@ -243,6 +257,15 @@ class ElasticsearchExprValueFactoryTest {
               }
             }),
         tupleValue("{\"structV\":{\"id\":1,\"state\":\"WA\"}}").get("structV"));
+    assertEquals(
+        new ExprTupleValue(
+            new LinkedHashMap<String, ExprValue>() {
+              {
+                put("id", integerValue(1));
+                put("state", stringValue("WA"));
+              }
+            }),
+        constructFromObject("structV", ImmutableMap.of("id", 1, "state", "WA")));
   }
 
   @Test
@@ -255,12 +278,31 @@ class ElasticsearchExprValueFactoryTest {
   public void constructGeoPoint() {
     assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
         tupleValue("{\"geoV\":{\"lat\":42.60355556,\"lon\":-97.25263889}}").get("geoV"));
+    assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
+        constructFromObject("geoV", "42.60355556,-97.25263889"));
   }
 
   @Test
   public void constructBinary() {
     assertEquals(new ElasticsearchExprBinaryValue("U29tZSBiaW5hcnkgYmxvYg=="),
         tupleValue("{\"binaryV\":\"U29tZSBiaW5hcnkgYmxvYg==\"}").get("binaryV"));
+  }
+
+  /**
+   * Return the first element if is Elasticsearch Array.
+   * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html.
+   */
+  @Test
+  public void constructFromElasticsearcyArrayReturnFirstElement() {
+    assertEquals(integerValue(1), tupleValue("{\"intV\":[1, 2, 3]}").get("intV"));
+    assertEquals(new ExprTupleValue(
+        new LinkedHashMap<String, ExprValue>() {
+          {
+            put("id", integerValue(1));
+            put("state", stringValue("WA"));
+          }
+        }), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
+        .get("structV"));
   }
 
   @Test
@@ -283,18 +325,18 @@ class ElasticsearchExprValueFactoryTest {
         new ElasticsearchExprValueFactory(ImmutableMap.of("type", new TestType()));
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("{\"type\":1}"));
-    assertEquals("Unsupported type: TEST_TYPE for field: type, value: 1.", exception.getMessage());
+    assertEquals("Unsupported type: TEST_TYPE for value: 1.", exception.getMessage());
 
     exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("type", 1));
     assertEquals(
-        "Unsupported type TEST_TYPE to construct expression value "
-            + "from object for field: type, value: 1.",
+        "Unsupported type: TEST_TYPE for value: 1.",
         exception.getMessage());
   }
 
   public Map<String, ExprValue> tupleValue(String jsonString) {
-    return exprValueFactory.construct(jsonString).tupleValue();
+    final ExprValue construct = exprValueFactory.construct(jsonString);
+    return construct.tupleValue();
   }
 
   private ExprValue constructFromObject(String fieldName, Object value) {
