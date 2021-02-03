@@ -214,7 +214,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
   }
 
   private static void logAndPublishMetrics(Exception e) {
-    LOG.error(LogUtils.getRequestId() + " Server side error during query execution", e);
+    LOG.error("Server side error during query execution", e);
     Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
   }
 }
