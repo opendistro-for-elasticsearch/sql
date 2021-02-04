@@ -30,6 +30,7 @@
 * Removed stack trace when catches anonymizing data error ([#1014](https://github.com/opendistro-for-elasticsearch/sql/pull/1014))
 * Disable access to the field keyword in the new SQL engine ([#1025](https://github.com/opendistro-for-elasticsearch/sql/pull/1025))
 * Only keep the first element of multivalue field response ([#1026](https://github.com/opendistro-for-elasticsearch/sql/pull/1026))
+* Remove request id in response listener logging ([#1027] (https://github.com/opendistro-for-elasticsearch/sql/pull/1027))
 
 ### Bug Fixes
 * Fix round fix issue when input is negative and end with .5 ([#914](https://github.com/opendistro-for-elasticsearch/sql/pull/914))
@@ -55,3 +56,7 @@
 ### Maintenance
 * Fix workbench issue in backported 1.11 branch: error message cannot display ([#943] (https://github.com/opendistro-for-elasticsearch/sql/pull/943))
 * Fix URI Encoding in 1.12 ([#955](https://github.com/opendistro-for-elasticsearch/sql/pull/955))
+
+### Breaking Changes
+* Refine PPL head command syntax ([#1022] (https://github.com/opendistro-for-elasticsearch/sql/pull/1022))
+* Disable access to the field keyword in the new SQL engine ([#1025] (https://github.com/opendistro-for-elasticsearch/sql/pull/1025))
