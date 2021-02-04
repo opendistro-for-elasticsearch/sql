@@ -1,5 +1,9 @@
 ## 20201-2-3 Version 1.13.0.0
 
+### Breaking Changes
+* Refine PPL head command syntax ([#1022](https://github.com/opendistro-for-elasticsearch/sql/pull/1022))
+* Disable access to the field keyword in the new SQL engine ([#1025](https://github.com/opendistro-for-elasticsearch/sql/pull/1025))
+
 ### Features
 * Added keywords option as alias identifier in SQL parser ([#866](https://github.com/opendistro-for-elasticsearch/sql/pull/866))
 * Support show and describe statement ([#907](https://github.com/opendistro-for-elasticsearch/sql/pull/907))
@@ -56,7 +60,3 @@
 ### Maintenance
 * Fix workbench issue in backported 1.11 branch: error message cannot display ([#943](https://github.com/opendistro-for-elasticsearch/sql/pull/943))
 * Fix URI Encoding in 1.12 ([#955](https://github.com/opendistro-for-elasticsearch/sql/pull/955))
-
-### Breaking Changes
-* Refine PPL head command syntax ([#1022](https://github.com/opendistro-for-elasticsearch/sql/pull/1022))
-* Disable access to the field keyword in the new SQL engine ([#1025](https://github.com/opendistro-for-elasticsearch/sql/pull/1025))
