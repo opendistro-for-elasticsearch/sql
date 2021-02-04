@@ -20,6 +20,8 @@ head [N]
 
 * N: optional. number of results to return. **Default:** 10
 
+**Note:** We have made breaking changes in the syntax of ``head`` command from previous ``head [keeplast = (true | false)] [while "("<boolean-expression>")"] [N]`` to current ``head [N]``. We are no longer supporting the ``keeplast`` and ``while`` options.
+
 Example 1: Get first 10 results
 ===========================================
 
