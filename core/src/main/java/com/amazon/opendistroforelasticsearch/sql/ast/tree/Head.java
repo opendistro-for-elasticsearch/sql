@@ -38,7 +38,7 @@ import lombok.ToString;
 public class Head extends UnresolvedPlan {
 
   private UnresolvedPlan child;
-  private final List<UnresolvedArgument> options;
+  private final Integer size;
 
   @Override
   public Head attach(UnresolvedPlan child) {

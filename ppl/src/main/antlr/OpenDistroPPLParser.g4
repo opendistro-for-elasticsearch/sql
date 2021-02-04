@@ -77,8 +77,6 @@ evalCommand
 
 headCommand
     : HEAD
-    (KEEPLAST EQUAL keeplast=booleanLiteral)?
-    (WHILE LT_PRTHS whileExpr=logicalExpression RT_PRTHS)?
     (number=integerLiteral)?
     ;
     
