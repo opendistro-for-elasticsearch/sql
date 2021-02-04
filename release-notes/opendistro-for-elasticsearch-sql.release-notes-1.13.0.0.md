@@ -11,6 +11,7 @@
 * Support Struct Data Query in SQL/PPL ([#1018](https://github.com/opendistro-for-elasticsearch/sql/pull/1018))
 
 ### Enhancements
+* Enable new SQL query engine ([#989](https://github.com/opendistro-for-elasticsearch/sql/pull/989))
 * Add metrics for SQL query requests in new engine ([#905](https://github.com/opendistro-for-elasticsearch/sql/pull/905))
 * Enable failed test logging and fix flaky UT ([#910](https://github.com/opendistro-for-elasticsearch/sql/pull/910))
 * Improve logging in new SQL engine ([#912](https://github.com/opendistro-for-elasticsearch/sql/pull/912))
@@ -25,7 +26,6 @@
 * [PPL] Support index name with date suffix ([#983](https://github.com/opendistro-for-elasticsearch/sql/pull/983))
 * Support NULL literal as function argument ([#985](https://github.com/opendistro-for-elasticsearch/sql/pull/985))
 * Allow Timestamp/Datetime values to use up to 6 digits of microsecond precision ([#988](https://github.com/opendistro-for-elasticsearch/sql/pull/988))
-* Enable new SQL query engine ([#989](https://github.com/opendistro-for-elasticsearch/sql/pull/989))
 * Protect window operator by circuit breaker ([#1006](https://github.com/opendistro-for-elasticsearch/sql/pull/1006))
 * Removed stack trace when catches anonymizing data error ([#1014](https://github.com/opendistro-for-elasticsearch/sql/pull/1014))
 * Disable access to the field keyword in the new SQL engine ([#1025](https://github.com/opendistro-for-elasticsearch/sql/pull/1025))
