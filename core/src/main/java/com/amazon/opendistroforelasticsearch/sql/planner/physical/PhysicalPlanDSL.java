@@ -88,11 +88,6 @@ public class PhysicalPlanDSL {
     return new WindowOperator(input, windowFunction, windowDefinition);
   }
 
-  public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr,
-      int number) {
-    return new HeadOperator(input, keepLast, whileExpr, number);
-  }
-
   public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,
       List<Expression> groups, Expression... expressions) {
     return new RareTopNOperator(input, commandType, Arrays.asList(expressions), groups);
