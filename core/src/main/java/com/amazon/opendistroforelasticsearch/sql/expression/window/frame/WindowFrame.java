@@ -16,10 +16,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.window.frame;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.google.common.collect.PeekingIterator;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Window frame that represents a subset of a window which is all data accessible to
@@ -30,11 +32,11 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
  * Note that which type of window frame is used is determined by both window function itself
  * and frame definition in a window definition.
  */
-public interface WindowFrame extends Environment<Expression, ExprValue> {
+public interface WindowFrame extends Environment<Expression, ExprValue>, Iterator<List<ExprValue>> {
 
   @Override
   default ExprValue resolve(Expression var) {
-    return var.valueOf(get(currentIndex()).bindingTuples());
+    return var.valueOf(current().bindingTuples());
   }
 
   /**
@@ -44,22 +46,15 @@ public interface WindowFrame extends Environment<Expression, ExprValue> {
   boolean isNewPartition();
 
   /**
-   * Get current row index in the frame.
-   * @return index
+   * Load one or more rows as window function calculation needed.
+   * @param iterator  peeking iterator that can peek next element without moving iterator
    */
-  int currentIndex();
+  void load(PeekingIterator<ExprValue> iterator);
 
   /**
-   * Add a row to the window frame.
-   * @param row   data row
-   */
-  void add(ExprTupleValue row);
-
-  /**
-   * Get a data rows within the frame by offset.
-   * @param index  index starting from 0 to upper boundary
+   * Get current data row for giving window operator chance to get rows preloaded into frame.
    * @return data row
    */
-  ExprTupleValue get(int index);
+  ExprValue current();
 
 }

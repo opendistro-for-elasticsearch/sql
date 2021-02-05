@@ -21,7 +21,6 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.featur
 import static org.hamcrest.Matchers.is;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.RestIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.function.Function;
@@ -31,7 +30,6 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Ignore;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 /**
@@ -48,7 +46,6 @@ public class ExpressionIT extends RestIntegTestCase {
   @Override
   protected void init() throws Exception {
     super.init();
-    TestUtils.enableNewQueryEngine(client());
   }
 
   public ResponseExceptionAssertion expectResponseException() {

@@ -18,27 +18,34 @@ package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
-import java.util.Collections;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.apache.commons.lang3.tuple.Pair;
 
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Getter
 @RequiredArgsConstructor
+@ToString
 public class WindowFunction extends UnresolvedExpression {
 
-  private final Function function;
+  private final UnresolvedExpression function;
   private List<UnresolvedExpression> partitionByList;
-  private List<Pair<String, UnresolvedExpression>> sortList;
+  private List<Pair<SortOption, UnresolvedExpression>> sortList;
 
   @Override
   public List<? extends Node> getChild() {
-    return Collections.singletonList(function);
+    ImmutableList.Builder<UnresolvedExpression> children = ImmutableList.builder();
+    children.add(function);
+    children.addAll(partitionByList);
+    sortList.forEach(pair -> children.add(pair.getRight()));
+    return children.build();
   }
 
   @Override

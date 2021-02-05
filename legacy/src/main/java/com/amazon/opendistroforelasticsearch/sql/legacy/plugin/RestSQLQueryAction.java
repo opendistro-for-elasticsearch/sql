@@ -26,10 +26,15 @@ import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListene
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.ExplainResponse;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JdbcResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
@@ -65,6 +70,9 @@ public class RestSQLQueryAction extends BaseRestHandler {
    */
   private final Settings pluginSettings;
 
+  /**
+   * Constructor of RestSQLQueryAction.
+   */
   public RestSQLQueryAction(ClusterService clusterService, Settings pluginSettings) {
     super();
     this.clusterService = clusterService;
@@ -106,13 +114,17 @@ public class RestSQLQueryAction extends BaseRestHandler {
                 sqlService.analyze(
                     sqlService.parse(request.getQuery())));
     } catch (SyntaxCheckException e) {
+      // When explain, print info log for what unsupported syntax is causing fallback to old engine
+      if (request.isExplainRequest()) {
+        LOG.info("Request is falling back to old SQL engine due to: " + e.getMessage());
+      }
       return NOT_SUPPORTED_YET;
     }
 
     if (request.isExplainRequest()) {
       return channel -> sqlService.explain(plan, createExplainResponseListener(channel));
     }
-    return channel -> sqlService.execute(plan, createQueryResponseListener(channel));
+    return channel -> sqlService.execute(plan, createQueryResponseListener(channel, request));
   }
 
   private SQLService createSQLService(NodeClient client) {
@@ -143,15 +155,21 @@ public class RestSQLQueryAction extends BaseRestHandler {
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during explain", e);
+        logAndPublishMetrics(e);
         sendResponse(channel, INTERNAL_SERVER_ERROR,
             "Failed to explain the query due to error: " + e.getMessage());
       }
     };
   }
 
-  // TODO: duplicate code here as in RestPPLQueryAction
-  private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel) {
-    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
+  private ResponseListener<QueryResponse> createQueryResponseListener(RestChannel channel, SQLQueryRequest request) {
+    Format format = request.format();
+    ResponseFormatter<QueryResult> formatter;
+    if (format.equals(Format.CSV)) {
+      formatter = new CsvResponseFormatter(request.sanitize());
+    } else {
+      formatter = new JdbcResponseFormatter(PRETTY);
+    }
     return new ResponseListener<QueryResponse>() {
       @Override
       public void onResponse(QueryResponse response) {
@@ -162,6 +180,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
       @Override
       public void onFailure(Exception e) {
         LOG.error("Error happened during query handling", e);
+        logAndPublishMetrics(e);
         sendResponse(channel, INTERNAL_SERVER_ERROR, formatter.format(e));
       }
     };
@@ -180,4 +199,8 @@ public class RestSQLQueryAction extends BaseRestHandler {
         status, "application/json; charset=UTF-8", content));
   }
 
+  private static void logAndPublishMetrics(Exception e) {
+    LOG.error("Server side error during query execution", e);
+    Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+  }
 }

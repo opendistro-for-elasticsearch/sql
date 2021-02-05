@@ -172,7 +172,7 @@ public class AggregationOperator extends PhysicalPlan {
     public LinkedHashMap<String, ExprValue> groupKeyMap() {
       LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
       for (int i = 0; i < groupByExprList.size(); i++) {
-        map.put(groupByExprList.get(i).getName(), groupByValueList.get(i));
+        map.put(groupByExprList.get(i).getNameOrAlias(), groupByValueList.get(i));
       }
       return map;
     }

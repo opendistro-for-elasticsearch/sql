@@ -43,10 +43,6 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
     return visitNode(plan, context);
   }
 
-  public R visitHead(LogicalHead plan, C context) {
-    return visitNode(plan, context);
-  }
-
   public R visitRename(LogicalRename plan, C context) {
     return visitNode(plan, context);
   }
@@ -76,6 +72,10 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
   }
 
   public R visitRareTopN(LogicalRareTopN plan, C context) {
+    return visitNode(plan, context);
+  }
+
+  public R visitLimit(LogicalLimit plan, C context) {
     return visitNode(plan, context);
   }
 }

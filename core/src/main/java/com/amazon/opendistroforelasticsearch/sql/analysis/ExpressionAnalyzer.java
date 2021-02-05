@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
@@ -43,12 +44,15 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregationState;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,6 +70,13 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Getter
   private final BuiltinFunctionRepository repository;
   private final DSL dsl;
+
+  @Override
+  public Expression visitCast(Cast node, AnalysisContext context) {
+    final Expression expression = node.getExpression().accept(this, context);
+    return (Expression) repository
+        .compile(node.convertFunctionName(), Collections.singletonList(expression));
+  }
 
   public ExpressionAnalyzer(
       BuiltinFunctionRepository repository) {
@@ -137,9 +148,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Optional<BuiltinFunctionName> builtinFunctionName = BuiltinFunctionName.of(node.getFuncName());
     if (builtinFunctionName.isPresent()) {
       Expression arg = node.getField().accept(this, context);
-      return (Aggregator)
-          repository.compile(
+      Aggregator aggregator = (Aggregator) repository.compile(
               builtinFunctionName.get().getName(), Collections.singletonList(arg));
+      if (node.getCondition() != null) {
+        aggregator.condition(analyze(node.getCondition(), context));
+      }
+      return aggregator;
     } else {
       throw new SemanticCheckException("Unsupported aggregation function " + node.getFuncName());
     }
@@ -155,9 +169,15 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return (Expression) repository.compile(functionName, arguments);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Expression visitWindowFunction(WindowFunction node, AnalysisContext context) {
-    return visitFunction(node.getFunction(), context);
+    Expression expr = node.getFunction().accept(this, context);
+    // Wrap regular aggregator by aggregate window function to adapt window operator use
+    if (expr instanceof Aggregator) {
+      return new AggregateWindowFunction((Aggregator<AggregationState>) expr);
+    }
+    return expr;
   }
 
   @Override
@@ -239,9 +259,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return ref;
   }
 
+  // Array type is not supporte yet.
   private boolean isTypeNotSupported(ExprType type) {
-    return "struct".equalsIgnoreCase(type.typeName())
-        || "array".equalsIgnoreCase(type.typeName());
+    return "array".equalsIgnoreCase(type.typeName());
   }
 
 }

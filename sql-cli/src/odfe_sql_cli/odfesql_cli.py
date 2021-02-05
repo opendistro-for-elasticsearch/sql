@@ -47,13 +47,14 @@ click.disable_unicode_literals_warning = True
 class OdfeSqlCli:
     """OdfeSqlCli instance is used to build and run the ODFE SQL CLI."""
 
-    def __init__(self, clirc_file=None, always_use_pager=False, use_aws_authentication=False):
+    def __init__(self, clirc_file=None, always_use_pager=False, use_aws_authentication=False, query_language="sql"):
         # Load conf file
         config = self.config = get_config(clirc_file)
         literal = self.literal = self._get_literals()
 
         self.prompt_app = None
         self.es_executor = None
+        self.query_language = query_language
         self.always_use_pager = always_use_pager
         self.use_aws_authentication = use_aws_authentication
         self.keywords_list = literal["keywords"]
@@ -121,6 +122,7 @@ class OdfeSqlCli:
         print("Server: Open Distro for ES %s" % self.es_executor.es_version)
         print("CLI Version: %s" % __version__)
         print("Endpoint: %s" % self.es_executor.endpoint)
+        print("Query Language: %s" % self.query_language)
 
         while True:
             try:
@@ -165,7 +167,7 @@ class OdfeSqlCli:
             click.echo(text, color=color)
 
     def connect(self, endpoint, http_auth=None):
-        self.es_executor = ESConnection(endpoint, http_auth, self.use_aws_authentication)
+        self.es_executor = ESConnection(endpoint, http_auth, self.use_aws_authentication, self.query_language)
         self.es_executor.set_connection()
 
     def _get_literals(self):

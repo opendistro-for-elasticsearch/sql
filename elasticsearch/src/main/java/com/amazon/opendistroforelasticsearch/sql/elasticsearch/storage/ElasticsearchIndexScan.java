@@ -27,12 +27,15 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.Elasti
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -70,7 +73,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
                                 ElasticsearchExprValueFactory exprValueFactory) {
     this.client = client;
     this.request = new ElasticsearchQueryRequest(indexName,
-        settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT), exprValueFactory);
+            settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT), exprValueFactory);
   }
 
   @Override
@@ -144,6 +147,24 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     }
   }
 
+  /**
+   * Push down size (limit) and from (offset) to DSL request.
+   */
+  public void pushDownLimit(Integer limit, Integer offset) {
+    SearchSourceBuilder sourceBuilder = request.getSourceBuilder();
+    sourceBuilder.from(offset).size(limit);
+  }
+
+  /**
+   * Push down project list to DSL requets.
+   */
+  public void pushDownProjects(Set<ReferenceExpression> projects) {
+    SearchSourceBuilder sourceBuilder = request.getSourceBuilder();
+    final Set<String> projectsSet =
+        projects.stream().map(ReferenceExpression::getAttr).collect(Collectors.toSet());
+    sourceBuilder.fetchSource(projectsSet.toArray(new String[0]), new String[0]);
+  }
+
   public void pushTypeMapping(Map<String, ExprType> typeMapping) {
     request.getExprValueFactory().setTypeMapping(typeMapping);
   }
@@ -159,4 +180,8 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     return (current instanceof BoolQueryBuilder);
   }
 
+  @Override
+  public String explain() {
+    return getRequest().toString();
+  }
 }

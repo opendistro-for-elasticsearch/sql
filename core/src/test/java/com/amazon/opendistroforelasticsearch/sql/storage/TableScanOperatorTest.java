@@ -27,6 +27,11 @@ class TableScanOperatorTest {
 
   private final TableScanOperator tableScan = new TableScanOperator() {
     @Override
+    public String explain() {
+      return "explain";
+    }
+
+    @Override
     public boolean hasNext() {
       return false;
     }

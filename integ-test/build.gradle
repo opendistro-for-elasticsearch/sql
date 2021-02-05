@@ -28,6 +28,7 @@ configurations.all {
     // enforce 1.1.3, https://www.whitesourcesoftware.com/vulnerability-database/WS-2019-0379
     resolutionStrategy.force 'commons-codec:commons-codec:1.13'
     resolutionStrategy.force 'com.google.guava:guava:29.0-jre'
+    resolutionStrategy.force 'com.fasterxml.jackson.core:jackson-core:2.10.5'
 }
 
 dependencies {
@@ -80,6 +81,12 @@ integTest {
     systemProperty "user", System.getProperty("user")
     systemProperty "password", System.getProperty("password")
 
+    // Enable new SQL engine
+    systemProperty 'enableNewEngine', 'false'
+
+    // Set default query size limit
+    systemProperty 'defaultQuerySizeLimit', '10000'
+
     // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
     // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
     doFirst { systemProperty 'cluster.debug', getDebug()}
@@ -105,8 +112,8 @@ task integTestWithNewEngine(type: RestIntegTestTask) {
     systemProperty "user", System.getProperty("user")
     systemProperty "password", System.getProperty("password")
 
-    // Enable new SQL engine
-    systemProperty 'enableNewEngine', 'true'
+    // Set default query size limit
+    systemProperty 'defaultQuerySizeLimit', '10000'
 
     // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
     // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
@@ -127,9 +134,6 @@ task integTestWithNewEngine(type: RestIntegTestTask) {
 
     // Skip old semantic analyzer IT because analyzer in new engine has different behavior
     exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/QueryAnalysisIT.class'
-
-    // Skip this IT to avoid breaking tests due to inconsistency in JDBC schema
-    exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/AggregationExpressionIT.class'
 
     // Skip this IT because all assertions are against explain output
     exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/OrderIT.class'

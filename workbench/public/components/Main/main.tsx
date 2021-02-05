@@ -34,6 +34,7 @@ import { CoreStart } from 'kibana/public';
 interface ResponseData {
   ok: boolean;
   resp: any;
+  body: any;
 }
 
 export interface ResponseDetail<T> {
@@ -51,7 +52,7 @@ export interface QueryMessage {
 
 export type QueryResult = {
   fields: string[];
-  records: { [key: string]: any }[];
+  records: DataRow[];
   message: string;
 };
 
@@ -68,6 +69,11 @@ export type ItemIdToExpandedRowMap = {
     selectedNodes?: { [key: string]: any };
   };
 };
+
+export type DataRow = {
+  rowId: number
+  data: { [key: string]: any }
+}
 
 interface MainProps {
   httpClient: CoreStart['http'];
@@ -94,24 +100,24 @@ interface MainState {
 
 const SUCCESS_MESSAGE = 'Success';
 
-// It gets column names and row values to display in a Table from the json API response
-export function getQueryResultsForTable(
-  queryResults: ResponseDetail<string>[]
-): ResponseDetail<QueryResult>[] {
+const errorQueryResponse = (queryResultResponseDetail: any) => {
+  let errorMessage = queryResultResponseDetail.errorMessage + ', this query is not runnable. \n \n' +
+    queryResultResponseDetail.data;
+  return errorMessage;
+}
+
+export function getQueryResultsForTable(queryResults: ResponseDetail<string>[]): ResponseDetail<QueryResult>[] {
   return queryResults.map(
     (queryResultResponseDetail: ResponseDetail<string>): ResponseDetail<QueryResult> => {
       if (!queryResultResponseDetail.fulfilled) {
         return {
           fulfilled: queryResultResponseDetail.fulfilled,
-          errorMessage: queryResultResponseDetail.errorMessage,
+          errorMessage: errorQueryResponse(queryResultResponseDetail),
         };
       } else {
-        let databaseRecords: { [key: string]: any }[] = [];
-        const responseObj = queryResultResponseDetail.data
-          ? JSON.parse(queryResultResponseDetail.data)
-          : '';
-        let databaseFields: string[] = [];
+        const responseObj = queryResultResponseDetail.data ? JSON.parse(queryResultResponseDetail.data) : '';
         let fields: string[] = [];
+        let dataRows: DataRow[] = [];
 
         const schema: object[] = _.get(responseObj, 'schema');
         const datarows: any[][] = _.get(responseObj, 'datarows');
@@ -128,8 +134,8 @@ export function getQueryResultsForTable(
 
         switch (queryType) {
           case 'show':
-            databaseFields[0] = 'TABLE_NAME';
-            databaseFields.unshift('id');
+            fields[0] = 'TABLE_NAME';
+
             let index: number = -1;
             for (const [id, field] of schema.entries()) {
               if (_.eq(_.get(field, 'name'), 'TABLE_NAME')) {
@@ -137,11 +143,15 @@ export function getQueryResultsForTable(
                 break;
               }
             }
-            for (const [id, datarow] of datarows.entries()) {
-              let databaseRecord: { [key: string]: any } = {};
-              databaseRecord['id'] = id;
-              databaseRecord['TABLE_NAME'] = datarow[index];
-              databaseRecords.push(databaseRecord);
+
+            for (const [id, field] of datarows.entries()) {
+              let row: { [key: string]: any } = {};
+              row['TABLE_NAME'] = field[index];
+              let dataRow: DataRow = {
+                rowId: id,
+                data: row
+              };
+              dataRows[id] = dataRow;
             }
             break;
 
@@ -157,32 +167,33 @@ export function getQueryResultsForTable(
                 fields[id] = !alias ? _.get(field, 'name') : alias;
               }
             }
-            databaseFields = fields;
-            databaseFields.unshift('id');
-            for (const [id, datarow] of datarows.entries()) {
-              let databaseRecord: { [key: string]: any } = {};
-              databaseRecord['id'] = id;
+
+            for (const [id, data] of datarows.entries()) {
+              let row: { [key: string]: any } = {};
               for (const index of schema.keys()) {
-                const fieldname = databaseFields[index + 1];
-                databaseRecord[fieldname] = datarow[index];
+                const fieldname = fields[index];
+                row[fieldname] = _.isNull(data[index]) ? '-' : data[index];
               }
-              databaseRecords.push(databaseRecord);
+              let dataRow: DataRow = {
+                rowId: id,
+                data: row
+              };
+              dataRows[id] = dataRow;
             }
             break;
 
           default:
-            let databaseRecord: { [key: string]: any } = {};
-            databaseRecords.push(databaseRecord);
-        }
 
+        }
         return {
           fulfilled: queryResultResponseDetail.fulfilled,
           data: {
-            fields: databaseFields,
-            records: databaseRecords,
+            fields: fields,
+            records: dataRows,
             message: SUCCESS_MESSAGE,
           },
         };
+
       }
     }
   );
@@ -251,10 +262,20 @@ export class Main extends React.Component<MainProps, MainState> {
       };
     }
     if (!response.data.ok) {
+      let err = response.data.resp;
+      console.log("Error occurred when processing query response: ", err)
+
+      // Mark fulfilled to true as long as the data is fulfilled
+      if (response.data.body) {
+        return {
+          fulfilled: true,
+          errorMessage: err,
+          data: response.data.body
+        }
+      }
       return {
         fulfilled: false,
-        errorMessage: response.data.resp,
-        data: '',
+        errorMessage: err,
       };
     }
 
@@ -314,7 +335,7 @@ export class Main extends React.Component<MainProps, MainState> {
       let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlquery' : 'pplquery');
       const responsePromise = Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -332,7 +353,6 @@ export class Main extends React.Component<MainProps, MainState> {
           this.processQueryResponse(response as IHttpResponse<ResponseData>)
         );
         const resultTable: ResponseDetail<QueryResult>[] = getQueryResultsForTable(results);
-
         this.setState(
           {
             queries: queries,
@@ -362,7 +382,7 @@ export class Main extends React.Component<MainProps, MainState> {
         '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'translatesql' : 'translateppl');
       const translationPromise = Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -406,7 +426,7 @@ export class Main extends React.Component<MainProps, MainState> {
     if (queries.length > 0) {
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post('../api/sql_console/queryjson', { query }).catch((error: any) => {
+          this.httpClient.post('../api/sql_console/sqljson', { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -438,7 +458,7 @@ export class Main extends React.Component<MainProps, MainState> {
       let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlquery' : 'pplquery');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -470,7 +490,7 @@ export class Main extends React.Component<MainProps, MainState> {
       let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqlcsv' : 'pplcsv');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {
@@ -502,7 +522,7 @@ export class Main extends React.Component<MainProps, MainState> {
       let endpoint = '../api/sql_console/' + (_.isEqual(language, 'SQL') ? 'sqltext' : 'ppltext');
       Promise.all(
         queries.map((query: string) =>
-          this.httpClient.post(endpoint, { query }).catch((error: any) => {
+          this.httpClient.post(endpoint, { body: `{ "query": "${query}" }` }).catch((error: any) => {
             this.setState({
               messages: [
                 {

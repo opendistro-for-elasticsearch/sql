@@ -53,7 +53,7 @@ class SQLSyntaxParserTest {
 
   @Test
   public void canParseSelectFieldWithQuotedAlias() {
-    assertNotNull(parser.parse("SELECT name AS \"n\", age AS `a` FROM accounts"));
+    assertNotNull(parser.parse("SELECT name AS `n` FROM accounts"));
   }
 
   @Test
@@ -76,7 +76,6 @@ class SQLSyntaxParserTest {
   @Test
   public void canParseIndexNameWithSpecialCharQuoted() {
     assertNotNull(parser.parse("SELECT * FROM `hello+world`"));
-    assertNotNull(parser.parse("SELECT * FROM \"hello$world\""));
   }
 
   @Test
@@ -114,6 +113,12 @@ class SQLSyntaxParserTest {
     assertNotNull(parser.parse("SELECT name AS n, AVG(age) FROM test GROUP BY n"));
     assertNotNull(parser.parse("SELECT ABS(balance) FROM test GROUP BY ABS(balance)"));
     assertNotNull(parser.parse("SELECT ABS(balance) FROM test GROUP BY 1"));
+  }
+
+  @Test
+  public void canParseDistinctClause() {
+    assertNotNull(parser.parse("SELECT DISTINCT name FROM test"));
+    assertNotNull(parser.parse("SELECT DISTINCT name, balance FROM test"));
   }
 
   @Test

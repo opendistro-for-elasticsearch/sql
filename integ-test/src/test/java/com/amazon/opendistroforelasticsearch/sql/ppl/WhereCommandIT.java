@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
@@ -28,6 +29,7 @@ public class WhereCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
+    loadIndex(Index.BANK_WITH_NULL_VALUES);
   }
 
   @Test
@@ -74,5 +76,35 @@ public class WhereCommandIT extends PPLIntegTestCase {
         executeQueryToString(
             String.format("source=%s | where firstname='Amber'", TEST_INDEX_ACCOUNT)),
         executeQueryToString(String.format("source=%s firstname='Amber'", TEST_INDEX_ACCOUNT)));
+  }
+
+  @Test
+  public void testLikeFunction() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | fields firstname | where like(firstname, 'Ambe_') | fields firstname",
+                TEST_INDEX_ACCOUNT));
+    verifyDataRows(result, rows("Amber"));
+  }
+
+  @Test
+  public void testIsNullFunction() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | where isnull(age) | fields firstname",
+                TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifyDataRows(result, rows("Virginia"));
+  }
+
+  @Test
+  public void testIsNotNullFunction() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | where isnotnull(age) and like(firstname, 'Ambe_') | fields firstname",
+                TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifyDataRows(result, rows("Amber JOHnny"));
   }
 }

@@ -518,7 +518,7 @@ Description
 
 We are migrating existing functionalities to a new query engine under development. User can choose to enable the new engine if interested or disable if any issue found.
 
-1. The default value is false.
+1. The default value is true.
 2. This setting is node scope.
 3. This setting can be updated dynamically.
 
@@ -532,7 +532,7 @@ SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
-	    "opendistro.sql.engine.new.enabled" : "true"
+	    "opendistro.sql.engine.new.enabled" : "false"
 	  }
 	}'
 
@@ -546,11 +546,40 @@ Result set::
 	      "sql" : {
 	        "engine" : {
 	          "new" : {
-	            "enabled" : "true"
+	            "enabled" : "false"
 	          }
 	        }
 	      }
 	    }
 	  }
 	}
+
+
+opendistro.query.size_limit
+===========================
+
+Description
+-----------
+
+The new engine fetches a default size of index from Elasticsearch set by this setting, the default value is 200. You can change the value to any value not greater than the max result window value in index level (10000 by default), here is an example::
+
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	  "transient" : {
+	    "opendistro.query.size_limit" : 500
+	  }
+	}'
+
+Result set::
+
+    {
+      "acknowledged" : true,
+      "persistent" : { },
+      "transient" : {
+        "opendistro" : {
+          "query" : {
+            "size_limit" : "500"
+          }
+        }
+      }
+    }
 

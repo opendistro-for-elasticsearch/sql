@@ -24,7 +24,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.head;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
@@ -96,17 +96,15 @@ class DefaultImplementorTest {
         ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
         ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
-    Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
         ImmutablePair.of(Sort.SortOption.DEFAULT_ASC, ref("name1", STRING));
-    Boolean keeplast = true;
-    Expression whileExpr = literal(ExprBooleanValue.of(true));
-    Integer number = 5;
+    Integer limit = 1;
+    Integer offset = 1;
 
     LogicalPlan plan =
         project(
-            LogicalPlanDSL.dedupe(
-                head(
+            limit(
+                LogicalPlanDSL.dedupe(
                     rareTopN(
                         sort(
                             eval(
@@ -123,18 +121,17 @@ class DefaultImplementorTest {
                         CommandType.TOP,
                         topByExprs,
                         rareTopNField),
-                    keeplast,
-                    whileExpr,
-                    number),
-                dedupeField),
+                    dedupeField),
+                limit,
+                offset),
             include);
 
     PhysicalPlan actual = plan.accept(implementor, null);
 
     assertEquals(
         PhysicalPlanDSL.project(
-            PhysicalPlanDSL.dedupe(
-                PhysicalPlanDSL.head(
+            PhysicalPlanDSL.limit(
+                PhysicalPlanDSL.dedupe(
                     PhysicalPlanDSL.rareTopN(
                         PhysicalPlanDSL.sort(
                             PhysicalPlanDSL.eval(
@@ -153,10 +150,9 @@ class DefaultImplementorTest {
                         CommandType.TOP,
                         topByExprs,
                         rareTopNField),
-                    keeplast,
-                    whileExpr,
-                    number),
-                dedupeField),
+                    dedupeField),
+                limit,
+                offset),
             include),
         actual);
   }
@@ -170,7 +166,7 @@ class DefaultImplementorTest {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void visitWindowOperatorShouldReturnPhysicalWindowOperator() {
-    Expression windowFunction = new RowNumberFunction();
+    NamedExpression windowFunction = named(new RowNumberFunction());
     WindowDefinition windowDefinition = new WindowDefinition(
         Collections.singletonList(ref("state", STRING)),
         Collections.singletonList(

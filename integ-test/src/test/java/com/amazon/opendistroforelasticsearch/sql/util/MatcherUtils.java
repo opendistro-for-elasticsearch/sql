@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.google.common.base.Strings;
 import com.google.gson.JsonParser;
 import java.util.ArrayList;
@@ -225,8 +226,7 @@ public class MatcherUtils {
         String actualAlias = (String) jsonObject.query("/alias");
         String actualType = (String) jsonObject.query("/type");
         return expectedName.equals(actualName) &&
-            (Strings.isNullOrEmpty(actualAlias) && Strings.isNullOrEmpty(expectedAlias) ||
-                expectedAlias.equals(actualAlias)) &&
+            (Strings.isNullOrEmpty(expectedAlias) || expectedAlias.equals(actualAlias)) &&
             expectedType.equals(actualType);
       }
     };

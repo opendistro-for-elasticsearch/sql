@@ -299,6 +299,41 @@ Result set::
 	Amber,Duke,32
 	Dale,Adams,33
 	Hattie,Bond,36
+
+
+The formatter sanitizes the csv result with the following rules:
+
+1. If a header cell or data cell is starting with special character including '+', '-', '=' , '@', the sanitizer will insert a single-quote at the start of the cell.
+
+2. If there exists one or more commas (','), the sanitizer will quote the cell with double quotes.
+
+For example::
+
+    >> curl -H 'Content-Type: application/json' -X PUT localhost:9200/userdata/_doc/1?refresh=true -d '{
+      "+firstname": "-Hattie",
+      "=lastname": "@Bond",
+      "address": "671 Bristol Street, Dente, TN"
+    }'
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=csv -d '{
+	  "query" : "SELECT firstname, lastname, address FROM userdata"
+	}'
+
+Result set::
+
+    '+firstname,'=lastname,address
+    'Hattie,'@Bond,"671 Bristol Street, Dente, TN"
+
+
+If you prefer escaping the sanitization and keeping the original csv result, you can add a "sanitize" param and set it to false value to skip sanitizing. For example::
+
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=csv&sanitize=false -d '{
+	  "query" : "SELECT firstname, lastname, address FROM userdata"
+	}'
+
+Result set::
+
+    +firstname,=lastname,address
+    Hattie,@Bond,671 Bristol Street, Dente, TN
 	
 
 Raw Format

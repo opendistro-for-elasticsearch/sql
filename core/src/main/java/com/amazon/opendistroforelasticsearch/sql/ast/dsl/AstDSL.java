@@ -17,9 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -44,6 +46,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Head;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Limit;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
@@ -51,6 +54,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RelationSubquery;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import java.util.Arrays;
@@ -112,7 +116,7 @@ public class AstDSL {
     return new Values(Arrays.asList(values));
   }
 
-  public static UnresolvedExpression qualifiedName(String... parts) {
+  public static QualifiedName qualifiedName(String... parts) {
     return new QualifiedName(Arrays.asList(parts));
   }
 
@@ -174,7 +178,7 @@ public class AstDSL {
   }
 
   public static Map map(String origin, String target) {
-    return new Map(new Field(origin), new Field(target));
+    return new Map(field(origin), field(target));
   }
 
   public static Map map(UnresolvedExpression origin, UnresolvedExpression target) {
@@ -188,6 +192,11 @@ public class AstDSL {
   public static UnresolvedExpression aggregate(
       String func, UnresolvedExpression field, UnresolvedExpression... args) {
     return new AggregateFunction(func, field, Arrays.asList(args));
+  }
+
+  public static UnresolvedExpression filteredAggregate(
+      String func, UnresolvedExpression field, UnresolvedExpression condition) {
+    return new AggregateFunction(func, field, condition);
   }
 
   public static Function function(String funcName, UnresolvedExpression... funcArgs) {
@@ -219,13 +228,17 @@ public class AstDSL {
     return new Case(caseValueExpr, Arrays.asList(whenClauses), elseClause);
   }
 
+  public UnresolvedExpression cast(UnresolvedExpression expr, Literal type) {
+    return new Cast(expr, type);
+  }
+
   public When when(UnresolvedExpression condition, UnresolvedExpression result) {
     return new When(condition, result);
   }
 
-  public UnresolvedExpression window(Function function,
+  public UnresolvedExpression window(UnresolvedExpression function,
                                      List<UnresolvedExpression> partitionByList,
-                                     List<Pair<String, UnresolvedExpression>> sortList) {
+                                     List<Pair<SortOption, UnresolvedExpression>> sortList) {
     return new WindowFunction(function, partitionByList, sortList);
   }
 
@@ -263,20 +276,24 @@ public class AstDSL {
     return new UnresolvedArgument(argName, argValue);
   }
 
-  public Field field(UnresolvedExpression field) {
-    return new Field((QualifiedName) field);
+  public AllFields allFields() {
+    return AllFields.of();
   }
 
-  public Field field(String field) {
+  public Field field(UnresolvedExpression field) {
     return new Field(field);
   }
 
   public Field field(UnresolvedExpression field, Argument... fieldArgs) {
-    return new Field(field, Arrays.asList(fieldArgs));
+    return field(field, Arrays.asList(fieldArgs));
+  }
+
+  public Field field(String field) {
+    return field(qualifiedName(field));
   }
 
   public Field field(String field, Argument... fieldArgs) {
-    return new Field(field, Arrays.asList(fieldArgs));
+    return field(field, Arrays.asList(fieldArgs));
   }
 
   public Field field(UnresolvedExpression field, List<Argument> fieldArgs) {
@@ -284,7 +301,7 @@ public class AstDSL {
   }
 
   public Field field(String field, List<Argument> fieldArgs) {
-    return new Field(field, fieldArgs);
+    return field(qualifiedName(field), fieldArgs);
   }
 
   public Alias alias(String name, UnresolvedExpression expr) {
@@ -348,18 +365,8 @@ public class AstDSL {
     return new Dedupe(input, options, Arrays.asList(fields));
   }
 
-  public static Head head(UnresolvedPlan input, List<UnresolvedArgument> options) {
-    return new Head(input, options);
-  }
-
-  /**
-   * Default Head Command Args.
-   */
-  public static List<UnresolvedArgument> defaultHeadArgs() {
-    return unresolvedArgList(
-            unresolvedArg("keeplast", booleanLiteral(true)),
-            unresolvedArg("whileExpr", booleanLiteral(true)),
-            unresolvedArg("number", intLiteral(10)));
+  public static Head head(UnresolvedPlan input, Integer size) {
+    return new Head(input, size);
   }
 
   public static List<Argument> defaultTopArgs() {
@@ -370,5 +377,9 @@ public class AstDSL {
       List<Argument> noOfResults, List<UnresolvedExpression> groupList, Field... fields) {
     return new RareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupList)
         .attach(input);
+  }
+
+  public static Limit limit(UnresolvedPlan input, Integer limit, Integer offset) {
+    return new Limit(limit, offset).attach(input);
   }
 }

@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -73,14 +74,84 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
   }
 
   @Test
+  void case_clause_should_be_replaced() {
+    Expression caseClause = DSL.cases(
+        null,
+        DSL.when(
+            dsl.equal(DSL.ref("age", INTEGER), DSL.literal(30)),
+            DSL.literal("true")));
+
+    LogicalPlan logicalPlan =
+        LogicalPlanDSL.aggregation(
+            LogicalPlanDSL.relation("test"),
+            emptyList(),
+            ImmutableList.of(DSL.named(
+                "CaseClause(whenClauses=[WhenClause(condition==(age, 30), result=\"true\")],"
+                    + " defaultResult=null)",
+                caseClause)));
+
+    assertEquals(
+        DSL.ref(
+            "CaseClause(whenClauses=[WhenClause(condition==(age, 30), result=\"true\")],"
+                + " defaultResult=null)", STRING),
+        optimize(caseClause, logicalPlan));
+  }
+
+  @Test
+  void aggregation_in_case_when_clause_should_be_replaced() {
+    Expression caseClause = DSL.cases(
+        null,
+        DSL.when(
+            dsl.equal(dsl.avg(DSL.ref("age", INTEGER)), DSL.literal(30)),
+            DSL.literal("true")));
+
+    LogicalPlan logicalPlan =
+        LogicalPlanDSL.aggregation(
+            LogicalPlanDSL.relation("test"),
+            ImmutableList.of(DSL.named("AVG(age)", dsl.avg(DSL.ref("age", INTEGER)))),
+            ImmutableList.of(DSL.named("name", DSL.ref("name", STRING))));
+
+    assertEquals(
+        DSL.cases(
+            null,
+            DSL.when(
+                dsl.equal(DSL.ref("AVG(age)", DOUBLE), DSL.literal(30)),
+                DSL.literal("true"))),
+        optimize(caseClause, logicalPlan));
+  }
+
+  @Test
+  void aggregation_in_case_else_clause_should_be_replaced() {
+    Expression caseClause = DSL.cases(
+        dsl.avg(DSL.ref("age", INTEGER)),
+        DSL.when(
+            dsl.equal(DSL.ref("age", INTEGER), DSL.literal(30)),
+            DSL.literal("true")));
+
+    LogicalPlan logicalPlan =
+        LogicalPlanDSL.aggregation(
+            LogicalPlanDSL.relation("test"),
+            ImmutableList.of(DSL.named("AVG(age)", dsl.avg(DSL.ref("age", INTEGER)))),
+            ImmutableList.of(DSL.named("name", DSL.ref("name", STRING))));
+
+    assertEquals(
+        DSL.cases(
+            DSL.ref("AVG(age)", DOUBLE),
+            DSL.when(
+                dsl.equal(DSL.ref("age", INTEGER), DSL.literal(30)),
+                DSL.literal("true"))),
+        optimize(caseClause, logicalPlan));
+  }
+
+  @Test
   void window_expression_should_be_replaced() {
     LogicalPlan logicalPlan =
         LogicalPlanDSL.window(
             LogicalPlanDSL.window(
                 LogicalPlanDSL.relation("test"),
-                dsl.rank(),
+                DSL.named(dsl.rank()),
                 new WindowDefinition(emptyList(), emptyList())),
-            dsl.denseRank(),
+            DSL.named(dsl.denseRank()),
             new WindowDefinition(emptyList(), emptyList()));
 
     assertEquals(
@@ -98,7 +169,7 @@ class ExpressionReferenceOptimizerTest extends AnalyzerTestBase {
   Expression optimize(Expression expression, LogicalPlan logicalPlan) {
     final ExpressionReferenceOptimizer optimizer =
         new ExpressionReferenceOptimizer(functionRepository, logicalPlan);
-    return optimizer.optimize(expression, new AnalysisContext());
+    return optimizer.optimize(DSL.named(expression), new AnalysisContext());
   }
 
   LogicalPlan logicalPlan() {

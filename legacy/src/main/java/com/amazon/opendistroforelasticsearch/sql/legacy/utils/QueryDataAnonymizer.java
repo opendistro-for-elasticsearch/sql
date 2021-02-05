@@ -47,7 +47,7 @@ public class QueryDataAnonymizer {
                     .replaceAll("false", "boolean_literal")
                     .replaceAll("[\\n][\\t]+", " ");
         } catch (Exception e) {
-            LOG.error("Caught an exception when removing sensitive data", e);
+            LOG.warn("Caught an exception when anonymizing sensitive data");
             resultQuery = query;
         }
         return resultQuery;

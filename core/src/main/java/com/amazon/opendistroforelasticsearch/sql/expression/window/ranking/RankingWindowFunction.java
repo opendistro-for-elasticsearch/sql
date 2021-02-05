@@ -26,7 +26,9 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowFunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CurrentRowWindowFrame;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import java.util.List;
@@ -37,7 +39,8 @@ import org.apache.commons.lang3.tuple.Pair;
  * Ranking window function base class that captures same info across different ranking functions,
  * such as same return type (integer), same argument list (no arg).
  */
-public abstract class RankingWindowFunction extends FunctionExpression {
+public abstract class RankingWindowFunction extends FunctionExpression
+                                            implements WindowFunctionExpression {
 
   /**
    * Current rank number assigned.
@@ -54,8 +57,13 @@ public abstract class RankingWindowFunction extends FunctionExpression {
   }
 
   @Override
+  public WindowFrame createWindowFrame(WindowDefinition definition) {
+    return new CurrentRowWindowFrame(definition);
+  }
+
+  @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-    return new ExprIntegerValue(rank((CumulativeWindowFrame) valueEnv));
+    return new ExprIntegerValue(rank((CurrentRowWindowFrame) valueEnv));
   }
 
   /**
@@ -63,14 +71,14 @@ public abstract class RankingWindowFunction extends FunctionExpression {
    * @param frame   window frame
    * @return        rank number
    */
-  protected abstract int rank(CumulativeWindowFrame frame);
+  protected abstract int rank(CurrentRowWindowFrame frame);
 
   /**
    * Check sort field to see if current value is different from previous.
    * @param frame   window frame
    * @return        true if different, false if same or no sort list defined
    */
-  protected boolean isSortFieldValueDifferent(CumulativeWindowFrame frame) {
+  protected boolean isSortFieldValueDifferent(CurrentRowWindowFrame frame) {
     if (isSortItemsNotDefined(frame)) {
       return false;
     }
@@ -81,17 +89,17 @@ public abstract class RankingWindowFunction extends FunctionExpression {
                                       .map(Pair::getRight)
                                       .collect(Collectors.toList());
 
-    List<ExprValue> previous = resolve(frame, sortItems, frame.currentIndex() - 1);
-    List<ExprValue> current = resolve(frame, sortItems, frame.currentIndex());
+    List<ExprValue> previous = resolve(frame, sortItems, frame.previous());
+    List<ExprValue> current = resolve(frame, sortItems, frame.current());
     return !current.equals(previous);
   }
 
-  private boolean isSortItemsNotDefined(CumulativeWindowFrame frame) {
+  private boolean isSortItemsNotDefined(CurrentRowWindowFrame frame) {
     return frame.getWindowDefinition().getSortList().isEmpty();
   }
 
-  private List<ExprValue> resolve(WindowFrame frame, List<Expression> expressions, int index) {
-    BindingTuple valueEnv = frame.get(index).bindingTuples();
+  private List<ExprValue> resolve(WindowFrame frame, List<Expression> expressions, ExprValue row) {
+    BindingTuple valueEnv = row.bindingTuples();
     return expressions.stream()
                       .map(expr -> expr.valueOf(valueEnv))
                       .collect(Collectors.toList());

@@ -409,6 +409,10 @@ public class DSL {
     return function(BuiltinFunctionName.STRCMP, expressions);
   }
 
+  public FunctionExpression right(Expression... expressions) {
+    return function(BuiltinFunctionName.RIGHT, expressions);
+  }
+
   public FunctionExpression and(Expression... expressions) {
     return function(BuiltinFunctionName.AND, expressions);
   }
@@ -503,11 +507,27 @@ public class DSL {
   }
 
   public FunctionExpression isnull(Expression... expressions) {
+    return function(BuiltinFunctionName.ISNULL, expressions);
+  }
+
+  public FunctionExpression is_null(Expression... expressions) {
     return function(BuiltinFunctionName.IS_NULL, expressions);
   }
 
   public FunctionExpression isnotnull(Expression... expressions) {
     return function(BuiltinFunctionName.IS_NOT_NULL, expressions);
+  }
+
+  public FunctionExpression ifnull(Expression... expressions) {
+    return function(BuiltinFunctionName.IFNULL, expressions);
+  }
+
+  public FunctionExpression nullif(Expression... expressions) {
+    return function(BuiltinFunctionName.NULLIF, expressions);
+  }
+
+  public FunctionExpression iffunction(Expression... expressions) {
+    return function(BuiltinFunctionName.IF, expressions);
   }
 
   public static Expression cases(Expression defaultResult,
@@ -522,5 +542,50 @@ public class DSL {
   public FunctionExpression interval(Expression value, Expression unit) {
     return (FunctionExpression) repository.compile(
         BuiltinFunctionName.INTERVAL.getName(), Arrays.asList(value, unit));
+  }
+
+  public FunctionExpression castString(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_STRING.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression castInt(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_INT.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression castLong(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_LONG.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression castFloat(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_FLOAT.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression castDouble(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_DOUBLE.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression castBoolean(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_BOOLEAN.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression castDate(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_DATE.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression castTime(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_TIME.getName(), Arrays.asList(value));
+  }
+
+  public FunctionExpression castTimestamp(Expression value) {
+    return (FunctionExpression) repository
+        .compile(BuiltinFunctionName.CAST_TO_TIMESTAMP.getName(), Arrays.asList(value));
   }
 }

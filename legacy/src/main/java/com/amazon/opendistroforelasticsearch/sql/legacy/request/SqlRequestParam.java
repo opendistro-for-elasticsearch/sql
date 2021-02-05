@@ -29,6 +29,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSetting
 public class SqlRequestParam {
     public static final String QUERY_PARAMS_FORMAT = "format";
     public static final String QUERY_PARAMS_PRETTY = "pretty";
+    public static final String QUERY_PARAMS_ESCAPE = "escape";
 
     /**
      * Parse the pretty params to decide whether the response should be pretty formatted.
@@ -61,5 +62,12 @@ public class SqlRequestParam {
             throw new IllegalArgumentException("Failed to create executor due to unknown response format: "
                                                + formatName);
         }
+    }
+
+    public static boolean getEscapeOption(Map<String, String> requestParams) {
+        if (requestParams.containsKey(QUERY_PARAMS_ESCAPE)) {
+            return Boolean.parseBoolean(requestParams.get(QUERY_PARAMS_ESCAPE));
+        }
+        return false;
     }
 }

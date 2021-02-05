@@ -80,15 +80,8 @@ class AnalyzerTest extends AnalyzerTestBase {
   @Test
   public void head_relation() {
     assertAnalyzeEqual(
-        LogicalPlanDSL.head(
-            LogicalPlanDSL.relation("schema"),
-            false, dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))), 10),
-        AstDSL.head(
-            AstDSL.relation("schema"),
-            unresolvedArgList(
-                unresolvedArg("keeplast", booleanLiteral(false)),
-                unresolvedArg("whileExpr", compare("=", field("integer_value"), intLiteral(1))),
-                unresolvedArg("number", intLiteral(10)))));
+        LogicalPlanDSL.limit(LogicalPlanDSL.relation("schema"),10, 0),
+        AstDSL.head(AstDSL.relation("schema"), 10));
   }
 
   @Test
@@ -370,13 +363,15 @@ class AnalyzerTest extends AnalyzerTestBase {
                     LogicalPlanDSL.relation("test"),
                     ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
                     ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))),
-                dsl.rowNumber(),
+                DSL.named("window_function", dsl.rowNumber()),
                 new WindowDefinition(
                     ImmutableList.of(DSL.ref("string_value", STRING)),
                     ImmutableList.of(
                         ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))))),
             DSL.named("string_value", DSL.ref("string_value", STRING)),
-            DSL.named("window_function", DSL.ref("row_number()", INTEGER))),
+            // Alias name "window_function" is used as internal symbol name to connect
+            // project item and window operator output
+            DSL.named("window_function", DSL.ref("window_function", INTEGER))),
         AstDSL.project(
             AstDSL.relation("test"),
             AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),
@@ -385,13 +380,13 @@ class AnalyzerTest extends AnalyzerTestBase {
                     AstDSL.function("row_number"),
                     Collections.singletonList(AstDSL.qualifiedName("string_value")),
                     Collections.singletonList(
-                        ImmutablePair.of("ASC", AstDSL.qualifiedName("integer_value")))))));
+                        ImmutablePair.of(DEFAULT_ASC, AstDSL.qualifiedName("integer_value")))))));
   }
 
   /**
    * SELECT name FROM (
    *   SELECT name, age FROM test
-   * ) AS a.
+   * ) AS schema.
    */
   @Test
   public void from_subquery() {
@@ -414,6 +409,33 @@ class AnalyzerTest extends AnalyzerTestBase {
                 "schema"
             ),
             AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+        )
+    );
+  }
+
+  /**
+   * SELECT * FROM (
+   *   SELECT name FROM test
+   * ) AS schema.
+   */
+  @Test
+  public void select_all_from_subquery() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.project(
+                LogicalPlanDSL.relation("schema"),
+                DSL.named("string_value", DSL.ref("string_value", STRING))),
+            DSL.named("string_value", DSL.ref("string_value", STRING))
+        ),
+        AstDSL.project(
+            AstDSL.relationSubquery(
+                AstDSL.project(
+                    AstDSL.relation("schema"),
+                    AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+                ),
+                "schema"
+            ),
+            AstDSL.allFields()
         )
     );
   }
@@ -571,6 +593,26 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.alias("sum(integer_value)-avg(integer_value)",
                 function("-", aggregate("sum", qualifiedName("integer_value")),
                     aggregate("avg", qualifiedName("integer_value")))))
+    );
+  }
+
+  @Test
+  public void limit_offset() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.limit(
+                LogicalPlanDSL.relation("schema"),
+                1, 1
+            ),
+            DSL.named("integer_value", DSL.ref("integer_value", INTEGER))
+        ),
+        AstDSL.project(
+            AstDSL.limit(
+                AstDSL.relation("schema"),
+                1, 1
+            ),
+            AstDSL.alias("integer_value", qualifiedName("integer_value"))
+        )
     );
   }
 }

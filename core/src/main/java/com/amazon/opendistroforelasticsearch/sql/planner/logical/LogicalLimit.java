@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -15,40 +15,29 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
 
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true)
-public class LogicalHead extends LogicalPlan {
-
-  private final Boolean keeplast;
-  private final Expression whileExpr;
-  private final Integer number;
+@EqualsAndHashCode(callSuper = false)
+public class LogicalLimit extends LogicalPlan {
+  private final Integer limit;
+  private final Integer offset;
 
   /**
-   * Constructor of LogicalHead.
+   * Constructor of LogicalLimit.
    */
-  public LogicalHead(
-      LogicalPlan child, Boolean keeplast,
-      Expression whileExpr, Integer number) {
-    super(Collections.singletonList(child));
-    this.keeplast = keeplast;
-    this.whileExpr = whileExpr;
-    this.number = number;
+  public LogicalLimit(LogicalPlan input, Integer limit, Integer offset) {
+    super(Collections.singletonList(input));
+    this.limit = limit;
+    this.offset = offset;
   }
-
 
   @Override
   public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-    return visitor.visitHead(this, context);
+    return visitor.visitLimit(this, context);
   }
 }

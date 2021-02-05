@@ -1,0 +1,6 @@
+SELECT AVG(AvgTicketPrice) FILTER(WHERE Carrier = 'Kibana Airlines') AS filtered FROM kibana_sample_data_flights
+SELECT AVG(AvgTicketPrice) FILTER(WHERE Carrier = 'Kibana Airlines') AS filtered FROM kibana_sample_data_flights GROUP BY Origin ORDER BY Origin
+SELECT AVG(AvgTicketPrice + 1) FILTER(WHERE Carrier = 'Kibana Airlines') AS filtered FROM kibana_sample_data_flights
+SELECT AVG(AvgTicketPrice) FILTER(WHERE Carrier = 'Kibana Airlines') / 2 AS filtered FROM kibana_sample_data_flights
+SELECT AVG(AvgTicketPrice) FILTER(WHERE ABS(AvgTicketPrice) < 10000) AS filtered FROM kibana_sample_data_flights
+SELECT AVG(AvgTicketPrice) AS unfiltered, AVG(AvgTicketPrice) FILTER(WHERE Carrier = 'Kibana Airlines') AS filtered1, AVG(AvgTicketPrice) FILTER(WHERE Carrier = 'ES-Air') AS filtered2 FROM kibana_sample_data_flights WHERE DestWeather = 'Sunny'

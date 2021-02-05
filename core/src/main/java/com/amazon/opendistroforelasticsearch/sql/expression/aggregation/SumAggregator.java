@@ -53,13 +53,9 @@ public class SumAggregator extends Aggregator<SumState> {
   }
 
   @Override
-  public SumState iterate(BindingTuple tuple, SumState state) {
-    Expression expression = getArguments().get(0);
-    ExprValue value = expression.valueOf(tuple);
-    if (!(value.isNull() || value.isMissing())) {
-      state.isEmptyCollection = false;
-      state.add(value);
-    }
+  protected SumState iterate(ExprValue value, SumState state) {
+    state.isEmptyCollection = false;
+    state.add(value);
     return state;
   }
 

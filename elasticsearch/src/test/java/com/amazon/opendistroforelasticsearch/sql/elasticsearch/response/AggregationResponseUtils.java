@@ -33,6 +33,8 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.composite.ParsedComposite;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.ParsedDateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.DoubleTerms;
@@ -72,6 +74,8 @@ public class AggregationResponseUtils {
               (p, c) -> ParsedDateHistogram.fromXContent(p, (String) c))
           .put(CompositeAggregationBuilder.NAME,
               (p, c) -> ParsedComposite.fromXContent(p, (String) c))
+          .put(FilterAggregationBuilder.NAME,
+              (p, c) -> ParsedFilter.fromXContent(p, (String) c))
           .build()
           .entrySet()
           .stream()

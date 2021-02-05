@@ -83,14 +83,9 @@ public class PhysicalPlanDSL {
   }
 
   public WindowOperator window(PhysicalPlan input,
-                               Expression windowFunction,
+                               NamedExpression windowFunction,
                                WindowDefinition windowDefinition) {
     return new WindowOperator(input, windowFunction, windowDefinition);
-  }
-
-  public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr,
-      int number) {
-    return new HeadOperator(input, keepLast, whileExpr, number);
   }
 
   public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,
@@ -108,6 +103,10 @@ public class PhysicalPlanDSL {
   @SafeVarargs
   public ValuesOperator values(List<LiteralExpression>... values) {
     return new ValuesOperator(Arrays.asList(values));
+  }
+
+  public static LimitOperator limit(PhysicalPlan input, Integer limit, Integer offset) {
+    return new LimitOperator(input, limit, offset);
   }
 
 }

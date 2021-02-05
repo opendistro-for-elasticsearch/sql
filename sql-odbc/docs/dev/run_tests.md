@@ -1,14 +1,16 @@
 # ODFE SQL ODBC Driver Testing
 
-## Preparation
+## Requirements
 
 * Latest version of [Open Distro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/)
+* [Required datasets loaded](#set-up-test-datasets)
+* [DSN configured](#set-up-dsn)
 
-### Loading Test Datasets
+### Set up test datasets
 
-Loading a dataset requires an [elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/) service running with [kibana](https://opendistro.github.io/for-elasticsearch-docs/docs/kibana/). If either of these are missing, please refer to the documentation on how to set them up.
+Loading a dataset requires an [OpenDistro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/) service running with [Kibana](https://opendistro.github.io/for-elasticsearch-docs/docs/kibana/). If either of these are missing, please refer to the documentation on how to set them up.
 
-Note, if you wish to work with SSL/TLS, you need to configure Elasticsearch and Kibana to support it. See Working With SSL/TLS below.
+Note, if you wish to work with SSL/TLS, you need to configure ODFE and Kibana to support it. See the [build instructions](./BUILD_INSTRUCTIONS.md) for more info.
 
 First load the sample datasets provided by kibana.
 
@@ -23,14 +25,9 @@ Select the wrench on the left control panel. Enter the following commands into t
 
 * [kibana_sample_data_types](./datasets/kibana_sample_data_types.md)
 
-## Running Tests
+### Set up DSN
 
-Tests can be **executed directly**, or by using the **Test Runner**.
-
-**NOTES:**
-
-* A test DSN named `test_dsn` must be set up in order for certain tests in ITODBCConnection to pass. To configure the DSN, see the instructions, below.
-* Datasets must be loaded into Elasticsearch using [kibana](https://www.elastic.co/guide/en/kibana/current/connect-to-elasticsearch.html). See the section on loading datasets below.
+A test DSN named `test_dsn` must be set up in order for certain tests in ITODBCConnection to pass. To configure the DSN, see the instructions below.
 
 ### Windows Test DSN Setup
 
@@ -50,7 +47,12 @@ Tests can be **executed directly**, or by using the **Test Runner**.
       * `export ODBCINSTINI=<project-dir>/src/IntegrationTests/ITODBCConnection/test_odbcinst.ini`
    * Manually add the entries to your existing `odbc.ini` and `odbcinst.ini` entries. (normally found at `~/.odbc.ini` and `~/.odbcinst.ini`)
 
-### Running Tests directly on Windows
+## Running Tests
+Tests can be executed directly, or by using the **Test Runner**.
+
+### Direct
+
+#### Windows
 
 Tests can be executed directly using **Visual Studio** by setting the desired test as a **Start up Project**
 
@@ -60,23 +62,23 @@ Tests can be executed directly using **Visual Studio** by setting the desired te
 
 For more information, see the [Visual Studio Console Application documentation](https://docs.microsoft.com/en-us/cpp/build/vscpp-step-2-build?view=vs-2019).
 
-### Running Tests directly on Mac
+#### Mac
 
 Tests can be executed using a command line interface. From the project root directory, enter:
 > **bin64/<test_name>**
 
-### Running Tests using the Test Runner
+### Test Runner
 
 The **Test Runner** requires [python](https://wiki.python.org/moin/BeginnersGuide/Download) to be installed on the system. Running the **Test Runner** will execute all the tests and compile a report with the results. The report indicates the execution status of all tests along with the execution time. To find error details of any failed test, hover over the test.
 
-#### Running Tests using the Test Runner on Windows
+#### Windows
 
 Open the project's root directory in a command line interface of your choice. Execute
 >**.\run_test_runner.bat**
 
 The **Test Runner** has been tried and tested with [Python3.8](https://www.python.org/downloads/release/python-380/) on **Windows systems**. Other versions of Python may work, but are untested.
 
-#### Running Tests using the Test Runner on Mac
+#### Mac
 
 Open the project's root directory in a command line interface of your choice. Execute
 >**./run_test_runner.sh**
@@ -87,12 +89,15 @@ The **Test Runner** has been tried and tested with [Python3.7.6](https://www.pyt
 
 (using a CMake script provided by George Cave (StableCoder) under the Apache 2.0 license, found [here](https://github.com/StableCoder/cmake-scripts/blob/master/code-coverage.cmake))
 
-> **NOTE**: Before building with coverage, make sure the following directory is in your PATH environment variable:
-> `/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin`
+#### Requirements
+* `llvm-cov` in your PATH environment variable
+   * Possible locations for this binary:
+      * `/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin`
+      * `/Library/Developer/CommandLineTools/usr/bin`
 
 To build the tests with code coverage enabled, set the `CODE_COVERAGE` variable to `ON` when preparing your CMake build.
 ```bash
-cmake ... -DBUILD_WITH_TESTS=ON -DCODE_COVERAGE=ON
+cmake -DBUILD_WITH_TESTS=ON -DCODE_COVERAGE=ON <rest-of-cmake-command>
 ```
 
 To get coverage for the driver library, you must use the `ccov-all` target, which runs all test suites and components with coverage.

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 public class ExplainIT extends PPLIntegTestCase {
@@ -59,7 +60,8 @@ public class ExplainIT extends PPLIntegTestCase {
             "source=elasticsearch-sql_test_index_account"
                 + "| where age > 30 "
                 + "| where age < 40 "
-                + "| where balance > 10000 ")
+                + "| where balance > 10000 "
+                + "| fields age")
     );
   }
 
@@ -80,16 +82,13 @@ public class ExplainIT extends PPLIntegTestCase {
   public void testSortPushDownExplain() throws Exception {
     String expected = loadFromFile("expectedOutput/ppl/explain_sort_push.json");
 
-    String actual = explainQueryToString(
-        "source=elasticsearch-sql_test_index_account"
-            + "| sort age "
-            + "| where age > 30");
     assertJsonEquals(
         expected,
         explainQueryToString(
             "source=elasticsearch-sql_test_index_account"
                 + "| sort age "
-                + "| where age > 30")
+                + "| where age > 30"
+                + "| fields age")
     );
   }
 

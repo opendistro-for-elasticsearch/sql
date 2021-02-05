@@ -52,7 +52,6 @@ public class IdentifierIT extends SQLIntegTestCase {
   public void testQuotedIndexNames() throws IOException {
     createIndexWithOneDoc("logs+2020+01", "logs.2020.01");
     queryAndAssertTheDoc("SELECT * FROM `logs+2020+01`");
-    queryAndAssertTheDoc("SELECT * FROM \"logs.2020.01\"");
   }
 
   @Test

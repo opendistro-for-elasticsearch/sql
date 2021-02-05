@@ -51,10 +51,23 @@ public class QualifierAnalyzer {
   private boolean isQualifierIndexOrAlias(QualifiedName fullName) {
     Optional<String> qualifier = fullName.first();
     if (qualifier.isPresent()) {
+      if (isFieldName(qualifier.get())) {
+        return false;
+      }
       resolveQualifierSymbol(fullName, qualifier.get());
       return true;
     }
     return false;
+  }
+
+  private boolean isFieldName(String qualifier) {
+    try {
+      // Resolve the qualifier in Namespace.FIELD_NAME
+      context.peek().resolve(new Symbol(Namespace.FIELD_NAME, qualifier));
+      return true;
+    } catch (SemanticCheckException e2) {
+      return false;
+    }
   }
 
   private void resolveQualifierSymbol(QualifiedName fullName, String qualifier) {
@@ -64,8 +77,8 @@ public class QualifierAnalyzer {
       // Throw syntax check intentionally to indicate fall back to old engine.
       // Need change to semantic check exception in future.
       throw new SyntaxCheckException(String.format(
-          "The qualifier [%s] of qualified name [%s] must be an index name or its alias",
-              qualifier, fullName));
+          "The qualifier [%s] of qualified name [%s] must be an field name, index name or its "
+              + "alias", qualifier, fullName));
     }
   }
 

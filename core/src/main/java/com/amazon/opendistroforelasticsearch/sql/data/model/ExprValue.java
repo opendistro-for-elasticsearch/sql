@@ -196,4 +196,12 @@ public interface ExprValue extends Serializable, Comparable<ExprValue> {
     throw new ExpressionEvaluationException(
         "invalid to get collectionValue from value of type " + type());
   }
+
+  /**
+   * Get the value specified by key from {@link ExprTupleValue}.
+   * This method only be implemented in {@link ExprTupleValue}.
+   */
+  default ExprValue keyValue(String key) {
+    return ExprMissingValue.of();
+  }
 }
