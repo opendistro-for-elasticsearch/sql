@@ -55,6 +55,7 @@ jobs:
         run: |
           cd kibana/plugins/workbench
           yarn build
+          mv ./build/*.zip ./build/${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}.zip
 
       - name: Upload to S3
         shell: bash
