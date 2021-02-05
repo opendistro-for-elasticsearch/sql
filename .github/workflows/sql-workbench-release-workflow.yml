@@ -59,6 +59,7 @@ jobs:
       - name: Upload to S3
         shell: bash
         run: |
+          cd kibana/plugins/workbench
           zip=`ls ./build/*.zip`
 
           # Inject the build number before the suffix
