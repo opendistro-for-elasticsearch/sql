@@ -19,7 +19,7 @@ Syntax
 sort <[+|-] sort-field>...
 
 
-* [+|-]: optional. The plus [+] for ascending order and NULL/MISSING first and a minus [-] for descending order NULL/MISSING last. **Default:** ascending order NULL/MISSING first.
+* [+|-]: optional. The plus [+] stands for ascending order and NULL/MISSING first and a minus [-] stands for descending order and NULL/MISSING last. **Default:** ascending order and NULL/MISSING first.
 * sort-field: mandatory. The field used to sort.
 
 
