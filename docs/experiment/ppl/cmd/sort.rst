@@ -19,7 +19,7 @@ Syntax
 sort <[+|-] sort-field>...
 
 
-* [+|-]: optional. The plus [+] for ascending order and a minus [-] for descending order. **Default:** ascending order.
+* [+|-]: optional. The plus [+] for ascending order and NULL/MISSING first and a minus [-] for descending order NULL/MISSING last. **Default:** ascending order NULL/MISSING first.
 * sort-field: mandatory. The field used to sort.
 
 
@@ -97,3 +97,20 @@ PPL query::
     | 1                | M        | 32    |
     +------------------+----------+-------+
 
+Example 4: Sort by field include null value
+===========================================
+
+The example show sort employer field by default option (ascending order and null first), the result show that null value is in the first row.
+
+PPL query::
+
+    od> source=accounts | sort employer | fields employer;
+    fetched rows / total rows = 4/4
+    +------------+
+    | employer   |
+    |------------|
+    | null       |
+    | Netagy     |
+    | Pyrami     |
+    | Quility    |
+    +------------+
