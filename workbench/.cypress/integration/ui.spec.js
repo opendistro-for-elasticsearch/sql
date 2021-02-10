@@ -133,7 +133,7 @@ describe('Test SQL UI', () => {
     cy.wait(delay);
 
     // hard to get euiCodeBlock content, check length instead
-    cy.get('.euiCodeBlock__code').children().should('have.length', 37);
+    cy.get('.euiCodeBlock__code').children().should('have.length', 13);
   });
 
   it('Test Clear button', () => {
@@ -175,7 +175,12 @@ describe('Test and verify SQL downloads', () => {
           'query': 'select * from accounts where balance > 49500'
         }
       }).then((response) => {
-        expect(response.body.data.resp).to.have.string(files[file]);
+        if (title === 'Download and verify CSV') {
+          expect(response.body.data.body).to.have.string(files[file]);
+        }
+        else {
+          expect(response.body.data.resp).to.have.string(files[file]);
+        }
       });
     });
   });
@@ -209,7 +214,8 @@ describe('Test table display', () => {
     });
   });
 
-  it('Test nested fields display', () => {
+  // skip until nested support is added
+  it.skip('Test nested fields display', () => {
     cy.get('textarea.ace_text-input')
       .eq(0)
       .focus()
