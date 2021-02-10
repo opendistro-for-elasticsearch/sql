@@ -175,7 +175,6 @@ describe('Test and verify SQL downloads', () => {
           'query': 'select * from accounts where balance > 49500'
         }
       }).then((response) => {
-        console.log('response is', response);
         if (title === 'Download and verify CSV') {
           expect(response.body.data.body).to.have.string(files[file]);
         }
