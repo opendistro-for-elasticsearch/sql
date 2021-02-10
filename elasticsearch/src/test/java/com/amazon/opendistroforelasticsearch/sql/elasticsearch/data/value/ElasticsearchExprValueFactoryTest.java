@@ -106,6 +106,11 @@ class ElasticsearchExprValueFactoryTest {
   }
 
   @Test
+  public void constructNullArrayValue() {
+    assertEquals(nullValue(), tupleValue("{\"intV\":[]}").get("intV"));
+  }
+
+  @Test
   public void constructByte() {
     assertEquals(byteValue((byte) 1), tupleValue("{\"byteV\":1}").get("byteV"));
     assertEquals(byteValue((byte) 1), constructFromObject("byteV", 1));
