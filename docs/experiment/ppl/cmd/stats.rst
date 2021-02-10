@@ -13,7 +13,7 @@ Description
 ============
 | Using ``stats`` command to calculate the aggregation from search result.
 
-The following table catalogs the aggregation functions and also indicates how each one handles NULL/MISSING values is handled:
+The following table catalogs the aggregation functions and also indicates how the NULL/MISSING values is handled:
 
 +----------+-------------+-------------+
 | Function | NULL        | MISSING     |
@@ -35,7 +35,7 @@ Syntax
 stats <aggregation>... [by-clause]...
 
 
-* aggregation: mandatory. A statistical aggregation function. The argument of aggregation must be field.
+* aggregation: mandatory. A aggregation function. The argument of aggregation must be field.
 * by-clause: optional. The one or more fields to group the results by. **Default**: If no <by-clause> is specified, the stats command returns only one row, which is the aggregation over the entire result set.
 
 Example 1: Calculate the count of events
