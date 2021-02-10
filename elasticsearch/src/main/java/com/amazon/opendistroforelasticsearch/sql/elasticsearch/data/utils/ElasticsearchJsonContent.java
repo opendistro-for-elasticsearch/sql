@@ -90,7 +90,7 @@ public class ElasticsearchJsonContent implements Content {
 
   @Override
   public boolean isNull() {
-    return value == null || value.isNull();
+    return value == null || value.isNull() || (value.isArray() && value.isEmpty());
   }
 
   @Override
