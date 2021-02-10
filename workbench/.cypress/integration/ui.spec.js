@@ -214,8 +214,7 @@ describe('Test table display', () => {
     });
   });
 
-  // skip until nested support is added
-  it.skip('Test nested fields display', () => {
+  it('Test nested fields display', () => {
     cy.get('textarea.ace_text-input')
       .eq(0)
       .focus()
@@ -229,7 +228,7 @@ describe('Test table display', () => {
     cy.get('span.euiTableCellContent__text')
       .eq(24)
       .should((cell) => {
-        expect(cell).to.contain('2018-06-23');
+        expect(cell).to.contain('comment_2_1');
       });
   });
 });
