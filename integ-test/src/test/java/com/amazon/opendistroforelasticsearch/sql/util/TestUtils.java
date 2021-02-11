@@ -141,7 +141,7 @@ public class TestUtils {
         throw new IllegalStateException("Failed to perform request. Error code: " + status);
       }
       return response;
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new IllegalStateException("Failed to perform request", e);
     }
   }
