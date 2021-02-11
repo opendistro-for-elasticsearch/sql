@@ -46,6 +46,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.loadDat
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.CURSOR_CLOSE_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
+import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.google.common.base.Strings;
@@ -229,7 +230,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
       Request sqlRequest = new Request("POST", endpoint);
       sqlRequest.setJsonEntity(requestBody);
 
-      Response response = client().performRequest(sqlRequest);
+      Response response = TestUtils.performRequest(client(), sqlRequest);
       Assert.assertEquals(200, response.getStatusLine().getStatusCode());
       String responseString = getResponseBody(response, true);
 
@@ -245,6 +246,9 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     String requestBody = makeRequest(query, fetchSize);
 
     Request sqlRequest = new Request("POST", endpoint);
+    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
+    options.setWarningsHandler(PERMISSIVE);
+    sqlRequest.setOptions(options.build());
     sqlRequest.setJsonEntity(requestBody);
 
     Response response = client().performRequest(sqlRequest);
@@ -260,7 +264,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     Request sqlRequest = new Request("POST", endpoint);
     sqlRequest.setJsonEntity(requestBody);
 
-    Response response = client().performRequest(sqlRequest);
+    Response response = TestUtils.performRequest(client(), sqlRequest);
     String responseString = getResponseBody(response, true);
     return responseString;
   }
@@ -314,12 +318,16 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
       throws IOException {
 
     Request sqlRequest = getSqlRequest(requestBody, isExplainQuery);
+//    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
+//    options.setWarningsHandler(PERMISSIVE);
+//    sqlRequest.setOptions(options.build());
     return executeRequest(sqlRequest);
   }
 
   protected static String executeRequest(final Request request) throws IOException {
 
-    Response response = client().performRequest(request);
+//    Response response = client().performRequest(request);
+    Response response = TestUtils.performRequest(client(), request);
     Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     return getResponseBody(response);
   }

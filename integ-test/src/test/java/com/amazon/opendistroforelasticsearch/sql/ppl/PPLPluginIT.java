@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
+import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 
@@ -27,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.IOException;
 import java.util.Locale;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.hamcrest.Description;
@@ -51,8 +53,11 @@ public class PPLPluginIT extends PPLIntegTestCase {
   public void testQueryEndpointShouldOK() throws IOException {
     Request request = new Request("PUT", "/a/_doc/1?refresh=true");
     request.setJsonEntity("{\"name\": \"hello\"}");
-    client().performRequest(request);
+    RequestOptions.Builder options = request.getOptions().toBuilder();
+    options.setWarningsHandler(PERMISSIVE);
+    request.setOptions(options.build());
 
+    client().performRequest(request);
     JSONObject response = executeQuery("search source=a");
     verifySchema(response, schema("name", null, "string"));
     verifyDataRows(response, rows("hello"));
@@ -63,7 +68,14 @@ public class PPLPluginIT extends PPLIntegTestCase {
     exceptionRule.expect(ResponseException.class);
     exceptionRule.expect(hasProperty("response", statusCode(400)));
 
-    client().performRequest(makePPLRequest("search invalid"));
+    Request request = makePPLRequest("search invalid");
+    RequestOptions.Builder options = request.getOptions().toBuilder();
+    options.setWarningsHandler(PERMISSIVE);
+    request.setOptions(options.build());
+
+    client().performRequest(request);
+//    client().performRequest(makePPLRequest("search invalid"));
+//    TestUtils.performRequest(client(), makePPLRequest("search invalid"));
   }
 
   @Test

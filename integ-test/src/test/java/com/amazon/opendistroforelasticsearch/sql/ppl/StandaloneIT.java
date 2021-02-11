@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.Collections;
@@ -79,10 +80,12 @@ public class StandaloneIT extends PPLIntegTestCase {
   public void testSourceFieldQuery() throws IOException {
     Request request1 = new Request("PUT", "/test/_doc/1?refresh=true");
     request1.setJsonEntity("{\"name\": \"hello\", \"age\": 20}");
-    client().performRequest(request1);
+//    client().performRequest(request1);
+    TestUtils.performRequest(client(), request1);
     Request request2 = new Request("PUT", "/test/_doc/2?refresh=true");
     request2.setJsonEntity("{\"name\": \"world\", \"age\": 30}");
-    client().performRequest(request2);
+//    client().performRequest(request2);
+    TestUtils.performRequest(client(), request2);
 
     String actual = executeByStandaloneQueryEngine("source=test | fields name");
     assertEquals(

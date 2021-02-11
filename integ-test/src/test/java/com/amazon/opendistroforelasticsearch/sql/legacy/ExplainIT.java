@@ -226,7 +226,7 @@ public class ExplainIT extends SQLIntegTestCase {
     String query = makeRequest("SELECT firstname FROM elasticsearch-sql_test_index_account");
     Request request = getSqlRequest(query, true);
 
-    Response response = client().performRequest(request);
+    Response response = TestUtils.performRequest(client(), request);
 
     assertEquals("application/json; charset=UTF-8", response.getHeader("content-type"));
   }

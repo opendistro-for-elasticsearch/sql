@@ -18,10 +18,13 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResponseBody;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
+import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import java.io.IOException;
 import java.util.Locale;
+
+import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -39,7 +42,12 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
   }
 
   protected String executeQueryToString(String query) throws IOException {
-    Response response = client().performRequest(buildRequest(query, QUERY_API_ENDPOINT));
+    Request request = buildRequest(query, QUERY_API_ENDPOINT);
+//    RequestOptions.Builder options = request.getOptions().toBuilder();
+//    options.setWarningsHandler(PERMISSIVE);
+//    request.setOptions(options.build());
+
+    Response response = TestUtils.performRequest(client(), request);   //client().performRequest(request);
     Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     return getResponseBody(response, true);
   }
@@ -53,7 +61,7 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
   protected String executeCsvQuery(String query, boolean sanitize) throws IOException {
     Request request = buildRequest(query,
         QUERY_API_ENDPOINT + String.format(Locale.ROOT, "?format=csv&sanitize=%b", sanitize));
-    Response response = client().performRequest(request);
+    Response response = TestUtils.performRequest(client(), request);    //client().performRequest(request);
     Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     return getResponseBody(response, true);
   }

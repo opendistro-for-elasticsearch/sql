@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResp
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_TIME;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_SIMPLE;
+import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.json.JSONArray;
@@ -97,6 +99,9 @@ public class CursorIT extends SQLIntegTestCase {
   public void testExceptionOnCursorExplain() throws IOException {
     String cursorRequest = "{\"cursor\":\"d:eyJhIjp7fSwicyI6IkRYRjFaWEo1\"}";
     Request sqlRequest = getSqlRequest(cursorRequest, true);
+    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
+    options.setWarningsHandler(PERMISSIVE);
+    sqlRequest.setOptions(options.build());
     Response response = null;
     try {
       String queryResult = executeRequest(sqlRequest);
@@ -496,6 +501,9 @@ public class CursorIT extends SQLIntegTestCase {
 
   private JSONObject executeJDBCRequest(String requestBody) throws IOException {
     Request sqlRequest = getSqlRequest(requestBody, false, JDBC);
+    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
+    options.setWarningsHandler(PERMISSIVE);
+    sqlRequest.setOptions(options.build());
     return new JSONObject(executeRequest(sqlRequest));
   }
 }

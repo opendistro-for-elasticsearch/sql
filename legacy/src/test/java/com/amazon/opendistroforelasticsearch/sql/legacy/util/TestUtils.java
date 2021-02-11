@@ -20,6 +20,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -43,6 +44,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 
 public class TestUtils {
 
@@ -87,7 +89,13 @@ public class TestUtils {
      */
     public static boolean isIndexExist(RestClient client, String indexName) {
         try {
-            Response response = client.performRequest(new Request("HEAD", "/" + indexName));
+            // Response response = client.performRequest(new Request("HEAD", "/" + indexName));
+            Request request = new Request("HEAD", "/" + indexName);
+            RequestOptions.Builder options = request.getOptions().toBuilder();
+            options.setWarningsHandler(PERMISSIVE);
+            request.setOptions(options.build());
+
+            Response response = client.performRequest(request);
             return (response.getStatusLine().getStatusCode() == 200);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to perform request", e);
@@ -115,6 +123,10 @@ public class TestUtils {
      */
     public static Response performRequest(RestClient client, Request request) {
         try {
+            RequestOptions.Builder options = request.getOptions().toBuilder();
+            options.setWarningsHandler(PERMISSIVE);
+            request.setOptions(options.build());
+            
             Response response = client.performRequest(request);
             int status = response.getStatusLine().getStatusCode();
             if (status >= 400) {

@@ -334,7 +334,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
   public void showSingleIndexNameWithDot() throws IOException {
     Request request = new Request("POST", "/index.date1/_doc");
     request.setJsonEntity("{ \"test\": 123 }");
-    client().performRequest(request);
+    TestUtils.performRequest(client(), request);
 
     JSONObject response = executeQuery("SHOW TABLES LIKE index.date1");
     JSONArray dataRows = getDataRows(response);
@@ -345,7 +345,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
   public void describeSingleIndexNameWithDot() throws IOException {
     Request request = new Request("POST", "/index.date2/_doc");
     request.setJsonEntity("{ \"test\": 123 }");
-    client().performRequest(request);
+    TestUtils.performRequest(client(), request);
 
     JSONObject response = executeQuery("DESCRIBE TABLES LIKE index.date2");
     JSONArray dataRows = getDataRows(response);

@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.getResponseBody;
+import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
@@ -464,10 +465,12 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   protected JSONObject executeQuery(String query) throws IOException {
     Request request = new Request("POST", QUERY_API_ENDPOINT);
     request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
-
-    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
-    restOptionsBuilder.addHeader("Content-Type", "application/json");
-    request.setOptions(restOptionsBuilder);
+    RequestOptions.Builder options = request.getOptions().toBuilder();
+    options.setWarningsHandler(PERMISSIVE);
+//    request.setOptions(options.build());
+//    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+    options.addHeader("Content-Type", "application/json");
+    request.setOptions(options);
 
     Response response = client().performRequest(request);
     return new JSONObject(getResponseBody(response));

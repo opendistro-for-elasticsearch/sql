@@ -26,6 +26,8 @@ import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.getRespon
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import java.io.IOException;
 import java.util.Locale;
+
+import com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -168,7 +170,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     restOptionsBuilder.addHeader("Content-Type", "application/json");
     request.setOptions(restOptionsBuilder);
 
-    Response response = client().performRequest(request);
+    Response response = TestUtils.performRequest(client(), request); // client().performRequest(request);
     return new JSONObject(getResponseBody(response));
   }
 }

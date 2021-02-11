@@ -751,7 +751,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     restOptionsBuilder.addHeader("Content-Type", "application/json");
     sqlRequest.setOptions(restOptionsBuilder);
 
-    final Response response = client().performRequest(sqlRequest);
+    final Response response = TestUtils.performRequest(client(), sqlRequest);
     Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     final String responseString = TestUtils.getResponseBody(response, true);
 

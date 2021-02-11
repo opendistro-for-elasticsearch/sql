@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 import org.json.JSONObject;
 
 /**
@@ -101,6 +103,10 @@ public class ESConnection implements DBConnection {
 
   private void performRequest(Request request) {
     try {
+      RequestOptions.Builder options = request.getOptions().toBuilder();
+      options.setWarningsHandler(PERMISSIVE);
+      request.setOptions(options.build());
+      
       Response response = client.performRequest(request);
       int status = response.getStatusLine().getStatusCode();
       if (status != 200) {
