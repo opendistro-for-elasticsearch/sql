@@ -43,11 +43,8 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
 
   protected String executeQueryToString(String query) throws IOException {
     Request request = buildRequest(query, QUERY_API_ENDPOINT);
-//    RequestOptions.Builder options = request.getOptions().toBuilder();
-//    options.setWarningsHandler(PERMISSIVE);
-//    request.setOptions(options.build());
-
-    Response response = TestUtils.performRequest(client(), request);   //client().performRequest(request);
+    TestUtils.addWarningHandler(request);
+    Response response = client().performRequest(request);
     Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     return getResponseBody(response, true);
   }
@@ -119,7 +116,7 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
   private JSONObject jsonify(String text) {
     try {
       return new JSONObject(text);
-    } catch (JSONException e) {
+    } catch (Exception e) {
       throw new IllegalStateException(String.format("Failed to transform %s to JSON format", text));
     }
   }

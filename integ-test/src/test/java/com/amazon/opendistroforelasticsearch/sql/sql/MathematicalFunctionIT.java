@@ -170,7 +170,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     restOptionsBuilder.addHeader("Content-Type", "application/json");
     request.setOptions(restOptionsBuilder);
 
-    Response response = TestUtils.performRequest(client(), request); // client().performRequest(request);
+    Response response = TestUtils.performRequest(client(), request);
     return new JSONObject(getResponseBody(response));
   }
 }

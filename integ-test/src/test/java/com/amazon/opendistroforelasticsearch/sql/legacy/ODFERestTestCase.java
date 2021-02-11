@@ -71,14 +71,13 @@ public abstract class ODFERestTestCase extends ESRestTestCase {
       configureClient(builder, settings);
     }
 
-    builder.setStrictDeprecationMode(true);
+    builder.setStrictDeprecationMode(false);
     return builder.build();
   }
 
   protected static void wipeAllODFEIndices() throws IOException {
     // include all the indices, included hidden indices.
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-indices.html#cat-indices-api-query-params
-    // Response response = client().performRequest(new Request("GET", "/_cat/indices?format=json&expand_wildcards=all"));
     Response response = TestUtils.performRequest(client(),
     new Request("GET", "/_cat/indices?format=json&expand_wildcards=all"));
 
@@ -87,10 +86,7 @@ public abstract class ODFERestTestCase extends ESRestTestCase {
       JSONObject jsonObject = (JSONObject) object;
       String indexName = jsonObject.getString("index");
       //.opendistro_security isn't allowed to delete from cluster
-      // if (!".opendistro_security".equals(indexName)) {
-      //   client().performRequest(new Request("DELETE", "/" + indexName));
-      // }
-      if (indexName.startsWith(TestsConstants.TEST_INDEX)) {
+      if (!indexName.startsWith(".kibana") && !indexName.startsWith(".opendistro")) {
         TestUtils.performRequest(client(), new Request("DELETE", "/" + indexName));
       }
     }

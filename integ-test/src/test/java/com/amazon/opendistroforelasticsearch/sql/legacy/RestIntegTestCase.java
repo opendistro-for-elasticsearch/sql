@@ -174,7 +174,7 @@ public abstract class RestIntegTestCase extends ODFERestTestCase {
         .endObject();
     Request request = new Request("PUT", "_cluster/settings");
     request.setJsonEntity(Strings.toString(builder));
-    Response response = TestUtils.performRequest(client(), request); //client().performRequest(request);
+    Response response = TestUtils.performRequest(client(), request);
     Assert
         .assertEquals(RestStatus.OK, RestStatus.fromCode(response.getStatusLine().getStatusCode()));
   }

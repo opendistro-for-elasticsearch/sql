@@ -95,7 +95,6 @@ public class TestUtils {
    */
   public static boolean isIndexExist(RestClient client, String indexName) {
     try {
-      // Response response = client.performRequest(new Request("HEAD", "/" + indexName));
       Request request = new Request("HEAD", "/" + indexName);
       RequestOptions.Builder options = request.getOptions().toBuilder();
       options.setWarningsHandler(PERMISSIVE);
@@ -142,7 +141,7 @@ public class TestUtils {
         throw new IllegalStateException("Failed to perform request. Error code: " + status);
       }
       return response;
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new IllegalStateException("Failed to perform request", e);
     }
   }
@@ -879,4 +878,9 @@ public class TestUtils {
         RestStatus.fromCode(response.getStatusLine().getStatusCode()));
   }
 
+  public static void addWarningHandler(Request request) {
+    RequestOptions.Builder options = request.getOptions().toBuilder();
+    options.setWarningsHandler(PERMISSIVE);
+    request.setOptions(options.build());
+  }
 }

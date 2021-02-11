@@ -467,8 +467,6 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
     RequestOptions.Builder options = request.getOptions().toBuilder();
     options.setWarningsHandler(PERMISSIVE);
-//    request.setOptions(options.build());
-//    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
     options.addHeader("Content-Type", "application/json");
     request.setOptions(options);
 

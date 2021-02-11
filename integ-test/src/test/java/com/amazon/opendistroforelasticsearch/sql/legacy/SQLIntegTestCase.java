@@ -246,9 +246,10 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     String requestBody = makeRequest(query, fetchSize);
 
     Request sqlRequest = new Request("POST", endpoint);
-    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
-    options.setWarningsHandler(PERMISSIVE);
-    sqlRequest.setOptions(options.build());
+//    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
+//    options.setWarningsHandler(PERMISSIVE);
+//    sqlRequest.setOptions(options.build());
+    com.amazon.opendistroforelasticsearch.sql.util.TestUtils.addWarningHandler(sqlRequest);
     sqlRequest.setJsonEntity(requestBody);
 
     Response response = client().performRequest(sqlRequest);
@@ -318,16 +319,13 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
       throws IOException {
 
     Request sqlRequest = getSqlRequest(requestBody, isExplainQuery);
-//    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
-//    options.setWarningsHandler(PERMISSIVE);
-//    sqlRequest.setOptions(options.build());
     return executeRequest(sqlRequest);
   }
 
   protected static String executeRequest(final Request request) throws IOException {
+    com.amazon.opendistroforelasticsearch.sql.util.TestUtils.addWarningHandler(request);
+    Response response = client().performRequest(request);
 
-//    Response response = client().performRequest(request);
-    Response response = TestUtils.performRequest(client(), request);
     Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     return getResponseBody(response);
   }

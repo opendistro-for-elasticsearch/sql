@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResp
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_TIME;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_NESTED_SIMPLE;
+import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.addWarningHandler;
 import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -67,7 +68,7 @@ public class CursorIT extends SQLIntegTestCase {
       response = ex.getResponse();
     }
 
-    JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+    JSONObject resp = new JSONObject(getResponseBody(response));
     assertThat(resp.getInt("status"), equalTo(400));
     assertThat(resp.query("/error/reason"), equalTo("Invalid SQL query"));
     assertThat(resp.query("/error/details"), equalTo("Fetch_size must be greater or equal to 0"));
@@ -88,7 +89,7 @@ public class CursorIT extends SQLIntegTestCase {
       response = ex.getResponse();
     }
 
-    JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+    JSONObject resp = new JSONObject(getResponseBody(response));
     assertThat(resp.getInt("status"), equalTo(400));
     assertThat(resp.query("/error/reason"), equalTo("Invalid SQL query"));
     assertThat(resp.query("/error/details"), equalTo("Failed to parse field [fetch_size]"));
@@ -99,9 +100,7 @@ public class CursorIT extends SQLIntegTestCase {
   public void testExceptionOnCursorExplain() throws IOException {
     String cursorRequest = "{\"cursor\":\"d:eyJhIjp7fSwicyI6IkRYRjFaWEo1\"}";
     Request sqlRequest = getSqlRequest(cursorRequest, true);
-    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
-    options.setWarningsHandler(PERMISSIVE);
-    sqlRequest.setOptions(options.build());
+    addWarningHandler(sqlRequest);
     Response response = null;
     try {
       String queryResult = executeRequest(sqlRequest);
@@ -109,7 +108,7 @@ public class CursorIT extends SQLIntegTestCase {
       response = ex.getResponse();
     }
 
-    JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+    JSONObject resp = new JSONObject(getResponseBody(response));
     assertThat(resp.getInt("status"), equalTo(400));
     assertThat(resp.query("/error/reason"), equalTo("Invalid SQL query"));
     assertThat(resp.query("/error/details"), equalTo("Invalid request. Cannot explain cursor"));
@@ -369,7 +368,7 @@ public class CursorIT extends SQLIntegTestCase {
       response = ex.getResponse();
     }
 
-    JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+    JSONObject resp = new JSONObject(getResponseBody(response));
     assertThat(resp.getInt("status"), equalTo(404));
     assertThat(resp.query("/error/reason"), equalTo("all shards failed"));
     assertThat(resp.query("/error/caused_by/reason").toString(),
@@ -391,7 +390,7 @@ public class CursorIT extends SQLIntegTestCase {
       response = ex.getResponse();
     }
 
-    JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+    JSONObject resp = new JSONObject(getResponseBody(response));
     assertThat(resp.getInt("status"), equalTo(400));
     assertThat(resp.query("/error/type"), equalTo("illegal_argument_exception"));
   }
@@ -501,9 +500,7 @@ public class CursorIT extends SQLIntegTestCase {
 
   private JSONObject executeJDBCRequest(String requestBody) throws IOException {
     Request sqlRequest = getSqlRequest(requestBody, false, JDBC);
-    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
-    options.setWarningsHandler(PERMISSIVE);
-    sqlRequest.setOptions(options.build());
+    com.amazon.opendistroforelasticsearch.sql.util.TestUtils.addWarningHandler(sqlRequest);
     return new JSONObject(executeRequest(sqlRequest));
   }
 }

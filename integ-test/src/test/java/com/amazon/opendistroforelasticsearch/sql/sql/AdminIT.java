@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.equalTo;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants;
+import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URI;
@@ -81,7 +82,7 @@ public class AdminIT extends SQLIntegTestCase {
   }
 
   private void addAlias(String index, String alias) throws IOException {
-    client().performRequest(new Request("PUT", StringUtils.format("%s/_alias/%s", index, alias)));
+    TestUtils.performRequest(client(), new Request("PUT", StringUtils.format("%s/_alias/%s", index, alias)));
   }
 
   private String loadFromFile(String filename) throws Exception {

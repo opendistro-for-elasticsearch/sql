@@ -53,10 +53,8 @@ public class PPLPluginIT extends PPLIntegTestCase {
   public void testQueryEndpointShouldOK() throws IOException {
     Request request = new Request("PUT", "/a/_doc/1?refresh=true");
     request.setJsonEntity("{\"name\": \"hello\"}");
-    RequestOptions.Builder options = request.getOptions().toBuilder();
-    options.setWarningsHandler(PERMISSIVE);
-    request.setOptions(options.build());
 
+    TestUtils.addWarningHandler(request);
     client().performRequest(request);
     JSONObject response = executeQuery("search source=a");
     verifySchema(response, schema("name", null, "string"));
@@ -69,13 +67,8 @@ public class PPLPluginIT extends PPLIntegTestCase {
     exceptionRule.expect(hasProperty("response", statusCode(400)));
 
     Request request = makePPLRequest("search invalid");
-    RequestOptions.Builder options = request.getOptions().toBuilder();
-    options.setWarningsHandler(PERMISSIVE);
-    request.setOptions(options.build());
-
+    TestUtils.addWarningHandler(request);
     client().performRequest(request);
-//    client().performRequest(makePPLRequest("search invalid"));
-//    TestUtils.performRequest(client(), makePPLRequest("search invalid"));
   }
 
   @Test
