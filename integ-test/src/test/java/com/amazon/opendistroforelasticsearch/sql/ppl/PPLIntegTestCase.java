@@ -58,7 +58,7 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
   protected String executeCsvQuery(String query, boolean sanitize) throws IOException {
     Request request = buildRequest(query,
         QUERY_API_ENDPOINT + String.format(Locale.ROOT, "?format=csv&sanitize=%b", sanitize));
-    Response response = TestUtils.performRequest(client(), request);    //client().performRequest(request);
+    Response response = TestUtils.performRequest(client(), request);
     Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     return getResponseBody(response, true);
   }
@@ -116,7 +116,7 @@ public abstract class PPLIntegTestCase extends SQLIntegTestCase {
   private JSONObject jsonify(String text) {
     try {
       return new JSONObject(text);
-    } catch (Exception e) {
+    } catch (JSONException e) {
       throw new IllegalStateException(String.format("Failed to transform %s to JSON format", text));
     }
   }

@@ -46,7 +46,6 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.loadDat
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.CURSOR_CLOSE_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
-import static org.elasticsearch.client.WarningsHandler.PERMISSIVE;
 
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.google.common.base.Strings;
@@ -246,9 +245,6 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     String requestBody = makeRequest(query, fetchSize);
 
     Request sqlRequest = new Request("POST", endpoint);
-//    RequestOptions.Builder options = sqlRequest.getOptions().toBuilder();
-//    options.setWarningsHandler(PERMISSIVE);
-//    sqlRequest.setOptions(options.build());
     com.amazon.opendistroforelasticsearch.sql.util.TestUtils.addWarningHandler(sqlRequest);
     sqlRequest.setJsonEntity(requestBody);
 

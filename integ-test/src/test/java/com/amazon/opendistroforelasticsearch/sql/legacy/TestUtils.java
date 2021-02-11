@@ -102,7 +102,7 @@ public class TestUtils {
 
       Response response = client.performRequest(request);
       return (response.getStatusLine().getStatusCode() == 200);
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new IllegalStateException("Failed to perform request", e);
     }
   }
