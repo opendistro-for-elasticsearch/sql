@@ -89,13 +89,7 @@ public class TestUtils {
      */
     public static boolean isIndexExist(RestClient client, String indexName) {
         try {
-            // Response response = client.performRequest(new Request("HEAD", "/" + indexName));
-            Request request = new Request("HEAD", "/" + indexName);
-            RequestOptions.Builder options = request.getOptions().toBuilder();
-            options.setWarningsHandler(PERMISSIVE);
-            request.setOptions(options.build());
-
-            Response response = client.performRequest(request);
+            Response response = client.performRequest(new Request("HEAD", "/" + indexName));
             return (response.getStatusLine().getStatusCode() == 200);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to perform request", e);
