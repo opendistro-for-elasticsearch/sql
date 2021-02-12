@@ -71,7 +71,7 @@ public abstract class ODFERestTestCase extends ESRestTestCase {
       configureClient(builder, settings);
     }
 
-    builder.setStrictDeprecationMode(true);
+    builder.setStrictDeprecationMode(false);
     return builder.build();
   }
 
@@ -84,7 +84,7 @@ public abstract class ODFERestTestCase extends ESRestTestCase {
       JSONObject jsonObject = (JSONObject) object;
       String indexName = jsonObject.getString("index");
       //.opendistro_security isn't allowed to delete from cluster
-      if (!".opendistro_security".equals(indexName)) {
+      if (!indexName.startsWith(".kibana") && !indexName.startsWith(".opendistro")) {
         client().performRequest(new Request("DELETE", "/" + indexName));
       }
     }
