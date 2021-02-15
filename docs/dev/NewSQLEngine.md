@@ -54,11 +54,11 @@ For the following features unsupported in the new engine, the query will be forw
 * **JOINs**: including all types of join queries
 * **Elasticsearch functions**: fulltext search, metric and bucket functions
 
-### 3.2 Limitations
+### 3.3 Limitations
 
 You can find all the limitations in [Limitations](/docs/user/limitations/limitations.rst). 
 
-### 3.3 What if Something Wrong
+### 3.4 What if Something Wrong
 
 No panic! You can roll back to old query engine easily by a plugin setting change. Simply run the command to disable it by [plugin setting](/docs/user/admin/settings.rst#opendistro-sql-engine-new-enabled). Same as other cluster setting change, no need to restart Elasticsearch and the change will take effect on next incoming query. Later on please report the issue to us.
 
