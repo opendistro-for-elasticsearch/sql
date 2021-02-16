@@ -56,7 +56,7 @@ Example output: `./build/opendistro-query-workbench-*.zip`
   Runs the plugin tests.
 
 
-## Contributing to Open Distro for Elasticsearch SQL Workbench
+## Contributing to Open Distro for Elasticsearch Query Workbench
 
 - Refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
 - Since this is a workbench, it can be useful to review the [Kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) alongside the documentation around [workbenchs](https://www.elastic.co/guide/en/kibana/master/kibana-plugins.html) and [plugin development](https://www.elastic.co/guide/en/kibana/master/plugin-development.html).
