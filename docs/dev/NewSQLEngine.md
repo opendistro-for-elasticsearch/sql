@@ -16,7 +16,7 @@ With the architecture and extensibility improved significantly, the following SQ
     * [Data types](/docs/user/general/datatypes.rst): added support for date and interval types
     * [Expressions](/docs/user/dql/expressions.rst): complex nested expression support
     * [SQL functions](/docs/user/dql/functions.rst): more date function support, `ADDDATE`, `DATE_ADD`, `DATE_SUB`, `DAY`, `DAYNAME`, `DAYOFMONTH`, `DAYOFWEEK`, `DAYOFYEAR`, `FROM_DAYS`, `HOUR`, `MICROSECOND`, `MINUTE`, `QUARTER`, `SECOND`, `SUBDATE`, `TIME`, `TIME_TO_SEC`, `TO_DAYS`, `WEEK`
-    * [Comments](/docs/user/general/comments.rst): single-line or block comment support
+    * [Comments](/docs/user/general/comments.rst): SQL comment support
 * **Basic queries**
     * [HAVING without GROUP BY clause](/docs/user/dql/aggregations.rst#having-without-group-by)
     * [Aggregate over arbitrary expression](/docs/user/dql/aggregations.rst#expression)
