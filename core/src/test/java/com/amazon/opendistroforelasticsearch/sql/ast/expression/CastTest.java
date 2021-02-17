@@ -31,7 +31,7 @@ class CastTest {
   void cast_to_int_and_integer_should_convert_to_same_function_impl() {
     assertEquals(
         new Cast(booleanLiteral(true), stringLiteral("INT")).convertFunctionName(),
-        new Cast(booleanLiteral(true), stringLiteral("INT")).convertFunctionName());
+        new Cast(booleanLiteral(true), stringLiteral("INTEGER")).convertFunctionName());
   }
 
 }
