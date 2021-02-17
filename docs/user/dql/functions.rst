@@ -57,7 +57,7 @@ Cast to string example::
 
 Cast to number example::
 
-    od> SELECT cast(true as int) as cbool, cast('1' as int) as cstring
+    od> SELECT cast(true as int) as cbool, cast('1' as integer) as cstring
     fetched rows / total rows = 1/1
     +---------+-----------+
     | cbool   | cstring   |
