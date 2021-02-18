@@ -32,7 +32,7 @@ public class RawFormatIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void sanitizeTest() {
+  public void rawFormatWithPipeFieldTest() {
     String result = executeQuery(
         String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_RAW_SANITIZE), "raw");
     assertEquals(
@@ -43,36 +43,6 @@ public class RawFormatIT extends SQLIntegTestCase {
             + "@Dale|Adams@\n"
             + "@Elinor|\"Ratliff|||\"\n",
         result);
-  }
-
-  @Test
-  public void escapeSanitizeTest() {
-    String result = executeQuery(
-        String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_RAW_SANITIZE),
-        "raw&sanitize=false");
-    assertEquals(
-        "firstname|lastname\n"
-            + "+Amber JOHnny|Duke Willmington+\n"
-            + "-Hattie|Bond-\n"
-            + "=Nanette|Bates=\n"
-            + "@Dale|Adams@\n"
-            + "@Elinor|\"Ratliff|||\"\n",
-        result);
-  }
-
-  @Test
-  public void enforceSanitizeFieldWithDelimitterTest() {
-    String result = executeQuery(
-            String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_RAW_SANITIZE),
-            "raw&sanitize=true");
-    assertEquals(
-            "firstname|lastname\n"
-                    + "+Amber JOHnny|Duke Willmington+\n"
-                    + "-Hattie|Bond-\n"
-                    + "=Nanette|Bates=\n"
-                    + "@Dale|Adams@\n"
-                    + "@Elinor|\"Ratliff|||\"\n",
-            result);
   }
 
 }

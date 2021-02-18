@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 //@RequiredArgsConstructor
 public class RawResponseFormatter extends FlatResponseFormatter {
   public RawResponseFormatter() {
-    super("|");
+    super("|", false);
   }
 
 }

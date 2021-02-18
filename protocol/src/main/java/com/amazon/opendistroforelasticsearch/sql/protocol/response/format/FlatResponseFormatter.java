@@ -34,12 +34,14 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
 
   private boolean sanitize = false;
 
-  public FlatResponseFormatter(String seperator) {
+  public FlatResponseFormatter(String seperator, boolean sanitize) {
     this.INLINE_SEPARATOR = seperator;
+    this.sanitize = sanitize;
   }
 
   @Override
   public String format(QueryResult response) {
+    System.out.println("format santizie : " + sanitize);
     FlatResult result = new FlatResult(response, sanitize);
     return result.getFlat();
   }
@@ -100,19 +102,42 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
      * Sanitize headers because Elasticsearch allows special character present in field names.
      */
     private List<String> sanitizeHeaders(List<String> headers) {
-      return headers.stream()
-          .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
-          .collect(Collectors.toList());
+      if (sanitize) {
+        return headers.stream()
+                .map(this::sanitizeCell)
+                .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+                .collect(Collectors.toList());
+      } else {
+        return headers.stream()
+                .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+                .collect(Collectors.toList());
+      }
     }
 
     private List<List<String>> sanitizeData(List<List<String>> lines) {
       List<List<String>> result = new ArrayList<>();
-      for (List<String> line : lines) {
-        result.add(line.stream()
-            .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
-            .collect(Collectors.toList()));
+      if (sanitize) {
+        for (List<String> line : lines) {
+          result.add(line.stream()
+                  .map(this::sanitizeCell)
+                  .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+                  .collect(Collectors.toList()));
+        }
+      } else {
+        for (List<String> line : lines) {
+          result.add(line.stream()
+                  .map(cell -> quoteIfRequired(INLINE_SEPARATOR, cell))
+                  .collect(Collectors.toList()));
+        }
       }
       return result;
+    }
+
+    private String sanitizeCell(String cell) {
+      if (isStartWithSensitiveChar(cell)) {
+        return "'" + cell;
+      }
+      return cell;
     }
 
     private String quoteIfRequired(String separator, String cell) {
@@ -121,6 +146,9 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
               ? quote + cell.replaceAll("\"", "\"\"") + quote : cell;
     }
 
+    private boolean isStartWithSensitiveChar(String cell) {
+      return SENSITIVE_CHAR.stream().anyMatch(cell::startsWith);
+    }
   }
 
 }
