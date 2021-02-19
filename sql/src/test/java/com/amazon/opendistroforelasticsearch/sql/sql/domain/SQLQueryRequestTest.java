@@ -115,14 +115,23 @@ public class SQLQueryRequestTest {
   }
 
   @Test
-  public void shouldNotSupportRawFormat() {
+  public void shouldNotSupportOtherFormat() {
     SQLQueryRequest csvRequest =
         SQLQueryRequestBuilder.request("SELECT 1")
-            .format("raw")
+            .format("other")
             .build();
     assertFalse(csvRequest.isSupported());
     assertThrows(IllegalArgumentException.class, csvRequest::format,
-        "response in raw format is not supported.");
+        "response in other format is not supported.");
+  }
+
+  @Test
+  public void shouldSupportRawFormat() {
+    SQLQueryRequest csvRequest =
+            SQLQueryRequestBuilder.request("SELECT 1")
+                    .format("raw")
+                    .build();
+    assertTrue(csvRequest.isSupported());
   }
 
   /**
