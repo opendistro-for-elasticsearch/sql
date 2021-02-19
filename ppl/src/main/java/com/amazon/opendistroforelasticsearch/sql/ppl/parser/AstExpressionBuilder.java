@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BinaryArithmeticContext;
@@ -67,9 +68,11 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 
 /**
  * Class of building AST Expression nodes.
@@ -171,7 +174,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitSortField(SortFieldContext ctx) {
     return new Field(
-        ctx.sortFieldExpression().fieldExpression().getText(),
+        qualifiedName(ctx.sortFieldExpression().fieldExpression().getText()),
         ArgumentFactory.getArgumentList(ctx)
     );
   }
@@ -227,7 +230,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitTableSource(TableSourceContext ctx) {
-    return visitIdentifier(ctx);
+    return visitIdentifiers(Arrays.asList(ctx));
   }
 
   /**
@@ -235,13 +238,13 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
    */
   @Override
   public UnresolvedExpression visitIdentsAsQualifiedName(IdentsAsQualifiedNameContext ctx) {
-    return visitIdentifier(ctx.ident());
+    return visitIdentifiers(ctx.ident());
   }
 
   @Override
   public UnresolvedExpression visitIdentsAsWildcardQualifiedName(
       IdentsAsWildcardQualifiedNameContext ctx) {
-    return visitIdentifier(ctx.wildcard());
+    return visitIdentifiers(ctx.wildcard());
   }
 
   @Override
@@ -270,9 +273,13 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
     return new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN);
   }
 
-  private UnresolvedExpression visitIdentifier(ParserRuleContext ctx) {
-    return new QualifiedName(Collections.singletonList(
-        StringUtils.unquoteIdentifier(ctx.getText())));
+  private QualifiedName visitIdentifiers(List<? extends ParserRuleContext> ctx) {
+    return new QualifiedName(
+        ctx.stream()
+            .map(RuleContext::getText)
+            .map(StringUtils::unquoteIdentifier)
+            .collect(Collectors.toList())
+    );
   }
 
 }

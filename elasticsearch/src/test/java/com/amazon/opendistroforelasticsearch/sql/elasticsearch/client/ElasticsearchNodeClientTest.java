@@ -111,7 +111,7 @@ class ElasticsearchNodeClientTest {
     assertEquals(1, indexMappings.size());
 
     IndexMapping indexMapping = indexMappings.values().iterator().next();
-    assertEquals(20, indexMapping.size());
+    assertEquals(18, indexMapping.size());
     assertEquals("text", indexMapping.getFieldType("address"));
     assertEquals("integer", indexMapping.getFieldType("age"));
     assertEquals("double", indexMapping.getFieldType("balance"));
@@ -121,7 +121,6 @@ class ElasticsearchNodeClientTest {
     assertEquals("some_new_es_type_outside_type_system", indexMapping.getFieldType("new_field"));
     assertEquals("text", indexMapping.getFieldType("field with spaces"));
     assertEquals("text_keyword", indexMapping.getFieldType("employer"));
-    assertEquals("keyword", indexMapping.getFieldType("employer.raw"));
     assertEquals("nested", indexMapping.getFieldType("projects"));
     assertEquals("boolean", indexMapping.getFieldType("projects.active"));
     assertEquals("date", indexMapping.getFieldType("projects.release"));
@@ -129,7 +128,6 @@ class ElasticsearchNodeClientTest {
     assertEquals("text", indexMapping.getFieldType("projects.members.name"));
     assertEquals("object", indexMapping.getFieldType("manager"));
     assertEquals("text_keyword", indexMapping.getFieldType("manager.name"));
-    assertEquals("keyword", indexMapping.getFieldType("manager.name.keyword"));
     assertEquals("keyword", indexMapping.getFieldType("manager.address"));
     assertEquals("long", indexMapping.getFieldType("manager.salary"));
   }

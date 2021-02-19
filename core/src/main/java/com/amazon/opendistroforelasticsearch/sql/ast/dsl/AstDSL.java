@@ -116,7 +116,7 @@ public class AstDSL {
     return new Values(Arrays.asList(values));
   }
 
-  public static UnresolvedExpression qualifiedName(String... parts) {
+  public static QualifiedName qualifiedName(String... parts) {
     return new QualifiedName(Arrays.asList(parts));
   }
 
@@ -178,7 +178,7 @@ public class AstDSL {
   }
 
   public static Map map(String origin, String target) {
-    return new Map(new Field(origin), new Field(target));
+    return new Map(field(origin), field(target));
   }
 
   public static Map map(UnresolvedExpression origin, UnresolvedExpression target) {
@@ -281,19 +281,19 @@ public class AstDSL {
   }
 
   public Field field(UnresolvedExpression field) {
-    return new Field((QualifiedName) field);
-  }
-
-  public Field field(String field) {
     return new Field(field);
   }
 
   public Field field(UnresolvedExpression field, Argument... fieldArgs) {
-    return new Field(field, Arrays.asList(fieldArgs));
+    return field(field, Arrays.asList(fieldArgs));
+  }
+
+  public Field field(String field) {
+    return field(qualifiedName(field));
   }
 
   public Field field(String field, Argument... fieldArgs) {
-    return new Field(field, Arrays.asList(fieldArgs));
+    return field(field, Arrays.asList(fieldArgs));
   }
 
   public Field field(UnresolvedExpression field, List<Argument> fieldArgs) {
@@ -301,7 +301,7 @@ public class AstDSL {
   }
 
   public Field field(String field, List<Argument> fieldArgs) {
-    return new Field(field, fieldArgs);
+    return field(qualifiedName(field), fieldArgs);
   }
 
   public Alias alias(String name, UnresolvedExpression expr) {
@@ -365,18 +365,8 @@ public class AstDSL {
     return new Dedupe(input, options, Arrays.asList(fields));
   }
 
-  public static Head head(UnresolvedPlan input, List<UnresolvedArgument> options) {
-    return new Head(input, options);
-  }
-
-  /**
-   * Default Head Command Args.
-   */
-  public static List<UnresolvedArgument> defaultHeadArgs() {
-    return unresolvedArgList(
-            unresolvedArg("keeplast", booleanLiteral(true)),
-            unresolvedArg("whileExpr", booleanLiteral(true)),
-            unresolvedArg("number", intLiteral(10)));
+  public static Head head(UnresolvedPlan input, Integer size) {
+    return new Head(input, size);
   }
 
   public static List<Argument> defaultTopArgs() {

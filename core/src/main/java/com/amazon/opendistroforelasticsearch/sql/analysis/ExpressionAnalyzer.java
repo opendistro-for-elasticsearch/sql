@@ -259,9 +259,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return ref;
   }
 
+  // Array type is not supporte yet.
   private boolean isTypeNotSupported(ExprType type) {
-    return "struct".equalsIgnoreCase(type.typeName())
-        || "array".equalsIgnoreCase(type.typeName());
+    return "array".equalsIgnoreCase(type.typeName());
   }
 
 }

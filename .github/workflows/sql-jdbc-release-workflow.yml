@@ -36,6 +36,23 @@ jobs:
       - name: Run build
         run: |
           ./gradlew publishShadowPublicationToInternal-releasesRepository '-Dorg.gradle.jvmargs=--add-modules java.xml.bind' -Dbuild.snapshot=false
-          artifact=`ls -1t build/libs/*.jar | grep -v "SNAPSHOT.jar" | grep -v "sources.jar" | head -1`
-          aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-jdbc/
-          aws cloudfront create-invalidation --distribution-id E2S86LO5GZAJQM --paths "/downloads/*"
+
+      - name: Configure Staging AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Publish to S3
+        shell: bash
+        run: |
+          jar=`ls -1t build/libs/*.jar | grep -v "SNAPSHOT.jar" | grep -v "sources.jar" | head -1`
+
+          # Inject the build number before the suffix
+          jar_outfile=`basename ${jar%.jar}-build-${GITHUB_RUN_NUMBER}.jar`
+
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-clients/sql-jdbc/"
+
+          echo "Copying ${jar} to ${s3_prefix}${jar_outfile}"
+          aws s3 cp --quiet $jar ${s3_prefix}${jar_outfile}

@@ -54,6 +54,11 @@ public class ElasticsearchIndex implements Table {
   /** Current Elasticsearch index name. */
   private final String indexName;
 
+  /**
+   * The cached mapping of field and type in index.
+   */
+  private Map<String, ExprType> cachedFieldTypes = null;
+
   /*
    * TODO: Assume indexName doesn't have wildcard.
    *  Need to either handle field name conflicts
@@ -61,7 +66,10 @@ public class ElasticsearchIndex implements Table {
    */
   @Override
   public Map<String, ExprType> getFieldTypes() {
-    return new ElasticsearchDescribeIndexRequest(client, indexName).getFieldTypes();
+    if (cachedFieldTypes == null) {
+      cachedFieldTypes = new ElasticsearchDescribeIndexRequest(client, indexName).getFieldTypes();
+    }
+    return cachedFieldTypes;
   }
 
   /**

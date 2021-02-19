@@ -21,13 +21,16 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.*;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.equalTo;
 
-import java.io.IOException;
-
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
+import java.io.IOException;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -36,8 +39,6 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
-
-import org.junit.Assume;
 import org.junit.Test;
 
 public class ConditionalIT extends SQLIntegTestCase {
@@ -45,7 +46,6 @@ public class ConditionalIT extends SQLIntegTestCase {
   @Override
   public void init() throws Exception {
     super.init();
-    TestUtils.enableNewQueryEngine(client());
     loadIndex(Index.ACCOUNT);
     loadIndex(Index.BANK_WITH_NULL_VALUES);
   }
@@ -62,17 +62,17 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void ifnullWithNullInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT IFNULL(1/0, firstname) as IFNULL1 ,"
-                    + " IFNULL(firstname, 1/0) as IFNULL2 ,"
-                    + " IFNULL(1/0, 1/0) as IFNULL3 "
+            "SELECT IFNULL(null, firstname) as IFNULL1 ,"
+                    + " IFNULL(firstname, null) as IFNULL2 ,"
+                    + " IFNULL(null, null) as IFNULL3 "
                     + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
                     + " WHERE balance is null limit 2", "jdbc"));
+
     verifySchema(response,
-            schema("IFNULL(1/0, firstname)", "IFNULL1", "keyword"),
-            schema("IFNULL(firstname, 1/0)", "IFNULL2", "integer"),
-            schema("IFNULL(1/0, 1/0)", "IFNULL3", "integer"));
+            schema("IFNULL(null, firstname)", "IFNULL1", "keyword"),
+            schema("IFNULL(firstname, null)", "IFNULL2", "keyword"),
+            schema("IFNULL(null, null)", "IFNULL3", "byte"));
     verifyDataRows(response,
             rows("Hattie", "Hattie", LITERAL_NULL.value()),
             rows( "Elinor", "Elinor", LITERAL_NULL.value())
@@ -81,26 +81,25 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void ifnullWithMissingInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
-            "SELECT IFNULL(balance, firstname) as IFNULL1 ,"
-                    + " IFNULL(firstname, balance) as IFNULL2 ,"
+            "SELECT IFNULL(balance, 100) as IFNULL1, "
+                    + " IFNULL(200, balance) as IFNULL2, "
                     + " IFNULL(balance, balance) as IFNULL3 "
                     + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
-                    + " WHERE balance is null limit 2", "jdbc"));
+                    + " WHERE balance is null limit 3", "jdbc"));
     verifySchema(response,
-            schema("IFNULL(balance, firstname)", "IFNULL1", "keyword"),
-            schema("IFNULL(firstname, balance)", "IFNULL2", "long"),
+            schema("IFNULL(balance, 100)", "IFNULL1", "long"),
+            schema("IFNULL(200, balance)", "IFNULL2", "long"),
             schema("IFNULL(balance, balance)", "IFNULL3", "long"));
     verifyDataRows(response,
-            rows("Hattie", "Hattie", LITERAL_NULL.value()),
-            rows( "Elinor", "Elinor", LITERAL_NULL.value())
+            rows(100, 200, null),
+            rows(100, 200, null),
+            rows(100, 200, null)
     );
   }
 
   @Test
   public void nullifShouldPassJDBC() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
             "SELECT NULLIF(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT);
     assertEquals("NULLIF(lastname, \'unknown\')", response.query("/schema/0/name"));
@@ -110,11 +109,10 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void nullifWithNotNullInputTestOne(){
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT NULLIF(firstname, 'Amber JOHnny') as testnullif "
-                    + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
-                    + " limit 2 ", "jdbc"));
+                  + "FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+                  + " limit 2 ", "jdbc"));
     verifySchema(response,
             schema("NULLIF(firstname, 'Amber JOHnny')", "testnullif", "keyword"));
     verifyDataRows(response,
@@ -125,7 +123,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void nullifWithNullInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT NULLIF(1/0, 123) as nullif1 ,"
                     + " NULLIF(123, 1/0) as nullif2 ,"
@@ -144,7 +141,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void isnullShouldPassJDBC() throws IOException {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
             "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT);
     assertEquals("ISNULL(lastname)", response.query("/schema/0/name"));
@@ -166,7 +162,6 @@ public class ConditionalIT extends SQLIntegTestCase {
 
   @Test
   public void isnullWithNullInputTest() {
-    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(executeQuery(
             "SELECT ISNULL(1/0) as ISNULL1 ,"
                     + " ISNULL(firstname) as ISNULL2 "
@@ -191,6 +186,37 @@ public class ConditionalIT extends SQLIntegTestCase {
             executeQuery("SELECT ISNULL(1+1*1/0) AS isnull FROM " + TEST_INDEX_ACCOUNT),
             hitAny(kvInt("/fields/isnull/0", equalTo(1)))
     );
+  }
+
+  @Test
+  public void ifShouldPassJDBC() throws IOException {
+    JSONObject response = executeJdbcRequest(
+            "SELECT IF(2 > 0, \'hello\', \'world\') AS name FROM " + TEST_INDEX_ACCOUNT);
+    assertEquals("IF(2 > 0, \'hello\', \'world\')", response.query("/schema/0/name"));
+    assertEquals("name", response.query("/schema/0/alias"));
+    assertEquals("keyword", response.query("/schema/0/type"));
+  }
+
+  @Test
+  public void ifWithTrueAndFalseCondition() throws IOException {
+    JSONObject response = new JSONObject(executeQuery(
+            "SELECT IF(2 < 0, firstname, lastname) as IF0, "
+            + " IF(2 > 0, firstname, lastname) as IF1, "
+            + " firstname as IF2, "
+            + " lastname as IF3 "
+            + " FROM " + TEST_INDEX_BANK_WITH_NULL_VALUES
+            + " limit 2 ", "jdbc" ));
+    verifySchema(response,
+            schema("IF(2 < 0, firstname, lastname)", "IF0", "keyword"),
+            schema("IF(2 > 0, firstname, lastname)", "IF1", "keyword"),
+            schema("firstname", "IF2", "text"),
+            schema("lastname", "IF3", "keyword")
+            );
+    verifyDataRows(response,
+            rows("Duke Willmington", "Amber JOHnny", "Amber JOHnny", "Duke Willmington"),
+            rows("Bond", "Hattie", "Hattie", "Bond")
+    );
+
   }
 
   private SearchHits query(String query) throws IOException {

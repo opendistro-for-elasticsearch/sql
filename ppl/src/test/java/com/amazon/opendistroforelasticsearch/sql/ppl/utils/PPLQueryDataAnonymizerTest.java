@@ -86,14 +86,8 @@ public class PPLQueryDataAnonymizerTest {
 
   @Test
   public void testHeadCommandWithNumber() {
-    assertEquals("source=t | head keeplast=true while(***) 3",
+    assertEquals("source=t | head 3",
         anonymize("source=t | head 3"));
-  }
-
-  @Test
-  public void testHeadCommandWithWhileExpr() {
-    assertEquals("source=t | head keeplast=true while(a < ***) 5",
-        anonymize("source=t | head while(a < 5) 5"));
   }
 
   //todo, sort order is ignored, it doesn't impact the log analysis.

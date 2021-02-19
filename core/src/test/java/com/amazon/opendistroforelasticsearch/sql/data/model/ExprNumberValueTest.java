@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import org.junit.jupiter.api.Assertions;
@@ -30,5 +31,10 @@ public class ExprNumberValueTest {
     ExpressionEvaluationException exception = Assertions
         .assertThrows(ExpressionEvaluationException.class, () -> booleanValue.shortValue());
     assertEquals("invalid to get shortValue from value of type BOOLEAN", exception.getMessage());
+  }
+
+  @Test
+  public void key_value() {
+    assertTrue(new ExprIntegerValue(1).keyValue("path").isMissing());
   }
 }

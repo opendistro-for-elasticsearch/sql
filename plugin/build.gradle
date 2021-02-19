@@ -15,7 +15,7 @@ repositories {
 }
 
 esplugin {
-    name 'opendistro_sql'
+    name 'opendistro-sql'
     description 'Open Distro for Elasticsearch SQL'
     classname 'com.amazon.opendistroforelasticsearch.sql.plugin.SQLPlugin'
     licenseFile rootProject.file("LICENSE.txt")
@@ -121,13 +121,27 @@ afterEvaluate {
 
     buildRpm {
         arch = 'NOARCH'
-        archiveName "${packageName}-${version}.rpm"
         dependsOn 'assemble'
+        finalizedBy 'renameRpm'
+        task renameRpm(type: Copy) {
+            from("$buildDir/distributions")
+            into("$buildDir/distributions")
+            include archiveName
+            rename archiveName, "${packageName}-${version}.rpm"
+            doLast { delete file("$buildDir/distributions/$archiveName") }
+        }
     }
 
     buildDeb {
-        arch = 'amd64'
-        archiveName "${packageName}-${version}.deb"
+        arch = 'all'
         dependsOn 'assemble'
+        finalizedBy 'renameDeb'
+        task renameDeb(type: Copy) {
+            from("$buildDir/distributions")
+            into("$buildDir/distributions")
+            include archiveName
+            rename archiveName, "${packageName}-${version}.deb"
+            doLast { delete file("$buildDir/distributions/$archiveName") }
+        }
     }
 }

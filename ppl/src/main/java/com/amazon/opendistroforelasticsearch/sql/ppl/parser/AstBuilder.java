@@ -119,8 +119,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitFieldsCommand(FieldsCommandContext ctx) {
     return new Project(
-        ctx.wcFieldList()
-            .wcFieldExpression()
+        ctx.fieldList()
+            .fieldExpression()
             .stream()
             .map(this::visitExpression)
             .collect(Collectors.toList()),
@@ -188,9 +188,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
    */
   @Override
   public UnresolvedPlan visitHeadCommand(HeadCommandContext ctx) {
-    UnresolvedExpression unresolvedExpr =
-        ctx.whileExpr != null ? visitExpression(ctx.logicalExpression()) : null;
-    return new Head(ArgumentFactory.getArgumentList(ctx, unresolvedExpr));
+    Integer size = ctx.number != null ? Integer.parseInt(ctx.number.getText()) : 10;
+    return new Head(size);
   }
 
   /**

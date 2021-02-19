@@ -80,15 +80,8 @@ class AnalyzerTest extends AnalyzerTestBase {
   @Test
   public void head_relation() {
     assertAnalyzeEqual(
-        LogicalPlanDSL.head(
-            LogicalPlanDSL.relation("schema"),
-            false, dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))), 10),
-        AstDSL.head(
-            AstDSL.relation("schema"),
-            unresolvedArgList(
-                unresolvedArg("keeplast", booleanLiteral(false)),
-                unresolvedArg("whileExpr", compare("=", field("integer_value"), intLiteral(1))),
-                unresolvedArg("number", intLiteral(10)))));
+        LogicalPlanDSL.limit(LogicalPlanDSL.relation("schema"),10, 0),
+        AstDSL.head(AstDSL.relation("schema"), 10));
   }
 
   @Test

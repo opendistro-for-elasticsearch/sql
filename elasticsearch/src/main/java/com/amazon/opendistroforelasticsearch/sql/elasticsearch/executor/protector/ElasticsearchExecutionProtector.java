@@ -22,7 +22,6 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOpe
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
@@ -77,7 +76,7 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
    */
   @Override
   public PhysicalPlan visitTableScan(TableScanOperator node, Object context) {
-    return new ResourceMonitorPlan(node, resourceMonitor);
+    return doProtect(node);
   }
 
   @Override
@@ -102,19 +101,9 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
   }
 
   @Override
-  public PhysicalPlan visitHead(HeadOperator node, Object context) {
-    return new HeadOperator(
-            visitInput(node.getInput(), context),
-            node.getKeepLast(),
-            node.getWhileExpr(),
-            node.getNumber()
-    );
-  }
-
-  @Override
   public PhysicalPlan visitWindow(WindowOperator node, Object context) {
     return new WindowOperator(
-        visitInput(node.getInput(), context),
+        doProtect(visitInput(node.getInput(), context)),
         node.getWindowFunction(),
         node.getWindowDefinition());
   }
@@ -124,11 +113,10 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
    */
   @Override
   public PhysicalPlan visitSort(SortOperator node, Object context) {
-    return new ResourceMonitorPlan(
+    return doProtect(
         new SortOperator(
             visitInput(node.getInput(), context),
-            node.getSortList()),
-        resourceMonitor);
+            node.getSortList()));
   }
 
   /**
@@ -155,4 +143,16 @@ public class ElasticsearchExecutionProtector extends ExecutionProtector {
       return node.accept(this, context);
     }
   }
+
+  private PhysicalPlan doProtect(PhysicalPlan node) {
+    if (isProtected(node)) {
+      return node;
+    }
+    return new ResourceMonitorPlan(node, resourceMonitor);
+  }
+
+  private boolean isProtected(PhysicalPlan node) {
+    return (node instanceof ResourceMonitorPlan);
+  }
+
 }

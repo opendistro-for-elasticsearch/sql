@@ -68,31 +68,4 @@ public class HeadCommandIT extends PPLIntegTestCase {
         rows("Hattie", 36),
         rows("Nanette", 28));
   }
-
-  @Test
-  public void testHeadWithWhile() throws IOException {
-    JSONObject result =
-        executeQuery(String
-            .format("source=%s | fields firstname, age | sort age | head while(age < 21) 7",
-                TEST_INDEX_ACCOUNT));
-    verifyDataRows(result,
-        rows("Claudia", 20),
-        rows("Copeland", 20),
-        rows("Cornelia", 20),
-        rows("Schultz", 20),
-        rows("Simpson", 21));
-  }
-
-  @Test
-  public void testHeadWithKeeplast() throws IOException {
-    JSONObject result =
-        executeQuery(String.format(
-            "source=%s | fields firstname, age | sort age | head keeplast=false while(age < 21) 7",
-            TEST_INDEX_ACCOUNT));
-    verifyDataRows(result,
-        rows("Claudia", 20),
-        rows("Copeland", 20),
-        rows("Cornelia", 20),
-        rows("Schultz", 20));
-  }
 }

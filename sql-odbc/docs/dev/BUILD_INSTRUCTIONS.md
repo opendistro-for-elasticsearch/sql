@@ -2,85 +2,104 @@
 
 ## Windows
 
-### Dependencies
+### Requirements
 
-* [cmake](https://cmake.org/install/)
-* [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) (Other versions may work, but only 2019 has been tested)
-* [ODBC Driver source code](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc)
+* Install [cmake](https://cmake.org/install/)
+* Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) 
+  * Other versions may work, but only 2019 has been tested
 
-### Build
+**NOTE:** All Windows/`.ps1` scripts must be run from a [Developer Powershell](https://devblogs.microsoft.com/visualstudio/the-powershell-you-know-and-love-now-with-a-side-of-visual-studio/).
 
-#### with Visual Studio
-
-Run `./build_win_<config><bitness>.ps1` to generate a VS2019 project for building/testing the driver. (the build may fail, but should still generate a `.sln` file)
-
-The solution can be found at `<odbc-root>\build\odbc\build\global_make_list.sln`.
-
-#### with Developer Powershell
-
-Use `./build_win_<config><bitness>.ps1` to build the driver from a Developer Powershell prompt.
-
-> A shortcut is installed on your system with Visual Studio (search for **"Developer Powershell for VS 2019"**)
+> A shortcut is installed on your system with Visual Studio (**"Developer Powershell for VS 2019"**)
 
 > Programs launched with this prompt (ex: VS Code) also have access to the Developer shell.
 
-### Build Output
+> For more information regarding the Developer Powershell: https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-160
+
+### Build
+
+```
+.\build_win_<config><bitness>.ps1
+```
+
+A Visual Studio 2019 solution will also be generated for building/testing the driver with Visual Studio. (Note: if the build fails, the solution will still be generated.)
+
+Solution file: `<odbc-root>\build\odbc\cmake\global_make_list.sln`.
+
+### Output
 
 ```
 build
-└-- <Configuration><Bitness>
-  └-- odbc
-    └-- bin
-      └-- <Configuration>
-    └-- build
-    └-- lib
-  └-- aws-sdk
-    └-- build
-    └-- install
+└-- odbc
+  └-- bin
+    └-- <Configuration>
+  └-- cmake
+  └-- lib
+└-- aws-sdk
+  └-- build
+  └-- install
 ```
 
-* Driver DLL: `.\build\<Config><Bitness>\odbc\bin\<Config>\odfesqlodbc.dll`
-* Test binaries folder: `.\build\<Config><Bitness>\odbc\bin\<Config>`
+* Driver DLL: `.\build\odbc\bin\<Config>\odfesqlodbc.dll`
+* Test binaries folder: `.\build\odbc\bin\<Config>\`
 
 ### Packaging
 
-From a Developer Powershell, run:
+**Note:** If you make changes to the driver code or CMake project files, re-run the `build_windows_<config><bitness>.sh` script before running the following command.
+
 ```
-msbuild .\build\Release<Bitness>\odbc\PACKAGE.vcxproj -p:Configuration=Release
+msbuild .\build\odbc\PACKAGE.vcxproj -p:Configuration=Release
 ```
 
-An installer named as `Open Distro for Elasticsearch SQL ODBC Driver-<version>-Windows-<Bitness>-bit.msi` will be generated in the build directory.
+`Open Distro for Elasticsearch SQL ODBC Driver-<version>-Windows-<Bitness>-bit.msi` will be generated in the build directory.
 
+### Testing
+See [run_tests.md](./run_tests.md)
 
 ## Mac
-(TODO: upgrade build scripts & documentation for Mac)
 
-### Dependencies
+### Requirements
 
-Homebrew must be installed to manage packages, to install homebrew see the [homebrew homepage](https://brew.sh/).
-Using homebrew, install the following packages using the command provided:
->brew install [package]
->
->* curl
->* cmake
->* libiodbc
+[Homebrew](https://brew.sh/) is required for installing the following necessary packages.
+```
+brew install curl
+brew install cmake
+brew install libiodbc
+```
 
-### Building the Driver
+### Build
 
-From a Bash shell:
+```
+./build_mac_<config><bitness>.sh
+```
 
-`./build_mac_<config><bitness>.sh`
+### Output
 
-### Output Location on Mac
+```
+build
+└-- odbc
+  └-- bin
+  └-- lib
+└-- cmake-build64
+  └-- <build files>
+```
 
-Compiling on Mac will output the tests to **bin64** and the driver to **lib64**. There are also some additional test infrastructure files which output to the **lib64** directory.
+* Driver library: `./build/odbc/lib/libodfesqlodbc.dylib`
+* Test binaries folder: `./build/odbc/bin/`
 
 ### Packaging
 
-Run below command from the project's build directory.
->cpack .
+**Note:** If you make changes to the driver code or CMake project files, re-run the `build_mac_<config><bitness>.sh` script before running the following command.
 
-Installer named as `Open Distro for Elasticsearch SQL ODBC Driver-<version>-Darwin.pkg` will be generated in the build directory.
+```
+cd cmake-build64/
+cpack .
+```
+
+`Open Distro for Elasticsearch SQL ODBC Driver-<version>-Darwin.pkg` will be generated in the build directory.
+
+### Testing
+See [run_tests.md](./run_tests.md)
 
 ## General Build Info
 
