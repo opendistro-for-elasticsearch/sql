@@ -33,7 +33,6 @@ public class CsvResponseFormatter extends FlatResponseFormatter {
 
   public CsvResponseFormatter(boolean sanitize) {
     super(",", sanitize);
-    System.out.println("Harold sanitize : " + sanitize);
   }
 
 }

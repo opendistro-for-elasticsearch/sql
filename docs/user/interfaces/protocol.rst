@@ -381,16 +381,4 @@ For example::
 Result set::
 
     '+firstname|'=lastname|address
-    'Hattie|'@Bond|"671 Bristol Street|, Dente, TN"
-
-
-If you prefer escaping the sanitization and keeping the original raw result, you can add a "sanitize" param and set it to false value to skip sanitizing. For example::
-
-	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=raw&sanitize=false -d '{
-	  "query" : "SELECT firstname, lastname, address FROM userdata"
-	}'
-
-Result set::
-
-    +firstname|=lastname|address
-    Hattie|@Bond|671 Bristol Street, Dente, TN
+    'Hattie|@Bond|"671 Bristol Street|, Dente, TN"

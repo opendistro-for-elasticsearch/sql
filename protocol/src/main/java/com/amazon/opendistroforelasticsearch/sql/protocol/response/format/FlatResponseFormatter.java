@@ -41,7 +41,6 @@ public abstract class FlatResponseFormatter implements ResponseFormatter<QueryRe
 
   @Override
   public String format(QueryResult response) {
-    System.out.println("format santizie : " + sanitize);
     FlatResult result = new FlatResult(response, sanitize);
     return result.getFlat();
   }
