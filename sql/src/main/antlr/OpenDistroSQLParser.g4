@@ -311,6 +311,7 @@ convertedDataType
     | typeName=TIME
     | typeName=TIMESTAMP
     | typeName=INT
+    | typeName=INTEGER
     | typeName=DOUBLE
     | typeName=LONG
     | typeName=FLOAT
