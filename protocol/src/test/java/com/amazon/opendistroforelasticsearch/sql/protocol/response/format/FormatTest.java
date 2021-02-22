@@ -49,6 +49,13 @@ public class FormatTest {
   }
 
   @Test
+  void raw() {
+    Optional<Format> format = Format.of("raw");
+    assertTrue(format.isPresent());
+    assertEquals(Format.RAW, format.get());
+  }
+
+  @Test
   void caseSensitive() {
     Optional<Format> format = Format.of("JDBC");
     assertTrue(format.isPresent());
@@ -57,7 +64,7 @@ public class FormatTest {
 
   @Test
   void unsupportedFormat() {
-    Optional<Format> format = Format.of("raw");
+    Optional<Format> format = Format.of("notsupport");
     assertFalse(format.isPresent());
   }
 

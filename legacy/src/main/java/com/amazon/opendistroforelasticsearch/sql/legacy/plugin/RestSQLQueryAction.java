@@ -16,11 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.legacy.plugin;
 
-import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
-import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
-import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
-import static org.elasticsearch.rest.RestStatus.OK;
-
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
@@ -34,13 +29,11 @@ import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.CsvRes
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JdbcResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.RawResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.ResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
-import java.io.IOException;
-import java.security.PrivilegedExceptionAction;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -51,6 +44,15 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
+import java.util.List;
+
+import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
+import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
+import static org.elasticsearch.rest.RestStatus.OK;
 
 /**
  * New SQL REST action handler. This will not be registered to Elasticsearch unless:
@@ -167,6 +169,8 @@ public class RestSQLQueryAction extends BaseRestHandler {
     ResponseFormatter<QueryResult> formatter;
     if (format.equals(Format.CSV)) {
       formatter = new CsvResponseFormatter(request.sanitize());
+    } else if (format.equals(Format.RAW)) {
+      formatter = new RawResponseFormatter();
     } else {
       formatter = new JdbcResponseFormatter(PRETTY);
     }

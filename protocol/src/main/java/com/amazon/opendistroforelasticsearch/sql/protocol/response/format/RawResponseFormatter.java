@@ -26,13 +26,13 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-public class CsvResponseFormatter extends FlatResponseFormatter {
-  public CsvResponseFormatter() {
-    super(",", true);
-  }
-
-  public CsvResponseFormatter(boolean sanitize) {
-    super(",", sanitize);
+/**
+ * Response formatter to format response to csv or raw format.
+ */
+//@RequiredArgsConstructor
+public class RawResponseFormatter extends FlatResponseFormatter {
+  public RawResponseFormatter() {
+    super("|", false);
   }
 
 }
