@@ -64,10 +64,11 @@ public class PPLQueryRequestTest {
 
   @Test
   public void testUnsupportedFormat() {
+    String format = "notsupport";
     PPLQueryRequest request = new PPLQueryRequest(
-        "source=test", null, "/_opendistro/_ppl", "raw");
+            "source=test", null, "/_opendistro/_ppl", format);
     exceptionRule.expect(IllegalArgumentException.class);
-    exceptionRule.expectMessage("response in raw format is not supported.");
+    exceptionRule.expectMessage("response in " + format + " format is not supported.");
     request.format();
   }
 

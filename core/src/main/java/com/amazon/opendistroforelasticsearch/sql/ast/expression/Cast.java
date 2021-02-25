@@ -53,6 +53,7 @@ public class Cast extends UnresolvedExpression {
       new ImmutableMap.Builder<String, FunctionName>()
           .put("string", CAST_TO_STRING.getName())
           .put("int", CAST_TO_INT.getName())
+          .put("integer", CAST_TO_INT.getName())
           .put("long", CAST_TO_LONG.getName())
           .put("float", CAST_TO_FLOAT.getName())
           .put("double", CAST_TO_DOUBLE.getName())

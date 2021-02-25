@@ -281,7 +281,7 @@ CSV Format
 Description
 -----------
 
-You can also use CSV format to download result set as CSV.
+You can also use CSV format to download result set as CSV
 
 Example
 -------
@@ -336,13 +336,14 @@ Result set::
     Hattie,@Bond,671 Bristol Street, Dente, TN
 	
 
-Raw Format
+RAW Format
 ==========
 
 Description
 -----------
 
-Additionally raw format can be used to pipe the result to other command line tool for post processing.
+Additionally raw format can be used to pipe the result to other command line tool for post processing, fields are delimited by pipe
+character '|' vs common charactoer used in CSV format
 
 Example
 -------
@@ -355,9 +356,29 @@ SQL query::
 
 Result set::
 
+	firstname|lastname|age
 	Nanette|Bates|28
 	Amber|Duke|32
 	Dale|Adams|33
 	Hattie|Bond|36
-	
 
+
+The formatter sanitizes the raw result with the following rules:
+
+1. If there exists one or more pipes ('|'), the sanitizer will quote the cell with double quotes.
+
+For example::
+
+    >> curl -H 'Content-Type: application/json' -X PUT localhost:9200/userdata/_doc/1?refresh=true -d '{
+      "+firstname": "-Hattie",
+      "=lastname": "@Bond",
+      "address": "671 Bristol Street|, Dente, TN"
+    }'
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=csv -d '{
+	  "query" : "SELECT firstname, lastname, address FROM userdata"
+	}'
+
+Result set::
+
+    '+firstname|'=lastname|address
+    'Hattie|@Bond|"671 Bristol Street|, Dente, TN"

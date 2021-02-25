@@ -32,10 +32,10 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit test for {@link CsvResponseFormatter}.
+ * Unit test for {@link FlatResponseFormatter}.
  */
-public class CsvResponseFormatterTest {
-  private static final CsvResponseFormatter formatter = new CsvResponseFormatter();
+public class RawResponseFormatterTest {
+  private FlatResponseFormatter rawFormater = new RawResponseFormatter();
 
   @Test
   void formatResponse() {
@@ -45,9 +45,8 @@ public class CsvResponseFormatterTest {
     QueryResult response = new QueryResult(schema, Arrays.asList(
         tupleValue(ImmutableMap.of("name", "John", "age", 20)),
         tupleValue(ImmutableMap.of("name", "Smith", "age", 30))));
-    CsvResponseFormatter formatter = new CsvResponseFormatter();
-    String expected = "name,age\nJohn,20\nSmith,30";
-    assertEquals(expected, formatter.format(response));
+    String expected = "name|age\nJohn|20\nSmith|30";
+    assertEquals(expected, rawFormater.format(response));
   }
 
   @Test
@@ -60,9 +59,9 @@ public class CsvResponseFormatterTest {
     QueryResult response = new QueryResult(schema, Arrays.asList(
         tupleValue(ImmutableMap.of(
             "=firstname", "John", "+lastname", "Smith", "-city", "Seattle", "@age", 20))));
-    String expected = "'=firstname,'+lastname,'-city,'@age\n"
-        + "John,Smith,Seattle,20";
-    assertEquals(expected, formatter.format(response));
+    String expected = "=firstname|+lastname|-city|@age\n"
+        + "John|Smith|Seattle|20";
+    assertEquals(expected, rawFormater.format(response));
   }
 
   @Test
@@ -78,24 +77,24 @@ public class CsvResponseFormatterTest {
         tupleValue(ImmutableMap.of("city", "Seattle="))));
     String expected = "city\n"
         + "Seattle\n"
-        + "'=Seattle\n"
-        + "'+Seattle\n"
-        + "'-Seattle\n"
-        + "'@Seattle\n"
+        + "=Seattle\n"
+        + "+Seattle\n"
+        + "-Seattle\n"
+        + "@Seattle\n"
         + "Seattle=";
-    assertEquals(expected, formatter.format(response));
+    assertEquals(expected, rawFormater.format(response));
   }
 
   @Test
   void quoteIfRequired() {
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-        new ExecutionEngine.Schema.Column("na,me", "na,me", STRING),
-        new ExecutionEngine.Schema.Column(",,age", ",,age", INTEGER)));
+            new ExecutionEngine.Schema.Column("na|me", "na|me", STRING),
+            new ExecutionEngine.Schema.Column("||age", "||age", INTEGER)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
-        tupleValue(ImmutableMap.of("na,me", "John,Smith", ",,age", "30,,,"))));
-    String expected = "\"na,me\",\",,age\"\n"
-        + "\"John,Smith\",\"30,,,\"";
-    assertEquals(expected, formatter.format(response));
+            tupleValue(ImmutableMap.of("na|me", "John|Smith", "||age", "30|||"))));
+    String expected = "\"na|me\"|\"||age\"\n"
+            + "\"John|Smith\"|\"30|||\"";
+    assertEquals(expected, rawFormater.format(response));
   }
 
   @Test
@@ -103,21 +102,48 @@ public class CsvResponseFormatterTest {
     Throwable t = new RuntimeException("This is an exception");
     String expected =
         "{\n  \"type\": \"RuntimeException\",\n  \"reason\": \"This is an exception\"\n}";
-    assertEquals(expected, formatter.format(t));
+    assertEquals(expected, rawFormater.format(t));
   }
 
   @Test
   void escapeSanitize() {
-    CsvResponseFormatter escapeFormatter = new CsvResponseFormatter(false);
+    FlatResponseFormatter escapeFormatter = new RawResponseFormatter();
     ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-        new ExecutionEngine.Schema.Column("city", "city", STRING)));
+            new ExecutionEngine.Schema.Column("city", "city", STRING)));
     QueryResult response = new QueryResult(schema, Arrays.asList(
-        tupleValue(ImmutableMap.of("city", "=Seattle")),
-        tupleValue(ImmutableMap.of("city", ",,Seattle"))));
+            tupleValue(ImmutableMap.of("city", "=Seattle")),
+            tupleValue(ImmutableMap.of("city", "||Seattle"))));
     String expected = "city\n"
-        + "=Seattle\n"
-        + "\",,Seattle\"";
+            + "=Seattle\n"
+            + "\"||Seattle\"";
     assertEquals(expected, escapeFormatter.format(response));
+  }
+
+  @Test
+  void senstiveCharater() {
+    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
+            new ExecutionEngine.Schema.Column("city", "city", STRING)));
+    QueryResult response = new QueryResult(schema, Arrays.asList(
+            tupleValue(ImmutableMap.of("city", "@Seattle")),
+            tupleValue(ImmutableMap.of("city", "++Seattle"))));
+    String expected = "city\n"
+            + "@Seattle\n"
+            + "++Seattle";
+    assertEquals(expected, rawFormater.format(response));
+  }
+
+  @Test
+  void senstiveCharaterWithSanitize() {
+    FlatResponseFormatter testFormater = new RawResponseFormatter();
+    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
+            new ExecutionEngine.Schema.Column("city", "city", STRING)));
+    QueryResult response = new QueryResult(schema, Arrays.asList(
+            tupleValue(ImmutableMap.of("city", "@Seattle")),
+            tupleValue(ImmutableMap.of("city", "++Seattle|||"))));
+    String expected = "city\n"
+            + "@Seattle\n"
+            + "\"++Seattle|||\"";
+    assertEquals(expected, testFormater.format(response));
   }
 
   @Test
@@ -131,11 +157,11 @@ public class CsvResponseFormatterTest {
             ImmutableMap.of("firstname", LITERAL_NULL, "city", stringValue("Seattle"))),
         ExprTupleValue.fromExprValueMap(
             ImmutableMap.of("firstname", stringValue("John"), "city", LITERAL_MISSING))));
-    String expected = "name,city\n"
-        + "John,Seattle\n"
-        + ",Seattle\n"
-        + "John,";
-    assertEquals(expected, formatter.format(response));
+    String expected = "name|city\n"
+        + "John|Seattle\n"
+        + "|Seattle\n"
+        + "John|";
+    assertEquals(expected, rawFormater.format(response));
   }
 
 }

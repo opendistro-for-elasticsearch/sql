@@ -17,45 +17,32 @@
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_CSV_SANITIZE;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_RAW_SANITIZE;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import java.io.IOException;
 import java.util.Locale;
 import org.junit.Test;
 
-public class CsvFormatIT extends SQLIntegTestCase {
+public class RawFormatIT extends SQLIntegTestCase {
 
   @Override
   public void init() throws IOException {
-    loadIndex(Index.BANK_CSV_SANITIZE);
+    loadIndex(Index.BANK_RAW_SANITIZE);
   }
 
   @Test
-  public void sanitizeTest() {
+  public void rawFormatWithPipeFieldTest() {
     String result = executeQuery(
-        String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_CSV_SANITIZE), "csv");
+        String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_RAW_SANITIZE), "raw");
     assertEquals(
-        "firstname,lastname\n"
-            + "'+Amber JOHnny,Duke Willmington+\n"
-            + "'-Hattie,Bond-\n"
-            + "'=Nanette,Bates=\n"
-            + "'@Dale,Adams@\n"
-            + "\",Elinor\",\"Ratliff,,,\"\n",
+        "firstname|lastname\n"
+            + "+Amber JOHnny|Duke Willmington+\n"
+            + "-Hattie|Bond-\n"
+            + "=Nanette|Bates=\n"
+            + "@Dale|Adams@\n"
+            + "@Elinor|\"Ratliff|||\"\n",
         result);
   }
 
-  @Test
-  public void escapeSanitizeTest() {
-    String result = executeQuery(
-        String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s", TEST_INDEX_BANK_CSV_SANITIZE),
-        "csv&sanitize=false");
-    assertEquals(
-        "firstname,lastname\n"
-            + "+Amber JOHnny,Duke Willmington+\n"
-            + "-Hattie,Bond-\n"
-            + "=Nanette,Bates=\n"
-            + "@Dale,Adams@\n"
-            + "\",Elinor\",\"Ratliff,,,\"\n",
-        result);
-  }
 }

@@ -70,6 +70,7 @@ HAVING:                             'HAVING';
 IN:                                 'IN';
 INNER:                              'INNER';
 INT:                                'INT';
+INTEGER:                            'INTEGER';
 IS:                                 'IS';
 JOIN:                               'JOIN';
 LAST:                               'LAST';

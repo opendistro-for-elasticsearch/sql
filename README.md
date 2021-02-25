@@ -18,7 +18,7 @@ The following projects have been merged into this repository as separate folders
 * [SQL CLI](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-cli)
 * [SQL JDBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-jdbc)
 * [SQL ODBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc)
-* [SQL Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench)
+* [Query Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench)
 
 
 ## Documentation
@@ -26,9 +26,9 @@ The following projects have been merged into this repository as separate folders
 Please refer to the [SQL Language Reference Manual](./docs/user/index.rst), [Piped Processing Language (PPL) Reference Manual](./docs/experiment/ppl/index.rst) and [Technical Documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!
 
 
-## Experimental
+## SQL Engine V2
 
-Recently we have been actively improving our query engine primarily for better correctness and extensibility. Behind the scene, the new enhanced engine has already supported the new released Piped Processing Language. However, it was experimental and disabled by default for SQL query processing. With most important features and full testing complete, now we're ready to promote it as our default SQL query engine. Please find more details in [An Introduction to the New SQL Query Engine](/docs/dev/NewSQLEngine.md).
+Recently we have been actively improving our query engine primarily for better correctness and extensibility. Behind the scene, the new enhanced engine has already supported the new released Piped Processing Language. However, it was experimental and disabled by default for SQL query processing. With most important features and full testing complete, now we're ready to promote it as our default SQL query engine. Please find more details in [SQL Engine V2 - Release Notes](/docs/dev/NewSQLEngine.md).
 
 
 ## Setup
