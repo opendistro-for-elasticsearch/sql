@@ -110,7 +110,29 @@ public class ElasticsearchJsonContent implements Content {
 
   @Override
   public Pair<Double, Double> geoValue() {
-    return Pair.of(value().get("lat").doubleValue(), value().get("lon").doubleValue());
+    final JsonNode value = value();
+    if (value.has("lat") && value.has("lon")) {
+      Double lat = 0d;
+      Double lon = 0d;
+      try {
+        lat = extractDoubleValue(value.get("lat"));
+      } catch (Exception exception) {
+        throw new IllegalStateException(
+            "latitude must be number value, but got value: " + value.get(
+                "lat"));
+      }
+      try {
+        lon = extractDoubleValue(value.get("lon"));
+      } catch (Exception exception) {
+        throw new IllegalStateException(
+            "longitude must be number value, but got value: " + value.get(
+                "lon"));
+      }
+      return Pair.of(lat, lon);
+    } else {
+      throw new IllegalStateException("geo point must in format of {\"lat\": number, \"lon\": "
+          + "number}");
+    }
   }
 
   /**
@@ -119,5 +141,19 @@ public class ElasticsearchJsonContent implements Content {
    */
   private JsonNode value() {
     return value.isArray() ? value.get(0) : value;
+  }
+
+  /**
+   * Get doubleValue from JsonNode if possible.
+   */
+  private Double extractDoubleValue(JsonNode node) {
+    if (node.isTextual()) {
+      return Double.valueOf(node.textValue());
+    }
+    if (node.isNumber()) {
+      return node.doubleValue();
+    } else {
+      throw new IllegalStateException("node must be a number");
+    }
   }
 }
