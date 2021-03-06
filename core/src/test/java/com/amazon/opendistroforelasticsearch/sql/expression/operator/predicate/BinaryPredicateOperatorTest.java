@@ -27,14 +27,18 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.missingValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils.matches;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
@@ -49,14 +53,15 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.sun.org.apache.xpath.internal.Arg;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -72,7 +77,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 
 class BinaryPredicateOperatorTest extends ExpressionTestBase {
 
@@ -163,6 +167,45 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     for (List<String> argPair : arguments) {
       builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(1))));
     }
+    return builder.build();
+  }
+
+  private static Stream<Arguments> testBetweenArguments() {
+    List<List> arguments = Arrays.asList(
+        Arrays.asList(1, 0, 2), Arrays.asList(1, 2, 0),
+        Arrays.asList(1L, 1L, 2L), Arrays.asList(2L, 1L, 2L),
+        Arrays.asList(3F, 1F, 2F), Arrays.asList(0F, 1F, 2F),
+        Arrays.asList(1D, 1D, 1D), Arrays.asList(1D, 2D, 2D),
+        Arrays.asList("b", "a", "c"), Arrays.asList("b", "c", "a"),
+        Arrays.asList("a", "a", "b"), Arrays.asList("b", "a", "b"),
+        Arrays.asList("c", "a", "b"), Arrays.asList("a", "b", "c"),
+        Arrays.asList("a", "a", "a"), Arrays.asList("b", "a", "a"));
+    Stream.Builder<Arguments> builder = Stream.builder();
+    for (List<Object> argGroup: arguments) {
+      builder.add(Arguments.of(fromObjectValue(argGroup.get(0)), fromObjectValue(argGroup.get(1)),
+          fromObjectValue(argGroup.get(2))));
+    }
+    builder
+        .add(Arguments.of(fromObjectValue("2021-01-02", DATE),
+            fromObjectValue("2021-01-01", DATE), fromObjectValue("2021-01-03", DATE)))
+        .add(Arguments.of(fromObjectValue("2021-01-02", DATE),
+            fromObjectValue("2021-01-03", DATE), fromObjectValue("2021-01-01", DATE)))
+        .add(Arguments.of(fromObjectValue("01:00:00", TIME),
+            fromObjectValue("01:00:00", TIME), fromObjectValue("02:00:00", TIME)))
+        .add(Arguments.of(fromObjectValue("02:00:00", TIME),
+            fromObjectValue("01:00:00", TIME), fromObjectValue("02:00:00", TIME)))
+        .add(Arguments.of(fromObjectValue("2021-01-01 03:00:00", DATETIME),
+            fromObjectValue("2021-01-01 01:00:00", DATETIME),
+            fromObjectValue("2021-01-01 02:00:00", DATETIME)))
+        .add(Arguments.of(fromObjectValue("2021-01-01 00:00:00", DATETIME),
+            fromObjectValue("2021-01-01 01:00:00", DATETIME),
+            fromObjectValue("2021-01-01 02:00:00", DATETIME)))
+        .add(Arguments.of(fromObjectValue("2021-01-01 01:00:00", TIMESTAMP),
+            fromObjectValue("2021-01-01 01:00:00", TIMESTAMP),
+            fromObjectValue("2021-01-01 01:00:00", TIMESTAMP)))
+        .add(Arguments.of(fromObjectValue("2021-01-01 00:00:00", TIMESTAMP),
+            fromObjectValue("2021-01-01 01:00:00", TIMESTAMP),
+            fromObjectValue("2021-01-01 01:00:00", TIMESTAMP)));
     return builder.build();
   }
 
@@ -831,5 +874,36 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void compare_int_long() {
     FunctionExpression equal = dsl.equal(DSL.literal(1), DSL.literal(1L));
     assertTrue(equal.valueOf(valueEnv()).booleanValue());
+  }
+
+  @ParameterizedTest(name = "and({0}, {1})")
+  @MethodSource("testBetweenArguments")
+  public void between(ExprValue value, ExprValue minValue, ExprValue maxValue) {
+    FunctionExpression between = dsl.between(
+        DSL.literal(value), DSL.literal(minValue), DSL.literal(maxValue));
+    assertEquals(INTEGER, between.type());
+    assertEquals(OperatorUtils.between(value, minValue, maxValue), between.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void between_different_types() {
+    FunctionExpression between = dsl.between(
+        DSL.literal(1), DSL.literal(1), DSL.literal("1"));
+    assertThrows(ExpressionEvaluationException.class, () -> between.valueOf(valueEnv()));
+  }
+
+  @Test
+  public void between_null_missing() {
+    FunctionExpression between = dsl.between(
+        DSL.literal(1), DSL.literal(0), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertTrue(between.valueOf(valueEnv()).isNull());
+
+    between = dsl.between(
+        DSL.literal(1), DSL.literal(0), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertTrue(between.valueOf(valueEnv()).isMissing());
+
+    between = dsl.between(DSL.literal(1),
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertTrue(between.valueOf(valueEnv()).isMissing());
   }
 }

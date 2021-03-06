@@ -20,8 +20,13 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -63,6 +68,7 @@ public class BinaryPredicateOperator {
     repository.register(like());
     repository.register(notLike());
     repository.register(regexp());
+    repository.register(between());
   }
 
   /**
@@ -260,6 +266,22 @@ public class BinaryPredicateOperator {
             BOOLEAN,
             STRING,
             STRING));
+  }
+
+  private static FunctionResolver between() {
+    return FunctionDSL.define(BuiltinFunctionName.BETWEEN.getName(),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
+            INTEGER, DOUBLE, DOUBLE, DOUBLE),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
+            INTEGER, STRING, STRING, STRING),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
+            INTEGER, DATE, DATE, DATE),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
+            INTEGER, DATETIME, DATETIME, DATETIME),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
+            INTEGER, TIME, TIME, TIME),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
+            INTEGER, TIMESTAMP, TIMESTAMP, TIMESTAMP));
   }
 
   private static ExprValue lookupTableFunction(ExprValue arg1, ExprValue arg2,

@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.between;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
@@ -237,6 +238,14 @@ class AstExpressionBuilderTest {
     assertEquals(
         function("regexp", stringLiteral("str"), stringLiteral(".*")),
         buildExprAst("'str' regexp '.*'")
+    );
+  }
+
+  @Test
+  public void canBuildBetweenPredicate() {
+    assertEquals(
+        between(intLiteral(1), intLiteral(0), intLiteral(2)),
+        buildExprAst("1 between 0 and 2")
     );
   }
 

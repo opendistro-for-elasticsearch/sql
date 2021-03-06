@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static java.util.Collections.emptyList;
@@ -89,6 +90,16 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         dsl.not(DSL.ref("boolean_value", BOOLEAN)),
         AstDSL.not(AstDSL.unresolvedAttr("boolean_value"))
+    );
+  }
+
+  @Test
+  public void between() {
+    assertAnalyzeEqual(
+        dsl.between(DSL.ref("integer_value", INTEGER), DSL.ref("float_value", FLOAT),
+            DSL.literal(1)),
+        AstDSL.between(AstDSL.unresolvedAttr("integer_value"), AstDSL.unresolvedAttr("float_value"),
+            AstDSL.intLiteral(1))
     );
   }
 

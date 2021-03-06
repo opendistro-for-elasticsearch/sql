@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.BETWEEN;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
@@ -58,6 +59,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Between;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
@@ -231,6 +233,11 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   public UnresolvedExpression visitRegexpPredicate(RegexpPredicateContext ctx) {
     return new Function(REGEXP.getName().getFunctionName(),
             Arrays.asList(visit(ctx.left), visit(ctx.right)));
+  }
+
+  @Override
+  public UnresolvedExpression visitBetweenPredicate(OpenDistroSQLParser.BetweenPredicateContext ctx) {
+    return new Between(visit(ctx.expr), visit(ctx.min), visit(ctx.max));
   }
 
   @Override
