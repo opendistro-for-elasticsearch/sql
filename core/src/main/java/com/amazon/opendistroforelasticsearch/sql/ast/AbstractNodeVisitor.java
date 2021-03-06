@@ -21,7 +21,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AttributeList;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Between;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -141,10 +140,6 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitXor(Xor node, C context) {
-    return visitChildren(node, context);
-  }
-
-  public T visitBetween(Between node, C context) {
     return visitChildren(node, context);
   }
 

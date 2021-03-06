@@ -876,7 +876,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     assertTrue(equal.valueOf(valueEnv()).booleanValue());
   }
 
-  @ParameterizedTest(name = "and({0}, {1})")
+  @ParameterizedTest(name = "between({0}, {1}, {2})")
   @MethodSource("testBetweenArguments")
   public void between(ExprValue value, ExprValue minValue, ExprValue maxValue) {
     FunctionExpression between = dsl.between(
@@ -885,11 +885,21 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     assertEquals(OperatorUtils.between(value, minValue, maxValue), between.valueOf(valueEnv()));
   }
 
+  @ParameterizedTest(name = "not between({0}, {1}, {2})")
+  @MethodSource("testBetweenArguments")
+  public void not_between(ExprValue value, ExprValue minValue, ExprValue maxValue) {
+    FunctionExpression notBetween = dsl.not_between(
+        DSL.literal(value), DSL.literal(minValue), DSL.literal(maxValue));
+    assertEquals(INTEGER, notBetween.type());
+    assertEquals(new ExprIntegerValue(
+        Math.abs(1 - OperatorUtils.between(value, minValue, maxValue).integerValue())),
+        notBetween.valueOf(valueEnv()));
+  }
+
   @Test
   public void between_different_types() {
-    FunctionExpression between = dsl.between(
-        DSL.literal(1), DSL.literal(1), DSL.literal("1"));
-    assertThrows(ExpressionEvaluationException.class, () -> between.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class, () ->
+        dsl.between(DSL.literal(1), DSL.literal(1), DSL.literal("1")));
   }
 
   @Test
@@ -902,8 +912,8 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         DSL.literal(1), DSL.literal(0), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
     assertTrue(between.valueOf(valueEnv()).isMissing());
 
-    between = dsl.between(DSL.literal(1),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    between = dsl.between(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
     assertTrue(between.valueOf(valueEnv()).isMissing());
   }
 }

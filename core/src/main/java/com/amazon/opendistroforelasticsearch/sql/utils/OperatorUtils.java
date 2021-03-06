@@ -104,23 +104,40 @@ public class OperatorUtils {
   }
 
   /**
-   * Between operator util to judge if min <= expr <= max.
+   * BETWEEN ... AND ... operator util.
+   * Expression { expr BETWEEN min AND max } is to judge if min <= expr <= max.
    */
   public static ExprIntegerValue between(ExprValue expr, ExprValue min, ExprValue max) {
-    boolean isBetween;
-    if (expr instanceof AbstractExprNumberValue) {
-      isBetween = ((AbstractExprNumberValue) expr).compare(min) >= 0
-          && ((AbstractExprNumberValue) expr).compare(max) <= 0;
-    } else if (expr instanceof ExprStringValue) {
-      isBetween = ((ExprStringValue) expr).compare(min) >= 0
-          && ((ExprStringValue) expr).compare(max) <= 0;
-    } else {
-      isBetween = expr.compareTo(min) >= 0 && expr.compareTo(max) <= 0;
-    }
-    if (isBetween) {
+    if (isBetween(expr, min, max)) {
       return new ExprIntegerValue(1);
     } else {
       return new ExprIntegerValue(0);
     }
   }
+
+  /**
+   * NOT BETWEEN ... AND ... operator util.
+   * { expr NOT BETWEEN min AND max } is equivalent to { NOT (expr BETWEEN min AND max) }.
+   */
+  public static ExprIntegerValue not_between(ExprValue expr, ExprValue min, ExprValue max) {
+    if (isBetween(expr, min, max)) {
+      return new ExprIntegerValue(0);
+    } else {
+      return new ExprIntegerValue(1);
+    }
+  }
+
+  private static boolean isBetween(ExprValue expr, ExprValue min, ExprValue max) {
+    if (expr instanceof AbstractExprNumberValue) {
+      return  ((AbstractExprNumberValue) expr).compare(min) >= 0
+          && ((AbstractExprNumberValue) expr).compare(max) <= 0;
+    } else if (expr instanceof ExprStringValue) {
+      return ((ExprStringValue) expr).compare(min) >= 0
+          && ((ExprStringValue) expr).compare(max) <= 0;
+    } else {
+      return expr.compareTo(min) >= 0 && expr.compareTo(max) <= 0;
+    }
+  }
 }
+
+

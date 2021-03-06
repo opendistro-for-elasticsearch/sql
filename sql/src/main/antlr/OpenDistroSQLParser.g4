@@ -260,7 +260,7 @@ predicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate NOT? LIKE right=predicate                      #likePredicate
     | left=predicate REGEXP right=predicate                         #regexpPredicate
-    | expr=predicate BETWEEN min=predicate AND max=predicate        #betweenPredicate
+    | expr=predicate NOT? BETWEEN min=predicate AND max=predicate   #betweenPredicate
     ;
 
 expressionAtom

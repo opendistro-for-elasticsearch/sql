@@ -94,16 +94,6 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void between() {
-    assertAnalyzeEqual(
-        dsl.between(DSL.ref("integer_value", INTEGER), DSL.ref("float_value", FLOAT),
-            DSL.literal(1)),
-        AstDSL.between(AstDSL.unresolvedAttr("integer_value"), AstDSL.unresolvedAttr("float_value"),
-            AstDSL.intLiteral(1))
-    );
-  }
-
-  @Test
   public void qualified_name() {
     assertAnalyzeEqual(
         DSL.ref("integer_value", INTEGER),

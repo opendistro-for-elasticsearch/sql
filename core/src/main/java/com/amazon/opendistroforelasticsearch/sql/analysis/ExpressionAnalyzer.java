@@ -21,7 +21,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Between;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -53,7 +52,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunc
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,14 +140,6 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   @Override
   public Expression visitNot(Not node, AnalysisContext context) {
     return dsl.not(node.getExpression().accept(this, context));
-  }
-
-  @Override
-  public Expression visitBetween(Between node, AnalysisContext context) {
-    Expression expr = node.getExpr().accept(this, context);
-    Expression min = node.getMin().accept(this, context);
-    Expression max = node.getMax().accept(this, context);
-    return dsl.between(expr, min, max);
   }
 
   @Override

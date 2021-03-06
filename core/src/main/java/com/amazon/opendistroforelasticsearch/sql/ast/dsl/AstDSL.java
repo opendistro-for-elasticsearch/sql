@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Between;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -262,11 +261,6 @@ public class AstDSL {
   public static UnresolvedExpression in(
       UnresolvedExpression field, UnresolvedExpression... valueList) {
     return new In(field, Arrays.asList(valueList));
-  }
-
-  public static UnresolvedExpression between(
-      UnresolvedExpression value, UnresolvedExpression min, UnresolvedExpression max) {
-    return new Between(value, min, max);
   }
 
   public static UnresolvedExpression compare(

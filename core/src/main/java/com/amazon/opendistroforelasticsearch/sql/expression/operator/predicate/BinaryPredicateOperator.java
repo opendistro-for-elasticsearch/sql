@@ -69,6 +69,7 @@ public class BinaryPredicateOperator {
     repository.register(notLike());
     repository.register(regexp());
     repository.register(between());
+    repository.register(not_between());
   }
 
   /**
@@ -281,6 +282,22 @@ public class BinaryPredicateOperator {
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
             INTEGER, TIME, TIME, TIME),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
+            INTEGER, TIMESTAMP, TIMESTAMP, TIMESTAMP));
+  }
+
+  private static FunctionResolver not_between() {
+    return FunctionDSL.define(BuiltinFunctionName.NOT_BETWEEN.getName(),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
+            INTEGER, DOUBLE, DOUBLE, DOUBLE),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
+            INTEGER, STRING, STRING, STRING),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
+            INTEGER, DATE, DATE, DATE),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
+            INTEGER, DATETIME, DATETIME, DATETIME),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
+            INTEGER, TIME, TIME, TIME),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
             INTEGER, TIMESTAMP, TIMESTAMP, TIMESTAMP));
   }
 

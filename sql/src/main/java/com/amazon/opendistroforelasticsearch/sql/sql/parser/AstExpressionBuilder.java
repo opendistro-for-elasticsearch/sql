@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Buil
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_BETWEEN;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.REGEXP;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
@@ -59,7 +60,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Between;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
@@ -237,7 +237,10 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitBetweenPredicate(OpenDistroSQLParser.BetweenPredicateContext ctx) {
-    return new Between(visit(ctx.expr), visit(ctx.min), visit(ctx.max));
+    return new Function(
+        ctx.NOT() == null ? BETWEEN.getName().getFunctionName() :
+            NOT_BETWEEN.getName().getFunctionName(),
+        Arrays.asList(visit(ctx.expr), visit(ctx.min), visit(ctx.max)));
   }
 
   @Override
