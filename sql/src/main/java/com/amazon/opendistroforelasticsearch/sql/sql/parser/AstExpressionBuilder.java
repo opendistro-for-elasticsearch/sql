@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Buil
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_BETWEEN;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.REGEXP;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BetweenPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CaseFuncAlternativeContext;
@@ -236,7 +237,7 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   }
 
   @Override
-  public UnresolvedExpression visitBetweenPredicate(OpenDistroSQLParser.BetweenPredicateContext ctx) {
+  public UnresolvedExpression visitBetweenPredicate(BetweenPredicateContext ctx) {
     return new Function(
         ctx.NOT() == null ? BETWEEN.getName().getFunctionName() :
             NOT_BETWEEN.getName().getFunctionName(),

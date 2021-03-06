@@ -130,6 +130,8 @@ Operators
 +----------------+----------------------------------------+
 | REGEXP         | String matches regular expression test |
 +----------------+----------------------------------------+
+| BETWEEN AND    | In the range of two values             |
++----------------+----------------------------------------+
 
 
 Basic Comparison Operator
@@ -184,6 +186,21 @@ expr REGEXP pattern. The expr is string value, pattern is supports regular expre
     |------------------------+------------------|
     | 1                      | 0                |
     +------------------------+------------------+
+
+
+BETWEEN AND
+-----------
+
+expr BETWEEN min AND max. This operator is to judge if expr is in the range from min to max (min <= expr <= max), and returns 1 for true, 0 for false. expr NOT BETWEEN min AND max is the equivalent to NOT expr BETWEEN min AND max. The three expressions expr, min and max should be consistent in their types for value comparisons, or expression evaluation exception would be thrown. The supported types in this operator include number, string, and date and time related types. Implicit casting is not supported yet, so you would need to explicitly specifies the types of compared values. Here follow some examples::
+
+    od> SELECT 1 BETWEEN 0 AND 2 AS res1, '1' BETWEEN '2' AND '0' AS res2, date('2021-03-05') BETWEEN date('2021-03-05') AND date('2021-03-05') AS res3;
+    fetched rows / total rows = 1/1
+    +--------+--------+--------+
+    | res1   | res2   | res3   |
+    |--------+--------+--------|
+    | 1      | 0      | 1      |
+    +--------+--------+--------+
+
 
 Function Call
 =============
