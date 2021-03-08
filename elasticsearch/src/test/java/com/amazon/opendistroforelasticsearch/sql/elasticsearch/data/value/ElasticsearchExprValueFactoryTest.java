@@ -284,7 +284,40 @@ class ElasticsearchExprValueFactoryTest {
     assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
         tupleValue("{\"geoV\":{\"lat\":42.60355556,\"lon\":-97.25263889}}").get("geoV"));
     assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
+        tupleValue("{\"geoV\":{\"lat\":\"42.60355556\",\"lon\":\"-97.25263889\"}}").get("geoV"));
+    assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
         constructFromObject("geoV", "42.60355556,-97.25263889"));
+  }
+
+  @Test
+  public void constructGeoPointFromUnsupportedFormatShouldThrowException() {
+    IllegalStateException exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":[42.60355556,-97.25263889]}").get("geoV"));
+    assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
+        exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":{\"lon\":-97.25263889}}").get("geoV"));
+    assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
+        exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":{\"lat\":-97.25263889}}").get("geoV"));
+    assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
+        exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":{\"lat\":true,\"lon\":-97.25263889}}").get("geoV"));
+    assertEquals("latitude must be number value, but got value: true", exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":{\"lat\":42.60355556,\"lon\":false}}").get("geoV"));
+    assertEquals("longitude must be number value, but got value: false", exception.getMessage());
   }
 
   @Test
@@ -298,7 +331,7 @@ class ElasticsearchExprValueFactoryTest {
    * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html.
    */
   @Test
-  public void constructFromElasticsearcyArrayReturnFirstElement() {
+  public void constructFromElasticsearchArrayReturnFirstElement() {
     assertEquals(integerValue(1), tupleValue("{\"intV\":[1, 2, 3]}").get("intV"));
     assertEquals(new ExprTupleValue(
         new LinkedHashMap<String, ExprValue>() {
