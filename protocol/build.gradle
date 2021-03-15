@@ -12,7 +12,8 @@ dependencies {
     // https://github.com/google/guava/wiki/CVE-2018-10237
     compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.5' 
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.5.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.4'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: '2.11.4'
     implementation 'com.google.code.gson:gson:2.8.6'
     compile project(':core')
     compile project(':elasticsearch')
