@@ -54,11 +54,29 @@ public class SQLQueryRequestTest {
   }
 
   @Test
+  public void shouldSupportQueryWithParameters() {
+    SQLQueryRequest request =
+        SQLQueryRequestBuilder.request("SELECT 1")
+            .jsonContent("{\"query\": \"SELECT 1\", \"parameters\":[]}")
+            .build();
+    assertTrue(request.isSupported());
+  }
+
+  @Test
   public void shouldSupportQueryWithZeroFetchSize() {
     SQLQueryRequest request =
         SQLQueryRequestBuilder.request("SELECT 1")
                               .jsonContent("{\"query\": \"SELECT 1\", \"fetch_size\": 0}")
                               .build();
+    assertTrue(request.isSupported());
+  }
+
+  @Test
+  public void shouldSupportQueryWithParametersAndZeroFetchSize() {
+    SQLQueryRequest request =
+        SQLQueryRequestBuilder.request("SELECT 1")
+            .jsonContent("{\"query\": \"SELECT 1\", \"fetch_size\": 0, \"parameters\":[]}")
+            .build();
     assertTrue(request.isSupported());
   }
 
