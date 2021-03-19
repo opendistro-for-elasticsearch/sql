@@ -88,12 +88,10 @@ public class SQLQueryRequest {
   }
 
   /**
-   * Pre-check if the request can be supported by meeting the following criteria:
-   *  1.Only supported fields present in request body
-   *  2.No fetch_size or "fetch_size=0" in payload. In other word, it's not a cursor request with
-   *     either non-zero "fetch_size" or "cursor" field,
-   *    or request with extra field such as "filter".
-   *  3.Response format expected is default JDBC format.
+   * Pre-check if the request can be supported by meeting ALL the following criteria:
+   *  1.Only supported fields present in request body, ex. "filter" and "cursor" are not supported
+   *  2.No fetch_size or "fetch_size=0". In other word, it's not a cursor request
+   *  3.Response format is default or can be supported.
    *
    * @return  true if supported.
    */
