@@ -260,7 +260,11 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitIntegerLiteral(IntegerLiteralContext ctx) {
-    return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
+    long number = Long.parseLong(ctx.getText());
+    if (Integer.MIN_VALUE <= number && number <= Integer.MAX_VALUE) {
+      return new Literal((int) number, DataType.INTEGER);
+    }
+    return new Literal(number, DataType.LONG);
   }
 
   @Override
