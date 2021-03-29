@@ -255,7 +255,11 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitSignedDecimal(SignedDecimalContext ctx) {
-    return AstDSL.intLiteral(Integer.valueOf(ctx.getText()));
+    long number = Long.parseLong(ctx.getText());
+    if (Integer.MIN_VALUE <= number && number <= Integer.MAX_VALUE) {
+      return AstDSL.intLiteral((int) number);
+    }
+    return AstDSL.longLiteral(number);
   }
 
   @Override
