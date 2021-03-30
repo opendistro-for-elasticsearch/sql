@@ -272,33 +272,33 @@ public class BinaryPredicateOperator {
   private static FunctionResolver between() {
     return FunctionDSL.define(BuiltinFunctionName.BETWEEN.getName(),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
-            INTEGER, DOUBLE, DOUBLE, DOUBLE),
+            BOOLEAN, DOUBLE, DOUBLE, DOUBLE),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
-            INTEGER, STRING, STRING, STRING),
+            BOOLEAN, STRING, STRING, STRING),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
-            INTEGER, DATE, DATE, DATE),
+            BOOLEAN, DATE, DATE, DATE),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
-            INTEGER, DATETIME, DATETIME, DATETIME),
+            BOOLEAN, DATETIME, DATETIME, DATETIME),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
-            INTEGER, TIME, TIME, TIME),
+            BOOLEAN, TIME, TIME, TIME),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::between),
-            INTEGER, TIMESTAMP, TIMESTAMP, TIMESTAMP));
+            BOOLEAN, TIMESTAMP, TIMESTAMP, TIMESTAMP));
   }
 
   private static FunctionResolver not_between() {
     return FunctionDSL.define(BuiltinFunctionName.NOT_BETWEEN.getName(),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
-            INTEGER, DOUBLE, DOUBLE, DOUBLE),
+            BOOLEAN, DOUBLE, DOUBLE, DOUBLE),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
-            INTEGER, STRING, STRING, STRING),
+            BOOLEAN, STRING, STRING, STRING),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
-            INTEGER, DATE, DATE, DATE),
+            BOOLEAN, DATE, DATE, DATE),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
-            INTEGER, DATETIME, DATETIME, DATETIME),
+            BOOLEAN, DATETIME, DATETIME, DATETIME),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
-            INTEGER, TIME, TIME, TIME),
+            BOOLEAN, TIME, TIME, TIME),
         FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::not_between),
-            INTEGER, TIMESTAMP, TIMESTAMP, TIMESTAMP));
+            BOOLEAN, TIMESTAMP, TIMESTAMP, TIMESTAMP));
   }
 
   private static ExprValue lookupTableFunction(ExprValue arg1, ExprValue arg2,

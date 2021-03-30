@@ -107,24 +107,16 @@ public class OperatorUtils {
    * BETWEEN ... AND ... operator util.
    * Expression { expr BETWEEN min AND max } is to judge if min <= expr <= max.
    */
-  public static ExprIntegerValue between(ExprValue expr, ExprValue min, ExprValue max) {
-    if (isBetween(expr, min, max)) {
-      return new ExprIntegerValue(1);
-    } else {
-      return new ExprIntegerValue(0);
-    }
+  public static ExprBooleanValue between(ExprValue expr, ExprValue min, ExprValue max) {
+    return ExprBooleanValue.of(isBetween(expr, min, max));
   }
 
   /**
    * NOT BETWEEN ... AND ... operator util.
    * { expr NOT BETWEEN min AND max } is equivalent to { NOT (expr BETWEEN min AND max) }.
    */
-  public static ExprIntegerValue not_between(ExprValue expr, ExprValue min, ExprValue max) {
-    if (isBetween(expr, min, max)) {
-      return new ExprIntegerValue(0);
-    } else {
-      return new ExprIntegerValue(1);
-    }
+  public static ExprBooleanValue not_between(ExprValue expr, ExprValue min, ExprValue max) {
+    return ExprBooleanValue.of(!isBetween(expr, min, max));
   }
 
   private static boolean isBetween(ExprValue expr, ExprValue min, ExprValue max) {
