@@ -111,14 +111,6 @@ public class OperatorUtils {
     return ExprBooleanValue.of(isBetween(expr, min, max));
   }
 
-  /**
-   * NOT BETWEEN ... AND ... operator util.
-   * { expr NOT BETWEEN min AND max } is equivalent to { NOT (expr BETWEEN min AND max) }.
-   */
-  public static ExprBooleanValue not_between(ExprValue expr, ExprValue min, ExprValue max) {
-    return ExprBooleanValue.of(!isBetween(expr, min, max));
-  }
-
   private static boolean isBetween(ExprValue expr, ExprValue min, ExprValue max) {
     if (expr instanceof AbstractExprNumberValue) {
       return  ((AbstractExprNumberValue) expr).compare(min) >= 0

@@ -20,8 +20,10 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.I
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import java.util.List;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -38,7 +40,10 @@ class LuceneQueryTest {
   @Test
   void should_throw_exception_if_not_implemented() {
     assertThrows(UnsupportedOperationException.class, () ->
-        new LuceneQuery(){}.doBuild(null, null, null));
+        new LuceneQuery(){}.doBuild(null, null, (ExprValue) null));
+
+    assertThrows(UnsupportedOperationException.class, () ->
+        new LuceneQuery(){}.doBuild(null, null, (List<ExprValue>) null));
   }
 
 }

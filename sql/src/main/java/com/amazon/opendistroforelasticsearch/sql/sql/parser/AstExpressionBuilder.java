@@ -22,7 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Buil
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
-import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_BETWEEN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.REGEXP;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BetweenPredicateContext;
@@ -238,10 +238,10 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitBetweenPredicate(BetweenPredicateContext ctx) {
-    return new Function(
-        ctx.NOT() == null ? BETWEEN.getName().getFunctionName() :
-            NOT_BETWEEN.getName().getFunctionName(),
+    Function between = new Function(BETWEEN.getName().getFunctionName(),
         Arrays.asList(visit(ctx.expr), visit(ctx.min), visit(ctx.max)));
+    return ctx.NOT() == null ? between :
+        new Function(NOT.getName().getFunctionName(), Collections.singletonList(between));
   }
 
   @Override

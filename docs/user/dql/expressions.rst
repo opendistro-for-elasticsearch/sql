@@ -195,11 +195,11 @@ expr BETWEEN min AND max. This operator is to judge if expr is in the range from
 
     od> SELECT 1 BETWEEN 0 AND 2 AS res1, '1' BETWEEN '2' AND '0' AS res2, date('2021-03-05') BETWEEN date('2021-03-05') AND date('2021-03-05') AS res3;
     fetched rows / total rows = 1/1
-    +-----------+------------+-----------+
-    | res1      | res2       | res3      |
-    |-----------+------------+-----------|
-    | true      | false      | true      |
-    +-----------+------------+-----------+
+    +--------+--------+--------+
+    | res1   | res2   | res3   |
+    |--------+--------+--------|
+    | True   | False  | True   |
+    +--------+--------+--------+
 
 
 Function Call

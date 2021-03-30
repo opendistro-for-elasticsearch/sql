@@ -23,6 +23,8 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.elasticsearch.index.query.QueryBuilder;
 
 /**
@@ -40,7 +42,7 @@ public abstract class LuceneQuery {
    * @return        return true if supported, otherwise false.
    */
   public boolean canSupport(FunctionExpression func) {
-    return (func.getArguments().size() == 2)
+    return (func.getArguments().size() >= 2)
         && (func.getArguments().get(0) instanceof ReferenceExpression)
         && (func.getArguments().get(1) instanceof LiteralExpression);
   }
@@ -53,8 +55,14 @@ public abstract class LuceneQuery {
    */
   public QueryBuilder build(FunctionExpression func) {
     ReferenceExpression ref = (ReferenceExpression) func.getArguments().get(0);
-    LiteralExpression literal = (LiteralExpression) func.getArguments().get(1);
-    return doBuild(ref.getAttr(), ref.type(), literal.valueOf(null));
+    if (func.getArguments().size() > 2) {
+      List<ExprValue> literalList = func.getArguments().stream().skip(1)
+          .map(v -> v.valueOf(null)).collect(Collectors.toList());
+      return doBuild(ref.getAttr(), ref.type(), literalList);
+    } else {
+      LiteralExpression literal = (LiteralExpression) func.getArguments().get(1);
+      return doBuild(ref.getAttr(), ref.type(), literal.valueOf(null));
+    }
   }
 
   /**
@@ -67,6 +75,11 @@ public abstract class LuceneQuery {
    * @return            query
    */
   protected QueryBuilder doBuild(String fieldName, ExprType fieldType, ExprValue literal) {
+    throw new UnsupportedOperationException(
+        "Subclass doesn't implement this and build method either");
+  }
+
+  protected QueryBuilder doBuild(String fieldName, ExprType fieldType, List<ExprValue> literals) {
     throw new UnsupportedOperationException(
         "Subclass doesn't implement this and build method either");
   }

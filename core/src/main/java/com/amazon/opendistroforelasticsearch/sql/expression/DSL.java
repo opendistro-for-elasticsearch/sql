@@ -466,7 +466,7 @@ public class DSL {
   }
 
   public FunctionExpression not_between(Expression... expressions) {
-    return function(BuiltinFunctionName.NOT_BETWEEN, expressions);
+    return not(between(expressions));
   }
 
   public Aggregator avg(Expression... expressions) {

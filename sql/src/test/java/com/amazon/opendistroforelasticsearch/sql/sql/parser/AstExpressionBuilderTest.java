@@ -251,7 +251,7 @@ class AstExpressionBuilderTest {
   @Test
   public void canBuildNotBetweenPredicate() {
     assertEquals(
-        function("not_between", intLiteral(1), intLiteral(0), intLiteral(2)),
+        function("not", function("between", intLiteral(1), intLiteral(0), intLiteral(2))),
         buildExprAst("1 not between 0 and 2")
     );
   }

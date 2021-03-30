@@ -107,7 +107,6 @@ public enum BuiltinFunctionName {
   LIKE(FunctionName.of("like")),
   NOT_LIKE(FunctionName.of("not like")),
   BETWEEN(FunctionName.of("between")),
-  NOT_BETWEEN(FunctionName.of("not_between")),
 
   /**
    * Aggregation Function.

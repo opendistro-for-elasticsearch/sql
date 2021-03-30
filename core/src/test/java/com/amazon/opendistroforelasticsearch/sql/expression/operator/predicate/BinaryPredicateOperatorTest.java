@@ -891,8 +891,8 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression notBetween = dsl.not_between(
         DSL.literal(value), DSL.literal(minValue), DSL.literal(maxValue));
     assertEquals(BOOLEAN, notBetween.type());
-    assertEquals(
-        OperatorUtils.not_between(value, minValue, maxValue), notBetween.valueOf(valueEnv()));
+    assertEquals(!OperatorUtils.between(value, minValue, maxValue).booleanValue(),
+        notBetween.valueOf(valueEnv()).booleanValue());
   }
 
   @Test

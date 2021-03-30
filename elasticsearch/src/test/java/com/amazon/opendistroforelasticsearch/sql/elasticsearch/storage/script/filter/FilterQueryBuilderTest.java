@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -97,6 +98,45 @@ class FilterQueryBuilderTest {
                 + "  }\n"
                 + "}",
             buildQuery(expr)));
+  }
+
+  @Test
+  void should_build_range_query_for_between_operator() {
+    assertJsonEquals(
+        "{\n"
+            + "  \"range\" : {\n"
+            + "    \"age\" : {\n"
+            + "      \"from\" : 20,\n"
+            + "      \"to\" : 30,\n"
+            + "      \"include_lower\" : true,\n"
+            + "      \"include_upper\" : true,\n"
+            + "      \"boost\" : 1.0\n"
+            + "    }\n"
+            + "  }\n"
+            + "}",
+        buildQuery(dsl.between(ref("age", INTEGER), literal(20), literal(30))));
+
+    assertJsonEquals(
+        "{\n"
+            + "  \"bool\" : {\n"
+            + "    \"must_not\" : [\n"
+            + "      {\n"
+            + "        \"range\" : {\n"
+            + "          \"age\" : {\n"
+            + "            \"from\" : 20,\n"
+            + "            \"to\" : 30,\n"
+            + "            \"include_lower\" : true,\n"
+            + "            \"include_upper\" : true,\n"
+            + "            \"boost\" : 1.0\n"
+            + "          }\n"
+            + "        }\n"
+            + "      }\n"
+            + "    ],\n"
+            + "    \"adjust_pure_negative\" : true,\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}",
+        buildQuery(dsl.not_between(ref("age", INTEGER), literal(20), literal(30))));
   }
 
   @Test
@@ -271,7 +311,8 @@ class FilterQueryBuilderTest {
   }
 
   private String buildQuery(Expression expr) {
-    return filterQueryBuilder.build(expr).toString();
+    QueryBuilder builder = filterQueryBuilder.build(expr);
+    return builder.toString();
   }
 
   private void mockToStringSerializer() {
