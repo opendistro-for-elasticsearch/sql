@@ -430,26 +430,40 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
 
   @Test
   public void testIntegerLiteralExpr() {
-    assertEqual("source=t a=1",
+    assertEqual("source=t a=1 b=-1",
         filter(
             relation("t"),
-            compare(
-                "=",
-                field("a"),
-                intLiteral(1)
+            and(
+                compare(
+                    "=",
+                    field("a"),
+                    intLiteral(1)
+                ),
+                compare(
+                    "=",
+                    field("b"),
+                    intLiteral(-1)
+                )
             )
         ));
   }
 
   @Test
   public void testLongLiteralExpr() {
-    assertEqual("source=t a=1234567890123",
+    assertEqual("source=t a=1234567890123 b=-1234567890123",
         filter(
             relation("t"),
-            compare(
-                "=",
-                field("a"),
-                longLiteral(1234567890123L)
+            and(
+                compare(
+                    "=",
+                    field("a"),
+                    longLiteral(1234567890123L)
+                ),
+                compare(
+                    "=",
+                    field("b"),
+                    longLiteral(-1234567890123L)
+                )
             )
         ));
   }
