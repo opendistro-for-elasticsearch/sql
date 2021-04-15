@@ -26,7 +26,7 @@
 
 * If you are running the ES instance in localhost, select the default **ODFE SQL ODBC DSN** as the data source.
 
-<img src="img/pbi_select_dns.png" width="500">
+<img src="img/pbi_select_dsn.png" width="500">
 
 * Click on **OK**. Select authentication option. Enter credentials if required and click on **Connect**.
 
