@@ -14,8 +14,6 @@
 
 ## Load Data By Import
 
-> **NOTE**: Currently only import mode is supported. Direct query support will be added soon.
-
 * Open Power BI Desktop.
 
 * Disable parallel loading of tables. Click on **Files** > **Options and settings** > **Options** > **CURRENT FILE** > **Data Load** > Deselect **Enable parallel loading of tables** and click **OK**.
@@ -28,11 +26,9 @@
 
 * If you are running the ES instance in localhost, select the default **ODFE SQL ODBC DSN** as the data source.
 
-<img src="img/pbi_select_dns.png" width=500>
+<img src="img/pbi_select_dns.png" width="500">
 
-* Click on **OK**
-
-* Select authentication option. Enter credentials if required and click on **Connect**.
+* Click on **OK**. Select authentication option. Enter credentials if required and click on **Connect**.
 
 <img src="img/pbi_default_dsn_auth.png" width="500">
 
@@ -54,11 +50,11 @@
 
 * Direct query is supported to load data now. When selecting the DSN, expand the **Advanced options** and write your SQL query in the `SQL statement (optional)` field.
 
-<img src="img/pbi_query.png" width="500"> 
+<img src="img/pbi_query.png"> 
 
 * Click **OK** and you will get a preview with resulted data set. Then click **Load** to load the result table.
 
-<img src="img/pbi_query.png">
+<img src="img/pbi_query_result.png">
 
 ## Using .PBIDS Files
 
