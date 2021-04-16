@@ -8,7 +8,7 @@
 * Optional: [odfesqlodbc_import.pbids](../../src/PowerBIConnector/PBIDSExamples) to help with repeated connections to the same server 
 
 ## Setup
-* Copy `OdfeSqlOdbcPBIConnector.mez` file in the `<User>\Documents\Power BI Desktop\Custom Connectors\` folder. This will let Power BI access custom connector. If you have installed the On-premises data gateway, you should be able to see the ODBC is detected as a custom connector in the **Connectors** tab.
+* Copy `OdfeSqlOdbcPBIConnector.mez` file to the `<User>\Documents\Power BI Desktop\Custom Connectors\` folder. This will let Power BI access custom connector. If you have installed the On-premises data gateway, you should be able to see the ODBC is detected as a custom connector in the **Connectors** tab.
   
 <img src="img/pbi_gateway_connectors.png" width="500">
 
@@ -90,7 +90,7 @@ It will take you straight to the **Navigator** window for selecting the tables f
 
 ## Troubleshooting 
 
-* If you get an following error, please install [Open Distro For Elasticsearch SQL ODBC Driver](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/odbc/).
+* If you get an following error, please install [Open Distro For Elasticsearch SQL ODBC Driver](https://opendistro.github.io/for-elasticsearch/downloads.html#connect).
 
 <img src="img/pbi_error_driver_not_installed.png" width="350">
 
