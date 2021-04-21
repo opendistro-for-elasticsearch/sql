@@ -7,9 +7,11 @@ $INSTALL_DIR = $args[4]
 Write-Host $args
 
 # Clone the AWS SDK CPP repo
-# $SDK_VER = "1.7.29"
+ $SDK_VER = "1.8.186"
 # -b "$SDK_VER" `
 git clone `
+    --branch `
+    $SDK_VER `
     --single-branch `
     "https://github.com/aws/aws-sdk-cpp.git" `
     $SRC_DIR
