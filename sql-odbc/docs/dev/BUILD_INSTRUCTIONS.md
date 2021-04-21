@@ -48,7 +48,7 @@ build
 **Note:** If you make changes to the driver code or CMake project files, re-run the `build_windows_<config><bitness>.sh` script before running the following command.
 
 ```
-msbuild .\build\odbc\PACKAGE.vcxproj -p:Configuration=Release
+msbuild .\build\odbc\cmake\PACKAGE.vcxproj -p:Configuration=Release
 ```
 
 `Open Distro for Elasticsearch SQL ODBC Driver-<version>-Windows-<Bitness>-bit.msi` will be generated in the build directory.
