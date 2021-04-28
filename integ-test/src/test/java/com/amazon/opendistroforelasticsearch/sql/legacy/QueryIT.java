@@ -483,6 +483,22 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void negativeRegexQueryTest() throws IOException {
+    JSONObject response = executeQuery(
+        String.format(Locale.ROOT, "SELECT * " +
+                "FROM %s " +
+                "WHERE NOT(dog_name = REGEXP_QUERY('sn.*', 'INTERSECTION|COMPLEMENT|EMPTY', 10000))",
+            TestsConstants.TEST_INDEX_DOG));
+
+    JSONArray hits = getHits(response);
+    Assert.assertEquals(1, hits.length());
+
+    JSONObject hitSource = getSource(hits.getJSONObject(0));
+    Assert.assertNotEquals("snoopy", hitSource.getString("dog_name"));
+    Assert.assertEquals("rex", hitSource.getString("dog_name"));
+  }
+
+  @Test
   public void doubleNotTest() throws IOException {
     JSONObject response1 = executeQuery(
         String.format(Locale.ROOT,
