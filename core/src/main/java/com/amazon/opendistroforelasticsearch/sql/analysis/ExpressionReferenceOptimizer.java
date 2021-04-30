@@ -20,8 +20,11 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
+import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -87,6 +90,41 @@ public class ExpressionReferenceOptimizer
     return expressionMap.getOrDefault(node, node);
   }
 
+  @Override
+  public Expression visitNamed(NamedExpression node, AnalysisContext context) {
+    if (expressionMap.containsKey(node)) {
+      return expressionMap.get(node);
+    }
+    return node.getDelegated().accept(this, context);
+  }
+
+  /**
+   * Implement this because Case/When is not registered in function repository.
+   */
+  @Override
+  public Expression visitCase(CaseClause node, AnalysisContext context) {
+    if (expressionMap.containsKey(node)) {
+      return expressionMap.get(node);
+    }
+
+    List<WhenClause> whenClauses = node.getWhenClauses()
+                                       .stream()
+                                       .map(expr -> (WhenClause) expr.accept(this, context))
+                                       .collect(Collectors.toList());
+    Expression defaultResult = null;
+    if (node.getDefaultResult() != null) {
+      defaultResult = node.getDefaultResult().accept(this, context);
+    }
+    return new CaseClause(whenClauses, defaultResult);
+  }
+
+  @Override
+  public Expression visitWhen(WhenClause node, AnalysisContext context) {
+    return new WhenClause(
+        node.getCondition().accept(this, context),
+        node.getResult().accept(this, context));
+  }
+
 
   /**
    * Expression Map Builder.
@@ -94,7 +132,7 @@ public class ExpressionReferenceOptimizer
   class ExpressionMapBuilder extends LogicalPlanNodeVisitor<Void, Void> {
 
     @Override
-    protected Void visitNode(LogicalPlan plan, Void context) {
+    public Void visitNode(LogicalPlan plan, Void context) {
       plan.getChild().forEach(child -> child.accept(this, context));
       return null;
     }
@@ -107,7 +145,8 @@ public class ExpressionReferenceOptimizer
               new ReferenceExpression(namedAggregator.getName(), namedAggregator.type())));
       // Create the mapping for all the group by.
       plan.getGroupByList().forEach(groupBy -> expressionMap
-          .put(groupBy.getDelegated(), new ReferenceExpression(groupBy.getName(), groupBy.type())));
+          .put(groupBy.getDelegated(),
+              new ReferenceExpression(groupBy.getNameOrAlias(), groupBy.type())));
       return null;
     }
 
@@ -115,7 +154,7 @@ public class ExpressionReferenceOptimizer
     public Void visitWindow(LogicalWindow plan, Void context) {
       Expression windowFunc = plan.getWindowFunction();
       expressionMap.put(windowFunc,
-          new ReferenceExpression(windowFunc.toString(), windowFunc.type()));
+          new ReferenceExpression(((NamedExpression) windowFunc).getName(), windowFunc.type()));
       return visitNode(plan, context);
     }
   }

@@ -39,12 +39,8 @@ public class CountAggregator extends Aggregator<CountState> {
   }
 
   @Override
-  public CountState iterate(BindingTuple tuple, CountState state) {
-    Expression expression = getArguments().get(0);
-    ExprValue value = expression.valueOf(tuple);
-    if (!(value.isNull() || value.isMissing())) {
-      state.count++;
-    }
+  protected CountState iterate(ExprValue value, CountState state) {
+    state.count++;
     return state;
   }
 

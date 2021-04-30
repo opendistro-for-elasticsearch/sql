@@ -25,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -96,25 +97,20 @@ public class ObjectFieldSelectIT extends SQLIntegTestCase {
 
   @Test
   public void testSelectObjectFieldOfArrayValuesItself() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(query("SELECT accounts FROM %s"));
 
-    // Expect the entire list of values is returned just like a nested field
-    verifyDataRows(response,
-        rows(new JSONArray(
-            "[\n"
-                + "  {\"id\": 1},\n"
-                + "  {\"id\": 2}\n"
-                + "]")
-        )
-    );
+    // Only the first element of the list of is returned.
+    verifyDataRows(response, rows(new JSONObject("{\"id\": 1}")));
   }
 
   @Test
   public void testSelectObjectFieldOfArrayValuesInnerFields() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = new JSONObject(query("SELECT accounts.id FROM %s"));
 
-    // We don't support flatten object field of list value so expect null returned
-    verifyDataRows(response, rows(JSONObject.NULL));
+    // Only the first element of the list of is returned.
+    verifyDataRows(response, rows(1));
   }
 
   private String query(String sql) {

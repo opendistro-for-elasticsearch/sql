@@ -4,7 +4,7 @@ SELECT `Cancelled`, `AvgTicketPrice` FROM kibana_sample_data_flights
 SELECT ABS(DistanceMiles), (FlightDelayMin * 2) - 3 FROM kibana_sample_data_flights
 SELECT abs(DistanceMiles), Abs(FlightDelayMin) FROM kibana_sample_data_flights
 SELECT Cancelled AS Cancel, AvgTicketPrice AS ATP FROM kibana_sample_data_flights
-SELECT Cancelled AS `Cancel`, AvgTicketPrice AS "ATP" FROM kibana_sample_data_flights
+SELECT Cancelled AS `Cancel` FROM kibana_sample_data_flights
 SELECT kibana_sample_data_flights.AvgTicketPrice FROM kibana_sample_data_flights
 SELECT flights.AvgTicketPrice, Carrier FROM kibana_sample_data_flights flights
 SELECT flights.AvgTicketPrice, Carrier FROM kibana_sample_data_flights AS flights
@@ -20,3 +20,17 @@ SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPr
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE ABS(AvgTicketPrice * -2) > 1000
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE 'JetBeat_'
 SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE Carrier LIKE '%Air%'
+SELECT ALL OriginWeather FROM kibana_sample_data_flights
+SELECT DISTINCT OriginWeather FROM kibana_sample_data_flights
+SELECT DISTINCT OriginWeather, FlightDelay FROM kibana_sample_data_flights
+SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin FROM kibana_sample_data_flights
+SELECT DISTINCT SUBSTRING(OriginWeather, 1, 1) AS origin, FlightDelay FROM kibana_sample_data_flights
+SELECT COUNT(*) AS count FROM kibana_sample_data_flights
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 0
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10 OFFSET 5
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10 OFFSET 100
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 1000 OFFSET 100
+SELECT abs(AvgTicketPrice) FROM kibana_sample_data_flights ORDER BY abs(AvgTicketPrice) LIMIT 10, 10
+SELECT AvgTicketPrice - 1 FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 10, 10

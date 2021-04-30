@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +36,6 @@ public class SQLCorrectnessIT extends CorrectnessTestBase {
   @Override
   protected void init() throws Exception {
     super.init();
-    TestUtils.enableNewQueryEngine(client());
   }
 
   @Test

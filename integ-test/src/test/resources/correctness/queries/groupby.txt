@@ -1,8 +1,16 @@
 SELECT COUNT(*) FROM kibana_sample_data_flights
+SELECT COUNT(1) FROM kibana_sample_data_flights
+SELECT COUNT('hello') FROM kibana_sample_data_flights
 SELECT SUM(FlightDelayMin) FROM kibana_sample_data_flights
 SELECT AVG(FlightDelayMin) FROM kibana_sample_data_flights
+SELECT MIN(FlightDelayMin) FROM kibana_sample_data_flights
+SELECT MAX(FlightDelayMin) FROM kibana_sample_data_flights
 SELECT count(*), Avg(FlightDelayMin), sUm(FlightDelayMin) FROM kibana_sample_data_flights
 SELECT COUNT(*) AS cnt, AVG(FlightDelayMin) AS a, SUM(FlightDelayMin) AS s FROM kibana_sample_data_flights
+SELECT COUNT(*) FROM kibana_sample_data_flights WHERE FlightTimeMin > 0
+SELECT COUNT(1) FROM kibana_sample_data_flights WHERE FlightTimeMin > 0
+SELECT SUM(FlightDelayMin) FROM kibana_sample_data_flights WHERE FlightTimeMin > 0
+SELECT AVG(FlightDelayMin) FROM kibana_sample_data_flights WHERE FlightTimeMin > 0
 SELECT COUNT(*) FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT COUNT(FlightNum) FROM kibana_sample_data_flights GROUP BY OriginCountry
 SELECT COUNT(FlightDelay) FROM kibana_sample_data_flights GROUP BY OriginCountry

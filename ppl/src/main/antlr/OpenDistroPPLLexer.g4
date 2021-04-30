@@ -51,13 +51,11 @@ NUM:                                'NUM';
 
 // ARGUMENT KEYWORDS
 KEEPEMPTY:                          'KEEPEMPTY';
-KEEPLAST:                           'KEEPLAST';
 CONSECUTIVE:                        'CONSECUTIVE';
 DEDUP_SPLITVALUES:                  'DEDUP_SPLITVALUES';
 PARTITIONS:                         'PARTITIONS';
 ALLNUM:                             'ALLNUM';
 DELIM:                              'DELIM';
-WHILE:                              'WHILE';
 
 // COMPARISON FUNCTION KEYWORDS
 CASE:                               'CASE';
@@ -70,7 +68,6 @@ AND:                                'AND';
 XOR:                                'XOR';
 TRUE:                               'TRUE';
 FALSE:                              'FALSE';
-LIKE:                               'LIKE';
 REGEXP:                             'REGEXP';
 
 // DATETIME, INTERVAL AND UNIT KEYWORDS
@@ -229,6 +226,18 @@ CONCAT:                             'CONCAT';
 CONCAT_WS:                          'CONCAT_WS';
 LENGTH:                             'LENGTH';
 STRCMP:                             'STRCMP';
+RIGHT:                              'RIGHT';
+
+// BOOL FUNCTIONS
+LIKE:                               'LIKE';
+ISNULL:                             'ISNULL';
+ISNOTNULL:                          'ISNOTNULL';
+
+// FLOWCONTROL FUNCTIONS
+IFNULL:                             'IFNULL';
+NULLIF:                             'NULLIF';
+IF:                                 'IF';
+
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
@@ -236,7 +245,9 @@ ID:                                 ID_LITERAL;
 INTEGER_LITERAL:                    DEC_DIGIT+;
 DECIMAL_LITERAL:                    (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
-fragment ID_LITERAL:                [A-Z_]+[A-Z_$0-9@\-]*;
+fragment DATE_SUFFIX:               ([\-.][*0-9]+)*;
+fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
+ID_DATE_SUFFIX:                     ID_LITERAL DATE_SUFFIX;
 DQUOTA_STRING:                      '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 SQUOTA_STRING:                      '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 BQUOTA_STRING:                      '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';

@@ -131,18 +131,36 @@ public enum BuiltinFunctionName {
   CONCAT_WS(FunctionName.of("concat_ws")),
   LENGTH(FunctionName.of("length")),
   STRCMP(FunctionName.of("strcmp")),
+  RIGHT(FunctionName.of("right")),
 
   /**
    * NULL Test.
    */
   IS_NULL(FunctionName.of("is null")),
   IS_NOT_NULL(FunctionName.of("is not null")),
+  IFNULL(FunctionName.of("ifnull")),
+  IF(FunctionName.of("if")),
+  NULLIF(FunctionName.of("nullif")),
+  ISNULL(FunctionName.of("isnull")),
 
   ROW_NUMBER(FunctionName.of("row_number")),
   RANK(FunctionName.of("rank")),
   DENSE_RANK(FunctionName.of("dense_rank")),
 
-  INTERVAL(FunctionName.of("interval"));
+  INTERVAL(FunctionName.of("interval")),
+
+  /**
+   * Data Type Convert Function.
+   */
+  CAST_TO_STRING(FunctionName.of("cast_to_string")),
+  CAST_TO_INT(FunctionName.of("cast_to_int")),
+  CAST_TO_LONG(FunctionName.of("cast_to_long")),
+  CAST_TO_FLOAT(FunctionName.of("cast_to_float")),
+  CAST_TO_DOUBLE(FunctionName.of("cast_to_double")),
+  CAST_TO_BOOLEAN(FunctionName.of("cast_to_boolean")),
+  CAST_TO_DATE(FunctionName.of("cast_to_date")),
+  CAST_TO_TIME(FunctionName.of("cast_to_time")),
+  CAST_TO_TIMESTAMP(FunctionName.of("cast_to_timestamp"));
 
   private final FunctionName name;
 

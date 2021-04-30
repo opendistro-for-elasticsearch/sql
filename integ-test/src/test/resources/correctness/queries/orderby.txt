@@ -1,6 +1,8 @@
 SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum
 SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum ASC
 SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum DESC
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum asc
+SELECT FlightNum FROM kibana_sample_data_flights ORDER BY FlightNum desc
 SELECT FlightNum, AvgTicketPrice FROM kibana_sample_data_flights ORDER BY FlightNum, AvgTicketPrice
 SELECT FlightNum, AvgTicketPrice FROM kibana_sample_data_flights ORDER BY FlightNum DESC, AvgTicketPrice
 SELECT FlightNum, AvgTicketPrice FROM kibana_sample_data_flights ORDER BY FlightNum, AvgTicketPrice DESC
@@ -11,3 +13,15 @@ SELECT FlightDelay, OriginWeather FROM kibana_sample_data_flights GROUP BY Fligh
 SELECT FlightDelay, OriginWeather FROM kibana_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay DESC, OriginWeather
 SELECT FlightDelay, OriginWeather FROM kibana_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay, OriginWeather DESC
 SELECT FlightDelay, OriginWeather FROM kibana_sample_data_flights GROUP BY FlightDelay, OriginWeather ORDER BY FlightDelay DESC, OriginWeather DESC
+SELECT FlightNum, DistanceMiles FROM kibana_sample_data_flights ORDER BY DistanceMiles NULLS FIRST
+SELECT FlightNum, DistanceMiles FROM kibana_sample_data_flights ORDER BY DistanceMiles NULLS LAST
+SELECT FlightNum, DistanceMiles FROM kibana_sample_data_flights ORDER BY DistanceMiles ASC NULLS LAST
+SELECT FlightNum, DistanceMiles FROM kibana_sample_data_flights ORDER BY DistanceMiles DESC NULLS FIRST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles, FlightDelay NULLS FIRST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles, FlightDelay NULLS LAST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles, FlightDelay ASC NULLS LAST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles, FlightDelay DESC NULLS FIRST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles NULLS LAST, FlightDelay NULLS FIRST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles NULLS FIRST, FlightDelay NULLS LAST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles DESC NULLS FIRST, FlightDelay ASC NULLS LAST
+SELECT FlightNum, DistanceMiles, FlightDelay FROM kibana_sample_data_flights ORDER BY DistanceMiles ASC NULLS LAST, FlightDelay DESC NULLS FIRST

@@ -12,8 +12,9 @@ dependencies {
     compile project(':core')
     compile group: 'org.elasticsearch', name: 'elasticsearch', version: "${es_version}"
     compile "io.github.resilience4j:resilience4j-retry:1.5.0"
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.4'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.4'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.5' 
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.4'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-cbor', version: '2.11.4'
     compile group: 'org.json', name: 'json', version:'20180813'
     compileOnly group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: "${es_version}"
 
@@ -28,6 +29,7 @@ test {
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat "full"
     }
 }
 
@@ -37,6 +39,7 @@ jacoco {
 jacocoTestReport {
     reports {
         html.enabled true
+        xml.enabled true
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {

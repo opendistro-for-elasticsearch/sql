@@ -28,27 +28,43 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install setuptools wheel twine
-      # publish to S3 and PyPI
-      - name: Build and Publish
+
+      - name: Build
         run: |
           python setup.py sdist bdist_wheel
-          artifact=`ls ./dist/*.tar.gz`
-          wheel_artifact=`ls ./dist/*.whl`
 
-          aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-cli/
-          aws s3 cp $wheel_artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-cli/
+      - name: Publish to S3
+        shell: bash
+        run: |
+          tarball=`ls ./dist/*.tar.gz`
+          wheel=`ls ./dist/*.whl`
 
-        # aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/downloads/*"
+          renamed_wheel=`echo $wheel | sed 's/_/-/g'`
+          mv "$wheel" "$renamed_wheel"
+          wheel=`ls ./dist/*.whl`
 
-        # TODO: Publish to PyPI
+          # Inject the build number before the suffix
+          tarball_outfile=`basename ${tarball%.tar.gz}-build-${GITHUB_RUN_NUMBER}.tar.gz`
+          wheel_outfile=`basename ${wheel%.whl}-build-${GITHUB_RUN_NUMBER}.whl`
+
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-clients/sql-cli/"
+
+          echo "Copying ${tarball} to ${s3_prefix}${tarball_outfile}"
+          aws s3 cp --quiet $tarball ${s3_prefix}${tarball_outfile}
+
+          echo "Copying ${wheel} to ${s3_prefix}${wheel_outfile}"
+          aws s3 cp --quiet $wheel ${s3_prefix}${wheel_outfile}
+
+      # TODO: Publish to PyPI
+      # - name: Publish to PyPI
         #     env:
         #        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         #        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

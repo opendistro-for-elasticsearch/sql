@@ -25,7 +25,65 @@ CAST
 Description
 >>>>>>>>>>>
 
-Specification is undefined and type check is skipped for now
+Usage: cast(expr as dateType) cast the expr to dataType. return the value of dataType. The following conversion rules are used:
+
++------------+--------+--------+---------+-------------+--------+--------+
+| Src/Target | STRING | NUMBER | BOOLEAN | TIMESTAMP   | DATE   | TIME   |
++------------+--------+--------+---------+-------------+--------+--------+
+| STRING     |        | Note1  | Note1   | TIMESTAMP() | DATE() | TIME() |
++------------+--------+--------+---------+-------------+--------+--------+
+| NUMBER     | Note1  |        | v!=0    | N/A         | N/A    | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| BOOLEAN    | Note1  | v?1:0  |         | N/A         | N/A    | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| TIMESTAMP  | Note1  | N/A    | N/A     |             | DATE() | TIME() |
++------------+--------+--------+---------+-------------+--------+--------+
+| DATE       | Note1  | N/A    | N/A     | N/A         |        | N/A    |
++------------+--------+--------+---------+-------------+--------+--------+
+| TIME       | Note1  | N/A    | N/A     | N/A         | N/A    |        |
++------------+--------+--------+---------+-------------+--------+--------+
+
+Note1: the conversion follow the JDK specification.
+
+Cast to string example::
+
+    od> SELECT cast(true as string) as cbool, cast(1 as string) as cint, cast(DATE '2012-08-07' as string) as cdate
+    fetched rows / total rows = 1/1
+    +---------+--------+------------+
+    | cbool   | cint   | cdate      |
+    |---------+--------+------------|
+    | true    | 1      | 2012-08-07 |
+    +---------+--------+------------+
+
+Cast to number example::
+
+    od> SELECT cast(true as int) as cbool, cast('1' as integer) as cstring
+    fetched rows / total rows = 1/1
+    +---------+-----------+
+    | cbool   | cstring   |
+    |---------+-----------|
+    | 1       | 1         |
+    +---------+-----------+
+
+Cast to date example::
+
+    od> SELECT cast('2012-08-07' as date) as cdate, cast('01:01:01' as time) as ctime, cast('2012-08-07 01:01:01' as timestamp) as ctimestamp
+    fetched rows / total rows = 1/1
+    +------------+----------+---------------------+
+    | cdate      | ctime    | ctimestamp          |
+    |------------+----------+---------------------|
+    | 2012-08-07 | 01:01:01 | 2012-08-07 01:01:01 |
+    +------------+----------+---------------------+
+
+Cast function can be chained::
+
+    od> SELECT cast(cast(true as string) as boolean) as cbool
+    fetched rows / total rows = 1/1
+    +---------+
+    | cbool   |
+    |---------|
+    | True    |
+    +---------+
 
 
 Mathematical Functions
@@ -1702,9 +1760,21 @@ RIGHT
 Description
 >>>>>>>>>>>
 
-Specifications:
+Usage: right(str, len) returns the rightmost len characters from the string str, or NULL if any argument is NULL.
 
-1. RIGHT(STRING T, INTEGER) -> T
+Argument type: STRING, INTEGER
+
+Return type: STRING
+
+Example::
+
+    od> SELECT RIGHT('helloworld', 5), RIGHT('HELLOWORLD', 0)
+    fetched rows / total rows = 1/1
+    +--------------------------+--------------------------+
+    | RIGHT('helloworld', 5)   | RIGHT('HELLOWORLD', 0)   |
+    |--------------------------+--------------------------|
+    | world                    |                          |
+    +--------------------------+--------------------------+
 
 
 RTRIM
@@ -1822,6 +1892,69 @@ Specifications:
 
 1. IFNULL(ES_TYPE, ES_TYPE) -> ES_TYPE
 
+Usage: return parameter2 if parameter1 is null, otherwise return parameter1
+
+Argument type: Any
+
+Return type: Any (NOTE : if two parameters has different type, you will fail semantic check"
+
+Example One::
+
+    od> SELECT IFNULL(123, 321), IFNULL(321, 123)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | IFNULL(123, 321)   | IFNULL(321, 123)   |
+    |--------------------+--------------------|
+    | 123                | 321                |
+    +--------------------+--------------------+
+
+Example Two::
+
+    od> SELECT IFNULL(321, 1/0), IFNULL(1/0, 123)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | IFNULL(321, 1/0)   | IFNULL(1/0, 123)   |
+    |--------------------+--------------------|
+    | 321                | 123                |
+    +--------------------+--------------------+
+
+Example Three::
+
+    od> SELECT IFNULL(1/0, 1/0)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | IFNULL(1/0, 1/0)   |
+    |--------------------|
+    | null               |
+    +--------------------+
+
+
+NULLIF
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. NULLIF(ES_TYPE, ES_TYPE) -> ES_TYPE
+
+Usage: return null if two parameters are same, otherwise return parameer1
+
+Argument type: Any
+
+Return type: Any (NOTE : if two parametershas different type, you will fail semantic check")
+
+Example::
+
+    od> SELECT NULLIF(123, 123), NULLIF(321, 123), NULLIF(1/0, 321), NULLIF(321, 1/0), NULLIF(1/0, 1/0)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+--------------------+--------------------+--------------------+
+    | NULLIF(123, 123)   | NULLIF(321, 123)   | NULLIF(1/0, 321)   | NULLIF(321, 1/0)   | NULLIF(1/0, 1/0)   |
+    |--------------------+--------------------+--------------------+--------------------+--------------------|
+    | null               | 321                | null               | 321                | null               |
+    +--------------------+--------------------+--------------------+--------------------+--------------------+
+
 
 ISNULL
 ------
@@ -1832,3 +1965,131 @@ Description
 Specifications:
 
 1. ISNULL(ES_TYPE) -> INTEGER
+
+Usage: return true if parameter is null, otherwise return false
+
+Argument type: Any
+
+Return type: boolean
+
+Example::
+
+    od> SELECT ISNULL(1/0), ISNULL(123)
+    fetched rows / total rows = 1/1
+    +---------------+---------------+
+    | ISNULL(1/0)   | ISNULL(123)   |
+    |---------------+---------------|
+    | True          | False         |
+    +---------------+---------------+
+
+IF
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. IF(condition, ES_TYPE1, ES_TYPE2) -> ES_TYPE1 or ES_TYPE2
+
+Usage: if first parameter is true, return second parameter, otherwise return third one.
+
+Argument type: condition as BOOLEAN, second and third can by any type
+
+Return type: Any (NOTE : if parameters #2 and #3 has different type, you will fail semantic check"
+
+Example::
+
+    od> SELECT IF(100 > 200, '100', '200')
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | IF(100 > 200, '100', '200')   |
+    |-------------------------------|
+    | 200                           |
+    +-------------------------------+
+
+    od> SELECT IF(200 > 100, '100', '200')
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | IF(200 > 100, '100', '200')   |
+    |-------------------------------|
+    | 100                           |
+    +-------------------------------+
+
+CASE
+----
+
+Description
+>>>>>>>>>>>
+
+``CASE`` statement has two forms with slightly different syntax: Simple Case and Searched Case.
+
+Simple case syntax compares a case value expression with each compare expression in ``WHEN`` clause and return its result if matched. Otherwise, result expression's value in ``ELSE`` clause is returned (or ``NULL`` if absent)::
+
+   CASE case_value_expression
+     WHEN compare_expression THEN result_expression
+     [WHEN compare_expression THEN result_expression] ...
+     [ELSE result_expression]
+   END
+
+Similarly, searched case syntax evaluates each search condition and return result if true. A search condition must be a predicate that returns a bool when evaluated::
+
+   CASE
+     WHEN search_condition THEN result_expression
+     [WHEN search_condition THEN result_expression] ...
+     [ELSE result_expression]
+   END
+
+Type Check
+>>>>>>>>>>
+
+All result types in ``WHEN`` and ``ELSE`` clause are required to be exactly the same. Otherwise, take the following query for example, you'll see an semantic analysis exception thrown::
+
+   CASE age
+     WHEN 30 THEN 'Thirty'
+     WHEN 50 THEN true
+   END
+
+Examples
+>>>>>>>>
+
+Here are examples for simple case syntax::
+
+    od> SELECT
+    ...   CASE 1
+    ...     WHEN 1 THEN 'One'
+    ...   END AS simple_case,
+    ...   CASE ABS(-2)
+    ...     WHEN 1 THEN 'One'
+    ...     WHEN 2 THEN 'Absolute two'
+    ...   END AS func_case_value,
+    ...   CASE ABS(-3)
+    ...     WHEN 1 THEN 'One'
+    ...     ELSE TRIM(' Absolute three ')
+    ...   END AS func_result;
+    fetched rows / total rows = 1/1
+    +---------------+-------------------+----------------+
+    | simple_case   | func_case_value   | func_result    |
+    |---------------+-------------------+----------------|
+    | One           | Absolute two      | Absolute three |
+    +---------------+-------------------+----------------+
+
+Here are examples for searched case syntax::
+
+    od> SELECT
+    ...   CASE
+    ...     WHEN 1 = 1 THEN 'One'
+    ...   END AS single_search,
+    ...   CASE
+    ...     WHEN 2 = 1 THEN 'One'
+    ...     WHEN 'hello' = 'hello' THEN 'Hello' END AS multi_searches,
+    ...   CASE
+    ...     WHEN 2 = 1 THEN 'One'
+    ...     WHEN 'hello' = 'world' THEN 'Hello'
+    ...   END AS no_else;
+    fetched rows / total rows = 1/1
+    +-----------------+------------------+-----------+
+    | single_search   | multi_searches   | no_else   |
+    |-----------------+------------------+-----------|
+    | One             | Hello            | null      |
+    +-----------------+------------------+-----------+

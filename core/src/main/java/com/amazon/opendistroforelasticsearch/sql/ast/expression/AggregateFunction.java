@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -33,6 +34,7 @@ public class AggregateFunction extends UnresolvedExpression {
   private final String funcName;
   private final UnresolvedExpression field;
   private final List<UnresolvedExpression> argList;
+  private UnresolvedExpression condition;
 
   /**
    * Constructor.
@@ -43,6 +45,20 @@ public class AggregateFunction extends UnresolvedExpression {
     this.funcName = funcName;
     this.field = field;
     this.argList = Collections.emptyList();
+  }
+
+  /**
+   * Constructor.
+   * @param funcName function name.
+   * @param field {@link UnresolvedExpression}.
+   * @param condition condition in aggregation filter.
+   */
+  public AggregateFunction(String funcName, UnresolvedExpression field,
+                           UnresolvedExpression condition) {
+    this.funcName = funcName;
+    this.field = field;
+    this.argList = Collections.emptyList();
+    this.condition = condition;
   }
 
   @Override
@@ -57,6 +73,6 @@ public class AggregateFunction extends UnresolvedExpression {
 
   @Override
   public String toString() {
-    return String.format("%s(%s)", funcName, field);
+    return StringUtils.format("%s(%s)", funcName, field);
   }
 }

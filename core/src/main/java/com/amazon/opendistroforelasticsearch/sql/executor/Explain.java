@@ -24,7 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOpe
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
@@ -70,7 +70,6 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   @Override
   public ExplainResponseNode visitSort(SortOperator node, Object context) {
     return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
-        "count", node.getCount(),
         "sortList", describeSortList(node.getSortList()))));
   }
 
@@ -142,18 +141,15 @@ public class Explain extends PhysicalPlanNodeVisitor<ExplainResponseNode, Object
   }
 
   @Override
-  public ExplainResponseNode visitHead(HeadOperator node, Object context) {
-    return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
-        "keepLast", node.getKeepLast(),
-        "whileExpr", node.getWhileExpr().toString(),
-        "number", node.getNumber()
-    )));
-  }
-
-  @Override
   public ExplainResponseNode visitValues(ValuesOperator node, Object context) {
     return explain(node, context, explainNode -> explainNode.setDescription(ImmutableMap.of(
         "values", node.getValues())));
+  }
+
+  @Override
+  public ExplainResponseNode visitLimit(LimitOperator node, Object context) {
+    return explain(node, context, explanNode -> explanNode.setDescription(ImmutableMap.of(
+        "limit", node.getLimit(), "offset", node.getOffset())));
   }
 
   protected ExplainResponseNode explain(PhysicalPlan node, Object context,

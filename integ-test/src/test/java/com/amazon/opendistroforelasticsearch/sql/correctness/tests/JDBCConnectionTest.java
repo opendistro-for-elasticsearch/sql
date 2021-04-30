@@ -109,6 +109,27 @@ public class JDBCConnectionTest {
   }
 
   @Test
+  public void testInsertNullData() throws SQLException {
+    conn.insert("test", new String[] {"name", "age"},
+        Arrays.asList(
+            new Object[] {"John", null},
+            new Object[] {null, 25},
+            new Object[] {"Hank", 30}));
+
+    ArgumentCaptor<String> argCap = ArgumentCaptor.forClass(String.class);
+    verify(statement, times(3)).addBatch(argCap.capture());
+    List<String> actual = argCap.getAllValues();
+
+    assertEquals(
+        Arrays.asList(
+            "INSERT INTO test(name,age) VALUES ('John',NULL)",
+            "INSERT INTO test(name,age) VALUES (NULL,'25')",
+            "INSERT INTO test(name,age) VALUES ('Hank','30')"
+        ), actual
+    );
+  }
+
+  @Test
   public void testSelectQuery() throws SQLException {
     ResultSetMetaData metaData = mockMetaData(ImmutableMap.of("name", "VARCHAR", "age", "INT"));
     ResultSet resultSet = mockResultSet(new Object[] {"John", 25}, new Object[] {"Hank", 30});

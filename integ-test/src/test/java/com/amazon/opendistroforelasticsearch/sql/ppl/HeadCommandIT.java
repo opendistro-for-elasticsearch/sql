@@ -15,16 +15,27 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
+import java.io.IOException;
+import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.jupiter.api.Test;
+
 public class HeadCommandIT extends PPLIntegTestCase {
+
+  @Before
+  public void beforeTest() throws IOException {
+    setQuerySizeLimit(200);
+  }
+
+  @After
+  public void afterTest() throws IOException {
+    resetQuerySizeLimit();
+  }
 
   @Override
   public void init() throws IOException {
@@ -56,32 +67,5 @@ public class HeadCommandIT extends PPLIntegTestCase {
         rows("Amber", 32),
         rows("Hattie", 36),
         rows("Nanette", 28));
-  }
-
-  @Test
-  public void testHeadWithWhile() throws IOException {
-    JSONObject result =
-        executeQuery(String
-            .format("source=%s | fields firstname, age | sort age | head while(age < 21) 7",
-                TEST_INDEX_ACCOUNT));
-    verifyDataRows(result,
-        rows("Claudia", 20),
-        rows("Copeland", 20),
-        rows("Cornelia", 20),
-        rows("Schultz", 20),
-        rows("Simpson", 21));
-  }
-
-  @Test
-  public void testHeadWithKeeplast() throws IOException {
-    JSONObject result =
-        executeQuery(String.format(
-            "source=%s | fields firstname, age | sort age | head keeplast=false while(age < 21) 7",
-            TEST_INDEX_ACCOUNT));
-    verifyDataRows(result,
-        rows("Claudia", 20),
-        rows("Copeland", 20),
-        rows("Cornelia", 20),
-        rows("Schultz", 20));
   }
 }

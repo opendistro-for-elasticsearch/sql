@@ -20,9 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregat
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScan;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalIndexScanAggregation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalLimit;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
@@ -37,7 +35,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOpe
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.HeadOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RareTopNOperator;
@@ -81,15 +79,6 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   }
 
   @Override
-  public PhysicalPlan visitHead(LogicalHead node, C context) {
-    return new HeadOperator(
-            visitChild(node, context),
-            node.getKeeplast(),
-            node.getWhileExpr(),
-            node.getNumber());
-  }
-
-  @Override
   public PhysicalPlan visitProject(LogicalProject node, C context) {
     return new ProjectOperator(visitChild(node, context), node.getProjectList());
   }
@@ -114,7 +103,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
 
   @Override
   public PhysicalPlan visitSort(LogicalSort node, C context) {
-    return new SortOperator(visitChild(node, context), node.getCount(), node.getSortList());
+    return new SortOperator(visitChild(node, context), node.getSortList());
   }
 
   @Override
@@ -139,19 +128,12 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   }
 
   @Override
+  public PhysicalPlan visitLimit(LogicalLimit node, C context) {
+    return new LimitOperator(visitChild(node, context), node.getLimit(), node.getOffset());
+  }
+
+  @Override
   public PhysicalPlan visitRelation(LogicalRelation node, C context) {
-    throw new UnsupportedOperationException("Storage engine is responsible for "
-        + "implementing and optimizing logical plan with relation involved");
-  }
-
-  @Override
-  public PhysicalPlan visitIndexScan(LogicalIndexScan plan, C context) {
-    throw new UnsupportedOperationException("Storage engine is responsible for "
-        + "implementing and optimizing logical plan with relation involved");
-  }
-
-  @Override
-  public PhysicalPlan visitIndexScanAggregation(LogicalIndexScanAggregation plan, C context) {
     throw new UnsupportedOperationException("Storage engine is responsible for "
         + "implementing and optimizing logical plan with relation involved");
   }

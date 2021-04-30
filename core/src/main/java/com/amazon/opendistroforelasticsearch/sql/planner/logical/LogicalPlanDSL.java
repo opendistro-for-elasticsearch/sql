@@ -59,7 +59,7 @@ public class LogicalPlanDSL {
   }
 
   public LogicalPlan window(LogicalPlan input,
-                            Expression windowFunction,
+                            NamedExpression windowFunction,
                             WindowDefinition windowDefinition) {
     return new LogicalWindow(input, windowFunction, windowDefinition);
   }
@@ -73,9 +73,8 @@ public class LogicalPlanDSL {
     return new LogicalEval(input, Arrays.asList(expressions));
   }
 
-  public static LogicalPlan sort(
-      LogicalPlan input, Integer count, Pair<SortOption, Expression>... sorts) {
-    return new LogicalSort(input, count, Arrays.asList(sorts));
+  public static LogicalPlan sort(LogicalPlan input, Pair<SortOption, Expression>... sorts) {
+    return new LogicalSort(input, Arrays.asList(sorts));
   }
 
   public static LogicalPlan dedupe(LogicalPlan input, Expression... fields) {
@@ -91,11 +90,6 @@ public class LogicalPlanDSL {
     return new LogicalDedupe(
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
   }
-
-  public static LogicalPlan head(
-      LogicalPlan input, boolean keeplast, Expression whileExpr, int number) {
-    return new LogicalHead(input, keeplast, whileExpr, number);
-  }
   
   public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType,
       List<Expression> groupByList, Expression... fields) {
@@ -107,25 +101,13 @@ public class LogicalPlanDSL {
     return new LogicalRareTopN(input, commandType, noOfResults, Arrays.asList(fields), groupByList);
   }
 
-  public static LogicalPlan indexScan(String tableName, Expression filter) {
-    return new LogicalIndexScan(tableName, filter);
-  }
-
-  public static LogicalPlan indexScanAgg(String tableName, List<NamedAggregator> aggregators,
-                                         List<NamedExpression> groupByList) {
-    return new LogicalIndexScanAggregation(tableName, aggregators, groupByList);
-  }
-
-  public static LogicalPlan indexScanAgg(String tableName,
-                                         Expression filter,
-                                         List<NamedAggregator> aggregators,
-                                         List<NamedExpression> groupByList) {
-    return new LogicalIndexScanAggregation(tableName, filter, aggregators, groupByList);
-  }
-
   @SafeVarargs
   public LogicalPlan values(List<LiteralExpression>... values) {
     return new LogicalValues(Arrays.asList(values));
+  }
+
+  public static LogicalPlan limit(LogicalPlan input, Integer limit, Integer offset) {
+    return new LogicalLimit(input, limit, offset);
   }
 
 }

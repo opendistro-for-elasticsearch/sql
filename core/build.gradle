@@ -34,6 +34,7 @@ test {
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat "full"
     }
 }
 
@@ -43,6 +44,7 @@ jacoco {
 jacocoTestReport {
     reports {
         html.enabled true
+        xml.enabled true
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {

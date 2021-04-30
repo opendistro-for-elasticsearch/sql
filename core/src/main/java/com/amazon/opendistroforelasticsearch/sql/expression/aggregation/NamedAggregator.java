@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.base.Strings;
@@ -63,8 +64,8 @@ public class NamedAggregator extends Aggregator<AggregationState> {
   }
 
   @Override
-  public AggregationState iterate(BindingTuple tuple, AggregationState state) {
-    return delegated.iterate(tuple, state);
+  protected AggregationState iterate(ExprValue value, AggregationState state) {
+    return delegated.iterate(value, state);
   }
 
   /**

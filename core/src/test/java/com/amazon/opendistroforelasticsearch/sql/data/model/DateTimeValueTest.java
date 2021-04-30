@@ -34,6 +34,8 @@ import org.junit.jupiter.api.Test;
 
 public class DateTimeValueTest {
 
+  private static final int MICROS_PRECISION_MAX = 6;
+
   @Test
   public void timeValueInterfaceTest() {
     ExprValue timeValue = new ExprTimeValue("01:01:01");
@@ -103,7 +105,7 @@ public class DateTimeValueTest {
   public void timeInUnsupportedFormat() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class, () -> new ExprTimeValue("01:01:0"));
-    assertEquals("time:01:01:0 in unsupported format, please use HH:mm:ss",
+    assertEquals("time:01:01:0 in unsupported format, please use HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
 
@@ -172,7 +174,96 @@ public class DateTimeValueTest {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
             () -> new ExprStringValue("01:01:0").timeValue());
-    assertEquals("time:01:01:0 in unsupported format, please use HH:mm:ss",
+    assertEquals("time:01:01:0 in unsupported format, please use HH:mm:ss[.SSSSSS]",
+        exception.getMessage());
+  }
+
+  @Test
+  public void timeWithVariableMicroPrecision() {
+    String timeWithMicrosFormat = "10:11:12.%s";
+
+    // Check all lengths of microsecond precision, up to max precision accepted
+    StringBuilder micros = new StringBuilder();
+    for (int microPrecision = 1; microPrecision <= MICROS_PRECISION_MAX; microPrecision++) {
+      micros.append(microPrecision);
+      String timeWithMicros = String.format(timeWithMicrosFormat, micros);
+
+      ExprValue timeValue = new ExprTimeValue(timeWithMicros);
+      assertEquals(LocalTime.parse(timeWithMicros), timeValue.timeValue());
+    }
+  }
+
+  @Test
+  public void timestampWithVariableMicroPrecision() {
+    String dateValue = "2020-08-17";
+    String timeWithMicrosFormat = "10:11:12.%s";
+
+    // Check all lengths of microsecond precision, up to max precision accepted
+    StringBuilder micros = new StringBuilder();
+    for (int microPrecision = 1; microPrecision <= MICROS_PRECISION_MAX; microPrecision++) {
+      micros.append(microPrecision);
+      String timeWithMicros = String.format(timeWithMicrosFormat, micros);
+
+      String timestampString = String.format("%s %s", dateValue, timeWithMicros);
+      ExprValue timestampValue = new ExprTimestampValue(timestampString);
+
+      assertEquals(LocalDate.parse(dateValue), timestampValue.dateValue());
+      assertEquals(LocalTime.parse(timeWithMicros), timestampValue.timeValue());
+      String localDateTime = String.format("%sT%s", dateValue, timeWithMicros);
+      assertEquals(LocalDateTime.parse(localDateTime), timestampValue.datetimeValue());
+    }
+  }
+
+  @Test
+  public void datetimeWithVariableMicroPrecision() {
+    String dateValue = "2020-08-17";
+    String timeWithMicrosFormat = "10:11:12.%s";
+
+    // Check all lengths of microsecond precision, up to max precision accepted
+    StringBuilder micros = new StringBuilder();
+    for (int microPrecision = 1; microPrecision <= MICROS_PRECISION_MAX; microPrecision++) {
+      micros.append(microPrecision);
+      String timeWithMicros = String.format(timeWithMicrosFormat, micros);
+
+      String datetimeString = String.format("%s %s", dateValue, timeWithMicros);
+      ExprValue datetimeValue = new ExprDatetimeValue(datetimeString);
+
+      assertEquals(LocalDate.parse(dateValue), datetimeValue.dateValue());
+      assertEquals(LocalTime.parse(timeWithMicros), datetimeValue.timeValue());
+      String localDateTime = String.format("%sT%s", dateValue, timeWithMicros);
+      assertEquals(LocalDateTime.parse(localDateTime), datetimeValue.datetimeValue());
+    }
+  }
+
+  @Test
+  public void timestampOverMaxMicroPrecision() {
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class,
+            () -> new ExprTimestampValue("2020-07-07 01:01:01.1234567"));
+    assertEquals(
+        "timestamp:2020-07-07 01:01:01.1234567 in unsupported format, "
+                + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
+        exception.getMessage());
+  }
+
+  @Test
+  public void datetimeOverMaxMicroPrecision() {
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class,
+            () -> new ExprDatetimeValue("2020-07-07 01:01:01.1234567"));
+    assertEquals(
+        "datetime:2020-07-07 01:01:01.1234567 in unsupported format, "
+                + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
+        exception.getMessage());
+  }
+
+  @Test
+  public void timeOverMaxMicroPrecision() {
+    SemanticCheckException exception =
+        assertThrows(SemanticCheckException.class,
+            () -> new ExprTimeValue("01:01:01.1234567"));
+    assertEquals(
+        "time:01:01:01.1234567 in unsupported format, please use HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
 }

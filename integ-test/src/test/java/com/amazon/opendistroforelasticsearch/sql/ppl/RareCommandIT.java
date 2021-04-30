@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 
 import java.io.IOException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.jupiter.api.Test;
 
 public class RareCommandIT extends PPLIntegTestCase {
@@ -29,6 +30,11 @@ public class RareCommandIT extends PPLIntegTestCase {
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
     setQuerySizeLimit(2000);
+  }
+
+  @After
+  public void afterTest() throws IOException {
+    resetQuerySizeLimit();
   }
 
   @Test

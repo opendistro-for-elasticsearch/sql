@@ -72,12 +72,12 @@ public abstract class PhysicalPlanNodeVisitor<R, C> {
   public R visitSort(SortOperator node, C context) {
     return visitNode(node, context);
   }
-
-  public R visitHead(HeadOperator node, C context) {
-    return visitNode(node, context);
-  }
   
   public R visitRareTopN(RareTopNOperator node, C context) {
+    return visitNode(node, context);
+  }
+
+  public R visitLimit(LimitOperator node, C context) {
     return visitNode(node, context);
   }
 

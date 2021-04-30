@@ -28,7 +28,10 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedArgList;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.NullOrder;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption.DEFAULT_ASC;
+import static com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOrder;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -39,8 +42,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.RareTopN.CommandType;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
@@ -77,15 +80,8 @@ class AnalyzerTest extends AnalyzerTestBase {
   @Test
   public void head_relation() {
     assertAnalyzeEqual(
-        LogicalPlanDSL.head(
-            LogicalPlanDSL.relation("schema"),
-            false, dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))), 10),
-        AstDSL.head(
-            AstDSL.relation("schema"),
-            unresolvedArgList(
-                unresolvedArg("keeplast", booleanLiteral(false)),
-                unresolvedArg("whileExpr", compare("=", field("integer_value"), intLiteral(1))),
-                unresolvedArg("number", intLiteral(10)))));
+        LogicalPlanDSL.limit(LogicalPlanDSL.relation("schema"),10, 0),
+        AstDSL.head(AstDSL.relation("schema"), 10));
   }
 
   @Test
@@ -295,9 +291,8 @@ class AnalyzerTest extends AnalyzerTestBase {
                             "avg(integer_value)",
                             dsl.avg(DSL.ref("integer_value", INTEGER)))),
                     ImmutableList.of(DSL.named("string_value", DSL.ref("string_value", STRING)))),
-                0,
                 // Aggregator in Sort AST node is replaced with reference by expression optimizer
-                Pair.of(Sort.SortOption.DEFAULT_ASC, DSL.ref("avg(integer_value)", DOUBLE))),
+                Pair.of(SortOption.DEFAULT_ASC, DSL.ref("avg(integer_value)", DOUBLE))),
             DSL.named("string_value", DSL.ref("string_value", STRING))),
         AstDSL.project(
             AstDSL.sort(
@@ -311,11 +306,51 @@ class AnalyzerTest extends AnalyzerTestBase {
                     ImmutableList.of(AstDSL.alias("string_value", qualifiedName("string_value"))),
                     emptyList()
                 ),
-                ImmutableList.of(argument("count", intLiteral(0))),
                 field(
                     function("avg", qualifiedName("integer_value")),
                     argument("asc", booleanLiteral(true)))),
             AstDSL.alias("string_value", qualifiedName("string_value"))));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void sort_with_options() {
+    ImmutableMap<Argument[], SortOption> argOptions =
+        ImmutableMap.<Argument[], SortOption>builder()
+            .put(new Argument[]{argument("asc", booleanLiteral(true))},
+                new SortOption(SortOrder.ASC, NullOrder.NULL_FIRST))
+            .put(new Argument[]{argument("asc", booleanLiteral(false))},
+                new SortOption(SortOrder.DESC, NullOrder.NULL_LAST))
+            .put(new Argument[]{
+                argument("asc", booleanLiteral(true)),
+                argument("nullFirst", booleanLiteral(true))},
+                new SortOption(SortOrder.ASC, NullOrder.NULL_FIRST))
+            .put(new Argument[]{
+                argument("asc", booleanLiteral(true)),
+                argument("nullFirst", booleanLiteral(false))},
+                new SortOption(SortOrder.ASC, NullOrder.NULL_LAST))
+            .put(new Argument[]{
+                argument("asc", booleanLiteral(false)),
+                argument("nullFirst", booleanLiteral(true))},
+                new SortOption(SortOrder.DESC, NullOrder.NULL_FIRST))
+            .put(new Argument[]{
+                argument("asc", booleanLiteral(false)),
+                argument("nullFirst", booleanLiteral(false))},
+                new SortOption(SortOrder.DESC, NullOrder.NULL_LAST))
+            .build();
+
+    argOptions.forEach((args, expectOption) ->
+        assertAnalyzeEqual(
+            LogicalPlanDSL.project(
+                LogicalPlanDSL.sort(
+                    LogicalPlanDSL.relation("test"),
+                    Pair.of(expectOption, DSL.ref("integer_value", INTEGER))),
+                DSL.named("string_value", DSL.ref("string_value", STRING))),
+            AstDSL.project(
+                AstDSL.sort(
+                    AstDSL.relation("test"),
+                    field(qualifiedName("integer_value"), args)),
+                AstDSL.alias("string_value", qualifiedName("string_value")))));
   }
 
   @SuppressWarnings("unchecked")
@@ -326,16 +361,17 @@ class AnalyzerTest extends AnalyzerTestBase {
             LogicalPlanDSL.window(
                 LogicalPlanDSL.sort(
                     LogicalPlanDSL.relation("test"),
-                    0,
                     ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
                     ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))),
-                dsl.rowNumber(),
+                DSL.named("window_function", dsl.rowNumber()),
                 new WindowDefinition(
                     ImmutableList.of(DSL.ref("string_value", STRING)),
                     ImmutableList.of(
                         ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))))),
             DSL.named("string_value", DSL.ref("string_value", STRING)),
-            DSL.named("window_function", DSL.ref("row_number()", INTEGER))),
+            // Alias name "window_function" is used as internal symbol name to connect
+            // project item and window operator output
+            DSL.named("window_function", DSL.ref("window_function", INTEGER))),
         AstDSL.project(
             AstDSL.relation("test"),
             AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),
@@ -344,7 +380,64 @@ class AnalyzerTest extends AnalyzerTestBase {
                     AstDSL.function("row_number"),
                     Collections.singletonList(AstDSL.qualifiedName("string_value")),
                     Collections.singletonList(
-                        ImmutablePair.of("ASC", AstDSL.qualifiedName("integer_value")))))));
+                        ImmutablePair.of(DEFAULT_ASC, AstDSL.qualifiedName("integer_value")))))));
+  }
+
+  /**
+   * SELECT name FROM (
+   *   SELECT name, age FROM test
+   * ) AS schema.
+   */
+  @Test
+  public void from_subquery() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.project(
+                LogicalPlanDSL.relation("schema"),
+                DSL.named("string_value", DSL.ref("string_value", STRING)),
+                DSL.named("integer_value", DSL.ref("integer_value", INTEGER))
+            ),
+            DSL.named("string_value", DSL.ref("string_value", STRING))
+        ),
+        AstDSL.project(
+            AstDSL.relationSubquery(
+                AstDSL.project(
+                    AstDSL.relation("schema"),
+                    AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),
+                    AstDSL.alias("integer_value", AstDSL.qualifiedName("integer_value"))
+                ),
+                "schema"
+            ),
+            AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+        )
+    );
+  }
+
+  /**
+   * SELECT * FROM (
+   *   SELECT name FROM test
+   * ) AS schema.
+   */
+  @Test
+  public void select_all_from_subquery() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.project(
+                LogicalPlanDSL.relation("schema"),
+                DSL.named("string_value", DSL.ref("string_value", STRING))),
+            DSL.named("string_value", DSL.ref("string_value", STRING))
+        ),
+        AstDSL.project(
+            AstDSL.relationSubquery(
+                AstDSL.project(
+                    AstDSL.relation("schema"),
+                    AstDSL.alias("string_value", AstDSL.qualifiedName("string_value"))
+                ),
+                "schema"
+            ),
+            AstDSL.allFields()
+        )
+    );
   }
 
   /**
@@ -500,6 +593,26 @@ class AnalyzerTest extends AnalyzerTestBase {
             AstDSL.alias("sum(integer_value)-avg(integer_value)",
                 function("-", aggregate("sum", qualifiedName("integer_value")),
                     aggregate("avg", qualifiedName("integer_value")))))
+    );
+  }
+
+  @Test
+  public void limit_offset() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.limit(
+                LogicalPlanDSL.relation("schema"),
+                1, 1
+            ),
+            DSL.named("integer_value", DSL.ref("integer_value", INTEGER))
+        ),
+        AstDSL.project(
+            AstDSL.limit(
+                AstDSL.relation("schema"),
+                1, 1
+            ),
+            AstDSL.alias("integer_value", qualifiedName("integer_value"))
+        )
     );
   }
 }

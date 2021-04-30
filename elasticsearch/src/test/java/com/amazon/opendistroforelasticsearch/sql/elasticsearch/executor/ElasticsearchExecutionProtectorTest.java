@@ -50,6 +50,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.NamedAggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankFunction;
 import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -100,9 +101,6 @@ class ElasticsearchExecutionProtectorTest {
     ReferenceExpression topField = ref("name", STRING);
     List<Expression> topExprs = Arrays.asList(ref("age", INTEGER));
     Expression filterExpr = literal(ExprBooleanValue.of(true));
-    Expression whileExpr = literal(ExprBooleanValue.of(true));
-    Boolean keepLast = false;
-    Integer headNumber = 5;
     List<NamedExpression> groupByExprs = Arrays.asList(named("age", ref("age", INTEGER)));
     List<NamedAggregator> aggregators =
         Arrays.asList(named("avg(age)", new AvgAggregator(Arrays.asList(ref("age", INTEGER)),
@@ -114,74 +112,74 @@ class ElasticsearchExecutionProtectorTest {
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
         ImmutablePair.of(DEFAULT_ASC, ref("name1", STRING));
+    Integer size = 200;
+    Integer limit = 10;
+    Integer offset = 10;
 
     assertEquals(
         PhysicalPlanDSL.project(
-            PhysicalPlanDSL.dedupe(
-                PhysicalPlanDSL.rareTopN(
-                    resourceMonitor(
-                    PhysicalPlanDSL.sort(
-                        PhysicalPlanDSL.eval(
-                            PhysicalPlanDSL.remove(
-                                PhysicalPlanDSL.rename(
-                                    PhysicalPlanDSL.agg(
-                                        PhysicalPlanDSL.head(
-                                            filter(
-                                                resourceMonitor(
-                                                new ElasticsearchIndexScan(
-                                                    client, settings, indexName, exprValueFactory)),
-                                                filterExpr),
-                                            keepLast,
-                                            whileExpr,
-                                            headNumber),
-                                        aggregators,
-                                        groupByExprs),
-                                    mappings),
-                                exclude),
-                            newEvalField),
-                        sortCount,
-                        sortField)),
-                    CommandType.TOP,
-                    topExprs,
-                    topField),
-                dedupeField),
-            include),
-        executionProtector.protect(
-            PhysicalPlanDSL.project(
+            PhysicalPlanDSL.limit(
                 PhysicalPlanDSL.dedupe(
                     PhysicalPlanDSL.rareTopN(
-                        PhysicalPlanDSL.sort(
-                            PhysicalPlanDSL.eval(
-                                PhysicalPlanDSL.remove(
-                                    PhysicalPlanDSL.rename(
-                                        PhysicalPlanDSL.agg(
-                                            PhysicalPlanDSL.head(
+                        resourceMonitor(
+                            PhysicalPlanDSL.sort(
+                                PhysicalPlanDSL.eval(
+                                    PhysicalPlanDSL.remove(
+                                        PhysicalPlanDSL.rename(
+                                            PhysicalPlanDSL.agg(
                                                 filter(
+                                                    resourceMonitor(
                                                         new ElasticsearchIndexScan(
                                                             client, settings, indexName,
-                                                            exprValueFactory),
+                                                            exprValueFactory)),
                                                     filterExpr),
-                                                keepLast,
-                                                whileExpr,
-                                                headNumber),
-                                            aggregators,
-                                            groupByExprs),
-                                        mappings),
-                                    exclude),
-                                newEvalField),
-                            sortCount,
-                            sortField),
+                                                aggregators,
+                                                groupByExprs),
+                                            mappings),
+                                        exclude),
+                                    newEvalField),
+                                sortField)),
                         CommandType.TOP,
                         topExprs,
                         topField),
                     dedupeField),
+                limit,
+                offset),
+            include),
+        executionProtector.protect(
+            PhysicalPlanDSL.project(
+                PhysicalPlanDSL.limit(
+                    PhysicalPlanDSL.dedupe(
+                        PhysicalPlanDSL.rareTopN(
+                            PhysicalPlanDSL.sort(
+                                PhysicalPlanDSL.eval(
+                                    PhysicalPlanDSL.remove(
+                                        PhysicalPlanDSL.rename(
+                                            PhysicalPlanDSL.agg(
+                                                filter(
+                                                    new ElasticsearchIndexScan(
+                                                        client, settings, indexName,
+                                                        exprValueFactory),
+                                                    filterExpr),
+                                                aggregators,
+                                                groupByExprs),
+                                            mappings),
+                                        exclude),
+                                    newEvalField),
+                                sortField),
+                            CommandType.TOP,
+                            topExprs,
+                            topField),
+                        dedupeField),
+                    limit,
+                    offset),
                 include)));
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void testProtectSortForWindowOperator() {
-    Expression rank = mock(RankFunction.class);
+    NamedExpression rank = named(mock(RankFunction.class));
     Pair<Sort.SortOption, Expression> sortItem =
         ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER));
     WindowDefinition windowDefinition =
@@ -192,7 +190,6 @@ class ElasticsearchExecutionProtectorTest {
             resourceMonitor(
                 sort(
                     values(emptyList()),
-                    0,
                     sortItem)),
             rank,
             windowDefinition),
@@ -200,10 +197,53 @@ class ElasticsearchExecutionProtectorTest {
             window(
                 sort(
                     values(emptyList()),
-                    0,
                     sortItem
                 ),
                 rank,
+                windowDefinition)));
+  }
+
+  @Test
+  public void testProtectWindowOperatorInput() {
+    NamedExpression avg = named(mock(AggregateWindowFunction.class));
+    WindowDefinition windowDefinition = mock(WindowDefinition.class);
+
+    assertEquals(
+        window(
+            resourceMonitor(
+                values()),
+            avg,
+            windowDefinition),
+        executionProtector.protect(
+            window(
+                values(),
+                avg,
+                windowDefinition)));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testNotProtectWindowOperatorInputIfAlreadyProtected() {
+    NamedExpression avg = named(mock(AggregateWindowFunction.class));
+    Pair<Sort.SortOption, Expression> sortItem =
+        ImmutablePair.of(DEFAULT_ASC, DSL.ref("age", INTEGER));
+    WindowDefinition windowDefinition =
+        new WindowDefinition(emptyList(), ImmutableList.of(sortItem));
+
+    assertEquals(
+        window(
+            resourceMonitor(
+                sort(
+                    values(emptyList()),
+                    sortItem)),
+            avg,
+            windowDefinition),
+        executionProtector.protect(
+            window(
+                sort(
+                    values(emptyList()),
+                    sortItem),
+                avg,
                 windowDefinition)));
   }
 

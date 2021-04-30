@@ -29,6 +29,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BYTE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -36,6 +38,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_BINARY;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_GEO_POINT;
@@ -44,12 +47,17 @@ import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.utils.ElasticsearchJsonContent;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
@@ -70,7 +78,10 @@ class ElasticsearchExprValueFactoryTest {
           .put("floatV", FLOAT)
           .put("doubleV", DOUBLE)
           .put("stringV", STRING)
-          .put("dateV", TIMESTAMP)
+          .put("dateV", DATE)
+          .put("datetimeV", DATETIME)
+          .put("timeV", TIME)
+          .put("timestampV", TIMESTAMP)
           .put("boolV", BOOLEAN)
           .put("structV", STRUCT)
           .put("structV.id", INTEGER)
@@ -91,16 +102,24 @@ class ElasticsearchExprValueFactoryTest {
   public void constructNullValue() {
     assertEquals(nullValue(), tupleValue("{\"intV\":null}").get("intV"));
     assertEquals(nullValue(), constructFromObject("intV",  null));
+    assertTrue(new ElasticsearchJsonContent(null).isNull());
+  }
+
+  @Test
+  public void constructNullArrayValue() {
+    assertEquals(nullValue(), tupleValue("{\"intV\":[]}").get("intV"));
   }
 
   @Test
   public void constructByte() {
     assertEquals(byteValue((byte) 1), tupleValue("{\"byteV\":1}").get("byteV"));
+    assertEquals(byteValue((byte) 1), constructFromObject("byteV", 1));
   }
 
   @Test
   public void constructShort() {
     assertEquals(shortValue((short) 1), tupleValue("{\"shortV\":1}").get("shortV"));
+    assertEquals(shortValue((short) 1), constructFromObject("shortV", 1));
   }
 
   @Test
@@ -161,36 +180,48 @@ class ElasticsearchExprValueFactoryTest {
   public void constructDate() {
     assertEquals(
         new ExprTimestampValue("2015-01-01 00:00:00"),
-        tupleValue("{\"dateV\":\"2015-01-01\"}").get("dateV"));
+        tupleValue("{\"timestampV\":\"2015-01-01\"}").get("timestampV"));
     assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
-        tupleValue("{\"dateV\":\"2015-01-01T12:10:30Z\"}").get("dateV"));
+        tupleValue("{\"timestampV\":\"2015-01-01T12:10:30Z\"}").get("timestampV"));
     assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
-        tupleValue("{\"dateV\":\"2015-01-01T12:10:30\"}").get("dateV"));
+        tupleValue("{\"timestampV\":\"2015-01-01T12:10:30\"}").get("timestampV"));
     assertEquals(
-            new ExprTimestampValue("2015-01-01 12:10:30"),
-            tupleValue("{\"dateV\":\"2015-01-01 12:10:30\"}").get("dateV"));
+        new ExprTimestampValue("2015-01-01 12:10:30"),
+        tupleValue("{\"timestampV\":\"2015-01-01 12:10:30\"}").get("timestampV"));
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
-        tupleValue("{\"dateV\":1420070400001}").get("dateV"));
+        tupleValue("{\"timestampV\":1420070400001}").get("timestampV"));
+    assertEquals(
+        new ExprTimeValue("19:36:22"),
+        tupleValue("{\"timestampV\":\"19:36:22\"}").get("timestampV"));
 
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
-        constructFromObject("dateV", 1420070400001L));
+        constructFromObject("timestampV", 1420070400001L));
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
-        constructFromObject("dateV", Instant.ofEpochMilli(1420070400001L)));
+        constructFromObject("timestampV", Instant.ofEpochMilli(1420070400001L)));
     assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
-        constructFromObject("dateV", "2015-01-01 12:10:30"));
+        constructFromObject("timestampV", "2015-01-01 12:10:30"));
+    assertEquals(
+        new ExprDateValue("2015-01-01"),
+        constructFromObject("dateV","2015-01-01"));
+    assertEquals(
+        new ExprTimeValue("12:10:30"),
+        constructFromObject("timeV","12:10:30"));
+    assertEquals(
+        new ExprDatetimeValue("2015-01-01 12:10:30"),
+        constructFromObject("datetimeV", "2015-01-01 12:10:30"));
   }
 
   @Test
   public void constructDateFromUnsupportedFormatThrowException() {
     IllegalStateException exception =
         assertThrows(
-            IllegalStateException.class, () -> tupleValue("{\"dateV\":\"2015-01-01 12:10\"}"));
+            IllegalStateException.class, () -> tupleValue("{\"timestampV\":\"2015-01-01 12:10\"}"));
     assertEquals(
         "Construct ExprTimestampValue from \"2015-01-01 12:10\" failed, "
             + "unsupported date format.",
@@ -208,6 +239,16 @@ class ElasticsearchExprValueFactoryTest {
               }
             }))),
         tupleValue("{\"arrayV\":[{\"info\":\"zz\",\"author\":\"au\"}]}").get("arrayV"));
+    assertEquals(
+        new ExprCollectionValue(ImmutableList.of(new ExprTupleValue(
+            new LinkedHashMap<String, ExprValue>() {
+              {
+                put("info", stringValue("zz"));
+                put("author", stringValue("au"));
+              }
+            }))),
+        constructFromObject("arrayV", ImmutableList.of(
+            ImmutableMap.of("info", "zz", "author", "au"))));
   }
 
   @Test
@@ -221,6 +262,15 @@ class ElasticsearchExprValueFactoryTest {
               }
             }),
         tupleValue("{\"structV\":{\"id\":1,\"state\":\"WA\"}}").get("structV"));
+    assertEquals(
+        new ExprTupleValue(
+            new LinkedHashMap<String, ExprValue>() {
+              {
+                put("id", integerValue(1));
+                put("state", stringValue("WA"));
+              }
+            }),
+        constructFromObject("structV", ImmutableMap.of("id", 1, "state", "WA")));
   }
 
   @Test
@@ -233,12 +283,64 @@ class ElasticsearchExprValueFactoryTest {
   public void constructGeoPoint() {
     assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
         tupleValue("{\"geoV\":{\"lat\":42.60355556,\"lon\":-97.25263889}}").get("geoV"));
+    assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
+        tupleValue("{\"geoV\":{\"lat\":\"42.60355556\",\"lon\":\"-97.25263889\"}}").get("geoV"));
+    assertEquals(new ElasticsearchExprGeoPointValue(42.60355556, -97.25263889),
+        constructFromObject("geoV", "42.60355556,-97.25263889"));
+  }
+
+  @Test
+  public void constructGeoPointFromUnsupportedFormatShouldThrowException() {
+    IllegalStateException exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":[42.60355556,-97.25263889]}").get("geoV"));
+    assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
+        exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":{\"lon\":-97.25263889}}").get("geoV"));
+    assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
+        exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":{\"lat\":-97.25263889}}").get("geoV"));
+    assertEquals("geo point must in format of {\"lat\": number, \"lon\": number}",
+        exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":{\"lat\":true,\"lon\":-97.25263889}}").get("geoV"));
+    assertEquals("latitude must be number value, but got value: true", exception.getMessage());
+
+    exception =
+        assertThrows(IllegalStateException.class,
+            () -> tupleValue("{\"geoV\":{\"lat\":42.60355556,\"lon\":false}}").get("geoV"));
+    assertEquals("longitude must be number value, but got value: false", exception.getMessage());
   }
 
   @Test
   public void constructBinary() {
     assertEquals(new ElasticsearchExprBinaryValue("U29tZSBiaW5hcnkgYmxvYg=="),
         tupleValue("{\"binaryV\":\"U29tZSBiaW5hcnkgYmxvYg==\"}").get("binaryV"));
+  }
+
+  /**
+   * Return the first element if is Elasticsearch Array.
+   * https://www.elastic.co/guide/en/elasticsearch/reference/current/array.html.
+   */
+  @Test
+  public void constructFromElasticsearchArrayReturnFirstElement() {
+    assertEquals(integerValue(1), tupleValue("{\"intV\":[1, 2, 3]}").get("intV"));
+    assertEquals(new ExprTupleValue(
+        new LinkedHashMap<String, ExprValue>() {
+          {
+            put("id", integerValue(1));
+            put("state", stringValue("WA"));
+          }
+        }), tupleValue("{\"structV\":[{\"id\":1,\"state\":\"WA\"},{\"id\":2,\"state\":\"CA\"}]}}")
+        .get("structV"));
   }
 
   @Test
@@ -261,18 +363,18 @@ class ElasticsearchExprValueFactoryTest {
         new ElasticsearchExprValueFactory(ImmutableMap.of("type", new TestType()));
     IllegalStateException exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("{\"type\":1}"));
-    assertEquals("Unsupported type: TEST_TYPE for field: type, value: 1.", exception.getMessage());
+    assertEquals("Unsupported type: TEST_TYPE for value: 1.", exception.getMessage());
 
     exception =
         assertThrows(IllegalStateException.class, () -> exprValueFactory.construct("type", 1));
     assertEquals(
-        "Unsupported type TEST_TYPE to construct expression value "
-            + "from object for field: type, value: 1.",
+        "Unsupported type: TEST_TYPE for value: 1.",
         exception.getMessage());
   }
 
   public Map<String, ExprValue> tupleValue(String jsonString) {
-    return (Map<String, ExprValue>) exprValueFactory.construct(jsonString).value();
+    final ExprValue construct = exprValueFactory.construct(jsonString);
+    return construct.tupleValue();
   }
 
   private ExprValue constructFromObject(String fieldName, Object value) {

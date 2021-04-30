@@ -4,10 +4,29 @@ SELECT DistanceMiles, DENSE_RANK() OVER (ORDER BY DistanceMiles) AS rnk FROM kib
 SELECT DistanceMiles, ROW_NUMBER() OVER (ORDER BY DistanceMiles DESC) AS num FROM kibana_sample_data_flights
 SELECT DistanceMiles, RANK() OVER (ORDER BY DistanceMiles DESC) AS rnk FROM kibana_sample_data_flights
 SELECT DistanceMiles, DENSE_RANK() OVER (ORDER BY DistanceMiles DESC) AS rnk FROM kibana_sample_data_flights
+SELECT DistanceMiles, COUNT(DistanceMiles) OVER () AS num FROM kibana_sample_data_flights
+SELECT DistanceMiles, SUM(DistanceMiles) OVER () AS num FROM kibana_sample_data_flights
+SELECT DistanceMiles, AVG(DistanceMiles) OVER () AS num FROM kibana_sample_data_flights
+SELECT DistanceMiles, MAX(DistanceMiles) OVER () AS num FROM kibana_sample_data_flights
+SELECT DistanceMiles, MIN(DistanceMiles) OVER () AS num FROM kibana_sample_data_flights
+SELECT FlightDelayMin, DistanceMiles, SUM(DistanceMiles) OVER (ORDER BY FlightDelayMin) AS num FROM kibana_sample_data_flights
+SELECT FlightDelayMin, DistanceMiles, AVG(DistanceMiles) OVER (ORDER BY FlightDelayMin) AS num FROM kibana_sample_data_flights
+SELECT FlightDelayMin, DistanceMiles, MAX(DistanceMiles) OVER (ORDER BY FlightDelayMin) AS num FROM kibana_sample_data_flights
+SELECT FlightDelayMin, DistanceMiles, MIN(DistanceMiles) OVER (ORDER BY FlightDelayMin) AS num FROM kibana_sample_data_flights
 SELECT user, RANK() OVER (ORDER BY user) AS rnk FROM kibana_sample_data_ecommerce
 SELECT user, DENSE_RANK() OVER (ORDER BY user) AS rnk FROM kibana_sample_data_ecommerce
+SELECT user, COUNT(day_of_week_i) OVER (ORDER BY user) AS cnt FROM kibana_sample_data_ecommerce
+SELECT user, SUM(day_of_week_i) OVER (ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT user, AVG(day_of_week_i) OVER (ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT user, MAX(day_of_week_i) OVER (ORDER BY user) AS num FROM kibana_sample_data_ecommerce
+SELECT user, MIN(day_of_week_i) OVER (ORDER BY user) AS num FROM kibana_sample_data_ecommerce
 SELECT user, RANK() OVER (ORDER BY user DESC) AS rnk FROM kibana_sample_data_ecommerce
 SELECT user, DENSE_RANK() OVER (ORDER BY user DESC) AS rnk FROM kibana_sample_data_ecommerce
+SELECT user, COUNT(day_of_week_i) OVER (PARTITION BY user ORDER BY order_id) AS cnt FROM kibana_sample_data_ecommerce
+SELECT user, SUM(day_of_week_i) OVER (PARTITION BY user ORDER BY order_id) AS num FROM kibana_sample_data_ecommerce
+SELECT user, AVG(day_of_week_i) OVER (PARTITION BY user ORDER BY order_id) AS num FROM kibana_sample_data_ecommerce
+SELECT user, MAX(day_of_week_i) OVER (PARTITION BY user ORDER BY order_id) AS num FROM kibana_sample_data_ecommerce
+SELECT user, MIN(day_of_week_i) OVER (PARTITION BY user ORDER BY order_id) AS num FROM kibana_sample_data_ecommerce
 SELECT customer_gender, user, ROW_NUMBER() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce
 SELECT customer_gender, user, RANK() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce
 SELECT customer_gender, user, DENSE_RANK() OVER (PARTITION BY customer_gender ORDER BY user) AS num FROM kibana_sample_data_ecommerce

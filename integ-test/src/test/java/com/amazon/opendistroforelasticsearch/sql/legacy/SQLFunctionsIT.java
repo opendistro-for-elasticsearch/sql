@@ -52,6 +52,7 @@ import org.elasticsearch.search.SearchHits;
 import org.hamcrest.collection.IsMapContaining;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -219,28 +220,32 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void castIntFieldToFloatWithoutAliasJdbcFormatTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(
-        "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        "SELECT CAST(balance AS FLOAT) AS cast_balance FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
             " ORDER BY balance DESC LIMIT 1");
 
     verifySchema(response,
-        schema("cast_balance", null, "float"));
+        schema("CAST(balance AS FLOAT)", "cast_balance", "float"));
 
     verifyDataRows(response,
-        rows(49989));
+        rows(49989.0));
   }
 
   @Test
   public void castIntFieldToFloatWithAliasJdbcFormatTest() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response = executeJdbcRequest(
         "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
             "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY jdbc_float_alias LIMIT 1");
 
     verifySchema(response,
-        schema("jdbc_float_alias", null, "float"));
+        schema("CAST(balance AS FLOAT)", "jdbc_float_alias", "float"));
 
     verifyDataRows(response,
-        rows(1011));
+        rows(1011.0));
   }
 
   @Test
@@ -370,8 +375,11 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         rows("2019-09-25T02:04:13.469Z"));
   }
 
+
   @Test
   public void castBoolFieldToNumericValueInSelectClause() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response =
         executeJdbcRequest(
             "SELECT "
@@ -386,19 +394,21 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     verifySchema(response,
         schema("male", "boolean"),
-        schema("cast_int", "integer"),
-        schema("cast_long", "long"),
-        schema("cast_float", "float"),
-        schema("cast_double", "double")
+        schema("CAST(male AS INT)", "cast_int", "integer"),
+        schema("CAST(male AS LONG)", "cast_long", "long"),
+        schema("CAST(male AS FLOAT)", "cast_float", "float"),
+        schema("CAST(male AS DOUBLE)", "cast_double", "double")
     );
     verifyDataRows(response,
-        rows(true, 1, 1, 1, 1),
-        rows(false, 0, 0, 0, 0)
+        rows(true, 1, 1, 1.0, 1.0),
+        rows(false, 0, 0, 0.0, 0.0)
     );
   }
 
   @Test
   public void castBoolFieldToNumericValueWithGroupByAlias() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
+
     JSONObject response =
         executeJdbcRequest(
             "SELECT "
@@ -409,12 +419,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
 
     verifySchema(response,
-        schema("cast_int", "cast_int", "double"), //Type is double due to query plan fail to infer
+        schema("CAST(male AS INT)", "cast_int", "integer"),
         schema("COUNT(*)", "integer")
     );
     verifyDataRows(response,
-        rows("0", 3),
-        rows("1", 4)
+        rows(0, 3),
+        rows(1, 4)
     );
   }
 
@@ -704,12 +714,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void ifFuncShouldPassJDBC() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
         "SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
             + " WHERE age IS NOT NULL GROUP BY Ages");
-    assertEquals("Ages", response.query("/schema/0/name"));
+    assertEquals("IF(age > 30, \'True\', \'False\')", response.query("/schema/0/name"));
     assertEquals("Ages", response.query("/schema/0/alias"));
-    assertEquals("double", response.query("/schema/0/type"));
+    assertEquals("keyword", response.query("/schema/0/type"));
   }
 
   @Test
@@ -742,12 +753,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void ifnullShouldPassJDBC() throws IOException {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response = executeJdbcRequest(
         "SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
             + " GROUP BY name");
-    assertEquals("name", response.query("/schema/0/name"));
+    assertEquals("IFNULL(lastname, \'unknown\')", response.query("/schema/0/name"));
     assertEquals("name", response.query("/schema/0/alias"));
-    assertEquals("double", response.query("/schema/0/type"));
+    assertEquals("keyword", response.query("/schema/0/type"));
   }
 
   @Test
@@ -772,12 +784,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
   @Test
   public void isnullShouldPassJDBC() {
+    Assume.assumeTrue(isNewQueryEngineEabled());
     JSONObject response =
         executeJdbcRequest(
-            "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name");
-    assertEquals("name", response.query("/schema/0/name"));
+            "SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT);
+    assertEquals("ISNULL(lastname)", response.query("/schema/0/name"));
     assertEquals("name", response.query("/schema/0/alias"));
-    assertEquals("integer", response.query("/schema/0/type"));
+    assertEquals("boolean", response.query("/schema/0/type"));
   }
 
   @Test

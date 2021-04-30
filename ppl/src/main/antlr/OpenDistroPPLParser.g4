@@ -42,7 +42,7 @@ whereCommand
     ;
 
 fieldsCommand
-    : FIELDS (PLUS | MINUS)? wcFieldList
+    : FIELDS (PLUS | MINUS)? fieldList
     ;
 
 renameCommand
@@ -68,7 +68,7 @@ dedupCommand
     ;
 
 sortCommand
-    : SORT (count=integerLiteral)? sortbyClause (D | DESC)?
+    : SORT sortbyClause
     ;
 
 evalCommand
@@ -77,8 +77,6 @@ evalCommand
 
 headCommand
     : HEAD
-    (KEEPLAST EQUAL keeplast=booleanLiteral)?
-    (WHILE LT_PRTHS whileExpr=logicalExpression RT_PRTHS)?
     (number=integerLiteral)?
     ;
     
@@ -125,6 +123,7 @@ statsAggTerm
 /** aggregation functions */
 statsFunction
     : statsFunctionName LT_PRTHS valueExpression RT_PRTHS           #statsFunctionCall
+    | COUNT LT_PRTHS RT_PRTHS                                       #countAllFunctionCall
     | percentileAggFunction                                         #percentileAggFunctionCall
     ;
 
@@ -149,6 +148,7 @@ logicalExpression
     | left=logicalExpression OR right=logicalExpression             #logicalOr
     | left=logicalExpression (AND)? right=logicalExpression         #logicalAnd
     | left=logicalExpression XOR right=logicalExpression            #logicalXor
+    | booleanExpression                                             #booleanExpr
     ;
 
 comparisonExpression
@@ -169,9 +169,14 @@ primaryExpression
     | literalValue
     ;
 
+booleanExpression
+    : booleanFunctionCall
+    ;
+
 /** tables */
 tableSource
     : qualifiedName
+    | ID_DATE_SUFFIX
     ;
 
 /** fields */
@@ -208,10 +213,16 @@ evalFunctionCall
     : evalFunctionName LT_PRTHS functionArgs RT_PRTHS
     ;
 
+/** boolean functions */
+booleanFunctionCall
+    : conditionFunctionBase LT_PRTHS functionArgs RT_PRTHS
+    ;
+
 evalFunctionName
     : mathematicalFunctionBase
     | dateAndTimeFunctionBase
     | textFunctionBase
+    | conditionFunctionBase
     ;
 
 functionArgs
@@ -238,13 +249,20 @@ dateAndTimeFunctionBase
     | TIMESTAMP | TO_DAYS | YEAR | WEEK | DATE_FORMAT
     ;
 
+/** condition function return boolean value */
+conditionFunctionBase
+    : LIKE
+    | IF | ISNULL | ISNOTNULL | IFNULL | NULLIF
+    ;
+
 textFunctionBase
     : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER | CONCAT | CONCAT_WS | LENGTH | STRCMP
+    | RIGHT
     ;
 
 /** operators */
 comparisonOperator
-    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | LIKE | REGEXP
+    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | REGEXP
     ;
 
 binaryOperator
@@ -292,19 +310,18 @@ valueList
     ;
 
 qualifiedName
-    : ident (DOT ident)*                                            #identsAsQualifiedName
-    | keywordsCanBeId                                               #keywordsAsQualifiedName
+    : ident (DOT ident)*                             #identsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard (DOT wildcard)*                                      #identsAsWildcardQualifiedName
-    | keywordsCanBeId                                               #keywordsAsWildcardQualifiedName
+    : wildcard (DOT wildcard)*                       #identsAsWildcardQualifiedName
     ;
 
 ident
     : (DOT)? ID
     | BACKTICK ident BACKTICK
     | BQUOTA_STRING
+    | keywordsCanBeId
     ;
 
 wildcard
@@ -318,4 +335,5 @@ keywordsCanBeId
     : D // OD SQL and ODBC special
     | statsFunctionName
     | TIMESTAMP | DATE | TIME
+    | FIRST | LAST
     ;

@@ -39,7 +39,7 @@ root
 
 //    Only SELECT
 sqlStatement
-    : dmlStatement
+    : dmlStatement | adminStatement
     ;
 
 dmlStatement
@@ -55,16 +55,49 @@ selectStatement
     : querySpecification                                 #simpleSelect
     ;
 
+adminStatement
+    : showStatement
+    | describeStatement
+    ;
+
+showStatement
+    : SHOW TABLES tableFilter?
+    ;
+
+describeStatement
+    : DESCRIBE TABLES tableFilter columnFilter?
+    ;
+
+columnFilter
+    : COLUMNS LIKE showDescribePattern
+    ;
+
+tableFilter
+    : LIKE showDescribePattern
+    ;
+
+showDescribePattern
+    : oldID=compatibleID | stringLiteral
+    ;
+
+compatibleID
+    : (MODULE | ID)+?
+    ;
 
 //    Select Statement's Details
 
 querySpecification
     : selectClause
       fromClause?
+      limitClause?
     ;
 
 selectClause
-    : SELECT selectElements
+    : SELECT selectSpec? selectElements
+    ;
+
+selectSpec
+    : (ALL | DISTINCT)
     ;
 
 selectElements
@@ -76,11 +109,16 @@ selectElement
     ;
 
 fromClause
-    : FROM tableName (AS? alias)?
+    : FROM relation
       (whereClause)?
       (groupByClause)?
       (havingClause)?
       (orderByClause)? // Place it under FROM for now but actually not necessary ex. A UNION B ORDER BY
+    ;
+
+relation
+    : tableName (AS? alias)?                                                #tableAsRelation
+    | LR_BRACKET subquery=querySpecification RR_BRACKET AS? alias           #subqueryAsRelation
     ;
 
 whereClause
@@ -108,17 +146,23 @@ orderByClause
     ;
 
 orderByElement
-    : expression order=(ASC | DESC)?
+    : expression order=(ASC | DESC)? (NULLS (FIRST | LAST))?
     ;
 
+limitClause
+    : LIMIT (offset=decimalLiteral COMMA)? limit=decimalLiteral
+    | LIMIT limit=decimalLiteral OFFSET offset=decimalLiteral
+    ;
 
 //  Window Function's Details
-windowFunction
-    : function=rankingWindowFunction overClause
+windowFunctionClause
+    : function=windowFunction overClause
     ;
 
-rankingWindowFunction
-    : functionName=(ROW_NUMBER | RANK | DENSE_RANK) LR_BRACKET RR_BRACKET
+windowFunction
+    : functionName=(ROW_NUMBER | RANK | DENSE_RANK)
+        LR_BRACKET functionArgs? RR_BRACKET              #scalarWindowFunction
+    | aggregateFunction                                  #aggregateWindowFunction
     ;
 
 overClause
@@ -152,6 +196,7 @@ decimalLiteral
 
 stringLiteral
     : STRING_LITERAL
+    | DOUBLE_QUOTE_ID
     ;
 
 booleanLiteral
@@ -240,19 +285,52 @@ nullNotnull
 
 functionCall
     : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
-    | windowFunction                                                #windowFunctionCall
+    | specificFunction                                              #specificFunctionCall
+    | windowFunctionClause                                          #windowFunctionCall
     | aggregateFunction                                             #aggregateFunctionCall
+    | aggregateFunction (orderByClause)? filterClause               #filteredAggregationFunctionCall
     ;
 
 scalarFunctionName
     : mathematicalFunctionName
     | dateTimeFunctionName
     | textFunctionName
+    | flowControlFunctionName
+    ;
+
+specificFunction
+    : CASE expression caseFuncAlternative+
+        (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    | CASE caseFuncAlternative+
+        (ELSE elseArg=functionArg)? END                               #caseFunctionCall
+    | CAST '(' expression AS convertedDataType ')'                    #dataTypeFunctionCall
+    ;
+
+convertedDataType
+    : typeName=DATE
+    | typeName=TIME
+    | typeName=TIMESTAMP
+    | typeName=INT
+    | typeName=INTEGER
+    | typeName=DOUBLE
+    | typeName=LONG
+    | typeName=FLOAT
+    | typeName=STRING
+    | typeName=BOOLEAN
+    ;
+
+caseFuncAlternative
+    : WHEN condition=functionArg
+      THEN consequent=functionArg
     ;
 
 aggregateFunction
-    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET
-    /*| COUNT LR_BRACKET (STAR | functionArg) RR_BRACKET */
+    : functionName=aggregationFunctionName LR_BRACKET functionArg RR_BRACKET #regularAggregateFunctionCall
+    | COUNT LR_BRACKET STAR RR_BRACKET                                       #countStarFunctionCall
+    ;
+
+filterClause
+    : FILTER LR_BRACKET WHERE expression RR_BRACKET
     ;
 
 aggregationFunctionName
@@ -277,7 +355,11 @@ dateTimeFunctionName
 
 textFunctionName
     : SUBSTR | SUBSTRING | TRIM | LTRIM | RTRIM | LOWER | UPPER
-    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP
+    | CONCAT | CONCAT_WS | SUBSTR | LENGTH | STRCMP | RIGHT
+    ;
+
+flowControlFunctionName
+    : IF | IFNULL | NULLIF | ISNULL
     ;
 
 functionArgs

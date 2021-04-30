@@ -69,10 +69,58 @@ There are three fields in test index ``people``: 1) deep nested object field ``c
 Example: Employees
 ------------------
 
+Here is the mapping for test index ``employees_nested``. Note that field ``projects`` is a nested field::
+
+    {
+      "mappings": {
+        "properties": {
+          "id": {
+            "type": "long"
+          },
+          "name": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "projects": {
+            "type": "nested",
+            "properties": {
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword"
+                  }
+                },
+                "fielddata": true
+              },
+              "started_year": {
+                "type": "long"
+              }
+            }
+          },
+          "title": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
+
+
 Result set::
 
 	{
-	  "employees" : [
+	  "employees_nested" : [
 	    {
 	      "id" : 3,
 	      "name" : "Bob Smith",
@@ -139,11 +187,12 @@ Before looking into how nested object field (tuple values) be queried, we need t
 |                         |               |                       |                                             | object or JSON array.   |
 +-------------------------+---------------+-----------------------+---------------------------------------------+-------------------------+
 | Selecting second level  | Yes           | No                    | Yes                                         |                         |
-|                         |               | (null returned)       | (or null returned if not in PartiQL syntax) |                         |
+|                         |               | (exception may)       | (or null returned if not in PartiQL syntax) |                         |
+|                         |               | be thrown)            |                                             |                         |
 +-------------------------+---------------+-----------------------+---------------------------------------------+ PartiQL specification   |
 | Selecting deeper levels | Yes           | No                    | No                                          | is followed             |
-|                         |               | (null returned)       | (exception may                              |                         |
-|                         |               |                       | be thrown)                                  |                         |
+|                         |               | (exception may        | (exception may                              |                         |
+|                         |               | be thrown)            | be thrown)                                  |                         |
 +-------------------------+---------------+-----------------------+---------------------------------------------+-------------------------+
 
 Example 1: Selecting Top Level
@@ -172,18 +221,6 @@ Selecting at deeper levels for object fields of regular value returns inner fiel
     | {'latitude': 10.5} | 10.5                     |
     +--------------------+--------------------------+
 
-Example 3: Selecting Field of Array Value
------------------------------------------
-
-Select deeper level for object fields of array value which returns ``NULL``. For example, because inner field ``accounts.id`` has three values instead of a tuple in this document, null is returned. Similarly, selecting inner field ``projects.name`` directly in nested field returns null::
-
-    od> SELECT accounts.id, projects.name FROM people;
-    fetched rows / total rows = 1/1
-    +---------------+-----------------+
-    | accounts.id   | projects.name   |
-    |---------------+-----------------|
-    | null          | null            |
-    +---------------+-----------------+
 
 For selecting second level for nested fields, please read on and find more details in the following sections.
 

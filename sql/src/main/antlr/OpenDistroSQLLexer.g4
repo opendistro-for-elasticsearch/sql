@@ -46,11 +46,13 @@ ALL:                                'ALL';
 AND:                                'AND';
 AS:                                 'AS';
 ASC:                                'ASC';
+BOOLEAN:                            'BOOLEAN';
 BETWEEN:                            'BETWEEN';
 BY:                                 'BY';
 CASE:                               'CASE';
 CAST:                               'CAST';
 CROSS:                              'CROSS';
+COLUMNS:                            'COLUMNS';
 DATETIME:                           'DATETIME';
 DELETE:                             'DELETE';
 DESC:                               'DESC';
@@ -61,14 +63,17 @@ ELSE:                               'ELSE';
 EXISTS:                             'EXISTS';
 FALSE:                              'FALSE';
 FLOAT:                              'FLOAT';
+FIRST:                              'FIRST';
 FROM:                               'FROM';
 GROUP:                              'GROUP';
 HAVING:                             'HAVING';
 IN:                                 'IN';
 INNER:                              'INNER';
 INT:                                'INT';
+INTEGER:                            'INTEGER';
 IS:                                 'IS';
 JOIN:                               'JOIN';
+LAST:                               'LAST';
 LEFT:                               'LEFT';
 LIKE:                               'LIKE';
 LIMIT:                              'LIMIT';
@@ -78,6 +83,7 @@ NATURAL:                            'NATURAL';
 MISSING_LITERAL:                    'MISSING';
 NOT:                                'NOT';
 NULL_LITERAL:                       'NULL';
+NULLS:                              'NULLS';
 ON:                                 'ON';
 OR:                                 'OR';
 ORDER:                              'ORDER';
@@ -203,6 +209,7 @@ MODULUS:                            'MODULUS';
 MONTHNAME:                          'MONTHNAME';
 MULTIPLY:                           'MULTIPLY';
 NOW:                                'NOW';
+NULLIF:                             'NULLIF';
 PI:                                 'PI';
 POW:                                'POW';
 POWER:                              'POWER';
@@ -361,7 +368,6 @@ BACKTICK_QUOTE_ID:                  BQUOTA_STRING;
 
 
 // Fragments for Literal primitives
-
 fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
 fragment ID_LITERAL:                [@*A-Z]+?[*A-Z_\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
@@ -370,8 +376,6 @@ fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment HEX_DIGIT:                 [0-9A-F];
 fragment DEC_DIGIT:                 [0-9];
 fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
-
-
 
 // Last tokens must generate Errors
 

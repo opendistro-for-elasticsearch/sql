@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import org.elasticsearch.client.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -133,24 +134,6 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     // TODO Perhaps a code change should be made to format logic to ensure a
     //  'datarows' length of 0 in response for this case
     assertThat(getDataRows(response).length(), equalTo(RESPONSE_DEFAULT_MAX_SIZE));
-  }
-
-  @Test
-  public void selectKeyword() throws IOException {
-    JSONObject response = executeQuery(
-        String.format(Locale.ROOT, "SELECT firstname.keyword FROM %s",
-            TestsConstants.TEST_INDEX_ACCOUNT));
-
-    List<String> fields = Collections.singletonList("firstname.keyword");
-    assertContainsColumns(getSchema(response), fields);
-
-    /*
-     * firstname.keyword will appear in Schema but because there is no 'firstname.keyword' in SearchHits source
-     * the DataRows will output null.
-     *
-     * Looks like x-pack adds this keyword field to "docvalue_fields", this is likely how it ends up in SearchHits
-     */
-    // assertContainsData(getDataRows(protocol), fields);
   }
 
   @Test
@@ -292,6 +275,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void testSizeAndTotal() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT * " +
                 "FROM %s " +
@@ -334,6 +318,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     }
   }
 
+  @Ignore("In MySQL and our new engine, the original text in SELECT is used as final column name")
   @Test
   public void aggregationFunctionInSelectCaseCheck() throws IOException {
     JSONObject response = executeQuery(
@@ -354,6 +339,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void aggregationFunctionInSelectWithAlias() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
+
     JSONObject response = executeQuery(
         String.format(Locale.ROOT, "SELECT COUNT(*) AS total FROM %s GROUP BY age",
             TestsConstants.TEST_INDEX_ACCOUNT));
@@ -368,17 +355,6 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
       assertThat(countVal, greaterThan((long) 0));
     }
-  }
-
-  @Test
-  public void aggregationFunctionInSelectGroupByMultipleFields() throws IOException {
-    JSONObject response = executeQuery(
-        String.format(Locale.ROOT, "SELECT SUM(age) FROM %s GROUP BY age, state.keyword",
-            TestsConstants.TEST_INDEX_ACCOUNT));
-
-    List<String> fields = Arrays.asList("SUM(age)");
-    assertContainsColumns(getSchema(response), fields);
-    assertContainsData(getDataRows(response), fields);
   }
 
   @Test

@@ -16,26 +16,33 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.domain;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.json.JSONObject;
 
 /**
  * SQL query request.
  */
 @ToString
-@Getter
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class SQLQueryRequest {
 
-  private static final Set<String> QUERY_FIELD = ImmutableSet.of("query");
-  private static final Set<String> QUERY_AND_FETCH_SIZE = ImmutableSet.of("query", "fetch_size");
+  private static final Set<String> SUPPORTED_FIELDS = ImmutableSet.of(
+      "query", "fetch_size", "parameters");
+  private static final String QUERY_PARAMS_FORMAT = "format";
+  private static final String QUERY_PARAMS_SANITIZE = "sanitize";
 
   /**
    * JSON payload in REST request.
@@ -45,6 +52,7 @@ public class SQLQueryRequest {
   /**
    * SQL query.
    */
+  @Getter
   private final String query;
 
   /**
@@ -58,17 +66,39 @@ public class SQLQueryRequest {
   private final String format;
 
   /**
-   * Pre-check if the request can be supported by meeting the following criteria:
-   *  1.Only "query" field or "query" and "fetch_size=0" in payload. In other word,
-   *  it's not a cursor request with either non-zero "fetch_size" or "cursor" field,
-   *  or request with extra field such as "filter".
-   *  2.Response format expected is default JDBC format.
+   * Request params.
+   */
+  private Map<String, String> params = Collections.emptyMap();
+
+  @Getter
+  @Accessors(fluent = true)
+  private boolean sanitize = true;
+
+  /**
+   * Constructor of SQLQueryRequest that passes request params.
+   */
+  public SQLQueryRequest(
+      JSONObject jsonContent, String query, String path, Map<String, String> params) {
+    this.jsonContent = jsonContent;
+    this.query = query;
+    this.path = path;
+    this.params = params;
+    this.format = getFormat(params);
+    this.sanitize = shouldSanitize(params);
+  }
+
+  /**
+   * Pre-check if the request can be supported by meeting ALL the following criteria:
+   *  1.Only supported fields present in request body, ex. "filter" and "cursor" are not supported
+   *  2.No fetch_size or "fetch_size=0". In other word, it's not a cursor request
+   *  3.Response format is default or can be supported.
    *
    * @return  true if supported.
    */
   public boolean isSupported() {
-    return (isOnlyQueryFieldInPayload() || isOnlyQueryAndFetchSizeZeroInPayload())
-        && isDefaultFormat();
+    return isOnlySupportedFieldInPayload()
+        && isFetchSizeZeroIfPresent()
+        && isSupportedFormat();
   }
 
   /**
@@ -79,17 +109,44 @@ public class SQLQueryRequest {
     return path.endsWith("/_explain");
   }
 
-  private boolean isOnlyQueryFieldInPayload() {
-    return QUERY_FIELD.equals(jsonContent.keySet());
+  /**
+   * Decide on the formatter by the requested format.
+   */
+  public Format format() {
+    Optional<Format> optionalFormat = Format.of(format);
+    if (optionalFormat.isPresent()) {
+      return optionalFormat.get();
+    } else {
+      throw new IllegalArgumentException(
+          String.format(Locale.ROOT,"response in %s format is not supported.", format));
+    }
   }
 
-  private boolean isOnlyQueryAndFetchSizeZeroInPayload() {
-    return QUERY_AND_FETCH_SIZE.equals(jsonContent.keySet())
-        && (jsonContent.getInt("fetch_size") == 0);
+  private boolean isOnlySupportedFieldInPayload() {
+    return SUPPORTED_FIELDS.containsAll(jsonContent.keySet());
   }
 
-  private boolean isDefaultFormat() {
-    return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format);
+  private boolean isFetchSizeZeroIfPresent() {
+    return (jsonContent.optInt("fetch_size") == 0);
+  }
+
+  private boolean isSupportedFormat() {
+    return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format)
+        || "csv".equalsIgnoreCase(format) || "raw".equalsIgnoreCase(format);
+  }
+
+  private String getFormat(Map<String, String> params) {
+    if (params.containsKey(QUERY_PARAMS_FORMAT)) {
+      return params.get(QUERY_PARAMS_FORMAT);
+    }
+    return "jdbc";
+  }
+
+  private boolean shouldSanitize(Map<String, String> params) {
+    if (params.containsKey(QUERY_PARAMS_SANITIZE)) {
+      return Boolean.parseBoolean(params.get(QUERY_PARAMS_SANITIZE));
+    }
+    return true;
   }
 
 }

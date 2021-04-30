@@ -52,11 +52,11 @@ class QualifierAnalyzerTest extends AnalyzerTestBase {
 
   @Test
   void should_report_error_if_qualifier_is_not_index() {
-    runInScope(new Symbol(Namespace.FIELD_NAME, "a"), ARRAY, () -> {
+    runInScope(new Symbol(Namespace.FIELD_NAME, "aIndex"), ARRAY, () -> {
       SyntaxCheckException error = assertThrows(SyntaxCheckException.class,
           () -> qualifierAnalyzer.unqualified("a", "integer_value"));
       assertEquals("The qualifier [a] of qualified name [a.integer_value] "
-              + "must be an index name or its alias", error.getMessage());
+              + "must be an field name, index name or its alias", error.getMessage());
     });
   }
 
@@ -65,7 +65,8 @@ class QualifierAnalyzerTest extends AnalyzerTestBase {
     SyntaxCheckException error = assertThrows(SyntaxCheckException.class,
         () -> qualifierAnalyzer.unqualified("a", "integer_value"));
     assertEquals(
-        "The qualifier [a] of qualified name [a.integer_value] must be an index name or its alias",
+        "The qualifier [a] of qualified name [a.integer_value] must be an field name, index name "
+            + "or its alias",
         error.getMessage());
   }
 
@@ -73,6 +74,13 @@ class QualifierAnalyzerTest extends AnalyzerTestBase {
   void should_return_qualified_name_if_qualifier_is_index() {
     runInScope(new Symbol(Namespace.INDEX_NAME, "a"), STRUCT, () ->
         assertEquals("integer_value", qualifierAnalyzer.unqualified("a", "integer_value"))
+    );
+  }
+
+  @Test
+  void should_return_qualified_name_if_qualifier_is_field() {
+    runInScope(new Symbol(Namespace.FIELD_NAME, "a"), STRUCT, () ->
+        assertEquals("a.integer_value", qualifierAnalyzer.unqualified("a", "integer_value"))
     );
   }
 

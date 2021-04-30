@@ -31,7 +31,7 @@ public class ErrorMessageFactory {
    * @param status exception status code
    * @return error message
    */
-  public static ErrorMessage createErrorMessage(Exception e, int status) {
+  public static ErrorMessage createErrorMessage(Throwable e, int status) {
     Throwable cause = unwrapCause(e);
     if (cause instanceof ElasticsearchException) {
       ElasticsearchException exception = (ElasticsearchException) cause;

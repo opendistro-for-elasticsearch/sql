@@ -16,9 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser.context;
 
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FilteredAggregationFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.GroupByElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.OrderByElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SubqueryAsRelationContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.WindowFunctionClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.createSortOption;
 import static com.amazon.opendistroforelasticsearch.sql.sql.parser.ParserUtils.getTextInQuery;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
@@ -26,15 +31,17 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.AggregateFunctionCallContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectSpecContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstExpressionBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +81,7 @@ public class QuerySpecification {
    * Aggregate function calls that spreads in SELECT, HAVING clause. Since this is going to be
    * pushed to aggregation operator, de-duplicate is necessary to avoid duplication.
    */
-  private final Set<UnresolvedExpression> aggregators = new HashSet<>();
+  private final Set<UnresolvedExpression> aggregators = new LinkedHashSet<>();
 
   /**
    * Items in GROUP BY clause that may be:
@@ -89,7 +96,7 @@ public class QuerySpecification {
    * Items in ORDER BY clause that may be different forms as above and its options.
    */
   private final List<UnresolvedExpression> orderByItems = new ArrayList<>();
-  private final List<String> orderByOptions = new ArrayList<>();
+  private final List<SortOption> orderByOptions = new ArrayList<>();
 
   /**
    * Collect all query information in the parse tree excluding info in sub-query).
@@ -170,9 +177,26 @@ public class QuerySpecification {
     }
 
     @Override
-    public Void visitQuerySpecification(QuerySpecificationContext ctx) {
-      // TODO: avoid collect sub-query
-      return super.visitQuerySpecification(ctx);
+    public Void visitSubqueryAsRelation(SubqueryAsRelationContext ctx) {
+      // skip collecting subquery for current layer
+      return null;
+    }
+
+    @Override
+    public Void visitWindowFunctionClause(WindowFunctionClauseContext ctx) {
+      // skip collecting sort items in window functions
+      return null;
+    }
+
+    @Override
+    public Void visitSelectClause(SelectClauseContext ctx) {
+      super.visitSelectClause(ctx);
+
+      // SELECT DISTINCT is an equivalent and special form of GROUP BY
+      if (isDistinct(ctx.selectSpec())) {
+        groupByItems.addAll(selectItems);
+      }
+      return null;
     }
 
     @Override
@@ -196,7 +220,7 @@ public class QuerySpecification {
     @Override
     public Void visitOrderByElement(OrderByElementContext ctx) {
       orderByItems.add(visitAstExpression(ctx.expression()));
-      orderByOptions.add((ctx.order == null) ? "ASC" : ctx.order.getText());
+      orderByOptions.add(createSortOption(ctx));
       return super.visitOrderByElement(ctx);
     }
 
@@ -204,6 +228,18 @@ public class QuerySpecification {
     public Void visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
       aggregators.add(AstDSL.alias(getTextInQuery(ctx, queryString), visitAstExpression(ctx)));
       return super.visitAggregateFunctionCall(ctx);
+    }
+
+    @Override
+    public Void visitFilteredAggregationFunctionCall(FilteredAggregationFunctionCallContext ctx) {
+      UnresolvedExpression aggregateFunction = visitAstExpression(ctx);
+      aggregators.add(
+          AstDSL.alias(getTextInQuery(ctx, queryString), aggregateFunction));
+      return super.visitFilteredAggregationFunctionCall(ctx);
+    }
+
+    private boolean isDistinct(SelectSpecContext ctx) {
+      return (ctx != null) && (ctx.DISTINCT() != null);
     }
 
     private UnresolvedExpression visitAstExpression(ParseTree tree) {

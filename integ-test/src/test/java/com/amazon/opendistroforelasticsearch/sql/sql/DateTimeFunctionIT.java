@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
@@ -24,7 +25,6 @@ import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.getRespon
 
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.IOException;
 import java.util.Locale;
 import org.elasticsearch.client.Request;
@@ -38,7 +38,32 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Override
   public void init() throws Exception {
     super.init();
-    TestUtils.enableNewQueryEngine(client());
+    loadIndex(Index.BANK);
+  }
+
+  @Test
+  public void testDateInGroupBy() throws IOException{
+    JSONObject result =
+            executeQuery(String.format("SELECT DATE(birthdate) FROM %s GROUP BY DATE(birthdate)",TEST_INDEX_BANK) );
+    verifySchema(result,
+            schema("DATE(birthdate)", null, "date"));
+    verifyDataRows(result,
+            rows("2017-10-23"),
+            rows("2017-11-20"),
+            rows("2018-06-23"),
+            rows("2018-11-13"),
+            rows("2018-06-27"),
+            rows("2018-08-19"),
+            rows("2018-08-11"));
+  }
+
+  @Test
+  public void testDateWithHavingClauseOnly() throws IOException {
+    JSONObject result =
+            executeQuery(String.format("SELECT (TO_DAYS(DATE('2050-01-01')) - 693961) FROM %s HAVING (COUNT(1) > 0)",TEST_INDEX_BANK) );
+    verifySchema(result,
+            schema("(TO_DAYS(DATE('2050-01-01')) - 693961)", null, "long"));
+    verifyDataRows(result, rows(54787));
   }
 
   @Test
@@ -93,6 +118,19 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
     verifySchema(result,
         schema("date_add('2020-09-16', interval 1 day)", null, "datetime"));
     verifyDataRows(result, rows("2020-09-17"));
+
+    result =
+            executeQuery(String.format("SELECT DATE_ADD(birthdate, INTERVAL 1 YEAR) FROM %s GROUP BY 1",TEST_INDEX_BANK) );
+    verifySchema(result,
+            schema("DATE_ADD(birthdate, INTERVAL 1 YEAR)", null, "datetime"));
+    verifyDataRows(result,
+            rows("2018-10-23 00:00:00"),
+            rows("2018-11-20 00:00:00"),
+            rows("2019-06-23 00:00:00"),
+            rows("2019-11-13 23:33:20"),
+            rows("2019-06-27 00:00:00"),
+            rows("2019-08-19 00:00:00"),
+            rows("2019-08-11 00:00:00"));
   }
 
   @Test
@@ -136,11 +174,11 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testDayName() throws IOException {
     JSONObject result = executeQuery("select dayname(date('2020-09-16'))");
-    verifySchema(result, schema("dayname(date('2020-09-16'))", null, "string"));
+    verifySchema(result, schema("dayname(date('2020-09-16'))", null, "keyword"));
     verifyDataRows(result, rows("Wednesday"));
 
     result = executeQuery("select dayname('2020-09-16')");
-    verifySchema(result, schema("dayname('2020-09-16')", null, "string"));
+    verifySchema(result, schema("dayname('2020-09-16')", null, "keyword"));
     verifyDataRows(result, rows("Wednesday"));
   }
 
@@ -210,17 +248,38 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
         schema("microsecond(timestamp('2020-09-16 17:30:00.123456'))", null, "integer"));
     verifyDataRows(result, rows(123456));
 
+    // Explicit timestamp value with less than 6 microsecond digits
+    result = executeQuery("select microsecond(timestamp('2020-09-16 17:30:00.1234'))");
+    verifySchema(result,
+        schema("microsecond(timestamp('2020-09-16 17:30:00.1234'))", null, "integer"));
+    verifyDataRows(result, rows(123400));
+
     result = executeQuery("select microsecond(time('17:30:00.000010'))");
     verifySchema(result, schema("microsecond(time('17:30:00.000010'))", null, "integer"));
     verifyDataRows(result, rows(10));
+
+    // Explicit time value with less than 6 microsecond digits
+    result = executeQuery("select microsecond(time('17:30:00.1234'))");
+    verifySchema(result, schema("microsecond(time('17:30:00.1234'))", null, "integer"));
+    verifyDataRows(result, rows(123400));
 
     result = executeQuery("select microsecond('2020-09-16 17:30:00.123456')");
     verifySchema(result, schema("microsecond('2020-09-16 17:30:00.123456')", null, "integer"));
     verifyDataRows(result, rows(123456));
 
+    // Implicit timestamp value with less than 6 microsecond digits
+    result = executeQuery("select microsecond('2020-09-16 17:30:00.1234')");
+    verifySchema(result, schema("microsecond('2020-09-16 17:30:00.1234')", null, "integer"));
+    verifyDataRows(result, rows(123400));
+
     result = executeQuery("select microsecond('17:30:00.000010')");
     verifySchema(result, schema("microsecond('17:30:00.000010')", null, "integer"));
     verifyDataRows(result, rows(10));
+
+    // Implicit time value with less than 6 microsecond digits
+    result = executeQuery("select microsecond('17:30:00.1234')");
+    verifySchema(result, schema("microsecond('17:30:00.1234')", null, "integer"));
+    verifyDataRows(result, rows(123400));
   }
 
   @Test
@@ -256,11 +315,11 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   @Test
   public void testMonthName() throws IOException {
     JSONObject result = executeQuery("select monthname(date('2020-09-16'))");
-    verifySchema(result, schema("monthname(date('2020-09-16'))", null, "string"));
+    verifySchema(result, schema("monthname(date('2020-09-16'))", null, "keyword"));
     verifyDataRows(result, rows("September"));
 
     result = executeQuery("select monthname('2020-09-16')");
-    verifySchema(result, schema("monthname('2020-09-16')", null, "string"));
+    verifySchema(result, schema("monthname('2020-09-16')", null, "keyword"));
     verifyDataRows(result, rows("September"));
   }
 
@@ -378,12 +437,12 @@ public class DateTimeFunctionIT extends SQLIntegTestCase {
   void verifyDateFormat(String date, String type, String format, String formatted) throws IOException {
     String query = String.format("date_format(%s('%s'), '%s')", type, date, format);
     JSONObject result = executeQuery("select " + query);
-    verifySchema(result, schema(query, null, "string"));
+    verifySchema(result, schema(query, null, "keyword"));
     verifyDataRows(result, rows(formatted));
 
     query = String.format("date_format('%s', '%s')", date, format);
     result = executeQuery("select " + query);
-    verifySchema(result, schema(query, null, "string"));
+    verifySchema(result, schema(query, null, "keyword"));
     verifyDataRows(result, rows(formatted));
   }
 

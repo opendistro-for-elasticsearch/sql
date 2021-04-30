@@ -31,7 +31,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedArgument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
@@ -49,7 +48,6 @@ import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalHead;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRareTopN;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
@@ -186,9 +184,8 @@ public class PPLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
   public String visitSort(Sort node, String context) {
     String child = node.getChild().get(0).accept(this, context);
     // the first options is {"count": "integer"}
-    Integer count = (Integer) node.getOptions().get(0).getValue().getValue();
     String sortList = visitFieldList(node.getSortList());
-    return StringUtils.format("%s | sort %d %s", child, count, sortList);
+    return StringUtils.format("%s | sort %s", child, sortList);
   }
 
   /**
@@ -209,19 +206,11 @@ public class PPLQueryDataAnonymizer extends AbstractNodeVisitor<String, String> 
             consecutive);
   }
 
-  /**
-   * Build {@link LogicalHead}.
-   */
   @Override
   public String visitHead(Head node, String context) {
     String child = node.getChild().get(0).accept(this, context);
-    List<UnresolvedArgument> options = node.getOptions();
-    Boolean keeplast = (Boolean) ((Literal) options.get(0).getValue()).getValue();
-    String whileExpr = visitExpression(options.get(1).getValue());
-    Integer number = (Integer) ((Literal) options.get(2).getValue()).getValue();
-
-    return StringUtils.format("%s | head keeplast=%b while(%s) %d", child, keeplast, whileExpr,
-        number);
+    Integer size = node.getSize();
+    return StringUtils.format("%s | head %d", child, size);
   }
 
   private String visitFieldList(List<Field> fieldList) {

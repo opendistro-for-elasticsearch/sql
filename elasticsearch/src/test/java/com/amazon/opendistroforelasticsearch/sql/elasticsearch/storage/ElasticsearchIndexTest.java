@@ -19,14 +19,17 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScan;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.indexScanAgg;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.noProjects;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.utils.Utils.projects;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScan;
-import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.indexScanAgg;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
@@ -35,6 +38,8 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalP
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -60,6 +65,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.LimitOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
@@ -70,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -147,6 +154,18 @@ class ElasticsearchIndexTest {
   }
 
   @Test
+  void implementRelationOperatorWithOptimization() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    String indexName = "test";
+    LogicalPlan plan = relation(indexName);
+    Table index = new ElasticsearchIndex(client, settings, indexName);
+    assertEquals(
+        new ElasticsearchIndexScan(client, settings, indexName, exprValueFactory),
+        index.implement(index.optimize(plan)));
+  }
+
+  @Test
   void implementOtherLogicalOperators() {
     when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
 
@@ -178,7 +197,6 @@ class ElasticsearchIndexTest {
                                 mappings),
                             exclude),
                         newEvalField),
-                    sortCount,
                     sortField),
                 dedupeField),
             include);
@@ -196,7 +214,6 @@ class ElasticsearchIndexTest {
                                 mappings),
                             exclude),
                         newEvalField),
-                    sortCount,
                     sortField),
                 dedupeField),
             include),
@@ -308,5 +325,119 @@ class ElasticsearchIndexTest {
             aggregators,
             groupByExprs));
     assertTrue(plan instanceof AggregationOperator);
+  }
+
+  @Test
+  void shouldImplIndexScanWithSort() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+    Expression sortExpr = ref("name", STRING);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName,
+                Pair.of(Sort.SortOption.DEFAULT_ASC, sortExpr)
+            ),
+            named));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldImplIndexScanWithLimit() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName,
+                1, 1, noProjects()
+            ),
+            named));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldImplIndexScanWithSortAndLimit() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    ReferenceExpression field = ref("name", STRING);
+    NamedExpression named = named("n", field);
+    Expression sortExpr = ref("name", STRING);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName,
+                sortExpr,
+                1, 1,
+                noProjects()
+            ),
+            named));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+  }
+
+  @Test
+  void shouldNotPushDownLimitFarFromRelationButUpdateScanSize() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(index.optimize(
+        project(
+            limit(
+                sort(
+                    relation("test"),
+                    Pair.of(Sort.SortOption.DEFAULT_ASC,
+                        dsl.abs(named("intV", ref("intV", INTEGER))))
+                ),
+                300, 1
+            ),
+            named("intV", ref("intV", INTEGER))
+        )
+    ));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof LimitOperator);
+  }
+
+  @Test
+  void shouldPushDownProjects() {
+    when(settings.getSettingValue(Settings.Key.QUERY_SIZE_LIMIT)).thenReturn(200);
+
+    String indexName = "test";
+    ElasticsearchIndex index = new ElasticsearchIndex(client, settings, indexName);
+    PhysicalPlan plan = index.implement(
+        project(
+            indexScan(
+                indexName, projects(ref("intV", INTEGER))
+            ),
+            named("i", ref("intV", INTEGER))));
+
+    assertTrue(plan instanceof ProjectOperator);
+    assertTrue(((ProjectOperator) plan).getInput() instanceof ElasticsearchIndexScan);
+
+    final FetchSourceContext fetchSource =
+        ((ElasticsearchIndexScan) ((ProjectOperator) plan).getInput()).getRequest()
+            .getSourceBuilder().fetchSource();
+    assertThat(fetchSource.includes(), arrayContaining("intV"));
+    assertThat(fetchSource.excludes(), emptyArray());
   }
 }

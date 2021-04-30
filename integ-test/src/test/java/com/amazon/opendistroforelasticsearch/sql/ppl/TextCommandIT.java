@@ -93,6 +93,11 @@ public class TextCommandIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testRight() throws IOException {
+    verifyQuery("right", "", ", 3", "llo", "rld", "rld");
+  }
+
+  @Test
   public void testRtrim() throws IOException {
     verifyQuery("rtrim", "", "", "hello", "world", "helloworld");
   }

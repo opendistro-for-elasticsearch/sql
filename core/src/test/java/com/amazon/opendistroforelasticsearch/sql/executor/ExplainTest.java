@@ -28,7 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.planner.physical.Physica
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.dedupe;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.head;
+import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.limit;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.rareTopN;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.remove;
@@ -97,7 +97,7 @@ class ExplainTest extends ExpressionTestBase {
                 singletonList(new ExplainResponseNode(
                     "FilterOperator",
                     ImmutableMap.of("conditions", "and(=(balance, 10000), >(age, 30))"),
-                    singletonList(tableScan.explain()))))),
+                    singletonList(tableScan.explainNode()))))),
         explain.apply(plan));
   }
 
@@ -117,7 +117,7 @@ class ExplainTest extends ExpressionTestBase {
                 ImmutableMap.of(
                     "aggregators", "[avg(balance)]",
                     "groupBy", "[state]"),
-                singletonList(tableScan.explain()))),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan));
   }
 
@@ -135,29 +135,7 @@ class ExplainTest extends ExpressionTestBase {
                     "noOfResults", 10,
                     "fields", "[state]",
                     "groupBy", "[]"),
-                singletonList(tableScan.explain()))),
-        explain.apply(plan));
-  }
-
-  @Test
-  void can_explain_head() {
-    Boolean keepLast = false;
-    Expression whileExpr = dsl.and(
-        dsl.equal(ref("balance", INTEGER), literal(10000)),
-        dsl.greater(ref("age", INTEGER), literal(30)));
-    Integer number = 5;
-
-    PhysicalPlan plan = head(tableScan, keepLast, whileExpr, number);
-
-    assertEquals(
-        new ExplainResponse(
-            new ExplainResponseNode(
-                "HeadOperator",
-                ImmutableMap.of(
-                    "keepLast", false,
-                    "whileExpr", "and(=(balance, 10000), >(age, 30))",
-                    "number", 5),
-                singletonList(tableScan.explain()))),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan));
   }
 
@@ -167,7 +145,7 @@ class ExplainTest extends ExpressionTestBase {
     List<Pair<Sort.SortOption, Expression>> sortList = ImmutableList.of(
         ImmutablePair.of(DEFAULT_ASC, ref("age", INTEGER)));
 
-    PhysicalPlan plan = window(tableScan, dsl.rank(),
+    PhysicalPlan plan = window(tableScan, named(dsl.rank()),
         new WindowDefinition(partitionByList, sortList));
 
     assertEquals(
@@ -182,7 +160,7 @@ class ExplainTest extends ExpressionTestBase {
                             "age", ImmutableMap.of(
                                 "sortOrder", "ASC",
                                 "nullOrder", "NULL_FIRST")))),
-                singletonList(tableScan.explain()))),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan));
   }
 
@@ -205,7 +183,6 @@ class ExplainTest extends ExpressionTestBase {
                     dedupe(
                         sort(
                             values(values),
-                            1000,
                             sortList),
                         dedupeList),
                     evalExprs),
@@ -233,7 +210,6 @@ class ExplainTest extends ExpressionTestBase {
                             singletonList(new ExplainResponseNode(
                                 "SortOperator",
                                 ImmutableMap.of(
-                                    "count", 1000,
                                     "sortList", ImmutableMap.of(
                                         "age", ImmutableMap.of(
                                             "sortOrder", "ASC",
@@ -243,6 +219,19 @@ class ExplainTest extends ExpressionTestBase {
                                     ImmutableMap.of("values", ImmutableList.of(values)),
                                     emptyList())))))))))))
         ),
+        explain.apply(plan)
+    );
+  }
+
+  @Test
+  void can_explain_limit() {
+    PhysicalPlan plan = limit(tableScan, 10, 5);
+    assertEquals(
+        new ExplainResponse(
+            new ExplainResponseNode(
+                "LimitOperator",
+                ImmutableMap.of("limit", 10, "offset", 5),
+                singletonList(tableScan.explainNode()))),
         explain.apply(plan)
     );
   }
@@ -264,11 +253,15 @@ class ExplainTest extends ExpressionTestBase {
     }
 
     /** Used to ignore table scan which is duplicate but required for each operator test. */
-    public ExplainResponseNode explain() {
+    public ExplainResponseNode explainNode() {
       return new ExplainResponseNode(
           "FakeTableScan",
           ImmutableMap.of("request", "Fake DSL request"),
           emptyList());
+    }
+
+    public String explain() {
+      return "explain";
     }
   }
 

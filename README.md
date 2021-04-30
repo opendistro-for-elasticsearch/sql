@@ -1,4 +1,6 @@
+
 [![Test and Build Workflow](https://github.com/opendistro-for-elasticsearch/sql/workflows/Java%20CI/badge.svg)](https://github.com/opendistro-for-elasticsearch/sql/actions)
+[![codecov](https://codecov.io/gh/opendistro-for-elasticsearch/sql/branch/develop/graph/badge.svg)](https://codecov.io/gh/opendistro-for-elasticsearch/sql)
 [![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/endpoints/)
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/sql/)
 ![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
@@ -16,12 +18,17 @@ The following projects have been merged into this repository as separate folders
 * [SQL CLI](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-cli)
 * [SQL JDBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-jdbc)
 * [SQL ODBC](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc)
-* [SQL Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench)
+* [Query Workbench](https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench)
 
 
 ## Documentation
 
-Please refer to the [reference manual](./docs/user/index.rst) and [technical documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!
+Please refer to the [SQL Language Reference Manual](./docs/user/index.rst), [Piped Processing Language (PPL) Reference Manual](./docs/experiment/ppl/index.rst) and [Technical Documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Looking to contribute? Read the instructions on [Development Guide](./docs/developing.rst) and then submit a patch!
+
+
+## SQL Engine V2
+
+Recently we have been actively improving our query engine primarily for better correctness and extensibility. Behind the scene, the new enhanced engine has already supported the new released Piped Processing Language. However, it was experimental and disabled by default for SQL query processing. With most important features and full testing complete, now we're ready to promote it as our default SQL query engine. Please find more details in [SQL Engine V2 - Release Notes](/docs/dev/NewSQLEngine.md).
 
 
 ## Setup
@@ -36,7 +43,7 @@ After doing this, you need to restart the Elasticsearch server. Otherwise you ma
 The package uses the [Gradle](https://docs.gradle.org/4.10.2/userguide/userguide.html) build system.
 
 1. Checkout this package from version control.
-2. To build from command line set `JAVA_HOME` to point to a JDK >=12
+2. To build from command line set `JAVA_HOME` to point to a JDK >=14
 3. Run `./gradlew build`
 
 

@@ -11,6 +11,8 @@ env:
   ODBC_BIN_PATH: "./build/odbc/bin"
   ODBC_BUILD_PATH: "./build/odbc/build"
   AWS_SDK_INSTALL_PATH: "./build/aws-sdk/install"
+  PLUGIN_NAME: opendistro-sql-odbc
+  OD_VERSION: 1.13.0.0
 
 jobs:
   build-mac:
@@ -27,8 +29,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: upload-cppcheck-results
         if: failure()
@@ -79,9 +81,19 @@ jobs:
         if: success()
         run: |
           cd installer
-          mac_installer=`ls -1t *.pkg | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
-          echo $mac_installer
-          aws s3 cp "$mac_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/mac/
+
+          pkg=`ls -1t *.pkg | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          mv "$pkg" "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-macos-x64.pkg"
+          pkg=`ls -1t *.pkg | grep "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-macos-x64.pkg" | head -1`
+
+          # Inject the build number before the suffix
+          pkg_outfile=`basename ${pkg%.pkg}-build-${GITHUB_RUN_NUMBER}.pkg`
+
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-clients/sql-odbc/"
+
+          echo "Copying ${pkg} to ${s3_prefix}${pkg_outfile}"
+          aws s3 cp --quiet $pkg ${s3_prefix}${pkg_outfile}
+
   build-windows32:
     runs-on: windows-latest
     defaults:
@@ -89,13 +101,15 @@ jobs:
         working-directory: sql-odbc
     steps:
       - uses: actions/checkout@v1
+      - name: Get specific version CMake, v3.18.3
+        uses: lukka/get-cmake@v3.18.3
       - name: add-msbuild-to-path
-        uses: microsoft/setup-msbuild@v1.0.0
+        uses: microsoft/setup-msbuild@v1.0.2
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: configure-and-build-driver
         run: |
@@ -125,9 +139,19 @@ jobs:
         shell: bash
         run: |
           cd ci-output/installer
-          windows_installer=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
-          echo $windows_installer
-          aws s3 cp "$windows_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/
+          
+          msi=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          mv "$msi" "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-windows-x86.msi"
+          msi=`ls -1t *.msi | grep "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-windows-x86.msi" | head -1`
+
+          # Inject the build number before the suffix
+          msi_outfile=`basename ${msi%.msi}-build-${GITHUB_RUN_NUMBER}.msi`
+
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-clients/sql-odbc/"
+
+          echo "Copying ${msi} to ${s3_prefix}${msi_outfile}"
+          aws s3 cp --quiet $msi ${s3_prefix}${msi_outfile}
+
   build-windows64:
     runs-on: windows-latest
     defaults:
@@ -135,13 +159,15 @@ jobs:
         working-directory: sql-odbc
     steps:
       - uses: actions/checkout@v1
+      - name: Get specific version CMake, v3.18.3
+        uses: lukka/get-cmake@v3.18.3
       - name: add-msbuild-to-path
-        uses: microsoft/setup-msbuild@v1.0.0
+        uses: microsoft/setup-msbuild@v1.0.2
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_STAGING_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_STAGING_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: configure-and-build-driver
         run: |
@@ -171,6 +197,16 @@ jobs:
         shell: bash
         run: |
           cd ci-output/installer
-          windows_installer=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
-          echo $windows_installer
-          aws s3 cp "$windows_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/
+          
+          msi=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          mv "$msi" "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-windows-x64.msi"
+          msi=`ls -1t *.msi | grep "${{ env.PLUGIN_NAME }}-${{ env.OD_VERSION }}-windows-x64.msi" | head -1`
+          
+          # Inject the build number before the suffix
+          msi_outfile=`basename ${msi%.msi}-build-${GITHUB_RUN_NUMBER}.msi`
+
+          s3_prefix="s3://staging.artifacts.opendistroforelasticsearch.amazon.com/snapshots/elasticsearch-clients/sql-odbc/"
+
+          echo "Copying ${msi} to ${s3_prefix}${msi_outfile}"
+          aws s3 cp --quiet $msi ${s3_prefix}${msi_outfile}
+

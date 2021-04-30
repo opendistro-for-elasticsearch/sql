@@ -15,9 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BinaryArithmeticContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CompareExprContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CountAllFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalFunctionCallContext;
@@ -27,8 +32,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.InExprContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntervalLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.KeywordsAsQualifiedNameContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.KeywordsAsWildcardQualifiedNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalAndContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalNotContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalOrContext;
@@ -38,9 +41,11 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StringLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.TableSourceContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldExpressionContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AllFields;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
@@ -58,18 +63,31 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 
 /**
  * Class of building AST Expression nodes.
  */
 public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedExpression> {
+
+  /**
+   * The function name mapping between fronted and core engine.
+   */
+  private static Map<String, String> FUNCTION_NAME_MAPPING =
+      new ImmutableMap.Builder<String, String>()
+          .put("isnull", IS_NULL.getName().getFunctionName())
+          .put("isnotnull", IS_NOT_NULL.getName().getFunctionName())
+          .build();
+
   /**
    * Eval clause.
    */
@@ -156,7 +174,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitSortField(SortFieldContext ctx) {
     return new Field(
-        ctx.sortFieldExpression().fieldExpression().getText(),
+        qualifiedName(ctx.sortFieldExpression().fieldExpression().getText()),
         ArgumentFactory.getArgumentList(ctx)
     );
   }
@@ -170,9 +188,30 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   }
 
   @Override
+  public UnresolvedExpression visitCountAllFunctionCall(CountAllFunctionCallContext ctx) {
+    return new AggregateFunction("count", AllFields.of());
+  }
+
+  @Override
   public UnresolvedExpression visitPercentileAggFunction(PercentileAggFunctionContext ctx) {
     return new AggregateFunction(ctx.PERCENTILE().getText(), visit(ctx.aggField),
         Collections.singletonList(new Argument("rank", (Literal) visit(ctx.value))));
+  }
+
+  /**
+   * Eval function.
+   */
+  @Override
+  public UnresolvedExpression visitBooleanFunctionCall(BooleanFunctionCallContext ctx) {
+    final String functionName = ctx.conditionFunctionBase().getText();
+
+    return new Function(
+        FUNCTION_NAME_MAPPING.getOrDefault(functionName, functionName),
+        ctx.functionArgs()
+            .functionArg()
+            .stream()
+            .map(this::visitFunctionArg)
+            .collect(Collectors.toList()));
   }
 
   /**
@@ -189,41 +228,23 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
             .collect(Collectors.toList()));
   }
 
+  @Override
+  public UnresolvedExpression visitTableSource(TableSourceContext ctx) {
+    return visitIdentifiers(Arrays.asList(ctx));
+  }
+
   /**
    * Literal and value.
    */
   @Override
   public UnresolvedExpression visitIdentsAsQualifiedName(IdentsAsQualifiedNameContext ctx) {
-    return new QualifiedName(
-        ctx.ident()
-            .stream()
-            .map(ParserRuleContext::getText)
-            .map(StringUtils::unquoteText)
-            .collect(Collectors.toList())
-    );
-  }
-
-  @Override
-  public UnresolvedExpression visitKeywordsAsQualifiedName(KeywordsAsQualifiedNameContext ctx) {
-    return new QualifiedName(ctx.keywordsCanBeId().getText());
+    return visitIdentifiers(ctx.ident());
   }
 
   @Override
   public UnresolvedExpression visitIdentsAsWildcardQualifiedName(
       IdentsAsWildcardQualifiedNameContext ctx) {
-    return new QualifiedName(
-        ctx.wildcard()
-            .stream()
-            .map(ParserRuleContext::getText)
-            .map(StringUtils::unquoteText)
-            .collect(Collectors.toList())
-    );
-  }
-
-  @Override
-  public UnresolvedExpression visitKeywordsAsWildcardQualifiedName(
-      KeywordsAsWildcardQualifiedNameContext ctx) {
-    return new QualifiedName(ctx.keywordsCanBeId().getText());
+    return visitIdentifiers(ctx.wildcard());
   }
 
   @Override
@@ -250,6 +271,15 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitBooleanLiteral(BooleanLiteralContext ctx) {
     return new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN);
+  }
+
+  private QualifiedName visitIdentifiers(List<? extends ParserRuleContext> ctx) {
+    return new QualifiedName(
+        ctx.stream()
+            .map(RuleContext::getText)
+            .map(StringUtils::unquoteIdentifier)
+            .collect(Collectors.toList())
+    );
   }
 
 }

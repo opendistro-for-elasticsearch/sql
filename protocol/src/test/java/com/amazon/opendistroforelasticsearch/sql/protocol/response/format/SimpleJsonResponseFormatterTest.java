@@ -36,8 +36,8 @@ import org.junit.jupiter.api.Test;
 class SimpleJsonResponseFormatterTest {
 
   private final ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
-      new ExecutionEngine.Schema.Column("firstname", "name", STRING),
-      new ExecutionEngine.Schema.Column("age", "age", INTEGER)));
+      new ExecutionEngine.Schema.Column("firstname", null, STRING),
+      new ExecutionEngine.Schema.Column("age", null, INTEGER)));
 
   @Test
   void formatResponse() {
@@ -93,6 +93,21 @@ class SimpleJsonResponseFormatterTest {
   }
 
   @Test
+  void formatResponseSchemaWithAlias() {
+    ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
+        new ExecutionEngine.Schema.Column("firstname", "name", STRING)));
+    QueryResult response =
+        new QueryResult(
+            schema,
+            ImmutableList.of(tupleValue(ImmutableMap.of("name", "John", "age", 20))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+    assertEquals(
+        "{\"schema\":[{\"name\":\"name\",\"type\":\"string\"}],"
+            + "\"datarows\":[[\"John\",20]],\"total\":1,\"size\":1}",
+        formatter.format(response));
+  }
+
+  @Test
   void formatResponseWithMissingValue() {
     QueryResult response =
         new QueryResult(
@@ -106,6 +121,46 @@ class SimpleJsonResponseFormatterTest {
         "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},"
             + "{\"name\":\"age\",\"type\":\"integer\"}],"
             + "\"datarows\":[[\"John\",null],[\"Smith\",30]],\"total\":2,\"size\":2}",
+        formatter.format(response));
+  }
+
+  @Test
+  void formatResponseWithTupleValue() {
+    QueryResult response =
+        new QueryResult(
+            schema,
+            Arrays.asList(
+                tupleValue(ImmutableMap
+                    .of("name", "Smith",
+                        "address", ImmutableMap.of("state", "WA", "street",
+                            ImmutableMap.of("city", "seattle"))))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+
+    assertEquals(
+        "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},"
+            + "{\"name\":\"age\",\"type\":\"integer\"}],"
+            + "\"datarows\":[[\"Smith\",{\"state\":\"WA\",\"street\":{\"city\":\"seattle\"}}]],"
+            + "\"total\":1,\"size\":1}",
+        formatter.format(response));
+  }
+
+  @Test
+  void formatResponseWithArrayValue() {
+    QueryResult response =
+        new QueryResult(
+            schema,
+            Arrays.asList(
+                tupleValue(ImmutableMap
+                    .of("name", "Smith",
+                        "address", Arrays.asList(
+                            ImmutableMap.of("state", "WA"), ImmutableMap.of("state", "NYC")
+                        )))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+    assertEquals(
+        "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},"
+            + "{\"name\":\"age\",\"type\":\"integer\"}],"
+            + "\"datarows\":[[\"Smith\",[{\"state\":\"WA\"},{\"state\":\"NYC\"}]]],"
+            + "\"total\":1,\"size\":1}",
         formatter.format(response));
   }
 
