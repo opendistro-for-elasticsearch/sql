@@ -437,7 +437,6 @@ void test_connection(HANDLE hwnd, ConnInfo *ci, BOOL withDTC) {
     dsn_1st = ci->dsn[0];
     ci->dsn[0] = '\0';
     makeConnectString(out_conn, ci, sizeof(out_conn));
-    MYLOG(ES_DEBUG, "conn_string=%s\n", out_conn);
 #ifdef UNICODE_SUPPORT
     MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, out_conn, -1, wout_conn,
                         sizeof(wout_conn) / sizeof(wout_conn[0]));
