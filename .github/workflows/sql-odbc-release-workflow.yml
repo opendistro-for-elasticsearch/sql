@@ -12,7 +12,7 @@ env:
   ODBC_BUILD_PATH: "./build/odbc/build"
   AWS_SDK_INSTALL_PATH: "./build/aws-sdk/install"
   PLUGIN_NAME: opendistro-sql-odbc
-  OD_VERSION: 1.13.0.0
+  OD_VERSION: 1.13.0.1
 
 jobs:
   build-mac:

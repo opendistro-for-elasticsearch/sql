@@ -8,7 +8,7 @@ on:
       - rename*
 
 env:
-  OD_VERSION: 1.13.0.0
+  OD_VERSION: 1.13.0.1
 
 jobs:
   upload-odbc:

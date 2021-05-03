@@ -48,7 +48,7 @@ ext {
 }
 
 allprojects {
-    version = "${opendistroVersion}.0"
+    version = "${opendistroVersion}.1"
 
     plugins.withId('java') {
         sourceCompatibility = targetCompatibility = "1.8"
