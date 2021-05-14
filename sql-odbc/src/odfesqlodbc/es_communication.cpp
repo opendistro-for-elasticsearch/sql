@@ -21,6 +21,7 @@
 // clang-format off
 #include "es_odbc.h"
 #include "mylog.h"
+#include "array"
 #include <aws/core/utils/StringUtils.h>
 #include <aws/core/client/RetryStrategy.h>
 #include <aws/core/client/AWSClient.h>
@@ -37,8 +38,8 @@ static const std::string SQL_ENDPOINT_CLOSE_CURSOR = "/_opendistro/_sql/close";
 static const std::string PLUGIN_ENDPOINT_FORMAT_JSON =
     "/_cat/plugins?format=json";
 static const std::string OPENDISTRO_SQL_PLUGIN_NAME = "opendistro-sql";
-static const std::array<std::string, 3> SQL_PLUGIN_COMPATIBLE_NAMES =
-    {"opendistro-sql", "opendistro_sql", "opensearch-sql"};
+static const std::array< std::string, 3 > SQL_PLUGIN_COMPATIBLE_NAMES = {
+    "opendistro-sql", "opendistro_sql", "opensearch-sql"};
 static const std::string ALLOCATION_TAG = "AWS_SIGV4_AUTH";
 static const std::string SERVICE_NAME = "es";
 static const std::string ESODBC_PROFILE_NAME = "elasticsearchodbc";
@@ -429,7 +430,7 @@ bool ESCommunication::IsSQLPluginInstalled(const std::string& plugin_response) {
         for (auto it : plugin_array) {
             if (it.has("component") && it.has("version")) {
                 std::string plugin_name = it.at("component").as_string();
-                for(const auto& compatible_name : SQL_PLUGIN_COMPATIBLE_NAMES) {
+                for (auto compatible_name : SQL_PLUGIN_COMPATIBLE_NAMES) {
                     if (!plugin_name.compare(compatible_name)) {
                         std::string sql_plugin_version =
                             it.at("version").as_string();
