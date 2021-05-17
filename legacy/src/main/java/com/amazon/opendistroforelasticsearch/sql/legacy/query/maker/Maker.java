@@ -95,7 +95,7 @@ public abstract class Maker {
     private static final Set<Condition.OPERATOR> NOT_OPERATOR_SET = ImmutableSet.of(
             Condition.OPERATOR.N, Condition.OPERATOR.NIN, Condition.OPERATOR.ISN, Condition.OPERATOR.NBETWEEN,
             Condition.OPERATOR.NLIKE, Condition.OPERATOR.NIN_TERMS, Condition.OPERATOR.NTERM,
-            Condition.OPERATOR.NOT_EXISTS_NESTED_COMPLEX
+            Condition.OPERATOR.NOT_EXISTS_NESTED_COMPLEX, Condition.OPERATOR.NREGEXP
     );
 
     protected Maker(Boolean isQuery) {
@@ -217,6 +217,7 @@ public abstract class Maker {
                 toXContent = QueryBuilders.wildcardQuery(name, queryStr);
                 break;
             case REGEXP:
+            case NREGEXP:
                 Object[] values = (Object[]) value;
                 RegexpQueryBuilder regexpQuery = QueryBuilders.regexpQuery(name, values[0].toString());
                 if (1 < values.length) {
