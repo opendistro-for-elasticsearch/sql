@@ -110,7 +110,7 @@ Notes: Not all the PPL Type has correspond Elasticsearch Type. e.g. data and tim
 Numeric Data Types
 ==================
 
-TODO
+Numeric values ranged from -2147483648 to +2147483647 are recognized as integer with type name ``INTEGER``. For others outside the range, ``LONG`` integer will be the data type after parsed.
 
 
 Date and Time Data Types
