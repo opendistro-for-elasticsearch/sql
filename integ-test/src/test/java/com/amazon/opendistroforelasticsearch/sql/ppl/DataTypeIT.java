@@ -64,4 +64,21 @@ public class DataTypeIT extends PPLIntegTestCase {
         schema("nested_value", "array"));
   }
 
+  @Test
+  public void test_long_integer_data_type() throws IOException {
+    JSONObject result = executeQuery(
+        String.format("source=%s | eval "
+                + " int1 = 2147483647,"
+                + " int2 = -2147483648,"
+                + " long1 = 2147483648,"
+                + " long2 = -2147483649 | "
+                + "fields int1, int2, long1, long2 ",
+            TEST_INDEX_DATATYPE_NUMERIC));
+    verifySchema(result,
+        schema("int1", "integer"),
+        schema("int2", "integer"),
+        schema("long1", "long"),
+        schema("long2", "long"));
+  }
+
 }
