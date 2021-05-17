@@ -91,6 +91,26 @@ public class MethodQueryIT extends SQLIntegTestCase {
                 "{\"filter\":{\"match\":{\"address\":{\"query\":\"Street\"")));
   }
 
+  @Test
+  public void regexpQueryTest() throws IOException {
+    final String result = explainQuery(String.format(Locale.ROOT,
+        "SELECT * FROM %s WHERE address=REGEXP_QUERY('.*')",
+        TestsConstants.TEST_INDEX_ACCOUNT));
+    Assert.assertThat(result,
+        containsString("{\"bool\":{\"must\":[{\"regexp\":"
+            + "{\"address\":{\"value\":\".*\",\"flags_value\":255,\"max_determinized_states\":10000,\"boost\":1.0}}}"));
+  }
+
+  @Test
+  public void negativeRegexpQueryTest() throws IOException {
+    final String result = explainQuery(String.format(Locale.ROOT,
+        "SELECT * FROM %s WHERE NOT(address=REGEXP_QUERY('.*'))",
+        TestsConstants.TEST_INDEX_ACCOUNT));
+    Assert.assertThat(result,
+        containsString("{\"bool\":{\"must_not\":[{\"regexp\":"
+            + "{\"address\":{\"value\":\".*\",\"flags_value\":255,\"max_determinized_states\":10000,\"boost\":1.0}}}"));
+  }
+
   /**
    * wildcardQuery 是用通配符的方式查找某个term 　比如例子中 l*e means leae ltae ....
    * "wildcard": { "address" : { "wildcard" : "l*e" } }
