@@ -109,9 +109,7 @@ public class ExprValueUtils {
     if (null == o) {
       return LITERAL_NULL;
     }
-    if (o instanceof ExprValue) {
-      return (ExprValue) o;
-    } else if (o instanceof Map) {
+    if (o instanceof Map) {
       return tupleValue((Map) o);
     } else if (o instanceof List) {
       return collectionValue(((List) o));
@@ -131,6 +129,10 @@ public class ExprValueUtils {
       return stringValue((String) o);
     } else if (o instanceof Float) {
       return floatValue((Float) o);
+    } else if (o instanceof ExprValue) {
+      // since there is no primitive in Java for differentiating TIMESTAMP DATETIME and DATE
+      // we can allow passing a ExprValue that already contains this information
+      return (ExprValue) o;
     } else {
       throw new ExpressionEvaluationException("unsupported object " + o.getClass());
     }

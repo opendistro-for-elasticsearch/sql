@@ -114,7 +114,7 @@ public class OperatorUtils {
 
   private static boolean isIn(ExprValue expr, ExprValue setOfValues) {
     if (expr instanceof AbstractExprNumberValue) {
-      return setOfValues.collectionValue().contains(expr.longValue());
+      return setOfValues.collectionValue().contains(expr.value());
     } else if (expr instanceof ExprStringValue) {
       return setOfValues.collectionValue().contains(expr.stringValue());
     } else {

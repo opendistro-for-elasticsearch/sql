@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.arrayLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
@@ -50,6 +51,7 @@ import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErro
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
@@ -286,17 +288,17 @@ class AstExpressionBuilderTest {
 
   @Test
   public void canBuildInPredicate() {
-    assertEquals(in(intLiteral(1), intLiteral(0), intLiteral(2), intLiteral(3), intLiteral(4)),
+    assertEquals(function("in", intLiteral(1), arrayLiteral(Arrays.asList(0,2,3,4))),
         buildExprAst("1 in (0,2,3,4)"));
   }
 
   @Test
   public void canBuildNotInPredicate() {
     assertEquals(
-        function("not", in(intLiteral(1), intLiteral(0), intLiteral(2), intLiteral(3), intLiteral(4))),
+        function("not",
+            function("in", intLiteral(1),arrayLiteral(Arrays.asList(0,2,3,4)))),
         buildExprAst("1 not in (0,2,3,4)"));
   }
-
 
   @Test
   public void canBuildWindowFunction() {

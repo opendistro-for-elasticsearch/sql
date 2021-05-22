@@ -16,8 +16,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.*;
-import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.*;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.REGEXP;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.CaseFuncAlternativeContext;
@@ -233,7 +240,7 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitInPredicate(OpenDistroSQLParser.InPredicateContext ctx) {
     UnresolvedExpression between = new Function(IN.getName().getFunctionName(),
-        Arrays.asList(visit(ctx.predicate()), AstDSL.arrayLiteral( ctx.arrayArgs().arrayArg()
+        Arrays.asList(visit(ctx.predicate()), AstDSL.arrayLiteral(ctx.arrayArgs().arrayArg()
             .stream()
             .map(this::visitArrayArg)
             .map(unresolvedExpression -> ((Literal) unresolvedExpression).getValue())
