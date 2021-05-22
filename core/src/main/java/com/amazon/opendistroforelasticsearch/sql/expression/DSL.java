@@ -26,8 +26,10 @@ import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.Wh
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -252,7 +254,7 @@ public class DSL {
   public FunctionExpression multiply(Expression... expressions) {
     return function(BuiltinFunctionName.MULTIPLY, expressions);
   }
-  
+
   public FunctionExpression adddate(Expression... expressions) {
     return function(BuiltinFunctionName.ADDDATE, expressions);
   }
@@ -364,7 +366,7 @@ public class DSL {
   public FunctionExpression substr(Expression... expressions) {
     return function(BuiltinFunctionName.SUBSTR, expressions);
   }
-  
+
   public FunctionExpression substring(Expression... expressions) {
     return function(BuiltinFunctionName.SUBSTR, expressions);
   }
@@ -587,5 +589,20 @@ public class DSL {
   public FunctionExpression castTimestamp(Expression value) {
     return (FunctionExpression) repository
         .compile(BuiltinFunctionName.CAST_TO_TIMESTAMP.getName(), Arrays.asList(value));
+  }
+
+  /**
+   * Check that a field is contained in a set of values.
+   */
+  public FunctionExpression in(Expression field, Expression... expressions) {
+    List<Expression> where = new ArrayList<>();
+    where.add(field);
+    where.addAll(Arrays.asList(expressions));
+
+    return function(BuiltinFunctionName.IN, where.toArray(new Expression[0]));
+  }
+
+  public FunctionExpression not_in(Expression field, Expression... expressions) {
+    return not(in(field, expressions));
   }
 }
