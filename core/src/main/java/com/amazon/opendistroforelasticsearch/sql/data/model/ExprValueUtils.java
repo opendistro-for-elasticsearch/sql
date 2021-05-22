@@ -88,7 +88,7 @@ public class ExprValueUtils {
   /**
    * {@link ExprCollectionValue} constructor.
    */
-  public static ExprValue collectionValue(List<Object> list) {
+  public static <T> ExprValue collectionValue(List<T> list) {
     List<ExprValue> valueList = new ArrayList<>();
     list.forEach(o -> valueList.add(fromObjectValue(o)));
     return new ExprCollectionValue(valueList);
@@ -109,7 +109,9 @@ public class ExprValueUtils {
     if (null == o) {
       return LITERAL_NULL;
     }
-    if (o instanceof Map) {
+    if (o instanceof ExprValue) {
+      return (ExprValue) o;
+    } else if (o instanceof Map) {
       return tupleValue((Map) o);
     } else if (o instanceof List) {
       return collectionValue(((List) o));

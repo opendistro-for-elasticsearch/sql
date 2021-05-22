@@ -23,6 +23,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intervalLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.longLiteral;
@@ -282,6 +283,20 @@ class AstExpressionBuilderTest {
         buildExprAst("NOT false")
     );
   }
+
+  @Test
+  public void canBuildInPredicate() {
+    assertEquals(in(intLiteral(1), intLiteral(0), intLiteral(2), intLiteral(3), intLiteral(4)),
+        buildExprAst("1 in (0,2,3,4)"));
+  }
+
+  @Test
+  public void canBuildNotInPredicate() {
+    assertEquals(
+        function("not", in(intLiteral(1), intLiteral(0), intLiteral(2), intLiteral(3), intLiteral(4))),
+        buildExprAst("1 not in (0,2,3,4)"));
+  }
+
 
   @Test
   public void canBuildWindowFunction() {

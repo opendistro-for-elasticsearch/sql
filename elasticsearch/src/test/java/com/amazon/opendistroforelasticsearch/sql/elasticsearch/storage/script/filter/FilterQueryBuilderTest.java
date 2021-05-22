@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
@@ -32,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import java.util.Map;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,6 +99,43 @@ class FilterQueryBuilderTest {
                 + "  }\n"
                 + "}",
             buildQuery(expr)));
+  }
+
+  @Test
+  void should_build_terms_query_for_in_operator() {
+    assertJsonEquals(
+        "{\n"
+              + "  \"terms\" : {\n"
+              + "    \"age\" : [\n"
+              + "      30,\n"
+              + "      19\n"
+              + "    ],\n"
+              + "    \"boost\" : 1.0\n"
+              + "  }\n"
+              + "}",
+        buildQuery(dsl.in(ref("age", INTEGER),
+            literal(fromObjectValue(Arrays.asList(30, 19))))));
+
+    assertJsonEquals(
+        "{\n"
+            + "  \"bool\" : {\n"
+            + "    \"must_not\" : [\n"
+            + "      {\n"
+            + "        \"terms\" : {\n"
+            + "          \"age\" : [\n"
+            + "            30,\n"
+            + "            19\n"
+            + "          ],\n"
+            + "          \"boost\" : 1.0\n"
+            + "        }\n"
+            + "      }\n"
+            + "    ],\n"
+            + "    \"adjust_pure_negative\" : true,\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}",
+        buildQuery(dsl.not_in(ref("age", INTEGER),
+            literal(fromObjectValue(Arrays.asList(30,19))))));
   }
 
   @Test
