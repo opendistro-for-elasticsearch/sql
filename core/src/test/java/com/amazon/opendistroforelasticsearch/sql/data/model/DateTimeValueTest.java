@@ -113,9 +113,9 @@ public class DateTimeValueTest {
   public void timestampInUnsupportedFormat() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprTimestampValue("2020-07-07T01:01:01Z"));
+            () -> new ExprTimestampValue("2020-07-07 01:01:01+10"));
     assertEquals(
-        "timestamp:2020-07-07T01:01:01Z in unsupported format, "
+        "timestamp:2020-07-07 01:01:01+10 in unsupported format, "
             + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -124,9 +124,9 @@ public class DateTimeValueTest {
   public void datetimeInUnsupportedFormat() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprDatetimeValue("2020-07-07T01:01:01Z"));
+            () -> new ExprDatetimeValue("2020-07-07 01:01:01+10"));
     assertEquals(
-        "datetime:2020-07-07T01:01:01Z in unsupported format, "
+        "datetime:2020-07-07 01:01:01+10 in unsupported format, "
             + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -140,11 +140,17 @@ public class DateTimeValueTest {
     assertEquals(LocalTime.parse("19:44:00"), stringValue.timeValue());
     assertEquals("\"2020-08-17 19:44:00\"", stringValue.toString());
 
+    ExprValue stringValueTZ = new ExprStringValue("2020-08-17T19:44:00Z");
+    assertEquals(LocalDateTime.parse("2020-08-17T19:44:00"), stringValueTZ.datetimeValue());
+    assertEquals(LocalDate.parse("2020-08-17"), stringValueTZ.dateValue());
+    assertEquals(LocalTime.parse("19:44:00"), stringValueTZ.timeValue());
+    assertEquals("\"2020-08-17T19:44:00Z\"", stringValueTZ.toString());
+
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprStringValue("2020-07-07T01:01:01Z").datetimeValue());
+            () -> new ExprStringValue("2020-07-07 01:01:01+10").datetimeValue());
     assertEquals(
-        "datetime:2020-07-07T01:01:01Z in unsupported format, "
+        "datetime:2020-07-07 01:01:01+10 in unsupported format, "
             + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -211,6 +217,9 @@ public class DateTimeValueTest {
       assertEquals(LocalTime.parse(timeWithMicros), timestampValue.timeValue());
       String localDateTime = String.format("%sT%s", dateValue, timeWithMicros);
       assertEquals(LocalDateTime.parse(localDateTime), timestampValue.datetimeValue());
+
+      ExprValue timestampValueWithT = new ExprTimestampValue(timestampString);
+      assertEquals(LocalDateTime.parse(localDateTime), timestampValueWithT.datetimeValue());
     }
   }
 
@@ -232,6 +241,9 @@ public class DateTimeValueTest {
       assertEquals(LocalTime.parse(timeWithMicros), datetimeValue.timeValue());
       String localDateTime = String.format("%sT%s", dateValue, timeWithMicros);
       assertEquals(LocalDateTime.parse(localDateTime), datetimeValue.datetimeValue());
+
+      ExprValue datetimeValueWithT = new ExprDatetimeValue(localDateTime);
+      assertEquals(LocalDateTime.parse(localDateTime), datetimeValueWithT.datetimeValue());
     }
   }
 
