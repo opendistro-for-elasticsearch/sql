@@ -161,6 +161,10 @@ public class AstDSL {
     return literal(value, DataType.TIMESTAMP);
   }
 
+  public static <T> Literal arrayLiteral(List<T> value) {
+    return literal(value, DataType.ARRAY);
+  }
+
   public static Literal doubleLiteral(Double value) {
     return literal(value, DataType.DOUBLE);
   }

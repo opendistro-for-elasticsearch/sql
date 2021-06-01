@@ -88,7 +88,7 @@ public class ExprValueUtils {
   /**
    * {@link ExprCollectionValue} constructor.
    */
-  public static ExprValue collectionValue(List<Object> list) {
+  public static <T> ExprValue collectionValue(List<T> list) {
     List<ExprValue> valueList = new ArrayList<>();
     list.forEach(o -> valueList.add(fromObjectValue(o)));
     return new ExprCollectionValue(valueList);
@@ -129,6 +129,10 @@ public class ExprValueUtils {
       return stringValue((String) o);
     } else if (o instanceof Float) {
       return floatValue((Float) o);
+    } else if (o instanceof ExprValue) {
+      // since there is no primitive in Java for differentiating TIMESTAMP DATETIME and DATE
+      // we can allow passing a ExprValue that already contains this information
+      return (ExprValue) o;
     } else {
       throw new ExpressionEvaluationException("unsupported object " + o.getClass());
     }

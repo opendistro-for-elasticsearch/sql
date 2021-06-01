@@ -18,9 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IN;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NOT_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.IS_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.LIKE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.NOT_LIKE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName.REGEXP;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
@@ -61,8 +63,10 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Case;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Cast;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Interval;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.IntervalUnit;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
@@ -231,6 +235,19 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   public UnresolvedExpression visitRegexpPredicate(RegexpPredicateContext ctx) {
     return new Function(REGEXP.getName().getFunctionName(),
             Arrays.asList(visit(ctx.left), visit(ctx.right)));
+  }
+
+  @Override
+  public UnresolvedExpression visitInPredicate(OpenDistroSQLParser.InPredicateContext ctx) {
+    UnresolvedExpression between = new Function(IN.getName().getFunctionName(),
+        Arrays.asList(visit(ctx.predicate()), AstDSL.arrayLiteral(ctx.arrayArgs().arrayArg()
+            .stream()
+            .map(this::visitArrayArg)
+            .map(unresolvedExpression -> ((Literal) unresolvedExpression).getValue())
+            .collect(Collectors.toList()))));
+
+    return ctx.NOT() == null ? between :
+        new Function(NOT.getName().getFunctionName(), Collections.singletonList(between));
   }
 
   @Override

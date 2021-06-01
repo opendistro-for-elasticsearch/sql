@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.f
 
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
@@ -157,6 +158,43 @@ class FilterQueryBuilderTest {
                 + "  }\n"
                 + "}",
             buildQuery(expr)));
+  }
+
+  @Test
+  void should_build_terms_query_for_in_operator() {
+    assertJsonEquals(
+        "{\n"
+              + "  \"terms\" : {\n"
+              + "    \"age\" : [\n"
+              + "      30,\n"
+              + "      19\n"
+              + "    ],\n"
+              + "    \"boost\" : 1.0\n"
+              + "  }\n"
+              + "}",
+        buildQuery(dsl.in(ref("age", INTEGER),
+            literal(fromObjectValue(Arrays.asList(30, 19))))));
+
+    assertJsonEquals(
+        "{\n"
+            + "  \"bool\" : {\n"
+            + "    \"must_not\" : [\n"
+            + "      {\n"
+            + "        \"terms\" : {\n"
+            + "          \"age\" : [\n"
+            + "            30,\n"
+            + "            19\n"
+            + "          ],\n"
+            + "          \"boost\" : 1.0\n"
+            + "        }\n"
+            + "      }\n"
+            + "    ],\n"
+            + "    \"adjust_pure_negative\" : true,\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}",
+        buildQuery(dsl.not_in(ref("age", INTEGER),
+            literal(fromObjectValue(Arrays.asList(30,19))))));
   }
 
   @Test
