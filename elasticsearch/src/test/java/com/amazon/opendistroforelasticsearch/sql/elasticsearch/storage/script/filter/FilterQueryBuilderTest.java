@@ -16,9 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
