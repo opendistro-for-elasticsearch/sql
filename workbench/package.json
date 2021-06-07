@@ -1,12 +1,12 @@
 {
   "name": "opendistro-query-workbench",
-  "version": "1.12.0.0",
+  "version": "1.13.2.0",
   "description": "Query Workbench",
   "main": "index.js",
   "license": "Apache-2.0",
   "homepage": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/workbench",
   "kibana": {
-    "version": "7.10.0",
+    "version": "7.10.2",
     "templateVersion": "6.3.3"
   },
   "repository": {
@@ -46,7 +46,7 @@
     "tslint-plugin-prettier": "^2.0.1"
   },
   "engines": {
-    "node": "10.22.1",
+    "node": "10.23.1",
     "yarn": "^1.21.1"
   },
   "resolutions": {
@@ -57,6 +57,8 @@
     "**/@types/react-dom": "^16.0.5",
     "**/@types/react-router-dom": "^4.3.1",
     "eslint-utils": "^2.0.0",
-    "**/@types/react": "16.3.14"
+    "**/@types/react": "16.3.14",
+    "lodash": "^4.17.21",
+    "ssri": "8.0.1"
   }
 }

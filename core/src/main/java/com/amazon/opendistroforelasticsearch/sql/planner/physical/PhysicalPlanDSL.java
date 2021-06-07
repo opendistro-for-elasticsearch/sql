@@ -83,14 +83,9 @@ public class PhysicalPlanDSL {
   }
 
   public WindowOperator window(PhysicalPlan input,
-                               Expression windowFunction,
+                               NamedExpression windowFunction,
                                WindowDefinition windowDefinition) {
     return new WindowOperator(input, windowFunction, windowDefinition);
-  }
-
-  public static HeadOperator head(PhysicalPlan input, boolean keepLast, Expression whileExpr,
-      int number) {
-    return new HeadOperator(input, keepLast, whileExpr, number);
   }
 
   public static RareTopNOperator rareTopN(PhysicalPlan input, CommandType commandType,

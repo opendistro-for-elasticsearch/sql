@@ -27,7 +27,6 @@ import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.json.JSONObject;
@@ -40,8 +39,8 @@ import org.json.JSONObject;
 @RequiredArgsConstructor
 public class SQLQueryRequest {
 
-  private static final Set<String> QUERY_FIELD = ImmutableSet.of("query");
-  private static final Set<String> QUERY_AND_FETCH_SIZE = ImmutableSet.of("query", "fetch_size");
+  private static final Set<String> SUPPORTED_FIELDS = ImmutableSet.of(
+      "query", "fetch_size", "parameters");
   private static final String QUERY_PARAMS_FORMAT = "format";
   private static final String QUERY_PARAMS_SANITIZE = "sanitize";
 
@@ -89,16 +88,16 @@ public class SQLQueryRequest {
   }
 
   /**
-   * Pre-check if the request can be supported by meeting the following criteria:
-   *  1.Only "query" field or "query" and "fetch_size=0" in payload. In other word,
-   *  it's not a cursor request with either non-zero "fetch_size" or "cursor" field,
-   *  or request with extra field such as "filter".
-   *  2.Response format expected is default JDBC format.
+   * Pre-check if the request can be supported by meeting ALL the following criteria:
+   *  1.Only supported fields present in request body, ex. "filter" and "cursor" are not supported
+   *  2.No fetch_size or "fetch_size=0". In other word, it's not a cursor request
+   *  3.Response format is default or can be supported.
    *
    * @return  true if supported.
    */
   public boolean isSupported() {
-    return (isOnlyQueryFieldInPayload() || isOnlyQueryAndFetchSizeZeroInPayload())
+    return isOnlySupportedFieldInPayload()
+        && isFetchSizeZeroIfPresent()
         && isSupportedFormat();
   }
 
@@ -123,18 +122,17 @@ public class SQLQueryRequest {
     }
   }
 
-  private boolean isOnlyQueryFieldInPayload() {
-    return QUERY_FIELD.equals(jsonContent.keySet());
+  private boolean isOnlySupportedFieldInPayload() {
+    return SUPPORTED_FIELDS.containsAll(jsonContent.keySet());
   }
 
-  private boolean isOnlyQueryAndFetchSizeZeroInPayload() {
-    return QUERY_AND_FETCH_SIZE.equals(jsonContent.keySet())
-        && (jsonContent.getInt("fetch_size") == 0);
+  private boolean isFetchSizeZeroIfPresent() {
+    return (jsonContent.optInt("fetch_size") == 0);
   }
 
   private boolean isSupportedFormat() {
     return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format)
-        || "csv".equalsIgnoreCase(format);
+        || "csv".equalsIgnoreCase(format) || "raw".equalsIgnoreCase(format);
   }
 
   private String getFormat(Map<String, String> params) {

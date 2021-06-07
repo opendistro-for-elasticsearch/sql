@@ -116,7 +116,7 @@ public class CsvResponseFormatterTest {
         tupleValue(ImmutableMap.of("city", ",,Seattle"))));
     String expected = "city\n"
         + "=Seattle\n"
-        + ",,Seattle";
+        + "\",,Seattle\"";
     assertEquals(expected, escapeFormatter.format(response));
   }
 

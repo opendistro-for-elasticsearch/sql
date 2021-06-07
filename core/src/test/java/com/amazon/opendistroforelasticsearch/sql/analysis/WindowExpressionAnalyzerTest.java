@@ -73,7 +73,7 @@ class WindowExpressionAnalyzerTest extends AnalyzerTestBase {
                 LogicalPlanDSL.relation("test"),
                 ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
                 ImmutablePair.of(DEFAULT_DESC, DSL.ref("integer_value", INTEGER))),
-            dsl.rowNumber(),
+            DSL.named("row_number", dsl.rowNumber()),
             new WindowDefinition(
                 ImmutableList.of(DSL.ref("string_value", STRING)),
                 ImmutableList.of(
@@ -86,6 +86,25 @@ class WindowExpressionAnalyzerTest extends AnalyzerTestBase {
                     ImmutableList.of(AstDSL.qualifiedName("string_value")),
                     ImmutableList.of(
                         ImmutablePair.of(DEFAULT_DESC, AstDSL.qualifiedName("integer_value"))))),
+            analysisContext));
+  }
+
+  @Test
+  void should_not_generate_sort_operator_if_no_partition_by_and_order_by_list() {
+    assertEquals(
+        LogicalPlanDSL.window(
+            LogicalPlanDSL.relation("test"),
+            DSL.named("row_number", dsl.rowNumber()),
+            new WindowDefinition(
+                ImmutableList.of(),
+                ImmutableList.of())),
+        analyzer.analyze(
+            AstDSL.alias(
+                "row_number",
+                AstDSL.window(
+                    AstDSL.function("row_number"),
+                    ImmutableList.of(),
+                    ImmutableList.of())),
             analysisContext));
   }
 

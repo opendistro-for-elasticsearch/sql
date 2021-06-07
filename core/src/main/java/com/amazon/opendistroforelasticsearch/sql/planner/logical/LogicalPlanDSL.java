@@ -59,7 +59,7 @@ public class LogicalPlanDSL {
   }
 
   public LogicalPlan window(LogicalPlan input,
-                            Expression windowFunction,
+                            NamedExpression windowFunction,
                             WindowDefinition windowDefinition) {
     return new LogicalWindow(input, windowFunction, windowDefinition);
   }
@@ -89,11 +89,6 @@ public class LogicalPlanDSL {
       Expression... fields) {
     return new LogicalDedupe(
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
-  }
-
-  public static LogicalPlan head(
-      LogicalPlan input, boolean keeplast, Expression whileExpr, int number) {
-    return new LogicalHead(input, keeplast, whileExpr, number);
   }
   
   public static LogicalPlan rareTopN(LogicalPlan input, CommandType commandType,

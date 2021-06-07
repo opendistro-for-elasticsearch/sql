@@ -80,15 +80,8 @@ class AnalyzerTest extends AnalyzerTestBase {
   @Test
   public void head_relation() {
     assertAnalyzeEqual(
-        LogicalPlanDSL.head(
-            LogicalPlanDSL.relation("schema"),
-            false, dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1))), 10),
-        AstDSL.head(
-            AstDSL.relation("schema"),
-            unresolvedArgList(
-                unresolvedArg("keeplast", booleanLiteral(false)),
-                unresolvedArg("whileExpr", compare("=", field("integer_value"), intLiteral(1))),
-                unresolvedArg("number", intLiteral(10)))));
+        LogicalPlanDSL.limit(LogicalPlanDSL.relation("schema"),10, 0),
+        AstDSL.head(AstDSL.relation("schema"), 10));
   }
 
   @Test
@@ -370,13 +363,15 @@ class AnalyzerTest extends AnalyzerTestBase {
                     LogicalPlanDSL.relation("test"),
                     ImmutablePair.of(DEFAULT_ASC, DSL.ref("string_value", STRING)),
                     ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))),
-                dsl.rowNumber(),
+                DSL.named("window_function", dsl.rowNumber()),
                 new WindowDefinition(
                     ImmutableList.of(DSL.ref("string_value", STRING)),
                     ImmutableList.of(
                         ImmutablePair.of(DEFAULT_ASC, DSL.ref("integer_value", INTEGER))))),
             DSL.named("string_value", DSL.ref("string_value", STRING)),
-            DSL.named("window_function", DSL.ref("row_number()", INTEGER))),
+            // Alias name "window_function" is used as internal symbol name to connect
+            // project item and window operator output
+            DSL.named("window_function", DSL.ref("window_function", INTEGER))),
         AstDSL.project(
             AstDSL.relation("test"),
             AstDSL.alias("string_value", AstDSL.qualifiedName("string_value")),

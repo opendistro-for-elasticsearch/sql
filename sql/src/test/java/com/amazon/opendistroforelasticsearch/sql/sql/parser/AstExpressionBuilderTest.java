@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
@@ -24,6 +25,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLit
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intervalLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.longLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
@@ -61,6 +63,10 @@ class AstExpressionBuilderTest {
         stringLiteral("hello"),
         buildExprAst("'hello'")
     );
+    assertEquals(
+        stringLiteral("hello"),
+        buildExprAst("\"hello\"")
+    );
   }
 
   @Test
@@ -68,6 +74,30 @@ class AstExpressionBuilderTest {
     assertEquals(
         intLiteral(123),
         buildExprAst("123")
+    );
+    assertEquals(
+        intLiteral(Integer.MAX_VALUE),
+        buildExprAst(String.valueOf(Integer.MAX_VALUE))
+    );
+    assertEquals(
+        intLiteral(Integer.MIN_VALUE),
+        buildExprAst(String.valueOf(Integer.MIN_VALUE))
+    );
+  }
+
+  @Test
+  public void canBuildLongLiteral() {
+    assertEquals(
+        longLiteral(1234567890123L),
+        buildExprAst("1234567890123")
+    );
+    assertEquals(
+        longLiteral(Integer.MAX_VALUE + 1L),
+        buildExprAst(String.valueOf(Integer.MAX_VALUE + 1L))
+    );
+    assertEquals(
+        longLiteral(Integer.MIN_VALUE - 1L),
+        buildExprAst(String.valueOf(Integer.MIN_VALUE - 1L))
     );
   }
 
@@ -292,6 +322,17 @@ class AstExpressionBuilderTest {
             ImmutableList.of(qualifiedName("state")),
             ImmutableList.of()),
         buildExprAst("RANK() OVER (PARTITION BY state)"));
+  }
+
+  @Test
+  public void canBuildAggregateWindowFunction() {
+    assertEquals(
+        window(
+            aggregate("AVG", qualifiedName("age")),
+            ImmutableList.of(qualifiedName("state")),
+            ImmutableList.of(ImmutablePair.of(
+                new SortOption(null, null), qualifiedName("age")))),
+        buildExprAst("AVG(age) OVER (PARTITION BY state ORDER BY age)"));
   }
 
   @Test

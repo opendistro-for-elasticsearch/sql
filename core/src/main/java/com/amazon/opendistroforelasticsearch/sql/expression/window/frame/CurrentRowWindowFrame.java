@@ -14,13 +14,14 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.window;
+package com.amazon.opendistroforelasticsearch.sql.expression.window.frame;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.WindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.WindowDefinition;
+import com.google.common.collect.PeekingIterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -30,22 +31,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Cumulative window frame that accumulates data row incrementally as window operator iterates
- * input rows. Conceptually, cumulative window frame should hold all seen rows till next partition.
+ * Conceptually, cumulative window frame should hold all seen rows till next partition.
  * This class is actually an optimized version that only hold previous and current row. This is
  * efficient and sufficient for ranking and aggregate window function support for now, though need
  * to add "real" cumulative frame implementation in future as needed.
  */
 @EqualsAndHashCode
-@Getter
 @RequiredArgsConstructor
 @ToString
-public class CumulativeWindowFrame implements WindowFrame {
+public class CurrentRowWindowFrame implements WindowFrame {
 
+  @Getter
   private final WindowDefinition windowDefinition;
 
-  private ExprTupleValue previous;
-  private ExprTupleValue current;
+  private ExprValue previous;
+  private ExprValue current;
 
   @Override
   public boolean isNewPartition() {
@@ -61,30 +61,39 @@ public class CumulativeWindowFrame implements WindowFrame {
   }
 
   @Override
-  public int currentIndex() {
-    // Current row index is always 1 since only 2 rows maintained
-    return 1;
-  }
-
-  @Override
-  public void add(ExprTupleValue row) {
+  public void load(PeekingIterator<ExprValue> it) {
     previous = current;
-    current = row;
+    current = it.next();
   }
 
   @Override
-  public ExprTupleValue get(int index) {
-    if (index != 0 && index != 1) {
-      throw new IndexOutOfBoundsException("Index is out of boundary of window frame: " + index);
-    }
-    return (index == 0) ? previous : current;
+  public ExprValue current() {
+    return current;
   }
 
-  private List<ExprValue> resolve(List<Expression> expressions, ExprTupleValue row) {
+  public ExprValue previous() {
+    return previous;
+  }
+
+  private List<ExprValue> resolve(List<Expression> expressions, ExprValue row) {
     Environment<Expression, ExprValue> valueEnv = row.bindingTuples();
     return expressions.stream()
                       .map(expr -> expr.valueOf(valueEnv))
                       .collect(Collectors.toList());
+  }
+
+  /**
+   * Current row window frame won't pre-fetch any row ahead.
+   * So always return false as nothing "cached" in frame.
+   */
+  @Override
+  public boolean hasNext() {
+    return false;
+  }
+
+  @Override
+  public List<ExprValue> next() {
+    return Collections.emptyList();
   }
 
 }

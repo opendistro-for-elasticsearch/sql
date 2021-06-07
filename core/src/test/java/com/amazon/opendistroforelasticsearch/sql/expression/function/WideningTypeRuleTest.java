@@ -21,7 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.F
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNDEFINED;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule.IMPOSSIBLE_WIDENING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule.TYPE_EQUAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,10 +33,9 @@ import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationE
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -60,12 +59,16 @@ class WideningTypeRuleTest {
           .put(LONG, FLOAT, 1)
           .put(LONG, DOUBLE, 2)
           .put(FLOAT, DOUBLE, 1)
+          .put(UNDEFINED, BYTE, 1)
+          .put(UNDEFINED, SHORT, 2)
+          .put(UNDEFINED, INTEGER, 3)
+          .put(UNDEFINED, LONG, 4)
+          .put(UNDEFINED, FLOAT, 5)
+          .put(UNDEFINED, DOUBLE, 6)
           .build();
 
   private static Stream<Arguments> distanceArguments() {
-    List<ExprCoreType> exprTypes =
-        Arrays.asList(ExprCoreType.values()).stream().filter(type -> type != UNKNOWN).collect(
-            Collectors.toList());
+    List<ExprCoreType> exprTypes = ExprCoreType.coreTypes();
     return Lists.cartesianProduct(exprTypes, exprTypes).stream()
         .map(list -> {
           ExprCoreType type1 = list.get(0);
@@ -81,9 +84,7 @@ class WideningTypeRuleTest {
   }
 
   private static Stream<Arguments> validMaxTypes() {
-    List<ExprCoreType> exprTypes =
-        Arrays.asList(ExprCoreType.values()).stream().filter(type -> type != UNKNOWN).collect(
-            Collectors.toList());
+    List<ExprCoreType> exprTypes = ExprCoreType.coreTypes();
     return Lists.cartesianProduct(exprTypes, exprTypes).stream()
         .map(list -> {
           ExprCoreType type1 = list.get(0);
@@ -117,4 +118,13 @@ class WideningTypeRuleTest {
       assertEquals(expected, WideningTypeRule.max(v1, v2));
     }
   }
+
+  @Test
+  public void maxOfUndefinedAndOthersShouldBeTheOtherType() {
+    ExprCoreType.coreTypes().forEach(type ->
+        assertEquals(type, WideningTypeRule.max(type, UNDEFINED)));
+    ExprCoreType.coreTypes().forEach(type ->
+        assertEquals(type, WideningTypeRule.max(UNDEFINED, type)));
+  }
+
 }

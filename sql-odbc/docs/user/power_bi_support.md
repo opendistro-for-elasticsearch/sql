@@ -8,17 +8,11 @@
 * Optional: [odfesqlodbc_import.pbids](../../src/PowerBIConnector/PBIDSExamples) to help with repeated connections to the same server 
 
 ## Setup
-* Copy `OdfeSqlOdbcPBIConnector.mez` file in the `<User>\Documents\Power BI Desktop\Custom Connectors\` folder. This will let Power BI access custom connector.
-* Open Power BI Desktop.
-* Change the security settings. Click on **Files** > **Options and settings** > **Options** > **Security** > Select **Allow any extension to load without validation or warning** for Data Extensions. This will allow the custom connector to load data into Power BI.
+* Copy `OdfeSqlOdbcPBIConnector.mez` file to the `<User>\Documents\Power BI Desktop\Custom Connectors\` folder. This will let Power BI access custom connector. If you have installed the On-premises data gateway, you should be able to see the ODBC is detected as a custom connector in the **Connectors** tab.
+  
+<img src="img/pbi_gateway_connectors.png" width="500">
 
-<img src="img/pbi_settings.png" width="500">
-
-* Restart Power BI Desktop.
-
-## Load Data
-
-> **NOTE**: Currently only import mode is supported. Direct query support will be added soon.
+## Load Data By Import
 
 * Open Power BI Desktop.
 
@@ -26,21 +20,21 @@
 
 <img src="img/pbi_disable_parallel_loading_tables.png"  width="500">
 
-* Click on **Home** > **Get Data** > **More** > **Other**. Select **Open Distro For Elasticsearch (Beta)**. Click on **Connect**.
+* Click on **Home** > **Get Data** > **More** > **Other**. Select **ODBC**. Click on **Connect**.
 
 <img src="img/pbi_select_connector.png" width="500">
 
-* You will get a warning for using third-party service. Click on **Continue**.
+* If you are running the ES instance in localhost, select the default **ODFE SQL ODBC DSN** as the data source.
 
-<img src="img/pbi_third_party_warning.png" width="500">
+<img src="img/pbi_select_dsn.png" width="500">
 
-* Enter server value. Click on **OK**.
+* Click on **OK**. Select authentication option. Enter credentials if required and click on **Connect**.
 
-<img src="img/pbi_connection_string_options.png" width="500">
+<img src="img/pbi_default_dsn_auth.png" width="500">
 
-* Select authentication option. Enter credentials if required and click on **Connect**.
+* You can also connect a remote ES instance as the data source by manually adding the DSN and authentication options through **ODBC Data Source Administrator**. Select the DSN you configured in the administrator, and click **OK**.
 
-<img src="img/pbi_auth.png" width="500">
+<img src="img/pbi_select_custom_dsn.png" width="500">
 
 * Select required table. Data preview will be loaded.
 
@@ -51,6 +45,16 @@
 * Select required columns for creating graph.
 
 <img src="img/pbi_simple_graph.png">
+
+## Load Data By Query
+
+* Direct query is supported to load data now. When selecting the DSN, expand the **Advanced options** and write your SQL query in the `SQL statement (optional)` field.
+
+<img src="img/pbi_query.png"> 
+
+* Click **OK** and you will get a preview with resulted data set. Then click **Load** to load the result table.
+
+<img src="img/pbi_query_result.png">
 
 ## Using .PBIDS Files
 
@@ -86,7 +90,7 @@ It will take you straight to the **Navigator** window for selecting the tables f
 
 ## Troubleshooting 
 
-* If you get an following error, please install [Open Distro For Elasticsearch SQL ODBC Driver](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/odbc/).
+* If you get an following error, please install [Open Distro For Elasticsearch SQL ODBC Driver](https://opendistro.github.io/for-elasticsearch/downloads.html#connect).
 
 <img src="img/pbi_error_driver_not_installed.png" width="350">
 

@@ -17,7 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.window.ranking;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.window.CumulativeWindowFrame;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.frame.CurrentRowWindowFrame;
 
 /**
  * Rank window function that assigns a rank number to each row based on sort items
@@ -36,7 +36,7 @@ public class RankFunction extends RankingWindowFunction {
   }
 
   @Override
-  protected int rank(CumulativeWindowFrame frame) {
+  protected int rank(CurrentRowWindowFrame frame) {
     if (frame.isNewPartition()) {
       total = 1;
       rank = 1;

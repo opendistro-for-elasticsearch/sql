@@ -262,10 +262,20 @@ export class Main extends React.Component<MainProps, MainState> {
       };
     }
     if (!response.data.ok) {
+      let err = response.data.resp;
+      console.log("Error occurred when processing query response: ", err)
+
+      // Mark fulfilled to true as long as the data is fulfilled
+      if (response.data.body) {
+        return {
+          fulfilled: true,
+          errorMessage: err,
+          data: response.data.body
+        }
+      }
       return {
         fulfilled: false,
-        errorMessage: response.data.resp,
-        data: response.data.body,
+        errorMessage: err,
       };
     }
 

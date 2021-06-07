@@ -44,12 +44,15 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregationState;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.CaseClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.conditional.cases.WhenClause;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.aggregation.AggregateWindowFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.window.ranking.RankingWindowFunction;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,9 +169,15 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return (Expression) repository.compile(functionName, arguments);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Expression visitWindowFunction(WindowFunction node, AnalysisContext context) {
-    return visitFunction(node.getFunction(), context);
+    Expression expr = node.getFunction().accept(this, context);
+    // Wrap regular aggregator by aggregate window function to adapt window operator use
+    if (expr instanceof Aggregator) {
+      return new AggregateWindowFunction((Aggregator<AggregationState>) expr);
+    }
+    return expr;
   }
 
   @Override
@@ -250,9 +259,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     return ref;
   }
 
+  // Array type is not supporte yet.
   private boolean isTypeNotSupported(ExprType type) {
-    return "struct".equalsIgnoreCase(type.typeName())
-        || "array".equalsIgnoreCase(type.typeName());
+    return "array".equalsIgnoreCase(type.typeName());
   }
 
 }

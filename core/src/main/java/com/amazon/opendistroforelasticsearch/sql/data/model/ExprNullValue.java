@@ -49,7 +49,7 @@ public class ExprNullValue extends AbstractExprValue {
 
   @Override
   public ExprType type() {
-    return ExprCoreType.UNKNOWN;
+    return ExprCoreType.UNDEFINED;
   }
 
   @Override

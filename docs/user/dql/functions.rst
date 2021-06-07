@@ -57,7 +57,7 @@ Cast to string example::
 
 Cast to number example::
 
-    od> SELECT cast(true as int) as cbool, cast('1' as int) as cstring
+    od> SELECT cast(true as int) as cbool, cast('1' as integer) as cstring
     fetched rows / total rows = 1/1
     +---------+-----------+
     | cbool   | cstring   |
@@ -1892,6 +1892,69 @@ Specifications:
 
 1. IFNULL(ES_TYPE, ES_TYPE) -> ES_TYPE
 
+Usage: return parameter2 if parameter1 is null, otherwise return parameter1
+
+Argument type: Any
+
+Return type: Any (NOTE : if two parameters has different type, you will fail semantic check"
+
+Example One::
+
+    od> SELECT IFNULL(123, 321), IFNULL(321, 123)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | IFNULL(123, 321)   | IFNULL(321, 123)   |
+    |--------------------+--------------------|
+    | 123                | 321                |
+    +--------------------+--------------------+
+
+Example Two::
+
+    od> SELECT IFNULL(321, 1/0), IFNULL(1/0, 123)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | IFNULL(321, 1/0)   | IFNULL(1/0, 123)   |
+    |--------------------+--------------------|
+    | 321                | 123                |
+    +--------------------+--------------------+
+
+Example Three::
+
+    od> SELECT IFNULL(1/0, 1/0)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | IFNULL(1/0, 1/0)   |
+    |--------------------|
+    | null               |
+    +--------------------+
+
+
+NULLIF
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. NULLIF(ES_TYPE, ES_TYPE) -> ES_TYPE
+
+Usage: return null if two parameters are same, otherwise return parameer1
+
+Argument type: Any
+
+Return type: Any (NOTE : if two parametershas different type, you will fail semantic check")
+
+Example::
+
+    od> SELECT NULLIF(123, 123), NULLIF(321, 123), NULLIF(1/0, 321), NULLIF(321, 1/0), NULLIF(1/0, 1/0)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+--------------------+--------------------+--------------------+
+    | NULLIF(123, 123)   | NULLIF(321, 123)   | NULLIF(1/0, 321)   | NULLIF(321, 1/0)   | NULLIF(1/0, 1/0)   |
+    |--------------------+--------------------+--------------------+--------------------+--------------------|
+    | null               | 321                | null               | 321                | null               |
+    +--------------------+--------------------+--------------------+--------------------+--------------------+
+
 
 ISNULL
 ------
@@ -1903,6 +1966,55 @@ Specifications:
 
 1. ISNULL(ES_TYPE) -> INTEGER
 
+Usage: return true if parameter is null, otherwise return false
+
+Argument type: Any
+
+Return type: boolean
+
+Example::
+
+    od> SELECT ISNULL(1/0), ISNULL(123)
+    fetched rows / total rows = 1/1
+    +---------------+---------------+
+    | ISNULL(1/0)   | ISNULL(123)   |
+    |---------------+---------------|
+    | True          | False         |
+    +---------------+---------------+
+
+IF
+------
+
+Description
+>>>>>>>>>>>
+
+Specifications:
+
+1. IF(condition, ES_TYPE1, ES_TYPE2) -> ES_TYPE1 or ES_TYPE2
+
+Usage: if first parameter is true, return second parameter, otherwise return third one.
+
+Argument type: condition as BOOLEAN, second and third can by any type
+
+Return type: Any (NOTE : if parameters #2 and #3 has different type, you will fail semantic check"
+
+Example::
+
+    od> SELECT IF(100 > 200, '100', '200')
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | IF(100 > 200, '100', '200')   |
+    |-------------------------------|
+    | 200                           |
+    +-------------------------------+
+
+    od> SELECT IF(200 > 100, '100', '200')
+    fetched rows / total rows = 1/1
+    +-------------------------------+
+    | IF(200 > 100, '100', '200')   |
+    |-------------------------------|
+    | 100                           |
+    +-------------------------------+
 
 CASE
 ----

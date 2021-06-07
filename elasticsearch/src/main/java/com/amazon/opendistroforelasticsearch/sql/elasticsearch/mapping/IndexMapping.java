@@ -101,15 +101,6 @@ public class IndexMapping {
             func.accept(fullFieldName, type);
           }
 
-          if (isMultiField(mapping)) {
-            ((Map<String, Map<String, Object>>) mapping.get("fields"))
-                .forEach(
-                    (innerFieldName, innerMapping) ->
-                        func.accept(
-                            fullFieldName + "." + innerFieldName,
-                            (String) innerMapping.getOrDefault("type", "object")));
-          }
-
           if (mapping.containsKey("properties")) { // Nested field
             flatMappings((Map<String, Object>) mapping.get("properties"), fullFieldName, func);
           }

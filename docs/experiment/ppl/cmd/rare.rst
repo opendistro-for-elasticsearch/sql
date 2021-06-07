@@ -13,7 +13,7 @@ Description
 ============
 | Using ``rare`` command to find the least common tuple of values of all fields in the field list.
 
-A maximum of 10 results is returned for each distinct tuple of values of the group-by fields.
+**Note**: A maximum of 10 results is returned for each distinct tuple of values of the group-by fields.
 
 Syntax
 ============

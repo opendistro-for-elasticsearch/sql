@@ -217,20 +217,44 @@ public class DateTimeFunctionIT extends PPLIntegTestCase {
     verifySchema(result, schema("f", null, "integer"));
     verifySome(result.getJSONArray("datarows"), rows(123456));
 
+    // Explicit timestamp value with less than 6 microsecond digits
+    result = executeQuery(String.format(
+            "source=%s | eval f =  microsecond(timestamp('2020-09-16 17:30:00.1234')) | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "integer"));
+    verifySome(result.getJSONArray("datarows"), rows(123400));
+
     result = executeQuery(String.format(
             "source=%s | eval f =  microsecond(time('17:30:00.000010')) | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "integer"));
     verifySome(result.getJSONArray("datarows"), rows(10));
+
+    // Explicit time value with less than 6 microsecond digits
+    result = executeQuery(String.format(
+        "source=%s | eval f =  microsecond(time('17:30:00.1234')) | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "integer"));
+    verifySome(result.getJSONArray("datarows"), rows(123400));
 
     result = executeQuery(String.format(
             "source=%s | eval f =  microsecond('2020-09-16 17:30:00.123456') | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "integer"));
     verifySome(result.getJSONArray("datarows"), rows(123456));
 
+    // Implicit timestamp value with less than 6 microsecond digits
+    result = executeQuery(String.format(
+        "source=%s | eval f =  microsecond('2020-09-16 17:30:00.1234') | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "integer"));
+    verifySome(result.getJSONArray("datarows"), rows(123400));
+
     result = executeQuery(String.format(
             "source=%s | eval f =  microsecond('17:30:00.000010') | fields f", TEST_INDEX_DATE));
     verifySchema(result, schema("f", null, "integer"));
     verifySome(result.getJSONArray("datarows"), rows(10));
+
+    // Implicit time value with less than 6 microsecond digits
+    result = executeQuery(String.format(
+            "source=%s | eval f =  microsecond('17:30:00.1234') | fields f", TEST_INDEX_DATE));
+    verifySchema(result, schema("f", null, "integer"));
+    verifySome(result.getJSONArray("datarows"), rows(123400));
   }
 
   @Test

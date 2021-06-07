@@ -42,7 +42,7 @@ whereCommand
     ;
 
 fieldsCommand
-    : FIELDS (PLUS | MINUS)? wcFieldList
+    : FIELDS (PLUS | MINUS)? fieldList
     ;
 
 renameCommand
@@ -77,8 +77,6 @@ evalCommand
 
 headCommand
     : HEAD
-    (KEEPLAST EQUAL keeplast=booleanLiteral)?
-    (WHILE LT_PRTHS whileExpr=logicalExpression RT_PRTHS)?
     (number=integerLiteral)?
     ;
     
@@ -178,6 +176,7 @@ booleanExpression
 /** tables */
 tableSource
     : qualifiedName
+    | ID_DATE_SUFFIX
     ;
 
 /** fields */
@@ -253,7 +252,7 @@ dateAndTimeFunctionBase
 /** condition function return boolean value */
 conditionFunctionBase
     : LIKE
-    | ISNULL | ISNOTNULL
+    | IF | ISNULL | ISNOTNULL | IFNULL | NULLIF
     ;
 
 textFunctionBase
@@ -311,11 +310,11 @@ valueList
     ;
 
 qualifiedName
-    : ident (DOT ident)*                                            #identsAsQualifiedName
+    : ident (DOT ident)*                             #identsAsQualifiedName
     ;
 
 wcQualifiedName
-    : wildcard (DOT wildcard)*                                      #identsAsWildcardQualifiedName
+    : wildcard (DOT wildcard)*                       #identsAsWildcardQualifiedName
     ;
 
 ident

@@ -15,7 +15,7 @@ repositories {
 }
 
 esplugin {
-    name 'opendistro_sql'
+    name 'opendistro-sql'
     description 'Open Distro for Elasticsearch SQL'
     classname 'com.amazon.opendistroforelasticsearch.sql.plugin.SQLPlugin'
     licenseFile rootProject.file("LICENSE.txt")
@@ -31,9 +31,11 @@ thirdPartyAudit.enabled = false
 configurations.all {
     // conflict with spring-jcl
     exclude group: "commons-logging", module: "commons-logging"
+    resolutionStrategy.force 'com.fasterxml.jackson.core:jackson-core:2.10.5'
     // enforce 1.1.3, https://www.whitesourcesoftware.com/vulnerability-database/WS-2019-0379
     resolutionStrategy.force 'commons-codec:commons-codec:1.13'
     resolutionStrategy.force 'com.google.guava:guava:29.0-jre'
+    resolutionStrategy.force 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.11.4'
 }
 
 dependencies {
@@ -120,13 +122,27 @@ afterEvaluate {
 
     buildRpm {
         arch = 'NOARCH'
-        archiveName "${packageName}-${version}.rpm"
         dependsOn 'assemble'
+        finalizedBy 'renameRpm'
+        task renameRpm(type: Copy) {
+            from("$buildDir/distributions")
+            into("$buildDir/distributions")
+            include archiveName
+            rename archiveName, "${packageName}-${version}.rpm"
+            doLast { delete file("$buildDir/distributions/$archiveName") }
+        }
     }
 
     buildDeb {
-        arch = 'amd64'
-        archiveName "${packageName}-${version}.deb"
+        arch = 'all'
         dependsOn 'assemble'
+        finalizedBy 'renameDeb'
+        task renameDeb(type: Copy) {
+            from("$buildDir/distributions")
+            into("$buildDir/distributions")
+            include archiveName
+            rename archiveName, "${packageName}-${version}.deb"
+            doLast { delete file("$buildDir/distributions/$archiveName") }
+        }
     }
 }

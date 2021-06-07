@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.containsString;
 import java.io.IOException;
 import java.util.Locale;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -91,6 +92,26 @@ public class MethodQueryIT extends SQLIntegTestCase {
                 "{\"filter\":{\"match\":{\"address\":{\"query\":\"Street\"")));
   }
 
+  @Test
+  public void regexpQueryTest() throws IOException {
+    final String result = explainQuery(String.format(Locale.ROOT,
+        "SELECT * FROM %s WHERE address=REGEXP_QUERY('.*')",
+        TestsConstants.TEST_INDEX_ACCOUNT));
+    Assert.assertThat(result,
+        containsString("{\"bool\":{\"must\":[{\"regexp\":"
+            + "{\"address\":{\"value\":\".*\",\"flags_value\":255,\"max_determinized_states\":10000,\"boost\":1.0}}}"));
+  }
+
+  @Test
+  public void negativeRegexpQueryTest() throws IOException {
+    final String result = explainQuery(String.format(Locale.ROOT,
+        "SELECT * FROM %s WHERE NOT(address=REGEXP_QUERY('.*'))",
+        TestsConstants.TEST_INDEX_ACCOUNT));
+    Assert.assertThat(result,
+        containsString("{\"bool\":{\"must_not\":[{\"regexp\":"
+            + "{\"address\":{\"value\":\".*\",\"flags_value\":255,\"max_determinized_states\":10000,\"boost\":1.0}}}"));
+  }
+
   /**
    * wildcardQuery 是用通配符的方式查找某个term 　比如例子中 l*e means leae ltae ....
    * "wildcard": { "address" : { "wildcard" : "l*e" } }
@@ -123,5 +144,31 @@ public class MethodQueryIT extends SQLIntegTestCase {
         TestsConstants.TEST_INDEX_ACCOUNT));
     Assert.assertThat(result,
         containsString("{\"match_phrase\":{\"address\":{\"query\":\"671 Bristol Street\""));
+  }
+
+  @Test
+  public void testFieldToFieldComparison() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
+    String result =  explainQuery("select * from " + TestsConstants.TEST_INDEX_ACCOUNT
+        + " where age > account_number");
+
+    Assert.assertThat(result,
+        containsString("{\"script\":{\"script\":{\"source\":\"doc['age'].value "
+            + "> doc['account_number'].value\",\"lang\":\"painless\"}"));
+
+  }
+
+  @Test
+  public void testFieldToFieldComparisonWithExtraClause() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
+    String result =  explainQuery("select * from " + TestsConstants.TEST_INDEX_ACCOUNT
+        + " where age > account_number AND age in (1)");
+
+    Assert.assertThat(result,
+        containsString("{\"script\":{\"script\":{\"source\":\"doc['age'].value "
+            + "> doc['account_number'].value\",\"lang\":\"painless\"}"));
+    Assert.assertThat(result,
+        containsString("{\"term\":{\"age\":{\"value\":1,\"boost\":1.0}}}"));
+
   }
 }

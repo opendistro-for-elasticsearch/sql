@@ -133,7 +133,7 @@ describe('Test SQL UI', () => {
     cy.wait(delay);
 
     // hard to get euiCodeBlock content, check length instead
-    cy.get('.euiCodeBlock__code').children().should('have.length', 37);
+    cy.get('.euiCodeBlock__code').children().should('have.length', 13);
   });
 
   it('Test Clear button', () => {
@@ -169,13 +169,18 @@ describe('Test and verify SQL downloads', () => {
         url: url,
         headers: {
           'content-type': 'application/json;charset=UTF-8',
-          'kbn-version': '7.10.0',
+          'kbn-version': '7.10.2',
         },
         body: {
           'query': 'select * from accounts where balance > 49500'
         }
       }).then((response) => {
-        expect(response.body.data.resp).to.have.string(files[file]);
+        if (title === 'Download and verify CSV') {
+          expect(response.body.data.body).to.have.string(files[file]);
+        }
+        else {
+          expect(response.body.data.resp).to.have.string(files[file]);
+        }
       });
     });
   });
@@ -223,7 +228,7 @@ describe('Test table display', () => {
     cy.get('span.euiTableCellContent__text')
       .eq(24)
       .should((cell) => {
-        expect(cell).to.contain('2018-06-23');
+        expect(cell).to.contain('comment_2_1');
       });
   });
 });

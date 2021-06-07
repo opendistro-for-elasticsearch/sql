@@ -62,10 +62,11 @@ class AstBuilderTest {
             values(emptyList()),
             alias("123", intLiteral(123)),
             alias("'hello'", stringLiteral("hello")),
+            alias("\"world\"", stringLiteral("world")),
             alias("false", booleanLiteral(false)),
             alias("-4.567", doubleLiteral(-4.567))
         ),
-        buildAST("SELECT 123, 'hello', false, -4.567")
+        buildAST("SELECT 123, 'hello', \"world\", false, -4.567")
     );
   }
 
@@ -138,18 +139,12 @@ class AstBuilderTest {
         project(
             relation("test"),
             alias(
-                "name",
-                qualifiedName("name"),
-                "first name"
-            ),
-            alias(
                 "(age + 10)",
                 function("+", qualifiedName("age"), intLiteral(10)),
                 "Age_Expr"
             )
         ),
         buildAST("SELECT"
-                + " name AS \"first name\", "
                 + " (age + 10) AS `Age_Expr` "
                 + "FROM test"
         )

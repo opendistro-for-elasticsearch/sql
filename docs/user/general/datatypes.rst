@@ -103,14 +103,29 @@ The table below list the mapping between Elasticsearch Data Type, ODFE SQL Data 
 | nested             | array         | STRUCT    |
 +--------------------+---------------+-----------+
 
-Notes: Not all the ODFE SQL Type has correspond Elasticsearch Type. e.g. data and time. To use function which required such data type, user should explict convert the data type.
+Notes: Not all the ODFE SQL Type has correspond Elasticsearch Type. e.g. data and time. To use function which required such data type, user should explicitly convert the data type.
 
+
+Undefined Data Type
+===================
+
+The type of a null literal is special and different from any existing one. In this case, an ``UNDEFINED`` type is in use when the type cannot be inferred at "compile time" (during query parsing and analyzing). The corresponding SQL type is NULL according to JDBC specification. Because this undefined type is compatible with any other type by design, a null literal can be accepted as a valid operand or function argument.
+
+Here are examples for NULL literal and expressions with NULL literal involved::
+
+    od> SELECT NULL, NULL = NULL, 1 + NULL, LENGTH(NULL);
+    fetched rows / total rows = 1/1
+    +--------+---------------+------------+----------------+
+    | NULL   | NULL = NULL   | 1 + NULL   | LENGTH(NULL)   |
+    |--------+---------------+------------+----------------|
+    | null   | null          | null       | null           |
+    +--------+---------------+------------+----------------+
 
 
 Numeric Data Types
 ==================
 
-TODO
+Numeric values ranged from -2147483648 to +2147483647 are recognized as integer with type name ``INTEGER``. For others outside the range, ``LONG`` integer will be the data type after parsed.
 
 
 Date and Time Data Types
@@ -222,7 +237,16 @@ Conversion from TIMESTAMP
 String Data Types
 =================
 
-TODO
+A string is a sequence of characters enclosed in either single or double quotes. For example, both 'text' and "text" will be treated as string literal. To use quote characters in a string literal, you can include double quotes within single quoted string or single quotes within double quoted string::
+
+    od> SELECT 'hello', "world", '"hello"', "'world'"
+    fetched rows / total rows = 1/1
+    +-----------+-----------+-------------+-------------+
+    | 'hello'   | "world"   | '"hello"'   | "'world'"   |
+    |-----------+-----------+-------------+-------------|
+    | hello     | world     | "hello"     | 'world'     |
+    +-----------+-----------+-------------+-------------+
+
 
 
 
