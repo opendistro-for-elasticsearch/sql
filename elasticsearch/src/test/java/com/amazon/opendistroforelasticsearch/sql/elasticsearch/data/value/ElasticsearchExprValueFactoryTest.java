@@ -191,6 +191,12 @@ class ElasticsearchExprValueFactoryTest {
         new ExprTimestampValue("2015-01-01 12:10:30"),
         tupleValue("{\"timestampV\":\"2015-01-01 12:10:30\"}").get("timestampV"));
     assertEquals(
+        new ExprTimestampValue("2020-08-17T19:44:00.100500"),
+        tupleValue("{\"timestampV\":\"2020-08-17T19:44:00.100500\"}").get("timestampV"));
+    assertEquals(
+        new ExprTimestampValue("2020-08-17 19:44:00.100500"),
+        tupleValue("{\"timestampV\":\"2020-08-17 19:44:00.100500\"}").get("timestampV"));
+    assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         tupleValue("{\"timestampV\":1420070400001}").get("timestampV"));
     assertEquals(
@@ -221,9 +227,10 @@ class ElasticsearchExprValueFactoryTest {
   public void constructDateFromUnsupportedFormatThrowException() {
     IllegalStateException exception =
         assertThrows(
-            IllegalStateException.class, () -> tupleValue("{\"timestampV\":\"2015-01-01 12:10\"}"));
+            IllegalStateException.class, () ->
+                tupleValue("{\"timestampV\":\"2015-01-01 1:10:10\"}"));
     assertEquals(
-        "Construct ExprTimestampValue from \"2015-01-01 12:10\" failed, "
+        "Construct ExprTimestampValue from \"2015-01-01 1:10:10\" failed, "
             + "unsupported date format.",
         exception.getMessage());
   }
