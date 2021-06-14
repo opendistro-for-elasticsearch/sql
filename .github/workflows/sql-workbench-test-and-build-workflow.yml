@@ -4,7 +4,7 @@ on: [pull_request, push]
 
 env: 
   PLUGIN_NAME: opendistroQueryWorkbenchKibana
-  OD_VERSION: 1.13.0.1
+  OD_VERSION: 1.13.0.2
 
 jobs:
 
