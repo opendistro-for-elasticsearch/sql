@@ -610,6 +610,10 @@ public class WhereParser {
             operator = "==";
         }
 
+        if (operator.equals("<>")) {
+            operator = "!=";
+        }
+
         String finalStr = v1Dec + v2Dec + v1 + " " + operator + " " + v2;
 
         SQLMethodInvokeExpr scriptMethod = new SQLMethodInvokeExpr("script", null);

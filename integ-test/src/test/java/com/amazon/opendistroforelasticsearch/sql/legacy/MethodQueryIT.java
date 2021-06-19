@@ -171,4 +171,18 @@ public class MethodQueryIT extends SQLIntegTestCase {
         containsString("{\"term\":{\"age\":{\"value\":1,\"boost\":1.0}}}"));
 
   }
+
+  @Test
+  public void testFieldToFieldComparisonWithDifferentOperator() throws IOException {
+    Assume.assumeFalse(isNewQueryEngineEabled());
+    String result =  explainQuery("select * from " + TestsConstants.TEST_INDEX_ACCOUNT
+        + " where age <> account_number AND age in (1)");
+
+    Assert.assertThat(result,
+        containsString("{\"script\":{\"script\":{\"source\":\"doc['age'].value "
+            + "!= doc['account_number'].value\",\"lang\":\"painless\"}"));
+    Assert.assertThat(result,
+        containsString("{\"term\":{\"age\":{\"value\":1,\"boost\":1.0}}}"));
+
+  }
 }
