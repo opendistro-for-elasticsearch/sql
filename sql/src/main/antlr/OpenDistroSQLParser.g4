@@ -260,6 +260,7 @@ predicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate NOT? LIKE right=predicate                      #likePredicate
     | left=predicate REGEXP right=predicate                         #regexpPredicate
+    | predicate NOT? IN LR_BRACKET arrayArgs? RR_BRACKET                         #inPredicate
     ;
 
 expressionAtom
@@ -367,6 +368,14 @@ functionArgs
     ;
 
 functionArg
+    : expression
+    ;
+
+arrayArgs
+    : arrayArg (COMMA arrayArg)*
+    ;
+
+arrayArg
     : expression
     ;
 

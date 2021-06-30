@@ -131,4 +131,8 @@ public enum ExprCoreType implements ExprType {
   public static List<ExprType> numberTypes() {
     return ImmutableList.of(INTEGER, LONG, FLOAT, DOUBLE);
   }
+
+  public static List<ExprType> dateTypes() {
+    return ImmutableList.of(DATE, DATETIME, TIMESTAMP, TIME);
+  }
 }

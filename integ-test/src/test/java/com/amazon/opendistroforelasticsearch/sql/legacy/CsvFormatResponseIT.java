@@ -395,6 +395,9 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void aggAfterTwoTermsGroupBy() throws Exception {
+    // disabling test for new engine because COUNT returns int in new engine,
+    // and float in the old engine
+    Assume.assumeFalse(isNewQueryEngineEabled());
     String query = String.format(Locale.ROOT,
         "SELECT COUNT(*) FROM %s where age in (35,36) GROUP BY gender,age",
         TEST_INDEX_ACCOUNT);
@@ -414,6 +417,9 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
   @Test
   public void multipleAggAfterTwoTermsGroupBy() throws Exception {
+    // disabling test for new engine because COUNT returns int in new engine,
+    // and float in the old engine
+    Assume.assumeFalse(isNewQueryEngineEabled());
     String query = String.format(Locale.ROOT,
         "SELECT COUNT(*) , sum(balance) FROM %s where age in (35,36) GROUP BY gender,age",
         TEST_INDEX_ACCOUNT);

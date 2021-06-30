@@ -27,36 +27,44 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.missingValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils.matches;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.sun.org.apache.xpath.internal.Arg;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -148,6 +156,34 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(1)));
     builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(2)));
     builder.add(Arguments.of(new ExprShortValue(2), new ExprShortValue(1)));
+
+    builder.add(Arguments.of(new ExprDatetimeValue("2006-01-01 00:00:01"),
+        new ExprStringValue("2006-01-01 00:00:00")));
+    builder.add(Arguments.of(new ExprDatetimeValue("2006-01-01 00:00:00"),
+        new ExprStringValue("2006-01-01 00:00:01")));
+    builder.add(Arguments.of(new ExprDatetimeValue("2006-01-01 00:00:00"),
+        new ExprStringValue("2006-01-01 00:00:00")));
+
+    builder.add(Arguments.of(new ExprDateValue("2006-01-01"),
+        new ExprStringValue("2006-01-01")));
+    builder.add(Arguments.of(new ExprDateValue("2006-01-01"),
+        new ExprStringValue("2006-01-02")));
+    builder.add(Arguments.of(new ExprDateValue("2006-01-02"),
+        new ExprStringValue("2006-01-01")));
+
+    builder.add(Arguments.of(new ExprTimestampValue("2006-01-01 00:00:01"),
+        new ExprStringValue("2006-01-01 00:00:00")));
+    builder.add(Arguments.of(new ExprTimestampValue("2006-01-01 00:00:00"),
+        new ExprStringValue("2006-01-01 00:00:01")));
+    builder.add(Arguments.of(new ExprTimestampValue("2006-01-01 00:00:00"),
+        new ExprStringValue("2006-01-01 00:00:00")));
+
+    builder.add(Arguments.of(new ExprTimeValue("00:00:01"),
+        new ExprStringValue("00:00:00")));
+    builder.add(Arguments.of(new ExprTimeValue("00:00:00"),
+        new ExprStringValue("00:00:01")));
+    builder.add(Arguments.of(new ExprTimeValue("00:00:00"),
+        new ExprStringValue("00:00:00")));
     return builder.build();
   }
 
@@ -832,4 +868,66 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     FunctionExpression equal = dsl.equal(DSL.literal(1), DSL.literal(1L));
     assertTrue(equal.valueOf(valueEnv()).booleanValue());
   }
+
+  private static Stream<Arguments> testInArguments() {
+    List<List> arguments =
+        Arrays.asList(Arrays.asList(1, Arrays.asList(0, 2, 1, 3)),
+            Arrays.asList(1, Arrays.asList(2, 0)), Arrays.asList(1L, Arrays.asList(1L, 2L, 3L)),
+            Arrays.asList(2L, Arrays.asList(1L, 2L)), Arrays.asList(3F, Arrays.asList(1F, 2F)),
+            Arrays.asList(0F, Arrays.asList(1F, 2F)), Arrays.asList(1D, Arrays.asList(1D, 1D)),
+            Arrays.asList(1D, Arrays.asList(2D, 2D)),
+            Arrays.asList("b", Arrays.asList("a", "c")),
+            Arrays.asList("b", Arrays.asList("c", "a")),
+            Arrays.asList("a", Arrays.asList("a", "b")),
+            Arrays.asList("b", Arrays.asList("a", "b")),
+            Arrays.asList("c", Arrays.asList("a", "b")),
+            Arrays.asList("a", Arrays.asList("b", "c")),
+            Arrays.asList("a", Arrays.asList("a", "a")),
+            Arrays.asList("b", Arrays.asList("a", "a")));
+
+    Stream.Builder<Arguments> builder = Stream.builder();
+    for (List<Object> argGroup : arguments) {
+      builder.add(Arguments.of(fromObjectValue(argGroup.get(0)), fromObjectValue(argGroup.get(1))));
+    }
+    builder
+        .add(Arguments.of(fromObjectValue("2021-01-02", DATE),
+            fromObjectValue(Arrays.asList(fromObjectValue("2021-01-01", DATE),
+                fromObjectValue("2021-01-03", DATE)))))
+        .add(Arguments.of(fromObjectValue("2021-01-02", DATE),
+            fromObjectValue(Arrays.asList(fromObjectValue("2021-01-01", DATE),
+                fromObjectValue("2021-01-03", DATE)))))
+        .add(Arguments.of(fromObjectValue("2021-01-01 03:00:00", DATETIME),
+            fromObjectValue(Arrays.asList(fromObjectValue("2021-01-01 01:00:00", DATETIME),
+                fromObjectValue("3021-01-01 02:00:00", DATETIME)))))
+        .add(Arguments.of(fromObjectValue("2021-01-01 01:00:00", TIMESTAMP),
+            fromObjectValue(Arrays.asList(fromObjectValue("2021-01-01 01:00:00", TIMESTAMP),
+            fromObjectValue("3021-01-01 01:00:00", TIMESTAMP)))));
+    return builder.build();
+  }
+
+  @ParameterizedTest(name = "in({0}, ({1}))")
+  @MethodSource("testInArguments")
+  public void in(ExprValue field, ExprValue arrayOfArgs) {
+    FunctionExpression in = dsl.in(
+        DSL.literal(field), DSL.literal(arrayOfArgs));
+    assertEquals(BOOLEAN, in.type());
+    assertEquals(OperatorUtils.in(field, arrayOfArgs), in.valueOf(valueEnv()));
+  }
+
+  @ParameterizedTest(name = "not in({0}, ({1}))")
+  @MethodSource("testInArguments")
+  public void not_in(ExprValue field, ExprValue arrayOfArgs) {
+    FunctionExpression notIn = dsl.not_in(
+        DSL.literal(field), DSL.literal(arrayOfArgs));
+    assertEquals(BOOLEAN, notIn.type());
+    assertEquals(!OperatorUtils.in(field, arrayOfArgs).booleanValue(),
+        notIn.valueOf(valueEnv()).booleanValue());
+  }
+
+  @Test
+  public void in_not_an_array() {
+    assertThrows(ExpressionEvaluationException.class, () ->
+        dsl.in(DSL.literal(1), DSL.literal("1")));
+  }
+
 }

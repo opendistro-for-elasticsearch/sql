@@ -16,8 +16,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
@@ -26,12 +31,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.serialization.ExpressionSerializer;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +47,9 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -97,6 +108,82 @@ class FilterQueryBuilderTest {
                 + "  }\n"
                 + "}",
             buildQuery(expr)));
+  }
+
+  private static List<Arguments> validDateAutocast() {
+
+    return Arrays.asList(
+        Arguments.of(DATE, "2006-01-01"),
+        Arguments.of(TIME, "00:00:00"),
+        Arguments.of(TIMESTAMP, "2006-01-01 00:00:00"),
+        Arguments.of(DATETIME, "2006-01-01 00:00:00")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("validDateAutocast")
+  void shouldBuildRangeQueryForDateComparisonExpressionAutocast(ExprType exprType,
+      final String time) {
+    Expression[] params = {ref("date", exprType), literal(time)};
+
+    String serializedString = "\"" + time + "\"";
+    Map<Expression, Object[]> ranges = ImmutableMap.of(
+        dsl.less(params), new Object[]{null, serializedString, true, false},
+        dsl.greater(params), new Object[]{serializedString, null, false, true},
+        dsl.lte(params), new Object[]{null, serializedString, true, true},
+        dsl.gte(params), new Object[]{serializedString, null, true, true});
+
+    ranges.forEach((expr, range) ->
+        assertJsonEquals(
+            "{\n"
+                + "  \"range\" : {\n"
+                + "    \"date\" : {\n"
+                + "      \"from\" : " + range[0] + ",\n"
+                + "      \"to\" : " + range[1] + ",\n"
+                + "      \"include_lower\" : " + range[2] + ",\n"
+                + "      \"include_upper\" : " + range[3] + ",\n"
+                + "      \"boost\" : 1.0\n"
+                + "    }\n"
+                + "  }\n"
+                + "}",
+            buildQuery(expr)));
+  }
+
+  @Test
+  void should_build_terms_query_for_in_operator() {
+    assertJsonEquals(
+        "{\n"
+              + "  \"terms\" : {\n"
+              + "    \"age\" : [\n"
+              + "      30,\n"
+              + "      19\n"
+              + "    ],\n"
+              + "    \"boost\" : 1.0\n"
+              + "  }\n"
+              + "}",
+        buildQuery(dsl.in(ref("age", INTEGER),
+            literal(fromObjectValue(Arrays.asList(30, 19))))));
+
+    assertJsonEquals(
+        "{\n"
+            + "  \"bool\" : {\n"
+            + "    \"must_not\" : [\n"
+            + "      {\n"
+            + "        \"terms\" : {\n"
+            + "          \"age\" : [\n"
+            + "            30,\n"
+            + "            19\n"
+            + "          ],\n"
+            + "          \"boost\" : 1.0\n"
+            + "        }\n"
+            + "      }\n"
+            + "    ],\n"
+            + "    \"adjust_pure_negative\" : true,\n"
+            + "    \"boost\" : 1.0\n"
+            + "  }\n"
+            + "}",
+        buildQuery(dsl.not_in(ref("age", INTEGER),
+            literal(fromObjectValue(Arrays.asList(30,19))))));
   }
 
   @Test

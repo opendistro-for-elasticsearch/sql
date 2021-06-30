@@ -106,6 +106,7 @@ public enum BuiltinFunctionName {
   GTE(FunctionName.of(">=")),
   LIKE(FunctionName.of("like")),
   NOT_LIKE(FunctionName.of("not like")),
+  IN(FunctionName.of("in")),
 
   /**
    * Aggregation Function.

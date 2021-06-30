@@ -19,22 +19,39 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.SerializableFunction;
 import com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
+import java.io.Serializable;
+import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.tuple.Pair;
+
 
 /**
  * The definition of binary predicate function
@@ -63,6 +80,7 @@ public class BinaryPredicateOperator {
     repository.register(like());
     repository.register(notLike());
     repository.register(regexp());
+    repository.register(in());
   }
 
   /**
@@ -192,53 +210,44 @@ public class BinaryPredicateOperator {
   }
 
   private static FunctionResolver less() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.LESS.getName(), ExprCoreType.coreTypes().stream()
-            .map(type -> FunctionDSL
-                .impl(FunctionDSL
-                        .nullMissingHandling((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) < 0)),
-                    BOOLEAN,
-                    type, type))
-            .collect(
-                Collectors.toList()));
+    return FunctionDSL.define(BuiltinFunctionName.LESS.getName(),
+        getComparisonFunctions((Function<Integer, Boolean> & Serializable) value -> value < 0));
   }
 
   private static FunctionResolver lte() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.LTE.getName(), ExprCoreType.coreTypes().stream()
-            .map(type -> FunctionDSL
-                .impl(
-                    FunctionDSL
-                        .nullMissingHandling(
-                            (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) <= 0)),
-                    BOOLEAN,
-                    type, type))
-            .collect(
-                Collectors.toList()));
+    return FunctionDSL.define(BuiltinFunctionName.LTE.getName(),
+        getComparisonFunctions((Function<Integer, Boolean> & Serializable) value -> value <= 0));
   }
 
   private static FunctionResolver greater() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.GREATER.getName(), ExprCoreType.coreTypes().stream()
-            .map(type -> FunctionDSL
-                .impl(FunctionDSL
-                        .nullMissingHandling((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) > 0)),
-                    BOOLEAN, type, type))
-            .collect(
-                Collectors.toList()));
+    return FunctionDSL.define(BuiltinFunctionName.GREATER.getName(),
+        getComparisonFunctions((Function<Integer, Boolean> & Serializable) value -> value > 0));
   }
 
   private static FunctionResolver gte() {
-    return FunctionDSL
-        .define(BuiltinFunctionName.GTE.getName(), ExprCoreType.coreTypes().stream()
-            .map(type -> FunctionDSL
-                .impl(
-                    FunctionDSL.nullMissingHandling(
-                        (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) >= 0)),
-                    BOOLEAN,
-                    type, type))
-            .collect(
-                Collectors.toList()));
+    return FunctionDSL.define(BuiltinFunctionName.GTE.getName(),
+        getComparisonFunctions((Function<Integer, Boolean> & Serializable) value -> value >= 0));
+  }
+
+  private static List<SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>>
+      getComparisonFunctions(Function<Integer, Boolean> f) {
+    List<SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>>>
+        comparisonFunctions = ExprCoreType.coreTypes()
+        .stream()
+        .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling(
+            (v1, v2) -> ExprBooleanValue.of(f.apply(v1.compareTo(v2)))), BOOLEAN, type, type))
+        .collect(Collectors.toList());
+
+    // all string to date conversions
+    comparisonFunctions.addAll(ExprCoreType.dateTypes()
+        .stream()
+        .map(type -> FunctionDSL.impl(FunctionDSL.nullMissingHandling((v1, v2) -> {
+          // casting V2 from string to whatever type v1 is
+          ExprValue v2Casted = ExprValueUtils.fromObjectValue(v2.value(), (ExprCoreType) v1.type());
+          return ExprBooleanValue.of(f.apply(v1.compareTo(v2Casted)));
+        }), BOOLEAN, type, STRING))
+        .collect(Collectors.toList()));
+    return comparisonFunctions;
   }
 
   private static FunctionResolver like() {
@@ -260,6 +269,26 @@ public class BinaryPredicateOperator {
             BOOLEAN,
             STRING,
             STRING));
+  }
+
+  private static FunctionResolver in() {
+    return FunctionDSL.define(BuiltinFunctionName.IN.getName(),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, INTEGER, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, STRING, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, LONG, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, FLOAT, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, DOUBLE, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, DATE, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, DATETIME, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, TIMESTAMP, ARRAY));
   }
 
   private static ExprValue lookupTableFunction(ExprValue arg1, ExprValue arg2,
