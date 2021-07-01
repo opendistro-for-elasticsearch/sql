@@ -37,7 +37,6 @@ public enum DataType {
   DATE(ExprCoreType.DATE),
   TIME(ExprCoreType.TIME),
   TIMESTAMP(ExprCoreType.TIMESTAMP),
-  ARRAY(ExprCoreType.ARRAY),
   INTERVAL(ExprCoreType.INTERVAL);
 
   @Getter

@@ -215,24 +215,13 @@ public class ExprValueUtilsTest {
     assertThat(exception.getMessage(), Matchers.containsString("invalid"));
   }
 
-  //  disabling test because in case of expr collections, we could pass ExprValues
-  //  @Test
-  //  public void unSupportedObject() {
-  //    Exception exception = assertThrows(ExpressionEvaluationException.class,
-  //        () -> ExprValueUtils.fromObjectValue(integerValue(1)));
-  //    assertEquals(
-  //        "unsupported object "
-  //            + "class com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue",
-  //        exception.getMessage());
-  //  }
-
   @Test
   public void unSupportedObject() {
     Exception exception = assertThrows(ExpressionEvaluationException.class,
-        () -> ExprValueUtils.fromObjectValue(new Object()));
+        () -> ExprValueUtils.fromObjectValue(integerValue(1)));
     assertEquals(
         "unsupported object "
-            + "class java.lang.Object",
+            + "class com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue",
         exception.getMessage());
   }
 

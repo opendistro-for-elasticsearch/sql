@@ -28,10 +28,7 @@ import lombok.ToString;
  * Params include the field expression and/or wildcard field expression,
  * nested field expression (@field).
  * And the values that the field is mapped to (@valueList).
- *
- * @deprecated use function ("in") instead
  */
-@Deprecated
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)

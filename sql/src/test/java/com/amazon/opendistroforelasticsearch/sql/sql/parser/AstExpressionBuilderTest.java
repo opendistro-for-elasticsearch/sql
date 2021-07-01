@@ -18,13 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.arrayLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.caseWhen;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intervalLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.longLiteral;
@@ -51,7 +49,6 @@ import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErro
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
@@ -284,20 +281,6 @@ class AstExpressionBuilderTest {
         not(booleanLiteral(false)),
         buildExprAst("NOT false")
     );
-  }
-
-  @Test
-  public void canBuildInPredicate() {
-    assertEquals(function("in", intLiteral(1), arrayLiteral(Arrays.asList(0,2,3,4))),
-        buildExprAst("1 in (0,2,3,4)"));
-  }
-
-  @Test
-  public void canBuildNotInPredicate() {
-    assertEquals(
-        function("not",
-            function("in", intLiteral(1),arrayLiteral(Arrays.asList(0,2,3,4)))),
-        buildExprAst("1 not in (0,2,3,4)"));
   }
 
   @Test

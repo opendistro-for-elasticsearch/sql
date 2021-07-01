@@ -132,13 +132,6 @@ class SQLSyntaxParserTest {
   }
 
   @Test
-  public void canParseInStatement() {
-    assertNotNull(parser.parse("SELECT age FROM test WHERE age IN (1,30)"));
-    assertNotNull(parser.parse("SELECT age FROM test WHERE age NOT IN (1,30)"));
-    assertNotNull(parser.parse("SELECT age FROM test WHERE NOT (age IN (1,30))"));
-  }
-
-  @Test
   public void canNotParseAggregateFunctionWithWrongArgument() {
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT SUM() FROM test"));
     assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT AVG() FROM test"));
