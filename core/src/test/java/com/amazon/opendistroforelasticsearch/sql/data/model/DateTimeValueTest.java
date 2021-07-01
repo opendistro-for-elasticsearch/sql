@@ -121,17 +121,6 @@ public class DateTimeValueTest {
   }
 
   @Test
-  public void datetimeInUnsupportedFormat() {
-    SemanticCheckException exception =
-        assertThrows(SemanticCheckException.class,
-            () -> new ExprDatetimeValue("2020-07-07T01:01:01Z"));
-    assertEquals(
-        "datetime:2020-07-07T01:01:01Z in unsupported format, "
-            + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
-        exception.getMessage());
-  }
-
-  @Test
   public void stringDateTimeValue() {
     ExprValue stringValue = new ExprStringValue("2020-08-17 19:44:00");
 
@@ -142,9 +131,9 @@ public class DateTimeValueTest {
 
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprStringValue("2020-07-07T01:01:01Z").datetimeValue());
+            () -> new ExprStringValue("2020-07-07T01:01:01Z12345678").datetimeValue());
     assertEquals(
-        "datetime:2020-07-07T01:01:01Z in unsupported format, "
+        "datetime:2020-07-07T01:01:01Z12345678 in unsupported format, "
             + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -250,9 +239,9 @@ public class DateTimeValueTest {
   public void datetimeOverMaxMicroPrecision() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprDatetimeValue("2020-07-07 01:01:01.1234567"));
+            () -> new ExprDatetimeValue("2020-07-07 01:01:01.1234567890"));
     assertEquals(
-        "datetime:2020-07-07 01:01:01.1234567 in unsupported format, "
+        "datetime:2020-07-07 01:01:01.1234567890 in unsupported format, "
                 + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -261,9 +250,9 @@ public class DateTimeValueTest {
   public void timeOverMaxMicroPrecision() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprTimeValue("01:01:01.1234567"));
+            () -> new ExprTimeValue("01:01:01.1234567891"));
     assertEquals(
-        "time:01:01:01.1234567 in unsupported format, please use HH:mm:ss[.SSSSSS]",
+        "time:01:01:01.1234567891 in unsupported format, please use HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
 }

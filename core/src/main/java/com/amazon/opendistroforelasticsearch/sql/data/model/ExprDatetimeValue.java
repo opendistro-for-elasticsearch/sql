@@ -15,10 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue.DATE_FORMATS_ALLOWED;
-
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.utils.ExprDateFormatters;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.google.common.base.Objects;
 import java.time.Instant;
@@ -28,9 +27,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 
@@ -42,21 +39,13 @@ public class ExprDatetimeValue extends AbstractExprValue {
    * Constructor with datetime string as input.
    */
   public ExprDatetimeValue(String datetime) {
-    LocalDateTime localDateTime = null;
-
-    for (DateTimeFormatter format : DATE_FORMATS_ALLOWED) {
-      try {
-        localDateTime = LocalDateTime.parse(datetime, format);
-      } catch (DateTimeParseException ignored) {
-        // ignored
-      }
+    try {
+      this.datetime = LocalDateTime.parse(datetime,
+          ExprDateFormatters.TOLERANT_PARSER_DATE_TIME_FORMATTER);
+    } catch (DateTimeParseException e) {
+      throw new SemanticCheckException(String.format("datetime:%s in unsupported format, please "
+          + "use yyyy-MM-dd HH:mm:ss[.SSSSSS]", datetime));
     }
-    if (localDateTime == null) {
-      throw new SemanticCheckException(String.format(
-          "datetime:%s in unsupported format, please " + "use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
-          datetime));
-    }
-    this.datetime = localDateTime;
   }
 
   @Override
