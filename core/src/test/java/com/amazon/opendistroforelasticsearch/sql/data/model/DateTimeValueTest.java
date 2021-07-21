@@ -113,20 +113,9 @@ public class DateTimeValueTest {
   public void timestampInUnsupportedFormat() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprTimestampValue("2020-07-07T01:01:01Z"));
+            () -> new ExprTimestampValue("2020-07-07T1:01:01Z"));
     assertEquals(
-        "timestamp:2020-07-07T01:01:01Z in unsupported format, "
-            + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
-        exception.getMessage());
-  }
-
-  @Test
-  public void datetimeInUnsupportedFormat() {
-    SemanticCheckException exception =
-        assertThrows(SemanticCheckException.class,
-            () -> new ExprDatetimeValue("2020-07-07T01:01:01Z"));
-    assertEquals(
-        "datetime:2020-07-07T01:01:01Z in unsupported format, "
+        "timestamp:2020-07-07T1:01:01Z in unsupported format, "
             + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -142,9 +131,9 @@ public class DateTimeValueTest {
 
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprStringValue("2020-07-07T01:01:01Z").datetimeValue());
+            () -> new ExprStringValue("2020-07-07T01:01:01Z12345678").datetimeValue());
     assertEquals(
-        "datetime:2020-07-07T01:01:01Z in unsupported format, "
+        "datetime:2020-07-07T01:01:01Z12345678 in unsupported format, "
             + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -239,9 +228,9 @@ public class DateTimeValueTest {
   public void timestampOverMaxMicroPrecision() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprTimestampValue("2020-07-07 01:01:01.1234567"));
+            () -> new ExprTimestampValue("2020-07-07 01:01:01.12345678910"));
     assertEquals(
-        "timestamp:2020-07-07 01:01:01.1234567 in unsupported format, "
+        "timestamp:2020-07-07 01:01:01.12345678910 in unsupported format, "
                 + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -250,9 +239,9 @@ public class DateTimeValueTest {
   public void datetimeOverMaxMicroPrecision() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprDatetimeValue("2020-07-07 01:01:01.1234567"));
+            () -> new ExprDatetimeValue("2020-07-07 01:01:01.1234567890"));
     assertEquals(
-        "datetime:2020-07-07 01:01:01.1234567 in unsupported format, "
+        "datetime:2020-07-07 01:01:01.1234567890 in unsupported format, "
                 + "please use yyyy-MM-dd HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
@@ -261,9 +250,9 @@ public class DateTimeValueTest {
   public void timeOverMaxMicroPrecision() {
     SemanticCheckException exception =
         assertThrows(SemanticCheckException.class,
-            () -> new ExprTimeValue("01:01:01.1234567"));
+            () -> new ExprTimeValue("01:01:01.1234567891"));
     assertEquals(
-        "time:01:01:01.1234567 in unsupported format, please use HH:mm:ss[.SSSSSS]",
+        "time:01:01:01.1234567891 in unsupported format, please use HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
 }
