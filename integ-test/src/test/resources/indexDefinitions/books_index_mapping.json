@@ -1,0 +1,61 @@
+{
+  "mappings": {
+    "properties": {
+      "authors": {
+        "type": "nested",
+        "properties": {
+          "id": {
+            "type": "long",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "info": {
+            "properties": {
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              },
+              "age": {
+                "type": "long"
+              }
+            }
+          }
+        }
+      },
+      "performance": {
+        "properties": {
+          "revenue": {
+            "type": "double"
+          },
+          "sells": {
+            "type": "nested",
+            "properties": {
+              "year": {
+                "type": "long"
+              },
+              "quantity": {
+                "properties": {
+                  "italy": {
+                    "type": "long"
+                  },
+                  "abroad": {
+                    "type": "long"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
