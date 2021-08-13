@@ -579,6 +579,7 @@ public class SelectResultSet extends ResultSet {
         if (queryResult instanceof SearchHits) {
             SearchHits searchHits = (SearchHits) queryResult;
 
+            this.rows = new ArrayList<>();
             this.rows = populateRows(searchHits);
             this.size = rows.size();
             this.internalTotalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L);
@@ -643,14 +644,30 @@ public class SelectResultSet extends ResultSet {
 
     private List<DataRows.Row> populateRows(SearchHits searchHits) {
         List<DataRows.Row> rows = new ArrayList<>();
-        Set<String> newKeys = new HashSet<>(head);
+        List<Map<String, Object>> rowsAsMap = populateRows(head, searchHits);
+        for (Map<String, Object> rowAsMap : rowsAsMap) {
+            rows.add(new DataRows.Row(rowAsMap));
+        }
+        return rows;
+    }
+
+    /**
+     * Returns a list of "flattened" rows as (path, value) hashmaps.
+     * The core idea is to flatten non-nested hits, and recur on inner hits
+     * by calling the method flatNestedField(), which in turn calls back
+     * populateRows.
+     */
+    private List<Map<String, Object>> populateRows(List<String> keys, SearchHits searchHits) {
+        List<Map<String, Object>> rows = new ArrayList<>();
         for (SearchHit hit : searchHits) {
             Map<String, Object> rowSource = hit.getSourceAsMap();
-            List<DataRows.Row> result;
+            List<Map<String, Object>> result = new ArrayList<>();
 
             if (!isJoinQuery()) {
                 // Row already flatten in source in join. And join doesn't support nested fields for now.
-                rowSource = flatRow(head, rowSource);
+                result = flatNestedField(keys, hit.getInnerHits());
+
+                rowSource = flatRow(keys, rowSource);
                 rowSource.put(SCORE, hit.getScore());
 
                 for (Map.Entry<String, DocumentField> field : hit.getFields().entrySet()) {
@@ -659,13 +676,15 @@ public class SelectResultSet extends ResultSet {
                 if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
                     dateFieldFormatter.applyJDBCDateFormat(rowSource);
                 }
-                result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
+
+                for (Map<String, Object> row : result) {
+                    row.putAll(rowSource);
+                }
             } else {
                 if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
                     dateFieldFormatter.applyJDBCDateFormat(rowSource);
                 }
-                result = new ArrayList<>();
-                result.add(new DataRows.Row(rowSource));
+                result.add(rowSource);
             }
 
             rows.addAll(result);
@@ -781,6 +800,7 @@ public class SelectResultSet extends ResultSet {
      * flattenedRow = {comment.likes: 2}
      */
     @SuppressWarnings("unchecked")
+
     private Map<String, Object> flatRow(List<String> keys, Map<String, Object> row) {
         Map<String, Object> flattenedRow = new HashMap<>();
         for (String key : keys) {
@@ -813,94 +833,64 @@ public class SelectResultSet extends ResultSet {
     }
 
     /**
-     * If innerHits associated with column name exists, flatten both the inner field name and the inner rows in it.
-     * <p>
-     * Sample input:
-     * newKeys = {'region', 'employees.age'}, row = {'region': 'US'}
-     * innerHits = employees: {
-     * hits: [{
-     * source: {
-     * age: 26,
-     * firstname: 'Hank'
-     * }
-     * },{
-     * source: {
-     * age: 30,
-     * firstname: 'John'
-     * }
-     * }]
-     * }
+     * Flattens the inner hits passed as argument.
+     * For each inner hit, iterates on its column names colName and computes a list of new keys.
+     * The new keys are the original keys that begin with colName + ".", stripped of that prefix.
+     * Then, calls populateRows on the new keys and the hits associated to colName.
+     * This also works for nested fields which contain another nested field as a subfield.
      */
-    private List<DataRows.Row> flatNestedField(Set<String> newKeys, Map<String, Object> row,
-                                               Map<String, SearchHits> innerHits) {
-        List<DataRows.Row> result = new ArrayList<>();
-        result.add(new DataRows.Row(row));
+    private List<Map<String, Object>> flatNestedField(List<String> keys, Map<String, SearchHits> innerHits) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        result.add(new HashMap<>());
 
         if (innerHits == null) {
             return result;
         }
 
         for (String colName : innerHits.keySet()) {
-            SearchHit[] colValue = innerHits.get(colName).getHits();
-            doFlatNestedFieldName(colName, colValue, newKeys);
-            result = doFlatNestedFieldValue(colName, colValue, result);
+            List<String> newKeys = new ArrayList<>();
+            for (String key : keys) {
+                if (key.startsWith(colName) && !key.equals(colName)) {
+                    newKeys.add(key.substring(colName.length() + 1));
+                }
+            }
+
+            List<Map<String, Object>> innerResult = populateRows(newKeys, innerHits.get(colName));
+            for (Map<String, Object> innerRow : innerResult) {
+                Map<String, Object> row = new HashMap<>();
+                for (String path : innerRow.keySet()) {
+                    if (!path.equals(SCORE)) {
+                        row.put(colName + "." + path, innerRow.get(path));
+                    } else {
+                        row.put(path, innerRow.get(path));
+                    }
+                }
+                innerRow.clear();
+                innerRow.putAll(row);
+            }
+
+            // In the case of multiple sets of inner hits, returns all possible combinations of entries
+            result = cartesianProduct(result, innerResult);
         }
 
         return result;
     }
 
-    private void doFlatNestedFieldName(String colName, SearchHit[] colValue, Set<String> keys) {
-        Map<String, Object> innerRow = colValue[0].getSourceAsMap();
-        for (String field : innerRow.keySet()) {
-            String innerName = colName + "." + field;
-            keys.add(innerName);
-        }
-
-        keys.remove(colName);
-    }
-
     /**
-     * Do Cartesian Product between current outer row and inner rows by nested loop and remove original outer row.
-     * <p>
-     * Sample input:
-     * colName = 'employees', rows = [{region: 'US'}]
-     * colValue= [{
-     * source: {
-     * age: 26,
-     * firstname: 'Hank'
-     * }
-     * },{
-     * source: {
-     * age: 30,
-     * firstname: 'John'
-     * }
-     * }]
-     * <p>
-     * Return:
-     * [
-     * {region:'US', employees.age:26, employees.firstname:'Hank'},
-     * {region:'US', employees.age:30, employees.firstname:'John'}
-     * ]
+     * Performs the "cartesian product" between two sets of rows,
+     * which is the set of all possible unions of a row in rowsLeft and a row in rowsRight.
      */
-    private List<DataRows.Row> doFlatNestedFieldValue(String colName, SearchHit[] colValue, List<DataRows.Row> rows) {
-        List<DataRows.Row> result = new ArrayList<>();
-        for (DataRows.Row row : rows) {
-            for (SearchHit hit : colValue) {
-                Map<String, Object> innerRow = hit.getSourceAsMap();
-                Map<String, Object> copy = new HashMap<>();
-
-                for (String field : row.getContents().keySet()) {
-                    copy.put(field, row.getData(field));
-                }
-                for (String field : innerRow.keySet()) {
-                    copy.put(colName + "." + field, innerRow.get(field));
-                }
-
-                copy.remove(colName);
-                result.add(new DataRows.Row(copy));
+    List<Map<String, Object>> cartesianProduct(List<Map<String, Object>> rowsLeft,
+                                               List<Map<String, Object>> rowsRight) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map<String, Object> rowLeft : rowsLeft) {
+            for (Map<String, Object> rowRight : rowsRight) {
+                Map<String, Object> union = new HashMap<>();
+                union.putAll(rowLeft);
+                union.putAll(rowRight);
+                result.add(union);
             }
         }
-
         return result;
     }
 
