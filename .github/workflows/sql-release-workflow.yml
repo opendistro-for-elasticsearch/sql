@@ -12,7 +12,7 @@ jobs:
         java: [14]
 
     name: Build and Release SQL Plugin
-    runs-on: [ubuntu-16.04]
+    runs-on: [ubuntu-18.04]
 
     steps:
       - name: Checkout SQL
