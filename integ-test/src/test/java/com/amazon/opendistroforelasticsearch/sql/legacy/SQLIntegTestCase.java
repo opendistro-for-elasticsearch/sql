@@ -41,6 +41,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getPhra
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResponseBody;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getStringIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getWeblogsIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getBooksIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.isIndexExist;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.loadDataByRestClient;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.CURSOR_CLOSE_ENDPOINT;
@@ -556,7 +557,11 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     DATA_TYPE_NONNUMERIC(TestsConstants.TEST_INDEX_DATATYPE_NONNUMERIC,
         "_doc",
         getDataTypeNonnumericIndexMapping(),
-        "src/test/resources/datatypes.json");
+        "src/test/resources/datatypes.json"),
+    BOOKS_NESTED_WITH_SUBPROPERTIES(TestsConstants.TEST_INDEX_BOOKS,
+        "nestedType",
+        getBooksIndexMapping(),
+        "src/test/resources/books.json");
 
     private final String name;
     private final String type;

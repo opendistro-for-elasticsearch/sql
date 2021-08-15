@@ -1,0 +1,4 @@
+{"index": {"_id": "1"}}
+{"authors": [{"id": 8634, "info": {"name": "Andrea", "age":  22}}, {"id": 836, "info": {"name": "Carmen", "age":  19}}], "performance": {"revenue": 932.88, "sells": [{"year": 2018, "quantity": {"italy": 1000000, "abroad": 500000}}, {"year": 2020, "quantity": {"italy": 2001002, "abroad": 0}}]}}
+{"index": {"_id": "2"}}
+{"authors": [{"id": 8, "info": {"name": "Mark", "age":  80}}], "performance": {"revenue": 555.0, "sells": []}}
