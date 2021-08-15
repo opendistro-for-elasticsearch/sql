@@ -87,6 +87,7 @@ public class SelectResultSet extends ResultSet {
     private long size;
     private long totalHits;
     private long internalTotalHits;
+    private Integer rowCount;
     private List<DataRows.Row> rows;
     private Cursor cursor;
 
@@ -118,6 +119,9 @@ public class SelectResultSet extends ResultSet {
         this.schema = new Schema(indexName, typeName, columns);
         this.head = schema.getHeaders();
         this.dateFieldFormatter = new DateFieldFormatter(indexName, columns, fieldAliasMap);
+        if (query instanceof Select) {
+            this.rowCount = ((Select) query).getRowCount();
+        }
 
         extractData();
         populateCursor();
@@ -579,7 +583,6 @@ public class SelectResultSet extends ResultSet {
         if (queryResult instanceof SearchHits) {
             SearchHits searchHits = (SearchHits) queryResult;
 
-            this.rows = new ArrayList<>();
             this.rows = populateRows(searchHits);
             this.size = rows.size();
             this.internalTotalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L);
@@ -644,7 +647,7 @@ public class SelectResultSet extends ResultSet {
 
     private List<DataRows.Row> populateRows(SearchHits searchHits) {
         List<DataRows.Row> rows = new ArrayList<>();
-        List<Map<String, Object>> rowsAsMap = populateRows(head, searchHits);
+        List<Map<String, Object>> rowsAsMap = populateRows(head, searchHits, rowCount);
         for (Map<String, Object> rowAsMap : rowsAsMap) {
             rows.add(new DataRows.Row(rowAsMap));
         }
@@ -657,15 +660,23 @@ public class SelectResultSet extends ResultSet {
      * by calling the method flatNestedField(), which in turn calls back
      * populateRows.
      */
-    private List<Map<String, Object>> populateRows(List<String> keys, SearchHits searchHits) {
+    private List<Map<String, Object>> populateRows(List<String> keys, SearchHits searchHits, Integer rowsLeft) {
         List<Map<String, Object>> rows = new ArrayList<>();
+
         for (SearchHit hit : searchHits) {
+            if (rowsLeft != null && rowsLeft == 0) {
+                return rows;
+            }
+
             Map<String, Object> rowSource = hit.getSourceAsMap();
             List<Map<String, Object>> result = new ArrayList<>();
 
             if (!isJoinQuery()) {
                 // Row already flatten in source in join. And join doesn't support nested fields for now.
-                result = flatNestedField(keys, hit.getInnerHits());
+                result = flatNestedField(keys, hit.getInnerHits(), rowsLeft);
+                if (rowsLeft != null) {
+                    rowsLeft -= result.size();
+                }
 
                 rowSource = flatRow(keys, rowSource);
                 rowSource.put(SCORE, hit.getScore());
@@ -685,6 +696,9 @@ public class SelectResultSet extends ResultSet {
                     dateFieldFormatter.applyJDBCDateFormat(rowSource);
                 }
                 result.add(rowSource);
+                if (rowsLeft != null) {
+                    rowsLeft--;
+                }
             }
 
             rows.addAll(result);
@@ -839,7 +853,9 @@ public class SelectResultSet extends ResultSet {
      * Then, calls populateRows on the new keys and the hits associated to colName.
      * This also works for nested fields which contain another nested field as a subfield.
      */
-    private List<Map<String, Object>> flatNestedField(List<String> keys, Map<String, SearchHits> innerHits) {
+    private List<Map<String, Object>> flatNestedField(List<String> keys,
+                                                      Map<String, SearchHits> innerHits,
+                                                      Integer rowsLeft) {
         List<Map<String, Object>> result = new ArrayList<>();
         result.add(new HashMap<>());
 
@@ -855,7 +871,9 @@ public class SelectResultSet extends ResultSet {
                 }
             }
 
-            List<Map<String, Object>> innerResult = populateRows(newKeys, innerHits.get(colName));
+            List<Map<String, Object>> innerResult = populateRows(newKeys, innerHits.get(colName),
+                    (rowsLeft == null) ? null :
+                            ((result.isEmpty() ? 0 : ratioCeil(rowsLeft, result.size()))));
             for (Map<String, Object> innerRow : innerResult) {
                 Map<String, Object> row = new HashMap<>();
                 for (String path : innerRow.keySet()) {
@@ -870,7 +888,7 @@ public class SelectResultSet extends ResultSet {
             }
 
             // In the case of multiple sets of inner hits, returns all possible combinations of entries
-            result = cartesianProduct(result, innerResult);
+            result = cartesianProduct(result, innerResult, rowsLeft);
         }
 
         return result;
@@ -880,18 +898,32 @@ public class SelectResultSet extends ResultSet {
      * Performs the "cartesian product" between two sets of rows,
      * which is the set of all possible unions of a row in rowsLeft and a row in rowsRight.
      */
-    List<Map<String, Object>> cartesianProduct(List<Map<String, Object>> rowsLeft,
-                                               List<Map<String, Object>> rowsRight) {
+    private List<Map<String, Object>> cartesianProduct(List<Map<String, Object>> rowsLeft,
+                                               List<Map<String, Object>> rowsRight,
+                                               Integer maxRows) {
         List<Map<String, Object>> result = new ArrayList<>();
         for (Map<String, Object> rowLeft : rowsLeft) {
+            if (maxRows != null && result.size() == maxRows) {
+                break;
+            }
+
             for (Map<String, Object> rowRight : rowsRight) {
+                if (maxRows != null && result.size() == maxRows) {
+                    break;
+                }
+
                 Map<String, Object> union = new HashMap<>();
                 union.putAll(rowLeft);
                 union.putAll(rowRight);
                 result.add(union);
             }
         }
+
         return result;
+    }
+
+    private int ratioCeil(int a, int b) {
+        return (a + b - 1) / b;
     }
 
     private Map<String, Object> addMap(String field, Object term) {

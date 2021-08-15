@@ -547,6 +547,24 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     assertEquals(4, dataRows.length());
   }
 
+  @Test
+  public void nestedFieldWithLimit() throws IOException {
+    JSONObject response = executeQuery(
+            String.format(Locale.ROOT, "SELECT nested(authors.info.name, authors) " +
+                    "FROM %s LIMIT 1", TestsConstants.TEST_INDEX_BOOKS));
+    assertEquals(1, getDataRows(response).length());
+  }
+
+  @Test
+  public void multipleNestedFieldsWithLimit() throws IOException, InterruptedException {
+    JSONObject response = executeQuery(
+            String.format(Locale.ROOT, "SELECT nested(authors.info.name, authors), " +
+                    "nested(performance.sells.year)" +
+                    "FROM %s LIMIT 3", TestsConstants.TEST_INDEX_BOOKS));
+    assertEquals(3, getDataRows(response).length());
+  }
+
+
   private void testFieldOrder(final String[] expectedFields, final Object[] expectedValues)
       throws IOException {
 
