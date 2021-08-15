@@ -76,7 +76,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     loadIndex(Index.PHRASE);
     loadIndex(Index.GAME_OF_THRONES);
     loadIndex(Index.NESTED);
-    loadIndex(Index.BOOKS);
+    loadIndex(Index.BOOKS_NESTED_WITH_SUBPROPERTIES);
   }
 
   @Override

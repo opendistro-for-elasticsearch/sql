@@ -558,7 +558,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
         "_doc",
         getDataTypeNonnumericIndexMapping(),
         "src/test/resources/datatypes.json"),
-    BOOKS(TestsConstants.TEST_INDEX_BOOKS,
+    BOOKS_NESTED_WITH_SUBPROPERTIES(TestsConstants.TEST_INDEX_BOOKS,
         "nestedType",
         getBooksIndexMapping(),
         "src/test/resources/books.json");

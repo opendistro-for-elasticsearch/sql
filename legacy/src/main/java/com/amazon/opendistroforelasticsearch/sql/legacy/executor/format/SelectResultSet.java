@@ -87,7 +87,7 @@ public class SelectResultSet extends ResultSet {
     private long size;
     private long totalHits;
     private long internalTotalHits;
-    private Integer rowCount;
+    private Integer limitRowCount;
     private List<DataRows.Row> rows;
     private Cursor cursor;
 
@@ -120,7 +120,7 @@ public class SelectResultSet extends ResultSet {
         this.head = schema.getHeaders();
         this.dateFieldFormatter = new DateFieldFormatter(indexName, columns, fieldAliasMap);
         if (query instanceof Select) {
-            this.rowCount = ((Select) query).getRowCount();
+            this.limitRowCount = ((Select) query).getRowCount();
         }
 
         extractData();
@@ -647,7 +647,7 @@ public class SelectResultSet extends ResultSet {
 
     private List<DataRows.Row> populateRows(SearchHits searchHits) {
         List<DataRows.Row> rows = new ArrayList<>();
-        List<Map<String, Object>> rowsAsMap = populateRows(head, searchHits, rowCount);
+        List<Map<String, Object>> rowsAsMap = populateRows(head, searchHits, limitRowCount);
         for (Map<String, Object> rowAsMap : rowsAsMap) {
             rows.add(new DataRows.Row(rowAsMap));
         }
@@ -659,12 +659,27 @@ public class SelectResultSet extends ResultSet {
      * The core idea is to flatten non-nested hits, and recur on inner hits
      * by calling the method flatNestedField(), which in turn calls back
      * populateRows.
+     * <p>
+     *      Sample input:
+     *      keys = {"authors.info.name"} (authors is nested)
+     *      searchHits = {
+     *          {
+     *              key = "authors"
+     *              innerHits = {
+     *                  {"info.name": "Andrea"},
+     *                  {"info.name": "Carmen}
+     *              }
+     *          }
+     *      }
+     *      Sample output:
+     *      rows = [{"authors.info.name": "Andrea"}, {"authors.info.name": "Carmen"}]
+     * </p>
      */
-    private List<Map<String, Object>> populateRows(List<String> keys, SearchHits searchHits, Integer rowsLeft) {
+    private List<Map<String, Object>> populateRows(List<String> keys, SearchHits searchHits, Integer remainingRows) {
         List<Map<String, Object>> rows = new ArrayList<>();
 
         for (SearchHit hit : searchHits) {
-            if (rowsLeft != null && rowsLeft == 0) {
+            if (remainingRows != null && remainingRows == 0) {
                 return rows;
             }
 
@@ -673,9 +688,9 @@ public class SelectResultSet extends ResultSet {
 
             if (!isJoinQuery()) {
                 // Row already flatten in source in join. And join doesn't support nested fields for now.
-                result = flatNestedField(keys, hit.getInnerHits(), rowsLeft);
-                if (rowsLeft != null) {
-                    rowsLeft -= result.size();
+                result = flatNestedField(keys, hit.getInnerHits(), remainingRows);
+                if (remainingRows != null) {
+                    remainingRows -= result.size();
                 }
 
                 rowSource = flatRow(keys, rowSource);
@@ -696,8 +711,8 @@ public class SelectResultSet extends ResultSet {
                     dateFieldFormatter.applyJDBCDateFormat(rowSource);
                 }
                 result.add(rowSource);
-                if (rowsLeft != null) {
-                    rowsLeft--;
+                if (remainingRows != null) {
+                    remainingRows--;
                 }
             }
 
@@ -855,7 +870,7 @@ public class SelectResultSet extends ResultSet {
      */
     private List<Map<String, Object>> flatNestedField(List<String> keys,
                                                       Map<String, SearchHits> innerHits,
-                                                      Integer rowsLeft) {
+                                                      Integer remainingRows) {
         List<Map<String, Object>> result = new ArrayList<>();
         result.add(new HashMap<>());
 
@@ -872,8 +887,8 @@ public class SelectResultSet extends ResultSet {
             }
 
             List<Map<String, Object>> innerResult = populateRows(newKeys, innerHits.get(colName),
-                    (rowsLeft == null) ? null :
-                            ((result.isEmpty() ? 0 : ratioCeil(rowsLeft, result.size()))));
+                    (remainingRows == null) ? null :
+                            ((result.isEmpty() ? 0 : ratioCeil(remainingRows, result.size()))));
             for (Map<String, Object> innerRow : innerResult) {
                 Map<String, Object> row = new HashMap<>();
                 for (String path : innerRow.keySet()) {
@@ -888,7 +903,7 @@ public class SelectResultSet extends ResultSet {
             }
 
             // In the case of multiple sets of inner hits, returns all possible combinations of entries
-            result = cartesianProduct(result, innerResult, rowsLeft);
+            result = cartesianProduct(result, innerResult, remainingRows);
         }
 
         return result;
@@ -900,15 +915,15 @@ public class SelectResultSet extends ResultSet {
      */
     private List<Map<String, Object>> cartesianProduct(List<Map<String, Object>> rowsLeft,
                                                List<Map<String, Object>> rowsRight,
-                                               Integer maxRows) {
+                                               Integer remainingRows) {
         List<Map<String, Object>> result = new ArrayList<>();
         for (Map<String, Object> rowLeft : rowsLeft) {
-            if (maxRows != null && result.size() == maxRows) {
+            if (remainingRows != null && result.size() == remainingRows) {
                 break;
             }
 
             for (Map<String, Object> rowRight : rowsRight) {
-                if (maxRows != null && result.size() == maxRows) {
+                if (remainingRows != null && result.size() == remainingRows) {
                     break;
                 }
 
