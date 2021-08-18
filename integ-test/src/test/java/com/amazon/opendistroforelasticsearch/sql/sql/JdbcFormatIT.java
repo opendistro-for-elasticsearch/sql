@@ -57,7 +57,29 @@ public class JdbcFormatIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testDatetimeFormat() {
+  public void testDatetimeFormat1() {
+    String response = executeQuery(
+            "SELECT login_time FROM " + TEST_INDEX_DATE_TIME,
+            "jdbc", "always_include_time");
+
+    assertTrue(response.contains("\"2015-01-01 00:00:00\""));
+    assertTrue(response.contains("\"2015-01-01 12:10:30\""));
+    assertTrue(response.contains("\"2020-04-08 06:10:30\""));
+  }
+
+  @Test
+  public void testDatetimeFormat2() {
+    String response = executeQuery(
+            "SELECT login_time FROM " + TEST_INDEX_DATE_TIME,
+            "jdbc", "never_include_time");
+
+    assertTrue(response.contains("\"2015-01-01\""));
+    assertFalse(response.contains("\"2015-01-01 12:10:30\""));
+    assertTrue(response.contains("\"2020-04-08\""));
+  }
+
+  @Test
+  public void testDatetimeFormat3() {
     String response = executeQuery(
             "SELECT login_time FROM " + TEST_INDEX_DATE_TIME,
             "jdbc", "include_time_when_nonzero");
