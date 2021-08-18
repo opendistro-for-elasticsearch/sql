@@ -99,8 +99,8 @@ public class ExprTimestampValue extends AbstractExprValue {
 
       case INCLUDE_TIME_WHEN_NONZERO:
         LocalTime time = timeValue();
-        return (time.getHour() == 0 && time.getMinute() == 0 && time.getSecond() == 0) ?
-                valueWithoutTime() : valueWithTime();
+        return (time.getHour() == 0 && time.getMinute() == 0 && time.getSecond() == 0)
+                ? valueWithoutTime() : valueWithTime();
 
       case ALWAYS_INCLUDE_TIME:
       default:
@@ -163,5 +163,8 @@ public class ExprTimestampValue extends AbstractExprValue {
     return Objects.hashCode(timestamp);
   }
 
-  public void setDatetimeFormat(String format) { this.datetimeFormat = format; }
+  public void setDatetimeFormat(String format) {
+    this.datetimeFormat = format;
+  }
+
 }
