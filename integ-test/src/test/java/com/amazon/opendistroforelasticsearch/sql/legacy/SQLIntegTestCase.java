@@ -223,8 +223,12 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
   }
 
   protected String executeQuery(String query, String requestType) {
+    return executeQuery(query, requestType, "always_include_time");
+  }
+
+  protected String executeQuery(String query, String requestType, String datetimeFormat) {
     try {
-      String endpoint = "/_opendistro/_sql?format=" + requestType;
+      String endpoint = "/_opendistro/_sql?format=" + requestType + "&datetime_format=" + datetimeFormat;
       String requestBody = makeRequest(query);
 
       Request sqlRequest = new Request("POST", endpoint);

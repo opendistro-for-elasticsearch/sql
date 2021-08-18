@@ -36,12 +36,17 @@ import lombok.Singular;
  */
 public class JdbcResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
-  public JdbcResponseFormatter(Style style) {
+  private final String datetimeFormat;
+
+  public JdbcResponseFormatter(Style style, String datetimeFormat) {
     super(style);
+    this.datetimeFormat = datetimeFormat;
   }
 
   @Override
   protected Object buildJsonObject(QueryResult response) {
+    response.setDatetimeFormat(datetimeFormat);
+
     JdbcResponse.JdbcResponseBuilder json = JdbcResponse.builder();
 
     // Fetch schema and data rows

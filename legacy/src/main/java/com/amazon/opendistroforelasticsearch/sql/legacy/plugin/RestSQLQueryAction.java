@@ -172,7 +172,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     } else if (format.equals(Format.RAW)) {
       formatter = new RawResponseFormatter();
     } else {
-      formatter = new JdbcResponseFormatter(PRETTY);
+      formatter = new JdbcResponseFormatter(PRETTY, request.getDatetimeFormat());
     }
     return new ResponseListener<QueryResponse>() {
       @Override
