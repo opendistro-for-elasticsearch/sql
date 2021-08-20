@@ -77,6 +77,9 @@ public class QueryResult implements Iterable<Object[]> {
         .iterator();
   }
 
+  /**
+   * Sets the date and time format for all inner elements of exprValues.
+   */
   public void setDatetimeFormat(String datetimeFormat) {
     for (ExprValue exprValue : exprValues) {
       for (ExprValue v : ExprValueUtils.getTupleValue(exprValue).values()) {
