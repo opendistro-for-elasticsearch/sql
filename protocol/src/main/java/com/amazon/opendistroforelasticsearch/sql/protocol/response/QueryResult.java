@@ -79,10 +79,11 @@ public class QueryResult implements Iterable<Object[]> {
 
   public void setDatetimeFormat(String datetimeFormat) {
     for (ExprValue exprValue : exprValues) {
-      for (ExprValue v : ExprValueUtils.getTupleValue(exprValue).values())
+      for (ExprValue v : ExprValueUtils.getTupleValue(exprValue).values()) {
         if (v.type() == ExprCoreType.TIMESTAMP) {
           ((ExprTimestampValue) v).setDatetimeFormat(datetimeFormat);
         }
+      }
     }
   }
 
