@@ -52,7 +52,7 @@ public class ExprTimestampValue extends AbstractExprValue {
           .ofPattern("yyyy-MM-dd");
   private final Instant timestamp;
 
-  private String datetimeFormat;
+  private String datetimeFormat = ALWAYS_INCLUDE_TIME;
 
   private static final DateTimeFormatter FORMATTER_VARIABLE_MICROS;
   private static final int MIN_FRACTION_SECONDS = 0;
@@ -77,8 +77,6 @@ public class ExprTimestampValue extends AbstractExprValue {
    * Constructor.
    */
   public ExprTimestampValue(String timestamp) {
-    this.datetimeFormat = ALWAYS_INCLUDE_TIME;
-
     try {
       this.timestamp = LocalDateTime.parse(timestamp,
           ExprDateFormatters.TOLERANT_PARSER_DATE_TIME_FORMATTER)
