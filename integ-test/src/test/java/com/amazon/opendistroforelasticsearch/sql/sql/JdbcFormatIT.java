@@ -17,7 +17,6 @@
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_TIME;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.*;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
@@ -54,39 +53,6 @@ public class JdbcFormatIT extends SQLIntegTestCase {
         "SELECT account_number AS acc FROM " + TEST_INDEX_BANK, "jdbc"));
 
     verifySchema(response, schema("account_number", "acc", "long"));
-  }
-
-  @Test
-  public void testDatetimeFormat1() {
-    String response = executeQuery(
-            "SELECT login_time FROM " + TEST_INDEX_DATE_TIME,
-            "jdbc", "always_include_time");
-
-    assertTrue(response.contains("\"2015-01-01 00:00:00\""));
-    assertTrue(response.contains("\"2015-01-01 12:10:30\""));
-    assertTrue(response.contains("\"2020-04-08 06:10:30\""));
-  }
-
-  @Test
-  public void testDatetimeFormat2() {
-    String response = executeQuery(
-            "SELECT login_time FROM " + TEST_INDEX_DATE_TIME,
-            "jdbc", "never_include_time");
-
-    assertTrue(response.contains("\"2015-01-01\""));
-    assertFalse(response.contains("\"2015-01-01 12:10:30\""));
-    assertTrue(response.contains("\"2020-04-08\""));
-  }
-
-  @Test
-  public void testDatetimeFormat3() {
-    String response = executeQuery(
-            "SELECT login_time FROM " + TEST_INDEX_DATE_TIME,
-            "jdbc", "include_time_when_nonzero");
-
-    assertTrue(response.contains("\"2015-01-01\""));
-    assertTrue(response.contains("\"2015-01-01 12:10:30\""));
-    assertTrue(response.contains("\"2020-04-08 06:10:30\""));
   }
 
 }
