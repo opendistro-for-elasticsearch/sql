@@ -17,6 +17,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue.INCLUDE_TIME_WHEN_NONZERO;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue.NEVER_INCLUDE_TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
@@ -255,4 +257,25 @@ public class DateTimeValueTest {
         "time:01:01:01.1234567891 in unsupported format, please use HH:mm:ss[.SSSSSS]",
         exception.getMessage());
   }
+
+  @Test
+  public void timestampValueNeverIncludeTime() {
+    ExprTimestampValue timestampValue = new ExprTimestampValue("2020-07-07 01:01:01");
+    timestampValue.setDatetimeFormat(NEVER_INCLUDE_TIME);
+
+    assertEquals("2020-07-07", timestampValue.value());
+  }
+
+  @Test
+  public void timestampValueIncludeTimeWhenNonzero() {
+    ExprTimestampValue firstTimestampValue = new ExprTimestampValue("2020-07-07 00:00:01");
+    firstTimestampValue.setDatetimeFormat(INCLUDE_TIME_WHEN_NONZERO);
+
+    ExprTimestampValue secondTimestampValue = new ExprTimestampValue("2020-07-07 00:00:00.291000");
+    secondTimestampValue.setDatetimeFormat(INCLUDE_TIME_WHEN_NONZERO);
+
+    assertEquals("2020-07-07 00:00:01", firstTimestampValue.value());
+    assertEquals("2020-07-07", secondTimestampValue.value());
+  }
+
 }

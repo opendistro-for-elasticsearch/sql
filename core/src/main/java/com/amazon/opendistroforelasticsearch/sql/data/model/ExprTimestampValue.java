@@ -58,9 +58,9 @@ public class ExprTimestampValue extends AbstractExprValue {
   private static final int MIN_FRACTION_SECONDS = 0;
   private static final int MAX_FRACTION_SECONDS = 6;
 
-  private static final String ALWAYS_INCLUDE_TIME = "always_include_time";
-  private static final String NEVER_INCLUDE_TIME = "never_include_time";
-  private static final String INCLUDE_TIME_WHEN_NONZERO = "include_time_when_nonzero";
+  public static final String ALWAYS_INCLUDE_TIME = "always_include_time";
+  public static final String NEVER_INCLUDE_TIME = "never_include_time";
+  public static final String INCLUDE_TIME_WHEN_NONZERO = "include_time_when_nonzero";
 
   static {
     FORMATTER_VARIABLE_MICROS = new DateTimeFormatterBuilder()
@@ -99,7 +99,7 @@ public class ExprTimestampValue extends AbstractExprValue {
 
       case INCLUDE_TIME_WHEN_NONZERO:
         LocalTime time = timeValue();
-        return (time.getHour() == 0 && time.getMinute() == 0 && time.getSecond() == 0)
+        return (time.getHour() + time.getMinute() + time.getSecond() == 0)
                 ? valueWithoutTime() : valueWithTime();
 
       case ALWAYS_INCLUDE_TIME:

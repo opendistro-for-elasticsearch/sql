@@ -24,6 +24,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.A
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue.ALWAYS_INCLUDE_TIME;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT_KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Schema;
@@ -47,7 +48,7 @@ import org.junit.jupiter.api.Test;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class JdbcResponseFormatterTest {
 
-  private final JdbcResponseFormatter formatter = new JdbcResponseFormatter(COMPACT);
+  private final JdbcResponseFormatter formatter = new JdbcResponseFormatter(COMPACT, ALWAYS_INCLUDE_TIME);
 
   @Test
   void format_response() {
