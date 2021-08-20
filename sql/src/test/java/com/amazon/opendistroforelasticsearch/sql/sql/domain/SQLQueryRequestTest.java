@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.Format;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,18 @@ public class SQLQueryRequestTest {
                                                     .build();
     assertTrue(request.isSupported());
     assertEquals(request.format(), Format.JDBC);
+  }
+
+  @Test
+  public void shouldSupportQueryDatetimeFormat() {
+    Map<String, String> params = new HashMap<>();
+    params.put("format", "jdbc");
+    params.put("datetime_format", "never_include_time");
+
+    SQLQueryRequest request = SQLQueryRequestBuilder.request("SELECT 1")
+            .params(params)
+            .build();
+    assertEquals("never_include_time", request.getDatetimeFormat());
   }
 
   @Test
