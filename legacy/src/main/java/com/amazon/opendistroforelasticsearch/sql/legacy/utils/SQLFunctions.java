@@ -75,7 +75,7 @@ public class SQLFunctions {
     );
 
     private static final Set<String> binaryOperators = Sets.newHashSet(
-            "add", "multiply", "divide", "subtract", "modulus"
+            "add", "multiply", "divide", "subtract", "modulus", "greatest", "least"
     );
 
     private static final Set<String> dateFunctions = Sets.newHashSet(
@@ -330,6 +330,13 @@ public class SQLFunctions {
                 break;
             case "modulus":
                 functionStr = modulus((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
+                break;
+
+            case "greatest":
+                functionStr = greatest((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
+                break;
+            case "least":
+                functionStr = least((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
                 break;
 
             case "field":
@@ -596,6 +603,56 @@ public class SQLFunctions {
                         + def(name, extractName(a) + " " + operator + " " + extractName(b)));
     }
 
+    private Tuple<String, String> greatest(SQLExpr a, SQLExpr b) {
+        String name = nextId("greatest");
+
+        String name_a = extractName(a);
+        String name_b = extractName(b);
+
+        String value_a = getPropertyOrStringValue(a);
+        String value_b = getPropertyOrStringValue(b);
+
+        String nameString_a = nextId("string_a");
+        String nameString_b = nextId("string_b");
+
+        return new Tuple<>(name,
+                scriptDeclare(a) + scriptDeclare(b)
+                + "def " + name + ";"
+                + String.format("if (%s instanceof Number) ", name_a)
+                + String.format("{%s = (%s >= %s ? %s : %s);} ", name, name_a, name_b, name_a, name_b)
+                + "else {"
+                + def(nameString_a, convertToString(value_a)) + ";"
+                + def(nameString_b, convertToString(value_b)) + ";"
+                + String.format("%s = (%s.compareTo(%s) >= 0 ? %s : %s);}",
+                        name, nameString_a, nameString_b, value_a, value_b)
+                + name + " = " + name);
+    }
+
+    private Tuple<String, String> least(SQLExpr a, SQLExpr b) {
+        String name = nextId("least");
+
+        String name_a = extractName(a);
+        String name_b = extractName(b);
+
+        String value_a = getPropertyOrStringValue(a);
+        String value_b = getPropertyOrStringValue(b);
+
+        String nameString_a = nextId("string_a");
+        String nameString_b = nextId("string_b");
+
+        return new Tuple<>(name,
+                scriptDeclare(a) + scriptDeclare(b)
+                        + "def " + name + ";"
+                        + String.format("if (%s instanceof Number) ", name_a)
+                        + String.format("{%s = (%s <= %s ? %s : %s);} ", name, name_a, name_b, name_a, name_b)
+                        + "else {"
+                        + def(nameString_a, convertToString(value_a)) + ";"
+                        + def(nameString_b, convertToString(value_b)) + ";"
+                        + String.format("%s = (%s.compareTo(%s) <= 0 ? %s : %s);}",
+                        name, nameString_a, nameString_b, value_a, value_b)
+                        + name + " = " + name);
+    }
+
     private static boolean isProperty(SQLExpr expr) {
         return (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr
                 || expr instanceof SQLVariantRefExpr);
@@ -628,7 +685,6 @@ public class SQLFunctions {
     }
 
     private static String scriptDeclare(SQLExpr a) {
-
         if (isProperty(a) || a instanceof SQLNumericLiteralExpr) {
             return "";
         } else {
@@ -666,6 +722,11 @@ public class SQLFunctions {
         }
 
 
+    }
+
+    private static String convertToString(String name) {
+        return String.format("(%s instanceof String ? (String) %s : %s.toString())",
+                name, name, name);
     }
 
     private String getScriptText(MethodField field) {

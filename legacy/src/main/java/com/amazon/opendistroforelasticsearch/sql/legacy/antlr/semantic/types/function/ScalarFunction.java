@@ -60,9 +60,19 @@ public enum ScalarFunction implements TypeExpression {
     EXP(func(T(NUMBER)).to(T)),
     EXPM1(func(T(NUMBER)).to(T)),
     FLOOR(func(T(NUMBER)).to(T)),
+    GREATEST(
+            func(T(NUMBER), NUMBER).to(T),
+            func(T(STRING), STRING).to(T),
+            func(ESDataType.DATE, ESDataType.DATE).to(ESDataType.DATE)
+    ),
     IF(func(BOOLEAN, ES_TYPE, ES_TYPE).to(ES_TYPE)),
     IFNULL(func(ES_TYPE, ES_TYPE).to(ES_TYPE)),
     ISNULL(func(ES_TYPE).to(INTEGER)),
+    LEAST(
+            func(T(NUMBER), NUMBER).to(T),
+            func(T(STRING), STRING).to(T),
+            func(ESDataType.DATE, ESDataType.DATE).to(ESDataType.DATE)
+    ),
     LEFT(func(T(STRING), INTEGER).to(T)),
     LENGTH(func(STRING).to(INTEGER)),
     LN(func(T(NUMBER)).to(DOUBLE)),
