@@ -864,7 +864,7 @@ public class SelectResultSet extends ResultSet {
     /**
      * Flattens the inner hits passed as argument.
      * For each inner hit, iterates on its column names colName and computes a list of new keys.
-     * The new keys are the original keys that begin with colName + ".", stripped of that prefix.
+     * The new keys are the original keys that begin with colName + "." stripped of that prefix.
      * Then, calls populateRows on the new keys and the hits associated to colName.
      * This also works for nested fields which contain another nested field as a subfield.
      */
