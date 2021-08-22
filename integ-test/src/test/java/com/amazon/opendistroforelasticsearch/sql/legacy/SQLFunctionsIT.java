@@ -884,13 +884,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   public void greatestWithAliasAndStrings() throws Exception {
     JSONObject response =
             executeJdbcRequest("SELECT greatest(firstname, lastname) AS max " +
-            "FROM " + TEST_INDEX_ACCOUNT + " LIMIT 3");
+                    "FROM " + TEST_INDEX_ACCOUNT + " LIMIT 3");
 
     verifyDataRows(response,
             rows("duke"),
             rows("hattie"),
             rows("nanette"));
-  }
+    }
 
   private SearchHits query(String query) throws IOException {
     final String rsp = executeQueryWithStringOutput(query);

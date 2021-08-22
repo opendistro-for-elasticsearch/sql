@@ -606,51 +606,52 @@ public class SQLFunctions {
     private Tuple<String, String> greatest(SQLExpr a, SQLExpr b) {
         String name = nextId("greatest");
 
-        String name_a = extractName(a);
-        String name_b = extractName(b);
-
-        String value_a = getPropertyOrStringValue(a);
-        String value_b = getPropertyOrStringValue(b);
-
-        String nameString_a = nextId("string_a");
-        String nameString_b = nextId("string_b");
-
-        return new Tuple<>(name,
-                scriptDeclare(a) + scriptDeclare(b)
-                + "def " + name + ";"
-                + String.format("if (%s instanceof Number) ", name_a)
-                + String.format("{%s = (%s >= %s ? %s : %s);} ", name, name_a, name_b, name_a, name_b)
-                + "else {"
-                + def(nameString_a, convertToString(value_a)) + ";"
-                + def(nameString_b, convertToString(value_b)) + ";"
-                + String.format("%s = (%s.compareTo(%s) >= 0 ? %s : %s);}",
-                        name, nameString_a, nameString_b, value_a, value_b)
-                + name + " = " + name);
+        return comparisonFunctionTemplate(a, b, name, ">");
     }
 
     private Tuple<String, String> least(SQLExpr a, SQLExpr b) {
         String name = nextId("least");
 
-        String name_a = extractName(a);
-        String name_b = extractName(b);
+        return comparisonFunctionTemplate(a, b, name, "<");
+    }
 
-        String value_a = getPropertyOrStringValue(a);
-        String value_b = getPropertyOrStringValue(b);
+    private Tuple<String, String> comparisonFunctionTemplate(SQLExpr a, SQLExpr b,
+                                                             String name, String comparisonOperator) {
+        String value_a = (a instanceof SQLTextLiteralExpr
+                ? getPropertyOrStringValue(a) : getPropertyOrValue(a));
+        String value_b = (b instanceof SQLTextLiteralExpr
+                ? getPropertyOrStringValue(b) : getPropertyOrValue(b));
 
         String nameString_a = nextId("string_a");
         String nameString_b = nextId("string_b");
 
-        return new Tuple<>(name,
-                scriptDeclare(a) + scriptDeclare(b)
-                        + "def " + name + ";"
-                        + String.format("if (%s instanceof Number) ", name_a)
-                        + String.format("{%s = (%s <= %s ? %s : %s);} ", name, name_a, name_b, name_a, name_b)
-                        + "else {"
-                        + def(nameString_a, convertToString(value_a)) + ";"
-                        + def(nameString_b, convertToString(value_b)) + ";"
-                        + String.format("%s = (%s.compareTo(%s) <= 0 ? %s : %s);}",
-                        name, nameString_a, nameString_b, value_a, value_b)
-                        + name + " = " + name);
+        String numberComparison = String.format("%s = (%s %s %s ? %s : %s);",
+                name, value_a, comparisonOperator, value_b, value_a, value_b);
+        String stringOrDateComparison = def(nameString_a, convertToString(value_a)) + ";"
+                + def(nameString_b, convertToString(value_b)) + ";"
+                + String.format("%s = (%s.compareTo(%s) %s 0 ? %s : %s);",
+                name, nameString_a, nameString_b, comparisonOperator, value_a, value_b);
+
+        String definition = "def " + name + ";"
+                + String.format("if (%s) {%s = %s;} ", checkIfNull(a), name, value_b)
+                + String.format("else if (%s) {%s = %s;} ", checkIfNull(b), name, value_a)
+                + "else {";
+
+        if (isProperty(a) && isProperty(b)) {
+            definition += String.format("if (%s instanceof Number) {", value_a)
+                    + numberComparison
+                    + "} else {"
+                    + stringOrDateComparison
+                    + "} ";
+        } else if (a instanceof SQLNumericLiteralExpr || b instanceof SQLNumericLiteralExpr) {
+            definition += numberComparison;
+        } else {
+            definition += stringOrDateComparison;
+        }
+
+        definition += String.format("} %s = %s", name, name);
+
+        return new Tuple<>(name, definition);
     }
 
     private static boolean isProperty(SQLExpr expr) {
@@ -661,6 +662,8 @@ public class SQLFunctions {
     private static String getPropertyOrValue(SQLExpr expr) {
         if (isProperty(expr)) {
             return doc(expr) + ".value";
+        } else if (expr instanceof SQLNullExpr) {
+            return "null";
         } else {
             return exprString(expr);
         }
@@ -722,6 +725,17 @@ public class SQLFunctions {
         }
 
 
+    }
+
+    private static String checkIfNull(SQLExpr expr) {
+        if (isProperty(expr)) {
+            return doc(expr) + ".size() == 0 || " + getPropertyOrValue(expr) + " == null";
+        } else if (expr instanceof SQLNullExpr) {
+            return "0 == 0";
+        }
+        else {
+            return "0 == 1";
+        }
     }
 
     private static String convertToString(String name) {
