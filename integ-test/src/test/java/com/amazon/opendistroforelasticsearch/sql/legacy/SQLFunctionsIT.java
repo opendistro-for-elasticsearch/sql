@@ -17,6 +17,8 @@
 package com.amazon.opendistroforelasticsearch.sql.legacy;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DATE;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DATE_TIME;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
@@ -68,6 +70,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     loadIndex(Index.BANK);
     loadIndex(Index.ONLINE);
     loadIndex(Index.DATE);
+    loadIndex(Index.DATETIME);
   }
 
   @Test
@@ -876,6 +879,18 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     assertThat(hits.length, is(1));
     assertThat(hits[0].getFields(), allOf(hasValue(contains(1)), hasValue(contains(2))));
   }
+
+  @Test
+  public void greatestWithAliasAndStrings() throws Exception {
+    JSONObject response =
+            executeJdbcRequest("SELECT greatest(firstname, lastname) AS max " +
+                    "FROM " + TEST_INDEX_ACCOUNT + " LIMIT 3");
+
+    verifyDataRows(response,
+            rows("duke"),
+            rows("hattie"),
+            rows("nanette"));
+    }
 
   private SearchHits query(String query) throws IOException {
     final String rsp = executeQueryWithStringOutput(query);

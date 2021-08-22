@@ -75,7 +75,7 @@ public class SQLFunctions {
     );
 
     private static final Set<String> binaryOperators = Sets.newHashSet(
-            "add", "multiply", "divide", "subtract", "modulus"
+            "add", "multiply", "divide", "subtract", "modulus", "greatest", "least"
     );
 
     private static final Set<String> dateFunctions = Sets.newHashSet(
@@ -330,6 +330,13 @@ public class SQLFunctions {
                 break;
             case "modulus":
                 functionStr = modulus((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
+                break;
+
+            case "greatest":
+                functionStr = greatest((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
+                break;
+            case "least":
+                functionStr = least((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
                 break;
 
             case "field":
@@ -596,6 +603,57 @@ public class SQLFunctions {
                         + def(name, extractName(a) + " " + operator + " " + extractName(b)));
     }
 
+    private Tuple<String, String> greatest(SQLExpr a, SQLExpr b) {
+        String name = nextId("greatest");
+
+        return comparisonFunctionTemplate(a, b, name, ">");
+    }
+
+    private Tuple<String, String> least(SQLExpr a, SQLExpr b) {
+        String name = nextId("least");
+
+        return comparisonFunctionTemplate(a, b, name, "<");
+    }
+
+    private Tuple<String, String> comparisonFunctionTemplate(SQLExpr a, SQLExpr b,
+                                                             String name, String comparisonOperator) {
+        String value_a = (a instanceof SQLTextLiteralExpr
+                ? getPropertyOrStringValue(a) : getPropertyOrValue(a));
+        String value_b = (b instanceof SQLTextLiteralExpr
+                ? getPropertyOrStringValue(b) : getPropertyOrValue(b));
+
+        String nameString_a = nextId("string_a");
+        String nameString_b = nextId("string_b");
+
+        String numberComparison = String.format("%s = (%s %s %s ? %s : %s);",
+                name, value_a, comparisonOperator, value_b, value_a, value_b);
+        String stringOrDateComparison = def(nameString_a, convertToString(value_a)) + ";"
+                + def(nameString_b, convertToString(value_b)) + ";"
+                + String.format("%s = (%s.compareTo(%s) %s 0 ? %s : %s);",
+                name, nameString_a, nameString_b, comparisonOperator, value_a, value_b);
+
+        String definition = "def " + name + ";"
+                + String.format("if (%s) {%s = %s;} ", checkIfNull(a), name, value_b)
+                + String.format("else if (%s) {%s = %s;} ", checkIfNull(b), name, value_a)
+                + "else {";
+
+        if (isProperty(a) && isProperty(b)) {
+            definition += String.format("if (%s instanceof Number) {", value_a)
+                    + numberComparison
+                    + "} else {"
+                    + stringOrDateComparison
+                    + "} ";
+        } else if (a instanceof SQLNumericLiteralExpr || b instanceof SQLNumericLiteralExpr) {
+            definition += numberComparison;
+        } else {
+            definition += stringOrDateComparison;
+        }
+
+        definition += String.format("} %s = %s", name, name);
+
+        return new Tuple<>(name, definition);
+    }
+
     private static boolean isProperty(SQLExpr expr) {
         return (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr
                 || expr instanceof SQLVariantRefExpr);
@@ -604,6 +662,8 @@ public class SQLFunctions {
     private static String getPropertyOrValue(SQLExpr expr) {
         if (isProperty(expr)) {
             return doc(expr) + ".value";
+        } else if (expr instanceof SQLNullExpr) {
+            return "null";
         } else {
             return exprString(expr);
         }
@@ -628,7 +688,6 @@ public class SQLFunctions {
     }
 
     private static String scriptDeclare(SQLExpr a) {
-
         if (isProperty(a) || a instanceof SQLNumericLiteralExpr) {
             return "";
         } else {
@@ -666,6 +725,22 @@ public class SQLFunctions {
         }
 
 
+    }
+
+    private static String checkIfNull(SQLExpr expr) {
+        if (isProperty(expr)) {
+            return doc(expr) + ".size() == 0 || " + getPropertyOrValue(expr) + " == null";
+        } else if (expr instanceof SQLNullExpr) {
+            return "0 == 0";
+        }
+        else {
+            return "0 == 1";
+        }
+    }
+
+    private static String convertToString(String name) {
+        return String.format("(%s instanceof String ? (String) %s : %s.toString())",
+                name, name, name);
     }
 
     private String getScriptText(MethodField field) {
