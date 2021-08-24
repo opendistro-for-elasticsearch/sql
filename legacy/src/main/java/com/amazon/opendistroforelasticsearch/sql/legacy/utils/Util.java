@@ -112,17 +112,17 @@ public class Util {
 
     public static Object getScriptValue(SQLExpr expr) throws SqlParseException {
         if (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr || expr instanceof SQLVariantRefExpr) {
-            return "doc['" + expr.toString() + "'].value";
+            return StringUtils.format("(doc['%1$s'].size() == 0 ? null : doc['%1$s'].value)", expr.toString());
         } else if (expr instanceof SQLValuableExpr) {
             return ((SQLValuableExpr) expr).getValue();
         }
-        throw new SqlParseException("could not parse sqlBinaryOpExpr need to be identifier/valuable got"
+        throw new SqlParseException("Could not parse sqlBinaryOpExpr: needs to be identifier/valuable, got"
                 + expr.getClass().toString() + " with value:" + expr.toString());
     }
 
     public static Object getScriptValueWithQuote(SQLExpr expr, String quote) throws SqlParseException {
         if (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr || expr instanceof SQLVariantRefExpr) {
-            return "doc['" + expr.toString() + "'].value";
+            return StringUtils.format("(doc['%1$s'].size() == 0 ? null : doc['%1$s'].value)", expr.toString());
         } else if (expr instanceof SQLCharExpr) {
             return quote + ((SQLCharExpr) expr).getValue() + quote;
         } else if (expr instanceof SQLIntegerExpr) {

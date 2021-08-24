@@ -38,11 +38,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -174,8 +171,7 @@ public class SQLFunctions {
                 functionStr = date_format(
                         (SQLExpr) paramers.get(0).value,
                         Util.expr2Object((SQLExpr) paramers.get(1).value).toString(),
-                        paramers.size() > 2 ? Util.expr2Object((SQLExpr) paramers.get(2).value).toString() : null,
-                        name);
+                        paramers.size() < 3 ? null : Util.expr2Object((SQLExpr) paramers.get(2).value).toString());
                 break;
 
             case "year":
@@ -260,7 +256,7 @@ public class SQLFunctions {
             case "sinh":
             case "cosh":
                 functionStr = mathSingleValueTemplate("Math." + methodName, methodName,
-                        (SQLExpr) paramers.get(0).value, name);
+                        (SQLExpr) paramers.get(0).value);
                 break;
 
             case "rand":
@@ -274,22 +270,22 @@ public class SQLFunctions {
             case "cot":
                 // ES does not support the function name cot
                 functionStr = mathSingleValueTemplate("1 / Math.tan", methodName,
-                        (SQLExpr) paramers.get(0).value, name);
+                        (SQLExpr) paramers.get(0).value);
                 break;
 
             case "sign":
             case "signum":
                 methodName = "signum";
                 functionStr = mathSingleValueTemplate("Math." + methodName, methodName,
-                        (SQLExpr) paramers.get(0).value, name);
+                        (SQLExpr) paramers.get(0).value);
                 break;
 
             case "pow":
             case "power":
                 methodName = "pow";
                 functionStr = mathDoubleValueTemplate("Math." + methodName, methodName,
-                        (SQLExpr) paramers.get(0).value, Util.expr2Object((SQLExpr) paramers.get(1).value).toString(),
-                        name);
+                        (SQLExpr) paramers.get(0).value,
+                        Util.expr2Object((SQLExpr) paramers.get(1).value).toString());
                 break;
 
             case "atan2":
@@ -304,14 +300,14 @@ public class SQLFunctions {
                 break;
 
             case "degrees":
-                functionStr = degrees((SQLExpr) paramers.get(0).value, name);
+                functionStr = degrees((SQLExpr) paramers.get(0).value);
                 break;
             case "radians":
-                functionStr = radians((SQLExpr) paramers.get(0).value, name);
+                functionStr = radians((SQLExpr) paramers.get(0).value);
                 break;
 
             case "trim":
-                functionStr = trim((SQLExpr) paramers.get(0).value, name);
+                functionStr = trim((SQLExpr) paramers.get(0).value);
                 break;
 
             case "add":
@@ -344,14 +340,14 @@ public class SQLFunctions {
                 break;
 
             case "log2":
-                functionStr = log(SQLUtils.toSQLExpr("2"), (SQLExpr) paramers.get(0).value, name);
+                functionStr = log(SQLUtils.toSQLExpr("2"), (SQLExpr) paramers.get(0).value);
                 break;
             case "log10":
                 functionStr = log10((SQLExpr) paramers.get(0).value);
                 break;
             case "log":
                 if (paramers.size() > 1) {
-                    functionStr = log((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value, name);
+                    functionStr = log((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
                 } else {
                     functionStr = ln((SQLExpr) paramers.get(0).value);
                 }
@@ -433,6 +429,8 @@ public class SQLFunctions {
     public Tuple<String, String> upper(SQLExpr field, String locale, String valueName) {
         String name = nextId("upper");
 
+        scriptDeclare(field);
+
         if (valueName == null) {
             return new Tuple<>(name, def(name, upper(getPropertyOrStringValue(field), locale)));
         } else {
@@ -471,9 +469,9 @@ public class SQLFunctions {
     private static String func(String methodName, boolean quotes, String... params) {
         if (quotes) {
             return methodName + "(" + quoteParams(params) + ")";
+        } else {
+            return methodName + "(" + String.join(", ", params) + ")";
         }
-
-        return methodName + "(" + String.join(", ", params) + ")";
     }
 
     /**
@@ -488,16 +486,9 @@ public class SQLFunctions {
         List<String> result = Lists.newArrayList();
 
         for (SQLExpr column : columns) {
-            String strColumn = exprString(column);
-            if (strColumn.startsWith("def ")) {
-                result.add(strColumn);
-            } else if (isProperty(column)) {
-                result.add("doc['" + strColumn + "'].value");
-            } else {
-                result.add("'" + strColumn + "'");
-            }
-
+            result.add(scriptDeclare(column) + getPropertyOrStringValue(column));
         }
+
         return new Tuple<>(name, def(name, Joiner.on("+ " + split + " +").join(result)));
     }
 
@@ -506,41 +497,75 @@ public class SQLFunctions {
     public Tuple<String, String> split(SQLExpr field, String pattern, int index, String valueName) {
         String name = nextId("split");
         final String script;
+
         if (valueName == null) {
-            script = def(name,
-                    getPropertyOrValue(field) + "."
+            script = def(name, scriptDeclare(field)
+                    + getPropertyOrStringValue(field) + "."
                     + func("split", true, pattern) + "[" + index + "]");
         } else {
             script = "; " + def(name, valueName + "."
                     + func("split", true, pattern) + "[" + index + "]");
         }
+
         return new Tuple<>(name, script);
     }
 
     //split(Column expr, java.lang.String pattern)
     public Tuple<String, String> split(SQLExpr field, String pattern, String valueName) {
         String name = nextId("split");
+
         if (valueName == null) {
             return new Tuple<>(name,
-                    def(name, getPropertyOrValue(field) + "."
+                    def(name, getPropertyOrStringValue(field) + "."
                             + func("split", true, pattern)));
         } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; "
-                    + def(name, valueName + "." + func("split", true, pattern)));
+            return new Tuple<>(name,
+                    "; " + def(name, valueName + "." + func("split", true, pattern)));
         }
     }
 
-    private Tuple<String, String> date_format(SQLExpr field, String pattern, String zoneId, String valueName) {
+    private Tuple<String, String> date_format(SQLExpr field, String pattern, String zoneId) {
         String name = nextId("date_format");
-        if (valueName == null) {
-            return new Tuple<>(name, "def " + name + " = DateTimeFormatter.ofPattern('" + pattern + "').withZone("
-                    + (zoneId != null ? "ZoneId.of('" + zoneId + "')" : "ZoneId.of(\"UTC\")")
-                    + ").format(Instant.ofEpochMilli(" + getPropertyOrValue(field) + ".toInstant().toEpochMilli()))");
-        } else {
-            return new Tuple<>(name, exprString(field) + "; "
-                    + "def " + name + " = new SimpleDateFormat('" + pattern + "').format("
-                    + "new Date(" + valueName + " - 8*1000*60*60))");
-        }
+        String parsedDateName = nextId("parsed_date");
+
+        String value = getPropertyOrStringValue(field);
+
+        String definition = scriptDeclare(field)
+                + "def formats = new ArrayList(); "
+                + "formats.add(\"yyyy-MM-dd\"); "
+                + "formats.add(\"yyyy-MM-dd HH:mm:ss\"); "
+                + "formats.add(\"yyyy-MM-dd HH:mm:ss.SSSSSS\"); "
+                + "formats.add(\"yyyy-MM-dd'T'HH:mm:ss.SSSSSS\"); "
+                + "formats.add(\"yyyy-MM-dd'T'HH:mm:ss'Z'\"); "
+                + "def " + parsedDateName + ";"
+                + "if (" + value + " instanceof String) {"
+                + "for (String format : formats) {"
+                + "try {" + parsedDateName + " = "
+                + "ZonedDateTime.parse(" + value + ", "
+                + "new DateTimeFormatterBuilder()"
+                + ".appendPattern(format)"
+                + ".parseDefaulting(ChronoField.HOUR_OF_DAY, 0)"
+                + ".parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)"
+                + ".parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)"
+                + ".parseDefaulting(ChronoField.NANO_OF_SECOND, 0)"
+                + ".toFormatter()"
+                + StringUtils.format(".withZone(ZoneId.of('%s')));} ",
+                        zoneId != null ? zoneId : "UTC")
+                + "catch (DateTimeParseException e) {} "
+                + "if (" + parsedDateName + " != null) {break;} } "
+                + "if (" + parsedDateName + " == null) { "
+                + "throw new IllegalArgumentException(\"Date format not recognized\"); } } "
+                + "else {" + parsedDateName + " = " + value + ";} ";
+
+        definition += def(name, StringUtils.format(
+                "DateTimeFormatter.ofPattern(\"%s\").withZone(%s).format"
+                        + "(Instant.ofEpochMilli(%s.toInstant().toEpochMilli()))",
+                pattern,
+                zoneId != null ? "ZoneId.of('" + zoneId + "')" : "ZoneId.of('UTC')",
+                parsedDateName
+        ));
+
+        return new Tuple<>(name, definition);
     }
 
     /**
@@ -571,8 +596,8 @@ public class SQLFunctions {
 
     public Tuple<String, String> assign(SQLExpr a) {
         String name = nextId("assign");
-        return new Tuple<>(name,
-                def(name, extractName(a)));
+        return new Tuple<>(name, scriptDeclare(a)
+                + def(name, getPropertyOrValue(a)));
     }
 
     private Tuple<String, String> modulus(SQLExpr a, SQLExpr b) {
@@ -600,7 +625,8 @@ public class SQLFunctions {
         String name = nextId(methodName);
         return new Tuple<>(name,
                 scriptDeclare(a) + scriptDeclare(b) + convertType(a) + convertType(b)
-                        + def(name, extractName(a) + " " + operator + " " + extractName(b)));
+                        + def(name,
+                        getPropertyOrValue(a) + " " + operator + " " + getPropertyOrValue(b)));
     }
 
     private Tuple<String, String> greatest(SQLExpr a, SQLExpr b) {
@@ -632,7 +658,8 @@ public class SQLFunctions {
                 + String.format("%s = (%s.compareTo(%s) %s 0 ? %s : %s);",
                 name, nameString_a, nameString_b, comparisonOperator, value_a, value_b);
 
-        String definition = "def " + name + ";"
+        String definition = scriptDeclare(a) + scriptDeclare(b)
+                + "def " + name + ";"
                 + String.format("if (%s) {%s = %s;} ", checkIfNull(a), name, value_b)
                 + String.format("else if (%s) {%s = %s;} ", checkIfNull(b), name, value_a)
                 + "else {";
@@ -655,15 +682,18 @@ public class SQLFunctions {
     }
 
     private static boolean isProperty(SQLExpr expr) {
-        return (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr
+        return (expr instanceof SQLIdentifierExpr
+                || expr instanceof SQLPropertyExpr
                 || expr instanceof SQLVariantRefExpr);
     }
 
     private static String getPropertyOrValue(SQLExpr expr) {
-        if (isProperty(expr)) {
-            return doc(expr) + ".value";
+        if (expr instanceof SQLDefinitionExpr) {
+            return ((SQLDefinitionExpr) expr).getName();
         } else if (expr instanceof SQLNullExpr) {
             return "null";
+        } else if (isProperty(expr)) {
+            return StringUtils.format("(%s.size() == 0 ? null : %s.value)", doc(expr), doc(expr));
         } else {
             return exprString(expr);
         }
@@ -675,65 +705,50 @@ public class SQLFunctions {
         } else if (StringUtils.isNumeric(expr)) {
             return expr;
         } else {
-            return doc(expr) + ".value";
+            return StringUtils.format("(%s.size() == 0 ? null : %s.value)", doc(expr), doc(expr));
         }
     }
 
     private static String getPropertyOrStringValue(SQLExpr expr) {
-        if (isProperty(expr)) {
-            return doc(expr) + ".value";
-        } else {
+        if (expr instanceof SQLTextLiteralExpr) {
             return "'" + exprString(expr) + "'";
+        } else {
+            return getPropertyOrValue(expr);
         }
     }
 
-    private static String scriptDeclare(SQLExpr a) {
-        if (isProperty(a) || a instanceof SQLNumericLiteralExpr) {
+    private static String scriptDeclare(Object obj) {
+        if (obj instanceof SQLDefinitionExpr) {
+            return ((SQLDefinitionExpr) obj).getDefinition() + "; ";
+        } else if (obj instanceof MethodField) {
+            MethodField mField = (MethodField) obj;
+            SQLExpr left = (SQLExpr) mField.getParams().get(2).value;
+            SQLExpr right = (SQLExpr) mField.getParams().get(3).value;
+            return scriptDeclare(left) + scriptDeclare(right);
+        } else {
             return "";
-        } else {
-            return exprString(a) + ";";
-        }
-    }
-
-    private static String extractName(SQLExpr script) {
-        if (isProperty(script)) {
-            return doc(script) + ".value";
-        }
-        String scriptStr = exprString(script);
-        String[] variance = scriptStr.split(";");
-        String newScript = variance[variance.length - 1];
-        if (newScript.trim().startsWith("def ")) {
-            //for now ,if variant is string,then change to double.
-            return newScript.trim().substring(4).split("=")[0].trim();
-        } else {
-            return scriptStr;
         }
     }
 
     //cast(year as int)
 
     private static String convertType(SQLExpr script) {
-        String[] variance = exprString(script).split(";");
-        String newScript = variance[variance.length - 1];
-        if (newScript.trim().startsWith("def ")) {
-            //for now ,if variant is string,then change to double.
-            String temp = newScript.trim().substring(4).split("=")[0].trim();
-
-            return " if( " + temp + " instanceof String) " + temp + "= Double.parseDouble(" + temp.trim() + "); ";
-        } else {
+        if (!(script instanceof SQLDefinitionExpr)) {
             return "";
+        } else {
+            return StringUtils.format(" if(%1$s instanceof String) {%1$s = Double.parseDouble(%1$s);}",
+                    ((SQLDefinitionExpr) script).getName());
         }
-
-
     }
 
-    private static String checkIfNull(SQLExpr expr) {
-        if (isProperty(expr)) {
-            return doc(expr) + ".size() == 0 || " + getPropertyOrValue(expr) + " == null";
-        } else if (expr instanceof SQLNullExpr) {
+    private static String checkIfNull(Object script) {
+        if (script instanceof SQLDefinitionExpr) {
+            return ((SQLDefinitionExpr) script).getName() + " == null";
+        } else if (script instanceof SQLExpr && isProperty((SQLExpr) script)) {
+            return doc((SQLExpr) script) + ".size() == 0 || " + getPropertyOrValue((SQLExpr) script) + " == null";
+        } else if (script instanceof SQLNullExpr) {
             return "0 == 0";
-        }
-        else {
+        } else {
             return "0 == 1";
         }
     }
@@ -744,53 +759,48 @@ public class SQLFunctions {
     }
 
     private String getScriptText(MethodField field) {
-        String content = ((SQLTextLiteralExpr) field.getParams().get(1).value).getText();
-        return content;
+        return ((SQLTextLiteralExpr) field.getParams().get(1).value).getText();
     }
 
     /**
      * Using exprString() rather than getPropertyOrValue() for "base" since something like "Math.E" gets evaluated
      * incorrectly in getPropertyOrValue(), returning it as a doc value instead of the literal string
      */
-    public Tuple<String, String> log(SQLExpr base, SQLExpr field, String valueName) {
+    public Tuple<String, String> log(SQLExpr base, SQLExpr field) {
         String name = nextId("log");
-        String result;
-        if (valueName == null) {
-            result = def(name, func("Math.log", false, getPropertyOrValue(field))
-                    + "/" + func("Math.log", false, exprString(base)));
-        } else {
-            result = getPropertyOrValue(field) + "; "
-                    + def(name, func("Math.log", false, valueName) + "/"
-                            + func("Math.log", false, exprString(base)));
-        }
-        return new Tuple<>(name, result);
+        return new Tuple<>(name, scriptDeclare(base) + scriptDeclare(field)
+                + def(name, func("Math.log", false, getPropertyOrValue(field))
+                + "/" + func("Math.log", false, getPropertyOrValue(base))));
     }
 
     public Tuple<String, String> log10(SQLExpr field) {
         String name = nextId("log10");
-        return new Tuple<>(name, def(name, StringUtils.format("Math.log10(%s)", getPropertyOrValue(field))));
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, StringUtils.format("Math.log10(%s)", getPropertyOrValue(field))));
     }
 
     public Tuple<String, String> ln(SQLExpr field) {
         String name = nextId("ln");
-        return new Tuple<>(name, def(name, StringUtils.format("Math.log(%s)", getPropertyOrValue(field))));
+        return new Tuple<>(name, scriptDeclare(field)
+                + StringUtils.format("Math.log(%s)", getPropertyOrValue(field)));
     }
 
-    public Tuple<String, String> trim(SQLExpr field, String valueName) {
-        return strSingleValueTemplate("trim", field, valueName);
+    public Tuple<String, String> trim(SQLExpr field) {
+        return strSingleValueTemplate("trim", field);
     }
 
-    private Tuple<String, String> degrees(SQLExpr field, String valueName) {
-        return mathSingleValueTemplate("Math.toDegrees", "degrees", field, valueName);
+    private Tuple<String, String> degrees(SQLExpr field) {
+        return mathSingleValueTemplate("Math.toDegrees", "degrees", field);
     }
 
-    private Tuple<String, String> radians(SQLExpr field, String valueName) {
-        return mathSingleValueTemplate("Math.toRadians", "radians", field, valueName);
+    private Tuple<String, String> radians(SQLExpr field) {
+        return mathSingleValueTemplate("Math.toRadians", "radians", field);
     }
 
-    private Tuple<String, String> rand(SQLExpr expr) {
+    private Tuple<String, String> rand(SQLExpr field) {
         String name = nextId("rand");
-        return new Tuple<>(name, def(name, format("new Random(%s).nextDouble()", getPropertyOrValue(expr))));
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, format("new Random(%s).nextDouble()", getPropertyOrValue(field))));
     }
 
     private Tuple<String, String> rand() {
@@ -798,35 +808,24 @@ public class SQLFunctions {
         return new Tuple<>(name, def(name, "new Random().nextDouble()"));
     }
 
-    private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,
-                                                                 String val2, String valueName) {
+    private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName,
+                                                          SQLExpr val1, String val2) {
         String name = nextId(fieldName);
-        if (valueName == null) {
-            return new Tuple<>(name, def(name, func(methodName, false, getPropertyOrValue(val1),
-                    getPropertyOrValue(val2))));
-        } else {
-            return new Tuple<>(name, getPropertyOrValue(val1) + "; "
-                    + def(name, func(methodName, false, valueName, getPropertyOrValue(val2))));
-        }
+        return new Tuple<>(name, scriptDeclare(val1)
+                + def(name, func(methodName, false, getPropertyOrValue(val1), getPropertyOrValue(val2))));
     }
 
     private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,
                                                           SQLExpr val2) {
         String name = nextId(fieldName);
-        return new Tuple<>(name, def(name, func(methodName, false,
-                getPropertyOrValue(val1), getPropertyOrValue(val2))));
+        return new Tuple<>(name, scriptDeclare(val1) + scriptDeclare(val2)
+                + def(name, func(methodName, false, getPropertyOrValue(val1), getPropertyOrValue(val2))));
     }
 
-    private Tuple<String, String> mathSingleValueTemplate(String methodName, String fieldName, SQLExpr field,
-                                                                 String valueName) {
+    private Tuple<String, String> mathSingleValueTemplate(String methodName, String fieldName, SQLExpr field) {
         String name = nextId(fieldName);
-        if (valueName == null) {
-            return new Tuple<>(name, def(name, func(methodName, false, getPropertyOrValue(field))));
-        } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; "
-                    + def(name, func(methodName, false, valueName)));
-        }
-
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, func(methodName, false, getPropertyOrValue(field))));
     }
 
     private Tuple<String, String> mathConstantTemplate(String methodName, String fieldName) {
@@ -834,15 +833,10 @@ public class SQLFunctions {
         return new Tuple<>(name, def(name, methodName));
     }
 
-    private Tuple<String, String> strSingleValueTemplate(String methodName, SQLExpr field, String valueName) {
+    private Tuple<String, String> strSingleValueTemplate(String methodName, SQLExpr field) {
         String name = nextId(methodName);
-        if (valueName == null) {
-            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + "." + func(methodName, false)));
-        } else {
-            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
-                    + def(name, valueName + "." + func(methodName, false)));
-        }
-
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, getPropertyOrStringValue(field) + "." + func(methodName, false)));
     }
 
     // query: substring(Column expr, int pos, int len)
@@ -852,11 +846,12 @@ public class SQLFunctions {
         String name = nextId("substring");
         // start and end are 0-indexes
         int start = pos < 1 ? 0 : pos - 1;
-        return new Tuple<>(name, StringUtils.format(
-                "def end = (int) Math.min(%s + %s, %s.length()); "
-                + def(name, getPropertyOrStringValue(field) + "."
-                + func("substring", false, Integer.toString(start), "end")),
-                Integer.toString(start), Integer.toString(len), getPropertyOrStringValue(field)
+        return new Tuple<>(name, scriptDeclare(field)
+                + StringUtils.format(
+                        "def end = (int) Math.min(%s + %s, %s.length()); "
+                        + def(name, getPropertyOrStringValue(field) + "."
+                        + func("substring", false, Integer.toString(start), "end")),
+                        Integer.toString(start), Integer.toString(len), getPropertyOrStringValue(field)
         ));
     }
 
@@ -870,12 +865,14 @@ public class SQLFunctions {
 
     private Tuple<String, String> length(SQLExpr field) {
         String name = nextId("length");
-        return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + ".length()"));
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, getPropertyOrStringValue(field) + ".length()"));
     }
 
     private Tuple<String, String> replace(SQLExpr field, String target, String replacement) {
         String name = nextId("replace");
-        return new Tuple<>(name, def(name, getPropertyOrStringValue(field)
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, getPropertyOrStringValue(field)
                 + ".replace(" + target + "," + replacement + ")"));
     }
 
@@ -885,167 +882,152 @@ public class SQLFunctions {
         String name = nextId("locate");
         String docSource = getPropertyOrStringValue(source);
         start = start < 1 ? 0 : start - 1;
-        return new Tuple<>(name, def(name, StringUtils.format("%s.indexOf(%s,%d)+1", docSource, pattern, start)));
+        return new Tuple<>(name, scriptDeclare(source)
+                + def(name, StringUtils.format("%s.indexOf(%s, %d) + 1", docSource, pattern, start)));
     }
 
     private Tuple<String, String> rtrim(SQLExpr field) {
         String name = nextId("rtrim");
         String fieldString = getPropertyOrStringValue(field);
-        return new Tuple<>(name, StringUtils.format(
-                "int pos=%s.length()-1;"
-                + "while(pos >= 0 && Character.isWhitespace(%s.charAt(pos))) {pos --;} "
-                + def(name, "%s.substring(0, pos+1)"),
-                fieldString, fieldString, fieldString
+        return new Tuple<>(name, scriptDeclare(field)
+                + StringUtils.format(
+                        "int pos = %s.length() - 1;"
+                        + "while(pos >= 0 && Character.isWhitespace(%s.charAt(pos))) {pos--;} "
+                        + def(name, "%s.substring(0, pos + 1)"),
+                        fieldString, fieldString, fieldString
         ));
     }
 
     private Tuple<String, String> ltrim(SQLExpr field) {
         String name = nextId("ltrim");
         String fieldString = getPropertyOrStringValue(field);
-        return new Tuple<>(name, StringUtils.format(
-                "int pos=0;"
-                + "while(pos < %s.length() && Character.isWhitespace(%s.charAt(pos))) {pos ++;} "
-                + def(name, "%s.substring(pos, %s.length())"),
-                fieldString, fieldString, fieldString, fieldString
+        return new Tuple<>(name, scriptDeclare(field)
+                + StringUtils.format(
+                        "int pos = 0;"
+                        + "while(pos < %s.length() && Character.isWhitespace(%s.charAt(pos))) {pos++;} "
+                        + def(name, "%s.substring(pos, %s.length())"),
+                        fieldString, fieldString, fieldString, fieldString
         ));
     }
 
     private Tuple<String, String> ascii(SQLExpr field) {
         String name = nextId("ascii");
-        return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
     }
 
     private Tuple<String, String> left(SQLExpr expr, SQLExpr length) {
         String name = nextId("left");
-        return new Tuple<>(name, StringUtils.format(
-                "def len = (int) Math.min(%s, %s.length()); def %s = %s.substring(0, len)",
-                exprString(length), getPropertyOrStringValue(expr), name, getPropertyOrStringValue(expr)));
+        return new Tuple<>(name, scriptDeclare(expr) + scriptDeclare(length)
+                + StringUtils.format(
+                        "def len = (int) Math.min(%s, %s.length()); def %s = %s.substring(0, len)",
+                        exprString(length), getPropertyOrStringValue(expr), name, getPropertyOrStringValue(expr)
+        ));
     }
 
     private Tuple<String, String> right(SQLExpr expr, SQLExpr length) {
         String name = nextId("right");
-        return new Tuple<>(name, StringUtils.format(
-                "def start = (int) Math.max(0, %s.length()-%s); def %s = %s.substring(start)",
-                getPropertyOrStringValue(expr), exprString(length), name, getPropertyOrStringValue(expr)));
+        return new Tuple<>(name, scriptDeclare(expr) + scriptDeclare(length)
+                + StringUtils.format(
+                        "def start = (int) Math.max(0, %s.length()-%s); def %s = %s.substring(start)",
+                        getPropertyOrStringValue(expr), exprString(length), name, getPropertyOrStringValue(expr)
+        ));
     }
 
     private Tuple<String, String> date(SQLExpr field) {
         String name = nextId("date");
-        return new Tuple<>(name, def(name,
-                "LocalDate.parse(" + getPropertyOrStringValue(field) + ".toString(),"
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, "LocalDate.parse(" + getPropertyOrStringValue(field) + ".toString(), "
                         + "DateTimeFormatter.ISO_DATE_TIME)"));
     }
 
     private Tuple<String, String> timestamp(SQLExpr field) {
         String name = nextId("timestamp");
-        return new Tuple<>(name, def(name,
-                "DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm:ss').format("
+        return new Tuple<>(name, scriptDeclare(field)
+                + def(name, "DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm:ss').format("
                         + "DateTimeFormatter.ISO_DATE_TIME.parse("
                         + getPropertyOrStringValue(field) + ".toString()))"));
     }
 
     private Tuple<String, String> maketime(SQLExpr hr, SQLExpr min, SQLExpr sec) {
         String name = nextId("maketime");
-        return new Tuple<>(name, def(name, StringUtils.format(
-                "LocalTime.of(%s, %s, %s).format(DateTimeFormatter.ofPattern('HH:mm:ss'))",
-                hr.toString(), min.toString(), sec.toString())));
+        return new Tuple<>(name, scriptDeclare(hr) + scriptDeclare(min) + scriptDeclare(sec)
+                + def(name, StringUtils.format(
+                        "LocalTime.of(%s, %s, %s).format(DateTimeFormatter.ofPattern('HH:mm:ss'))",
+                        hr.toString(), min.toString(), sec.toString()
+        )));
     }
 
     private Tuple<String, String> now() {
         String name = nextId("now");
-        return new Tuple<>(name, def(name, "new SimpleDateFormat('HH:mm:ss').format(System.currentTimeMillis())"));
+        return new Tuple<>(name, def(name,
+                "new SimpleDateFormat('HH:mm:ss').format(System.currentTimeMillis())"));
     }
 
     private Tuple<String, String> curdate() {
         String name = nextId("curdate");
-        return new Tuple<>(name, def(name, "new SimpleDateFormat('yyyy-MM-dd').format(System.currentTimeMillis())"));
+        return new Tuple<>(name, def(name,
+                "new SimpleDateFormat('yyyy-MM-dd').format(System.currentTimeMillis())"));
     }
 
     private Tuple<String, String> ifFunc(List<KVValue> paramers) {
-        String expr1 = paramers.get(1).value.toString();
-        String expr2 = paramers.get(2).value.toString();
         String name = nextId("if");
 
-        /** Input with null is regarded as false */
+        SQLExpr expr1 = (SQLExpr) paramers.get(1).value;
+        SQLExpr expr2 = (SQLExpr) paramers.get(2).value;
+
+        String value1 = (expr1 instanceof SQLTextLiteralExpr ? getPropertyOrStringValue(expr1)
+                : getPropertyOrValue(expr1));
+        String value2 = (expr2 instanceof SQLTextLiteralExpr ? getPropertyOrStringValue(expr2)
+                : getPropertyOrValue(expr2));
+
+        String definition = scriptDeclare(expr1) + scriptDeclare(expr2);
+
+        // Input with null is regarded as false
         if (paramers.get(0).value instanceof SQLNullExpr) {
-            return new Tuple<>(name, def(name, expr2));
-        }
-        if (paramers.get(0).value instanceof MethodField) {
+            definition += def(name, value2);
+        } else if (paramers.get(0).value instanceof MethodField) {
             String condition = getScriptText((MethodField) paramers.get(0).value);
-            return new Tuple<>(name, "boolean cond = " + condition + ";"
-                    + def(name, "cond ? " + expr1 + " : " + expr2));
+            definition += scriptDeclare(paramers.get(0).value)
+                    + "boolean cond = (" + condition + "); "
+                    + def(name, "(cond ? " + value1 + " : " + value2 + ")");
         } else if (paramers.get(0).value instanceof SQLBooleanExpr) {
-            Boolean condition = ((SQLBooleanExpr) paramers.get(0).value).getValue();
-            if (condition) {
-                return new Tuple<>(name, def(name, expr1));
+            if (((SQLBooleanExpr) paramers.get(0).value).getValue()) {
+                definition += def(name, value1);
             } else {
-                return new Tuple<>(name, def(name, expr2));
+                definition += def(name, value2);
             }
-        } else {
-            /**
-             * Detailed explanation of cases that come here:
-             * the condition expression would be in the format of a=b:
-             * a is parsed as the key (String) of a KVValue (get from paramers.get(0))
-             * and b is parsed as the value (Object) of this KVValue.
-             *
-             * Either a or b could be a column name, literal, or a number:
-             * - if isNumeric is true --> number
-             * - else if this string is single quoted --> literal
-             * - else --> column name
-             */
-            String key = getPropertyOrValue(paramers.get(0).key);
-            String value = getPropertyOrValue(paramers.get(0).value.toString());
-            String condition = key + " == " + value;
-            return new Tuple<>(name, "boolean cond = " + condition + ";"
-                    + def(name, "cond ? " + expr1 + " : " + expr2));
         }
+
+        return new Tuple<>(name, definition);
     }
 
-    private Tuple<String, String> ifnull(SQLExpr condition, SQLExpr expr) {
+    private Tuple<String, String> ifnull(Object condition, SQLExpr expr) {
         String name = nextId("ifnull");
-        if (condition instanceof SQLNullExpr) {
-            return new Tuple<>(name, def(name, expr.toString()));
-        }
-        if (isProperty(condition)) {
-            return new Tuple<>(name, def(name, doc(condition) + ".size()==0 ? " + expr.toString() + " : "
-                    + getPropertyOrValue(condition)));
-        } else {
-            String condStr = Strings.isNullOrEmpty(condition.toString()) ? null : getPropertyOrStringValue(condition);
-            return new Tuple<>(name, def(name, condStr));
-        }
+
+        return new Tuple<>(name, scriptDeclare(condition) + scriptDeclare(expr)
+                + def(name, StringUtils.format(
+                        "(%s ? %s : null)",
+                        checkIfNull(condition),
+                        (expr instanceof SQLTextLiteralExpr ? getPropertyOrStringValue(expr) : getPropertyOrValue(expr))
+        )));
     }
 
     private Tuple<String, String> isnull(SQLExpr expr) {
         String name = nextId("isnull");
-        if (expr instanceof SQLNullExpr) {
-            return new Tuple<>(name, def(name, "1"));
-        }
-        if (isProperty(expr)) {
-            return new Tuple<>(name, def(name, doc(expr) + ".size()==0 ? 1 : 0"));
-        }
-        // cases that return 1:
-        // expr is null || expr is math func but tends to throw "divided by zero" arithmetic exception
-        String resultStr = "0";
-        if (Strings.isNullOrEmpty(expr.toString())) {
-            resultStr = "1";
-        }
-        if (expr instanceof SQLCharExpr && this.generatedIds.size() > 1) {
-            // the expr is a math expression
-            String mathExpr = ((SQLCharExpr) expr).getText();
-            return new Tuple<>(name, StringUtils.format(
-                    "try {%s;} "
-                            + "catch(ArithmeticException e) "
-                            + "{return 1;} "
-                            + "def %s=0",
-                    mathExpr, name, name)
-            );
-        }
-        return new Tuple<>(name, def(name, resultStr));
+
+        return new Tuple<>(name, scriptDeclare(expr) + def(name,
+                StringUtils.format("(%s ? 1 : 0)", checkIfNull(expr))));
     }
 
     public String getCastScriptStatement(String name, String castType, List<KVValue> paramers)
             throws SqlParseException {
-        String castFieldName = String.format("doc['%s'].value", paramers.get(0).toString());
+        SQLExpr expr = (SQLExpr) paramers.get(0).value;
+        String castFieldName = (expr instanceof SQLTextLiteralExpr ? getPropertyOrStringValue(expr)
+                : getPropertyOrValue(expr));
+
+        scriptDeclare(expr);
+
         switch (StringUtils.toUpper(castType)) {
             case "INT":
             case "LONG":

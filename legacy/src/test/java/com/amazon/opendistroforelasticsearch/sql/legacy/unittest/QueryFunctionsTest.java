@@ -218,7 +218,7 @@ public class QueryFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "boolean cond = doc['age'].value > 35;"
+                        "boolean cond = ((doc['age'].size() == 0 ? null : doc['age'].value) > 35);"
                 )
         );
     }
@@ -230,7 +230,7 @@ public class QueryFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "boolean cond = doc['age'].value == 35;"
+                        "boolean cond = ((doc['age'].size() == 0 ? null : doc['age'].value) == 35);"
                 )
         );
     }
@@ -242,7 +242,7 @@ public class QueryFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "boolean cond = 1 == 2;"
+                        "boolean cond = (1 == 2);"
                 )
         );
     }
@@ -254,7 +254,7 @@ public class QueryFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "doc['lastname'].size()==0"
+                        "doc['lastname'].size() == 0"
                 )
         );
     }
@@ -266,7 +266,7 @@ public class QueryFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "catch(ArithmeticException e)"
+                        "add_1 == null"
                 )
         );
 

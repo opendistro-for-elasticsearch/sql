@@ -50,8 +50,10 @@ public enum ScalarFunction implements TypeExpression {
     CURDATE(func().to(ESDataType.DATE)),
     DATE(func(ESDataType.DATE).to(ESDataType.DATE)),
     DATE_FORMAT(
-        func(ESDataType.DATE, STRING).to(STRING),
-        func(ESDataType.DATE, STRING, STRING).to(STRING)
+            func(ESDataType.DATE, STRING).to(STRING),
+            func(ESDataType.DATE, STRING, STRING).to(STRING),
+            func(T(STRING), STRING).to(STRING),
+            func(T(STRING), STRING, STRING).to(STRING)
     ),
     DAYOFMONTH(func(ESDataType.DATE).to(INTEGER)),
     DEGREES(func(T(NUMBER)).to(DOUBLE)),

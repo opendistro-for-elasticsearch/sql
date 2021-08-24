@@ -40,7 +40,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.abs(doc['age'].value)"));
+                        "Math.abs((doc['age'].size() == 0 ? null : doc['age'].value))"));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.abs(doc['age'].value)"));
+                        "Math.abs((doc['age'].size() == 0 ? null : doc['age'].value))"));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.sqrt(doc['age'].value)"));
+                        "Math.sqrt((doc['age'].size() == 0 ? null : doc['age'].value))"));
         assertTrue(
                 CheckScriptContents.scriptHasPattern(
                         scriptFilter,
@@ -79,7 +79,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.sqrt(doc['age'].value)"));
+                        "Math.sqrt((doc['age'].size() == 0 ? null : doc['age'].value))"));
         assertTrue(
                 CheckScriptContents.scriptHasPattern(
                         scriptFilter,
@@ -151,7 +151,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.expm1(doc['age'].value)"));
+                        "Math.expm1((doc['age'].size() == 0 ? null : doc['age'].value))"));
         assertTrue(
                 CheckScriptContents.scriptHasPattern(
                         scriptFilter,
@@ -184,7 +184,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.toDegrees(doc['age'].value)"));
+                        "Math.toDegrees((doc['age'].size() == 0 ? null : doc['age'].value))"));
     }
 
     @Test
@@ -206,7 +206,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.toRadians(doc['age'].value)"));
+                        "Math.toRadians((doc['age'].size() == 0 ? null : doc['age'].value))"));
     }
 
     @Test
@@ -228,7 +228,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.toRadians(doc['age'].value)"));
+                        "Math.toRadians((doc['age'].size() == 0 ? null : doc['age'].value))"));
         assertTrue(
                 CheckScriptContents.scriptHasPattern(
                         scriptField,
@@ -258,7 +258,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.atan(doc['age'].value)"));
+                        "Math.atan((doc['age'].size() == 0 ? null : doc['age'].value))"));
     }
 
     @Test
@@ -299,7 +299,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.cosh(doc['age'].value)"));
+                        "Math.cosh((doc['age'].size() == 0 ? null : doc['age'].value))"));
     }
 
     @Test
@@ -320,13 +320,13 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.pow(doc['age'].value, 2)"));
+                        "Math.pow((doc['age'].size() == 0 ? null : doc['age'].value), 2)"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.pow(doc['balance'].value, 3)"));
+                        "Math.pow((doc['balance'].size() == 0 ? null : doc['balance'].value), 3)"));
     }
 
     @Test
@@ -336,13 +336,13 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.atan2(doc['age'].value, 2)"));
+                        "Math.atan2((doc['age'].size() == 0 ? null : doc['age'].value), 2)"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.atan2(doc['balance'].value, 3)"));
+                        "Math.atan2((doc['balance'].size() == 0 ? null : doc['balance'].value), 3)"));
     }
 
     @Test
@@ -352,13 +352,13 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "1 / Math.tan(doc['age'].value)"));
+                        "1 / Math.tan((doc['age'].size() == 0 ? null : doc['age'].value))"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "1 / Math.tan(doc['balance'].value)"));
+                        "1 / Math.tan((doc['balance'].size() == 0 ? null : doc['balance'].value))"));
     }
 
     @Test
@@ -367,13 +367,13 @@ public class MathFunctionsTest {
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         assertTrue(CheckScriptContents.scriptContainsString(
                 scriptField,
-                "Math.signum(doc['age'].value)"));
+                "Math.signum((doc['age'].size() == 0 ? null : doc['age'].value))"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.signum(doc['balance'].value)"));
+                        "Math.signum((doc['balance'].size() == 0 ? null : doc['balance'].value))"));
     }
 
     @Test
@@ -383,13 +383,13 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.log(doc['age'].value)"));
+                        "Math.log((doc['age'].size() == 0 ? null : doc['age'].value))"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.log(doc['age'].value)"));
+                        "Math.log((doc['age'].size() == 0 ? null : doc['age'].value))"));
     }
 
     @Test
@@ -399,13 +399,13 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.log(doc['age'].value)/Math.log(3)"));
+                        "Math.log((doc['age'].size() == 0 ? null : doc['age'].value))/Math.log(3)"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.log(doc['age'].value)/Math.log(3)"));
+                        "Math.log((doc['age'].size() == 0 ? null : doc['age'].value))/Math.log(3)"));
     }
 
     @Test
@@ -415,7 +415,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.log10(doc['age'].value)"
+                        "Math.log10((doc['age'].size() == 0 ? null : doc['age'].value))"
                 )
         );
     }
@@ -427,13 +427,13 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.log(doc['age'].value)"));
+                        "Math.log((doc['age'].size() == 0 ? null : doc['age'].value))"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Math.log(doc['age'].value)"));
+                        "Math.log((doc['age'].size() == 0 ? null : doc['age'].value))"));
     }
 
     @Test
@@ -455,7 +455,7 @@ public class MathFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "new Random(doc['age'].value).nextDouble()"
+                        "new Random((doc['age'].size() == 0 ? null : doc['age'].value)).nextDouble()"
                 )
         );
     }
