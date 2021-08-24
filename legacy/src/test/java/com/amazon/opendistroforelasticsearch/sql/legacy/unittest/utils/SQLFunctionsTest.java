@@ -102,11 +102,11 @@ public class SQLFunctionsTest {
     @Test
     public void testCastIntStatementScript() throws SqlParseException {
         assertEquals(
-            "def result = (doc['age'].value instanceof boolean) "
-                + "? (doc['age'].value ? 1 : 0) "
-                + ": Double.parseDouble(doc['age'].value.toString()).intValue()",
+            "def result = ((doc['age'].size() == 0 ? null : doc['age'].value) instanceof boolean) "
+                + "? ((doc['age'].size() == 0 ? null : doc['age'].value) ? 1 : 0) "
+                + ": Double.parseDouble((doc['age'].size() == 0 ? null : doc['age'].value).toString()).intValue()",
             sqlFunctions.getCastScriptStatement(
-                "result", "int", Arrays.asList(new KVValue("age")))
+                "result", "int", Arrays.asList(new KVValue(new SQLIdentifierExpr("age"))))
         );
     }
 

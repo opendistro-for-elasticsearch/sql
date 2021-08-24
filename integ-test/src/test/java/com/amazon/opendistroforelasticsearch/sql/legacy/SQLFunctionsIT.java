@@ -890,7 +890,20 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
             rows("duke"),
             rows("hattie"),
             rows("nanette"));
-    }
+  }
+
+  @Test
+  public void complexNestedFunctions() throws Exception {
+    JSONObject response =
+            executeJdbcRequest("SELECT if(greatest(account_number / 2, age - 2) = 34, "
+                    + "concat_ws(' ', firstname, lastname), 0) "
+                    + "FROM " + TEST_INDEX_ACCOUNT + " LIMIT 3");
+
+    verifyDataRows(response,
+            rows(0),
+            rows("hattie bond"),
+            rows(0));
+  }
 
   private SearchHits query(String query) throws IOException {
     final String rsp = executeQueryWithStringOutput(query);
