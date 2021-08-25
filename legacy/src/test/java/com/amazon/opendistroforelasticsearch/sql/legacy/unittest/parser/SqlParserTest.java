@@ -92,8 +92,7 @@ public class SqlParserTest {
         Assert.assertTrue(((Condition) (where.getWheres().get(0))).getValue() instanceof ScriptFilter);
         ScriptFilter scriptFilter = (ScriptFilter) (((Condition) (where.getWheres().get(0))).getValue());
 
-        Assert.assertTrue(scriptFilter.getScript().contains(
-                "(doc['address'].size() == 0 ? null : doc['address'].value).split(' ')[0]"));
+        Assert.assertTrue(scriptFilter.getScript().contains("doc['address'].value.split(' ')[0]"));
         Pattern pattern = Pattern.compile("floor_\\d+ > doc\\['b'].value");
         java.util.regex.Matcher matcher = pattern.matcher(scriptFilter.getScript());
         Assert.assertTrue(matcher.find());
@@ -177,8 +176,7 @@ public class SqlParserTest {
         Assert.assertTrue((where.getWheres().size() == 1));
         Assert.assertTrue(((Condition) (where.getWheres().get(0))).getValue() instanceof ScriptFilter);
         ScriptFilter scriptFilter = (ScriptFilter) (((Condition) (where.getWheres().get(0))).getValue());
-        Assert.assertTrue(scriptFilter.getScript().contains(
-                "(doc['address'].size() == 0 ? null : doc['address'].value).split(' ')[0]"));
+        Assert.assertTrue(scriptFilter.getScript().contains("doc['address'].value.split(' ')[0]"));
         Pattern pattern = Pattern.compile("floor_\\d+ == floor_\\d+");
         java.util.regex.Matcher matcher = pattern.matcher(scriptFilter.getScript());
         Assert.assertTrue(matcher.find());
@@ -655,8 +653,7 @@ public class SqlParserTest {
         MethodField scriptMethod = (MethodField) field;
         Assert.assertEquals("script", scriptMethod.getName().toLowerCase());
         Assert.assertEquals(2, scriptMethod.getParams().size());
-        Assert.assertTrue(scriptMethod.getParams().get(1).toString().contains(
-                "(doc['field1'].size() == 0 ? null : doc['field1'].value) + 3"));
+        Assert.assertTrue(scriptMethod.getParams().get(1).toString().contains("doc['field1'].value + 3"));
     }
 
     @Test
@@ -672,8 +669,7 @@ public class SqlParserTest {
         Assert.assertEquals("script", scriptMethod.getName().toLowerCase());
         Assert.assertEquals(2, scriptMethod.getParams().size());
         Assert.assertTrue(scriptMethod.getParams().get(1).toString()
-                .contains("(doc['field1'].size() == 0 ? null : doc['field1'].value) "
-                        + "+ (doc['field2'].size() == 0 ? null : doc['field2'].value)"));
+                .contains("doc['field1'].value + doc['field2'].value"));
     }
 
 
@@ -725,7 +721,9 @@ public class SqlParserTest {
         MethodField avgMethodField = (MethodField) field;
         Assert.assertEquals("avg", avgMethodField.getName().toLowerCase());
         Assert.assertEquals(1, avgMethodField.getParams().size());
-        Assert.assertTrue(avgMethodField.getParams().get(0).value.toString().contains("add_1"));
+        Assert.assertTrue(avgMethodField.getParams().get(0).value.toString().contains("doc['field1'].value"));
+        Assert.assertTrue(avgMethodField.getParams().get(0).value.toString().contains("doc['field2'].value"));
+
     }
 
     @Test
@@ -1208,7 +1206,7 @@ public class SqlParserTest {
         Assert.assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "(doc['weather'].size() == 0 ? null : doc['weather'].value)=='Sunny'"
+                        "doc['weather'].value=='Sunny'"
                 )
         );
     }
@@ -1227,9 +1225,8 @@ public class SqlParserTest {
         String alias = (String) methodField.getParams().get(0).value;
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_age",alias);
-        Assert.assertTrue(scriptCode.contains("(doc['age'].size() == 0 ? null : doc['age'].value)"));
-        Assert.assertTrue(scriptCode.contains("Double.parseDouble((doc['age'].size() == 0 "
-                + "? null : doc['age'].value).toString()).intValue()"));
+        Assert.assertTrue(scriptCode.contains("doc['age'].value"));
+        Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).intValue()"));
     }
 
     @Test
@@ -1246,9 +1243,8 @@ public class SqlParserTest {
         String alias = (String) methodField.getParams().get(0).value;
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_insert_time",alias);
-        Assert.assertTrue(scriptCode.contains("(doc['insert_time'].size() == 0 ? null : doc['insert_time'].value)"));
-        Assert.assertTrue(scriptCode.contains("Double.parseDouble((doc['insert_time'].size() == 0 "
-                + "? null : doc['insert_time'].value).toString()).longValue()"));
+        Assert.assertTrue(scriptCode.contains("doc['insert_time'].value"));
+        Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['insert_time'].value.toString()).longValue()"));
     }
 
     @Test
@@ -1265,9 +1261,8 @@ public class SqlParserTest {
         String alias = (String) methodField.getParams().get(0).value;
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_age",alias);
-        Assert.assertTrue(scriptCode.contains("(doc['age'].size() == 0 ? null : doc['age'].value)"));
-        Assert.assertTrue(scriptCode.contains("Double.parseDouble((doc['age'].size() == 0 "
-                + "? null : doc['age'].value).toString()).floatValue()"));
+        Assert.assertTrue(scriptCode.contains("doc['age'].value"));
+        Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).floatValue()"));
     }
 
     @Test
@@ -1284,9 +1279,8 @@ public class SqlParserTest {
         String alias = (String) methodField.getParams().get(0).value;
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_age",alias);
-        Assert.assertTrue(scriptCode.contains("(doc['age'].size() == 0 ? null : doc['age'].value)"));
-        Assert.assertTrue(scriptCode.contains("Double.parseDouble((doc['age'].size() == 0 "
-                + "? null : doc['age'].value).toString()).doubleValue()"));
+        Assert.assertTrue(scriptCode.contains("doc['age'].value"));
+        Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).doubleValue()"));
     }
 
     @Test
@@ -1303,7 +1297,7 @@ public class SqlParserTest {
         String alias = (String) methodField.getParams().get(0).value;
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_age",alias);
-        Assert.assertTrue(scriptCode.contains("(doc['age'].size() == 0 ? null : doc['age'].value).toString()"));
+        Assert.assertTrue(scriptCode.contains("doc['age'].value.toString()"));
     }
 
     @Test
@@ -1320,10 +1314,9 @@ public class SqlParserTest {
         String alias = (String) methodField.getParams().get(0).value;
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_age",alias);
-        Assert.assertTrue(scriptCode.contains("(doc['age'].size() == 0 ? null : doc['age'].value)"));
+        Assert.assertTrue(scriptCode.contains("doc['age'].value"));
         Assert.assertTrue(scriptCode.contains("DateTimeFormatter.ofPattern(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\").format("
-                + "DateTimeFormatter.ISO_DATE_TIME.parse((doc['age'].size() == 0 "
-                + "? null : doc['age'].value).toString()))"));
+                + "DateTimeFormatter.ISO_DATE_TIME.parse(doc['age'].value.toString()))"));
     }
 
     @Test
@@ -1338,9 +1331,8 @@ public class SqlParserTest {
         Assert.assertEquals("script",castField.getName());
 
         String scriptCode = (String) methodField.getParams().get(1).value;
-        Assert.assertTrue(scriptCode.contains("(doc['age'].size() == 0 ? null : doc['age'].value)"));
-        Assert.assertTrue(scriptCode.contains("Double.parseDouble((doc['age'].size() == 0 "
-                + "? null : doc['age'].value).toString()).doubleValue()"));
+        Assert.assertTrue(scriptCode.contains("doc['age'].value"));
+        Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).doubleValue()"));
         Assert.assertTrue(scriptCode.contains("/ 2"));
     }
 

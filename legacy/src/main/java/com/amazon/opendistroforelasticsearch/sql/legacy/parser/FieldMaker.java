@@ -321,7 +321,15 @@ public class FieldMaker {
                             new SQLDefinitionExpr(varName, mField.getParams().get(1).toString())
                     ));
                 } else {
-                    paramers.add(new KVValue("script", makeScriptMethodField(binaryOpExpr, null, tableAlias)));
+                    if (!SQLFunctions.isFunctionTranslatedToScript(name)
+                            && binaryOpExpr.getOperator().getName().equals("=")) {
+                        paramers.add(new KVValue(
+                                binaryOpExpr.getLeft().toString(),
+                                Util.expr2Object(binaryOpExpr.getRight())
+                        ));
+                    } else {
+                        paramers.add(new KVValue("script", makeScriptMethodField(binaryOpExpr, null, tableAlias)));
+                    }
                 }
 
             } else if (object instanceof SQLMethodInvokeExpr) {
@@ -421,7 +429,7 @@ public class FieldMaker {
             List<KVValue> tempParamers = new LinkedList<>();
             for (KVValue temp : paramers) {
                 if (temp.value instanceof SQLExpr) {
-                    tempParamers.add(new KVValue(temp.key, Util.expr2Object((SQLExpr) temp.value)));
+                    tempParamers.add(new KVValue(temp.key, Util.expr2ObjectOrDefinition((SQLExpr) temp.value)));
                 } else {
                     tempParamers.add(new KVValue(temp.key, temp.value));
                 }

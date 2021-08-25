@@ -623,10 +623,20 @@ public class SQLFunctions {
 
     private Tuple<String, String> binaryOpertator(String methodName, String operator, SQLExpr a, SQLExpr b) {
         String name = nextId(methodName);
-        return new Tuple<>(name,
-                scriptDeclare(a) + scriptDeclare(b) + convertType(a) + convertType(b)
-                        + def(name,
-                        getPropertyOrValue(a) + " " + operator + " " + getPropertyOrValue(b)));
+
+        if (methodName.equals("divide") || methodName.equals("modulus")) {
+            return new Tuple<>(name,
+                    scriptDeclare(a) + scriptDeclare(b) + convertType(a) + convertType(b)
+                            + def(name, StringUtils.format("((%2$s == 0 || %4$s || %5$s) ? null : %1$s %3$s %2$s)",
+                                    getPropertyOrValue(a), getPropertyOrValue(b), operator,
+                                    checkIfNull(a), checkIfNull(b))));
+        } else {
+            return new Tuple<>(name,
+                    scriptDeclare(a) + scriptDeclare(b) + convertType(a) + convertType(b)
+                            + def(name, StringUtils.format("((%4$s || %5$s) ? null : %1$s %3$s %2$s)",
+                                    getPropertyOrValue(a), getPropertyOrValue(b), operator,
+                                    checkIfNull(a), checkIfNull(b))));
+        }
     }
 
     private Tuple<String, String> greatest(SQLExpr a, SQLExpr b) {
@@ -660,7 +670,7 @@ public class SQLFunctions {
 
         String definition = scriptDeclare(a) + scriptDeclare(b)
                 + "def " + name + ";"
-                + String.format("if (%s) {%s = %s;} ", checkIfNull(a), name, value_b)
+                + String.format("if (%s) {%s = ((%s) ? null : %s);} ", checkIfNull(a), name, checkIfNull(b), value_b)
                 + String.format("else if (%s) {%s = %s;} ", checkIfNull(b), name, value_a)
                 + "else {";
 
@@ -693,7 +703,7 @@ public class SQLFunctions {
         } else if (expr instanceof SQLNullExpr) {
             return "null";
         } else if (isProperty(expr)) {
-            return StringUtils.format("(%s.size() == 0 ? null : %s.value)", doc(expr), doc(expr));
+            return doc(expr) + ".value";
         } else {
             return exprString(expr);
         }
@@ -705,7 +715,7 @@ public class SQLFunctions {
         } else if (StringUtils.isNumeric(expr)) {
             return expr;
         } else {
-            return StringUtils.format("(%s.size() == 0 ? null : %s.value)", doc(expr), doc(expr));
+            return doc(expr) + ".value";
         }
     }
 
@@ -782,7 +792,7 @@ public class SQLFunctions {
     public Tuple<String, String> ln(SQLExpr field) {
         String name = nextId("ln");
         return new Tuple<>(name, scriptDeclare(field)
-                + StringUtils.format("Math.log(%s)", getPropertyOrValue(field)));
+                + def(name, StringUtils.format("Math.log(%s)", getPropertyOrValue(field))));
     }
 
     public Tuple<String, String> trim(SQLExpr field) {
@@ -1007,9 +1017,11 @@ public class SQLFunctions {
 
         return new Tuple<>(name, scriptDeclare(condition) + scriptDeclare(expr)
                 + def(name, StringUtils.format(
-                        "(%s ? %s : null)",
+                        "((%s) ? %s : %s)",
                         checkIfNull(condition),
-                        (expr instanceof SQLTextLiteralExpr ? getPropertyOrStringValue(expr) : getPropertyOrValue(expr))
+                        getPropertyOrStringValue(expr),
+                        condition instanceof SQLExpr ? getPropertyOrStringValue((SQLExpr) condition)
+                                : condition.toString()
         )));
     }
 
@@ -1017,7 +1029,7 @@ public class SQLFunctions {
         String name = nextId("isnull");
 
         return new Tuple<>(name, scriptDeclare(expr) + def(name,
-                StringUtils.format("(%s ? 1 : 0)", checkIfNull(expr))));
+                StringUtils.format("((%s) ? 1 : 0)", checkIfNull(expr))));
     }
 
     public String getCastScriptStatement(String name, String castType, List<KVValue> paramers)

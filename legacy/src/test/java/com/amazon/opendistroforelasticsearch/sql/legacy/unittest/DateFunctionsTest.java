@@ -154,8 +154,8 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "LocalDate.parse((doc['creationDate'].size() == 0 "
-                                + "? null : doc['creationDate'].value).toString()"));
+                        "LocalDate.parse(doc['creationDate'].value.toString(), "
+                                + "DateTimeFormatter.ISO_DATE_TIME)"));
     }
 
     @Test
