@@ -218,7 +218,7 @@ public class QueryFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "boolean cond = ((doc['age'].size() == 0 ? null : doc['age'].value) > 35);"
+                        "boolean cond = (doc['age'].value > 35);"
                 )
         );
     }
@@ -230,7 +230,7 @@ public class QueryFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "boolean cond = ((doc['age'].size() == 0 ? null : doc['age'].value) == 35);"
+                        "boolean cond = (doc['age'].value == 35);"
                 )
         );
     }

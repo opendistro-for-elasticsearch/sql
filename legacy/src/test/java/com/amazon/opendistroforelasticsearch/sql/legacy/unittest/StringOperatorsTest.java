@@ -40,13 +40,13 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).substring(1, end)"));
+                        "doc['lastname'].value.substring(1, end)"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).substring(1, end)"
+                        "doc['lastname'].value.substring(1, end)"
                 )
         );
     }
@@ -72,7 +72,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).length()"
+                        "doc['lastname'].value.length()"
                 )
         );
 
@@ -80,7 +80,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).length()"
+                        "doc['lastname'].value.length()"
                 )
         );
     }
@@ -94,7 +94,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).replace('a','A')"
+                        "doc['lastname'].value.replace('a','A')"
                 )
         );
 
@@ -102,7 +102,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).replace('a','A')"
+                        "doc['lastname'].value.replace('a','A')"
                 )
         );
     }
@@ -116,7 +116,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).indexOf('a', 0) + 1"
+                        "doc['lastname'].value.indexOf('a', 0) + 1"
                 )
         );
 
@@ -124,7 +124,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).indexOf('a', 0) + 1"
+                        "doc['lastname'].value.indexOf('a', 0) + 1"
                 )
         );
     }
@@ -138,8 +138,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Character.isWhitespace((doc['lastname'].size() == 0 "
-                                + "? null : doc['lastname'].value).charAt(pos))"
+                        "Character.isWhitespace(doc['lastname'].value.charAt(pos))"
                 )
         );
 
@@ -147,8 +146,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Character.isWhitespace((doc['lastname'].size() == 0 "
-                                + "? null : doc['lastname'].value).charAt(pos))"
+                        "Character.isWhitespace(doc['lastname'].value.charAt(pos))"
                 )
         );
     }
@@ -162,8 +160,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Character.isWhitespace((doc['lastname'].size() == 0 "
-                                + "? null : doc['lastname'].value).charAt(pos))"
+                        "Character.isWhitespace(doc['lastname'].value.charAt(pos))"
                 )
         );
 
@@ -171,8 +168,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "Character.isWhitespace((doc['lastname'].size() == 0 "
-                                + "? null : doc['lastname'].value).charAt(pos))"
+                        "Character.isWhitespace(doc['lastname'].value.charAt(pos))"
                 )
         );
     }
@@ -186,7 +182,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "(int) (doc['lastname'].size() == 0 ? null : doc['lastname'].value).charAt(0)"
+                        "(int) doc['lastname'].value.charAt(0)"
                 )
         );
 
@@ -194,7 +190,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "(int) (doc['lastname'].size() == 0 ? null : doc['lastname'].value).charAt(0)"
+                        "(int) doc['lastname'].value.charAt(0)"
                 )
         );
     }
@@ -206,7 +202,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).substring(0, len)"
+                        "doc['lastname'].value.substring(0, len)"
                 )
         );
     }
@@ -218,7 +214,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "(doc['lastname'].size() == 0 ? null : doc['lastname'].value).substring(start)"
+                        "doc['lastname'].value.substring(start)"
                 )
         );
     }
