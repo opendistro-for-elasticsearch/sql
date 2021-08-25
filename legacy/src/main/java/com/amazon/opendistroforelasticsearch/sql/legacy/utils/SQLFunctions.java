@@ -1034,9 +1034,13 @@ public class SQLFunctions {
 
     public String getCastScriptStatement(String name, String castType, List<KVValue> paramers)
             throws SqlParseException {
-        SQLExpr expr = (SQLExpr) paramers.get(0).value;
-        String castFieldName = (expr instanceof SQLTextLiteralExpr ? getPropertyOrStringValue(expr)
-                : getPropertyOrValue(expr));
+        Object expr = paramers.get(0).value;
+        String castFieldName;
+        if (expr instanceof String) {
+            castFieldName = getPropertyOrValue((String) expr);
+        } else {
+            castFieldName = getPropertyOrValue((SQLExpr) expr);
+        }
 
         scriptDeclare(expr);
 
