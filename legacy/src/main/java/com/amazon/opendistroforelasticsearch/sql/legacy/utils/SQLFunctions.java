@@ -653,10 +653,8 @@ public class SQLFunctions {
 
     private Tuple<String, String> comparisonFunctionTemplate(SQLExpr a, SQLExpr b,
                                                              String name, String comparisonOperator) {
-        String value_a = (a instanceof SQLTextLiteralExpr
-                ? getPropertyOrStringValue(a) : getPropertyOrValue(a));
-        String value_b = (b instanceof SQLTextLiteralExpr
-                ? getPropertyOrStringValue(b) : getPropertyOrValue(b));
+        String value_a = getPropertyOrStringValue(a);
+        String value_b = getPropertyOrStringValue(b);
 
         String nameString_a = nextId("string_a");
         String nameString_b = nextId("string_b");
@@ -674,7 +672,7 @@ public class SQLFunctions {
                 + String.format("else if (%s) {%s = %s;} ", checkIfNull(b), name, value_a)
                 + "else {";
 
-        if (isProperty(a) && isProperty(b)) {
+        if (isPropertyOrDefinition(a) && isPropertyOrDefinition(b)) {
             definition += String.format("if (%s instanceof Number) {", value_a)
                     + numberComparison
                     + "} else {"
@@ -695,6 +693,13 @@ public class SQLFunctions {
         return (expr instanceof SQLIdentifierExpr
                 || expr instanceof SQLPropertyExpr
                 || expr instanceof SQLVariantRefExpr);
+    }
+
+    private static boolean isPropertyOrDefinition(SQLExpr expr) {
+        return (expr instanceof SQLIdentifierExpr
+                || expr instanceof SQLPropertyExpr
+                || expr instanceof SQLVariantRefExpr
+                || expr instanceof SQLDefinitionExpr);
     }
 
     private static String getPropertyOrValue(SQLExpr expr) {
