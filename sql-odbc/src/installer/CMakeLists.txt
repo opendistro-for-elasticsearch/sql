@@ -53,8 +53,7 @@ else()
     set(CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA_ALIGNMENT "bottomleft")
     set(CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA_SCALING "none")
 
-    # CPack doesn't allow extensionless licenses, need to make a copy with an extension, .txt is appropriate
-    configure_file("${PROJECT_ROOT}/LICENSE" "${PROJECT_ROOT}/LICENSE.txt" COPYONLY)
+    # Add LICENSE.txt to installer
     set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_ROOT}/LICENSE.txt")
     set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/Resources/README.txt")
     set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Welcome.txt")
@@ -85,7 +84,7 @@ install(TARGETS odfesqlodbc DESTINATION bin COMPONENT "Driver")
 
 # Install documentation files
 install(FILES "${PROJECT_ROOT}/README.md" DESTINATION doc COMPONENT "Docs")
-install(FILES "${PROJECT_ROOT}/LICENSE" DESTINATION doc COMPONENT "Docs")
+install(FILES "${PROJECT_ROOT}/LICENSE.txt" DESTINATION doc COMPONENT "Docs")
 install(FILES "${PROJECT_ROOT}/THIRD-PARTY" DESTINATION doc COMPONENT "Docs")
 
 # Install resource files
