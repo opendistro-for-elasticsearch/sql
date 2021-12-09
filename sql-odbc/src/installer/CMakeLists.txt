@@ -32,8 +32,7 @@ if(WIN32)
     # This XML file is used for registry setup
     set(CPACK_WIX_PATCH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/patch.xml")
 
-    # CPack doesn't allow extensionless licenses, need to make a copy with an extension, .txt is appropriate
-    configure_file("${PROJECT_ROOT}/LICENSE" "${PROJECT_ROOT}/LICENSE.txt" COPYONLY)
+    # Add LICENSE.txt to installer
     set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_ROOT}/LICENSE.txt")
 else()
     set(CPACK_GENERATOR "productbuild")
