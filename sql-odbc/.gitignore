@@ -59,6 +59,6 @@ CTestTestfile.cmake
 /sdk-build64/
 /cmake-build32/
 /cmake-build64/
-/src/PowerBIConnector/bin/Debug/
-/src/PowerBIConnector/obj/
-/src/PowerBIConnector/.vs/
+/bi-connectors/PowerBIConnector/bin/Debug/
+/bi-connectors/PowerBIConnector/obj/
+/bi-connectors/PowerBIConnector/.vs/
