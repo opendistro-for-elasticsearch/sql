@@ -1,18 +1,3 @@
-#
-#   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-#
-#   Licensed under the Apache License, Version 2.0 (the "License").
-#   You may not use this file except in compliance with the License.
-#   A copy of the License is located at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#   or in the "license" file accompanying this file. This file is distributed
-#   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
-#   express or implied. See the License for the specific language governing
-#   permissions and limitations under the License.
-#
-
 include(InstallRequiredSystemLibraries)
 include(CPackComponent)
 
@@ -47,8 +32,7 @@ if(WIN32)
     # This XML file is used for registry setup
     set(CPACK_WIX_PATCH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/patch.xml")
 
-    # CPack doesn't allow extensionless licenses, need to make a copy with an extension, .txt is appropriate
-    configure_file("${PROJECT_ROOT}/LICENSE" "${PROJECT_ROOT}/LICENSE.txt" COPYONLY)
+    # Add LICENSE.txt to installer
     set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_ROOT}/LICENSE.txt")
 else()
     set(CPACK_GENERATOR "productbuild")
@@ -69,8 +53,7 @@ else()
     set(CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA_ALIGNMENT "bottomleft")
     set(CPACK_PRODUCTBUILD_BACKGROUND_DARKAQUA_SCALING "none")
 
-    # CPack doesn't allow extensionless licenses, need to make a copy with an extension, .txt is appropriate
-    configure_file("${PROJECT_ROOT}/LICENSE" "${PROJECT_ROOT}/LICENSE.txt" COPYONLY)
+    # Add LICENSE.txt to installer
     set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_ROOT}/LICENSE.txt")
     set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/Resources/README.txt")
     set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Welcome.txt")
@@ -101,7 +84,7 @@ install(TARGETS odfesqlodbc DESTINATION bin COMPONENT "Driver")
 
 # Install documentation files
 install(FILES "${PROJECT_ROOT}/README.md" DESTINATION doc COMPONENT "Docs")
-install(FILES "${PROJECT_ROOT}/LICENSE" DESTINATION doc COMPONENT "Docs")
+install(FILES "${PROJECT_ROOT}/LICENSE.txt" DESTINATION doc COMPONENT "Docs")
 install(FILES "${PROJECT_ROOT}/THIRD-PARTY" DESTINATION doc COMPONENT "Docs")
 
 # Install resource files
