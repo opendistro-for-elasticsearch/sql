@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.legacy.utils;
 import org.apache.logging.log4j.ThreadContext;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -29,6 +30,8 @@ public class LogUtils {
      * The key of the request id in the context map
      */
     private static final String REQUEST_ID_KEY = "request_id";
+
+    private static final String EMPTY_ID = "ID";
 
     /**
      * Generates a random UUID and adds to the {@link ThreadContext} as the request id.
@@ -48,13 +51,7 @@ public class LogUtils {
      * @return the current request id from {@link ThreadContext}
      */
     public static String getRequestId() {
-
-        final String requestId = ThreadContext.get(REQUEST_ID_KEY);
-        if (requestId == null) {
-            throw new IllegalStateException("Request id not present in current context");
-        }
-
-        return requestId;
+        return Optional.ofNullable(ThreadContext.get(REQUEST_ID_KEY)).orElseGet(() -> EMPTY_ID);
     }
 
     /**
