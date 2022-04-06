@@ -56,10 +56,10 @@ public class LogUtilsTest {
         Assert.assertThat(requestId2, not(equalTo(requestId)));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void getRequestId_doesNotExist() {
 
-        LogUtils.getRequestId();
+        assertEquals("ID", LogUtils.getRequestId());
     }
 
     @Test

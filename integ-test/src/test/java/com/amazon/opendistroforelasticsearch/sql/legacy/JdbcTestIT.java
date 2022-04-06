@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.legacy;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
+import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -48,6 +49,26 @@ public class JdbcTestIT extends SQLIntegTestCase {
     assertThat(percentileRow.getDouble("50.0"), equalTo(33.5));
     assertThat(percentileRow.getDouble("75.0"), equalTo(36.5));
     assertThat(percentileRow.getDouble("99.9"), equalTo(39.0));
+  }
+
+  // https://github.com/opensearch-project/sql/issues/537
+  @Test
+  public void testSlowQuery() throws IOException {
+    // set slow log threshold = 0s
+    updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.query.slowlog", "0"));
+
+    JSONObject response = executeJdbcRequest(
+        "SELECT percentiles(age, 25.0, 50.0, 75.0, 99.9) age_percentiles " +
+            "FROM elasticsearch-sql_test_index_people");
+
+    assertThat(response.getJSONArray("datarows").length(), equalTo(1));
+    JSONObject percentileRow = (JSONObject) response.query("/datarows/0/0");
+    assertThat(percentileRow.getDouble("25.0"), equalTo(31.5));
+    assertThat(percentileRow.getDouble("50.0"), equalTo(33.5));
+    assertThat(percentileRow.getDouble("75.0"), equalTo(36.5));
+    assertThat(percentileRow.getDouble("99.9"), equalTo(39.0));
+
+    wipeAllClusterSettings();
   }
 
   public void testDateTimeInQuery() {
