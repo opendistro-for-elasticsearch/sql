@@ -28,8 +28,8 @@ dependencies {
     // https://github.com/google/guava/wiki/CVE-2018-10237
     implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     compile group: 'org.json', name: 'json', version:'20180813'
-    compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'
-    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context', version: '5.2.20.RELEASE'
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.20.RELEASE'
     compile project(':common')
     compile project(':core')
     compile project(':protocol')
