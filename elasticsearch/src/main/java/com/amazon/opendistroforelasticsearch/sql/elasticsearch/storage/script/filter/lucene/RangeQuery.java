@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.f
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -53,7 +54,24 @@ public class RangeQuery extends LuceneQuery {
       case GTE:
         return query.gte(value);
       default:
-        throw new IllegalStateException("Comparison is supported by range query: " + comparison);
+        throw new IllegalStateException(
+            "Comparison is not supported by range query or improper number of arguments for "
+                + comparison);
+    }
+  }
+
+  @Override
+  public QueryBuilder doBuild(String fieldName, ExprType fieldType, List<ExprValue> literals) {
+    Object minValue = literals.get(0).value();
+    Object maxValue = literals.get(1).value();
+    RangeQueryBuilder query = QueryBuilders.rangeQuery(fieldName);
+    switch (comparison) {
+      case BETWEEN:
+        return query.gte(minValue).lte(maxValue);
+      default:
+        throw new IllegalStateException(
+            "Comparison is not supported by range query or improper number of arguments for "
+                + comparison);
     }
   }
 

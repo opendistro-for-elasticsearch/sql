@@ -62,6 +62,7 @@ public class FilterQueryBuilder extends ExpressionNodeVisitor<QueryBuilder, Obje
           .put(BuiltinFunctionName.GREATER.getName(), new RangeQuery(Comparison.GT))
           .put(BuiltinFunctionName.LTE.getName(), new RangeQuery(Comparison.LTE))
           .put(BuiltinFunctionName.GTE.getName(), new RangeQuery(Comparison.GTE))
+          .put(BuiltinFunctionName.BETWEEN.getName(), new RangeQuery(Comparison.BETWEEN))
           .put(BuiltinFunctionName.LIKE.getName(), new WildcardQuery())
           .build();
 

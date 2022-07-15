@@ -16,11 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.script.filter.lucene.RangeQuery.Comparison;
+import java.util.Arrays;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -29,11 +32,17 @@ import org.junit.jupiter.api.Test;
 class RangeQueryTest {
 
   @Test
-  void should_throw_exception_for_unsupported_comparison() {
-    // Note that since we do switch check on enum comparison, this should'be impossible
+  void should_throw_exception_for_unsupported_comparison_or_incorrect_argument_number() {
     assertThrows(IllegalStateException.class, () ->
         new RangeQuery(Comparison.BETWEEN)
-            .doBuild("name", STRING, ExprValueUtils.stringValue("John")));
+            .doBuild("name", STRING, ExprValueUtils.stringValue("John")),
+        "Comparison is not supported by range query or improper number of arguments for BETWEEN");
+
+    assertThrows(IllegalStateException.class, () ->
+            new RangeQuery(Comparison.LT)
+                .doBuild("age", INTEGER, Arrays.asList(ExprValueUtils.integerValue(30),
+                    ExprValueUtils.integerValue(20))),
+        "Comparison is not supported by range query or improper number of arguments for LT");
   }
 
 }

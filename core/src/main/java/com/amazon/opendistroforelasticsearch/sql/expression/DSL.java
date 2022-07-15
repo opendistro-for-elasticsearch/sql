@@ -461,6 +461,14 @@ public class DSL {
     return function(BuiltinFunctionName.NOT_LIKE, expressions);
   }
 
+  public FunctionExpression between(Expression... expressions) {
+    return function(BuiltinFunctionName.BETWEEN, expressions);
+  }
+
+  public FunctionExpression not_between(Expression... expressions) {
+    return not(between(expressions));
+  }
+
   public Aggregator avg(Expression... expressions) {
     return aggregate(BuiltinFunctionName.AVG, expressions);
   }

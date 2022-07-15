@@ -15,9 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.AbstractExprNumberValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import java.sql.Timestamp;
 import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
 
@@ -99,4 +102,26 @@ public class OperatorUtils {
     regex.append('$');
     return regex.toString();
   }
+
+  /**
+   * BETWEEN ... AND ... operator util.
+   * Expression { expr BETWEEN min AND max } is to judge if min <= expr <= max.
+   */
+  public static ExprBooleanValue between(ExprValue expr, ExprValue min, ExprValue max) {
+    return ExprBooleanValue.of(isBetween(expr, min, max));
+  }
+
+  private static boolean isBetween(ExprValue expr, ExprValue min, ExprValue max) {
+    if (expr instanceof AbstractExprNumberValue) {
+      return  ((AbstractExprNumberValue) expr).compare(min) >= 0
+          && ((AbstractExprNumberValue) expr).compare(max) <= 0;
+    } else if (expr instanceof ExprStringValue) {
+      return ((ExprStringValue) expr).compare(min) >= 0
+          && ((ExprStringValue) expr).compare(max) <= 0;
+    } else {
+      return expr.compareTo(min) >= 0 && expr.compareTo(max) <= 0;
+    }
+  }
 }
+
+

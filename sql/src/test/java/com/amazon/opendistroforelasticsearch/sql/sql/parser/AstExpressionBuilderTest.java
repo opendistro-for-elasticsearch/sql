@@ -266,6 +266,22 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildBetweenPredicate() {
+    assertEquals(
+        function("between", intLiteral(1), intLiteral(0), intLiteral(2)),
+        buildExprAst("1 between 0 and 2")
+    );
+  }
+
+  @Test
+  public void canBuildNotBetweenPredicate() {
+    assertEquals(
+        function("not", function("between", intLiteral(1), intLiteral(0), intLiteral(2))),
+        buildExprAst("1 not between 0 and 2")
+    );
+  }
+
+  @Test
   public void canBuildLogicalExpression() {
     assertEquals(
         and(booleanLiteral(true), booleanLiteral(false)),
