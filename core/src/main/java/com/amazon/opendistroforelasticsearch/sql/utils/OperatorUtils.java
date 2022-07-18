@@ -15,8 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.AbstractExprNumberValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
@@ -98,5 +100,25 @@ public class OperatorUtils {
     }
     regex.append('$');
     return regex.toString();
+  }
+
+
+  /**
+   * IN (..., ...) operator util.
+   * Expression { expr IN (collection of values..) } is to judge
+   * if expr is contained in a given collection.
+   */
+  public static ExprBooleanValue in(ExprValue expr, ExprValue setOfValues) {
+    return ExprBooleanValue.of(isIn(expr, setOfValues));
+  }
+
+  private static boolean isIn(ExprValue expr, ExprValue setOfValues) {
+    if (expr instanceof AbstractExprNumberValue) {
+      return setOfValues.collectionValue().contains(expr.value());
+    } else if (expr instanceof ExprStringValue) {
+      return setOfValues.collectionValue().contains(expr.stringValue());
+    } else {
+      return setOfValues.collectionValue().contains(expr);
+    }
   }
 }

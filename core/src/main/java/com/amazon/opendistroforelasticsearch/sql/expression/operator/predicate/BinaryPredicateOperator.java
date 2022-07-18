@@ -19,9 +19,16 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DATETIME;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -63,6 +70,7 @@ public class BinaryPredicateOperator {
     repository.register(like());
     repository.register(notLike());
     repository.register(regexp());
+    repository.register(in());
   }
 
   /**
@@ -260,6 +268,26 @@ public class BinaryPredicateOperator {
             BOOLEAN,
             STRING,
             STRING));
+  }
+
+  private static FunctionResolver in() {
+    return FunctionDSL.define(BuiltinFunctionName.IN.getName(),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, INTEGER, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, STRING, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, LONG, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, FLOAT, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, DOUBLE, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, DATE, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, DATETIME, ARRAY),
+        FunctionDSL.impl(FunctionDSL.nullMissingHandling(OperatorUtils::in),
+            BOOLEAN, TIMESTAMP, ARRAY));
   }
 
   private static ExprValue lookupTableFunction(ExprValue arg1, ExprValue arg2,
