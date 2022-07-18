@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.utils.ExprDateFormatters;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -45,13 +46,21 @@ public class ExprTimestampValue extends AbstractExprValue {
   /**
    * todo. only support timestamp in format yyyy-MM-dd HH:mm:ss.
    */
-  private static final DateTimeFormatter FORMATTER_WITNOUT_NANO = DateTimeFormatter
+  private static final DateTimeFormatter FORMATTER_WITHOUT_NANO = DateTimeFormatter
       .ofPattern("yyyy-MM-dd HH:mm:ss");
+  private static final DateTimeFormatter FORMATTER_WITHOUT_TIME = DateTimeFormatter
+          .ofPattern("yyyy-MM-dd");
   private final Instant timestamp;
+
+  private String datetimeFormat = ALWAYS_INCLUDE_TIME;
 
   private static final DateTimeFormatter FORMATTER_VARIABLE_MICROS;
   private static final int MIN_FRACTION_SECONDS = 0;
   private static final int MAX_FRACTION_SECONDS = 6;
+
+  public static final String ALWAYS_INCLUDE_TIME = "always_include_time";
+  public static final String NEVER_INCLUDE_TIME = "never_include_time";
+  public static final String INCLUDE_TIME_WHEN_NONZERO = "include_time_when_nonzero";
 
   static {
     FORMATTER_VARIABLE_MICROS = new DateTimeFormatterBuilder()
@@ -69,7 +78,8 @@ public class ExprTimestampValue extends AbstractExprValue {
    */
   public ExprTimestampValue(String timestamp) {
     try {
-      this.timestamp = LocalDateTime.parse(timestamp, FORMATTER_VARIABLE_MICROS)
+      this.timestamp = LocalDateTime.parse(timestamp,
+          ExprDateFormatters.TOLERANT_PARSER_DATE_TIME_FORMATTER)
           .atZone(ZONE)
           .toInstant();
     } catch (DateTimeParseException e) {
@@ -81,9 +91,29 @@ public class ExprTimestampValue extends AbstractExprValue {
 
   @Override
   public String value() {
-    return timestamp.getNano() == 0 ? FORMATTER_WITNOUT_NANO.withZone(ZONE)
-        .format(timestamp.truncatedTo(ChronoUnit.SECONDS))
-        : FORMATTER_VARIABLE_MICROS.withZone(ZONE).format(timestamp);
+    switch (datetimeFormat) {
+      case NEVER_INCLUDE_TIME:
+        return valueWithoutTime();
+
+      case INCLUDE_TIME_WHEN_NONZERO:
+        LocalTime time = timeValue();
+        return (time.getHour() + time.getMinute() + time.getSecond() == 0)
+                ? valueWithoutTime() : valueWithTime();
+
+      case ALWAYS_INCLUDE_TIME:
+      default:
+        return valueWithTime();
+    }
+  }
+  
+  private String valueWithTime() {
+    return timestamp.getNano() == 0 ? FORMATTER_WITHOUT_NANO.withZone(ZONE)
+            .format(timestamp.truncatedTo(ChronoUnit.SECONDS))
+            : FORMATTER_VARIABLE_MICROS.withZone(ZONE).format(timestamp);
+  }
+  
+  private String valueWithoutTime() {
+    return FORMATTER_WITHOUT_TIME.withZone(ZONE).format(timestamp);
   }
 
   @Override
@@ -130,4 +160,9 @@ public class ExprTimestampValue extends AbstractExprValue {
   public int hashCode() {
     return Objects.hashCode(timestamp);
   }
+
+  public void setDatetimeFormat(String format) {
+    this.datetimeFormat = format;
+  }
+
 }

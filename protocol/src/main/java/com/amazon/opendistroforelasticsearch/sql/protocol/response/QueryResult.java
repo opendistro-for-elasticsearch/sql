@@ -16,8 +16,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.Schema.Column;
 import java.util.Collection;
@@ -73,6 +75,19 @@ public class QueryResult implements Iterable<Object[]> {
         .map(Map::values)
         .map(this::convertExprValuesToValues)
         .iterator();
+  }
+
+  /**
+   * Sets the date and time format for all inner elements of exprValues.
+   */
+  public void setDatetimeFormat(String datetimeFormat) {
+    for (ExprValue exprValue : exprValues) {
+      for (ExprValue v : ExprValueUtils.getTupleValue(exprValue).values()) {
+        if (v.type() == ExprCoreType.TIMESTAMP) {
+          ((ExprTimestampValue) v).setDatetimeFormat(datetimeFormat);
+        }
+      }
+    }
   }
 
   private String getColumnName(Column column) {

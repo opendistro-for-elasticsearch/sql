@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.legacy.rewriter.nestedfield;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.domain.Field;
+import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.legacy.rewriter.matchtoterm.VerificationException;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
@@ -34,6 +35,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_NESTED_LIMIT;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -143,7 +145,11 @@ public class NestedFieldProjection {
     private void buildInnerHit(List<String> fieldNames, NestedQueryBuilder query) {
         query.innerHit(new InnerHitBuilder().setFetchSourceContext(
                 new FetchSourceContext(true, fieldNames.toArray(new String[0]), null)
-        ));
+        ).setSize(this.queryNestedLimit()));
+    }
+
+    private int queryNestedLimit() {
+        return LocalClusterState.state().getSettingValue(QUERY_NESTED_LIMIT);
     }
 
     /**

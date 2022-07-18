@@ -22,13 +22,19 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 
 public class ComparisonUtil {
@@ -57,6 +63,14 @@ public class ComparisonUtil {
       return getDoubleValue(v1).compareTo(getDoubleValue(v2));
     } else if (v1 instanceof ExprStringValue) {
       return getStringValue(v1).compareTo(getStringValue(v2));
+    } else if (v1 instanceof ExprDateValue) {
+      return v1.dateValue().compareTo(v2.dateValue());
+    } else if (v1 instanceof ExprDatetimeValue) {
+      return v1.datetimeValue().compareTo(v2.datetimeValue());
+    } else if (v1 instanceof ExprTimeValue) {
+      return v1.timeValue().compareTo(v2.timeValue());
+    } else if (v1 instanceof ExprTimestampValue) {
+      return v1.timestampValue().compareTo(v2.timestampValue());
     } else {
       throw new ExpressionEvaluationException(
           String.format("%s instances are not comparable", v1.getClass().getSimpleName()));

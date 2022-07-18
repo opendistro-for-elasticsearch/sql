@@ -15,7 +15,7 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value;
+package com.amazon.opendistroforelasticsearch.sql.data.utils;
 
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
@@ -37,7 +37,7 @@ import lombok.experimental.UtilityClass;
  * Reference org.elasticsearch.common.time.DateFormatters.
  */
 @UtilityClass
-public class ElasticsearchDateFormatters {
+public class ExprDateFormatters {
 
   public static final DateTimeFormatter TIME_ZONE_FORMATTER_NO_COLON =
       new DateTimeFormatterBuilder()
@@ -73,7 +73,16 @@ public class ElasticsearchDateFormatters {
       new DateTimeFormatterBuilder()
           .append(STRICT_YEAR_MONTH_DAY_FORMATTER)
           .optionalStart()
+
+          // otherwise use space
+          .optionalStart()
+          .appendLiteral(' ')
+          .optionalEnd()
+          // optional T
+          .optionalStart()
           .appendLiteral('T')
+          .optionalEnd()
+
           .optionalStart()
           .appendValue(HOUR_OF_DAY, 2, 2, SignStyle.NOT_NEGATIVE)
           .optionalStart()
@@ -82,13 +91,18 @@ public class ElasticsearchDateFormatters {
           .optionalStart()
           .appendLiteral(':')
           .appendValue(SECOND_OF_MINUTE, 2, 2, SignStyle.NOT_NEGATIVE)
+
+          // optional millis with dot
           .optionalStart()
           .appendFraction(NANO_OF_SECOND, 1, 9, true)
           .optionalEnd()
+
+          // otherwise optional millis use with comma
           .optionalStart()
           .appendLiteral(',')
           .appendFraction(NANO_OF_SECOND, 1, 9, false)
           .optionalEnd()
+
           .optionalEnd()
           .optionalEnd()
           .optionalStart()
@@ -104,4 +118,11 @@ public class ElasticsearchDateFormatters {
 
   public static final DateTimeFormatter SQL_LITERAL_DATE_TIME_FORMAT = DateTimeFormatter
           .ofPattern("yyyy-MM-dd HH:mm:ss");
+
+  public static final DateTimeFormatter TOLERANT_PARSER_DATE_TIME_FORMATTER =
+      new DateTimeFormatterBuilder()
+          .appendOptional(STRICT_DATE_OPTIONAL_TIME_FORMATTER)
+          .appendOptional(SQL_LITERAL_DATE_TIME_FORMAT)
+          .appendOptional(STRICT_HOUR_MINUTE_SECOND_FORMATTER)
+          .toFormatter();
 }

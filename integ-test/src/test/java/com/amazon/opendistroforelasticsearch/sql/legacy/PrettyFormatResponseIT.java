@@ -76,6 +76,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     loadIndex(Index.PHRASE);
     loadIndex(Index.GAME_OF_THRONES);
     loadIndex(Index.NESTED);
+    loadIndex(Index.BOOKS_NESTED_WITH_SUBPROPERTIES);
   }
 
   @Override
@@ -517,6 +518,52 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     testFieldOrder(expectedFields, expectedValues);
   }
+
+  @Test
+  public void selectSubSubFieldOfNestedField() throws IOException {
+    JSONObject response = executeQuery(
+            String.format(Locale.ROOT, "SELECT nested(authors.info.name, authors), " +
+                    "performance.revenue " +
+                    "FROM %s", TestsConstants.TEST_INDEX_BOOKS));
+
+    List<String> fields = Arrays.asList("authors.info.name", "performance.revenue");
+    JSONArray dataRows = getDataRows(response);
+    assertContainsColumns(getSchema(response), fields);
+    assertContainsData(dataRows, fields);
+    assertEquals(3, dataRows.length());
+  }
+
+  @Test
+  public void selectMultipleNestedFields() throws IOException {
+    JSONObject response = executeQuery(
+            String.format(Locale.ROOT, "SELECT nested(authors.info.name, authors), " +
+                    "nested(performance.sells.year) " +
+                    "FROM %s", TestsConstants.TEST_INDEX_BOOKS));
+
+    List<String> fields = Arrays.asList("authors.info.name", "performance.sells.year");
+    JSONArray dataRows = getDataRows(response);
+    assertContainsColumns(getSchema(response), fields);
+    assertContainsData(dataRows, fields);
+    assertEquals(4, dataRows.length());
+  }
+
+  @Test
+  public void nestedFieldWithLimit() throws IOException {
+    JSONObject response = executeQuery(
+            String.format(Locale.ROOT, "SELECT nested(authors.info.name, authors) " +
+                    "FROM %s LIMIT 1", TestsConstants.TEST_INDEX_BOOKS));
+    assertEquals(1, getDataRows(response).length());
+  }
+
+  @Test
+  public void multipleNestedFieldsWithLimit() throws IOException, InterruptedException {
+    JSONObject response = executeQuery(
+            String.format(Locale.ROOT, "SELECT nested(authors.info.name, authors), " +
+                    "nested(performance.sells.year)" +
+                    "FROM %s LIMIT 3", TestsConstants.TEST_INDEX_BOOKS));
+    assertEquals(3, getDataRows(response).length());
+  }
+
 
   private void testFieldOrder(final String[] expectedFields, final Object[] expectedValues)
       throws IOException {

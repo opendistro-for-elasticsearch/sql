@@ -116,7 +116,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "doc['lastname'].value.indexOf('a',0)+1"
+                        "doc['lastname'].value.indexOf('a', 0) + 1"
                 )
         );
 
@@ -124,7 +124,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "doc['lastname'].value.indexOf('a',0)+1"
+                        "doc['lastname'].value.indexOf('a', 0) + 1"
                 )
         );
     }

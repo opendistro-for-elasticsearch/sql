@@ -16,18 +16,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue.INCLUDE_TIME_WHEN_NONZERO;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+
 import org.junit.jupiter.api.Test;
 
 class QueryResultTest {
@@ -35,6 +43,10 @@ class QueryResultTest {
   private ExecutionEngine.Schema schema = new ExecutionEngine.Schema(ImmutableList.of(
       new ExecutionEngine.Schema.Column("name", null, STRING),
       new ExecutionEngine.Schema.Column("age", null, INTEGER)));
+
+  private ExecutionEngine.Schema schemaTimestamp = new ExecutionEngine.Schema(ImmutableList.of(
+          new ExecutionEngine.Schema.Column("name", null, STRING),
+          new ExecutionEngine.Schema.Column("birthdate", null, TIMESTAMP)));
 
 
   @Test
@@ -118,6 +130,38 @@ class QueryResultTest {
         assertArrayEquals(new Object[] {"John", 20}, objects);
       } else if (i == 1) {
         assertArrayEquals(new Object[] {"Allen", 30}, objects);
+      } else {
+        fail("More rows returned than expected");
+      }
+      i++;
+    }
+  }
+
+  @Test
+  void setDateTimeFormatTest() {
+    LinkedHashMap<String, ExprValue> valueMap1 = new LinkedHashMap<>();
+    valueMap1.put("name", ExprValueUtils.fromObjectValue("John"));
+    valueMap1.put("birthdate", ExprValueUtils.fromObjectValue("1987-10-23 00:00:00", TIMESTAMP));
+
+    LinkedHashMap<String, ExprValue> valueMap2 = new LinkedHashMap<>();
+    valueMap2.put("name", ExprValueUtils.fromObjectValue("Andrea"));
+    valueMap2.put("birthdate", ExprValueUtils.fromObjectValue("1999-03-14 03:30:00", TIMESTAMP));
+
+    QueryResult response = new QueryResult(
+            schemaTimestamp,
+            Arrays.asList(
+                    new ExprTupleValue(valueMap1),
+                    new ExprTupleValue(valueMap2)
+            ));
+
+    response.setDatetimeFormat(INCLUDE_TIME_WHEN_NONZERO);
+
+    int i = 0;
+    for (Object[] objects : response) {
+      if (i == 0) {
+        assertArrayEquals(new Object[] {"John", "1987-10-23"}, objects);
+      } else if (i == 1) {
+        assertArrayEquals(new Object[] {"Andrea", "1999-03-14 03:30:00"}, objects);
       } else {
         fail("More rows returned than expected");
       }

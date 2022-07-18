@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue.ALWAYS_INCLUDE_TIME;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
@@ -47,7 +48,8 @@ import org.junit.jupiter.api.Test;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class JdbcResponseFormatterTest {
 
-  private final JdbcResponseFormatter formatter = new JdbcResponseFormatter(COMPACT);
+  private final JdbcResponseFormatter formatter = new JdbcResponseFormatter(COMPACT,
+          ALWAYS_INCLUDE_TIME);
 
   @Test
   void format_response() {

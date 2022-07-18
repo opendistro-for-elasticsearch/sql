@@ -40,12 +40,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprByteValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDateValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDatetimeValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprShortValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimeValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTimestampValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
@@ -148,6 +152,34 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(1)));
     builder.add(Arguments.of(new ExprShortValue(1), new ExprShortValue(2)));
     builder.add(Arguments.of(new ExprShortValue(2), new ExprShortValue(1)));
+
+    builder.add(Arguments.of(new ExprDatetimeValue("2006-01-01 00:00:01"),
+        new ExprStringValue("2006-01-01 00:00:00")));
+    builder.add(Arguments.of(new ExprDatetimeValue("2006-01-01 00:00:00"),
+        new ExprStringValue("2006-01-01 00:00:01")));
+    builder.add(Arguments.of(new ExprDatetimeValue("2006-01-01 00:00:00"),
+        new ExprStringValue("2006-01-01 00:00:00")));
+
+    builder.add(Arguments.of(new ExprDateValue("2006-01-01"),
+        new ExprStringValue("2006-01-01")));
+    builder.add(Arguments.of(new ExprDateValue("2006-01-01"),
+        new ExprStringValue("2006-01-02")));
+    builder.add(Arguments.of(new ExprDateValue("2006-01-02"),
+        new ExprStringValue("2006-01-01")));
+
+    builder.add(Arguments.of(new ExprTimestampValue("2006-01-01 00:00:01"),
+        new ExprStringValue("2006-01-01 00:00:00")));
+    builder.add(Arguments.of(new ExprTimestampValue("2006-01-01 00:00:00"),
+        new ExprStringValue("2006-01-01 00:00:01")));
+    builder.add(Arguments.of(new ExprTimestampValue("2006-01-01 00:00:00"),
+        new ExprStringValue("2006-01-01 00:00:00")));
+
+    builder.add(Arguments.of(new ExprTimeValue("00:00:01"),
+        new ExprStringValue("00:00:00")));
+    builder.add(Arguments.of(new ExprTimeValue("00:00:00"),
+        new ExprStringValue("00:00:01")));
+    builder.add(Arguments.of(new ExprTimeValue("00:00:00"),
+        new ExprStringValue("00:00:00")));
     return builder.build();
   }
 

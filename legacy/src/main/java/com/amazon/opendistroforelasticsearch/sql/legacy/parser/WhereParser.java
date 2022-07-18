@@ -214,7 +214,7 @@ public class WhereParser {
         if (sub instanceof SQLBinaryOpExpr && !isCond((SQLBinaryOpExpr) sub)) {
             SQLBinaryOpExpr binarySub = (SQLBinaryOpExpr) sub;
             if (binarySub.getOperator().priority != bExpr.getOperator().priority) {
-                Where subWhere = new Where(bExpr.getOperator().name);
+                Where subWhere = new Where(bExpr.getOperator().name, where.isJoin());
                 where.addWhere(subWhere);
                 parseWhere(binarySub, subWhere);
             } else {
@@ -291,7 +291,7 @@ public class WhereParser {
                     condition = new Condition(Where.CONN.valueOf(opear), soExpr.getLeft().toString(), soExpr.getLeft(),
                             soExpr.getOperator().name, parseValue(soExpr.getRight()), soExpr.getRight(), childrenType);
                 } else {
-                    SQLMethodInvokeExpr sqlMethodInvokeExpr = parseSQLBinaryOpExprWhoIsConditionInWhere(soExpr);
+                    SQLMethodInvokeExpr sqlMethodInvokeExpr = parseSQLBinaryOpExprWhoIsConditionInWhere(soExpr, where.isJoin());
                     if (sqlMethodInvokeExpr == null) {
                         condition = new Condition(Where.CONN.valueOf(opear), soExpr.getLeft().toString(),
                                 soExpr.getLeft(), soExpr.getOperator().name, parseValue(soExpr.getRight()),
@@ -536,10 +536,20 @@ public class WhereParser {
         );
     }
 
-    private SQLMethodInvokeExpr parseSQLBinaryOpExprWhoIsConditionInWhere(SQLBinaryOpExpr soExpr)
+    private SQLMethodInvokeExpr parseSQLBinaryOpExprWhoIsConditionInWhere(SQLBinaryOpExpr soExpr,
+        boolean join)
             throws SqlParseException {
 
-        if (bothSideAreNotFunction(soExpr) && bothSidesAreNotCast(soExpr)) {
+        if (
+            // if one of the two side is a method, it has to be resolved as script
+            neitherSideIsFunction(soExpr)
+            // if one of the two side is a cast, it has to be resolved as script
+            && neitherSidesIsCast(soExpr)
+            // if both sides are field, we cannot use the QueryRange (which would be more efficient
+            // `field > integer` comparisons) but ES doesn't allow comparing two fields and
+            // we must use a SCRIPT
+            && (!bothSidesAreFieldIdentifier(soExpr) || join)
+        ) {
             return null;
         }
 
@@ -600,6 +610,10 @@ public class WhereParser {
             operator = "==";
         }
 
+        if (operator.equals("<>")) {
+            operator = "!=";
+        }
+
         String finalStr = v1Dec + v2Dec + v1 + " " + operator + " " + v2;
 
         SQLMethodInvokeExpr scriptMethod = new SQLMethodInvokeExpr("script", null);
@@ -608,12 +622,20 @@ public class WhereParser {
 
     }
 
-    private Boolean bothSideAreNotFunction(SQLBinaryOpExpr soExpr) {
+    private Boolean neitherSideIsFunction(SQLBinaryOpExpr soExpr) {
         return !(soExpr.getLeft() instanceof SQLMethodInvokeExpr || soExpr.getRight() instanceof SQLMethodInvokeExpr);
     }
 
-    private Boolean bothSidesAreNotCast(SQLBinaryOpExpr soExpr) {
+    private Boolean neitherSidesIsCast(SQLBinaryOpExpr soExpr) {
         return !(soExpr.getLeft() instanceof SQLCastExpr || soExpr.getRight() instanceof SQLCastExpr);
+    }
+
+    private Boolean bothSidesAreFieldIdentifier(SQLBinaryOpExpr soExpr) {
+        return (soExpr.getLeft() instanceof SQLIdentifierExpr && soExpr.getRight() instanceof SQLIdentifierExpr)
+            // "missing" is a SQLIdentifier but not a Field Identifier.
+            // We might want to have a subclass for "missing" or for "fieldIdentifier" or
+            // change type altogether to avoid conflicts
+            && !"missing".equalsIgnoreCase(((SQLIdentifierExpr) soExpr.getRight()).getLowerName());
     }
 
     private Object[] getMethodValuesWithSubQueries(SQLMethodInvokeExpr method) throws SqlParseException {

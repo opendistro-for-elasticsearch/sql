@@ -17,8 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.*;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import org.json.JSONObject;
@@ -29,6 +28,7 @@ public class JdbcFormatIT extends SQLIntegTestCase {
   @Override
   protected void init() throws Exception {
     loadIndex(Index.BANK);
+    loadIndex(Index.DATETIME);
   }
 
   @Test

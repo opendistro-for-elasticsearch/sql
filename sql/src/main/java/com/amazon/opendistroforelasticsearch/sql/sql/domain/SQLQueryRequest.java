@@ -42,6 +42,7 @@ public class SQLQueryRequest {
   private static final Set<String> SUPPORTED_FIELDS = ImmutableSet.of(
       "query", "fetch_size", "parameters");
   private static final String QUERY_PARAMS_FORMAT = "format";
+  private static final String QUERY_PARAMS_DATETIMEFORMAT = "datetime_format";
   private static final String QUERY_PARAMS_SANITIZE = "sanitize";
 
   /**
@@ -140,6 +141,10 @@ public class SQLQueryRequest {
       return params.get(QUERY_PARAMS_FORMAT);
     }
     return "jdbc";
+  }
+
+  public String getDatetimeFormat() {
+    return params.getOrDefault(QUERY_PARAMS_DATETIMEFORMAT, "always_include_time");
   }
 
   private boolean shouldSanitize(Map<String, String> params) {
