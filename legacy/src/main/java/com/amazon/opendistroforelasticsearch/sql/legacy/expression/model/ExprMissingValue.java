@@ -15,10 +15,25 @@
 
 package com.amazon.opendistroforelasticsearch.sql.legacy.expression.model;
 
+import java.util.Set;
+
 /**
  * The definition of the missing value.
  */
 public class ExprMissingValue implements ExprValue {
+    private final String missingValue;
+    private final Set<String> availableValues;
+
+    public ExprMissingValue(String missingValue, Set<String> availableValues) {
+        this.missingValue = missingValue;
+        this.availableValues = availableValues;
+    }
+
+    @Override
+    public Object value() {
+        throw new IllegalStateException("invalid value operation on " + kind() + " (" + this.missingValue + "), available: " + this.availableValues.toString());
+    }
+
     @Override
     public ExprValueKind kind() {
         return ExprValueKind.MISSING_VALUE;
