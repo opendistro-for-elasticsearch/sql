@@ -31,16 +31,34 @@ public class Where implements Cloneable {
         return new Where(CONN.AND);
     }
 
+    public static Where newInstance(boolean isJoin) {
+        return new Where(CONN.AND, isJoin);
+    }
+
     private LinkedList<Where> wheres = new LinkedList<>();
 
     protected CONN conn;
+    protected final boolean isJoin;
 
     public Where(String connStr) {
-        this.conn = CONN.valueOf(connStr.toUpperCase());
+        this(connStr, false);
+    }
+
+    public Where(String connStr, boolean isJoin) {
+        this(CONN.valueOf(connStr.toUpperCase()), isJoin);
     }
 
     public Where(CONN conn) {
+        this(conn, false);
+    }
+
+    public Where(CONN conn, boolean isJoin) {
         this.conn = conn;
+        this.isJoin=isJoin;
+    }
+
+    public boolean isJoin() {
+        return isJoin;
     }
 
     public void addWhere(Where where) {

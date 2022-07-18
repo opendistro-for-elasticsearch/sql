@@ -448,7 +448,7 @@ public class SqlParser {
             throws SqlParseException {
         JoinSelect joinSelect = new JoinSelect();
         if (joinTableSource.getCondition() != null) {
-            Where where = Where.newInstance();
+            Where where = Where.newInstance(true);
             WhereParser whereParser = new WhereParser(this, joinTableSource.getCondition());
             whereParser.parseWhere(joinTableSource.getCondition(), where);
             joinSelect.setConnectedWhere(where);
