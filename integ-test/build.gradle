@@ -30,6 +30,7 @@ configurations.all {
     resolutionStrategy.force 'com.google.guava:guava:29.0-jre'
     resolutionStrategy.force 'com.fasterxml.jackson.core:jackson-core:2.10.5'
     resolutionStrategy.force 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.11.4'
+    resolutionStrategy.force 'com.google.code.gson:gson:2.8.9'
 }
 
 dependencies {
@@ -50,7 +51,7 @@ dependencies {
     }
     testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
     testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
-    testCompile group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
+    testCompile group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
 }
 
 dependencyLicenses.enabled = false

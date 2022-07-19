@@ -39,7 +39,7 @@ configurations.all {
 }
 
 dependencies {
-    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.20.RELEASE'
     compile project(":ppl")
     compile project(':legacy')
     compile project(':elasticsearch')
